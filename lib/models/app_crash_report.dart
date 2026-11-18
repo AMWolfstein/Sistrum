@@ -1,5 +1,5 @@
-import 'package:mornye/constants/app_info.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/constants/app_info.dart';
+import 'package:sistrum/utils/logger.dart';
 
 class AppCrashReport {
   AppCrashReport.fromMap(Map<String, dynamic> values)

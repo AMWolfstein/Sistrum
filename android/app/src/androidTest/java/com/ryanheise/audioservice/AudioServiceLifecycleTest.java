@@ -41,7 +41,7 @@ public class AudioServiceLifecycleTest {
     public void playbackLeaseRenewsAcrossTimeoutsAndStopsAfterRelease() {
         Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         PowerManager power = (PowerManager) instrumentation.getTargetContext().getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock lock = power.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "mornye:lease-test");
+        PowerManager.WakeLock lock = power.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "sistrum:lease-test");
         PlaybackWakeLock lease = new PlaybackWakeLock(lock, new Handler(Looper.getMainLooper()), 1000, 100);
         try {
             instrumentation.runOnMainSync(lease::acquire);
@@ -63,7 +63,7 @@ public class AudioServiceLifecycleTest {
     public void abandonedPlaybackLeaseExpiresWithoutRenewal() {
         Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         PowerManager power = (PowerManager) instrumentation.getTargetContext().getSystemService(Context.POWER_SERVICE);
-        PowerManager.WakeLock lock = power.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "mornye:lease-expiry-test");
+        PowerManager.WakeLock lock = power.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "sistrum:lease-expiry-test");
         Handler handler = new Handler(Looper.getMainLooper());
         PlaybackWakeLock lease = new PlaybackWakeLock(lock, handler, 500, 100);
         try {
@@ -83,7 +83,7 @@ public class AudioServiceLifecycleTest {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
         String[] resources = {
             "mipmap/ic_launcher", "drawable/ic_launcher_monochrome",
-            "drawable/ic_notification_mornye",
+            "drawable/ic_notification_sistrum",
             "drawable/ic_notification_airplay", "drawable/ic_notification_star",
             "drawable/ic_notification_star_filled", "drawable/ic_notification_shuffle",
             "drawable/ic_notification_shuffle_on", "drawable/ic_widget_previous",
@@ -105,7 +105,7 @@ public class AudioServiceLifecycleTest {
     @Test
     public void notificationMarkFillsTheStatusBarGridWithoutClipping() {
         Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        int id = AudioServicePlugin.resolveResourceId(context, "drawable/ic_notification_mornye");
+        int id = AudioServicePlugin.resolveResourceId(context, "drawable/ic_notification_sistrum");
         for (int size : new int[] {24, 36, 48, 72, 96}) {
             Drawable drawable = context.getDrawable(id);
             Bitmap bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);

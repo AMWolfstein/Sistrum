@@ -1,7 +1,7 @@
 use super::{RepositoryError, cause, error, normalize_sha256};
-use mornye_core::filename::sanitize_filename;
-use mornye_core::matching::lowercase;
-use mornye_network::url::UrlParts;
+use sistrum_core::filename::sanitize_filename;
+use sistrum_core::matching::lowercase;
+use sistrum_network::url::UrlParts;
 use sha2::{Digest, Sha256};
 use std::fs;
 use std::io::Write;

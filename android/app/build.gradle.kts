@@ -33,21 +33,21 @@ if (keystorePropertiesFile.exists()) {
 }
 
 val rustBackendDir = rootProject.file("../rust_backend")
-val rustAndroidAbis = providers.environmentVariable("MORNYE_RUST_ANDROID_ABIS")
+val rustAndroidAbis = providers.environmentVariable("SISTRUM_RUST_ANDROID_ABIS")
     .orElse("arm64-v8a,armeabi-v7a")
     .get()
     .split(",")
 val supportedRustAndroidAbis = setOf("arm64-v8a", "armeabi-v7a")
-val discordSdkEnabled = providers.environmentVariable("MORNYE_DISCORD_SDK").orElse("1").get() != "0"
+val discordSdkEnabled = providers.environmentVariable("SISTRUM_DISCORD_SDK").orElse("1").get() != "0"
 require(rustAndroidAbis.size == rustAndroidAbis.toSet().size) {
-    "MORNYE_RUST_ANDROID_ABIS must not contain duplicate ABIs"
+    "SISTRUM_RUST_ANDROID_ABIS must not contain duplicate ABIs"
 }
 require(rustAndroidAbis.all { it in supportedRustAndroidAbis }) {
-    "MORNYE_RUST_ANDROID_ABIS must contain only arm64-v8a and/or armeabi-v7a"
+    "SISTRUM_RUST_ANDROID_ABIS must contain only arm64-v8a and/or armeabi-v7a"
 }
 
 android {
-    namespace = "com.zarz.mornye"
+    namespace = "com.amwolfstein.sistrum"
     compileSdk = 37
     ndkVersion = "30.0.16248370"
 
@@ -101,7 +101,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.zarz.mornye"
+        applicationId = "com.amwolfstein.sistrum"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         minSdk = flutter.minSdkVersion
         targetSdk = 37
@@ -172,7 +172,7 @@ android {
 val buildRustBackend = tasks.register<Exec>("buildRustBackend") {
     workingDir(rootProject.projectDir.parentFile)
     commandLine("bash", "scripts/build_rust_backend.sh", "android")
-    environment("MORNYE_RUST_ANDROID_ABIS", rustAndroidAbis.joinToString(","))
+    environment("SISTRUM_RUST_ANDROID_ABIS", rustAndroidAbis.joinToString(","))
     environment(
         "ANDROID_NDK_HOME",
         System.getenv("ANDROID_NDK_HOME")
@@ -182,7 +182,7 @@ val buildRustBackend = tasks.register<Exec>("buildRustBackend") {
         include("**/*.rs", "**/*.toml", "**/*.lock", "**/*.js", "**/*.tsv", "**/*.pem")
         exclude("target/**", "smoke/**")
     })
-    inputs.property("MORNYE_RUST_ANDROID_ABIS", rustAndroidAbis.joinToString(","))
+    inputs.property("SISTRUM_RUST_ANDROID_ABIS", rustAndroidAbis.joinToString(","))
     inputs.file(rootProject.file("../scripts/build_rust_backend.sh"))
     outputs.dir(rustBackendDir.resolve("target/bindings/kotlin"))
     outputs.dir(rustBackendDir.resolve("target/android/jniLibs"))

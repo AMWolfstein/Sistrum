@@ -3,11 +3,11 @@ import 'dart:io';
 
 import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
-import 'package:mornye/services/backend/native_backend_transport.dart';
+import 'package:sistrum/services/backend/native_backend_transport.dart';
 import 'package:path/path.dart' as p;
 
 /// Absolute library path that takes precedence over the bundled location.
-const desktopBackendLibraryEnvironmentKey = 'MORNYE_DESKTOP_LIB';
+const desktopBackendLibraryEnvironmentKey = 'SISTRUM_DESKTOP_LIB';
 
 typedef _CallbackNative =
     Void Function(Uint64 id, Int32 kind, Pointer<Uint8> data, Size len);
@@ -65,14 +65,14 @@ List<String> desktopBackendLibraryCandidates({
         context.join(
           context.dirname(executableDir),
           'Frameworks',
-          'libmornye_desktop.dylib',
+          'libsistrum_desktop.dylib',
         ),
       );
     case 'windows':
-      candidates.add(context.join(executableDir, 'mornye_desktop.dll'));
+      candidates.add(context.join(executableDir, 'sistrum_desktop.dll'));
     case 'linux':
       candidates.add(
-        context.join(executableDir, 'lib', 'libmornye_desktop.so'),
+        context.join(executableDir, 'lib', 'libsistrum_desktop.so'),
       );
   }
   return candidates;
@@ -101,18 +101,18 @@ DynamicLibrary _openDesktopBackendLibrary() {
 }
 
 /// [NativeBackendTransport] over the exported C functions of
-/// `mornye_desktop`.
+/// `sistrum_desktop`.
 final class FfiBackendTransport implements NativeBackendTransport {
   FfiBackendTransport._(DynamicLibrary library)
-    : _init = library.lookupFunction<_InitNative, _InitDart>('mornye_init'),
-      _call = library.lookupFunction<_CallNative, _CallDart>('mornye_call'),
+    : _init = library.lookupFunction<_InitNative, _InitDart>('sistrum_init'),
+      _call = library.lookupFunction<_CallNative, _CallDart>('sistrum_call'),
       _subscribe = library.lookupFunction<_KindNative, _KindDart>(
-        'mornye_subscribe',
+        'sistrum_subscribe',
       ),
       _unsubscribe = library.lookupFunction<_KindNative, _KindDart>(
-        'mornye_unsubscribe',
+        'sistrum_unsubscribe',
       ),
-      _free = library.lookupFunction<_FreeNative, _FreeDart>('mornye_free');
+      _free = library.lookupFunction<_FreeNative, _FreeDart>('sistrum_free');
 
   /// Opens the library from [desktopBackendLibraryEnvironmentKey] or the
   /// bundled location. Throws when it cannot be loaded.

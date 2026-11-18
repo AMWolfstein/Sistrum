@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/features/link_desktop_remote.dart';
-import 'package:mornye/services/link/features/link_phone_client.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/features/link_desktop_remote.dart';
+import 'package:sistrum/services/link/features/link_phone_client.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
 
 import 'support/link_fakes.dart';
 

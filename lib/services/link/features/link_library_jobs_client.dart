@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/services/link/features/link_phone_client.dart';
-import 'package:mornye/services/link/features/link_library_reconcile.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_library_jobs.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/link/features/link_phone_client.dart';
+import 'package:sistrum/services/link/features/link_library_reconcile.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_library_jobs.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/utils/logger.dart';
 
 class LinkLibraryJobsState {
   const LinkLibraryJobsState({

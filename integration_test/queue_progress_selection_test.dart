@@ -2,9 +2,9 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:mornye/models/download_item.dart';
-import 'package:mornye/providers/download_queue_state.dart';
-import 'package:mornye/utils/chunked_list.dart';
+import 'package:sistrum/models/download_item.dart';
+import 'package:sistrum/providers/download_queue_state.dart';
+import 'package:sistrum/utils/chunked_list.dart';
 
 import '../test/support/queue_removal_benchmark.dart';
 

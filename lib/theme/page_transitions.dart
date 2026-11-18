@@ -1,7 +1,7 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
-import 'package:mornye/theme/app_motion.dart';
+import 'package:sistrum/theme/app_motion.dart';
 
 // Every map avoids Flutter's Android default,
 // PredictiveBackPageTransitionsBuilder: its gesture detector mis-routes the

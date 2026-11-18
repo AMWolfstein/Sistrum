@@ -2,20 +2,20 @@ import 'dart:io' show exit;
 
 import 'package:material_ui/material_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:mornye/constants/app_info.dart';
-import 'package:mornye/services/update_checker.dart';
-import 'package:mornye/services/apk_downloader.dart';
-import 'package:mornye/services/desktop_diagnostics.dart';
-import 'package:mornye/services/desktop_updater.dart';
-import 'package:mornye/services/notification_service.dart';
-import 'package:mornye/services/update_progress_notifications.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/utils/string_utils.dart';
-import 'package:mornye/widgets/app_alert_dialog.dart';
-import 'package:mornye/widgets/app_action_button.dart';
-import 'package:mornye/widgets/app_loading_indicator.dart';
-import 'package:mornye/widgets/app_progress_indicator.dart';
-import 'package:mornye/theme/mornye_theme.dart';
+import 'package:sistrum/constants/app_info.dart';
+import 'package:sistrum/services/update_checker.dart';
+import 'package:sistrum/services/apk_downloader.dart';
+import 'package:sistrum/services/desktop_diagnostics.dart';
+import 'package:sistrum/services/desktop_updater.dart';
+import 'package:sistrum/services/notification_service.dart';
+import 'package:sistrum/services/update_progress_notifications.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/utils/string_utils.dart';
+import 'package:sistrum/widgets/app_alert_dialog.dart';
+import 'package:sistrum/widgets/app_action_button.dart';
+import 'package:sistrum/widgets/app_loading_indicator.dart';
+import 'package:sistrum/widgets/app_progress_indicator.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 
 class UpdateDialog extends StatefulWidget {
   final UpdateInfo updateInfo;

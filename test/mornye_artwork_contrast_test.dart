@@ -5,8 +5,8 @@ import 'dart:ui' as ui;
 
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/widgets/mornye_artwork_contrast.dart';
-import 'package:mornye/widgets/mornye_player_background.dart';
+import 'package:sistrum/widgets/mornye_artwork_contrast.dart';
+import 'package:sistrum/widgets/mornye_player_background.dart';
 
 /// Records in [reports] when the readings turn the dark layer on or off.
 ValueChanged<double> changes(List<bool> reports) => (strength) {

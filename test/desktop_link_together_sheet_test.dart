@@ -1,16 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/services/link/desktop/link_desktop_backend.dart';
-import 'package:mornye/services/link/desktop/link_desktop_host.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/desktop/desktop_link_devices_button.dart';
-import 'package:mornye/widgets/desktop/desktop_link_devices_sheet.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_backend.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_host.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/widgets/desktop/desktop_link_devices_button.dart';
+import 'package:sistrum/widgets/desktop/desktop_link_devices_sheet.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
 import 'support/tooltip_finder.dart';
 

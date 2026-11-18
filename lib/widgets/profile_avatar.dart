@@ -3,9 +3,9 @@ import 'dart:typed_data';
 
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/user_profile_provider.dart';
-import 'package:mornye/services/shell_navigation_service.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/user_profile_provider.dart';
+import 'package:sistrum/services/shell_navigation_service.dart';
 
 class ProfileAvatar extends StatelessWidget {
   const ProfileAvatar({

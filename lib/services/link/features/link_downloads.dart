@@ -1,6 +1,6 @@
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_protocol.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
 
 /// One download in the desktop's queue (`GET downloads`,
 /// `downloads.changed`).

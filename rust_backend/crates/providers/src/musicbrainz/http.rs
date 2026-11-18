@@ -1,7 +1,7 @@
 use super::{Fetch, MusicBrainzOptions, Outcome, POLL};
 use crate::resolver::{Check, ResolverError, urls::query_escape};
-use mornye_core::lyrics::decode_response;
-use mornye_network::{
+use sistrum_core::lyrics::decode_response;
+use sistrum_network::{
     HttpRequest, HttpStream, NetworkService, NetworkSession, random_user_agent, url::UrlParts,
 };
 use std::collections::BTreeMap;

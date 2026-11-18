@@ -2,12 +2,12 @@ import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/desktop/desktop_scroll_arrows.dart';
-import 'package:mornye/widgets/mornye_chrome.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/widgets/desktop/desktop_scroll_arrows.dart';
+import 'package:sistrum/widgets/mornye_chrome.dart';
 
 import 'support/tooltip_finder.dart';
 

@@ -1,9 +1,9 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/theme/material_expressive.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_icon_button.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/theme/material_expressive.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_icon_button.dart';
 
 /// One row of an [AppMenuButton].
 class AppMenuItem<T extends Object> {

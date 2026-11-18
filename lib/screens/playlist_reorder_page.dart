@@ -1,15 +1,15 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/library_collections_provider.dart';
-import 'package:mornye/theme/app_tokens.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_snack_bar.dart';
-import 'package:mornye/widgets/cached_cover_image.dart';
-import 'package:mornye/widgets/discard_changes_dialog.dart';
-import 'package:mornye/widgets/priority_settings_scaffold.dart';
-import 'package:mornye/widgets/track_card.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/library_collections_provider.dart';
+import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/utils/adaptive_layout.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_snack_bar.dart';
+import 'package:sistrum/widgets/cached_cover_image.dart';
+import 'package:sistrum/widgets/discard_changes_dialog.dart';
+import 'package:sistrum/widgets/priority_settings_scaffold.dart';
+import 'package:sistrum/widgets/track_card.dart';
 
 /// Reorders one playlist. Rows drag by their handle or after a long press,
 /// so a touch drag elsewhere still scrolls a long playlist.

@@ -4,17 +4,17 @@ import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/services/playback_deck.dart';
-import 'package:mornye/services/playback_equalizer.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/services/playback_deck.dart';
+import 'package:sistrum/services/playback_equalizer.dart';
 
 final _log = AppLogger('AudioOutput');
 
 /// [url] marked for the Darwin audioplayers fork as a file still arriving.
 /// The fork then prepares it without indexing its timing first, which would
 /// read to the end of a file still being written and time out (see
-/// third_party/audioplayers_darwin/MORNYE_PATCHES.md).
+/// third_party/audioplayers_darwin/SISTRUM_PATCHES.md).
 @visibleForTesting
 String darwinArrivingUrl(String url) => '$url#mornye-arriving';
 
@@ -248,8 +248,8 @@ class AudioplayersPlaybackDeck implements PlaybackDeck {
   @visibleForTesting
   static bool? debugChainsPlayers;
 
-  static const _channel = MethodChannel('com.zarz.mornye/usb_pcm');
-  static const _events = EventChannel('com.zarz.mornye/usb_pcm/events');
+  static const _channel = MethodChannel('com.amwolfstein.sistrum/usb_pcm');
+  static const _events = EventChannel('com.amwolfstein.sistrum/usb_pcm/events');
 
   /// Lets the next Direct USB song ask for USB access again after the user
   /// declined it this session.

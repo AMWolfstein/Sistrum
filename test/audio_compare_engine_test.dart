@@ -4,12 +4,12 @@ import 'dart:typed_data';
 
 import 'package:ffmpeg_kit_flutter_new_audio/media_information.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/audio_analysis_ffmpeg.dart';
-import 'package:mornye/services/audio_analysis_jobs.dart';
-import 'package:mornye/services/audio_compare_dsp.dart';
-import 'package:mornye/services/audio_compare_engine.dart';
-import 'package:mornye/services/ffmpeg_desktop.dart';
-import 'package:mornye/services/ffmpeg_models.dart';
+import 'package:sistrum/services/audio_analysis_ffmpeg.dart';
+import 'package:sistrum/services/audio_analysis_jobs.dart';
+import 'package:sistrum/services/audio_compare_dsp.dart';
+import 'package:sistrum/services/audio_compare_engine.dart';
+import 'package:sistrum/services/ffmpeg_desktop.dart';
+import 'package:sistrum/services/ffmpeg_models.dart';
 
 MediaInformation _media({
   String codec = 'flac',

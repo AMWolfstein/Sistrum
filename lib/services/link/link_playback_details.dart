@@ -4,15 +4,15 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as p;
-import 'package:mornye/services/cover_store.dart';
-import 'package:mornye/services/downloaded_embedded_cover_resolver.dart';
-import 'package:mornye/services/link/desktop/link_player.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_cover_shrink.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/services/playback_metadata.dart';
-import 'package:mornye/utils/int_utils.dart';
+import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
+import 'package:sistrum/services/link/desktop/link_player.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_cover_shrink.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/services/playback_metadata.dart';
+import 'package:sistrum/utils/int_utils.dart';
 
 const _maxCoverBytes = 256 * 1024;
 final _windowsPaths = p.Context(style: p.Style.windows);
@@ -152,7 +152,7 @@ Future<PlayableMedia?> readLinkPlaybackDetails({
             var cached = covers.cachedFile(key);
             if (cached == null) {
               final temp = await Directory.systemTemp.createTemp(
-                'mornye-link-cover-',
+                'sistrum-link-cover-',
               );
               try {
                 final file = File('${temp.path}/cover.png');

@@ -3,16 +3,16 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
-import 'package:mornye/services/link/client/link_client_controller.dart';
-import 'package:mornye/services/link/client/link_client_discovery.dart';
-import 'package:mornye/services/link/client/link_client_library.dart';
-import 'package:mornye/services/link/client/link_client_pairing.dart';
-import 'package:mornye/services/link/client/link_client_session.dart';
-import 'package:mornye/services/link/client/link_client_store.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/local_network_access.dart';
-import 'package:mornye/services/network_storage_service.dart';
+import 'package:sistrum/services/link/client/link_client_controller.dart';
+import 'package:sistrum/services/link/client/link_client_discovery.dart';
+import 'package:sistrum/services/link/client/link_client_library.dart';
+import 'package:sistrum/services/link/client/link_client_pairing.dart';
+import 'package:sistrum/services/link/client/link_client_session.dart';
+import 'package:sistrum/services/link/client/link_client_store.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/local_network_access.dart';
+import 'package:sistrum/services/network_storage_service.dart';
 
 /// A stable fake certificate fingerprint per server id.
 String linkTestFingerprint(String serverId) =>

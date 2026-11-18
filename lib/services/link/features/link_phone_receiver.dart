@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:flutter/foundation.dart';
-import 'package:mornye/services/link/features/link_phone_client.dart';
-import 'package:mornye/services/link/features/link_save_offline.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/link/link_transfers.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/link/features/link_phone_client.dart';
+import 'package:sistrum/services/link/features/link_save_offline.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/link_transfers.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('LinkPhoneReceiver');
 

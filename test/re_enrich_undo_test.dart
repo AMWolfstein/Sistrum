@@ -1,13 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/controllers/local_track_batch_actions.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/batch_metadata_re_enrich.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/metadata_persistence_service.dart';
-import 'package:mornye/services/re_enrich_undo.dart';
-import 'package:mornye/services/re_enrich_undo_store.dart';
+import 'package:sistrum/controllers/local_track_batch_actions.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/batch_metadata_re_enrich.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/metadata_persistence_service.dart';
+import 'package:sistrum/services/re_enrich_undo.dart';
+import 'package:sistrum/services/re_enrich_undo_store.dart';
 import 'package:path/path.dart' as p;
 
 void main() {

@@ -6,19 +6,19 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/download_history_provider.dart';
-import 'package:mornye/providers/player_artwork_video_provider.dart';
-import 'package:mornye/providers/player_motion_artwork_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/screens/downloaded_album_screen.dart';
-import 'package:mornye/screens/local_album_screen.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/motion_artwork_store.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/mornye_player_artwork.dart';
-import 'package:mornye/widgets/motion_header_banner.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/providers/player_artwork_video_provider.dart';
+import 'package:sistrum/providers/player_motion_artwork_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/screens/downloaded_album_screen.dart';
+import 'package:sistrum/screens/local_album_screen.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/motion_artwork_store.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/mornye_player_artwork.dart';
+import 'package:sistrum/widgets/motion_header_banner.dart';
 import 'package:video_player_platform_interface/video_player_platform_interface.dart';
 
 class _VideoPlatform extends VideoPlayerPlatform {
@@ -208,7 +208,7 @@ void main() {
           final platform = _VideoPlatform();
           VideoPlayerPlatform.instance = platform;
           addTearDown(() => VideoPlayerPlatform.instance = previous);
-          const channel = MethodChannel('com.zarz.mornye/backend');
+          const channel = MethodChannel('com.amwolfstein.sistrum/backend');
           final messenger =
               TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
           messenger.setMockMethodCallHandler(channel, (_) async => null);

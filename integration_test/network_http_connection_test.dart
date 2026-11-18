@@ -5,9 +5,9 @@ import 'dart:typed_data';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/secure_storage_options.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/secure_storage_options.dart';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();

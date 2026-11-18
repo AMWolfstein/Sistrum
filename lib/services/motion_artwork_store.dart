@@ -4,13 +4,13 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:mornye/services/ffmpeg_probe.dart';
-import 'package:mornye/services/ffmpeg_support.dart';
-import 'package:mornye/services/motion_artwork_download.dart';
-import 'package:mornye/services/motion_artwork_proxy.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/string_utils.dart';
+import 'package:sistrum/services/ffmpeg_probe.dart';
+import 'package:sistrum/services/ffmpeg_support.dart';
+import 'package:sistrum/services/motion_artwork_download.dart';
+import 'package:sistrum/services/motion_artwork_proxy.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/string_utils.dart';
 
 typedef MotionArtworkAlbum = ({String album, String artist});
 

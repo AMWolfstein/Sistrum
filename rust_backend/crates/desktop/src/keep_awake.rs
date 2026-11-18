@@ -175,7 +175,7 @@ mod platform {
         let (stop, stopped) = mpsc::channel::<()>();
         let (started, result) = mpsc::channel::<bool>();
         let handle = std::thread::Builder::new()
-            .name("mornye-keep-awake".into())
+            .name("sistrum-keep-awake".into())
             .spawn(move || {
                 // SAFETY: plain Win32 call without pointers.
                 let previous =
@@ -231,7 +231,7 @@ mod platform {
         let mut child = Command::new("systemd-inhibit")
             .args([
                 "--what=idle:sleep",
-                "--who=Mornye",
+                "--who=Sistrum",
                 why.as_str(),
                 "--mode=block",
                 "cat",
@@ -296,7 +296,7 @@ mod tests {
     #[test]
     fn macos_assertion_round_trip() {
         let keep = KeepAwake::default();
-        keep.begin("Mornye test assertion").unwrap();
+        keep.begin("Sistrum test assertion").unwrap();
         assert!(keep.end());
     }
 }

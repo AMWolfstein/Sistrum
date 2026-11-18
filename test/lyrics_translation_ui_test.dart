@@ -10,27 +10,27 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:mornye/controllers/player_metadata_controller.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/models/theme_settings.dart';
-import 'package:mornye/providers/lyrics_translation_provider.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/screens/settings/lyrics_ai_translation_page.dart';
-import 'package:mornye/services/lyrics_ai_client.dart';
-import 'package:mornye/services/lyrics_sidecar.dart';
-import 'package:mornye/services/lyrics_translation.dart';
-import 'package:mornye/services/lyrics_translation_sharing.dart';
-import 'package:mornye/services/source_metadata_events.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
-import 'package:mornye/utils/playback_seek_preview.dart';
-import 'package:mornye/widgets/lyrics_options_button.dart';
-import 'package:mornye/widgets/lyrics_options_activity.dart';
-import 'package:mornye/widgets/player_lyrics_section.dart';
+import 'package:sistrum/controllers/player_metadata_controller.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/models/theme_settings.dart';
+import 'package:sistrum/providers/lyrics_translation_provider.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/screens/settings/lyrics_ai_translation_page.dart';
+import 'package:sistrum/services/lyrics_ai_client.dart';
+import 'package:sistrum/services/lyrics_sidecar.dart';
+import 'package:sistrum/services/lyrics_translation.dart';
+import 'package:sistrum/services/lyrics_translation_sharing.dart';
+import 'package:sistrum/services/source_metadata_events.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
+import 'package:sistrum/utils/playback_seek_preview.dart';
+import 'package:sistrum/widgets/lyrics_options_button.dart';
+import 'package:sistrum/widgets/lyrics_options_activity.dart';
+import 'package:sistrum/widgets/player_lyrics_section.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'lyrics_translation_provider_test.dart' show MemoryLyricsAiKeyStore;
@@ -152,7 +152,7 @@ Widget _app({
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const channel = MethodChannel('com.zarz.mornye/backend');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
   var parsedReplies = 0;

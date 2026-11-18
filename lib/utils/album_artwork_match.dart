@@ -1,5 +1,5 @@
-import 'package:mornye/utils/provider_resource_ids.dart';
-import 'package:mornye/utils/string_utils.dart';
+import 'package:sistrum/utils/provider_resource_ids.dart';
+import 'package:sistrum/utils/string_utils.dart';
 
 /// A Local Library album that artwork is looked up for.
 class ArtworkAlbum {

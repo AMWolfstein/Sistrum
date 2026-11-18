@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/folder_cover_file.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/song_folder_file.dart';
+import 'package:sistrum/services/folder_cover_file.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/song_folder_file.dart';
 import 'package:path/path.dart' as p;
 
 const _jpeg = [0xff, 0xd8, 0xff, 0xe0, 1, 2, 3];

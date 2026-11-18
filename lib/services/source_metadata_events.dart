@@ -1,5 +1,5 @@
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/services/library_database.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/services/library_database.dart';
 
 /// Confirmed tag changes, shared by playback and already-open details.
 /// A failed reader must not turn a successful file edit into a failed job.

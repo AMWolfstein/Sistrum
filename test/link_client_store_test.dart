@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/client/link_client_store.dart';
-import 'package:mornye/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/client/link_client_store.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 LinkServerRecord _record(String id, {String address = 'https://10.0.0.2:1'}) =>

@@ -2,10 +2,10 @@ import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/controllers/track_history_snapshot.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/providers/download_history_provider.dart';
-import 'package:mornye/services/history_database.dart';
+import 'package:sistrum/controllers/track_history_snapshot.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/services/history_database.dart';
 
 class _History extends DownloadHistoryNotifier {
   @override

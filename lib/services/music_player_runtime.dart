@@ -5,55 +5,55 @@ import 'package:audio_service/audio_service.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/l10n/supported_locales.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/alsa_output_devices.dart';
-import 'package:mornye/services/app_state_database.dart';
-import 'package:mornye/services/exclusive_output_deck.dart';
-import 'package:mornye/services/file_access_check.dart';
-import 'package:mornye/services/ffmpeg_support.dart' show FFmpegExecution;
-import 'package:mornye/services/autoplay_personalization.dart';
-import 'package:mornye/services/autoplay_ranker.dart';
-import 'package:mornye/services/autoplay_taste.dart';
-import 'package:mornye/services/background_favorites.dart';
-import 'package:mornye/services/cover_store.dart';
-import 'package:mornye/services/cast_output.dart';
-import 'package:mornye/services/cast_playback_deck.dart';
-import 'package:mornye/services/discord_presence_service.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/download_file_recovery.dart';
-import 'package:mornye/services/library_collections_database.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/listening_statistics.dart';
-import 'package:mornye/services/lastfm/lastfm_service.dart';
-import 'package:mornye/services/listenbrainz/listenbrainz_service.dart';
-import 'package:mornye/services/lock_screen_lyrics.dart';
-import 'package:mornye/services/media3_playback_deck.dart';
-import 'package:mornye/services/media_kit_playback_deck.dart';
-import 'package:mornye/services/media_library_browser.dart';
-import 'package:mornye/services/media_session_art_cache.dart';
-import 'package:mornye/services/media_session_desktop.dart';
-import 'package:mornye/services/media_session_filter.dart';
-import 'package:mornye/services/music_playback_deck.dart';
-import 'package:mornye/services/music_player_service.dart';
-import 'package:mornye/services/network_metadata_service.dart';
-import 'package:mornye/services/network_playback_cache.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/playback_deck.dart';
-import 'package:mornye/services/playback_notification.dart';
-import 'package:mornye/services/playback_output_volume.dart';
-import 'package:mornye/services/player_widget_service.dart';
-import 'package:mornye/services/remote_media_session.dart';
-import 'package:mornye/services/remote_playback.dart';
-import 'package:mornye/services/scrobbling/scrobbler.dart';
-import 'package:mornye/services/song_analysis.dart';
-import 'package:mornye/services/source_deletion_events.dart';
-import 'package:mornye/services/source_metadata_events.dart';
-import 'package:mornye/services/system_volume_service.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/file_access.dart' show fileExists;
+import 'package:sistrum/l10n/supported_locales.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/alsa_output_devices.dart';
+import 'package:sistrum/services/app_state_database.dart';
+import 'package:sistrum/services/exclusive_output_deck.dart';
+import 'package:sistrum/services/file_access_check.dart';
+import 'package:sistrum/services/ffmpeg_support.dart' show FFmpegExecution;
+import 'package:sistrum/services/autoplay_personalization.dart';
+import 'package:sistrum/services/autoplay_ranker.dart';
+import 'package:sistrum/services/autoplay_taste.dart';
+import 'package:sistrum/services/background_favorites.dart';
+import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/services/cast_output.dart';
+import 'package:sistrum/services/cast_playback_deck.dart';
+import 'package:sistrum/services/discord_presence_service.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/download_file_recovery.dart';
+import 'package:sistrum/services/library_collections_database.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/listening_statistics.dart';
+import 'package:sistrum/services/lastfm/lastfm_service.dart';
+import 'package:sistrum/services/listenbrainz/listenbrainz_service.dart';
+import 'package:sistrum/services/lock_screen_lyrics.dart';
+import 'package:sistrum/services/media3_playback_deck.dart';
+import 'package:sistrum/services/media_kit_playback_deck.dart';
+import 'package:sistrum/services/media_library_browser.dart';
+import 'package:sistrum/services/media_session_art_cache.dart';
+import 'package:sistrum/services/media_session_desktop.dart';
+import 'package:sistrum/services/media_session_filter.dart';
+import 'package:sistrum/services/music_playback_deck.dart';
+import 'package:sistrum/services/music_player_service.dart';
+import 'package:sistrum/services/network_metadata_service.dart';
+import 'package:sistrum/services/network_playback_cache.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/playback_deck.dart';
+import 'package:sistrum/services/playback_notification.dart';
+import 'package:sistrum/services/playback_output_volume.dart';
+import 'package:sistrum/services/player_widget_service.dart';
+import 'package:sistrum/services/remote_media_session.dart';
+import 'package:sistrum/services/remote_playback.dart';
+import 'package:sistrum/services/scrobbling/scrobbler.dart';
+import 'package:sistrum/services/song_analysis.dart';
+import 'package:sistrum/services/source_deletion_events.dart';
+import 'package:sistrum/services/source_metadata_events.dart';
+import 'package:sistrum/services/system_volume_service.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/file_access.dart' show fileExists;
 
 final _log = AppLogger('MusicPlayerRuntime');
 
@@ -104,7 +104,7 @@ class PlaybackDependencies {
     bool? isAndroid,
     bool? isMacOS,
     this.notificationChannel = const MethodChannel(
-      'com.zarz.mornye/playback_notification',
+      'com.amwolfstein.sistrum/playback_notification',
     ),
   }) : _sessionDatabase = sessionDatabase,
        _libraryDatabase = libraryDatabase,
@@ -305,10 +305,10 @@ class PlaybackDependencies {
       builder: () => SwitchAudioHandler(handler = builder()),
       cacheManager: mediaSessionArtCache(),
       config: const AudioServiceConfig(
-        androidNotificationChannelId: 'com.zarz.mornye.playback',
+        androidNotificationChannelId: 'com.amwolfstein.sistrum.playback',
         androidNotificationChannelName: 'Playback',
         // The notification mark omits the adaptive launcher's safe-zone padding.
-        androidNotificationIcon: 'drawable/ic_notification_mornye',
+        androidNotificationIcon: 'drawable/ic_notification_sistrum',
         artDownscaleWidth: 512,
         artDownscaleHeight: 512,
         // Keep background resume eligible for audio focus. The Android fork
@@ -443,7 +443,7 @@ class MusicPlayerRuntime {
 
   /// Plays with [override] applied to every settings snapshot until it is
   /// cleared with null, without saving anything: a crash or restart forgets
-  /// it. Mornye Link Play together switches off what cannot stay in step.
+  /// it. Sistrum Link Play together switches off what cannot stay in step.
   void overrideSettings(AppSettings Function(AppSettings settings)? override) {
     _override = override;
     configure(_requested ?? _settings);

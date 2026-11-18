@@ -43,7 +43,7 @@ async fn get_playlists_expands_counts_duration_cover_and_owner() {
                 "id": "p1",
                 "name": "Road trip",
                 "comment": "loud",
-                "owner": "mornye",
+                "owner": "sistrum",
                 "public": false,
                 "songCount": 2,
                 "duration": 400,
@@ -54,7 +54,7 @@ async fn get_playlists_expands_counts_duration_cover_and_owner() {
             {
                 "id": "7",
                 "name": "",
-                "owner": "mornye",
+                "owner": "sistrum",
                 "public": false,
                 "songCount": 0,
                 "duration": 0,
@@ -319,7 +319,7 @@ async fn play_queue_round_trips_through_the_app() {
     assert_eq!(ids(&queue["entry"]), ["l:1", "l:10"]);
     assert_eq!(queue["current"], "l:10");
     assert_eq!(queue["position"], 42_000);
-    assert_eq!(queue["username"], "mornye");
+    assert_eq!(queue["username"], "sistrum");
     assert_eq!(queue["changed"], "1970-01-01T00:01:01.000Z");
     assert_eq!(queue["changedBy"], "Desk");
     fixture

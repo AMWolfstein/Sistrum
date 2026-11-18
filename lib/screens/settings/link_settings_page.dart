@@ -1,30 +1,30 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/screens/settings/link_pairing_dialogs.dart';
-import 'package:mornye/screens/settings/link_phone_host_section.dart';
-import 'package:mornye/services/link/client/link_client_controller.dart';
-import 'package:mornye/services/link/client/link_client_discovery.dart';
-import 'package:mornye/services/link/client/link_client_pairing.dart';
-import 'package:mornye/services/link/client/link_client_session.dart';
-import 'package:mornye/services/link/desktop/link_desktop_host.dart';
-import 'package:mornye/services/link/features/link_phone_options.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/sync/link_sound_sync_runner.dart';
-import 'package:mornye/services/local_network_access.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/nav_bar_inset.dart';
-import 'package:mornye/widgets/app_action_button.dart';
-import 'package:mornye/widgets/app_alert_dialog.dart';
-import 'package:mornye/widgets/app_progress_indicator.dart';
-import 'package:mornye/widgets/app_sliver_header.dart';
-import 'package:mornye/widgets/link/link_row_action.dart';
-import 'package:mornye/widgets/link/link_transfers_view.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/screens/settings/link_pairing_dialogs.dart';
+import 'package:sistrum/screens/settings/link_phone_host_section.dart';
+import 'package:sistrum/services/link/client/link_client_controller.dart';
+import 'package:sistrum/services/link/client/link_client_discovery.dart';
+import 'package:sistrum/services/link/client/link_client_pairing.dart';
+import 'package:sistrum/services/link/client/link_client_session.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_host.dart';
+import 'package:sistrum/services/link/features/link_phone_options.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/sync/link_sound_sync_runner.dart';
+import 'package:sistrum/services/local_network_access.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/nav_bar_inset.dart';
+import 'package:sistrum/widgets/app_action_button.dart';
+import 'package:sistrum/widgets/app_alert_dialog.dart';
+import 'package:sistrum/widgets/app_progress_indicator.dart';
+import 'package:sistrum/widgets/app_sliver_header.dart';
+import 'package:sistrum/widgets/link/link_row_action.dart';
+import 'package:sistrum/widgets/link/link_transfers_view.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
-/// Mornye on your computer: paired computers (or shared phones) with their
+/// Sistrum on your computer: paired computers (or shared phones) with their
 /// connection and the songs copied with them, what this phone shares with
 /// them, the hosts found on the network, pairing, and sharing this phone
 /// with other phones.

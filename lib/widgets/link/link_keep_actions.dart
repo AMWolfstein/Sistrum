@@ -2,15 +2,15 @@ import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/services/link/features/link_auto_keep.dart';
-import 'package:mornye/services/link/features/link_phone_client.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/album_detail_header.dart';
-import 'package:mornye/widgets/desktop/context_menu.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/services/link/features/link_auto_keep.dart';
+import 'package:sistrum/services/link/features/link_phone_client.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/widgets/album_detail_header.dart';
+import 'package:sistrum/widgets/desktop/context_menu.dart';
 
-export 'package:mornye/services/link/features/link_auto_keep.dart'
+export 'package:sistrum/services/link/features/link_auto_keep.dart'
     show linkKeptLoved, linkKeptPlaylist;
 
 /// The More menu action of a playlist or Loved ([collection], a

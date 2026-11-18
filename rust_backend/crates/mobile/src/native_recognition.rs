@@ -1,8 +1,8 @@
 //! Song recognition for the microphone screen. Flutter sends the audio
 //! captured so far as 16 kHz mono s16le and gets back a match, no match, or
 //! the kind of failure; only a fingerprint leaves the device.
-use mornye_network::NetworkService;
-use mornye_providers::recognition::{
+use sistrum_network::NetworkService;
+use sistrum_providers::recognition::{
     NetworkTransport, Prepared, RecognitionError, RecognitionLocale, RecognitionOutcome,
     Recognizer, prepare,
 };

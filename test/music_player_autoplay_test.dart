@@ -2,10 +2,10 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/autoplay_history.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/music_player_service.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/autoplay_history.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/music_player_service.dart';
 
 PlayableMedia track(
   String id, {

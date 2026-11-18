@@ -3,12 +3,12 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/desktop/link_catalog_index.dart';
-import 'package:mornye/services/link/desktop/link_desktop_transfers.dart';
-import 'package:mornye/services/link/desktop/link_transfer_songs.dart';
-import 'package:mornye/services/link/link_host_router.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/link/link_transfers.dart';
+import 'package:sistrum/services/link/desktop/link_catalog_index.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_transfers.dart';
+import 'package:sistrum/services/link/desktop/link_transfer_songs.dart';
+import 'package:sistrum/services/link/link_host_router.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/link_transfers.dart';
 
 import 'support/link_desktop_fakes.dart';
 
@@ -208,7 +208,7 @@ void main() {
       final record = downloads.records.single;
       expect(record.id, linkTransferHistoryId(_phone, '${_fileId(1)}.flac'));
       expect(record.id, startsWith('link_'));
-      expect(record.service, 'Mornye Link');
+      expect(record.service, 'Sistrum Link');
       expect(record.trackName, 'Song 1');
       expect(record.albumName, 'Album');
       expect(record.albumArtist, 'Band');

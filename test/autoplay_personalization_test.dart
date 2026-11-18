@@ -6,9 +6,9 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/autoplay_personalization.dart';
-import 'package:mornye/services/music_player_service.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/autoplay_personalization.dart';
+import 'package:sistrum/services/music_player_service.dart';
 
 import 'support/preference_blob_fixture.dart';
 

@@ -4,19 +4,19 @@ import 'dart:math';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/providers/download_queue_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/history_row_mapper.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/library_media_identity.dart';
-import 'package:mornye/services/music_player_service.dart';
-import 'package:mornye/services/remote_playback.dart';
-import 'package:mornye/utils/artist_utils.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/download_queue_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/history_row_mapper.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/library_media_identity.dart';
+import 'package:sistrum/services/music_player_service.dart';
+import 'package:sistrum/services/remote_playback.dart';
+import 'package:sistrum/utils/artist_utils.dart';
 
-export 'package:mornye/services/playable_media.dart'
+export 'package:sistrum/services/playable_media.dart'
     show playableFromHistory, playableFromLocal;
 
 final musicPlayerRuntimeProvider = Provider<MusicPlayerRuntime>(
@@ -24,15 +24,15 @@ final musicPlayerRuntimeProvider = Provider<MusicPlayerRuntime>(
 );
 
 /// The device that plays in this one's place, or null while this one plays.
-/// The app root overrides it with Mornye Link's paired desktop.
+/// The app root overrides it with Sistrum Link's paired desktop.
 final activeRemotePlaybackProvider = Provider<RemotePlayback?>((ref) => null);
 
 /// Whether this device sounds too while [activeRemotePlaybackProvider]
 /// plays, so its volume controls set its own volume. The app root overrides
-/// it with Mornye Link's Play together.
+/// it with Sistrum Link's Play together.
 final soundsBesideRemoteProvider = Provider<bool>((ref) => false);
 
-/// External apps own playback on this device. A remote Mornye player keeps
+/// External apps own playback on this device. A remote Sistrum player keeps
 /// its controls while this device is only controlling it.
 final playerUiEnabledProvider = Provider<bool>(
   (ref) =>

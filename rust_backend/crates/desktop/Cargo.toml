@@ -1,5 +1,5 @@
 [package]
-name = "mornye-desktop"
+name = "sistrum-desktop"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -7,14 +7,14 @@ license.workspace = true
 publish.workspace = true
 
 [lib]
-name = "mornye_desktop"
+name = "sistrum_desktop"
 # cdylib for dart:ffi; rlib so integration tests can call the C ABI in-process.
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
-mornye-mobile = { path = "../mobile" }
-mornye-link.workspace = true
-mornye-cast.workspace = true
+sistrum-mobile = { path = "../mobile" }
+sistrum-link.workspace = true
+sistrum-cast.workspace = true
 chrono.workspace = true
 getrandom.workspace = true
 notify.workspace = true

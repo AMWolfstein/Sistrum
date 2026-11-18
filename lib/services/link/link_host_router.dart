@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/link/link_protocol.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
 
 /// A request the desktop server forwarded to the app (`linkRequest`).
 class LinkRequest {
@@ -13,7 +13,7 @@ class LinkRequest {
 
   final String requestId;
 
-  /// A `/mornye/v1` path such as `handoff/play`, or `subsonic/<method>`.
+  /// A `/sistrum/v1` path such as `handoff/play`, or `subsonic/<method>`.
   final String op;
   final String deviceId;
 

@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/services/link/features/link_downloads.dart';
-import 'package:mornye/services/link/features/link_phone_client.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_clock_offset.dart';
-import 'package:mornye/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/features/link_downloads.dart';
+import 'package:sistrum/services/link/features/link_phone_client.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_clock_offset.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
 
 /// What the phone knows about the paired desktop: its connection, its
 /// player and its download queue.

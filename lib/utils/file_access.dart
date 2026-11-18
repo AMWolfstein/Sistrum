@@ -5,12 +5,12 @@ import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/source_deletion_events.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/ios_container_paths.dart';
-import 'package:mornye/utils/mime_utils.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/source_deletion_events.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/ios_container_paths.dart';
+import 'package:sistrum/utils/mime_utils.dart';
 
 /// Whether the queue should run its iOS output-directory path-shape check
 /// (which can replace [outputDir] with the default Documents folder when the
@@ -111,7 +111,7 @@ bool isValidIosWritablePath(String path) {
 /// Returns a valid Documents subdirectory path if the input is invalid.
 Future<String> validateOrFixIosPath(
   String path, {
-  String subfolder = 'Mornye',
+  String subfolder = 'Sistrum',
 }) async {
   if (!Platform.isIOS) return path;
 

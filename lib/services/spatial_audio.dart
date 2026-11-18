@@ -3,10 +3,10 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/services/music_playback_deck.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/services/music_playback_deck.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('SpatialAudio');
 
@@ -161,7 +161,7 @@ String spatialAudioStatusLabel(
   SpatialAudioStatus.outputOff => l10n.spatialAudioOutputOff,
 };
 
-const _events = EventChannel('com.zarz.mornye/spatial_audio');
+const _events = EventChannel('com.amwolfstein.sistrum/spatial_audio');
 
 /// The current state on listen, then each change the platform reports
 /// (spatializer state, head tracker, output devices on Android; route and

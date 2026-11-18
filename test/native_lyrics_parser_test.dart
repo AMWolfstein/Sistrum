@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
 
 Map<String, dynamic> _word(LyricWord value) => {
   'timeMs': value.time.inMilliseconds,
@@ -73,7 +73,7 @@ void main() {
               )
               as List)
           .cast<Map<String, dynamic>>();
-  const channel = MethodChannel('com.zarz.mornye/backend');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
 

@@ -5,31 +5,31 @@ import 'dart:math' as math;
 import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoButton;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/controllers/player_metadata_controller.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/equalizer_settings.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/audio_route_info.dart';
-import 'package:mornye/services/link/link_source_names.dart';
-import 'package:mornye/services/music_playback_deck.dart';
-import 'package:mornye/services/playback_deck.dart';
-import 'package:mornye/services/music_player_service.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/playback_equalizer.dart';
-import 'package:mornye/theme/app_tokens.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/int_utils.dart';
-import 'package:mornye/utils/string_utils.dart';
-import 'package:mornye/utils/usb_output_status_label.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/audio_analysis_widget.dart';
-import 'package:mornye/widgets/expressive_button.dart';
-import 'package:mornye/widgets/hires_check_card.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/controllers/player_metadata_controller.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/equalizer_settings.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/audio_route_info.dart';
+import 'package:sistrum/services/link/link_source_names.dart';
+import 'package:sistrum/services/music_playback_deck.dart';
+import 'package:sistrum/services/playback_deck.dart';
+import 'package:sistrum/services/music_player_service.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/playback_equalizer.dart';
+import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/int_utils.dart';
+import 'package:sistrum/utils/string_utils.dart';
+import 'package:sistrum/utils/usb_output_status_label.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/audio_analysis_widget.dart';
+import 'package:sistrum/widgets/expressive_button.dart';
+import 'package:sistrum/widgets/hires_check_card.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
 /// Technical details of the playing track, from the file through the
-/// processing chain to the output device. [linkSources] names the Mornye
+/// processing chain to the output device. [linkSources] names the Sistrum
 /// Link devices behind network sources (`linkSourceNamesProvider`).
 Future<void> showAudioInfoSheet(
   BuildContext context, {

@@ -1,16 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/features/link_handoff.dart';
-import 'package:mornye/services/link/features/link_phone_features.dart';
-import 'package:mornye/services/link/features/link_phone_player.dart';
-import 'package:mornye/services/link/features/link_phone_session.dart';
-import 'package:mornye/services/link/features/link_track_resolver.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/link/link_lyrics_translations.dart';
-import 'package:mornye/services/lyrics_translation.dart';
-import 'package:mornye/services/lyrics_translation_sharing.dart';
-import 'package:mornye/services/share_intent_service.dart';
+import 'package:sistrum/services/link/features/link_handoff.dart';
+import 'package:sistrum/services/link/features/link_phone_features.dart';
+import 'package:sistrum/services/link/features/link_phone_player.dart';
+import 'package:sistrum/services/link/features/link_phone_session.dart';
+import 'package:sistrum/services/link/features/link_track_resolver.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/link_lyrics_translations.dart';
+import 'package:sistrum/services/lyrics_translation.dart';
+import 'package:sistrum/services/lyrics_translation_sharing.dart';
+import 'package:sistrum/services/share_intent_service.dart';
 
 import 'support/link_fakes.dart';
 

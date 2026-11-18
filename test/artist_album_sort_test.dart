@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/providers/track_provider.dart';
-import 'package:mornye/utils/artist_album_sort.dart';
+import 'package:sistrum/providers/track_provider.dart';
+import 'package:sistrum/utils/artist_album_sort.dart';
 
 ArtistAlbum _album(String id, String date) => ArtistAlbum(
   id: id,

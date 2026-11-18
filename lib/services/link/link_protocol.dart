@@ -3,20 +3,20 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 
-/// Mornye Link: the phone app talking to the desktop app over the local
+/// Sistrum Link: the phone app talking to the desktop app over the local
 /// network. Wire constants and models shared by the desktop host and the
 /// phone client. The desktop serves HTTPS (OpenSubsonic under `/rest`,
-/// Mornye endpoints under [linkApiPath], a WebSocket at [linkSocketPath]).
+/// Sistrum endpoints under [linkApiPath], a WebSocket at [linkSocketPath]).
 const linkProtocolVersion = 1;
 
 /// The mDNS service type the desktop advertises.
-const linkServiceType = '_mornye._tcp';
+const linkServiceType = '_sistrum._tcp';
 
 /// First port tried by the desktop server; it walks up to [linkPortLast].
 const linkPortFirst = 47710;
 const linkPortLast = 47729;
 
-const linkApiPath = '/mornye/v1';
+const linkApiPath = '/sistrum/v1';
 const linkSocketPath = '$linkApiPath/ws';
 
 /// `PUT <linkFilesPath>/<id>.<extension>` uploads a song file the phone has
@@ -92,7 +92,7 @@ String? linkCoverUrl(Object? value) {
   return uri.toString();
 }
 
-/// Forwarded `/mornye/v1` operations (the path after [linkApiPath]).
+/// Forwarded `/sistrum/v1` operations (the path after [linkApiPath]).
 abstract final class LinkOps {
   static const state = 'state';
   static const command = 'command';
@@ -469,7 +469,7 @@ String linkPairingProof({
   required String fingerprint,
   required String deviceId,
 }) {
-  final message = 'mornye-link-pair-v1:${fingerprint.toLowerCase()}:$deviceId';
+  final message = 'sistrum-link-pair-v1:${fingerprint.toLowerCase()}:$deviceId';
   return Hmac(
     sha256,
     utf8.encode(pin),
@@ -847,7 +847,7 @@ abstract final class LinkHostFeatures {
   static const all = [downloads, open, libraryJobs];
 }
 
-/// `GET /mornye/v1/info`.
+/// `GET /sistrum/v1/info`.
 class LinkServerInfo {
   const LinkServerInfo({
     required this.serverId,

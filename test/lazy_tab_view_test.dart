@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/widgets/lazy_tab_view.dart';
+import 'package:sistrum/widgets/lazy_tab_view.dart';
 
 void main() {
   testWidgets(

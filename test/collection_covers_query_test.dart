@@ -4,11 +4,11 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/services/library_collections_database.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/library_row_mapper.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/services/library_collections_database.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/library_row_mapper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 // The app reaches sqflite_common through sqflite and sqflite_common_ffi.

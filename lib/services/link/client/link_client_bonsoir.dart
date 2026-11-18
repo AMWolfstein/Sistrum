@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:bonsoir/bonsoir.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/services/link/client/link_client_discovery.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/local_network_access.dart';
+import 'package:sistrum/services/link/client/link_client_discovery.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/local_network_access.dart';
 
 /// [LinkServiceBrowser] on Bonsoir (Android NSD, Apple Bonjour). Found
 /// services are resolved right away, since the list shows their addresses.

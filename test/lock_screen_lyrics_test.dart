@@ -3,11 +3,11 @@ import 'dart:convert';
 
 import 'package:audio_service_platform_interface/audio_service_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/controllers/player_metadata_controller.dart';
-import 'package:mornye/models/theme_settings.dart';
-import 'package:mornye/providers/song_lyrics_offset_provider.dart';
-import 'package:mornye/services/lock_screen_lyrics.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
+import 'package:sistrum/controllers/player_metadata_controller.dart';
+import 'package:sistrum/models/theme_settings.dart';
+import 'package:sistrum/providers/song_lyrics_offset_provider.dart';
+import 'package:sistrum/services/lock_screen_lyrics.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Duration _seconds(num seconds) =>

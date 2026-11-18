@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:mornye/services/link/link_host_router.dart';
-import 'package:mornye/services/link/link_library_jobs.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/link/link_host_router.dart';
+import 'package:sistrum/services/link/link_library_jobs.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/utils/logger.dart';
 
 typedef LinkLibraryExecute =
     Future<Map<String, dynamic>> Function(LinkLibraryWork work, String songId);

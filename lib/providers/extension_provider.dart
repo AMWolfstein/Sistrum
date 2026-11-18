@@ -5,16 +5,16 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/models/extension.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/extension_storage_service.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/providers/repo_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
+import 'package:sistrum/models/extension.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/extension_storage_service.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/providers/repo_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
 
-export 'package:mornye/models/extension.dart';
+export 'package:sistrum/models/extension.dart';
 
 part 'extension_provider_priority.dart';
 
@@ -743,7 +743,7 @@ class ExtensionNotifier extends Notifier<ExtensionState> {
       if (repoState.isInitialized) configuredUrls = repoState.registryUrls;
       final tmp = await getTemporaryDirectory();
       destDir = await Directory(
-        '${tmp.path}/mornye_restore_ext',
+        '${tmp.path}/sistrum_restore_ext',
       ).create(recursive: true);
     } catch (e) {
       _log.w('Restore: failed to prepare extension store: $e');

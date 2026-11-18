@@ -3,19 +3,19 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/app.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/providers/system_volume_provider.dart';
-import 'package:mornye/services/app_navigation_service.dart';
-import 'package:mornye/services/shell_navigation_service.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/app_snack_bar.dart';
-import 'package:mornye/widgets/desktop/desktop_player_bar.dart';
-import 'package:mornye/widgets/desktop/desktop_shortcuts.dart';
-import 'package:mornye/widgets/desktop/desktop_window.dart';
+import 'package:sistrum/app.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/providers/system_volume_provider.dart';
+import 'package:sistrum/services/app_navigation_service.dart';
+import 'package:sistrum/services/shell_navigation_service.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/widgets/app_snack_bar.dart';
+import 'package:sistrum/widgets/desktop/desktop_player_bar.dart';
+import 'package:sistrum/widgets/desktop/desktop_shortcuts.dart';
+import 'package:sistrum/widgets/desktop/desktop_window.dart';
 
 import 'support/fixed_settings.dart';
 
@@ -33,7 +33,7 @@ class _PlayerUi extends Notifier<bool> {
 
 final _playerUi = NotifierProvider<_PlayerUi, bool>(_PlayerUi.new);
 
-const _window = MethodChannel('com.zarz.mornye/window');
+const _window = MethodChannel('com.amwolfstein.sistrum/window');
 
 final _macOS = TargetPlatformVariant.only(TargetPlatform.macOS);
 

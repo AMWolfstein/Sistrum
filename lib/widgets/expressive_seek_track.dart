@@ -5,7 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:material_3_expressive/components/sliders/components/m3e_slider_track_painter.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
-import 'package:mornye/widgets/decorative_phase.dart';
+import 'package:sistrum/widgets/decorative_phase.dart';
 
 /// Expressive track motion around the native slider's seeking and accessibility.
 class ExpressiveSeekTrack extends StatefulWidget {

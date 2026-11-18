@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart' show listEquals;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/utils/logger.dart';
 
 const _migrationKey = 'android_content_covers_v1';
 final _legacyName = RegExp(r'^cover_[0-9a-f]{32}\.(jpg|png)$');

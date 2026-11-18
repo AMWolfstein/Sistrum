@@ -1,10 +1,10 @@
-//! Mornye Link host for Android and iOS: the same `link*` methods the
-//! desktop runs (`mornye_link::bridge`), so a phone can share its Library
+//! Sistrum Link host for Android and iOS: the same `link*` methods the
+//! desktop runs (`sistrum_link::bridge`), so a phone can share its Library
 //! with another phone. Events (`linkRequest`, `linkMessage`, `linkClients`,
 //! `linkPaired`, `linkPairingEnded`) are pulled with `next_event`, as the
 //! platforms do for Cast.
 
-use mornye_link::bridge::{AppBridge, BridgePaths};
+use sistrum_link::bridge::{AppBridge, BridgePaths};
 use serde_json::Value;
 use std::collections::VecDeque;
 use std::path::PathBuf;

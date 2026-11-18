@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/providers/track_provider.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/track_provider.dart';
+import 'package:sistrum/utils/logger.dart';
 import 'package:path_provider/path_provider.dart';
 
 final _log = AppLogger('ArtistSnapshots');

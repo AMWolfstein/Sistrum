@@ -10,7 +10,7 @@ Future<void> main() async {
   final adb = Platform.environment['ADB_PATH'] ?? 'adb';
   final serial = Platform.environment['ANDROID_SERIAL'];
   final package =
-      Platform.environment['MORNYE_TEST_PACKAGE'] ?? 'com.zarz.mornye.debug';
+      Platform.environment['SISTRUM_TEST_PACKAGE'] ?? 'com.amwolfstein.sistrum.debug';
   Future<String> shell(List<String> arguments) async {
     final result = await Process.run(adb, [
       if (serial != null) ...['-s', serial],
@@ -101,7 +101,7 @@ Future<void> main() async {
         'am',
         'start',
         '-n',
-        '$package/com.zarz.mornye.MainActivity',
+        '$package/com.amwolfstein.sistrum.MainActivity',
       ]);
     }
     final response = Response.fromJson(
@@ -120,8 +120,8 @@ Future<void> main() async {
       throw StateError('Stopping playback left the foreground service active');
     }
     final output = File(
-      Platform.environment['MORNYE_BACKGROUND_REPORT'] ??
-          '/tmp/mornye-background-playback.json',
+      Platform.environment['SISTRUM_BACKGROUND_REPORT'] ??
+          '/tmp/sistrum-background-playback.json',
     );
     await output.writeAsString(
       const JsonEncoder.withIndent('  ').convert(response.data),

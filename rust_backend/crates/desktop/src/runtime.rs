@@ -16,11 +16,11 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex, OnceLock, RwLock};
 
-/// `mornye_callback`: `(id, kind, data, len)`. Every non-null `data` buffer
-/// must be released with `mornye_free`.
-pub type MornyeCallback = extern "C" fn(id: u64, kind: i32, data: *const u8, len: usize);
+/// `sistrum_callback`: `(id, kind, data, len)`. Every non-null `data` buffer
+/// must be released with `sistrum_free`.
+pub type SistrumCallback = extern "C" fn(id: u64, kind: i32, data: *const u8, len: usize);
 
-/// Paths Dart passes to `mornye_init`.
+/// Paths Dart passes to `sistrum_init`.
 #[derive(Debug, Clone, Default)]
 pub struct Config {
     pub app_support_dir: PathBuf,
@@ -78,11 +78,11 @@ pub(crate) struct Runtime {
 }
 
 static RUNTIME: OnceLock<Runtime> = OnceLock::new();
-static CALLBACK: RwLock<Option<MornyeCallback>> = RwLock::new(None);
+static CALLBACK: RwLock<Option<SistrumCallback>> = RwLock::new(None);
 
 /// Idempotent. A later call replaces the callback (a Dart hot restart creates
 /// a new one) and keeps the first configuration and backend state.
-pub(crate) fn init(callback: Option<MornyeCallback>, config: &[u8]) {
+pub(crate) fn init(callback: Option<SistrumCallback>, config: &[u8]) {
     *CALLBACK.write().expect("callback lock") = callback;
     if RUNTIME.get().is_some() {
         return;
@@ -111,7 +111,7 @@ pub(crate) fn get() -> Option<&'static Runtime> {
 }
 
 /// Hands `data` to the callback. The buffer is leaked here and reclaimed by
-/// `mornye_free`; without a callback it is dropped.
+/// `sistrum_free`; without a callback it is dropped.
 pub(crate) fn emit(id: u64, kind: i32, data: Vec<u8>) {
     let Some(callback) = *CALLBACK.read().expect("callback lock") else {
         return;
@@ -130,7 +130,7 @@ pub(crate) fn log(level: &str, message: &str) {
     if let Some(runtime) = get()
         && runtime.events.logs_enabled()
     {
-        let record = serde_json::json!({"level": level, "tag": "Mornye", "message": message});
+        let record = serde_json::json!({"level": level, "tag": "Sistrum", "message": message});
         emit(0, kind::LOG, record.to_string().into_bytes());
     }
 }

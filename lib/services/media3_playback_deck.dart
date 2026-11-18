@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/services/music_playback_deck.dart';
-import 'package:mornye/services/playback_deck.dart';
-import 'package:mornye/services/playback_equalizer.dart';
-import 'package:mornye/services/switching_playback_deck.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/music_playback_deck.dart';
+import 'package:sistrum/services/playback_deck.dart';
+import 'package:sistrum/services/playback_equalizer.dart';
+import 'package:sistrum/services/switching_playback_deck.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('Media3Deck');
 
@@ -55,7 +55,7 @@ PlaybackDeckState? _eventState(Object? state) => switch (state) {
 };
 
 /// Android: one media3 ExoPlayer in the app's own plugin
-/// (`com.zarz.mornye/media3_player`), always through the platform mixer with
+/// (`com.amwolfstein.sistrum/media3_player`), always through the platform mixer with
 /// offload off. Gapless queues the next song on this same player.
 ///
 /// The native player is created on first use. Each source owns a token, so
@@ -70,7 +70,7 @@ class Media3PlaybackDeck implements PlaybackDeck, QueuedPlaybackDeck {
     playbackPitch.addListener(_parametersChanged);
   }
 
-  static const _channel = MethodChannel('com.zarz.mornye/media3_player');
+  static const _channel = MethodChannel('com.amwolfstein.sistrum/media3_player');
 
   /// False once the native player turned out to be missing from this build.
   static bool _missing = false;
@@ -162,7 +162,7 @@ class Media3PlaybackDeck implements PlaybackDeck, QueuedPlaybackDeck {
     // dispose releases the native player once this completes.
     if (_disposed) return;
     // The native side registers this stream before create replies.
-    _events = EventChannel('com.zarz.mornye/media3_player/events/$playerId')
+    _events = EventChannel('com.amwolfstein.sistrum/media3_player/events/$playerId')
         .receiveBroadcastStream()
         .listen(
           _onEvent,

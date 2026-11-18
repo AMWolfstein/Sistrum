@@ -1,7 +1,7 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/utils/android_tv.dart';
+import 'package:sistrum/utils/android_tv.dart';
 
 /// An iOS-style slider: a thin rounded track and a white shadowed knob.
 ///

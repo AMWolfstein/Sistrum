@@ -4,48 +4,48 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/providers/download_history_provider.dart';
-import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/link/desktop/link_arriving_files.dart';
-import 'package:mornye/services/link/desktop/link_catalog_exporter.dart';
-import 'package:mornye/services/link/desktop/link_catalog_index.dart';
-import 'package:mornye/services/link/desktop/link_desktop_backend.dart';
-import 'package:mornye/services/link/desktop/link_desktop_ops.dart';
-import 'package:mornye/services/link/desktop/link_library_executor.dart';
-import 'package:mornye/services/link/desktop/link_library_jobs_host.dart';
-import 'package:mornye/services/link/desktop/link_desktop_transfers.dart';
-import 'package:mornye/services/link/desktop/link_downloads.dart';
-import 'package:mornye/services/link/desktop/link_host_files.dart';
-import 'package:mornye/services/link/desktop/link_phone_catalogs.dart';
-import 'package:mornye/services/link/client/link_client_controller.dart';
-import 'package:mornye/services/link/desktop/link_phone_host_lifetime.dart';
-import 'package:mornye/services/link/desktop/link_phone_library.dart';
-import 'package:mornye/services/link/desktop/link_phone_sources.dart';
-import 'package:mornye/services/link/desktop/link_player.dart';
-import 'package:mornye/services/link/desktop/link_transfer_songs.dart';
-import 'package:mornye/services/link/desktop/link_web_covers.dart';
-import 'package:mornye/services/link/link_host_router.dart';
-import 'package:mornye/services/link/link_lyrics_translations.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/link/link_transfers.dart';
-import 'package:mornye/services/link/sync/link_sound_sync_handlers.dart';
-import 'package:mornye/services/link/sync/link_sound_sync_protocol.dart';
-import 'package:mornye/services/link/sync/link_sync_handlers.dart';
-import 'package:mornye/services/link/together/link_together_deck.dart';
-import 'package:mornye/services/link/together/link_together_host.dart';
-import 'package:mornye/services/local_network_access.dart';
-import 'package:mornye/services/lyrics_translation_sharing.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/services/source_deletion_events.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/link/desktop/link_arriving_files.dart';
+import 'package:sistrum/services/link/desktop/link_catalog_exporter.dart';
+import 'package:sistrum/services/link/desktop/link_catalog_index.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_backend.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_ops.dart';
+import 'package:sistrum/services/link/desktop/link_library_executor.dart';
+import 'package:sistrum/services/link/desktop/link_library_jobs_host.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_transfers.dart';
+import 'package:sistrum/services/link/desktop/link_downloads.dart';
+import 'package:sistrum/services/link/desktop/link_host_files.dart';
+import 'package:sistrum/services/link/desktop/link_phone_catalogs.dart';
+import 'package:sistrum/services/link/client/link_client_controller.dart';
+import 'package:sistrum/services/link/desktop/link_phone_host_lifetime.dart';
+import 'package:sistrum/services/link/desktop/link_phone_library.dart';
+import 'package:sistrum/services/link/desktop/link_phone_sources.dart';
+import 'package:sistrum/services/link/desktop/link_player.dart';
+import 'package:sistrum/services/link/desktop/link_transfer_songs.dart';
+import 'package:sistrum/services/link/desktop/link_web_covers.dart';
+import 'package:sistrum/services/link/link_host_router.dart';
+import 'package:sistrum/services/link/link_lyrics_translations.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/link_transfers.dart';
+import 'package:sistrum/services/link/sync/link_sound_sync_handlers.dart';
+import 'package:sistrum/services/link/sync/link_sound_sync_protocol.dart';
+import 'package:sistrum/services/link/sync/link_sync_handlers.dart';
+import 'package:sistrum/services/link/together/link_together_deck.dart';
+import 'package:sistrum/services/link/together/link_together_host.dart';
+import 'package:sistrum/services/local_network_access.dart';
+import 'package:sistrum/services/lyrics_translation_sharing.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/services/source_deletion_events.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-final _log = AppLogger('MornyeLink');
+final _log = AppLogger('SistrumLink');
 
 /// Whether the owner turned the server on (default off).
 const linkDesktopEnabledKey = 'link_desktop_enabled';
@@ -79,7 +79,7 @@ String linkDefaultDeviceName() {
   } on Object {
     // Some sandboxes hide the host name.
   }
-  return 'Mornye';
+  return 'Sistrum';
 }
 
 String? _cleanName(String? name) {
@@ -208,7 +208,7 @@ class LinkDesktopHostState {
   );
 }
 
-/// Runs the Mornye Link server on desktop: keeps its settings, starts and
+/// Runs the Sistrum Link server on desktop: keeps its settings, starts and
 /// stops it, exports the catalog, answers forwarded requests through
 /// [linkHostRouterProvider] and pushes the desktop player to phones.
 ///
@@ -363,10 +363,10 @@ class LinkDesktopHost extends Notifier<LinkDesktopHostState> {
     if (!_phone) return linkDefaultDeviceName();
     try {
       return _cleanName(await ref.read(linkPhoneHostIdentityProvider).name()) ??
-          'Mornye';
+          'Sistrum';
     } on Object catch (error) {
       _log.w('Could not read this phone\'s name: $error');
-      return 'Mornye';
+      return 'Sistrum';
     }
   }
 
@@ -475,7 +475,7 @@ class LinkDesktopHost extends Notifier<LinkDesktopHostState> {
       enabled = prefs.getBool(_enabledKey) ?? false;
       name = _cleanName(prefs.getString(_nameKey));
     } on Object catch (error) {
-      _log.w('Could not read the Mornye Link settings: $error');
+      _log.w('Could not read the Sistrum Link settings: $error');
     }
     name ??= await _defaultName();
     if (!ref.mounted) return;
@@ -494,7 +494,7 @@ class LinkDesktopHost extends Notifier<LinkDesktopHostState> {
     try {
       await write(await SharedPreferences.getInstance());
     } on Object catch (error) {
-      _log.w('Could not save the Mornye Link settings: $error');
+      _log.w('Could not save the Sistrum Link settings: $error');
     }
   }
 
@@ -505,7 +505,7 @@ class LinkDesktopHost extends Notifier<LinkDesktopHostState> {
         Object error,
         StackTrace stack,
       ) {
-        _log.e('Mornye Link step failed', error, stack);
+        _log.e('Sistrum Link step failed', error, stack);
       });
 
   /// Turns the server on or off and remembers the choice.
@@ -582,7 +582,7 @@ class LinkDesktopHost extends Notifier<LinkDesktopHostState> {
       if (!ref.mounted) return;
       state = state.copyWith(phase: LinkHostPhase.running, server: server);
     } on Object catch (error, stack) {
-      _log.e('Could not start Mornye Link', error, stack);
+      _log.e('Could not start Sistrum Link', error, stack);
       _cancelBackend();
       if (ref.mounted) {
         state = state.copyWith(
@@ -608,7 +608,7 @@ class LinkDesktopHost extends Notifier<LinkDesktopHostState> {
       }
       return status.server;
     } on Object catch (error) {
-      _log.d('No running Mornye Link server: $error');
+      _log.d('No running Sistrum Link server: $error');
       return null;
     }
   }
@@ -624,7 +624,7 @@ class LinkDesktopHost extends Notifier<LinkDesktopHostState> {
         await _backend.stop();
         _log.i('Link: host stopped ($reason)');
       } on Object catch (error) {
-        _log.w('Could not stop Mornye Link: $error');
+        _log.w('Could not stop Sistrum Link: $error');
       }
     }
     // After the stop, so an export finishing meanwhile fetches nothing.
@@ -681,7 +681,7 @@ class LinkDesktopHost extends Notifier<LinkDesktopHostState> {
   /// Registers every feature's forwarded ops on [router]. Each start
   /// registers again, which replaces the earlier handlers.
   ///
-  /// Integration point for the other Mornye Link units: add their
+  /// Integration point for the other Sistrum Link units: add their
   /// registrars here, for example L4's
   /// `registerLinkSyncHandlers(router, ref);` for `collections`, `history`
   /// and the Subsonic playlist, star and scrobble ops.
@@ -1313,7 +1313,7 @@ class LinkDesktopHost extends Notifier<LinkDesktopHostState> {
       if (changed) _lastSentState = null;
       _onPlayerChanged();
     } on Object catch (error, stack) {
-      _log.e('Could not export the Mornye Link catalog', error, stack);
+      _log.e('Could not export the Sistrum Link catalog', error, stack);
       _rescanAfterExport.addAll(rescan);
     } finally {
       _exporting = false;
@@ -1503,14 +1503,14 @@ class LinkDesktopHost extends Notifier<LinkDesktopHostState> {
       _serverStarted = false;
       unawaited(
         _backend.stop().catchError((Object error) {
-          _log.w('Could not stop Mornye Link: $error');
+          _log.w('Could not stop Sistrum Link: $error');
         }),
       );
     }
   }
 }
 
-/// The desktop Mornye Link host. It lives for the app's lifetime; the app
+/// The desktop Sistrum Link host. It lives for the app's lifetime; the app
 /// root reads it on desktop so the server starts when the owner turned it
 /// on.
 final linkDesktopHostProvider =

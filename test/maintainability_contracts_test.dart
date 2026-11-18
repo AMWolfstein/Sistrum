@@ -2,15 +2,15 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/download_item.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/providers/download_queue_state.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/controllers/home_search_logic.dart';
-import 'package:mornye/services/audio_metadata_mapper.dart';
-import 'package:mornye/services/ffmpeg_models.dart';
-import 'package:mornye/services/id3v23_lyrics.dart';
-import 'package:mornye/utils/artist_utils.dart';
+import 'package:sistrum/models/download_item.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/download_queue_state.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/controllers/home_search_logic.dart';
+import 'package:sistrum/services/audio_metadata_mapper.dart';
+import 'package:sistrum/services/ffmpeg_models.dart';
+import 'package:sistrum/services/id3v23_lyrics.dart';
+import 'package:sistrum/utils/artist_utils.dart';
 
 void main() {
   Track track({

@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/android_tv.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/android_tv.dart';
 
 const fullPlayerRouteName = '/full-player';
 final _log = AppLogger('Orientation');

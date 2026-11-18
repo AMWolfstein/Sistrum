@@ -3,15 +3,15 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/services/shell_navigation_service.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/desktop/desktop_commands.dart';
-import 'package:mornye/widgets/desktop/desktop_inspector.dart';
-import 'package:mornye/widgets/desktop/desktop_shortcuts.dart';
-import 'package:mornye/widgets/desktop/desktop_window.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/services/shell_navigation_service.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/widgets/desktop/desktop_commands.dart';
+import 'package:sistrum/widgets/desktop/desktop_inspector.dart';
+import 'package:sistrum/widgets/desktop/desktop_shortcuts.dart';
+import 'package:sistrum/widgets/desktop/desktop_window.dart';
 
-const _channel = MethodChannel('com.zarz.mornye/window');
+const _channel = MethodChannel('com.amwolfstein.sistrum/window');
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

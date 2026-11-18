@@ -1,7 +1,7 @@
 import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/widgets/mornye_playback_button.dart';
+import 'package:sistrum/widgets/mornye_playback_button.dart';
 
 void main() {
   Future<void> pumpButton(

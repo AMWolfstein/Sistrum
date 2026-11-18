@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/services/sqlite_long_text.dart';
+import 'package:sistrum/services/sqlite_long_text.dart';
 
 /// A dismissed player's last session, separate from the active player state.
 class PlaybackResumeStore {

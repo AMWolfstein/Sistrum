@@ -32,7 +32,7 @@ extension _DownloadQueuePaths on DownloadQueueNotifier {
     return downloadDir;
   }
 
-  /// `<Music>/Mornye` on desktop; null when the OS gives no Music folder.
+  /// `<Music>/Sistrum` on desktop; null when the OS gives no Music folder.
   Future<Directory?> _ensureDefaultDesktopOutputDir() async {
     final path = await resolveDesktopDefaultOutputDirectory();
     if (path == null) return null;
@@ -72,7 +72,7 @@ extension _DownloadQueuePaths on DownloadQueueNotifier {
       }
       probe = File(
         '${directory.path}${Platform.pathSeparator}'
-        '.mornye-write-${DateTime.now().microsecondsSinceEpoch}',
+        '.sistrum-write-${DateTime.now().microsecondsSinceEpoch}',
       );
       await probe.writeAsBytes(const [0], flush: true);
       return await probe.exists();
@@ -464,7 +464,7 @@ extension _DownloadQueuePaths on DownloadQueueNotifier {
     String quality,
   ) async {
     if (track.albumName.trim().isEmpty) return null;
-    const marker = 'mornyealbumfolder';
+    const marker = 'sistrumalbumfolder';
     Future<List<String>> folder(Track value) async => _buildRelativeOutputDir(
       value,
       settings,

@@ -1,17 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:mornye/l10n/supported_locales.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/providers/download_history_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/link/features/link_save_offline.dart';
-import 'package:mornye/services/network_offline_saver.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/notification_service.dart';
-import 'package:mornye/utils/file_access.dart';
+import 'package:sistrum/l10n/supported_locales.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/link/features/link_save_offline.dart';
+import 'package:sistrum/services/network_offline_saver.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/notification_service.dart';
+import 'package:sistrum/utils/file_access.dart';
 
 final networkOfflineProvider =
     NotifierProvider<NetworkOfflineNotifier, LinkOfflineProgress?>(

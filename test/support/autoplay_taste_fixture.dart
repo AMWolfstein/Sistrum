@@ -1,5 +1,5 @@
-import 'package:mornye/services/autoplay_personalization.dart';
-import 'package:mornye/services/autoplay_taste.dart';
+import 'package:sistrum/services/autoplay_personalization.dart';
+import 'package:sistrum/services/autoplay_taste.dart';
 
 /// Deterministic, bounded histories for native parity and full-route timings.
 List<AutoplayTastePlay> autoplayTasteFixture(int count) {

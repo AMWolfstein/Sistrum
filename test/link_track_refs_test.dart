@@ -1,15 +1,15 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/download_history.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/link/features/link_track_refs.dart';
-import 'package:mornye/services/link/features/link_track_resolver.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/playable_media.dart';
+import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/link/features/link_track_refs.dart';
+import 'package:sistrum/services/link/features/link_track_resolver.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/playable_media.dart';
 
 import 'support/link_fakes.dart';
 

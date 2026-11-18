@@ -344,7 +344,7 @@ fn flac_header(
     let (vendor, mut comments) = if let Some(index) = index {
         parse_comments(&blocks[index].1)?
     } else {
-        (b"Mornye".to_vec(), Vec::new())
+        (b"Sistrum".to_vec(), Vec::new())
     };
     if let Some(mode) = embed_mode {
         for (key, value) in fields.iter().filter(|(_, value)| !value.is_empty()) {

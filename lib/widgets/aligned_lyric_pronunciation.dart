@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/widgets/lyric_supplement_transition.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
-import 'package:mornye/utils/text_direction.dart';
+import 'package:sistrum/widgets/lyric_supplement_transition.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
+import 'package:sistrum/utils/text_direction.dart';
 
 /// Keeps each pronunciation phrase under the lyric with the same start time.
 /// Only shared word boundaries are used; line-only timing cannot identify

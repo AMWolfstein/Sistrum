@@ -5,17 +5,17 @@ import 'dart:typed_data';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/screens/extension_collection_screens.dart';
-import 'package:mornye/services/backend/native_backend_transport.dart';
-import 'package:mornye/services/backend/rust_ffi_backend.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/animation_utils.dart';
-import 'package:mornye/widgets/desktop/track_table.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/screens/extension_collection_screens.dart';
+import 'package:sistrum/services/backend/native_backend_transport.dart';
+import 'package:sistrum/services/backend/rust_ffi_backend.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/adaptive_layout.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/widgets/animation_utils.dart';
+import 'package:sistrum/widgets/desktop/track_table.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _PendingMetadata implements NativeBackendTransport {

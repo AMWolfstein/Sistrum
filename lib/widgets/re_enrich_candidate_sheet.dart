@@ -1,12 +1,12 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/services/batch_metadata_re_enrich.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/metadata_candidate_tile.dart';
-import 'package:mornye/widgets/metadata_editor_fields.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/services/batch_metadata_re_enrich.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/metadata_candidate_tile.dart';
+import 'package:sistrum/widgets/metadata_editor_fields.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
 /// Lets a person pick the online result a song is updated from. Results that
 /// fit come first; the rest stay folded under Other results, since a search

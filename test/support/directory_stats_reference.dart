@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:mornye/services/cache_maintenance_service.dart';
+import 'package:sistrum/services/cache_maintenance_service.dart';
 
 /// Original Dart traversal retained for parity and paired performance checks.
 Future<DirectoryStats> scanDirectoryReference(

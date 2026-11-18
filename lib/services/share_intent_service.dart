@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/services/audio_file_open_service.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/services/audio_file_open_service.dart';
 
 final _log = AppLogger('ShareIntent');
 

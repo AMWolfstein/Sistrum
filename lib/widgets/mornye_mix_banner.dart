@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
 const mornyeLockupAsset =
     'assets/brand/logo/png/mornye-lockup-horizontal-white@1x.png';
@@ -102,7 +102,7 @@ double mornyeBannerTitleSize(String title, double width) {
 }
 
 /// The art of a Top Pick: a soft color field, the mix's name set large, and
-/// the Mornye lockup in the top trailing corner.
+/// the Sistrum lockup in the top trailing corner.
 class MornyeMixBanner extends StatelessWidget {
   const MornyeMixBanner({
     super.key,

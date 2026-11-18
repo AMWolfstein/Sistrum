@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/features/link_phone_options.dart';
+import 'package:sistrum/services/link/features/link_phone_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {

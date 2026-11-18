@@ -3,8 +3,8 @@ import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:mornye/services/scrobbling/scrobble_listening.dart';
-import 'package:mornye/services/scrobbling/scrobble_store.dart';
+import 'package:sistrum/services/scrobbling/scrobble_listening.dart';
+import 'package:sistrum/services/scrobbling/scrobble_store.dart';
 
 enum ScrobbleProblem {
   connection,

@@ -4,13 +4,13 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_snack_bar.dart';
-import 'package:mornye/widgets/mornye_chrome.dart';
-import 'package:mornye/widgets/view_queue_snackbar_action.dart';
-import 'package:mornye/widgets/track_detail_actions.dart';
-import 'package:mornye/services/shell_navigation_service.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_snack_bar.dart';
+import 'package:sistrum/widgets/mornye_chrome.dart';
+import 'package:sistrum/widgets/view_queue_snackbar_action.dart';
+import 'package:sistrum/widgets/track_detail_actions.dart';
+import 'package:sistrum/services/shell_navigation_service.dart';
 
 import 'support/tooltip_finder.dart';
 

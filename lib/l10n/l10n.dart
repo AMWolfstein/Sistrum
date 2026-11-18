@@ -1,8 +1,8 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/utils/user_facing_error.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/utils/user_facing_error.dart';
 
-export 'package:mornye/l10n/app_localizations.dart';
+export 'package:sistrum/l10n/app_localizations.dart';
 
 /// The app's strings with the Material, Cupertino and widget strings of
 /// `material_ui`, in every language.

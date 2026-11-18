@@ -8,19 +8,19 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/controllers/player_metadata_controller.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/services/shell_navigation_service.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
-import 'package:mornye/widgets/desktop/desktop_commands.dart';
-import 'package:mornye/widgets/desktop/desktop_navigation.dart';
-import 'package:mornye/widgets/desktop/desktop_player_bar.dart';
-import 'package:mornye/widgets/desktop/desktop_window.dart';
-import 'package:mornye/widgets/player_lyrics.dart';
+import 'package:sistrum/controllers/player_metadata_controller.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/services/shell_navigation_service.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
+import 'package:sistrum/widgets/desktop/desktop_commands.dart';
+import 'package:sistrum/widgets/desktop/desktop_navigation.dart';
+import 'package:sistrum/widgets/desktop/desktop_player_bar.dart';
+import 'package:sistrum/widgets/desktop/desktop_window.dart';
+import 'package:sistrum/widgets/player_lyrics.dart';
 
 const _track = MediaItem(
   id: 'track',
@@ -43,7 +43,7 @@ const _ttml =
     '<span begin="12s" end="14s">words</span></p>'
     '</div></body></tt>';
 
-const _channel = MethodChannel('com.zarz.mornye/window');
+const _channel = MethodChannel('com.amwolfstein.sistrum/window');
 
 Future<List<int>> _wordPixels(WidgetTester tester) async {
   final paint = find.descendant(

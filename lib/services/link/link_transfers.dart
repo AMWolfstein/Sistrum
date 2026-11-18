@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
 
-export 'package:mornye/services/link/link_protocol.dart'
+export 'package:sistrum/services/link/link_protocol.dart'
     show LinkTransferState, LinkTransferStatus;
 
 /// Which way a transfer goes for this device.

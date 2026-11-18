@@ -21,7 +21,7 @@ async fn ping_answers_the_open_subsonic_envelope() {
         json!({
             "status": "ok",
             "version": "1.16.1",
-            "type": "mornye",
+            "type": "sistrum",
             "serverVersion": APP_VERSION,
             "openSubsonic": true,
         })
@@ -74,7 +74,7 @@ async fn error_response_follows_the_requested_format() {
     assert_eq!(response["status"], "failed");
     assert_eq!(response["version"], "1.16.1");
     assert_eq!(response["serverVersion"], "5.3.0");
-    assert_eq!(response["type"], "mornye");
+    assert_eq!(response["type"], "sistrum");
     assert_eq!(response["openSubsonic"], true);
     assert_eq!(
         response["error"],

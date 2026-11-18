@@ -14,11 +14,11 @@ case "$PLATFORM" in
 esac
 
 if [[ "$PLATFORM" == "android" ]]; then
-  ANDROID_ABIS_RAW="${MORNYE_RUST_ANDROID_ABIS-arm64-v8a,armeabi-v7a}"
+  ANDROID_ABIS_RAW="${SISTRUM_RUST_ANDROID_ABIS-arm64-v8a,armeabi-v7a}"
   case "$ANDROID_ABIS_RAW" in
     arm64-v8a|armeabi-v7a|arm64-v8a,armeabi-v7a|armeabi-v7a,arm64-v8a) ;;
     *)
-      echo "Error: MORNYE_RUST_ANDROID_ABIS must contain arm64-v8a and/or armeabi-v7a, comma-separated without spaces or duplicates." >&2
+      echo "Error: SISTRUM_RUST_ANDROID_ABIS must contain arm64-v8a and/or armeabi-v7a, comma-separated without spaces or duplicates." >&2
       exit 1
       ;;
   esac
@@ -31,14 +31,14 @@ export CARGO_TARGET_DIR="$RUST_BACKEND_DIR/target"
 # do not force target-feature=+aes on Android.
 
 # Desktop: the C ABI library loaded by dart:ffi (crates/desktop). It needs no
-# UniFFI bindings. Output: target/desktop/<os>/libmornye_desktop.{dylib,so}.
+# UniFFI bindings. Output: target/desktop/<os>/libsistrum_desktop.{dylib,so}.
 # The macOS app embeds it from an Xcode build phase
 # (scripts/embed_rust_backend_macos.sh); linux/CMakeLists.txt installs it.
 #
 # Windows is built by the PowerShell companion script
-# scripts/build_rust_backend_windows.ps1 (cargo build of mornye-desktop for
+# scripts/build_rust_backend_windows.ps1 (cargo build of sistrum-desktop for
 # x86_64-pc-windows-msvc, or aarch64-pc-windows-msvc with -Target, staged as
-# target\desktop\windows\mornye_desktop.dll for windows/CMakeLists.txt).
+# target\desktop\windows\sistrum_desktop.dll for windows/CMakeLists.txt).
 if [[ "$PLATFORM" == "desktop" ]]; then
   case "$(uname -s)" in
     Darwin)
@@ -53,25 +53,25 @@ if [[ "$PLATFORM" == "desktop" ]]; then
       DESKTOP_DIR="$CARGO_TARGET_DIR/desktop/macos"
       rustup target add aarch64-apple-darwin x86_64-apple-darwin
       for target in aarch64-apple-darwin x86_64-apple-darwin; do
-        cargo build --locked --release -p mornye-desktop --target "$target"
+        cargo build --locked --release -p sistrum-desktop --target "$target"
       done
       mkdir -p "$DESKTOP_DIR"
       xcrun lipo -create \
-        "$CARGO_TARGET_DIR/aarch64-apple-darwin/release/libmornye_desktop.dylib" \
-        "$CARGO_TARGET_DIR/x86_64-apple-darwin/release/libmornye_desktop.dylib" \
-        -output "$DESKTOP_DIR/libmornye_desktop.dylib"
+        "$CARGO_TARGET_DIR/aarch64-apple-darwin/release/libsistrum_desktop.dylib" \
+        "$CARGO_TARGET_DIR/x86_64-apple-darwin/release/libsistrum_desktop.dylib" \
+        -output "$DESKTOP_DIR/libsistrum_desktop.dylib"
       # Load by rpath from the app bundle's Frameworks directory.
-      install_name_tool -id "@rpath/libmornye_desktop.dylib" \
-        "$DESKTOP_DIR/libmornye_desktop.dylib"
+      install_name_tool -id "@rpath/libsistrum_desktop.dylib" \
+        "$DESKTOP_DIR/libsistrum_desktop.dylib"
       # install_name_tool drops the linker's ad hoc signature, and arm64
       # refuses unsigned code. The app build re-signs with its identity.
-      codesign --force --sign - "$DESKTOP_DIR/libmornye_desktop.dylib"
+      codesign --force --sign - "$DESKTOP_DIR/libsistrum_desktop.dylib"
       ;;
     Linux)
       DESKTOP_DIR="$CARGO_TARGET_DIR/desktop/linux"
-      cargo build --locked --release -p mornye-desktop
+      cargo build --locked --release -p sistrum-desktop
       mkdir -p "$DESKTOP_DIR"
-      cp "$CARGO_TARGET_DIR/release/libmornye_desktop.so" "$DESKTOP_DIR/"
+      cp "$CARGO_TARGET_DIR/release/libsistrum_desktop.so" "$DESKTOP_DIR/"
       ;;
     *) echo "Error: use macOS or Linux for desktop builds (Windows: scripts/build_rust_backend_windows.ps1)." >&2; exit 1 ;;
   esac
@@ -81,20 +81,20 @@ fi
 
 case "$(uname -s)" in
   Darwin)
-    HOST_LIBRARY="$CARGO_TARGET_DIR/release/libmornye_mobile.dylib"
+    HOST_LIBRARY="$CARGO_TARGET_DIR/release/libsistrum_mobile.dylib"
     # Keep cc-rs (QuickJS) and Rust compatible with the Swift host executable.
     export MACOSX_DEPLOYMENT_TARGET="${MACOSX_DEPLOYMENT_TARGET:-11.0}"
     ;;
-  Linux) HOST_LIBRARY="$CARGO_TARGET_DIR/release/libmornye_mobile.so" ;;
+  Linux) HOST_LIBRARY="$CARGO_TARGET_DIR/release/libsistrum_mobile.so" ;;
   *) echo "Error: use macOS or Linux for this build script." >&2; exit 1 ;;
 esac
 
 # Build separately from bindgen so CLI and cargo-metadata features are not
 # enabled in the shipped library through Cargo's workspace feature unification.
-cargo build --locked --release -p mornye-mobile
+cargo build --locked --release -p sistrum-mobile
 # Bindgen discovers each crate's uniffi.toml through Cargo metadata.
 for language in kotlin swift; do
-  cargo run --locked -p mornye-bindgen -- generate \
+  cargo run --locked -p sistrum-bindgen -- generate \
     --library "$HOST_LIBRARY" \
     --language "$language" \
     --out-dir "$CARGO_TARGET_DIR/bindings/$language" \
@@ -152,13 +152,13 @@ if [[ "$PLATFORM" == "android" ]]; then
   # Fold only identical functions whose addresses are not significant.
   export RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Wl,-z,max-page-size=16384 -C link-arg=-Wl,--pack-dyn-relocs=android -C link-arg=-Wl,--icf=safe"
   for target in "${ANDROID_TARGETS[@]}"; do
-    cargo build --locked --release -p mornye-mobile --target "$target"
+    cargo build --locked --release -p sistrum-mobile --target "$target"
     case "$target" in
       aarch64-linux-android) ABI="arm64-v8a" ;;
       armv7-linux-androideabi) ABI="armeabi-v7a" ;;
     esac
     mkdir -p "$CARGO_TARGET_DIR/android/jniLibs/$ABI"
-    cp "$CARGO_TARGET_DIR/$target/release/libmornye_mobile.so" \
+    cp "$CARGO_TARGET_DIR/$target/release/libsistrum_mobile.so" \
       "$CARGO_TARGET_DIR/android/jniLibs/$ABI/"
   done
 elif [[ "$PLATFORM" == "ios" ]]; then
@@ -172,32 +172,32 @@ elif [[ "$PLATFORM" == "ios" ]]; then
   export BINDGEN_EXTRA_CLANG_ARGS_aarch64_apple_ios_sim="-isysroot \"$(xcrun --sdk iphonesimulator --show-sdk-path)\" --target=arm64-apple-ios16.0-simulator"
   export BINDGEN_EXTRA_CLANG_ARGS_x86_64_apple_ios="-isysroot \"$(xcrun --sdk iphonesimulator --show-sdk-path)\" --target=x86_64-apple-ios16.0-simulator"
   for target in aarch64-apple-ios aarch64-apple-ios-sim x86_64-apple-ios; do
-    cargo build --locked --release -p mornye-mobile --target "$target"
+    cargo build --locked --release -p sistrum-mobile --target "$target"
   done
   HEADERS_DIR="$CARGO_TARGET_DIR/ios/headers"
-  FRAMEWORK_DIR="$CARGO_TARGET_DIR/ios/MornyeBackendFFI.xcframework"
-  SIMULATOR_LIBRARY="$CARGO_TARGET_DIR/ios/simulator/libmornye_mobile.a"
+  FRAMEWORK_DIR="$CARGO_TARGET_DIR/ios/SistrumBackendFFI.xcframework"
+  SIMULATOR_LIBRARY="$CARGO_TARGET_DIR/ios/simulator/libsistrum_mobile.a"
   mkdir -p "$HEADERS_DIR" "$(dirname "$SIMULATOR_LIBRARY")"
-  cp "$CARGO_TARGET_DIR/bindings/swift/MornyeBackendFFI.h" "$HEADERS_DIR/"
-  cp "$CARGO_TARGET_DIR/bindings/swift/MornyeBackendFFI.modulemap" "$HEADERS_DIR/module.modulemap"
+  cp "$CARGO_TARGET_DIR/bindings/swift/SistrumBackendFFI.h" "$HEADERS_DIR/"
+  cp "$CARGO_TARGET_DIR/bindings/swift/SistrumBackendFFI.modulemap" "$HEADERS_DIR/module.modulemap"
   # Flutter/CocoaPods may request both simulator architectures, even on an
   # ARM64 Mac. Supply one universal simulator slice.
   xcrun lipo -create \
-    "$CARGO_TARGET_DIR/aarch64-apple-ios-sim/release/libmornye_mobile.a" \
-    "$CARGO_TARGET_DIR/x86_64-apple-ios/release/libmornye_mobile.a" \
+    "$CARGO_TARGET_DIR/aarch64-apple-ios-sim/release/libsistrum_mobile.a" \
+    "$CARGO_TARGET_DIR/x86_64-apple-ios/release/libsistrum_mobile.a" \
     -output "$SIMULATOR_LIBRARY"
   # xcodebuild refuses to overwrite an existing generated XCFramework.
   if [[ -d "$FRAMEWORK_DIR" ]]; then
     rm -rf "$FRAMEWORK_DIR"
   fi
   xcodebuild -create-xcframework \
-    -library "$CARGO_TARGET_DIR/aarch64-apple-ios/release/libmornye_mobile.a" -headers "$HEADERS_DIR" \
+    -library "$CARGO_TARGET_DIR/aarch64-apple-ios/release/libsistrum_mobile.a" -headers "$HEADERS_DIR" \
     -library "$SIMULATOR_LIBRARY" -headers "$HEADERS_DIR" \
     -output "$FRAMEWORK_DIR"
   # CocoaPods does not traverse nested symlinks, including a relocated target/.
   # Stage one pod root that Podfile can resolve before scanning its files.
-  cp "$CARGO_TARGET_DIR/bindings/swift/MornyeBackend.swift" "$CARGO_TARGET_DIR/ios/"
-  cp "$RUST_BACKEND_DIR/MornyeBackend.podspec" "$CARGO_TARGET_DIR/ios/"
+  cp "$CARGO_TARGET_DIR/bindings/swift/SistrumBackend.swift" "$CARGO_TARGET_DIR/ios/"
+  cp "$RUST_BACKEND_DIR/SistrumBackend.podspec" "$CARGO_TARGET_DIR/ios/"
   cp "$PROJECT_DIR/LICENSE" "$CARGO_TARGET_DIR/ios/"
 fi
 

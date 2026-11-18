@@ -2,7 +2,7 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/audio_compare_dsp.dart';
+import 'package:sistrum/services/audio_compare_dsp.dart';
 
 /// A deterministic music-like signal: drifting tones, an envelope and a
 /// little seeded noise, so no lag repeats exactly.

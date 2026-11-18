@@ -3,15 +3,15 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/models/recognized_song.dart';
-import 'package:mornye/providers/download_queue_provider.dart';
-import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/music_recognition.dart';
-import 'package:mornye/services/music_recognition_library.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/models/recognized_song.dart';
+import 'package:sistrum/providers/download_queue_provider.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/music_recognition.dart';
+import 'package:sistrum/services/music_recognition_library.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final _log = AppLogger('MusicRecognition');

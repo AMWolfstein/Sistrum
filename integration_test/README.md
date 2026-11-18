@@ -27,14 +27,14 @@ report on the host, run the suite through
 `integration_test/performance_driver.dart`:
 
 ```bash
-MORNYE_PERFORMANCE_REPORT=build/perf/mornye.json \
+SISTRUM_PERFORMANCE_REPORT=build/perf/sistrum.json \
   flutter drive --profile --keep-app-running -d emulator-5554 \
   --driver=integration_test/performance_driver.dart \
   --target=integration_test/mornye_performance_test.dart
 ```
 
-- `MORNYE_PERFORMANCE_REPORT` (host environment variable) selects the
-  JSON output; the default is `/tmp/mornye-performance.json`.
+- `SISTRUM_PERFORMANCE_REPORT` (host environment variable) selects the
+  JSON output; the default is `/tmp/sistrum-performance.json`.
   Screenshots are written as PNG files beside it.
 - Use `--profile` on Android and `--debug` on iOS simulators.
 - Pass `--keep-app-running`; otherwise `flutter drive` uninstalls the app
@@ -52,7 +52,7 @@ MORNYE_PERFORMANCE_REPORT=build/perf/mornye.json \
   for Library, download, playback and both lyrics styles with synthetic files and
   local HTTP fixtures. Its stage timelines include persistence and idle
   work; each report states which setup and platform features are excluded.
-  Use a separate bundle identifier while another Mornye copy is running.
+  Use a separate bundle identifier while another Sistrum copy is running.
   Keep the measured window visible and avoid accessibility inspection during
   the run, which can change semantics work and invalidate the test teardown.
 

@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:mornye/services/lyrics_ai_client.dart';
-import 'package:mornye/services/native_file_hash.dart';
-import 'package:mornye/services/platform_bridge.dart';
+import 'package:sistrum/services/lyrics_ai_client.dart';
+import 'package:sistrum/services/native_file_hash.dart';
+import 'package:sistrum/services/platform_bridge.dart';
 import 'package:path_provider/path_provider.dart';
 
 void main() {

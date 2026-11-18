@@ -1,7 +1,7 @@
 import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/theme/mornye_icons.dart';
+import 'package:sistrum/theme/mornye_icons.dart';
 
 void main() {
   test('Mornye directional icons mirror in right-to-left layouts', () {

@@ -1,10 +1,10 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/network_offline_actions.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/network_offline_actions.dart';
 
 UnifiedLibraryItem _item(String path) => UnifiedLibraryItem(
   id: path,

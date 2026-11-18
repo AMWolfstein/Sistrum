@@ -5,12 +5,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/screens/artist_screen.dart';
-import 'package:mornye/screens/home_tab.dart';
-import 'package:mornye/screens/playlist_screen.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/widgets/track_collection_quick_actions.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/screens/artist_screen.dart';
+import 'package:sistrum/screens/home_tab.dart';
+import 'package:sistrum/screens/playlist_screen.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/widgets/track_collection_quick_actions.dart';
 
 void main() {
   final screens = <String, Widget>{
@@ -74,7 +74,7 @@ void main() {
         'audio_quality': '24-bit/96000Hz',
         'audio_modes': 'STEREO',
       };
-      const channel = MethodChannel('com.zarz.mornye/backend');
+      const channel = MethodChannel('com.amwolfstein.sistrum/backend');
       var requested = false;
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(channel, (call) async {

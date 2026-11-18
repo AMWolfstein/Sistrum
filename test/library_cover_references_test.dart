@@ -7,11 +7,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart'
     show databaseFactoryFfi, sqfliteFfiInit;
-import 'package:mornye/services/app_state_database.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/library_cleanup.dart';
-import 'package:mornye/services/library_collections_database.dart';
-import 'package:mornye/services/listening_statistics.dart';
+import 'package:sistrum/services/app_state_database.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/library_cleanup.dart';
+import 'package:sistrum/services/library_collections_database.dart';
+import 'package:sistrum/services/listening_statistics.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

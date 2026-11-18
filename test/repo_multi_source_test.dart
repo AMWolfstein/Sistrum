@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/providers/repo_provider.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/providers/repo_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _first = 'https://example.com/registry.json';
@@ -125,7 +125,7 @@ class _Extensions extends ExtensionNotifier {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const backend = MethodChannel('com.zarz.mornye/backend');
+  const backend = MethodChannel('com.amwolfstein.sistrum/backend');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
   late _FakeRepository native;

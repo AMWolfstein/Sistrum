@@ -1,11 +1,11 @@
 //! Request routing (contract sections 3, 4 and 6.1):
 //! - `/rest/<method>` and `/rest/<method>.view`, GET or POST with a form body
 //!   merged after the query: Subsonic authentication, then the Subsonic layer;
-//! - `GET /mornye/v1/info` and `POST /mornye/v1/pair`, no authentication;
-//! - `GET /mornye/v1/ws`, the WebSocket;
-//! - `PUT /mornye/v1/files/<name>`: Bearer authentication, then the body is
+//! - `GET /sistrum/v1/info` and `POST /sistrum/v1/pair`, no authentication;
+//! - `GET /sistrum/v1/ws`, the WebSocket;
+//! - `PUT /sistrum/v1/files/<name>`: Bearer authentication, then the body is
 //!   stored as a received song file;
-//! - any other `/mornye/v1/<op>`: Bearer authentication, then forwarded to
+//! - any other `/sistrum/v1/<op>`: Bearer authentication, then forwarded to
 //!   the app as `linkRequest` with `_method` added to the arguments.
 
 use crate::files::{self, ReceiveError};
@@ -34,7 +34,7 @@ pub(crate) async fn route(
     if let Some(method) = path.strip_prefix("/rest/") {
         return rest(state, method, request).await;
     }
-    let Some(op) = path.strip_prefix("/mornye/v1/") else {
+    let Some(op) = path.strip_prefix("/sistrum/v1/") else {
         return not_found();
     };
     if let Some(name) = op.strip_prefix("files/") {
@@ -110,7 +110,7 @@ async fn rest(state: &Arc<State>, method: &str, request: http::Request<Incoming>
     }
 }
 
-/// `GET /mornye/v1/info`: what a phone checks before pairing.
+/// `GET /sistrum/v1/info`: what a phone checks before pairing.
 fn info(state: &State) -> HttpResponse {
     let mut info = object!({
         "serverId": state.shared.server_id,
@@ -124,7 +124,7 @@ fn info(state: &State) -> HttpResponse {
     json(200, &info)
 }
 
-/// `POST /mornye/v1/pair` `{"deviceId","name","platform","proof"}`.
+/// `POST /sistrum/v1/pair` `{"deviceId","name","platform","proof"}`.
 async fn pair(state: &Arc<State>, peer: IpAddr, request: http::Request<Incoming>) -> HttpResponse {
     let (parts, body) = request.into_parts();
     let bytes = match read_body(&parts.headers, body).await {
@@ -181,7 +181,7 @@ async fn pair(state: &Arc<State>, peer: IpAddr, request: http::Request<Incoming>
     }
 }
 
-/// Any other `/mornye/v1/<op>`: forwarded to the app.
+/// Any other `/sistrum/v1/<op>`: forwarded to the app.
 async fn forward(state: &Arc<State>, op: &str, request: http::Request<Incoming>) -> HttpResponse {
     let Some(record) = auth::bearer(&state.store, request.headers()) else {
         return unauthorized();
@@ -229,7 +229,7 @@ async fn forward(state: &Arc<State>, op: &str, request: http::Request<Incoming>)
     }
 }
 
-/// `PUT /mornye/v1/files/<name>`: a song file from the phone, streamed to
+/// `PUT /sistrum/v1/files/<name>`: a song file from the phone, streamed to
 /// `<state_dir>/received/<name>`. Replies `{"name","size"}`; 413 beyond
 /// [`files::MAX_UPLOAD`].
 async fn upload(state: &Arc<State>, name: &str, request: http::Request<Incoming>) -> HttpResponse {

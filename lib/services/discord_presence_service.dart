@@ -5,10 +5,10 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:mornye/services/discord_artwork_resolver.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/secure_storage_options.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/services/discord_artwork_resolver.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/secure_storage_options.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
 enum DiscordPresenceStatus {
   disabled,
@@ -68,7 +68,7 @@ class DesktopDiscordChannel extends MethodChannel {
     Stream<String>? statuses,
   }) : _invoke = invoke ?? PlatformBridge.invokeDiscordPresence<Object?>,
        _statuses = statuses,
-       super('com.zarz.mornye/discord');
+       super('com.amwolfstein.sistrum/discord');
 
   static const _methods = {
     'initialize': 'discordPresenceInitialize',
@@ -123,7 +123,7 @@ class DiscordPresenceService {
            channel ??
            (isDesktopPlatform
                ? DesktopDiscordChannel()
-               : const MethodChannel('com.zarz.mornye/discord')),
+               : const MethodChannel('com.amwolfstein.sistrum/discord')),
        // Desktop IPC needs no OAuth: like Android, no account link.
        requiresLink = requiresLink ?? Platform.isIOS,
        _readRefreshToken = readRefreshToken ?? _readToken,

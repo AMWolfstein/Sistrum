@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/autoplay_history.dart';
-import 'package:mornye/services/playable_media.dart';
+import 'package:sistrum/services/autoplay_history.dart';
+import 'package:sistrum/services/playable_media.dart';
 
 PlayableMedia _song(int id, {String? source}) => PlayableMedia(
   id: '$id',

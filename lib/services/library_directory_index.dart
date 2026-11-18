@@ -1,6 +1,6 @@
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/saf_display_path.dart';
-import 'package:mornye/utils/windows_path_identity.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/saf_display_path.dart';
+import 'package:sistrum/utils/windows_path_identity.dart';
 
 class LibraryDirectoryEntry {
   const LibraryDirectoryEntry({

@@ -1,10 +1,10 @@
 use cap_std::fs::OpenOptions;
-use mornye_core::downloads::DownloadRequest;
-use mornye_core::lyrics::matching::normalize_loose_artist;
-use mornye_core::matching::lowercase;
-use mornye_core::metadata::reenrich::{self, text};
-use mornye_core::resolver::{artists_match, titles_match, track_identity_title};
-use mornye_providers::resolver::Check;
+use sistrum_core::downloads::DownloadRequest;
+use sistrum_core::lyrics::matching::normalize_loose_artist;
+use sistrum_core::matching::lowercase;
+use sistrum_core::metadata::reenrich::{self, text};
+use sistrum_core::resolver::{artists_match, titles_match, track_identity_title};
+use sistrum_providers::resolver::Check;
 use serde_json::{Value, json};
 use std::io::{Seek, SeekFrom};
 
@@ -24,7 +24,7 @@ pub(super) fn probe_result(
         // published suffix. Quality is probed only for FLAC/MP4. Missing
         // album folders may use tags from any supported container,
         // including undecoded audio.
-        container = mornye_core::tags::sniff_container(&mut file).unwrap_or_default();
+        container = sistrum_core::tags::sniff_container(&mut file).unwrap_or_default();
         let quality = matches!(container, "flac" | "m4a");
         if !container.is_empty() {
             result["actual_container"] = container.into();
@@ -32,7 +32,7 @@ pub(super) fn probe_result(
         let album = album_pending && text(result, "album").trim().is_empty();
         if (quality || album)
             && file.seek(SeekFrom::Start(0)).is_ok()
-            && let Ok(metadata) = mornye_core::tags::read_file_metadata(&mut file, &path, "", check)
+            && let Ok(metadata) = sistrum_core::tags::read_file_metadata(&mut file, &path, "", check)
         {
             if quality {
                 for key in ["bit_depth", "sample_rate", "audio_codec"] {

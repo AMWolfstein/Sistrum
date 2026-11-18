@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:mornye/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Paired desktops, the chosen one and this phone's device id, kept in

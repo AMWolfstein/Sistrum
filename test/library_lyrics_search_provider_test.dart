@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/providers/library_lyrics_search_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/library_lyrics_search.dart';
-import 'package:mornye/services/library_search.dart';
+import 'package:sistrum/providers/library_lyrics_search_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/library_lyrics_search.dart';
+import 'package:sistrum/services/library_search.dart';
 
 import 'support/fixed_settings.dart';
 

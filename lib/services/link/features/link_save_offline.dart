@@ -5,17 +5,17 @@ import 'dart:math';
 import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:mornye/models/download_history.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/cover_download_service.dart';
-import 'package:mornye/services/folder_path_template.dart';
-import 'package:mornye/services/link/features/link_track_refs.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/file_access.dart' show deleteFile;
+import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/cover_download_service.dart';
+import 'package:sistrum/services/folder_path_template.dart';
+import 'package:sistrum/services/link/features/link_track_refs.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/file_access.dart' show deleteFile;
 
 /// A Library original from Link or network storage, which this device can save.
 class LinkOfflineSong {
@@ -257,7 +257,7 @@ class LinkOfflineSaver {
   final Future<bool> Function(String origin)? existsOrigin;
   final DateTime Function() _now;
 
-  static const service = 'Mornye Link';
+  static const service = 'Sistrum Link';
 
   /// The history id of [songId] (contract section 13.2): the same song
   /// saved again replaces its record.
@@ -521,7 +521,7 @@ class LinkSubsonicTransport implements LinkOfflineTransport {
 
 /// [LinkOfflineDestination] for the download folder the settings choose:
 /// Android's storage access tree in `saf` mode, else the download directory
-/// (through its security-scoped bookmark on iOS), else `Documents/Mornye`.
+/// (through its security-scoped bookmark on iOS), else `Documents/Sistrum`.
 class LinkDownloadFolderDestination implements OfflineRollbackDestination {
   const LinkDownloadFolderDestination(this.settings);
 
@@ -588,7 +588,7 @@ class LinkDownloadFolderDestination implements OfflineRollbackDestination {
       if (root.isEmpty) {
         root = p.join(
           (await getApplicationDocumentsDirectory()).path,
-          'Mornye',
+          'Sistrum',
         );
       }
       final directory = Directory(p.joinAll([root, ...relativeDir.split('/')]));

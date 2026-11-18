@@ -5,22 +5,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path/path.dart' as p;
-import 'package:mornye/models/library_scan_failure.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/providers/library_album_artwork_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/cover_store.dart';
-import 'package:mornye/services/library_cleanup.dart';
-import 'package:mornye/services/library_collections_database.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/network_library_scanner.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/notification_service.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/local_library_scan_prefs.dart';
-import 'package:mornye/utils/progress_stream_poller.dart';
+import 'package:sistrum/models/library_scan_failure.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/library_album_artwork_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/services/library_cleanup.dart';
+import 'package:sistrum/services/library_collections_database.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/network_library_scanner.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/notification_service.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/local_library_scan_prefs.dart';
+import 'package:sistrum/utils/progress_stream_poller.dart';
 
 part 'local_library_provider_sources.dart';
 part 'local_library_provider_scan.dart';
@@ -154,7 +154,7 @@ typedef LocalLibraryAvailabilityProbe =
     Future<bool?> Function(String path, {String? bookmark});
 
 /// Whether the songs of the `network://` source [source] (its host) show:
-/// true or false, or null to keep them as they are. Mornye Link decides it,
+/// true or false, or null to keep them as they are. Sistrum Link decides it,
 /// so a paired device's songs hide while it is not connected.
 typedef NetworkSourceAvailability = bool? Function(String source);
 

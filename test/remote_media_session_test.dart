@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/remote_media_session.dart';
-import 'package:mornye/services/remote_playback.dart';
+import 'package:sistrum/services/remote_media_session.dart';
+import 'package:sistrum/services/remote_playback.dart';
 
 /// A remote device whose song, queue and state the test pushes.
 class _Remote implements RemotePlayback {

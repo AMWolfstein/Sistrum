@@ -9,14 +9,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/download_queue_provider.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/app_state_database.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/library_reorganizer.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/download_queue_provider.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/app_state_database.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/library_reorganizer.dart';
 
 import 'support/fixed_settings.dart';
 
@@ -117,7 +117,7 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'app_state_migrated_queue_to_sqlite_v1': true,
     });
-    const backend = MethodChannel('com.zarz.mornye/backend');
+    const backend = MethodChannel('com.amwolfstein.sistrum/backend');
     const sqlite = MethodChannel('com.tekartik.sqflite');
     const paths = MethodChannel('plugins.flutter.io/path_provider');
     const notifications = MethodChannel(
@@ -126,7 +126,7 @@ void main() {
     const connectivity = MethodChannel(
       'dev.fluttercommunity.plus/connectivity_status',
     );
-    const progress = MethodChannel('com.zarz.mornye/download_progress_stream');
+    const progress = MethodChannel('com.amwolfstein.sistrum/download_progress_stream');
     messenger.setMockMethodCallHandler(paths, (_) async => root.path);
     messenger.setMockMethodCallHandler(connectivity, (_) async => null);
     messenger.setMockMethodCallHandler(progress, (_) async => null);

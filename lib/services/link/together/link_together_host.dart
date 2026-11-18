@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:mornye/services/link/link_host_router.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/link/together/link_together_deck.dart';
-import 'package:mornye/services/link/together/link_together_follower.dart';
-import 'package:mornye/services/link/together/link_together_protocol.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/link/link_host_router.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/together/link_together_deck.dart';
+import 'package:sistrum/services/link/together/link_together_follower.dart';
+import 'package:sistrum/services/link/together/link_together_protocol.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('LinkTogether');
 

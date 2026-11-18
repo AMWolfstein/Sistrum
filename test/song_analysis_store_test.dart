@@ -3,8 +3,8 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:mornye/services/song_analysis_store.dart';
-import 'package:mornye/services/song_features.dart';
+import 'package:sistrum/services/song_analysis_store.dart';
+import 'package:sistrum/services/song_features.dart';
 
 Float32List _features(double start) => Float32List.fromList([
   for (var i = 0; i < SongFeatures.length; i++) start + i / 4,

@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart'
     show AppLifecycleListener, AppLifecycleState;
-import 'package:mornye/services/lastfm/lastfm_api.dart';
-import 'package:mornye/services/lastfm/lastfm_store.dart';
-import 'package:mornye/services/scrobbling/scrobble_listening.dart';
-import 'package:mornye/services/scrobbling/scrobble_store.dart';
-import 'package:mornye/services/scrobbling/scrobbler.dart';
+import 'package:sistrum/services/lastfm/lastfm_api.dart';
+import 'package:sistrum/services/lastfm/lastfm_store.dart';
+import 'package:sistrum/services/scrobbling/scrobble_listening.dart';
+import 'package:sistrum/services/scrobbling/scrobble_store.dart';
+import 'package:sistrum/services/scrobbling/scrobbler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Scrobbles to a Last.fm-compatible server, Last.fm itself or Libre.fm,

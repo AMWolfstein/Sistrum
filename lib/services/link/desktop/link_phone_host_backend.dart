@@ -3,16 +3,16 @@ import 'dart:convert';
 
 import 'package:bonsoir/bonsoir.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/constants/app_info.dart';
-import 'package:mornye/services/link/desktop/link_desktop_backend.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/constants/app_info.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_backend.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/utils/logger.dart';
 import 'package:path_provider/path_provider.dart';
 
-final _log = AppLogger('MornyeLink');
+final _log = AppLogger('SistrumLink');
 
 /// Announces a phone host on the local network as the desktop's server does
-/// itself (contract section 2: `_mornye._tcp`, TXT `v`, `id`, `fp`, and
+/// itself (contract section 2: `_sistrum._tcp`, TXT `v`, `id`, `fp`, and
 /// `pf` for the platform). [BonsoirLinkHostAdvertiser] uses the platform's
 /// service discovery; tests fake it.
 abstract interface class LinkHostAdvertiser {
@@ -66,12 +66,12 @@ Future<Map<String, String>> _devicePaths() async => {
 };
 
 /// [LinkDesktopBackend] on a phone ("Share with other phones"): the desktop's
-/// Rust server through `LinkHostPlugin` (`com.zarz.mornye/link`), announced
+/// Rust server through `LinkHostPlugin` (`com.amwolfstein.sistrum/link`), announced
 /// by a [LinkHostAdvertiser] instead of the server's own mDNS.
 class ChannelLinkHostBackend implements LinkDesktopBackend {
   ChannelLinkHostBackend({
-    MethodChannel channel = const MethodChannel('com.zarz.mornye/link'),
-    EventChannel events = const EventChannel('com.zarz.mornye/link/events'),
+    MethodChannel channel = const MethodChannel('com.amwolfstein.sistrum/link'),
+    EventChannel events = const EventChannel('com.amwolfstein.sistrum/link/events'),
     Future<Map<String, String>> Function()? paths,
     LinkHostAdvertiser? advertiser,
   }) : _channel = channel,

@@ -5,18 +5,18 @@ import 'package:cupertino_ui/cupertino_ui.dart'
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/services/link/link_transfers.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/theme/app_tokens.dart';
-import 'package:mornye/theme/mornye_icons.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_icon_button.dart';
-import 'package:mornye/widgets/app_progress_indicator.dart';
-import 'package:mornye/widgets/cached_cover_image.dart';
-import 'package:mornye/widgets/track_card.dart' show TrackCoverPlaceholder;
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/services/link/link_transfers.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/theme/mornye_icons.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_icon_button.dart';
+import 'package:sistrum/widgets/app_progress_indicator.dart';
+import 'package:sistrum/widgets/cached_cover_image.dart';
+import 'package:sistrum/widgets/track_card.dart' show TrackCoverPlaceholder;
 
 /// Separates the parts of a transfer's status line.
 const _separator = ' · ';
@@ -193,7 +193,7 @@ class LinkTransferRing extends StatelessWidget {
 }
 
 /// The linear progress of transfers, easing between status updates: the
-/// expressive track on Material, a thin capsule on Mornye.
+/// expressive track on Material, a thin capsule on Sistrum.
 class LinkTransferProgressBar extends StatelessWidget {
   const LinkTransferProgressBar({super.key, required this.value});
 

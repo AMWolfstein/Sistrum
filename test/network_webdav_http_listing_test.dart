@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/network_storage_service.dart';
+import 'package:sistrum/services/network_storage_service.dart';
 
 String _listing(String body) =>
     '<d:multistatus xmlns:d="DAV:">$body</d:multistatus>';

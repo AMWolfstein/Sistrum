@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/remote_playback.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/remote_playback.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('LinkNowPlaying');
 
@@ -25,7 +25,7 @@ class IosLinkNowPlaying with WidgetsBindingObserver {
        _invoke = invoke ?? _channel.invokeMethod<Object?>,
        _binding = '${DateTime.now().microsecondsSinceEpoch}-${_nextBinding++}';
 
-  static const _channel = MethodChannel('com.zarz.mornye/link_now_playing');
+  static const _channel = MethodChannel('com.amwolfstein.sistrum/link_now_playing');
   static int _nextBinding = 0;
 
   final RemotePlayback remote;

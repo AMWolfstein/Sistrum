@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:audio_service_platform_interface/audio_service_platform_interface.dart';
 import 'package:audio_service_platform_interface/no_op_audio_service.dart';
-import 'package:mornye/services/windows_taskbar_controls.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/windows_taskbar_controls.dart';
+import 'package:sistrum/utils/logger.dart';
 import 'package:smtc_windows/smtc_windows.dart' as smtc;
 
 final _log = AppLogger('Smtc');

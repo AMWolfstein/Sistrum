@@ -150,8 +150,8 @@ mod tests {
         assert!(is_ignored(Path::new("/m/.DS_Store")));
         assert!(is_ignored(Path::new("/m/a.flac.part")));
         assert!(is_ignored(Path::new("/m/a.TMP")));
-        assert!(is_ignored(Path::new("/m/mornye-00ff.partial")));
-        assert!(is_ignored(Path::new("/m/a.mornye-1.partial.flac")));
+        assert!(is_ignored(Path::new("/m/sistrum-00ff.partial")));
+        assert!(is_ignored(Path::new("/m/a.sistrum-1.partial.flac")));
         assert!(!is_ignored(Path::new("/m/a.flac")));
         assert!(!is_ignored(Path::new("/m/partial.flac")));
         assert!(!is_content_change(&EventKind::Access(

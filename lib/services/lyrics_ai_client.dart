@@ -5,8 +5,8 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:mornye/services/lyrics_translation_alignment.dart';
-import 'package:mornye/services/platform_bridge.dart';
+import 'package:sistrum/services/lyrics_translation_alignment.dart';
+import 'package:sistrum/services/platform_bridge.dart';
 
 /// The services AI lyrics translation can call with the user's own key.
 enum LyricsAiProvider {
@@ -355,7 +355,7 @@ LyricsAiRequest buildLyricsTranslationRequest(
           if (config.apiKey.isNotEmpty)
             'Authorization': 'Bearer ${config.apiKey}',
           if (config.provider == LyricsAiProvider.openRouter)
-            'X-Title': 'Mornye',
+            'X-Title': 'Sistrum',
         },
         {
           'model': config.model,

@@ -1,7 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/client/link_client_bonsoir.dart';
-import 'package:mornye/services/link/client/link_client_discovery.dart';
+import 'package:sistrum/services/link/client/link_client_bonsoir.dart';
+import 'package:sistrum/services/link/client/link_client_discovery.dart';
 
 void main() {
   final messenger =

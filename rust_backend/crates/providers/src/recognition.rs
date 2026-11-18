@@ -2,16 +2,16 @@
 //!
 //! The endpoint is unofficial and may change or refuse requests at any time,
 //! so every failure maps to a small set of kinds the app can explain. Only a
-//! fingerprint of spectral peaks is sent (see `mornye_core::music_signature`).
+//! fingerprint of spectral peaks is sent (see `sistrum_core::music_signature`).
 //! Requests carry the device locale and time zone; no location is sent.
 
 #[cfg(test)]
 mod tests;
 
-use mornye_core::music_signature::{
+use sistrum_core::music_signature::{
     SIGNATURE_SAMPLE_RATE, Signature, rms_dbfs, signature_from_pcm16,
 };
-use mornye_network::{HttpRequest, NetworkService, NetworkSession};
+use sistrum_network::{HttpRequest, NetworkService, NetworkSession};
 use serde::Serialize;
 use serde_json::{Value, json};
 use std::collections::BTreeMap;

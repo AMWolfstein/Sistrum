@@ -1,8 +1,8 @@
 import 'dart:isolate';
 
-import 'package:mornye/models/download_item.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/providers/download_queue_state.dart';
+import 'package:sistrum/models/download_item.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/download_queue_state.dart';
 
 String legacyAlbumReplayGainKey(Track track) {
   if (track.albumId != null && track.albumId!.isNotEmpty) {

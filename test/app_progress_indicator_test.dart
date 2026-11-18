@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/widgets/app_progress_indicator.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/widgets/app_progress_indicator.dart';
 
 void main() {
   for (final circular in [false, true]) {

@@ -1,4 +1,4 @@
-# git-cliff configuration for Mornye
+# git-cliff configuration for Sistrum
 # https://git-cliff.org/docs/configuration
 
 [changelog]
@@ -100,4 +100,4 @@ sort_commits = "newest"
 
 [remote.github]
 owner = "mornyeapp"
-repo = "Mornye"
+repo = "Sistrum"

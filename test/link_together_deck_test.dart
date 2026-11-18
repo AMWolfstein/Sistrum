@@ -1,8 +1,8 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/link/together/link_together_deck.dart';
-import 'package:mornye/services/link/together/link_together_protocol.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/together/link_together_deck.dart';
+import 'package:sistrum/services/link/together/link_together_protocol.dart';
 
 void main() {
   const first = MediaItem(

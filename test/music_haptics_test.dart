@@ -7,8 +7,8 @@ import 'dart:typed_data';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/audio_analysis_jobs.dart';
-import 'package:mornye/services/music_haptics.dart';
+import 'package:sistrum/services/audio_analysis_jobs.dart';
+import 'package:sistrum/services/music_haptics.dart';
 
 Uint8List _pcm(double seconds, double Function(double time) sample) {
   final count = (seconds * musicHapticsSampleRate).round();
@@ -142,7 +142,7 @@ void main() {
   testWidgets('music pulses keep the media usage on the native channel', (
     tester,
   ) async {
-    const channel = MethodChannel('com.zarz.mornye/haptics');
+    const channel = MethodChannel('com.amwolfstein.sistrum/haptics');
     final calls = <Map<Object?, Object?>>[];
     final messenger =
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
@@ -281,7 +281,7 @@ void main() {
   );
 
   group('document analysis', () {
-    const channel = MethodChannel('com.zarz.mornye/backend');
+    const channel = MethodChannel('com.amwolfstein.sistrum/backend');
     final messenger =
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     late Directory temporary;

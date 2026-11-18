@@ -4,13 +4,13 @@ import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/models/automix_options.dart';
-import 'package:mornye/models/equalizer_settings.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/equalizer_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/providers/song_lyrics_offset_provider.dart';
-import 'package:mornye/services/link/sync/link_sound_sync_protocol.dart';
+import 'package:sistrum/models/automix_options.dart';
+import 'package:sistrum/models/equalizer_settings.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/equalizer_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/providers/song_lyrics_offset_provider.dart';
+import 'package:sistrum/services/link/sync/link_sound_sync_protocol.dart';
 
 /// The synced values one device holds now, by item id.
 typedef LinkSoundValues = Map<LinkSoundId, Map<String, dynamic>>;

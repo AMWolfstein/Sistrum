@@ -2,17 +2,17 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/screens/settings/link_desktop_settings_page.dart';
-import 'package:mornye/services/link/desktop/link_desktop_backend.dart';
-import 'package:mornye/services/link/desktop/link_desktop_host.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/beta_badge.dart';
-import 'package:mornye/widgets/link/link_transfers_view.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/screens/settings/link_desktop_settings_page.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_backend.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_host.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/widgets/beta_badge.dart';
+import 'package:sistrum/widgets/link/link_transfers_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/link_desktop_fakes.dart';
@@ -87,7 +87,7 @@ void main() {
       tester,
     ) async {
       await pumpPage(tester, mornye: mornye, enabled: false);
-      expect(find.text('Share with Mornye on your phone'), findsOneWidget);
+      expect(find.text('Share with Sistrum on your phone'), findsOneWidget);
       expect(
         find.descendant(
           of: find.byKey(const ValueKey('link-enable')),
@@ -377,7 +377,7 @@ void main() {
     expect(backend.calls, contains('createKey:Desk player'));
     expect(find.text('Connect Desk player'), findsOneWidget);
     expect(find.text('secret-key-1'), findsOneWidget);
-    expect(find.text('mornye'), findsOneWidget);
+    expect(find.text('sistrum'), findsOneWidget);
 
     await tester.tap(findByTooltip('Copy Password or API key'));
     await settle(tester);

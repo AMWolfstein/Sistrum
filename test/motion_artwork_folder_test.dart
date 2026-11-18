@@ -4,15 +4,15 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/download_item.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/providers/download_queue_provider.dart';
-import 'package:mornye/providers/player_motion_artwork_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/motion_artwork_folder.dart';
-import 'package:mornye/services/motion_artwork_store.dart';
-import 'package:mornye/services/network_storage_service.dart';
+import 'package:sistrum/models/download_item.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/download_queue_provider.dart';
+import 'package:sistrum/providers/player_motion_artwork_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/motion_artwork_folder.dart';
+import 'package:sistrum/services/motion_artwork_store.dart';
+import 'package:sistrum/services/network_storage_service.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -212,7 +212,7 @@ void main() {
     });
 
     test('custom folders hold an album when its name ends them', () async {
-      const backend = MethodChannel('com.zarz.mornye/backend');
+      const backend = MethodChannel('com.amwolfstein.sistrum/backend');
       final messenger =
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
       messenger.setMockMethodCallHandler(backend, (call) async {

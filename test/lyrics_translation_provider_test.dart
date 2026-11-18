@@ -7,17 +7,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/lyrics_translation_provider.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/lyrics_ai_client.dart';
-import 'package:mornye/services/lyrics_romanization.dart';
-import 'package:mornye/services/lyrics_translation.dart';
-import 'package:mornye/services/lyrics_translation_alignment.dart';
-import 'package:mornye/services/lyrics_translation_sharing.dart';
-import 'package:mornye/services/lyrics_translation_song_languages.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/lyrics_translation_provider.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/lyrics_ai_client.dart';
+import 'package:sistrum/services/lyrics_romanization.dart';
+import 'package:sistrum/services/lyrics_translation.dart';
+import 'package:sistrum/services/lyrics_translation_alignment.dart';
+import 'package:sistrum/services/lyrics_translation_sharing.dart';
+import 'package:sistrum/services/lyrics_translation_song_languages.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MemoryLyricsAiKeyStore implements LyricsAiKeyStore {

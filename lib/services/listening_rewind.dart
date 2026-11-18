@@ -1,5 +1,5 @@
-import 'package:mornye/services/listening_statistics.dart';
-import 'package:mornye/utils/artist_utils.dart';
+import 'package:sistrum/services/listening_statistics.dart';
+import 'package:sistrum/utils/artist_utils.dart';
 import 'package:sqflite/sqflite.dart';
 
 /// Windows a Rewind can look back over. Rolling windows end today; [year]

@@ -1,17 +1,17 @@
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/widgets/cached_cover_image.dart';
-import 'package:mornye/widgets/desktop/desktop_selection.dart';
-import 'package:mornye/widgets/desktop/track_table.dart';
-import 'package:mornye/widgets/preview_button.dart';
-import 'package:mornye/widgets/track_card.dart';
-import 'package:mornye/widgets/track_collection_quick_actions.dart';
-import 'package:mornye/widgets/track_list_tile.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/utils/adaptive_layout.dart';
+import 'package:sistrum/widgets/cached_cover_image.dart';
+import 'package:sistrum/widgets/desktop/desktop_selection.dart';
+import 'package:sistrum/widgets/desktop/track_table.dart';
+import 'package:sistrum/widgets/preview_button.dart';
+import 'package:sistrum/widgets/track_card.dart';
+import 'package:sistrum/widgets/track_collection_quick_actions.dart';
+import 'package:sistrum/widgets/track_list_tile.dart';
 
 /// The desktop song table for album, playlist and folder [Track] lists, in
 /// place of

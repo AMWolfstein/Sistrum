@@ -1,11 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/services/link/desktop/link_desktop_host.dart';
-import 'package:mornye/services/link/link_mirrored_playback.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/services/remote_playback.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_host.dart';
+import 'package:sistrum/services/link/link_mirrored_playback.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/services/remote_playback.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
 /// A connected phone's player as the desktop's player screens show and
 /// drive it, while the desktop follows that phone. Songs picked on the

@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
-import 'package:mornye/services/lyrics_ai_client.dart';
-import 'package:mornye/services/lyrics_translation_alignment.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/lyrics_draft.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
+import 'package:sistrum/services/lyrics_ai_client.dart';
+import 'package:sistrum/services/lyrics_translation_alignment.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/lyrics_draft.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:path_provider/path_provider.dart';
 
 final _log = AppLogger('LyricsTranslation');

@@ -1,8 +1,8 @@
 //! The installed extension manifest contract, independent of JavaScript execution.
 
 use crate::storage::valid_extension_id;
-use mornye_network::policy::GrantedOrigin;
-use mornye_network::url::UrlParts;
+use sistrum_network::policy::GrantedOrigin;
+use sistrum_network::url::UrlParts;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::{Map, Value};
 

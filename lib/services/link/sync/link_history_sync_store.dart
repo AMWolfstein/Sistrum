@@ -1,10 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/services/link/sync/link_collection_sync_store.dart';
-import 'package:mornye/services/link/sync/link_history_sync_schema.dart';
-import 'package:mornye/services/link/sync/link_sync_protocol.dart';
-import 'package:mornye/services/listening_statistics.dart';
-import 'package:mornye/services/sqlite_helpers.dart' as sqlite;
+import 'package:sistrum/services/link/sync/link_collection_sync_store.dart';
+import 'package:sistrum/services/link/sync/link_history_sync_schema.dart';
+import 'package:sistrum/services/link/sync/link_sync_protocol.dart';
+import 'package:sistrum/services/listening_statistics.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
 
 /// Old Android SQLite allows 999 bound parameters per statement.
 const _chunkSize = 400;
@@ -14,7 +14,7 @@ const _songChunkSize = _chunkSize ~/ 2;
 
 typedef _EventIdentity = (String origin, String day, String trackKey);
 
-/// Reads and writes listening totals for Mornye Link history sync.
+/// Reads and writes listening totals for Sistrum Link history sync.
 class LinkHistorySyncStore {
   LinkHistorySyncStore(this._open);
 

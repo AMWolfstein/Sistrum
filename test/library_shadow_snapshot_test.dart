@@ -6,14 +6,14 @@ import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart'
     show databaseFactoryFfi, sqfliteFfiInit;
-import 'package:mornye/services/album_completeness.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/library_queue_store.dart';
-import 'package:mornye/services/library_row_mapper.dart';
-import 'package:mornye/services/library_search.dart';
-import 'package:mornye/services/sqlite_helpers.dart' as sqlite;
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/album_completeness.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/library_queue_store.dart';
+import 'package:sistrum/services/library_row_mapper.dart';
+import 'package:sistrum/services/library_search.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
+import 'package:sistrum/utils/logger.dart';
 
 const _sources = ['legacy', 'music', 'offline', 'disabled'];
 

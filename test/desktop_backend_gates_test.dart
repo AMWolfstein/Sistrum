@@ -4,11 +4,11 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/services/backend/native_backend_transport.dart';
-import 'package:mornye/services/backend/rust_ffi_backend.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/services/backend/native_backend_transport.dart';
+import 'package:sistrum/services/backend/rust_ffi_backend.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeTransport implements NativeBackendTransport {

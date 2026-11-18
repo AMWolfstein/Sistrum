@@ -7,11 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:path/path.dart' as p;
-import 'package:mornye/services/apk_downloader.dart';
+import 'package:sistrum/services/apk_downloader.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const channel = MethodChannel('com.zarz.mornye/backend');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   tearDown(() {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, null);
@@ -22,7 +22,7 @@ void main() {
       'APK progress is bounded for chunk bursts and finishes with the latest byte count ($knownLength)',
       () async {
         final directory = await Directory.systemTemp.createTemp(
-          'mornye-progress-test-',
+          'sistrum-progress-test-',
         );
         addTearDown(() => directory.delete(recursive: true));
         final chunks = [
@@ -66,7 +66,7 @@ void main() {
     'APK progress still updates while a slower stream is downloading',
     () async {
       final directory = await Directory.systemTemp.createTemp(
-        'mornye-progress-test-',
+        'sistrum-progress-test-',
       );
       addTearDown(() => directory.delete(recursive: true));
       Stream<List<int>> chunks() async* {
@@ -96,7 +96,7 @@ void main() {
 
   test('APK updater resumes a matching partial and verifies SHA-256', () async {
     final directory = await Directory.systemTemp.createTemp(
-      'mornye-updater-test-',
+      'sistrum-updater-test-',
     );
     addTearDown(() async {
       if (await directory.exists()) await directory.delete(recursive: true);
@@ -109,8 +109,8 @@ void main() {
       ...List.generate(64, (i) => i),
     ];
     const version = '5.0.0';
-    const url = 'https://updates.example.test/Mornye.apk';
-    final finalPath = p.join(directory.path, 'Mornye-$version.apk');
+    const url = 'https://updates.example.test/Sistrum.apk';
+    final finalPath = p.join(directory.path, 'Sistrum-$version.apk');
     final part = File('$finalPath.part');
     await part.writeAsBytes(payload.sublist(0, 12));
     await File(
@@ -158,7 +158,7 @@ void main() {
     'native hashing verifies the completed partial before publishing',
     () async {
       final directory = await Directory.systemTemp.createTemp(
-        'mornye-native-updater-test-',
+        'sistrum-native-updater-test-',
       );
       addTearDown(() => directory.delete(recursive: true));
       final payload = <int>[0x50, 0x4b, 0x03, 0x04, 1, 2, 3];
@@ -200,11 +200,11 @@ void main() {
       expect(rejected, isNull);
       expect(hashes, 2);
       expect(
-        await File('${directory.path}/Mornye-mismatch.apk').exists(),
+        await File('${directory.path}/Sistrum-mismatch.apk').exists(),
         false,
       );
       expect(
-        await File('${directory.path}/Mornye-mismatch.apk.part').exists(),
+        await File('${directory.path}/Sistrum-mismatch.apk.part').exists(),
         false,
       );
     },

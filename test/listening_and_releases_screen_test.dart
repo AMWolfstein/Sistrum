@@ -1,15 +1,15 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/providers/weekly_releases_provider.dart';
-import 'package:mornye/screens/listening_statistics_screen.dart';
-import 'package:mornye/screens/weekly_releases_screen.dart';
-import 'package:mornye/services/listening_statistics.dart';
-import 'package:mornye/services/weekly_releases.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/player_artwork.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/providers/weekly_releases_provider.dart';
+import 'package:sistrum/screens/listening_statistics_screen.dart';
+import 'package:sistrum/screens/weekly_releases_screen.dart';
+import 'package:sistrum/services/listening_statistics.dart';
+import 'package:sistrum/services/weekly_releases.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/player_artwork.dart';
 
 import 'support/fixed_settings.dart';
 

@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:audio_service/audio_service.dart' show MediaItem;
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/file_access.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/file_access.dart';
 
 /// A song file on the phone that the desktop can receive.
 class LinkPhoneFile {

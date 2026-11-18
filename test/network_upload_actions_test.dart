@@ -1,17 +1,17 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/providers/network_upload_provider.dart';
-import 'package:mornye/screens/network_storage_screen.dart';
-import 'package:mornye/services/link/features/link_save_offline.dart';
-import 'package:mornye/services/network_library_upload.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/library_selection_playback_actions.dart';
-import 'package:mornye/widgets/network_upload_actions.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/network_upload_provider.dart';
+import 'package:sistrum/screens/network_storage_screen.dart';
+import 'package:sistrum/services/link/features/link_save_offline.dart';
+import 'package:sistrum/services/network_library_upload.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/library_selection_playback_actions.dart';
+import 'package:sistrum/widgets/network_upload_actions.dart';
 
 import 'support/tooltip_finder.dart';
 

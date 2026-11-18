@@ -11,7 +11,7 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.zarz.mornye.discord
+        package: com.amwolfstein.sistrum.discord
         pluginClass: DiscordPresencePlugin
       ios:
         pluginClass: DiscordPresencePlugin

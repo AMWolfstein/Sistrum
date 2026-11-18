@@ -1,5 +1,5 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/theme/app_motion.dart';
+import 'package:sistrum/theme/app_motion.dart';
 
 /// Overlays a gradient on the trailing edge of a scrollable while more
 /// content remains beyond it, signalling that the view can scroll.

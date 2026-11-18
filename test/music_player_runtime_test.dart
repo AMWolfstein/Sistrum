@@ -8,47 +8,47 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' show AppLifecycleState;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/controllers/player_metadata_controller.dart';
-import 'package:mornye/models/library_collections.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/services/app_state_database.dart';
-import 'package:mornye/services/autoplay_personalization.dart';
-import 'package:mornye/services/autoplay_history.dart';
-import 'package:mornye/services/autoplay_ranker.dart';
-import 'package:mornye/services/autoplay_taste.dart';
-import 'package:mornye/services/background_favorites.dart';
-import 'package:mornye/services/cover_store.dart';
-import 'package:mornye/services/cast_output.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/library_collections_database.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/library_search.dart';
-import 'package:mornye/services/listening_statistics.dart';
-import 'package:mornye/services/link/desktop/link_player.dart';
-import 'package:mornye/services/link/features/link_desktop_remote.dart';
-import 'package:mornye/services/link/features/link_handoff.dart';
-import 'package:mornye/services/link/features/link_phone_client.dart';
-import 'package:mornye/services/link/features/link_phone_player.dart';
-import 'package:mornye/services/link/features/link_remote_playback.dart';
-import 'package:mornye/services/link/features/link_track_refs.dart';
-import 'package:mornye/services/link/features/link_track_resolver.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/media_library_browser.dart';
-import 'package:mornye/services/music_player_service.dart';
-import 'package:mornye/services/network_metadata_service.dart';
-import 'package:mornye/services/network_playback_cache.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/playback_deck.dart';
-import 'package:mornye/services/playback_notification.dart';
-import 'package:mornye/services/source_deletion_events.dart';
-import 'package:mornye/services/source_metadata_events.dart';
-import 'package:mornye/utils/android_tv.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
+import 'package:sistrum/controllers/player_metadata_controller.dart';
+import 'package:sistrum/models/library_collections.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/services/app_state_database.dart';
+import 'package:sistrum/services/autoplay_personalization.dart';
+import 'package:sistrum/services/autoplay_history.dart';
+import 'package:sistrum/services/autoplay_ranker.dart';
+import 'package:sistrum/services/autoplay_taste.dart';
+import 'package:sistrum/services/background_favorites.dart';
+import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/services/cast_output.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/library_collections_database.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/library_search.dart';
+import 'package:sistrum/services/listening_statistics.dart';
+import 'package:sistrum/services/link/desktop/link_player.dart';
+import 'package:sistrum/services/link/features/link_desktop_remote.dart';
+import 'package:sistrum/services/link/features/link_handoff.dart';
+import 'package:sistrum/services/link/features/link_phone_client.dart';
+import 'package:sistrum/services/link/features/link_phone_player.dart';
+import 'package:sistrum/services/link/features/link_remote_playback.dart';
+import 'package:sistrum/services/link/features/link_track_refs.dart';
+import 'package:sistrum/services/link/features/link_track_resolver.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/media_library_browser.dart';
+import 'package:sistrum/services/music_player_service.dart';
+import 'package:sistrum/services/network_metadata_service.dart';
+import 'package:sistrum/services/network_playback_cache.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/playback_deck.dart';
+import 'package:sistrum/services/playback_notification.dart';
+import 'package:sistrum/services/source_deletion_events.dart';
+import 'package:sistrum/services/source_metadata_events.dart';
+import 'package:sistrum/utils/android_tv.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart'
     show databaseFactoryFfi, sqfliteFfiInit;
@@ -3585,7 +3585,7 @@ void main() {
       final cached = await File(
         '${directory.path}/copy.flac',
       ).writeAsString('audio');
-      const channel = MethodChannel('com.zarz.mornye/backend');
+      const channel = MethodChannel('com.amwolfstein.sistrum/backend');
       final messenger =
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
       messenger.setMockMethodCallHandler(
@@ -3630,7 +3630,7 @@ void main() {
       var document = plain;
       final copyTags = <String, String>{};
       final copies = <File>[];
-      const channel = MethodChannel('com.zarz.mornye/backend');
+      const channel = MethodChannel('com.amwolfstein.sistrum/backend');
       final messenger =
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
       messenger.setMockMethodCallHandler(channel, (call) async {
@@ -3756,7 +3756,7 @@ void main() {
       ).writeAsString('new');
       final copying = Completer<void>();
       final release = Completer<String>();
-      const channel = MethodChannel('com.zarz.mornye/backend');
+      const channel = MethodChannel('com.amwolfstein.sistrum/backend');
       final messenger =
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
       var copies = 0;

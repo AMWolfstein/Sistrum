@@ -1,6 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/scrobbling/scrobble_listening.dart';
+import 'package:sistrum/services/scrobbling/scrobble_listening.dart';
 
 void main() {
   late Duration elapsed;

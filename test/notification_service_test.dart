@@ -3,9 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/services/notification_service.dart';
-import 'package:mornye/services/verification_notification.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/services/notification_service.dart';
+import 'package:sistrum/services/verification_notification.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -76,8 +76,8 @@ void main() {
     final initialization =
         methodCalls.firstWhere((call) => call.method == 'initialize').arguments
             as Map<Object?, Object?>;
-    expect(initialization['defaultIcon'], '@drawable/ic_notification_mornye');
-    expect(androidDetails['icon'], '@drawable/ic_notification_mornye');
+    expect(initialization['defaultIcon'], '@drawable/ic_notification_sistrum');
+    expect(androidDetails['icon'], '@drawable/ic_notification_sistrum');
 
     expect(
       NotificationService.verificationRequiredId,

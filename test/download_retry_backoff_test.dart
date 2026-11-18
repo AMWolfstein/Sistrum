@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/download_retry_backoff.dart';
+import 'package:sistrum/services/download_retry_backoff.dart';
 
 void main() {
   test('elapsed delays allow retry and leave no cancellation behind', () async {

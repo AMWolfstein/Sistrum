@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/services/album_completeness.dart';
-import 'package:mornye/services/library_queue_store.dart';
-import 'package:mornye/services/sqlite_helpers.dart' as sqlite;
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/services/album_completeness.dart';
+import 'package:sistrum/services/library_queue_store.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
 
 // Whitespace outside literals is insignificant, and no literal in the queue
 // SQL contains a whitespace run.

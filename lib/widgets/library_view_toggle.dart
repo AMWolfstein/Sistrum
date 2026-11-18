@@ -6,7 +6,7 @@ import 'package:material_3_expressive/material_3_expressive.dart'
         M3EButtonSize,
         M3EButtonStyle;
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/theme/material_expressive.dart';
+import 'package:sistrum/theme/material_expressive.dart';
 
 /// A switch between the views of a Library page, such as Albums | Singles:
 /// a connected button group, or a segmented button where the expressive

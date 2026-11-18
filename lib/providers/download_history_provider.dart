@@ -5,22 +5,22 @@ import 'package:flutter/foundation.dart' show setEquals;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/models/download_history.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/download_file_recovery.dart';
-import 'package:mornye/services/history_maintenance.dart';
-import 'package:mornye/services/source_metadata_events.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/string_utils.dart';
-import 'package:mornye/utils/audio_format_utils.dart';
-import 'package:mornye/utils/int_utils.dart';
-import 'package:mornye/utils/lyrics_metadata_helper.dart';
-import 'package:mornye/utils/path_match_keys.dart';
+import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/download_file_recovery.dart';
+import 'package:sistrum/services/history_maintenance.dart';
+import 'package:sistrum/services/source_metadata_events.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/string_utils.dart';
+import 'package:sistrum/utils/audio_format_utils.dart';
+import 'package:sistrum/utils/int_utils.dart';
+import 'package:sistrum/utils/lyrics_metadata_helper.dart';
+import 'package:sistrum/utils/path_match_keys.dart';
 
-export 'package:mornye/models/download_history.dart';
+export 'package:sistrum/models/download_history.dart';
 
 part 'download_history_provider_maintenance.dart';
 

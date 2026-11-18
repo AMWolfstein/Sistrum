@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/utils/loud_volume_guard.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/utils/loud_volume_guard.dart';
 
 void main() {
   const level = 0.8;

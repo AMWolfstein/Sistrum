@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/utils/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final _log = AppLogger('LinkPhoneOptions');
@@ -73,7 +73,7 @@ class LinkPhoneOptionsNotifier extends Notifier<LinkPhoneOptions> {
         followDesktop: prefs.getBool(followDesktopKey) ?? true,
       );
     } on Object catch (error) {
-      _log.w('Could not read the Mornye Link choices: $error');
+      _log.w('Could not read the Sistrum Link choices: $error');
     }
     // A choice made meanwhile stands.
     if (ref.mounted && !state.loaded) state = options;
@@ -98,7 +98,7 @@ class LinkPhoneOptionsNotifier extends Notifier<LinkPhoneOptions> {
     try {
       await write(await SharedPreferences.getInstance());
     } on Object catch (error) {
-      _log.w('Could not save the Mornye Link choices: $error');
+      _log.w('Could not save the Sistrum Link choices: $error');
     }
   }
 }

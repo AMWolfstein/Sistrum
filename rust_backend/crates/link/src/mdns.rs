@@ -1,4 +1,4 @@
-//! Discovery (contract section 2): advertises `_mornye._tcp.local.` with the
+//! Discovery (contract section 2): advertises `_sistrum._tcp.local.` with the
 //! server name as the instance name and TXT `v=1`, `id=<serverId>`,
 //! `fp=<fingerprint>` on every IPv4 interface, plus `pf=<platform>` when the
 //! app names its platform. Advertising is best effort; the server works
@@ -7,7 +7,7 @@
 use mdns_sd::{IfKind, ServiceDaemon, ServiceInfo};
 use std::time::Duration;
 
-const SERVICE_TYPE: &str = "_mornye._tcp.local.";
+const SERVICE_TYPE: &str = "_sistrum._tcp.local.";
 
 pub(crate) struct Advertiser {
     daemon: ServiceDaemon,
@@ -37,7 +37,7 @@ pub(crate) fn advertise(
         .filter(char::is_ascii_alphanumeric)
         .take(8)
         .collect();
-    let host = format!("mornye-{short_id}.local.");
+    let host = format!("sistrum-{short_id}.local.");
     let mut properties = vec![("v", "1"), ("id", server_id), ("fp", fingerprint)];
     // Lets a phone tell a phone host from a computer before pairing.
     if !platform.is_empty() {

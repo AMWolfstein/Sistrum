@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
-import 'package:mornye/models/equalizer_settings.dart';
-import 'package:mornye/services/playback_deck.dart' show PlaybackPitch;
+import 'package:sistrum/models/equalizer_settings.dart';
+import 'package:sistrum/services/playback_deck.dart' show PlaybackPitch;
 
 /// One filter in the equalizer's libavfilter graph.
 @immutable
@@ -172,11 +172,11 @@ class MpvAudioFilterChain {
     final scale = tempoScale;
     return [
       if (filters.isNotEmpty) ...[
-        '@mornye_format:format=format=floatp',
-        '@mornye_dsp:lavfi=[${filters.map((filter) => filter.spec).join(',')}]',
+        '@sistrum_format:format=format=floatp',
+        '@sistrum_dsp:lavfi=[${filters.map((filter) => filter.spec).join(',')}]',
       ],
       if (scale != null)
-        '@mornye_tempo:scaletempo=scale=${_number(scale, digits: 6)}',
+        '@sistrum_tempo:scaletempo=scale=${_number(scale, digits: 6)}',
     ].join(',');
   }
 

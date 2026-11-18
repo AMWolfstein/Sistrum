@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:audio_service/audio_service.dart' show MediaItem;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/features/link_phone_files.dart';
-import 'package:mornye/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/features/link_phone_files.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
 
 import 'support/link_fakes.dart';
 

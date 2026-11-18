@@ -1110,7 +1110,7 @@ extension _HomeTabSearchResultsUI on _HomeTabState {
     );
   }
 
-  /// Identifies a song nearby; searches for it when it is not in Mornye.
+  /// Identifies a song nearby; searches for it when it is not in Sistrum.
   Future<void> _openMusicRecognition() async {
     _searchFocusNode.unfocus();
     final query = await pushPage<String>(

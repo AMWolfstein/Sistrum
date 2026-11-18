@@ -10,7 +10,7 @@ use hmac::{Hmac, KeyInit, Mac};
 use http_body_util::{BodyExt, Full, StreamBody};
 use hyper::body::Frame;
 use hyper_util::rt::TokioIo;
-use mornye_link::{Host, HostError, LinkConfig, LinkServer, Tuning};
+use sistrum_link::{Host, HostError, LinkConfig, LinkServer, Tuning};
 use rustls::client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier};
 use rustls::crypto::CryptoProvider;
 use rustls::pki_types::{CertificateDer, ServerName, UnixTime};
@@ -301,7 +301,7 @@ impl Fixture {
         let mut builder = http::Request::builder()
             .method(method)
             .uri(path)
-            .header("host", "mornye.local");
+            .header("host", "sistrum.local");
         if let Some(key) = key {
             builder = builder.header("authorization", format!("Bearer {key}"));
         }
@@ -334,7 +334,7 @@ impl Fixture {
         let mut builder = http::Request::builder()
             .method("PUT")
             .uri(path)
-            .header("host", "mornye.local")
+            .header("host", "sistrum.local")
             .header("content-type", "application/octet-stream");
         if let Some(key) = key {
             builder = builder.header("authorization", format!("Bearer {key}"));
@@ -364,7 +364,7 @@ impl Fixture {
     /// Pairs `device_id` and returns its API key.
     fn pair(&self, device_id: &str) -> String {
         let pin = self.begin_pairing();
-        let response = self.post_json("/mornye/v1/pair", None, &self.pair_body(&pin, device_id));
+        let response = self.post_json("/sistrum/v1/pair", None, &self.pair_body(&pin, device_id));
         assert_eq!(response.status, 200, "{}", response.text());
         response.json()["apiKey"].as_str().unwrap().to_owned()
     }
@@ -394,7 +394,7 @@ impl Fixture {
         let key = key.to_owned();
         self.run(async move {
             let tls = connect(port, &fingerprint).await;
-            let mut request = "wss://mornye.local/mornye/v1/ws"
+            let mut request = "wss://sistrum.local/sistrum/v1/ws"
                 .into_client_request()
                 .unwrap();
             request
@@ -436,7 +436,7 @@ fn hex(bytes: &[u8]) -> String {
 /// The phone's pairing proof, written from the contract.
 fn proof(pin: &str, fingerprint: &str, device_id: &str) -> String {
     let mut mac = <Hmac<Sha256> as KeyInit>::new_from_slice(pin.as_bytes()).unwrap();
-    mac.update(format!("mornye-link-pair-v1:{fingerprint}:{device_id}").as_bytes());
+    mac.update(format!("sistrum-link-pair-v1:{fingerprint}:{device_id}").as_bytes());
     hex(&mac.finalize().into_bytes())
 }
 
@@ -455,7 +455,7 @@ async fn connect(port: u16, fingerprint: &str) -> TlsStream<TcpStream> {
         .await
         .unwrap();
     TlsConnector::from(Arc::new(config))
-        .connect(ServerName::try_from("mornye.local").unwrap(), tcp)
+        .connect(ServerName::try_from("sistrum.local").unwrap(), tcp)
         .await
         .unwrap()
 }
@@ -539,7 +539,7 @@ async fn close_code_or_none(socket: &mut Socket) -> Option<u16> {
 #[test]
 fn info_reports_the_identity_without_auth() {
     let fixture = Fixture::new();
-    let info = fixture.get("/mornye/v1/info", None);
+    let info = fixture.get("/sistrum/v1/info", None);
     assert_eq!(info.status, 200);
     let info = info.json();
     assert_eq!(info["serverId"], fixture.server().server_id());
@@ -553,14 +553,14 @@ fn info_reports_the_identity_without_auth() {
     assert!(info.get("features").is_none());
 
     fixture.begin_pairing();
-    assert_eq!(fixture.get("/mornye/v1/info", None).json()["pairing"], true);
+    assert_eq!(fixture.get("/sistrum/v1/info", None).json()["pairing"], true);
     fixture.server().end_pairing();
     assert_eq!(
         fixture.host.wait_event("linkPairingEnded", 1)["reason"],
         "cancelled"
     );
     assert_eq!(
-        fixture.get("/mornye/v1/info", None).json()["pairing"],
+        fixture.get("/sistrum/v1/info", None).json()["pairing"],
         false
     );
 
@@ -569,7 +569,7 @@ fn info_reports_the_identity_without_auth() {
     assert_eq!(missing.json(), json!({"error": "not_found"}));
     assert_eq!(
         fixture
-            .post_json("/mornye/v1/info", None, &json!({}))
+            .post_json("/sistrum/v1/info", None, &json!({}))
             .status,
         405
     );
@@ -591,7 +591,7 @@ fn hosts_announce_their_platform_and_features() {
     fixture.platform = "android".to_owned();
     fixture.features = Some(vec![]);
     fixture.start(free_port());
-    let info = fixture.get("/mornye/v1/info", None).json();
+    let info = fixture.get("/sistrum/v1/info", None).json();
     assert_eq!(info["platform"], "android");
     assert_eq!(info["features"], json!([]));
 
@@ -610,7 +610,7 @@ fn hosts_announce_their_platform_and_features() {
 fn pairing_with_a_valid_proof_stores_the_device() {
     let fixture = Fixture::new();
     let pin = fixture.begin_pairing();
-    let response = fixture.post_json("/mornye/v1/pair", None, &fixture.pair_body(&pin, "phone-1"));
+    let response = fixture.post_json("/sistrum/v1/pair", None, &fixture.pair_body(&pin, "phone-1"));
     assert_eq!(response.status, 200, "{}", response.text());
     let paired = response.json();
     assert_eq!(paired["serverId"], fixture.server().server_id());
@@ -633,19 +633,19 @@ fn pairing_with_a_valid_proof_stores_the_device() {
     assert!(device["pairedMs"].as_i64().unwrap() > 0);
 
     // The window closed with the success.
-    let again = fixture.post_json("/mornye/v1/pair", None, &fixture.pair_body(&pin, "phone-1"));
+    let again = fixture.post_json("/sistrum/v1/pair", None, &fixture.pair_body(&pin, "phone-1"));
     assert_eq!(again.status, 403);
     assert_eq!(again.json(), json!({"error": "pairing_closed"}));
 
     // The key works, and re-pairing replaces it.
-    assert_eq!(fixture.get("/mornye/v1/state", Some(key)).status, 200);
+    assert_eq!(fixture.get("/sistrum/v1/state", Some(key)).status, 200);
     let replaced = fixture.pair("phone-1");
     assert_ne!(replaced, key);
-    assert_eq!(fixture.get("/mornye/v1/state", Some(key)).status, 401);
-    assert_eq!(fixture.get("/mornye/v1/state", Some(&replaced)).status, 200);
+    assert_eq!(fixture.get("/sistrum/v1/state", Some(key)).status, 401);
+    assert_eq!(fixture.get("/sistrum/v1/state", Some(&replaced)).status, 200);
     assert_eq!(fixture.server().devices().as_array().unwrap().len(), 1);
 
-    let invalid = fixture.post_json("/mornye/v1/pair", None, &json!({"deviceId": "x"}));
+    let invalid = fixture.post_json("/sistrum/v1/pair", None, &json!({"deviceId": "x"}));
     assert_eq!(invalid.status, 400);
 }
 
@@ -659,7 +659,7 @@ fn five_bad_proofs_end_the_window() {
         bad["proof"] = json!(proof("111111", fixture.server().fingerprint(), "phone-1"));
     }
     for _ in 0..5 {
-        let response = fixture.post_json("/mornye/v1/pair", None, &bad);
+        let response = fixture.post_json("/sistrum/v1/pair", None, &bad);
         assert_eq!(response.status, 403);
         assert_eq!(response.json(), json!({"error": "bad_proof"}));
     }
@@ -668,7 +668,7 @@ fn five_bad_proofs_end_the_window() {
         json!({"reason": "attempts"})
     );
     // Even the right proof is refused now.
-    let response = fixture.post_json("/mornye/v1/pair", None, &fixture.pair_body(&pin, "phone-1"));
+    let response = fixture.post_json("/sistrum/v1/pair", None, &fixture.pair_body(&pin, "phone-1"));
     assert_eq!(response.json(), json!({"error": "pairing_closed"}));
     assert!(fixture.host.events("linkPaired").is_empty());
 }
@@ -683,7 +683,7 @@ fn a_proof_for_another_certificate_fails() {
         "platform": "android",
         "proof": proof(&pin, &"0".repeat(64), "phone-1"),
     });
-    let response = fixture.post_json("/mornye/v1/pair", None, &relayed);
+    let response = fixture.post_json("/sistrum/v1/pair", None, &relayed);
     assert_eq!(response.json(), json!({"error": "bad_proof"}));
 }
 
@@ -698,7 +698,7 @@ fn pairing_windows_expire() {
         fixture.host.wait_event("linkPairingEnded", 1),
         json!({"reason": "expired"})
     );
-    let response = fixture.post_json("/mornye/v1/pair", None, &fixture.pair_body(&pin, "phone-1"));
+    let response = fixture.post_json("/sistrum/v1/pair", None, &fixture.pair_body(&pin, "phone-1"));
     assert_eq!(response.status, 403);
     assert_eq!(response.json(), json!({"error": "pairing_closed"}));
     assert_eq!(fixture.host.events("linkPairingEnded").len(), 1);
@@ -711,20 +711,20 @@ fn pairing_requests_are_rate_limited_per_address() {
         ..test_tuning()
     });
     let body = json!({"deviceId": "phone-1", "proof": "00"});
-    let first = fixture.post_json("/mornye/v1/pair", None, &body);
+    let first = fixture.post_json("/sistrum/v1/pair", None, &body);
     assert_eq!(first.json(), json!({"error": "pairing_closed"}));
-    let second = fixture.post_json("/mornye/v1/pair", None, &body);
+    let second = fixture.post_json("/sistrum/v1/pair", None, &body);
     assert_eq!(second.status, 429);
 }
 
 #[test]
-fn mornye_endpoints_require_a_bearer_key() {
+fn sistrum_endpoints_require_a_bearer_key() {
     let fixture = Fixture::new();
     for key in [None, Some("not-a-key")] {
-        let response = fixture.get("/mornye/v1/state", key);
+        let response = fixture.get("/sistrum/v1/state", key);
         assert_eq!(response.status, 401);
         assert_eq!(response.json(), json!({"error": "unauthorized"}));
-        assert_eq!(fixture.get("/mornye/v1/ws", key).status, 401);
+        assert_eq!(fixture.get("/sistrum/v1/ws", key).status, 401);
     }
     assert!(fixture.host.requests.lock().unwrap().is_empty());
 }
@@ -734,7 +734,7 @@ fn forwards_requests_to_the_app() {
     let fixture = Fixture::new();
     let key = fixture.pair("phone-1");
 
-    let got = fixture.get("/mornye/v1/handoff/current?limit=5&q=a%20b", Some(&key));
+    let got = fixture.get("/sistrum/v1/handoff/current?limit=5&q=a%20b", Some(&key));
     assert_eq!(got.status, 200);
     assert_eq!(
         got.json(),
@@ -744,7 +744,7 @@ fn forwards_requests_to_the_app() {
         })
     );
     let posted = fixture.post_json(
-        "/mornye/v1/command",
+        "/sistrum/v1/command",
         Some(&key),
         &json!({"action": "seek", "args": {"positionMs": 5}}),
     );
@@ -752,7 +752,7 @@ fn forwards_requests_to_the_app() {
         posted.json()["args"],
         json!({"action": "seek", "args": {"positionMs": 5}, "_method": "POST"})
     );
-    let empty = fixture.request("POST", "/mornye/v1/downloads", Some(&key), None);
+    let empty = fixture.request("POST", "/sistrum/v1/downloads", Some(&key), None);
     assert_eq!(empty.json()["args"], json!({"_method": "POST"}));
     {
         let requests = fixture.host.requests.lock().unwrap();
@@ -762,33 +762,33 @@ fn forwards_requests_to_the_app() {
 
     let not_json = fixture.request(
         "POST",
-        "/mornye/v1/command",
+        "/sistrum/v1/command",
         Some(&key),
         Some(("application/json", "[1]")),
     );
     assert_eq!(not_json.status, 400);
     assert_eq!(not_json.json()["error"], "invalid");
 
-    let missing = fixture.get("/mornye/v1/missing", Some(&key));
+    let missing = fixture.get("/sistrum/v1/missing", Some(&key));
     assert_eq!(missing.status, 404);
     assert_eq!(
         missing.json(),
         json!({"error": "not_found", "message": "No such item"})
     );
-    let broken = fixture.get("/mornye/v1/broken", Some(&key));
+    let broken = fixture.get("/sistrum/v1/broken", Some(&key));
     assert_eq!(broken.status, 500);
     assert_eq!(broken.json()["error"], "weird");
 
     let started = Instant::now();
-    let slow = fixture.get("/mornye/v1/slow", Some(&key));
+    let slow = fixture.get("/sistrum/v1/slow", Some(&key));
     assert_eq!(slow.status, 504);
     assert_eq!(slow.json()["error"], "timeout");
     assert!(started.elapsed() >= Duration::from_millis(300));
 
-    assert_eq!(fixture.get("/mornye/v1/a/../b", Some(&key)).status, 404);
+    assert_eq!(fixture.get("/sistrum/v1/a/../b", Some(&key)).status, 404);
     assert_eq!(
         fixture
-            .request("PUT", "/mornye/v1/state", Some(&key), None)
+            .request("PUT", "/sistrum/v1/state", Some(&key), None)
             .status,
         405
     );
@@ -799,7 +799,7 @@ fn phones_upload_song_files_into_the_received_folder() {
     let fixture = Fixture::new();
     let key = fixture.pair("phone-1");
     let name = "0123456789abcdef0123456789abcdef.flac";
-    let path = format!("/mornye/v1/files/{name}");
+    let path = format!("/sistrum/v1/files/{name}");
     let body: Vec<u8> = (0..300_000u32).map(|index| (index % 251) as u8).collect();
 
     let stored = fixture.put(&path, Some(&key), Full::new(Bytes::from(body.clone())));
@@ -837,7 +837,7 @@ fn phones_upload_song_files_into_the_received_folder() {
         "a/0123456789abcdef0123456789abcdef.flac",
     ] {
         let refused = fixture.put(
-            &format!("/mornye/v1/files/{bad}"),
+            &format!("/sistrum/v1/files/{bad}"),
             Some(&key),
             Full::new(Bytes::from_static(b"x")),
         );
@@ -853,7 +853,7 @@ fn phones_upload_song_files_into_the_received_folder() {
     let request = http::Request::builder()
         .method("PUT")
         .uri(&path)
-        .header("host", "mornye.local")
+        .header("host", "sistrum.local")
         .header("authorization", format!("Bearer {key}"))
         .header("content-length", (3u64 << 30).to_string())
         .body(StreamBody::new(futures_util::stream::pending::<
@@ -874,9 +874,9 @@ fn phones_cannot_send_the_servers_own_requests() {
     let fixture = Fixture::new();
     let key = fixture.pair("phone-1");
     for path in [
-        "/mornye/v1/server",
-        "/mornye/v1/server/files/open",
-        "/mornye/v1/server/files/close",
+        "/sistrum/v1/server",
+        "/sistrum/v1/server/files/open",
+        "/sistrum/v1/server/files/close",
     ] {
         let response = fixture.post_json(
             path,
@@ -921,7 +921,7 @@ fn a_dropped_connection_returns_the_file_the_app_lent() {
         let connection = tokio::spawn(connection);
         let request = http::Request::builder()
             .uri(format!("/rest/stream?id=s&apiKey={key}"))
-            .header("host", "mornye.local")
+            .header("host", "sistrum.local")
             .body(Full::new(Bytes::new()))
             .unwrap();
         let response = sender.send_request(request).await.unwrap();
@@ -1072,7 +1072,7 @@ fn websocket_sessions_forward_and_receive_messages() {
         json!({"clients": []})
     );
     assert!(fixture.device("phone-1").is_none());
-    assert_eq!(fixture.get("/mornye/v1/state", Some(&key)).status, 401);
+    assert_eq!(fixture.get("/sistrum/v1/state", Some(&key)).status, 401);
 }
 
 #[test]
@@ -1194,7 +1194,7 @@ fn a_busy_port_falls_back_and_the_choice_is_persisted() {
     // No request: the persisted port is reused.
     fixture.start(0);
     assert_eq!(fixture.server().port(), chosen);
-    assert_eq!(fixture.get("/mornye/v1/info", None).status, 200);
+    assert_eq!(fixture.get("/sistrum/v1/info", None).status, 200);
 }
 
 #[test]
@@ -1206,7 +1206,7 @@ fn restarting_keeps_the_server_identity_and_keys() {
     let port = fixture.server().port();
     fixture.stop();
     assert!(
-        mornye_link::stored_devices(&fixture.dir.path().join("link"))
+        sistrum_link::stored_devices(&fixture.dir.path().join("link"))
             .unwrap()
             .as_array()
             .unwrap()
@@ -1217,10 +1217,10 @@ fn restarting_keeps_the_server_identity_and_keys() {
     fixture.start(port);
     assert_eq!(fixture.server().server_id(), server_id);
     assert_eq!(fixture.server().fingerprint(), fingerprint);
-    assert_eq!(fixture.get("/mornye/v1/state", Some(&key)).status, 200);
+    assert_eq!(fixture.get("/sistrum/v1/state", Some(&key)).status, 200);
     fixture.stop();
 
-    mornye_link::revoke_stored(&fixture.dir.path().join("link"), "phone-1").unwrap();
+    sistrum_link::revoke_stored(&fixture.dir.path().join("link"), "phone-1").unwrap();
     fixture.start(port);
-    assert_eq!(fixture.get("/mornye/v1/state", Some(&key)).status, 401);
+    assert_eq!(fixture.get("/sistrum/v1/state", Some(&key)).status, 401);
 }

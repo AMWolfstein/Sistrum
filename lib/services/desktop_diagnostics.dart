@@ -6,9 +6,9 @@ import 'dart:ui' show AppExitResponse;
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:mornye/constants/app_info.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/constants/app_info.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/logger.dart';
 
 /// Desktop crash and log handling (desktop design 6.6), without telemetry:
 /// rotating log files in `<app support>/logs`, a "session running" marker
@@ -45,7 +45,7 @@ class DesktopDiagnostics {
   /// The running app's diagnostics; null on mobile and before [initialize].
   static DesktopDiagnostics? get instance => _instance;
 
-  static const logFileName = 'mornye.log';
+  static const logFileName = 'sistrum.log';
   static const panicLogFileName = 'rust-panic.log';
   static const _markerFileName = 'session.running';
   static const _reportFileName = 'crash-report.json';
@@ -318,12 +318,12 @@ class DesktopDiagnostics {
     }
   }
 
-  /// `mornye.log` becomes `mornye.1.log`; the oldest file is removed.
+  /// `sistrum.log` becomes `sistrum.1.log`; the oldest file is removed.
   void _rotate() {
     _log?.closeSync();
     _log = null;
     String rotated(int index) =>
-        p.join(directory.path, index == 0 ? logFileName : 'mornye.$index.log');
+        p.join(directory.path, index == 0 ? logFileName : 'sistrum.$index.log');
     final oldest = File(rotated(keptLogFiles - 1));
     if (oldest.existsSync()) oldest.deleteSync();
     for (var index = keptLogFiles - 2; index >= 0; index--) {

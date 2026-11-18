@@ -1,7 +1,7 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/expressive_icon_button.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/expressive_icon_button.dart';
 
 /// The trailing action of a device row on the phone's Link page, such as
 /// Forget or Remove: an expressive icon button, or in the Mornye style a

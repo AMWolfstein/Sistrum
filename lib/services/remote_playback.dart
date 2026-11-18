@@ -1,8 +1,8 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:mornye/services/playable_media.dart';
+import 'package:sistrum/services/playable_media.dart';
 
 /// Another device playing in this one's place, such as a computer paired
-/// through Mornye Link. While one is active, the player screens show what it
+/// through Sistrum Link. While one is active, the player screens show what it
 /// plays and their controls drive it; the local player stays paused.
 ///
 /// Each stream starts with the current value, like the local player's

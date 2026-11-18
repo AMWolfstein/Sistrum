@@ -1,8 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/services/automix_status.dart';
-import 'package:mornye/widgets/automix_status_badge.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/services/automix_status.dart';
+import 'package:sistrum/widgets/automix_status_badge.dart';
 
 void main() {
   testWidgets(

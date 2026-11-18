@@ -1,19 +1,19 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/services/backend/backend_channel.dart';
+import 'package:sistrum/services/backend/backend_channel.dart';
 
 /// The Android and iOS backend: the host platform channels, unchanged.
 class MethodChannelBackend extends BackendChannel {
   const MethodChannelBackend(this.channel);
 
   static const shared = MethodChannelBackend(
-    MethodChannel('com.zarz.mornye/backend'),
+    MethodChannel('com.amwolfstein.sistrum/backend'),
   );
   static const _downloadProgressChannel = EventChannel(
-    'com.zarz.mornye/download_progress_stream',
+    'com.amwolfstein.sistrum/download_progress_stream',
   );
   static const _libraryScanProgressChannel = EventChannel(
-    'com.zarz.mornye/library_scan_progress_stream',
+    'com.amwolfstein.sistrum/library_scan_progress_stream',
   );
 
   final MethodChannel channel;

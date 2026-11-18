@@ -1,5 +1,5 @@
 [package]
-name = "mornye-link"
+name = "sistrum-link"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -34,7 +34,7 @@ time.workspace = true
 if-addrs.workspace = true
 socket2.workspace = true
 unicode-normalization.workspace = true
-mornye-core.workspace = true
+sistrum-core.workspace = true
 
 [dev-dependencies]
 tempfile.workspace = true

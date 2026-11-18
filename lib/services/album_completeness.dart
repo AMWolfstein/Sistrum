@@ -1,4 +1,4 @@
-import 'package:mornye/services/library_shadow_sql.dart';
+import 'package:sistrum/services/library_shadow_sql.dart';
 
 const incompleteAlbumFilter = 'incomplete-album';
 const unknownAlbumCompletenessFilter = 'unknown-album-completeness';

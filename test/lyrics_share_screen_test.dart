@@ -1,10 +1,10 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/screens/lyrics_share_screen.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
-import 'package:mornye/widgets/expressive_button.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/screens/lyrics_share_screen.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
+import 'package:sistrum/widgets/expressive_button.dart';
 
 void main() {
   test('timed lyrics share their sung lines, plain lyrics their text', () {

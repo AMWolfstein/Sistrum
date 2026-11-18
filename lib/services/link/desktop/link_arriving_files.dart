@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('LinkArrivingFiles');
 
@@ -320,7 +320,7 @@ class _Arrival {
   }
 
   void close() {
-    if (!_done.isCompleted) _fail('Mornye Link stopped');
+    if (!_done.isCompleted) _fail('Sistrum Link stopped');
     _timer.cancel();
   }
 }

@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:mornye/services/listenbrainz/listenbrainz_api.dart';
-import 'package:mornye/services/scrobbling/scrobble_store.dart';
+import 'package:sistrum/services/listenbrainz/listenbrainz_api.dart';
+import 'package:sistrum/services/scrobbling/scrobble_store.dart';
 
 class MemoryScrobbleStore<S extends ScrobbleAccount>
     implements ScrobbleStore<S> {

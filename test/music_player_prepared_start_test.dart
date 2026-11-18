@@ -9,7 +9,7 @@ int get _loads =>
 void main() {
   setUpMusicPlayerHarness();
 
-  // Mornye Link Play together loads the song paused at the leader's place,
+  // Sistrum Link Play together loads the song paused at the leader's place,
   // then starts it at an agreed instant.
   test(
     'a song loaded paused starts where it was put, without loading again',

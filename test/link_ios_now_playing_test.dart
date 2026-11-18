@@ -3,10 +3,10 @@ import 'dart:convert';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/features/link_ios_now_playing.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/remote_playback.dart';
+import 'package:sistrum/services/link/features/link_ios_now_playing.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/remote_playback.dart';
 
 class _Remote implements RemotePlayback {
   final items = StreamController<MediaItem?>.broadcast(sync: true);

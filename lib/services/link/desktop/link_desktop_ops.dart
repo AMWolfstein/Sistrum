@@ -2,24 +2,24 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/models/download_item.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/desktop_deep_links.dart';
-import 'package:mornye/services/link/desktop/link_arriving_files.dart';
-import 'package:mornye/services/link/desktop/link_catalog_index.dart';
-import 'package:mornye/services/link/desktop/link_downloads.dart';
-import 'package:mornye/services/link/desktop/link_player.dart';
-import 'package:mornye/services/link/link_host_router.dart';
-import 'package:mornye/services/link/link_playback_details.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/services/share_intent_service.dart';
+import 'package:sistrum/models/download_item.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/desktop_deep_links.dart';
+import 'package:sistrum/services/link/desktop/link_arriving_files.dart';
+import 'package:sistrum/services/link/desktop/link_catalog_index.dart';
+import 'package:sistrum/services/link/desktop/link_downloads.dart';
+import 'package:sistrum/services/link/desktop/link_player.dart';
+import 'package:sistrum/services/link/link_host_router.dart';
+import 'package:sistrum/services/link/link_playback_details.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/services/share_intent_service.dart';
 
-const _openableSchemes = {'http', 'https', 'spotify', 'mornye'};
+const _openableSchemes = {'http', 'https', 'spotify', 'sistrum'};
 
 /// Whether a phone may ask the desktop to open [url]: web links, Spotify
-/// URIs and `mornye://` links, the kinds the app accepts when shared.
+/// URIs and `sistrum://` links, the kinds the app accepts when shared.
 bool linkOpenableUrl(String url) {
   final uri = Uri.tryParse(url.trim());
   if (uri == null) return false;
@@ -28,7 +28,7 @@ bool linkOpenableUrl(String url) {
   return !scheme.startsWith('http') || uri.host.isNotEmpty;
 }
 
-/// Opens [url] as if it had been shared with the app: `mornye://` links go
+/// Opens [url] as if it had been shared with the app: `sistrum://` links go
 /// to the deep link inbox, anything else to the shell's shared link
 /// handler, which resolves it on the Search page.
 Future<void> linkOpenSharedUrl(String url) async {

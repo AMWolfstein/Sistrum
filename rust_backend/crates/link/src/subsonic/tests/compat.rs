@@ -9,7 +9,7 @@ use std::collections::HashSet;
 /// The phone always sends these (`_subsonicTarget`, API key auth).
 const PHONE: [(&str, &str); 4] = [
     ("v", "1.16.1"),
-    ("c", "Mornye"),
+    ("c", "Sistrum"),
     ("f", "json"),
     ("apiKey", "private-api-key"),
 ];

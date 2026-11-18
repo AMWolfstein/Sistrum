@@ -3,11 +3,11 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/download_item.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/link/desktop/link_downloads.dart';
-import 'package:mornye/services/link/features/link_downloads.dart' as phone;
-import 'package:mornye/services/link/link_protocol.dart';
+import 'package:sistrum/models/download_item.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/link/desktop/link_downloads.dart';
+import 'package:sistrum/services/link/features/link_downloads.dart' as phone;
+import 'package:sistrum/services/link/link_protocol.dart';
 
 DownloadItem _item(String id, {double progress = 0.5}) => DownloadItem(
   id: id,

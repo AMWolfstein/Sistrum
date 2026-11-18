@@ -1,9 +1,9 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/screens/tutorial_screen.dart';
-import 'package:mornye/widgets/animation_utils.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/screens/tutorial_screen.dart';
+import 'package:sistrum/widgets/animation_utils.dart';
 
 Widget _tutorial({bool reduced = false}) => ProviderScope(
   child: MaterialApp(

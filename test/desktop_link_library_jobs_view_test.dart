@@ -1,15 +1,15 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/services/link/desktop/link_desktop_backend.dart';
-import 'package:mornye/services/link/desktop/link_desktop_host.dart';
-import 'package:mornye/services/link/desktop/link_library_jobs_host.dart';
-import 'package:mornye/services/link/link_library_jobs.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/desktop/desktop_link_library_jobs_view.dart';
-import 'package:mornye/widgets/link/link_library_actions.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_backend.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_host.dart';
+import 'package:sistrum/services/link/desktop/link_library_jobs_host.dart';
+import 'package:sistrum/services/link/link_library_jobs.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/desktop/desktop_link_library_jobs_view.dart';
+import 'package:sistrum/widgets/link/link_library_actions.dart';
 
 import 'support/tooltip_finder.dart';
 

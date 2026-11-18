@@ -1,9 +1,9 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/theme/material_expressive.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/swipe_commit_haptic.dart';
-import 'package:mornye/widgets/track_card.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/theme/material_expressive.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/swipe_commit_haptic.dart';
+import 'package:sistrum/widgets/track_card.dart';
 
 /// End-to-start swipe that removes a track row over a delete background.
 ///

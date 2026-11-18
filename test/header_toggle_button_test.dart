@@ -2,8 +2,8 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/widgets/album_detail_header.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/widgets/album_detail_header.dart';
 
 Widget _app(Widget child, {bool reduced = false}) => ProviderScope(
   child: MaterialApp(

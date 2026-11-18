@@ -38,7 +38,7 @@
 #   Linux:   <folder of the executable>/lib/ffmpeg/{ffmpeg,ffprobe}
 # Ship LICENSE.txt and SOURCE.txt next to the binaries.
 #
-# Runtime lookup order: $MORNYE_FFMPEG_DIR, then the bundle layout above,
+# Runtime lookup order: $SISTRUM_FFMPEG_DIR, then the bundle layout above,
 # then PATH. PATH is a developer fallback only: a package manager FFmpeg
 # (for example Homebrew's) is usually built with --enable-gpl and must never
 # be bundled. This script refuses to stage a build whose configuration

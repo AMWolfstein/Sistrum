@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/utils/album_artwork_match.dart';
+import 'package:sistrum/utils/album_artwork_match.dart';
 
 ArtworkCandidate _candidate(
   String name,

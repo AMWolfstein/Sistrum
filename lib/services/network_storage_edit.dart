@@ -101,8 +101,8 @@ extension NetworkStorageEdit on NetworkStorageService {
     final token = NetworkStorageService.newId();
     // No leading dot, which Samba would keep as a hidden attribute on the
     // song (see publishUpload).
-    final staging = '${parent}mornye-edit-$token.part';
-    final backup = '${parent}mornye-original-$token.part';
+    final staging = '${parent}sistrum-edit-$token.part';
+    final backup = '${parent}sistrum-original-$token.part';
     final stagingSource = NetworkStorageService.source(connection.id, staging);
     final backupSource = NetworkStorageService.source(connection.id, backup);
     final editedLength = await edited.length();

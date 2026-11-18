@@ -5,19 +5,19 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/models/artist_concert.dart';
-import 'package:mornye/screens/artist_concerts_screen.dart';
-import 'package:mornye/screens/concert_detail_screen.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/animation_utils.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/models/artist_concert.dart';
+import 'package:sistrum/screens/artist_concerts_screen.dart';
+import 'package:sistrum/screens/concert_detail_screen.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/animation_utils.dart';
 
 import 'support/tooltip_finder.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const backend = MethodChannel('com.zarz.mornye/backend');
-  const calendar = MethodChannel('com.zarz.mornye/concert_calendar');
+  const backend = MethodChannel('com.amwolfstein.sistrum/backend');
+  const calendar = MethodChannel('com.amwolfstein.sistrum/concert_calendar');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
 

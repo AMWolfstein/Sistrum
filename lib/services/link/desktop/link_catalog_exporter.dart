@@ -5,14 +5,14 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/link/desktop/link_catalog_index.dart';
-import 'package:mornye/services/link/desktop/link_web_covers.dart';
-import 'package:mornye/services/link/link_host_router.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/sqlite_helpers.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/isrc_utils.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/link/desktop/link_catalog_index.dart';
+import 'package:sistrum/services/link/desktop/link_web_covers.dart';
+import 'package:sistrum/services/link/link_host_router.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/sqlite_helpers.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/isrc_utils.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// The catalog format the exporter writes (contract section 5).
@@ -335,7 +335,7 @@ Future<LinkCatalogPage> _mapInIsolate(
 ) => compute(_mapMessage, (rows, webCovers, pictures));
 
 Future<Directory> _defaultDirectory() async =>
-    Directory('${(await getTemporaryDirectory()).path}/mornye-link');
+    Directory('${(await getTemporaryDirectory()).path}/sistrum-link');
 
 /// Writes what the Library Songs view shows (downloads plus enabled scanned
 /// sources, deduplicated by the queue store) as the NDJSON catalog the

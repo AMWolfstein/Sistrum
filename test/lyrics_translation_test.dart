@@ -4,10 +4,10 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:mornye/services/lyrics_ai_client.dart';
-import 'package:mornye/services/lyrics_translation.dart';
-import 'package:mornye/services/lyrics_translation_alignment.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
+import 'package:sistrum/services/lyrics_ai_client.dart';
+import 'package:sistrum/services/lyrics_translation.dart';
+import 'package:sistrum/services/lyrics_translation_alignment.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
 
 ParsedLyrics _lyrics(List<String> texts, {int offsetMs = 0}) => ParsedLyrics(
   synced: true,

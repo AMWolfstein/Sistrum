@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/client/link_client_pairing.dart';
-import 'package:mornye/services/link/client/link_client_session.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/client/link_client_pairing.dart';
+import 'package:sistrum/services/link/client/link_client_session.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
 
 const _device = LinkDeviceIdentity(
   deviceId: 'phone-1',
@@ -128,18 +128,18 @@ void main() {
         bodies.add(await utf8.decoder.bind(request).join());
         final response = request.response;
         switch (request.uri.path) {
-          case '/mornye/v1/state':
+          case '/sistrum/v1/state':
             response.headers.contentType = ContentType.json;
             response.write(jsonEncode({'playing': true}));
-          case '/mornye/v1/handoff/play':
+          case '/sistrum/v1/handoff/play':
             response.headers.contentType = ContentType.json;
             response.write(jsonEncode({'resolved': 2, 'missing': <String>[]}));
-          case '/mornye/v1/open':
+          case '/sistrum/v1/open':
             response.statusCode = 204;
-          case final path when path.startsWith('/mornye/v1/files/'):
+          case final path when path.startsWith('/sistrum/v1/files/'):
             response.headers.contentType = ContentType.json;
             response.write(jsonEncode({'name': request.uri.pathSegments.last}));
-          case '/mornye/v1/secret':
+          case '/sistrum/v1/secret':
             response.statusCode = 401;
           default:
             response.statusCode = 404;
@@ -169,7 +169,7 @@ void main() {
       expect(result, {'playing': true});
       final request = requests.single;
       expect(request.method, 'GET');
-      expect(request.uri.path, '/mornye/v1/state');
+      expect(request.uri.path, '/sistrum/v1/state');
       expect(request.uri.queryParameters, {'since': '5'});
       expect(request.headers.value('authorization'), 'Bearer key-1');
       expect(request.headers.value('accept'), 'application/json');
@@ -257,7 +257,7 @@ void main() {
       await session.upload(name, file, onProgress: progress.add);
       final request = requests.single;
       expect(request.method, 'PUT');
-      expect(request.uri.path, '/mornye/v1/files/$name');
+      expect(request.uri.path, '/sistrum/v1/files/$name');
       expect(request.headers.value('authorization'), 'Bearer key-1');
       expect(request.headers.contentLength, 9);
       expect(bodies.single, 'fLaC data');
@@ -454,7 +454,7 @@ void main() {
       ]);
       expect(session.connectionState, LinkConnectionState.connected);
       expect(session.issue, isNull);
-      expect(connects.first.toString(), 'wss://10.0.0.2:47710/mornye/v1/ws');
+      expect(connects.first.toString(), 'wss://10.0.0.2:47710/sistrum/v1/ws');
       expect(connects, hasLength(7));
     });
 
@@ -606,8 +606,8 @@ void main() {
       await pumpEventQueue();
       expect(session.server.address, 'https://10.0.0.9:47711');
       expect(connects.map((u) => u.toString()), [
-        'wss://10.0.0.2:47710/mornye/v1/ws',
-        'wss://10.0.0.9:47711/mornye/v1/ws',
+        'wss://10.0.0.2:47710/sistrum/v1/ws',
+        'wss://10.0.0.9:47711/sistrum/v1/ws',
       ]);
       expect(session.connectionState, LinkConnectionState.connected);
     });

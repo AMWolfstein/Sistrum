@@ -471,7 +471,7 @@ class _HomeSections extends ConsumerWidget {
         ),
     ];
 
-    // The Material Home always has its Shortcuts. The Mornye Home has only
+    // The Material Home always has its Shortcuts. The Sistrum Home has only
     // shelves, so an empty Library with nothing played would leave the page
     // blank: say so once the Library shelves have answered.
     if (mornye && sections.isEmpty) {

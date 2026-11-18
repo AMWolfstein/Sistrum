@@ -1,6 +1,6 @@
-//! Mornye Link: the desktop app's HTTPS server for the phone app. It speaks
-//! OpenSubsonic for the library (`/rest`), Mornye endpoints under
-//! `/mornye/v1` forwarded to the app, song files sent by the phone, and a
+//! Sistrum Link: the desktop app's HTTPS server for the phone app. It speaks
+//! OpenSubsonic for the library (`/rest`), Sistrum endpoints under
+//! `/sistrum/v1` forwarded to the app, song files sent by the phone, and a
 //! WebSocket for pushes. The contract is
 //! `docs/internal/desktop/LINK_CONTRACT.md`.
 //!
@@ -42,7 +42,7 @@ use tokio_util::sync::CancellationToken;
 use tokio_util::task::TaskTracker;
 
 /// Shown when the app passes no name.
-const DEFAULT_NAME: &str = "Mornye";
+const DEFAULT_NAME: &str = "Sistrum";
 /// Platform of keys minted for third-party Subsonic apps.
 const SUBSONIC_PLATFORM: &str = "subsonic";
 
@@ -77,10 +77,10 @@ impl LinkServer {
         let identity = tls::load_or_create(&config.state_dir)?;
         let runtime = tokio::runtime::Builder::new_multi_thread()
             .worker_threads(2)
-            .thread_name("mornye-link")
+            .thread_name("sistrum-link")
             .enable_all()
             .build()
-            .map_err(|error| format!("Cannot start the Mornye Link runtime: {error}"))?;
+            .map_err(|error| format!("Cannot start the Sistrum Link runtime: {error}"))?;
         let bound = {
             let _context = runtime.enter();
             server::bind(config.port, store.port(), tuning.bind).and_then(|listener| {

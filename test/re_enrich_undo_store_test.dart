@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/re_enrich_undo_store.dart';
+import 'package:sistrum/services/re_enrich_undo_store.dart';
 import 'package:path/path.dart' as p;
 
 void main() {

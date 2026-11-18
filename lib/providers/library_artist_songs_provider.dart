@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/providers/library_song_reads.dart';
-import 'package:mornye/services/sqlite_helpers.dart' show normalizeLookupText;
-import 'package:mornye/utils/artist_utils.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/library_song_reads.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' show normalizeLookupText;
+import 'package:sistrum/utils/artist_utils.dart';
 
 /// Whether [item] is a song of the artist [artistKey] (a name as the
 /// database compares it): the album artist, or one of the names the song's

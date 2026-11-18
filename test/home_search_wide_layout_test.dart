@@ -3,11 +3,11 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_3_expressive/material_3_expressive.dart'
     show M3EButton;
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/widgets/animation_utils.dart';
-import 'package:mornye/widgets/desktop/desktop_scroll_arrows.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/utils/adaptive_layout.dart';
+import 'package:sistrum/widgets/animation_utils.dart';
+import 'package:sistrum/widgets/desktop/desktop_scroll_arrows.dart';
 
 import 'support/search_results_fixture.dart';
 import 'support/tooltip_finder.dart';

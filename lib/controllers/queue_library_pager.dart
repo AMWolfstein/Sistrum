@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/controllers/queue_library_refresh_policy.dart';
-import 'package:mornye/services/library_database.dart' show QueueLibraryCounts;
+import 'package:sistrum/controllers/queue_library_refresh_policy.dart';
+import 'package:sistrum/services/library_database.dart' show QueueLibraryCounts;
 
 abstract interface class QueueLibraryPageKey<K> {
   int get offset;

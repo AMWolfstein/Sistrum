@@ -1,7 +1,7 @@
 //! Request authentication (contract section 3). Every device owns one API
 //! key. Subsonic accepts it as `apiKey`, as the password of a salted token
 //! (`u` + `t` + `s`), or as a plain or `enc:` hex password (`u` + `p`); any
-//! username is accepted when the key matches. `/mornye/v1` and the WebSocket
+//! username is accepted when the key matches. `/sistrum/v1` and the WebSocket
 //! take `Authorization: Bearer <key>`.
 
 use crate::store::{DeviceRecord, Store};

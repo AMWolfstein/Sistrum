@@ -3,10 +3,10 @@ import 'package:cupertino_ui/cupertino_ui.dart'
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_refresh_indicator.dart';
-import 'package:mornye/widgets/app_sliver_header.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_refresh_indicator.dart';
+import 'package:sistrum/widgets/app_sliver_header.dart';
 
 void main() {
   final macOS = TargetPlatformVariant.only(TargetPlatform.macOS);

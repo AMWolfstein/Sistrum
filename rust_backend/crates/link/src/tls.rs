@@ -1,5 +1,5 @@
 //! The server identity (contract section 2): a self-signed ECDSA P-256
-//! certificate for `mornye.local`, valid 20 years, generated on first start
+//! certificate for `sistrum.local`, valid 20 years, generated on first start
 //! into `cert.pem` and `key.pem` and reused afterwards. Phones pin its
 //! fingerprint, the lowercase hex SHA-256 of the DER certificate.
 
@@ -11,7 +11,7 @@ use std::sync::Arc;
 
 const CERT_FILE: &str = "cert.pem";
 const KEY_FILE: &str = "key.pem";
-const SUBJECT_NAME: &str = "mornye.local";
+const SUBJECT_NAME: &str = "sistrum.local";
 const VALIDITY_DAYS: i64 = 20 * 365 + 5;
 
 /// The loaded certificate, its TLS configuration and fingerprint.
@@ -35,7 +35,7 @@ pub(crate) fn load_or_create(dir: &Path) -> Result<Identity, String> {
     // Key first: a certificate without its key is never left behind.
     crate::store::write_private(&dir.join(KEY_FILE), key_pem.as_bytes())?;
     crate::store::write_private(&dir.join(CERT_FILE), cert_pem.as_bytes())?;
-    load(dir).ok_or_else(|| "The new Mornye Link certificate could not be loaded".to_owned())
+    load(dir).ok_or_else(|| "The new Sistrum Link certificate could not be loaded".to_owned())
 }
 
 fn load(dir: &Path) -> Option<Identity> {
@@ -52,7 +52,7 @@ fn load(dir: &Path) -> Option<Identity> {
 }
 
 fn generate() -> Result<(String, String), String> {
-    let fail = |error: rcgen::Error| format!("Cannot create the Mornye Link certificate: {error}");
+    let fail = |error: rcgen::Error| format!("Cannot create the Sistrum Link certificate: {error}");
     let key = rcgen::KeyPair::generate_for(&rcgen::PKCS_ECDSA_P256_SHA256).map_err(fail)?;
     let mut params = rcgen::CertificateParams::new(vec![SUBJECT_NAME.to_owned()]).map_err(fail)?;
     params

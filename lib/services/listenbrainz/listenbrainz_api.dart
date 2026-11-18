@@ -2,9 +2,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
-import 'package:mornye/constants/app_info.dart';
-import 'package:mornye/services/scrobbling/scrobble_listening.dart';
-import 'package:mornye/services/scrobbling/scrobble_store.dart';
+import 'package:sistrum/constants/app_info.dart';
+import 'package:sistrum/services/scrobbling/scrobble_listening.dart';
+import 'package:sistrum/services/scrobbling/scrobble_store.dart';
 
 const listenBrainzDefaultServer = 'https://api.listenbrainz.org';
 
@@ -133,8 +133,8 @@ Map<String, Object> listenBrainzMetadata(ScrobbleTrack track) {
         'duration_ms': duration.inMilliseconds,
       'isrc': ?track.isrc,
       'tracknumber': ?track.trackNumber,
-      'media_player': 'Mornye',
-      'submission_client': 'Mornye',
+      'media_player': 'Sistrum',
+      'submission_client': 'Sistrum',
       'submission_client_version': AppInfo.version,
     },
   };

@@ -2,13 +2,13 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/providers/repo_provider.dart';
-import 'package:mornye/screens/repo/extension_details_screen.dart';
-import 'package:mornye/screens/repo/repositories_screen.dart';
-import 'package:mornye/screens/repo_tab.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/providers/repo_provider.dart';
+import 'package:sistrum/screens/repo/extension_details_screen.dart';
+import 'package:sistrum/screens/repo/repositories_screen.dart';
+import 'package:sistrum/screens/repo_tab.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 
 import 'support/tooltip_finder.dart';
 
@@ -259,7 +259,7 @@ void main() {
             TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
         messenger.setMockMethodCallHandler(
           paths,
-          (_) async => '/tmp/mornye-repo-test',
+          (_) async => '/tmp/sistrum-repo-test',
         );
         addTearDown(() => messenger.setMockMethodCallHandler(paths, null));
         final repo = _Repo(urls: urls);

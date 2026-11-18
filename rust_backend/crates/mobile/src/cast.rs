@@ -1,4 +1,4 @@
-//! Google Cast for Android and iOS (`mornye_cast::CastService`). Android
+//! Google Cast for Android and iOS (`sistrum_cast::CastService`). Android
 //! keeps Google's sender and uses the media server methods; iOS uses the
 //! whole service. Events are pulled with `next_event`, as the platforms do
 //! for download progress.
@@ -26,7 +26,7 @@ struct Events {
 
 #[derive(uniffi::Object)]
 pub struct CastBridge {
-    service: mornye_cast::CastService,
+    service: sistrum_cast::CastService,
     events: Arc<Events>,
 }
 
@@ -36,7 +36,7 @@ impl CastBridge {
     pub fn new() -> Result<Arc<Self>, CastBridgeError> {
         let events = Arc::new(Events::default());
         let sink = Arc::clone(&events);
-        let service = mornye_cast::CastService::new(move |event, payload| {
+        let service = sistrum_cast::CastService::new(move |event, payload| {
             let mut queue = sink.queue.lock().expect("cast events");
             if queue.len() == MAX_QUEUED_EVENTS {
                 queue.pop_front();

@@ -1,4 +1,4 @@
-import 'package:mornye/providers/track_provider.dart';
+import 'package:sistrum/providers/track_provider.dart';
 
 final _releaseDatePattern = RegExp(
   r'^(\d{4})(?:-(\d{2})(?:-(\d{2})(?:T.*)?)?)?$',

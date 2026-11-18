@@ -5,12 +5,12 @@ import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:mornye/models/automix_options.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/automix_analysis.dart';
-import 'package:mornye/services/automix_analyzer.dart';
-import 'package:mornye/services/music_playback_deck.dart';
-import 'package:mornye/services/music_player_service.dart';
+import 'package:sistrum/models/automix_options.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/automix_analysis.dart';
+import 'package:sistrum/services/automix_analyzer.dart';
+import 'package:sistrum/services/music_playback_deck.dart';
+import 'package:sistrum/services/music_player_service.dart';
 
 Uint8List _drumWav(double bpm, {bool silent = false}) {
   const sampleRate = 44100;

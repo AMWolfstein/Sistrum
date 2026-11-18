@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:mornye/services/platform_bridge.dart';
+import 'package:sistrum/services/platform_bridge.dart';
 
 typedef SafSibling = ({String uri, int size, int modified});
 

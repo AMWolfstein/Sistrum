@@ -4,7 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:mornye/services/cast_output.dart';
+import 'package:sistrum/services/cast_output.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +23,7 @@ void main() {
     // The native picker stays above Flutter until the user chooses or cancels.
     output.dispose();
     await const MethodChannel(
-      'com.zarz.mornye/cast',
+      'com.amwolfstein.sistrum/cast',
     ).invokeMethod<void>('disconnect');
   });
 }

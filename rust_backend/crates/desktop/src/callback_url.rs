@@ -1,6 +1,6 @@
 //! Extension return URLs, ported from `ios/Runner/ExtensionCallbackParser.swift`:
-//! - OAuth: `mornye://callback?code=...&state=<one_time_nonce>`
-//! - Signed session: `mornye://session-grant?grant=...&state=<one_time_nonce>`
+//! - OAuth: `sistrum://callback?code=...&state=<one_time_nonce>`
+//! - Signed session: `sistrum://session-grant?grant=...&state=<one_time_nonce>`
 
 use crate::backend::CallbackRoute;
 
@@ -30,7 +30,7 @@ fn decode(value: &str) -> String {
 
 pub(crate) fn parse(raw: &str) -> Option<CallbackRoute> {
     let url = url::Url::parse(raw.trim()).ok()?;
-    if !url.scheme().eq_ignore_ascii_case("mornye") {
+    if !url.scheme().eq_ignore_ascii_case("sistrum") {
         return None;
     }
     let host = url.host_str().unwrap_or("").to_lowercase();
@@ -79,7 +79,7 @@ mod tests {
     #[test]
     fn parses_oauth_and_session_grant() {
         assert_eq!(
-            parse("mornye://callback?code=a%2Bb+c&state=s1"),
+            parse("sistrum://callback?code=a%2Bb+c&state=s1"),
             Some(CallbackRoute {
                 code: "a+b+c".into(),
                 state: "s1".into(),
@@ -87,7 +87,7 @@ mod tests {
             })
         );
         assert_eq!(
-            parse("MORNYE://session-grant?grant=g&state=s2"),
+            parse("SISTRUM://session-grant?grant=g&state=s2"),
             Some(CallbackRoute {
                 code: "g".into(),
                 state: "s2".into(),
@@ -99,7 +99,7 @@ mod tests {
     #[test]
     fn rejects_other_urls() {
         assert_eq!(parse("https://callback?code=a&state=b"), None);
-        assert_eq!(parse("mornye://player"), None);
-        assert_eq!(parse("mornye://callback?code=a"), None);
+        assert_eq!(parse("sistrum://player"), None);
+        assert_eq!(parse("sistrum://callback?code=a"), None);
     }
 }

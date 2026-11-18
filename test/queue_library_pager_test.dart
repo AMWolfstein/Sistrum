@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/controllers/queue_library_pager.dart';
+import 'package:sistrum/controllers/queue_library_pager.dart';
 
 class _Request implements QueueLibraryPageKey<_Request> {
   const _Request(this.offset, {this.scope = 'all'});

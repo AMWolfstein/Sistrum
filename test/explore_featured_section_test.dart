@@ -6,13 +6,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/providers/explore_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/widgets/explore_featured_section.dart';
-import 'package:mornye/widgets/audio_quality_badges.dart';
-import 'package:mornye/l10n/app_localizations.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/providers/explore_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/widgets/explore_featured_section.dart';
+import 'package:sistrum/widgets/audio_quality_badges.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
 
 import 'support/preference_blob_fixture.dart';
 
@@ -23,7 +23,7 @@ void main() {
     late PreferenceBlobFixture blobs;
     setUp(() async => blobs = await PreferenceBlobFixture.create());
     tearDown(() => blobs.close());
-    const channel = MethodChannel('com.zarz.mornye/backend');
+    const channel = MethodChannel('com.amwolfstein.sistrum/backend');
     final messenger =
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     tearDown(() => messenger.setMockMethodCallHandler(channel, null));

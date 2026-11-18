@@ -61,7 +61,7 @@
   "@linkFileJobsView": {
     "description": "Snackbar action that opens the file changes list to see which songs failed"
   },
-  "linkFileJobsUnsupported": "Update Mornye on your computer to manage its music files from this phone.",
+  "linkFileJobsUnsupported": "Update Sistrum on your computer to manage its music files from this phone.",
   "linkFileSelectionOneDevice": "Select songs from one linked computer at a time (up to 100 songs).",
   "linkFileChangesUnavailable": "Songs on {name} cannot be changed from this phone.",
   "@linkFileChangesUnavailable": {
@@ -232,7 +232,7 @@
   "@networkErrorPermission": {
     "description": "Network access error when the server denies account permissions for a shared folder; distinct from the device's local network permission"
   },
-  "networkErrorLocalPermission": "Local network access is not allowed. Allow Nearby devices for Mornye in Android app settings, then try again.",
+  "networkErrorLocalPermission": "Local network access is not allowed. Allow Nearby devices for Sistrum in Android app settings, then try again.",
   "@networkErrorLocalPermission": {
     "description": "Network access error when Android denies local network permission; Nearby devices is the Android app permission setting"
   },
@@ -486,7 +486,7 @@
   "usbBitPerfectDescription": "Preserve source precision on compatible outputs. Choose direct USB or AAudio exclusive below; otherwise Android USB output requires Android 14 or later. Applies from the next track, without AutoMix or normalization. System volume may not control direct USB.",
   "usbHardwareVolume": "DAC hardware volume",
   "usbVolumeWarningTitle": "Check your listening volume",
-  "usbVolumeWarning": "Direct USB audio can be much louder than normal playback, and phone volume buttons may not control it. Lower your DAC or amplifier volume before starting. When supported, Mornye sets the DAC to at most −40 dB on connection; this does not guarantee a safe listening level on every amplifier or headphone.",
+  "usbVolumeWarning": "Direct USB audio can be much louder than normal playback, and phone volume buttons may not control it. Lower your DAC or amplifier volume before starting. When supported, Sistrum sets the DAC to at most −40 dB on connection; this does not guarantee a safe listening level on every amplifier or headphone.",
   "usbVolumeAccept": "I understand",
   "usbVolumeUnavailable": "Playback is paused because this DAC has no verified hardware volume control. Lower the DAC or amplifier volume, then enable fixed-volume output if needed and select the track again.",
   "usbFixedVolume": "Allow fixed-volume USB output",
@@ -498,8 +498,8 @@
   "exclusiveOutputWindows": "WASAPI exclusive mode",
   "exclusiveOutputMacos": "Exclusive access (hog mode)",
   "exclusiveOutputLinux": "Direct ALSA output",
-  "exclusiveOutputDescriptionWindows": "Bypass the Windows mixer so the output follows each track's sample rate and bit depth. Other apps cannot play sound while Mornye holds the device. AutoMix and previews are off in this mode. For bit-perfect output, keep the volume at 100% with the equalizer and normalization off.",
-  "exclusiveOutputDescriptionMacos": "Hold the output device for Mornye alone and switch it to each track's sample rate and bit depth, so Core Audio does not resample. Other apps cannot play sound while Mornye holds the device. AutoMix and previews are off in this mode. For bit-perfect output, keep the volume at 100% with the equalizer and normalization off.",
+  "exclusiveOutputDescriptionWindows": "Bypass the Windows mixer so the output follows each track's sample rate and bit depth. Other apps cannot play sound while Sistrum holds the device. AutoMix and previews are off in this mode. For bit-perfect output, keep the volume at 100% with the equalizer and normalization off.",
+  "exclusiveOutputDescriptionMacos": "Hold the output device for Sistrum alone and switch it to each track's sample rate and bit depth, so Core Audio does not resample. Other apps cannot play sound while Sistrum holds the device. AutoMix and previews are off in this mode. For bit-perfect output, keep the volume at 100% with the equalizer and normalization off.",
   "exclusiveOutputDescriptionLinux": "Play straight to an ALSA hardware device, bypassing PipeWire or PulseAudio, so the output follows each track's sample rate and bit depth. The device must be free: the sound server releases an idle card after a few seconds, or set its profile to Off. AutoMix and previews are off in this mode.",
   "exclusiveOutputPending": "Takes the device when a track plays.",
   "exclusiveOutputActive": "Playing in exclusive mode.",
@@ -553,7 +553,7 @@
   "cacheMotionArtworkDesc": "Album videos saved with downloads. Removing them keeps your music files and static covers.",
   "nowPlayingVolume": "Volume",
   "@nowPlayingVolume": {
-    "description": "System volume control label in the Mornye player"
+    "description": "System volume control label in the Sistrum player"
   },
   "appearanceStyle": "App Style",
   "appearanceAccentRed": "Red (default)",
@@ -595,7 +595,7 @@
   },
   "@@locale": "en",
   "@@last_modified": "2026-04-28",
-  "appName": "Mornye",
+  "appName": "Sistrum",
   "@appName": {
     "description": "App name - DO NOT TRANSLATE"
   },
@@ -629,7 +629,7 @@
   },
   "homeNothingYetTitle": "Nothing here yet",
   "@homeNothingYetTitle": {
-    "description": "Title on the Mornye Home when the Library is empty and nothing was played"
+    "description": "Title on the Sistrum Home when the Library is empty and nothing was played"
   },
   "homeNothingYetMessage": "Songs you add to your Library or play show up here.",
   "@homeNothingYetMessage": {
@@ -1163,7 +1163,7 @@
   },
   "aboutServiceStatus": "Service status",
   "@aboutServiceStatus": {
-    "description": "Link to the status page of the Mornye online services"
+    "description": "Link to the status page of the Sistrum online services"
   },
   "aboutReportIssue": "Report an issue",
   "@aboutReportIssue": {
@@ -1382,7 +1382,7 @@
   "@setupStorageRequired": {
     "description": "Title when storage permission needed"
   },
-  "setupStorageDescription": "Mornye needs storage permission to save your downloaded music files.",
+  "setupStorageDescription": "Sistrum needs storage permission to save your downloaded music files.",
   "@setupStorageDescription": {
     "description": "Explanation for storage permission"
   },
@@ -1422,7 +1422,7 @@
   "@setupNearbyEnable": {
     "description": "Setup step title and button for the Android Nearby devices permission; Nearby devices is the Android permission name"
   },
-  "setupNearbyDescription": "Mornye Link uses it to find your other devices on the same network, and network storage needs it to reach a server at home.",
+  "setupNearbyDescription": "Sistrum Link uses it to find your other devices on the same network, and network storage needs it to reach a server at home.",
   "@setupNearbyDescription": {
     "description": "Setup step explaining why Android's Nearby devices permission is needed"
   },
@@ -2082,15 +2082,15 @@
   "@updateStartingInstaller": {
     "description": "Update status on Windows - the downloaded installer is starting and the app will close"
   },
-  "updateMacInstallHint": "The disk image is open in Finder. Quit Mornye, then drag Mornye from the disk image to Applications and replace the old copy.",
+  "updateMacInstallHint": "The disk image is open in Finder. Quit Sistrum, then drag Sistrum from the disk image to Applications and replace the old copy.",
   "@updateMacInstallHint": {
     "description": "Update instructions on macOS after the downloaded disk image opens"
   },
-  "updateQuitApp": "Quit Mornye",
+  "updateQuitApp": "Quit Sistrum",
   "@updateQuitApp": {
     "description": "Update button on macOS - quit the app so the new version can replace it"
   },
-  "updateReadyToRestart": "The update is installed. Restart Mornye to use it.",
+  "updateReadyToRestart": "The update is installed. Restart Sistrum to use it.",
   "@updateReadyToRestart": {
     "description": "Update status on Linux after the AppImage was replaced"
   },
@@ -2258,9 +2258,9 @@
   "@lyricsLockScreenSubtitle": {
     "description": "Subtitle of the Lyrics on lock screen switch on Android"
   },
-  "lyricsLockScreenSubtitleIos": "Show the line being sung in place of the song title while Mornye is in the background. Cars and watches show it too.",
+  "lyricsLockScreenSubtitleIos": "Show the line being sung in place of the song title while Sistrum is in the background. Cars and watches show it too.",
   "@lyricsLockScreenSubtitleIos": {
-    "description": "Subtitle of the Lyrics on lock screen switch on iOS, where it also shows in Control Center. Keep 'Mornye' as is: it is the app name"
+    "description": "Subtitle of the Lyrics on lock screen switch on iOS, where it also shows in Control Center. Keep 'Sistrum' as is: it is the app name"
   },
   "lyricsPlayerPreview": "Lyric line in player",
   "@lyricsPlayerPreview": {
@@ -3479,7 +3479,7 @@
   "@libraryRemoveFolder": {
     "description": "Action to remove one indexed library source"
   },
-  "libraryRemoveFolderMessage": "Remove this folder and its indexed tracks from Mornye? Audio files on the storage will not be deleted.",
+  "libraryRemoveFolderMessage": "Remove this folder and its indexed tracks from Sistrum? Audio files on the storage will not be deleted.",
   "@libraryRemoveFolderMessage": {
     "description": "Confirmation shown before removing a library source"
   },
@@ -3689,13 +3689,13 @@
   "@libraryStorageAccessRequired": {
     "description": "Dialog title for storage permission"
   },
-  "libraryStorageAccessMessage": "Mornye needs storage access to scan your music library. Please grant permission in settings.",
+  "libraryStorageAccessMessage": "Sistrum needs storage access to scan your music library. Please grant permission in settings.",
   "@libraryStorageAccessMessage": {
     "description": "Dialog message for storage permission"
   },
   "librarySourceDownloaded": "Downloaded",
   "@librarySourceDownloaded": {
-    "description": "Badge for tracks downloaded via Mornye"
+    "description": "Badge for tracks downloaded via Sistrum"
   },
   "librarySourceLocal": "Local",
   "@librarySourceLocal": {
@@ -3938,11 +3938,11 @@
       }
     }
   },
-  "tutorialWelcomeTitle": "Welcome to Mornye!",
+  "tutorialWelcomeTitle": "Welcome to Sistrum!",
   "@tutorialWelcomeTitle": {
     "description": "Tutorial welcome page title"
   },
-  "tutorialWelcomeDesc": "Learn how to find music with extensions, choose the quality you want, and manage downloads in Mornye.",
+  "tutorialWelcomeDesc": "Learn how to find music with extensions, choose the quality you want, and manage downloads in Sistrum.",
   "@tutorialWelcomeDesc": {
     "description": "Tutorial welcome page description"
   },
@@ -5216,7 +5216,7 @@
   "@safMigrationTitle": {
     "description": "Title of SAF migration dialog"
   },
-  "safMigrationMessage1": "Mornye now uses Android Storage Access Framework (SAF) for downloads. This fixes \"permission denied\" errors on Android 10+.",
+  "safMigrationMessage1": "Sistrum now uses Android Storage Access Framework (SAF) for downloads. This fixes \"permission denied\" errors on Android 10+.",
   "@safMigrationMessage1": {
     "description": "First paragraph of SAF migration dialog"
   },
@@ -5296,7 +5296,7 @@
   "@backupRestoreFailed": {
     "description": "Snackbar when restore fails"
   },
-  "backupInvalidFile": "This file is not a valid Mornye backup",
+  "backupInvalidFile": "This file is not a valid Sistrum backup",
   "@backupInvalidFile": {
     "description": "Snackbar when the chosen file is not a valid backup"
   },
@@ -5480,9 +5480,9 @@
     "description": "Subtitle shown in the download location picker sheet"
   },
   "storageAutomaticFolder": "Automatic folder",
-  "storageAutomaticDownloadFolder": "Uses Download/Mornye when writable, otherwise app storage",
+  "storageAutomaticDownloadFolder": "Uses Download/Sistrum when writable, otherwise app storage",
   "storageSafRecommended": "Choose folder (Recommended)",
-  "storageDownloadFolderHint": "In the Android folder picker, open Download and select Mornye. If it does not exist, create it using New folder, then tap Use this folder to grant access.",
+  "storageDownloadFolderHint": "In the Android folder picker, open Download and select Sistrum. If it does not exist, create it using New folder, then tap Use this folder to grant access.",
   "downloadFolderAccessLostTitle": "Download folder access lost",
   "@downloadFolderAccessLostTitle": {
     "description": "Title of the warning banner shown in Files settings when the saved SAF folder grant is no longer valid"
@@ -6822,7 +6822,7 @@
       }
     }
   },
-  "notifDownloadingUpdate": "Downloading Mornye v{version}",
+  "notifDownloadingUpdate": "Downloading Sistrum v{version}",
   "@notifDownloadingUpdate": {
     "description": "Notification title while downloading an app update",
     "placeholders": {
@@ -6850,7 +6850,7 @@
   "@notifUpdateReady": {
     "description": "Notification title when app update download is complete"
   },
-  "notifUpdateReadyBody": "Mornye v{version} downloaded. Tap to install.",
+  "notifUpdateReadyBody": "Sistrum v{version} downloaded. Tap to install.",
   "@notifUpdateReadyBody": {
     "description": "Notification body when app update is ready to install",
     "placeholders": {
@@ -7618,7 +7618,7 @@
   "@extensionCustomUrlHandlingSubtitle": {
     "description": "Extension detail subtitle for custom URL handling"
   },
-  "extensionCustomUrlHandlingShareHint": "Share links from these sites to Mornye and this extension will handle them.",
+  "extensionCustomUrlHandlingShareHint": "Share links from these sites to Sistrum and this extension will handle them.",
   "@extensionCustomUrlHandlingShareHint": {
     "description": "Extension detail hint explaining share-to-app URL handling"
   },
@@ -7828,7 +7828,7 @@
   "@libraryBuiltInPreviewPlayer": {
     "description": "Setting option to use the built-in preview player"
   },
-  "libraryBuiltInPreviewPlayerSubtitle": "Play your music right inside Mornye",
+  "libraryBuiltInPreviewPlayerSubtitle": "Play your music right inside Sistrum",
   "@libraryBuiltInPreviewPlayerSubtitle": {
     "description": "Subtitle for built-in preview player option"
   },
@@ -8394,27 +8394,27 @@
   },
   "linkDevicesTitle": "Devices",
   "@linkDevicesTitle": {
-    "description": "Mornye Link: title and button tooltip of the phone sheet that controls the paired desktop app"
+    "description": "Sistrum Link: title and button tooltip of the phone sheet that controls the paired desktop app"
   },
   "linkConnectionConnected": "Connected",
   "@linkConnectionConnected": {
-    "description": "Mornye Link: the phone is connected to the paired desktop"
+    "description": "Sistrum Link: the phone is connected to the paired desktop"
   },
   "linkConnectionConnecting": "Connecting",
   "@linkConnectionConnecting": {
-    "description": "Mornye Link: the phone is connecting to the paired desktop"
+    "description": "Sistrum Link: the phone is connecting to the paired desktop"
   },
   "linkConnectionDisconnected": "Not connected",
   "@linkConnectionDisconnected": {
-    "description": "Mornye Link: the paired desktop cannot be reached"
+    "description": "Sistrum Link: the paired desktop cannot be reached"
   },
   "linkThisPhone": "This phone",
   "@linkThisPhone": {
-    "description": "Mornye Link: the phone's own row in the Devices sheet; choosing it plays music here again"
+    "description": "Sistrum Link: the phone's own row in the Devices sheet; choosing it plays music here again"
   },
   "linkPlayingOn": "Playing on {name}",
   "@linkPlayingOn": {
-    "description": "Mornye Link: shown in the player while the paired desktop plays in the phone's place",
+    "description": "Sistrum Link: shown in the player while the paired desktop plays in the phone's place",
     "placeholders": {
       "name": {
         "type": "String"
@@ -8423,11 +8423,11 @@
   },
   "linkPlayTogether": "Play together",
   "@linkPlayTogether": {
-    "description": "Mornye Link Devices sheet: plays the same queue on this phone and the paired desktop at the same time"
+    "description": "Sistrum Link Devices sheet: plays the same queue on this phone and the paired desktop at the same time"
   },
   "linkPlayTogetherSubtitle": "This phone and {name}",
   "@linkPlayTogetherSubtitle": {
-    "description": "Mornye Link Devices sheet: under Play together, the two devices that play",
+    "description": "Sistrum Link Devices sheet: under Play together, the two devices that play",
     "placeholders": {
       "name": {
         "type": "String"
@@ -8436,7 +8436,7 @@
   },
   "linkDesktopPlayTogetherSubtitle": "This computer and {name}",
   "@linkDesktopPlayTogetherSubtitle": {
-    "description": "Mornye Link desktop Devices sheet: under Play together, the computer and the phone that play at the same time",
+    "description": "Sistrum Link desktop Devices sheet: under Play together, the computer and the phone that play at the same time",
     "placeholders": {
       "name": {
         "type": "String"
@@ -8445,11 +8445,11 @@
   },
   "linkPlayTogetherTiming": "Phone timing",
   "@linkPlayTogetherTiming": {
-    "description": "Mornye Link Devices sheet: slider that plays this phone earlier or later than the desktop while playing together"
+    "description": "Sistrum Link Devices sheet: slider that plays this phone earlier or later than the desktop while playing together"
   },
   "linkPlayTogetherTimingValue": "{value} ms",
   "@linkPlayTogetherTimingValue": {
-    "description": "Mornye Link Devices sheet: the phone timing in milliseconds, signed",
+    "description": "Sistrum Link Devices sheet: the phone timing in milliseconds, signed",
     "placeholders": {
       "value": {
         "type": "String"
@@ -8458,28 +8458,28 @@
   },
   "linkPlayTogetherEarlier": "Earlier",
   "@linkPlayTogetherEarlier": {
-    "description": "Mornye Link Devices sheet: start label of the phone timing slider"
+    "description": "Sistrum Link Devices sheet: start label of the phone timing slider"
   },
   "linkPlayTogetherLater": "Later",
   "@linkPlayTogetherLater": {
-    "description": "Mornye Link Devices sheet: end label of the phone timing slider"
+    "description": "Sistrum Link Devices sheet: end label of the phone timing slider"
   },
   "linkPlayTogetherTimingHint": "Move it earlier if this phone sounds late, as with Bluetooth",
   "@linkPlayTogetherTimingHint": {
-    "description": "Mornye Link Devices sheet: help under the phone timing slider"
+    "description": "Sistrum Link Devices sheet: help under the phone timing slider"
   },
   "linkPlayTogetherFailed": "Could not play together with {name}",
   "@linkPlayTogetherFailed": {
-    "description": "Mornye Link: Play together could not start",
+    "description": "Sistrum Link: Play together could not start",
     "placeholders": {
       "name": {
         "type": "String"
       }
     }
   },
-  "linkPlayTogetherNeedsUpdate": "Update Mornye on {name} to play together",
+  "linkPlayTogetherNeedsUpdate": "Update Sistrum on {name} to play together",
   "@linkPlayTogetherNeedsUpdate": {
-    "description": "Mornye Link: the paired desktop runs a version without Play together",
+    "description": "Sistrum Link: the paired desktop runs a version without Play together",
     "placeholders": {
       "name": {
         "type": "String"
@@ -8488,7 +8488,7 @@
   },
   "linkDesktopDownloads": "Downloads on {name}",
   "@linkDesktopDownloads": {
-    "description": "Mornye Link: heading of the paired desktop's download queue",
+    "description": "Sistrum Link: heading of the paired desktop's download queue",
     "placeholders": {
       "name": {
         "type": "String"
@@ -8497,7 +8497,7 @@
   },
   "linkHandoffStarted": "Playing on {name}",
   "@linkHandoffStarted": {
-    "description": "Mornye Link: the paired desktop took over the phone's queue",
+    "description": "Sistrum Link: the paired desktop took over the phone's queue",
     "placeholders": {
       "name": {
         "type": "String"
@@ -8506,7 +8506,7 @@
   },
   "linkHandoffSending": "Sending this song to {name}...",
   "@linkHandoffSending": {
-    "description": "Mornye Link: the phone uploads the current song, which the paired desktop lacks, before it plays there",
+    "description": "Sistrum Link: the phone uploads the current song, which the paired desktop lacks, before it plays there",
     "placeholders": {
       "name": {
         "type": "String"
@@ -8515,7 +8515,7 @@
   },
   "linkHandoffMissing": "Playing on {name}. Not found there: {titles}",
   "@linkHandoffMissing": {
-    "description": "Mornye Link: the paired desktop took over the phone's queue but lacks some tracks, listed by title",
+    "description": "Sistrum Link: the paired desktop took over the phone's queue but lacks some tracks, listed by title",
     "placeholders": {
       "name": {
         "type": "String"
@@ -8527,7 +8527,7 @@
   },
   "linkHandoffNotFound": "{name} has none of these tracks",
   "@linkHandoffNotFound": {
-    "description": "Mornye Link: the paired desktop has none of the tracks in the phone's queue",
+    "description": "Sistrum Link: the paired desktop has none of the tracks in the phone's queue",
     "placeholders": {
       "name": {
         "type": "String"
@@ -8536,11 +8536,11 @@
   },
   "linkHandoffNothingPlaying": "Nothing is playing on this phone",
   "@linkHandoffNothingPlaying": {
-    "description": "Mornye Link: Play on desktop needs a track playing on the phone"
+    "description": "Sistrum Link: Play on desktop needs a track playing on the phone"
   },
   "linkContinueSkipped": "Not on this phone: {titles}",
   "@linkContinueSkipped": {
-    "description": "Mornye Link: tracks of the desktop queue the phone could not play, listed by title",
+    "description": "Sistrum Link: tracks of the desktop queue the phone could not play, listed by title",
     "placeholders": {
       "titles": {
         "type": "String"
@@ -8549,11 +8549,11 @@
   },
   "linkContinueNotFound": "None of these tracks are on this phone",
   "@linkContinueNotFound": {
-    "description": "Mornye Link: the phone has none of the tracks of the desktop queue"
+    "description": "Sistrum Link: the phone has none of the tracks of the desktop queue"
   },
   "linkRequestFailed": "Could not reach {name}",
   "@linkRequestFailed": {
-    "description": "Mornye Link: a request to the paired desktop failed",
+    "description": "Sistrum Link: a request to the paired desktop failed",
     "placeholders": {
       "name": {
         "type": "String"
@@ -8562,7 +8562,7 @@
   },
   "linkDownloadOnDesktop": "Download on {name}",
   "@linkDownloadOnDesktop": {
-    "description": "Mornye Link: queues a track, album or link for download in the paired desktop app",
+    "description": "Sistrum Link: queues a track, album or link for download in the paired desktop app",
     "placeholders": {
       "name": {
         "type": "String"
@@ -8571,7 +8571,7 @@
   },
   "linkDownloadQueuedOnDesktop": "{count, plural, =1{Queued 1 track on {name}} other{Queued {count} tracks on {name}}}",
   "@linkDownloadQueuedOnDesktop": {
-    "description": "Mornye Link: the paired desktop queued downloads",
+    "description": "Sistrum Link: the paired desktop queued downloads",
     "placeholders": {
       "count": {
         "type": "int"
@@ -8583,7 +8583,7 @@
   },
   "linkOpenOnDesktop": "Open on {name}",
   "@linkOpenOnDesktop": {
-    "description": "Mornye Link: opens a shared link in the paired desktop app",
+    "description": "Sistrum Link: opens a shared link in the paired desktop app",
     "placeholders": {
       "name": {
         "type": "String"
@@ -8592,7 +8592,7 @@
   },
   "linkOpenedOnDesktop": "Opened on {name}",
   "@linkOpenedOnDesktop": {
-    "description": "Mornye Link: the paired desktop opened the link",
+    "description": "Sistrum Link: the paired desktop opened the link",
     "placeholders": {
       "name": {
         "type": "String"
@@ -8601,7 +8601,7 @@
   },
   "linkSendToDesktop": "Send to {name}",
   "@linkSendToDesktop": {
-    "description": "Mornye Link: action on a shared link that offers to open or download it on the paired desktop",
+    "description": "Sistrum Link: action on a shared link that offers to open or download it on the paired desktop",
     "placeholders": {
       "name": {
         "type": "String"
@@ -8610,15 +8610,15 @@
   },
   "linkSaveToPhone": "Save to this phone",
   "@linkSaveToPhone": {
-    "description": "Mornye Link: downloads songs of the paired desktop's library into the phone's download folder"
+    "description": "Sistrum Link: downloads songs of the paired desktop's library into the phone's download folder"
   },
   "linkSavingToPhone": "Saving to this phone",
   "@linkSavingToPhone": {
-    "description": "Mornye Link: title of the progress dialog while desktop songs are saved to the phone"
+    "description": "Sistrum Link: title of the progress dialog while desktop songs are saved to the phone"
   },
   "linkSavedToPhone": "{count, plural, =1{Saved 1 song to this phone} other{Saved {count} songs to this phone}}",
   "@linkSavedToPhone": {
-    "description": "Mornye Link: desktop songs were saved to the phone",
+    "description": "Sistrum Link: desktop songs were saved to the phone",
     "placeholders": {
       "count": {
         "type": "int"
@@ -8627,7 +8627,7 @@
   },
   "linkSaveToPhoneFailed": "{count, plural, =1{1 song could not be saved} other{{count} songs could not be saved}}",
   "@linkSaveToPhoneFailed": {
-    "description": "Mornye Link: some desktop songs could not be saved to the phone",
+    "description": "Sistrum Link: some desktop songs could not be saved to the phone",
     "placeholders": {
       "count": {
         "type": "int"
@@ -8636,23 +8636,23 @@
   },
   "linkSaveToPhoneCancelled": "Saving stopped",
   "@linkSaveToPhoneCancelled": {
-    "description": "Mornye Link: the listener cancelled saving desktop songs to the phone"
+    "description": "Sistrum Link: the listener cancelled saving desktop songs to the phone"
   },
   "linkKeepOnPhone": "Keep on this phone",
   "@linkKeepOnPhone": {
-    "description": "Mornye Link: playlist or Loved menu action; while the paired computer is connected, the collection's songs that live on the computer are saved to this phone by themselves"
+    "description": "Sistrum Link: playlist or Loved menu action; while the paired computer is connected, the collection's songs that live on the computer are saved to this phone by themselves"
   },
   "linkKeepOnPhoneStop": "Stop keeping on this phone",
   "@linkKeepOnPhoneStop": {
-    "description": "Mornye Link: playlist or Loved menu action that ends Keep on this phone; songs already saved stay"
+    "description": "Sistrum Link: playlist or Loved menu action that ends Keep on this phone; songs already saved stay"
   },
   "linkKeptOnPhone": "Kept on this phone",
   "@linkKeptOnPhone": {
-    "description": "Mornye Link: short label in a playlist's or Loved's header while it is kept on this phone"
+    "description": "Sistrum Link: short label in a playlist's or Loved's header while it is kept on this phone"
   },
   "linkTransferPhoneReceiving": "{count, plural, =1{Saving {title} from {name}} other{Saving {count} songs from {name}}}",
   "@linkTransferPhoneReceiving": {
-    "description": "Mornye Link: snackbar and notification when the phone starts copying songs from the paired computer into its download folder; title is the song's title when there is one song",
+    "description": "Sistrum Link: snackbar and notification when the phone starts copying songs from the paired computer into its download folder; title is the song's title when there is one song",
     "placeholders": {
       "count": {
         "type": "int"
@@ -8667,7 +8667,7 @@
   },
   "linkTransferPhoneOffered": "{count, plural, =1{{name} is sending {title} to this phone} other{{name} is sending {count} songs to this phone}}",
   "@linkTransferPhoneOffered": {
-    "description": "Mornye Link: snackbar when the paired computer starts sending songs to the phone; title is the song's title when there is one song",
+    "description": "Sistrum Link: snackbar when the paired computer starts sending songs to the phone; title is the song's title when there is one song",
     "placeholders": {
       "count": {
         "type": "int"
@@ -8682,11 +8682,11 @@
   },
   "linkTransferPhoneView": "View",
   "@linkTransferPhoneView": {
-    "description": "Mornye Link: snackbar action that opens the list of song transfers"
+    "description": "Sistrum Link: snackbar action that opens the list of song transfers"
   },
   "linkTransferPhoneWith": "Transfer with {name}",
   "@linkTransferPhoneWith": {
-    "description": "Mornye Link: tooltip and sheet title of a playlist's button that sends its songs to the paired computer or saves the computer's songs to the phone",
+    "description": "Sistrum Link: tooltip and sheet title of a playlist's button that sends its songs to the paired computer or saves the computer's songs to the phone",
     "placeholders": {
       "name": {
         "type": "String"
@@ -8695,7 +8695,7 @@
   },
   "linkTransferPhoneNothing": "None of these songs are on {name}",
   "@linkTransferPhoneNothing": {
-    "description": "Mornye Link: Save to this phone found none of the chosen songs in the paired computer's library",
+    "description": "Sistrum Link: Save to this phone found none of the chosen songs in the paired computer's library",
     "placeholders": {
       "name": {
         "type": "String"
@@ -8704,7 +8704,7 @@
   },
   "linkSendSending": "{count, plural, =1{Sending {title} to {name}} other{Sending {count} songs to {name}}}",
   "@linkSendSending": {
-    "description": "Mornye Link: snackbar and notification when the phone starts copying its own songs to the paired computer; title is the song's title when there is one song",
+    "description": "Sistrum Link: snackbar and notification when the phone starts copying its own songs to the paired computer; title is the song's title when there is one song",
     "placeholders": {
       "count": {
         "type": "int"
@@ -8719,7 +8719,7 @@
   },
   "linkSendNothing": "None of these songs can be sent to {name}",
   "@linkSendNothing": {
-    "description": "Mornye Link: none of the chosen songs is a file on this phone in a format the paired computer takes",
+    "description": "Sistrum Link: none of the chosen songs is a file on this phone in a format the paired computer takes",
     "placeholders": {
       "name": {
         "type": "String"
@@ -8728,19 +8728,19 @@
   },
   "linkDownloadStatusQueued": "Waiting",
   "@linkDownloadStatusQueued": {
-    "description": "Mornye Link: a download on the paired desktop has not started"
+    "description": "Sistrum Link: a download on the paired desktop has not started"
   },
   "linkDownloadStatusDownloading": "Downloading",
   "@linkDownloadStatusDownloading": {
-    "description": "Mornye Link: a download on the paired desktop is running"
+    "description": "Sistrum Link: a download on the paired desktop is running"
   },
   "linkDownloadStatusDone": "Done",
   "@linkDownloadStatusDone": {
-    "description": "Mornye Link: a download on the paired desktop finished"
+    "description": "Sistrum Link: a download on the paired desktop finished"
   },
   "linkDownloadStatusFailed": "Failed",
   "@linkDownloadStatusFailed": {
-    "description": "Mornye Link: a download on the paired desktop failed"
+    "description": "Sistrum Link: a download on the paired desktop failed"
   },
   "announcementUnableToOpenLink": "Unable to open link. Please try again.",
   "@announcementUnableToOpenLink": {
@@ -9174,11 +9174,11 @@
   "@extensionVerificationHelpTitleWaiting": {
     "description": "Dialog title when verification is taking longer than expected"
   },
-  "extensionVerificationHelpMessageManual": "Mornye could not open the browser automatically. Open this link in your browser, or copy it manually.",
+  "extensionVerificationHelpMessageManual": "Sistrum could not open the browser automatically. Open this link in your browser, or copy it manually.",
   "@extensionVerificationHelpMessageManual": {
     "description": "Dialog message when automatic browser launch for verification fails"
   },
-  "extensionVerificationHelpMessageWaiting": "If the browser did not open, or verification finished but did not return to Mornye, open this link again or copy it manually.",
+  "extensionVerificationHelpMessageWaiting": "If the browser did not open, or verification finished but did not return to Sistrum, open this link again or copy it manually.",
   "@extensionVerificationHelpMessageWaiting": {
     "description": "Dialog message when verification may need manual browser help"
   },
@@ -9536,7 +9536,7 @@
   },
   "homeRecentlyPlayed": "Recently Played",
   "@homeRecentlyPlayed": {
-    "description": "Mornye Home: heading of the shelf of what was played lately"
+    "description": "Sistrum Home: heading of the shelf of what was played lately"
   },
   "homeRecentlyAdded": "Recently added",
   "@homeRecentlyAdded": {
@@ -9568,11 +9568,11 @@
   },
   "homeTopPicks": "Top Picks for You",
   "@homeTopPicks": {
-    "description": "Mornye Home: heading of the first shelf, the day's mixes shown as banners"
+    "description": "Sistrum Home: heading of the first shelf, the day's mixes shown as banners"
   },
   "homeMadeForYou": "Made for You",
   "@homeMadeForYou": {
-    "description": "Mornye Home: small label on a mix banner"
+    "description": "Sistrum Home: small label on a mix banner"
   },
   "homeMixesForYou": "Mixes for you",
   "@homeMixesForYou": {
@@ -9969,7 +9969,7 @@
   "equalizerPresetName": "Preset name",
   "equalizerImport": "Import preset",
   "equalizerExport": "Share preset",
-  "equalizerImportInvalid": "Choose a valid Mornye equalizer preset (JSON, up to 64 KB).",
+  "equalizerImportInvalid": "Choose a valid Sistrum equalizer preset (JSON, up to 64 KB).",
   "equalizerSaved": "Preset saved",
   "equalizerResetTitle": "Reset equalizer?",
   "equalizerResetDescription": "Restore a flat curve, default tone and dynamics settings. Saved presets are kept.",
@@ -10049,9 +10049,9 @@
   "audioInfoLocationLocal": "Device storage",
   "audioInfoLocationShared": "Shared folder",
   "audioInfoLocationNetwork": "Network storage",
-  "audioInfoLocationLink": "{device} via Mornye Link",
+  "audioInfoLocationLink": "{device} via Sistrum Link",
   "@audioInfoLocationLink": {
-    "description": "Audio info location of a song played from a paired computer or phone over Mornye Link; device is that device's name",
+    "description": "Audio info location of a song played from a paired computer or phone over Sistrum Link; device is that device's name",
     "placeholders": {
       "device": {
         "type": "String"
@@ -10086,7 +10086,7 @@
   "audioInfoOff": "Off",
   "audioInfoBypassed": "Bypassed by direct output",
   "audioInfoPlayer": "Player",
-  "audioInfoPlayerValue": "Mornye built-in player",
+  "audioInfoPlayerValue": "Sistrum built-in player",
   "audioInfoSignalPath": "Signal path",
   "audioInfoPathSystem": "System mixer",
   "audioInfoPathDirect": "Direct USB, bypasses the system mixer",
@@ -10132,7 +10132,7 @@
   },
   "audioInfoAndroidNotReported": "Not reported by Android",
   "audioInfoBluetoothUnavailable": "Unavailable to this app",
-  "audioInfoBluetoothUnavailableHint": "Android may show the active codec in Bluetooth settings without making it available to Mornye. This is separate from the song's file format.",
+  "audioInfoBluetoothUnavailableHint": "Android may show the active codec in Bluetooth settings without making it available to Sistrum. This is separate from the song's file format.",
   "audioAnalysisFileBitrate": "Average file bitrate",
   "audioAnalysisFileBitrateHint": "Includes tags and container overhead. It can differ from the audio stream bitrate and is not the Bluetooth bitrate.",
   "audioCompareAction": "Compare with another file",
@@ -10456,15 +10456,15 @@
   "@desktopDownloadsCancel": {
     "description": "Tooltip of the button that cancels one download in the desktop downloads popover"
   },
-  "linkDesktopSettingsTitle": "Mornye on your phone",
+  "linkDesktopSettingsTitle": "Sistrum on your phone",
   "@linkDesktopSettingsTitle": {
-    "description": "Desktop Settings page that shares this computer's library with the Mornye phone app over the local network"
+    "description": "Desktop Settings page that shares this computer's library with the Sistrum phone app over the local network"
   },
   "linkDesktopSettingsSubtitle": "Stream your library and control playback from your phone",
   "@linkDesktopSettingsSubtitle": {
-    "description": "Subtitle of the Mornye on your phone entry in desktop Settings"
+    "description": "Subtitle of the Sistrum on your phone entry in desktop Settings"
   },
-  "linkDesktopEnableTitle": "Share with Mornye on your phone",
+  "linkDesktopEnableTitle": "Share with Sistrum on your phone",
   "@linkDesktopEnableTitle": {
     "description": "Switch that turns on the local server phones connect to"
   },
@@ -10494,7 +10494,7 @@
       }
     }
   },
-  "linkDesktopFirewallHint": "Your computer may ask whether Mornye can accept incoming network connections. Allow it so your phone can connect.",
+  "linkDesktopFirewallHint": "Your computer may ask whether Sistrum can accept incoming network connections. Allow it so your phone can connect.",
   "@linkDesktopFirewallHint": {
     "description": "Hint shown while the phone link server is on, about the operating system firewall prompt"
   },
@@ -10648,7 +10648,7 @@
       }
     }
   },
-  "linkDesktopPairInstructions": "Open Mornye on your phone, choose this computer and enter this code.",
+  "linkDesktopPairInstructions": "Open Sistrum on your phone, choose this computer and enter this code.",
   "@linkDesktopPairInstructions": {
     "description": "Instructions in the pairing dialog above the code"
   },
@@ -10743,7 +10743,7 @@
   },
   "linkTransferDesktopSendTo": "Send to {name}",
   "@linkTransferDesktopSendTo": {
-    "description": "Mornye Link desktop: song menu action that copies this computer's songs to the connected phone {name}",
+    "description": "Sistrum Link desktop: song menu action that copies this computer's songs to the connected phone {name}",
     "placeholders": {
       "name": {
         "type": "String"
@@ -10752,11 +10752,11 @@
   },
   "linkTransferDesktopSaveHere": "Save to this computer",
   "@linkTransferDesktopSaveHere": {
-    "description": "Mornye Link desktop: song menu action that copies a connected phone's songs into this computer's download folder"
+    "description": "Sistrum Link desktop: song menu action that copies a connected phone's songs into this computer's download folder"
   },
   "linkTransferDesktopSendingSong": "Sending \"{title}\" to {name}",
   "@linkTransferDesktopSendingSong": {
-    "description": "Mornye Link desktop: snackbar when one song starts copying to the phone {name}",
+    "description": "Sistrum Link desktop: snackbar when one song starts copying to the phone {name}",
     "placeholders": {
       "title": {
         "type": "String"
@@ -10768,7 +10768,7 @@
   },
   "linkTransferDesktopSendingSongs": "{count, plural, =1{Sending 1 song to {name}} other{Sending {count} songs to {name}}}",
   "@linkTransferDesktopSendingSongs": {
-    "description": "Mornye Link desktop: snackbar when songs start copying to the phone {name}",
+    "description": "Sistrum Link desktop: snackbar when songs start copying to the phone {name}",
     "placeholders": {
       "count": {
         "type": "int"
@@ -10780,7 +10780,7 @@
   },
   "linkTransferDesktopReceivingSong": "Receiving \"{title}\" from {name}",
   "@linkTransferDesktopReceivingSong": {
-    "description": "Mornye Link desktop: snackbar when one song of the phone {name} starts copying to this computer",
+    "description": "Sistrum Link desktop: snackbar when one song of the phone {name} starts copying to this computer",
     "placeholders": {
       "title": {
         "type": "String"
@@ -10792,7 +10792,7 @@
   },
   "linkTransferDesktopReceivingSongs": "{count, plural, =1{Receiving 1 song from {name}} other{Receiving {count} songs from {name}}}",
   "@linkTransferDesktopReceivingSongs": {
-    "description": "Mornye Link desktop: snackbar when songs of the phone {name} start copying to this computer",
+    "description": "Sistrum Link desktop: snackbar when songs of the phone {name} start copying to this computer",
     "placeholders": {
       "count": {
         "type": "int"
@@ -10804,15 +10804,15 @@
   },
   "linkTransferDesktopView": "View",
   "@linkTransferDesktopView": {
-    "description": "Mornye Link desktop: snackbar action that opens the list of song transfers"
+    "description": "Sistrum Link desktop: snackbar action that opens the list of song transfers"
   },
   "linkTransferDesktopNothingToSend": "None of these songs can be sent right now",
   "@linkTransferDesktopNothingToSend": {
-    "description": "Mornye Link desktop: snackbar when Send to phone finds no song file on this computer to send"
+    "description": "Sistrum Link desktop: snackbar when Send to phone finds no song file on this computer to send"
   },
   "linkTransferDesktopNothingToSave": "None of these songs can be saved right now",
   "@linkTransferDesktopNothingToSave": {
-    "description": "Mornye Link desktop: snackbar when Save to this computer finds no song of a connected phone"
+    "description": "Sistrum Link desktop: snackbar when Save to this computer finds no song of a connected phone"
   },
   "desktopScrollBack": "Scroll back",
   "@desktopScrollBack": {
@@ -10846,19 +10846,19 @@
   "@desktopShortcutToggleSidebar": {
     "description": "Keyboard Shortcuts row for the shortcut that collapses or expands the desktop sidebar"
   },
-  "linkSettingsTitle": "Mornye on other devices",
+  "linkSettingsTitle": "Sistrum on other devices",
   "@linkSettingsTitle": {
-    "description": "Phone Settings entry that pairs the phone with Mornye on a computer or on another phone on the local network"
+    "description": "Phone Settings entry that pairs the phone with Sistrum on a computer or on another phone on the local network"
   },
   "linkSettingsSubtitle": "Play and control the library of a computer or another phone",
   "@linkSettingsSubtitle": {
-    "description": "Subtitle of the Mornye on other devices entry in phone Settings"
+    "description": "Subtitle of the Sistrum on other devices entry in phone Settings"
   },
   "linkPageTitle": "Devices",
   "@linkPageTitle": {
-    "description": "Title of the page listing computers and phones running Mornye that the phone can pair with; kept short for the large title"
+    "description": "Title of the page listing computers and phones running Sistrum that the phone can pair with; kept short for the large title"
   },
-  "linkPageDescription": "Pair with Mornye on a computer or another phone to play its library on this phone and control what it plays. Both devices need to be on the same network.",
+  "linkPageDescription": "Pair with Sistrum on a computer or another phone to play its library on this phone and control what it plays. Both devices need to be on the same network.",
   "@linkPageDescription": {
     "description": "Introduction at the top of the page listing computers and phones the phone can pair with"
   },
@@ -10882,7 +10882,7 @@
   "@linkShowComputerSongsTitle": {
     "description": "Switch title: songs from paired computers and phones appear in this phone's Library"
   },
-  "linkShowComputerSongsSubtitle": "Hide songs from paired devices without disconnecting Mornye Link. Songs saved to this phone stay in Library.",
+  "linkShowComputerSongsSubtitle": "Hide songs from paired devices without disconnecting Sistrum Link. Songs saved to this phone stay in Library.",
   "@linkShowComputerSongsSubtitle": {
     "description": "Switch subtitle: hiding a paired device's songs preserves the Link connection and songs saved on the phone"
   },
@@ -10896,7 +10896,7 @@
   },
   "linkHideDisconnectedTitle": "Hide songs while disconnected",
   "@linkHideDisconnectedTitle": {
-    "description": "Mornye Link switch, on the phone and on the computer: hide a paired device's songs from the Library while it is not connected"
+    "description": "Sistrum Link switch, on the phone and on the computer: hide a paired device's songs from the Library while it is not connected"
   },
   "linkHideDisconnectedSubtitle": "Songs from a paired device leave Library while it is not connected and return when it connects",
   "@linkHideDisconnectedSubtitle": {
@@ -10904,7 +10904,7 @@
   },
   "linkSyncSoundTitle": "Sync sound settings",
   "@linkSyncSoundTitle": {
-    "description": "Mornye Link phone switch: the user's saved sound settings travel between this phone and the paired computer or phone"
+    "description": "Sistrum Link phone switch: the user's saved sound settings travel between this phone and the paired computer or phone"
   },
   "linkSyncSoundSubtitle": "Equalizer presets, volume normalization level and mix transitions stay the same on this phone and the other device",
   "@linkSyncSoundSubtitle": {
@@ -10912,7 +10912,7 @@
   },
   "linkNearbySection": "On this network",
   "@linkNearbySection": {
-    "description": "Section header for computers running Mornye found on the local network"
+    "description": "Section header for computers running Sistrum found on the local network"
   },
   "linkSearching": "Looking for devices...",
   "@linkSearching": {
@@ -10922,9 +10922,9 @@
   "@linkNoneFoundTitle": {
     "description": "Row shown when the phone is not searching and found no computer or phone"
   },
-  "linkNoneFound": "Open Mornye on your computer and turn on Share with Mornye on your phone in its settings, or turn on Share with other phones on another phone.",
+  "linkNoneFound": "Open Sistrum on your computer and turn on Share with Sistrum on your phone in its settings, or turn on Share with other phones on another phone.",
   "@linkNoneFound": {
-    "description": "Hint under the search row when nothing was found yet; Share with Mornye on your phone is the name of the desktop setting, Share with other phones the name of the phone setting"
+    "description": "Hint under the search row when nothing was found yet; Share with Sistrum on your phone is the name of the desktop setting, Share with other phones the name of the phone setting"
   },
   "linkAddManually": "Add by address",
   "@linkAddManually": {
@@ -10936,9 +10936,9 @@
   },
   "linkManualPort": "Port",
   "@linkManualPort": {
-    "description": "Field label for the network port Mornye shares on, on the computer or phone to pair with"
+    "description": "Field label for the network port Sistrum shares on, on the computer or phone to pair with"
   },
-  "linkManualMessage": "Mornye on the other device shows its address and port where you turn on sharing.",
+  "linkManualMessage": "Sistrum on the other device shows its address and port where you turn on sharing.",
   "@linkManualMessage": {
     "description": "Explains where to find the address and port to type"
   },
@@ -11013,7 +11013,7 @@
       }
     }
   },
-  "linkPinNotOpen": "Pairing is not open yet. Start pairing in Mornye on the other device to show a PIN.",
+  "linkPinNotOpen": "Pairing is not open yet. Start pairing in Sistrum on the other device to show a PIN.",
   "@linkPinNotOpen": {
     "description": "Note in the PIN dialog when the computer reports that no pairing window is open"
   },
@@ -11045,7 +11045,7 @@
   },
   "linkTransfersTitle": "Transfers",
   "@linkTransfersTitle": {
-    "description": "Mornye Link: title of the list of songs copied between this device and a linked phone or computer, and of the rows that open it"
+    "description": "Sistrum Link: title of the list of songs copied between this device and a linked phone or computer, and of the rows that open it"
   },
   "linkTransfersInProgress": "In progress",
   "@linkTransfersInProgress": {
@@ -11314,11 +11314,11 @@
   "@linkErrorCertificate": {
     "description": "Warning shown when the certificate seen during the connection differs from the computer's reported fingerprint"
   },
-  "linkErrorIncompatible": "That device runs a Mornye version that cannot pair with this phone. Update Mornye on both devices.",
+  "linkErrorIncompatible": "That device runs a Sistrum version that cannot pair with this phone. Update Sistrum on both devices.",
   "@linkErrorIncompatible": {
-    "description": "Pairing error when the computer is not a compatible Mornye desktop"
+    "description": "Pairing error when the computer is not a compatible Sistrum desktop"
   },
-  "linkErrorUnreachable": "The device could not be reached. Check that Mornye is open on it and that both devices are on the same network.",
+  "linkErrorUnreachable": "The device could not be reached. Check that Sistrum is open on it and that both devices are on the same network.",
   "@linkErrorUnreachable": {
     "description": "Pairing error when the computer cannot be reached"
   },
@@ -11338,7 +11338,7 @@
   "@linkLocalNetworkTitle": {
     "description": "Title of the notice shown when the phone is not allowed to use the local network"
   },
-  "linkLocalNetworkMessage": "Mornye needs local network access to find your other devices and connect to them.",
+  "linkLocalNetworkMessage": "Sistrum needs local network access to find your other devices and connect to them.",
   "@linkLocalNetworkMessage": {
     "description": "Explains why local network access is needed"
   },
@@ -11363,7 +11363,7 @@
       }
     }
   },
-  "linkIssueCertificate": "{name} presented a different security certificate. Pair again only if you reinstalled or reset Mornye on that device.",
+  "linkIssueCertificate": "{name} presented a different security certificate. Pair again only if you reinstalled or reset Sistrum on that device.",
   "@linkIssueCertificate": {
     "description": "Warning when a paired computer's certificate changed",
     "placeholders": {
@@ -11372,7 +11372,7 @@
       }
     }
   },
-  "linkIssueIncompatible": "Update Mornye on this phone and on {name} to connect.",
+  "linkIssueIncompatible": "Update Sistrum on this phone and on {name} to connect.",
   "@linkIssueIncompatible": {
     "description": "Notice when the paired computer speaks another protocol version",
     "placeholders": {
@@ -11383,13 +11383,13 @@
   },
   "linkPhoneHostSection": "Share this phone",
   "@linkPhoneHostSection": {
-    "description": "Section header on the phone's Mornye Link page for letting other phones use this phone's songs"
+    "description": "Section header on the phone's Sistrum Link page for letting other phones use this phone's songs"
   },
   "linkPhoneHostTitle": "Share with other phones",
   "@linkPhoneHostTitle": {
-    "description": "Switch that lets other phones running Mornye pair with this phone and play its songs"
+    "description": "Switch that lets other phones running Sistrum pair with this phone and play its songs"
   },
-  "linkPhoneHostSubtitle": "Other phones can browse and play your songs while Mornye is open or playing",
+  "linkPhoneHostSubtitle": "Other phones can browse and play your songs while Sistrum is open or playing",
   "@linkPhoneHostSubtitle": {
     "description": "Subtitle of the Share with other phones switch while it is off"
   },
@@ -11405,7 +11405,7 @@
   "@linkPhoneHostPairSubtitle": {
     "description": "Subtitle of Pair a phone on a phone shared with other phones"
   },
-  "linkPhoneHostPairInstructions": "Open Mornye on the other phone, choose this phone and enter this code.",
+  "linkPhoneHostPairInstructions": "Open Sistrum on the other phone, choose this phone and enter this code.",
   "@linkPhoneHostPairInstructions": {
     "description": "Instruction in the pairing dialog of a phone shared with other phones"
   },
@@ -11612,7 +11612,7 @@
   "@recognizePermissionTitle": {
     "description": "Title when microphone permission was denied"
   },
-  "recognizePermissionMessage": "Mornye uses the microphone only while you identify a song.",
+  "recognizePermissionMessage": "Sistrum uses the microphone only while you identify a song.",
   "@recognizePermissionMessage": {
     "description": "Explanation when microphone permission was denied"
   },
@@ -11620,11 +11620,11 @@
   "@recognizePermissionAllow": {
     "description": "Button that asks for microphone permission again"
   },
-  "recognizePlay": "Play in Mornye",
+  "recognizePlay": "Play in Sistrum",
   "@recognizePlay": {
     "description": "Button that plays the identified song from the downloads or library"
   },
-  "recognizeSearch": "Search in Mornye",
+  "recognizeSearch": "Search in Sistrum",
   "@recognizeSearch": {
     "description": "Button that searches for the identified song when it is not in the library"
   },
@@ -11668,7 +11668,7 @@
   "lastfmConnect": "Connect Last.fm",
   "lastfmConnecting": "Connecting to Last.fm...",
   "lastfmFinishConnection": "Finish connecting",
-  "lastfmAuthorizeHelp": "Approve access in your browser, then come back to Mornye. If it does not connect on its own, choose Finish connecting.",
+  "lastfmAuthorizeHelp": "Approve access in your browser, then come back to Sistrum. If it does not connect on its own, choose Finish connecting.",
   "lastfmScrobbling": "Scrobbling",
   "lastfmScrobblingDescription": "Send songs you listen to in the built-in player to Last.fm.",
   "lastfmNowPlaying": "Show Now Playing",
@@ -11676,7 +11676,7 @@
   "lastfmDisconnect": "Disconnect Last.fm",
   "lastfmConnectionError": "Last.fm could not be reached. Saved scrobbles will be retried automatically.",
   "lastfmStorageError": "Last.fm settings could not be saved. Check access to this device's secure storage and try again.",
-  "lastfmAuthorizationPending": "Access has not been approved yet. Finish authorizing Mornye in your browser.",
+  "lastfmAuthorizationPending": "Access has not been approved yet. Finish authorizing Sistrum in your browser.",
   "lastfmAuthorizationExpired": "This connection request expired. Connect again to continue.",
   "lastfmReauthenticate": "Your Last.fm connection expired. Connect again to resume scrobbling.",
   "lastfmUnavailable": "Last.fm is unavailable in this build.",
@@ -11743,7 +11743,7 @@
       "service": { "type": "String", "example": "Libre.fm" }
     }
   },
-  "scrobbleServiceUnavailable": "{service} is not accepting scrobbles from Mornye right now.",
+  "scrobbleServiceUnavailable": "{service} is not accepting scrobbles from Sistrum right now.",
   "@scrobbleServiceUnavailable": {
     "placeholders": {
       "service": { "type": "String", "example": "Libre.fm" }
@@ -11828,7 +11828,7 @@
   },
   "reorganizeLibraryScanning": "Checking your files…",
   "@reorganizeLibraryScanning": {
-    "description": "Shown while Mornye works out which downloaded files need to move"
+    "description": "Shown while Sistrum works out which downloaded files need to move"
   },
   "reorganizeLibraryBusy": "Wait for active downloads to finish before reorganizing files",
   "@reorganizeLibraryBusy": {
@@ -11838,7 +11838,7 @@
   "@reorganizeLibraryNothingTitle": {
     "description": "Dialog title when every downloaded file already follows the rules"
   },
-  "reorganizeLibraryNothingMessage": "{count, plural, =0{There are no tracks in your download folder to reorganize. Files Mornye did not download are included once the folder is added and scanned in Local Library.} =1{The track in your download folder already follows the current rules.} other{All {count} tracks in your download folder already follow the current rules.}}",
+  "reorganizeLibraryNothingMessage": "{count, plural, =0{There are no tracks in your download folder to reorganize. Files Sistrum did not download are included once the folder is added and scanned in Local Library.} =1{The track in your download folder already follows the current rules.} other{All {count} tracks in your download folder already follow the current rules.}}",
   "@reorganizeLibraryNothingMessage": {
     "description": "Dialog message when there is nothing to move",
     "placeholders": {
@@ -11909,15 +11909,15 @@
       }
     }
   },
-  "reorganizeLibraryScanHint": "Files Mornye did not download are only included after their folder is added and scanned in Local Library.",
+  "reorganizeLibraryScanHint": "Files Sistrum did not download are only included after their folder is added and scanned in Local Library.",
   "@reorganizeLibraryScanHint": {
     "description": "Hint in the reorganize confirmation dialog about which files are covered"
   },
-  "reorganizeLibraryKeepsPlaylistFolders": "Your folder rule uses the playlist name, which Mornye doesn't keep for past downloads, so files stay in their current folder and are only renamed.",
+  "reorganizeLibraryKeepsPlaylistFolders": "Your folder rule uses the playlist name, which Sistrum doesn't keep for past downloads, so files stay in their current folder and are only renamed.",
   "@reorganizeLibraryKeepsPlaylistFolders": {
     "description": "Warning in the reorganize confirmation dialog when the folder rule depends on the playlist"
   },
-  "reorganizeLibraryDropsPlaylistFolders": "Mornye doesn't keep which playlist a past download came from, so tracks inside playlist folders will be moved out of them.",
+  "reorganizeLibraryDropsPlaylistFolders": "Sistrum doesn't keep which playlist a past download came from, so tracks inside playlist folders will be moved out of them.",
   "@reorganizeLibraryDropsPlaylistFolders": {
     "description": "Warning in the reorganize confirmation dialog when playlist folders are enabled"
   },

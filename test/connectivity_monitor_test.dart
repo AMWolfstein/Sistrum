@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/connectivity_monitor.dart';
+import 'package:sistrum/services/connectivity_monitor.dart';
 
 class _Connectivity implements Connectivity {
   _Connectivity(this.read);

@@ -6,13 +6,13 @@ import 'package:flutter/foundation.dart';
 import 'package:ffmpeg_kit_flutter_new_audio/media_information.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:mornye/services/audio_analysis_ffmpeg.dart';
-import 'package:mornye/services/audio_analysis_jobs.dart';
-import 'package:mornye/services/audio_analysis_models.dart';
-import 'package:mornye/services/ffmpeg_models.dart';
-import 'package:mornye/services/ffmpeg_support.dart';
-import 'package:mornye/services/network_audio_analysis_input.dart';
-import 'package:mornye/services/platform_bridge.dart';
+import 'package:sistrum/services/audio_analysis_ffmpeg.dart';
+import 'package:sistrum/services/audio_analysis_jobs.dart';
+import 'package:sistrum/services/audio_analysis_models.dart';
+import 'package:sistrum/services/ffmpeg_models.dart';
+import 'package:sistrum/services/ffmpeg_support.dart';
+import 'package:sistrum/services/network_audio_analysis_input.dart';
+import 'package:sistrum/services/platform_bridge.dart';
 
 class GeneratedSpectrogram {
   final ui.Image image;

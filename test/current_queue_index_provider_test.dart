@@ -1,7 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/providers/music_player_provider.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
 
 Future<int> _index(List<String> ids, String? current, int? reported) async {
   final queue = [for (final id in ids) MediaItem(id: id, title: id)];

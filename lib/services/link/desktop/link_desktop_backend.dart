@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/services/link/desktop/link_phone_host_backend.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/services/link/desktop/link_phone_host_backend.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
 String _string(Object? value) => value is String ? value.trim() : '';
 

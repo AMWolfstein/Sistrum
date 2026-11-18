@@ -3,14 +3,14 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:mornye/services/library_shadow_sql.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/path_match_keys.dart';
+import 'package:sistrum/services/library_shadow_sql.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/path_match_keys.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart' show databaseFactoryFfi;
 
-export 'package:mornye/services/library_shadow_sql.dart';
+export 'package:sistrum/services/library_shadow_sql.dart';
 
 final _log = AppLogger('AppSqlite');
 
@@ -39,7 +39,7 @@ Future<Directory> appDatabaseDirectory() async {
 }
 
 Future<bool>? _trigramFts5Capability;
-const _trigramFts5ProbeTable = 'mornye_trigram_fts5_probe';
+const _trigramFts5ProbeTable = 'sistrum_trigram_fts5_probe';
 
 /// Caches an asynchronously-created value while also coalescing concurrent
 /// callers onto the same in-flight initialization.

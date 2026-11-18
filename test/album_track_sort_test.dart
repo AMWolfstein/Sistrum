@@ -1,11 +1,11 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/album_track_order.dart';
-import 'package:mornye/providers/album_track_sort_provider.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/album_track_sort_button.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/album_track_order.dart';
+import 'package:sistrum/providers/album_track_sort_provider.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/album_track_sort_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _album = (album: 'Example Album', artist: 'Example Artist');

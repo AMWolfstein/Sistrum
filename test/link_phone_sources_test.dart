@@ -3,20 +3,20 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/desktop/link_arriving_files.dart';
-import 'package:mornye/services/link/desktop/link_catalog_index.dart';
-import 'package:mornye/services/link/desktop/link_phone_catalogs.dart';
-import 'package:mornye/services/link/desktop/link_phone_sources.dart';
-import 'package:mornye/services/link/link_host_router.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/link/features/link_phone_library_sync.dart';
-import 'package:mornye/services/link/features/link_phone_files.dart';
-import 'package:mornye/controllers/player_metadata_controller.dart';
+import 'package:sistrum/services/link/desktop/link_arriving_files.dart';
+import 'package:sistrum/services/link/desktop/link_catalog_index.dart';
+import 'package:sistrum/services/link/desktop/link_phone_catalogs.dart';
+import 'package:sistrum/services/link/desktop/link_phone_sources.dart';
+import 'package:sistrum/services/link/link_host_router.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/features/link_phone_library_sync.dart';
+import 'package:sistrum/services/link/features/link_phone_files.dart';
+import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:audio_service/audio_service.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/source_deletion_events.dart';
-import 'package:mornye/utils/file_access.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/source_deletion_events.dart';
+import 'package:sistrum/utils/file_access.dart';
 
 import 'support/link_desktop_fakes.dart';
 import 'support/link_fakes.dart'

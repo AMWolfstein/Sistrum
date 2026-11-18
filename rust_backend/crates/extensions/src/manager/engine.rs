@@ -1,7 +1,7 @@
 //! Engine lock whose release wakes the callers waiting for a busy extension.
 
 use super::{Engine, ManagerError, error};
-use mornye_core::cancellation::RequestLease;
+use sistrum_core::cancellation::RequestLease;
 use std::ops::{Deref, DerefMut};
 use std::sync::{Arc, LockResult, Mutex, MutexGuard, PoisonError, TryLockError};
 use std::thread::{self, Thread};

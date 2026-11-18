@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:mornye/services/lastfm/lastfm_api.dart';
-import 'package:mornye/services/scrobbling/scrobble_store.dart';
+import 'package:sistrum/services/lastfm/lastfm_api.dart';
+import 'package:sistrum/services/scrobbling/scrobble_store.dart';
 
 /// A token waiting for approval in the browser. It is kept so a phone that
 /// ends the app while the browser is open can still finish connecting.

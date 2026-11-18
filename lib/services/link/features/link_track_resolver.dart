@@ -3,10 +3,10 @@ import 'dart:io';
 
 import 'package:audio_service/audio_service.dart' show MediaItem;
 import 'package:crypto/crypto.dart';
-import 'package:mornye/services/link/features/link_track_refs.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/playable_media.dart';
+import 'package:sistrum/services/link/features/link_track_refs.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/playable_media.dart';
 
 /// A download or Library record the phone can play, with the identity the
 /// queue item itself does not carry.

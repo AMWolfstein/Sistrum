@@ -2,17 +2,17 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/download_history.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/services/link/desktop/link_desktop_backend.dart';
-import 'package:mornye/services/link/desktop/link_desktop_host.dart';
-import 'package:mornye/services/link/desktop/link_desktop_transfers.dart';
-import 'package:mornye/services/link/desktop/link_transfer_songs.dart';
-import 'package:mornye/services/link/link_host_router.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/link/link_transfers.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_backend.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_host.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_transfers.dart';
+import 'package:sistrum/services/link/desktop/link_transfer_songs.dart';
+import 'package:sistrum/services/link/link_host_router.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/link_transfers.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/link_desktop_fakes.dart';

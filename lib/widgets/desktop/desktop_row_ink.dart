@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
 /// The press feedback of a large desktop Material row: table rows, rail
 /// items and the player bar summary show a press as a 10% state layer of

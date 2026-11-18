@@ -2,13 +2,13 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/download_queue_provider.dart';
-import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/providers/song_leftovers_provider.dart';
-import 'package:mornye/utils/file_access.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/download_queue_provider.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/providers/song_leftovers_provider.dart';
+import 'package:sistrum/utils/file_access.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -339,8 +339,8 @@ void main() {
       expect(shared('/Volumes/Drive/Music'), isTrue);
       expect(shared('/home/me'), isTrue);
       expect(shared('/home/me/Music'), isTrue);
-      expect(shared('/storage/emulated/0/Music/Mornye'), isFalse);
-      expect(shared('/home/me/Music/Mornye/Artist'), isFalse);
+      expect(shared('/storage/emulated/0/Music/Sistrum'), isFalse);
+      expect(shared('/home/me/Music/Sistrum/Artist'), isFalse);
     });
 
     test('keeps a Windows drive and its top folders', () {
@@ -350,7 +350,7 @@ void main() {
 
       expect(shared(r'D:\Music'), isTrue);
       expect(shared(r'C:\Users\me\Music'), isTrue);
-      expect(shared(r'C:\Users\me\Music\Mornye\Artist'), isFalse);
+      expect(shared(r'C:\Users\me\Music\Sistrum\Artist'), isFalse);
     });
   });
 }

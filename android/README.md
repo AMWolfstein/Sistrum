@@ -4,20 +4,20 @@ How the Flutter app talks to the Android and iOS hosts. Channel names, method
 names, argument keys and reply keys below are a compatibility contract: Dart,
 Kotlin and Swift must change together.
 
-Kotlin sources live in `android/app/src/main/kotlin/com/zarz/mornye/`
+Kotlin sources live in `android/app/src/main/kotlin/com/amwolfstein/sistrum/`
 (abbreviated `kotlin/` below). Swift sources live in `ios/Runner/`.
 
 ## The Backend Channel
 
-All app-level calls use one `MethodChannel` named `com.zarz.mornye/backend`.
+All app-level calls use one `MethodChannel` named `com.amwolfstein.sistrum/backend`.
 
 | Side | Where |
 | --- | --- |
 | Dart caller | `lib/services/platform_bridge.dart` (`PlatformBridge`) and its `part` files in `lib/services/platform_bridge/` |
-| Android dispatcher | `android/app/src/main/kotlin/com/zarz/mornye/MainActivity.kt`, `configureFlutterEngine` |
+| Android dispatcher | `android/app/src/main/kotlin/com/amwolfstein/sistrum/MainActivity.kt`, `configureFlutterEngine` |
 | Android handlers | `MainActivity*.kt` extension functions in `kotlin/` (table below) |
-| Android Rust route | `android/app/src/rust/kotlin/com/zarz/mornye/SelectedCoreBackend.kt` |
-| Routing test | `android/app/src/test/kotlin/com/zarz/mornye/MainActivityRoutingTest.kt` |
+| Android Rust route | `android/app/src/rust/kotlin/com/amwolfstein/sistrum/SelectedCoreBackend.kt` |
+| Routing test | `android/app/src/test/kotlin/com/amwolfstein/sistrum/MainActivityRoutingTest.kt` |
 | iOS dispatcher | `ios/Runner/AppDelegate.swift`, `handleMethodCall` |
 
 ### Routing on Android
@@ -40,17 +40,17 @@ the `when` case labels differ. To add a native method, add the name to both,
 put the handler in the matching `MainActivity*.kt` file, and run the JVM tests:
 
 ```bash
-gradle -p android :app:testDebugUnitTest --tests 'com.zarz.mornye.MainActivityRoutingTest'
+gradle -p android :app:testDebugUnitTest --tests 'com.amwolfstein.sistrum.MainActivityRoutingTest'
 ```
 
 ### Native Method Table
 
-Handler file key: Lifecycle = `android/app/src/main/kotlin/com/zarz/mornye/MainActivityLifecycleCalls.kt`,
-Service = `android/app/src/main/kotlin/com/zarz/mornye/MainActivityServiceCalls.kt`,
-Scan = `android/app/src/main/kotlin/com/zarz/mornye/MainActivityLibraryScanCalls.kt`,
-SAF = `android/app/src/main/kotlin/com/zarz/mornye/MainActivitySafCalls.kt`,
-Metadata = `android/app/src/main/kotlin/com/zarz/mornye/MainActivityMetadataCalls.kt`,
-Picker = `android/app/src/main/kotlin/com/zarz/mornye/MainActivitySafTreePicker.kt`,
+Handler file key: Lifecycle = `android/app/src/main/kotlin/com/amwolfstein/sistrum/MainActivityLifecycleCalls.kt`,
+Service = `android/app/src/main/kotlin/com/amwolfstein/sistrum/MainActivityServiceCalls.kt`,
+Scan = `android/app/src/main/kotlin/com/amwolfstein/sistrum/MainActivityLibraryScanCalls.kt`,
+SAF = `android/app/src/main/kotlin/com/amwolfstein/sistrum/MainActivitySafCalls.kt`,
+Metadata = `android/app/src/main/kotlin/com/amwolfstein/sistrum/MainActivityMetadataCalls.kt`,
+Picker = `android/app/src/main/kotlin/com/amwolfstein/sistrum/MainActivitySafTreePicker.kt`,
 inline = a case body in MainActivity.kt.
 
 Reply key: "JSON text" is a `String` that Dart decodes; "spill" means the
@@ -159,7 +159,7 @@ Large JSON replies are written to a file and the reply becomes
   `bridgeJsonResult` or the streaming `SpillJsonWriter` (which inlines a small
   result and deletes its file). Users: `scanLibraryFolderIncremental`,
   `scanSafTreeIncremental`, and `runNativeDataJob`
-  (`android/app/src/rust/kotlin/com/zarz/mornye/NativeDataJobs.kt`).
+  (`android/app/src/rust/kotlin/com/amwolfstein/sistrum/NativeDataJobs.kt`).
 - iOS writes a `bridge_json_` file (UUID suffix) in the temporary directory. Users:
   `scanLibraryFolderIncremental` and `runNativeDataJob`.
 - Dart reads and deletes the file in `_decodeJsonResultAsync`
@@ -171,13 +171,13 @@ Large JSON replies are written to a file and the reply becomes
 ## Progress Streams
 
 Two `EventChannel`s, registered on Android in
-`android/app/src/main/kotlin/com/zarz/mornye/MainActivityProgressStreams.kt`
+`android/app/src/main/kotlin/com/amwolfstein/sistrum/MainActivityProgressStreams.kt`
 and on iOS in AppDelegate.swift. Dart listens in platform_bridge.dart.
 
 | Channel | Payload | Emission |
 | --- | --- | --- |
-| `com.zarz.mornye/download_progress_stream` | Backend delta: `seq`, optional `reset`, `items` (by item ID), `removed` | Long poll `waitDelta(seq, 15000 ms)`. Android pauses 250 ms after each delivered change or error. iOS (`ios/Runner/DownloadProgressSubscription.swift`) pauses 0.25 s before every next wait |
-| `com.zarz.mornye/library_scan_progress_stream` | `total_files`, `scanned_files`, `current_file`, `error_count`, `progress_pct`, `is_complete` | Polled; sent only when the JSON changed. Android: every 400 ms (`LIBRARY_SCAN_PROGRESS_STREAM_POLLING_INTERVAL_MS`). iOS: every 800 ms (timer in `startLibraryScanProgressStream`) |
+| `com.amwolfstein.sistrum/download_progress_stream` | Backend delta: `seq`, optional `reset`, `items` (by item ID), `removed` | Long poll `waitDelta(seq, 15000 ms)`. Android pauses 250 ms after each delivered change or error. iOS (`ios/Runner/DownloadProgressSubscription.swift`) pauses 0.25 s before every next wait |
+| `com.amwolfstein.sistrum/library_scan_progress_stream` | `total_files`, `scanned_files`, `current_file`, `error_count`, `progress_pct`, `is_complete` | Polled; sent only when the JSON changed. Android: every 400 ms (`LIBRARY_SCAN_PROGRESS_STREAM_POLLING_INTERVAL_MS`). iOS: every 800 ms (timer in `startLibraryScanProgressStream`) |
 
 The library-scan poll interval differs between the platforms (400 ms versus
 800 ms). Whether that is intended is an open question; do not "fix" one side
@@ -187,12 +187,12 @@ without checking with the maintainer.
 
 | Channel | Owner |
 | --- | --- |
-| `com.zarz.mornye/concert_calendar`, `com.zarz.mornye/audio_output` | `android/app/src/main/kotlin/com/zarz/mornye/MainActivitySmallChannels.kt` |
-| `com.zarz.mornye/usb_pcm`, `com.zarz.mornye/usb_pcm/events` (EventChannel), `com.zarz.mornye/audio_route` | `android/app/src/main/kotlin/com/zarz/mornye/UsbBitPerfectPlugin.kt` |
-| `com.zarz.mornye/media3_player`, `com.zarz.mornye/media3_player/events/<playerId>` (EventChannel) | `android/app/src/main/kotlin/com/zarz/mornye/Media3PlayerPlugin.kt` |
-| `com.zarz.mornye/haptics` | `android/app/src/main/kotlin/com/zarz/mornye/MusicHapticsPlugin.kt` |
-| `com.zarz.mornye/local_network` | `android/app/src/main/kotlin/com/zarz/mornye/LocalNetworkPlugin.kt` |
-| `com.zarz.mornye/player_widget` | `android/app/src/main/kotlin/com/zarz/mornye/PlayerWidgetProvider.kt` |
+| `com.amwolfstein.sistrum/concert_calendar`, `com.amwolfstein.sistrum/audio_output` | `android/app/src/main/kotlin/com/amwolfstein/sistrum/MainActivitySmallChannels.kt` |
+| `com.amwolfstein.sistrum/usb_pcm`, `com.amwolfstein.sistrum/usb_pcm/events` (EventChannel), `com.amwolfstein.sistrum/audio_route` | `android/app/src/main/kotlin/com/amwolfstein/sistrum/UsbBitPerfectPlugin.kt` |
+| `com.amwolfstein.sistrum/media3_player`, `com.amwolfstein.sistrum/media3_player/events/<playerId>` (EventChannel) | `android/app/src/main/kotlin/com/amwolfstein/sistrum/Media3PlayerPlugin.kt` |
+| `com.amwolfstein.sistrum/haptics` | `android/app/src/main/kotlin/com/amwolfstein/sistrum/MusicHapticsPlugin.kt` |
+| `com.amwolfstein.sistrum/local_network` | `android/app/src/main/kotlin/com/amwolfstein/sistrum/LocalNetworkPlugin.kt` |
+| `com.amwolfstein.sistrum/player_widget` | `android/app/src/main/kotlin/com/amwolfstein/sistrum/PlayerWidgetProvider.kt` |
 
 ## Foreground Services
 
@@ -202,12 +202,12 @@ Both services are declared with `foregroundServiceType="dataSync"` in
 
 | | `DownloadService` | `BackgroundWorkService` |
 | --- | --- | --- |
-| File | `android/app/src/main/kotlin/com/zarz/mornye/DownloadService.kt` | `android/app/src/main/kotlin/com/zarz/mornye/BackgroundWorkService.kt` |
+| File | `android/app/src/main/kotlin/com/amwolfstein/sistrum/DownloadService.kt` | `android/app/src/main/kotlin/com/amwolfstein/sistrum/BackgroundWorkService.kt` |
 | Channels | `download_channel` (progress), `download_alerts_v1` (alerts) | `background_work` |
 | Notification IDs | 1001 (foreground), 1 (result), 4 (verification required) | 1002 |
-| Wake lock tag | `Mornye:DownloadWakeLock` | `Mornye:BackgroundWorkWakeLock` |
+| Wake lock tag | `Sistrum:DownloadWakeLock` | `Sistrum:BackgroundWorkWakeLock` |
 | Wake lock timing | 30 min timeout, renewed on progress updates once 15 min have passed | 30 min timeout, re-acquired by a 15 min timer |
-| Started by | `startDownloadService`, `startNativeDownloadWorker` (intent actions `com.zarz.mornye.action.*`) | `startBackgroundWork` for a `kind` (Dart uses `library_scan` and `app_update`) |
+| Started by | `startDownloadService`, `startNativeDownloadWorker` (intent actions `com.amwolfstein.sistrum.action.*`) | `startBackgroundWork` for a `kind` (Dart uses `library_scan` and `app_update`) |
 | Stopped by | `stopDownloadService`, the native queue finishing or being cancelled, an invalid queue payload, a null restart intent, `onTimeout` | `stopBackgroundWork` for the last active kind, `onTimeout` |
 
 `BackgroundWorkService.start` returns false when Android refuses the start;
@@ -232,13 +232,13 @@ its state to native_download_worker_state.json in `filesDir` for
 - Playback leases: `safOpenPlaybackLease` opens a seekable read descriptor and
   returns its `/proc/self/fd/<fd>` path and a `token`. At most four leases stay
   open (the oldest is closed first) and all are closed in `onDestroy`
-  (`android/app/src/main/kotlin/com/zarz/mornye/MainActivitySafLeases.kt`).
+  (`android/app/src/main/kotlin/com/amwolfstein/sistrum/MainActivitySafLeases.kt`).
 - Temp copies: metadata calls that need a file path copy the document to a
   temp file, run the backend, and write the result back. For MP3 and Opus the
   backend replies with `method: "ffmpeg"`; Android then returns `temp_path`
   and `saf_uri` and Dart finishes with FFmpeg and `writeTempToSaf`.
 - Scanning: the full and incremental scans and their progress state live in
-  `android/app/src/main/kotlin/com/zarz/mornye/MainActivitySafScan.kt`. The
+  `android/app/src/main/kotlin/com/amwolfstein/sistrum/MainActivitySafScan.kt`. The
   helpers sit beside it: `SafTreeListing.kt` (tree walking and thread pools),
   `SafFileInspection.kt` (resolving download history files inside a tree),
   `SafScanCheckpoint.kt` (resume checkpoints), `SafCueScan.kt` (CUE sheet
@@ -249,20 +249,20 @@ its state to native_download_worker_state.json in `filesDir` for
 
 `android/app/build.gradle.kts` adds `android/app/src/rust/kotlin` as a source
 directory, plus the generated UniFFI Kotlin bindings in
-`rust_backend/target/bindings/kotlin/` (package `com.mornye.backend`) and
+`rust_backend/target/bindings/kotlin/` (package `com.amwolfstein.sistrum.backend`) and
 the native libraries in `rust_backend/target/android/jniLibs/`. The
 `buildRustBackend` task runs `scripts/build_rust_backend.sh android` before
 `preBuild`.
 
-- `android/app/src/rust/kotlin/com/zarz/mornye/SelectedCoreBackend.kt`:
+- `android/app/src/rust/kotlin/com/amwolfstein/sistrum/SelectedCoreBackend.kt`:
   `createCoreBackend`, `dispatchBackendApplication`, and `RustCoreBackend`,
   the `CoreBackend` implementation over the generated bindings.
-- `android/app/src/rust/kotlin/com/zarz/mornye/RustCoreBackendApplication.kt`:
+- `android/app/src/rust/kotlin/com/amwolfstein/sistrum/RustCoreBackendApplication.kt`:
   `dispatchApplication`, the method-name switch behind `invokeApplication`.
-- `android/app/src/rust/kotlin/com/zarz/mornye/NativeDataJobs.kt`:
+- `android/app/src/rust/kotlin/com/amwolfstein/sistrum/NativeDataJobs.kt`:
   `runNativeDataJob` and its cancellation registry.
 
-The generated bindings load `libmornye_mobile.so` through JNA
+The generated bindings load `libsistrum_mobile.so` through JNA
 (`Native.register` with the `cdylib_name` from
 `rust_backend/crates/mobile/uniffi.toml`). The app depends on
 `net.java.dev.jna:jna` for this, and `android/app/proguard-rules.pro` keeps
@@ -270,8 +270,8 @@ The generated bindings load `libmornye_mobile.so` through JNA
 
 ## iOS
 
-`ios/Runner/AppDelegate.swift` registers the same `com.zarz.mornye/backend`
-channel and both progress `EventChannel`s on the `mornye-player` engine.
+`ios/Runner/AppDelegate.swift` registers the same `com.amwolfstein.sistrum/backend`
+channel and both progress `EventChannel`s on the `sistrum-player` engine.
 `handleMethodCall` routes in this order:
 
 1. `setScreenAwake` sets `isIdleTimerDisabled`.
@@ -319,4 +319,4 @@ On iOS `startBackgroundWork` begins a `UIApplication` background task per
 cancelled. Other iOS channels: `ios/Runner/ConcertCalendarBridge.swift`,
 `ios/Runner/PlayerWidgetBridge.swift`, `ios/Runner/MusicHaptics.swift`, and
 `ios/Runner/AudioOutputView.swift` (`playback_notification`, `audio_route`,
-and the per-view `com.zarz.mornye/audio_output/<id>`).
+and the per-view `com.amwolfstein.sistrum/audio_output/<id>`).

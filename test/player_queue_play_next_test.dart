@@ -4,16 +4,16 @@ import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/remote_playback.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/mornye_player_queue.dart';
-import 'package:mornye/widgets/player_queue_sheet.dart';
-import 'package:mornye/widgets/swipe_progress_haptic.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/remote_playback.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/mornye_player_queue.dart';
+import 'package:sistrum/widgets/player_queue_sheet.dart';
+import 'package:sistrum/widgets/swipe_progress_haptic.dart';
 
 class _Player extends MusicPlayerController {
   final removed = <String>[];
@@ -49,7 +49,7 @@ final _queue = [
 ];
 
 void main() {
-  const hapticsChannel = MethodChannel('com.zarz.mornye/haptics');
+  const hapticsChannel = MethodChannel('com.amwolfstein.sistrum/haptics');
   late List<double> haptics;
 
   setUp(() {

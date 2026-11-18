@@ -6,52 +6,52 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart' show compute, visibleForTesting;
 import 'package:flutter/widgets.dart'
     show AppLifecycleState, WidgetsBinding, WidgetsBindingObserver;
-import 'package:mornye/services/playback_notification.dart';
+import 'package:sistrum/services/playback_notification.dart';
 import 'package:audio_session/audio_session.dart'
     show
         AudioDevice,
         AudioSession,
         AudioSessionConfiguration,
         AudioInterruptionType;
-import 'package:mornye/services/listening_statistics.dart' show ListeningTrack;
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/app_state_database.dart';
-import 'package:mornye/services/media_library_browser.dart';
-import 'package:mornye/services/sqlite_helpers.dart' show normalizeLookupText;
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/playback_normalization.dart';
-import 'package:mornye/services/playback_automation.dart';
-import 'package:mornye/services/playback_session_writer.dart';
-import 'package:mornye/services/content_uri_playback_cache.dart';
-import 'package:mornye/services/file_access_check.dart';
-import 'package:mornye/services/avplayer_formats.dart';
-import 'package:mornye/services/cast_output.dart';
-import 'package:mornye/services/cover_store.dart';
-import 'package:mornye/services/music_player_runtime.dart';
-import 'package:mornye/services/music_playback_deck.dart';
-import 'package:mornye/services/network_playback_cache.dart';
-import 'package:mornye/services/network_storage_service.dart'
+import 'package:sistrum/services/listening_statistics.dart' show ListeningTrack;
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/app_state_database.dart';
+import 'package:sistrum/services/media_library_browser.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' show normalizeLookupText;
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/playback_normalization.dart';
+import 'package:sistrum/services/playback_automation.dart';
+import 'package:sistrum/services/playback_session_writer.dart';
+import 'package:sistrum/services/content_uri_playback_cache.dart';
+import 'package:sistrum/services/file_access_check.dart';
+import 'package:sistrum/services/avplayer_formats.dart';
+import 'package:sistrum/services/cast_output.dart';
+import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/services/music_player_runtime.dart';
+import 'package:sistrum/services/music_playback_deck.dart';
+import 'package:sistrum/services/network_playback_cache.dart';
+import 'package:sistrum/services/network_storage_service.dart'
     show subsonicSongIdFromPath;
-import 'package:mornye/services/playback_deck.dart';
-import 'package:mornye/services/queue_dedup.dart';
-import 'package:mornye/services/switching_playback_deck.dart';
-import 'package:mornye/services/automix_analysis.dart';
-import 'package:mornye/services/automix_phase_lock.dart';
-import 'package:mornye/services/autoplay_personalization.dart';
-import 'package:mornye/services/autoplay_history.dart';
-import 'package:mornye/services/autoplay_signal.dart';
-import 'package:mornye/services/automix_analyzer.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/automix_effect_renderer.dart';
-import 'package:mornye/services/automix_status.dart';
-import 'package:mornye/services/music_haptics.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/int_utils.dart';
-import 'package:mornye/utils/playback_artwork.dart';
-import 'package:mornye/services/downloaded_embedded_cover_resolver.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/utils/file_access.dart' show fileExists;
+import 'package:sistrum/services/playback_deck.dart';
+import 'package:sistrum/services/queue_dedup.dart';
+import 'package:sistrum/services/switching_playback_deck.dart';
+import 'package:sistrum/services/automix_analysis.dart';
+import 'package:sistrum/services/automix_phase_lock.dart';
+import 'package:sistrum/services/autoplay_personalization.dart';
+import 'package:sistrum/services/autoplay_history.dart';
+import 'package:sistrum/services/autoplay_signal.dart';
+import 'package:sistrum/services/automix_analyzer.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/automix_effect_renderer.dart';
+import 'package:sistrum/services/automix_status.dart';
+import 'package:sistrum/services/music_haptics.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/int_utils.dart';
+import 'package:sistrum/utils/playback_artwork.dart';
+import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/utils/file_access.dart' show fileExists;
 
 export 'autoplay_signal.dart';
 export 'music_player_runtime.dart';
@@ -1609,7 +1609,7 @@ class MusicPlayerHandler extends BaseAudioHandler
   }
 
   /// Loads queue entry [index] at [position] without starting it, so a
-  /// following play starts it at once (Mornye Link Play together).
+  /// following play starts it at once (Sistrum Link Play together).
   Future<void> prepareQueueItem(
     int index, {
     Duration position = Duration.zero,

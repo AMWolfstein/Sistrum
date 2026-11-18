@@ -1,9 +1,9 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/screens/now_playing_screen.dart';
-import 'package:mornye/services/app_orientation.dart';
-import 'package:mornye/utils/android_tv.dart';
+import 'package:sistrum/screens/now_playing_screen.dart';
+import 'package:sistrum/services/app_orientation.dart';
+import 'package:sistrum/utils/android_tv.dart';
 
 class _PlayerRoute extends NowPlayingRoute {
   _PlayerRoute() : super(child: const SizedBox());

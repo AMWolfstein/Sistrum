@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/avplayer_formats.dart';
+import 'package:sistrum/services/avplayer_formats.dart';
 
 /// Writes FFmpeg's output file, the argument before the trailing `-y`.
 Future<bool> _fakeFFmpeg(List<String> arguments) async {

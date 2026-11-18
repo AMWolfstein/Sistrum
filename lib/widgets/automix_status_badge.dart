@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/services/automix_status.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/services/automix_status.dart';
 
 class AutoMixStatusBadge extends StatelessWidget {
   const AutoMixStatusBadge({super.key});

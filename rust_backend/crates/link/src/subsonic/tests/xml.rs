@@ -66,7 +66,7 @@ async fn nested_responses_render_as_subsonic_xml() {
     assert_eq!(root.tag_name().namespace(), Some(NAMESPACE));
     assert_eq!(root.attribute("status"), Some("ok"));
     assert_eq!(root.attribute("version"), Some("1.16.1"));
-    assert_eq!(root.attribute("type"), Some("mornye"));
+    assert_eq!(root.attribute("type"), Some("sistrum"));
     assert_eq!(root.attribute("serverVersion"), Some(APP_VERSION));
     assert_eq!(root.attribute("openSubsonic"), Some("true"));
     let album = child(root, "album");

@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:mornye/services/lyrics_ai_client.dart';
+import 'package:sistrum/services/lyrics_ai_client.dart';
 
 Map<String, dynamic> _line(
   int id,
@@ -36,7 +36,7 @@ List<Map<String, dynamic>> _dto(Map<int, LyricsAiLine> lines) => [
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const channel = MethodChannel('com.zarz.mornye/backend');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
   tearDown(() => messenger.setMockMethodCallHandler(channel, null));

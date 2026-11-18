@@ -3,11 +3,11 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/autoplay_taste.dart';
-import 'package:mornye/services/backend/ffi_backend_transport.dart';
-import 'package:mornye/services/backend/rust_ffi_backend.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/services/autoplay_taste.dart';
+import 'package:sistrum/services/backend/ffi_backend_transport.dart';
+import 'package:sistrum/services/backend/rust_ffi_backend.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
 import 'support/autoplay_taste_fixture.dart';
 
@@ -20,7 +20,7 @@ Map<String, Object?> _model(AutoplayTasteModel model) => {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const channel = MethodChannel('com.zarz.mornye/backend');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
 
@@ -90,7 +90,7 @@ void main() {
   group('actual native autoplay taste', () {
     late Directory directory;
     setUpAll(() async {
-      directory = await Directory.systemTemp.createTemp('mornye-taste-ffi-');
+      directory = await Directory.systemTemp.createTemp('sistrum-taste-ffi-');
       debugDesktopPlatformOverride = true;
       RustFfiBackend.debugShared = RustFfiBackend(
         openTransport: FfiBackendTransport.open,

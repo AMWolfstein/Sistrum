@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
 
 /// A paired desktop as the phone remembers it.
 class LinkServerRecord {
@@ -119,13 +119,13 @@ abstract interface class LinkClientApi {
   /// Sends one message over the WebSocket; dropped while disconnected.
   void send(Map<String, dynamic> message);
 
-  /// `GET /mornye/v1/<op>` with [query]; throws [LinkException].
+  /// `GET /sistrum/v1/<op>` with [query]; throws [LinkException].
   Future<Object?> get(String op, [Map<String, String> query = const {}]);
 
-  /// `POST /mornye/v1/<op>` with a JSON [body]; throws [LinkException].
+  /// `POST /sistrum/v1/<op>` with a JSON [body]; throws [LinkException].
   Future<Object?> post(String op, Map<String, dynamic> body);
 
-  /// `PUT /mornye/v1/files/<name>` with the bytes of [file], `<name>` being
+  /// `PUT /sistrum/v1/files/<name>` with the bytes of [file], `<name>` being
   /// a [TrackRef.fileId] and an audio extension. [onProgress] gets the bytes
   /// sent so far. Throws [LinkException].
   Future<void> upload(

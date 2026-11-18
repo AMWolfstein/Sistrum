@@ -1,16 +1,16 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_switch.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_switch.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/widgets/discard_changes_dialog.dart';
-import 'package:mornye/widgets/priority_settings_scaffold.dart';
-import 'package:mornye/widgets/reorderable_priority_item.dart';
-import 'package:mornye/widgets/settings_group.dart';
-import 'package:mornye/constants/music_services.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/utils/adaptive_layout.dart';
+import 'package:sistrum/widgets/discard_changes_dialog.dart';
+import 'package:sistrum/widgets/priority_settings_scaffold.dart';
+import 'package:sistrum/widgets/reorderable_priority_item.dart';
+import 'package:sistrum/widgets/settings_group.dart';
+import 'package:sistrum/constants/music_services.dart';
 
 class LyricsProviderPriorityPage extends ConsumerStatefulWidget {
   const LyricsProviderPriorityPage({super.key});
@@ -27,7 +27,7 @@ class _LyricsProviderPriorityPageState
     'netease',
     'musixmatch',
     'apple_music',
-    'mornye_lyrics',
+    'sistrum_lyrics',
     'qqmusic',
     'spotify',
     'deezer',
@@ -228,7 +228,7 @@ class _LyricsProviderPriorityPageState
           description: context.l10n.lyricsProviderAppleMusicDesc,
           icon: Icons.music_note,
         );
-      case 'mornye_lyrics':
+      case 'sistrum_lyrics':
         return _LyricsProviderInfo(
           name: 'Zarz-LRC',
           description: context.l10n.lyricsProviderZarzLrcDesc,

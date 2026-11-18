@@ -5,8 +5,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:mornye/constants/app_info.dart';
-import 'package:mornye/services/native_log_source.dart';
+import 'package:sistrum/constants/app_info.dart';
+import 'package:sistrum/services/native_log_source.dart';
 
 /// The renderer line of a log export. Only Impeller supports shader image
 /// filters, so their support tells Impeller from Skia.

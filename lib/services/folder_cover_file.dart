@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/services/download_metadata_embedding.dart';
-import 'package:mornye/services/song_folder_file.dart';
-import 'package:mornye/utils/file_access.dart';
+import 'package:sistrum/services/download_metadata_embedding.dart';
+import 'package:sistrum/services/song_folder_file.dart';
+import 'package:sistrum/utils/file_access.dart';
 
 /// The names an album cover saved to its folder can have, in lower case.
 const folderCoverFileNames = {'folder.jpg', 'folder.png'};

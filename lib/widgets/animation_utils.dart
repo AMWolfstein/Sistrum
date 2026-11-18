@@ -4,15 +4,15 @@ import 'package:flutter/physics.dart';
 import 'package:material_3_expressive/material_3_expressive.dart'
     show M3EMotion;
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/theme/app_tokens.dart';
-import 'package:mornye/theme/material_expressive.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/decorative_phase.dart';
-import 'package:mornye/widgets/desktop/track_table.dart';
-import 'package:mornye/widgets/loaded_sliver_fade_in.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/theme/material_expressive.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/adaptive_layout.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/widgets/decorative_phase.dart';
+import 'package:sistrum/widgets/desktop/track_table.dart';
+import 'package:sistrum/widgets/loaded_sliver_fade_in.dart';
 
 /// Wraps a child in a staggered fade-in + slide-up animation.
 ///

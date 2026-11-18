@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_clock_offset.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/link/together/link_together_aligner.dart';
-import 'package:mornye/services/link/together/link_together_deck.dart';
-import 'package:mornye/services/link/together/link_together_follower.dart';
-import 'package:mornye/services/link/together/link_together_protocol.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_clock_offset.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/together/link_together_aligner.dart';
+import 'package:sistrum/services/link/together/link_together_deck.dart';
+import 'package:sistrum/services/link/together/link_together_follower.dart';
+import 'package:sistrum/services/link/together/link_together_protocol.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('LinkTogether');
 

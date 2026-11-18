@@ -4,9 +4,9 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart'
     show ValueListenable, ValueNotifier, compute, visibleForTesting;
-import 'package:mornye/services/autoplay_personalization.dart';
-import 'package:mornye/services/sqlite_helpers.dart' as sqlite;
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/autoplay_personalization.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
+import 'package:sistrum/utils/logger.dart';
 import 'package:sqflite/sqflite.dart';
 
 final _log = AppLogger('AutoplayRanker');

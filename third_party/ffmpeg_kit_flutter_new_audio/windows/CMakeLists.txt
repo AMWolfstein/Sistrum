@@ -60,7 +60,7 @@ if(FLUTTER_TARGET_PLATFORM STREQUAL "windows-arm64" OR
    CMAKE_GENERATOR_PLATFORM MATCHES "^(ARM64|arm64)$" OR
    CMAKE_SYSTEM_PROCESSOR MATCHES "^(ARM64|arm64|aarch64)$")
   # There is no upstream ARM64 bundle. The plugin reports LIBRARY_NOT_LOADED;
-  # Mornye desktop runs the separately bundled native FFmpeg executables.
+  # Sistrum desktop runs the separately bundled native FFmpeg executables.
   if(NOT FFMPEGKIT_LOCAL_DIR AND NOT DEFINED ENV{FFMPEGKIT_LOCAL_DIR})
     set(ffmpeg_kit_flutter_new_audio_bundled_libraries "" PARENT_SCOPE)
     return()

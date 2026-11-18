@@ -47,7 +47,7 @@ impl Discovery {
             }
         };
         std::thread::Builder::new()
-            .name("mornye-cast-discovery".into())
+            .name("sistrum-cast-discovery".into())
             .spawn(move || {
                 // Fullname to device id, for removals that carry only the name.
                 let mut names = BTreeMap::<String, String>::new();

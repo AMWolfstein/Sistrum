@@ -2,13 +2,13 @@ import 'dart:math' as math;
 
 import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/desktop/desktop_inspector.dart';
-import 'package:mornye/widgets/mornye_chrome.dart';
-import 'package:mornye/widgets/mornye_glass_press.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/widgets/desktop/desktop_inspector.dart';
+import 'package:sistrum/widgets/mornye_chrome.dart';
+import 'package:sistrum/widgets/mornye_glass_press.dart';
 
 /// Builds a horizontal list that scrolls with [controller].
 typedef DesktopScrollArrowsBuilder =

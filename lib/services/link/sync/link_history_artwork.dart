@@ -5,14 +5,14 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/services/cover_store.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_cover_shrink.dart';
-import 'package:mornye/services/link/link_host_router.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/link/sync/link_history_sync_store.dart';
-import 'package:mornye/services/link/sync/link_sync_protocol.dart';
-import 'package:mornye/utils/string_utils.dart';
+import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_cover_shrink.dart';
+import 'package:sistrum/services/link/link_host_router.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/sync/link_history_sync_store.dart';
+import 'package:sistrum/services/link/sync/link_sync_protocol.dart';
+import 'package:sistrum/utils/string_utils.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 

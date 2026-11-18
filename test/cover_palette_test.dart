@@ -4,7 +4,7 @@ import 'dart:ui' as ui;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/theme/cover_palette.dart';
+import 'package:sistrum/theme/cover_palette.dart';
 
 void main() {
   ByteData pixels(List<(Color, int)> runs) {
@@ -296,7 +296,7 @@ void main() {
         0xffe91e62,
       ),
     };
-    const backend = MethodChannel('com.zarz.mornye/backend');
+    const backend = MethodChannel('com.amwolfstein.sistrum/backend');
     final messenger =
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     var paletteJobs = 0;

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:mornye/services/audio_file_open_service.dart';
+import 'package:sistrum/services/audio_file_open_service.dart';
 import 'package:crypto/crypto.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
@@ -11,54 +11,54 @@ import 'package:flutter/services.dart'
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/app.dart';
-import 'package:mornye/constants/app_info.dart';
-import 'package:mornye/controllers/extension_auth_launcher.dart';
-import 'package:mornye/l10n/supported_locales.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/models/theme_settings.dart';
-import 'package:mornye/providers/download_queue_provider.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/runtime_profile_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/providers/theme_provider.dart';
-import 'package:mornye/services/notification_service.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/share_intent_service.dart';
-import 'package:mornye/services/cover_cache_manager.dart';
-import 'package:mornye/services/app_state_database.dart';
-import 'package:mornye/services/app_navigation_service.dart';
-import 'package:mornye/services/app_orientation.dart';
-import 'package:mornye/services/activity_attachment.dart';
-import 'package:mornye/services/app_crash_service.dart';
-import 'package:mornye/services/background_favorites.dart';
-import 'package:mornye/services/desktop_deep_links.dart';
-import 'package:mornye/services/desktop_diagnostics.dart';
-import 'package:mornye/services/desktop_library_watcher.dart';
-import 'package:mornye/services/link/desktop/link_desktop_host.dart';
-import 'package:mornye/services/link/desktop/link_phone_playback.dart';
-import 'package:mornye/services/link/features/link_phone_features.dart';
-import 'package:mornye/services/link/features/link_remote_playback.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_source_presence.dart';
-import 'package:mornye/services/link/together/link_together_controller.dart';
-import 'package:mornye/services/music_player_service.dart';
-import 'package:mornye/services/playback_notification.dart';
-import 'package:mornye/services/player_widget_service.dart';
-import 'package:mornye/screens/now_playing_screen.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/android_tv.dart';
-import 'package:mornye/utils/local_library_scan_prefs.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/widgets/desktop/desktop_commands.dart'
+import 'package:sistrum/app.dart';
+import 'package:sistrum/constants/app_info.dart';
+import 'package:sistrum/controllers/extension_auth_launcher.dart';
+import 'package:sistrum/l10n/supported_locales.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/models/theme_settings.dart';
+import 'package:sistrum/providers/download_queue_provider.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/runtime_profile_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/providers/theme_provider.dart';
+import 'package:sistrum/services/notification_service.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/share_intent_service.dart';
+import 'package:sistrum/services/cover_cache_manager.dart';
+import 'package:sistrum/services/app_state_database.dart';
+import 'package:sistrum/services/app_navigation_service.dart';
+import 'package:sistrum/services/app_orientation.dart';
+import 'package:sistrum/services/activity_attachment.dart';
+import 'package:sistrum/services/app_crash_service.dart';
+import 'package:sistrum/services/background_favorites.dart';
+import 'package:sistrum/services/desktop_deep_links.dart';
+import 'package:sistrum/services/desktop_diagnostics.dart';
+import 'package:sistrum/services/desktop_library_watcher.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_host.dart';
+import 'package:sistrum/services/link/desktop/link_phone_playback.dart';
+import 'package:sistrum/services/link/features/link_phone_features.dart';
+import 'package:sistrum/services/link/features/link_remote_playback.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_source_presence.dart';
+import 'package:sistrum/services/link/together/link_together_controller.dart';
+import 'package:sistrum/services/music_player_service.dart';
+import 'package:sistrum/services/playback_notification.dart';
+import 'package:sistrum/services/player_widget_service.dart';
+import 'package:sistrum/screens/now_playing_screen.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/android_tv.dart';
+import 'package:sistrum/utils/local_library_scan_prefs.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/widgets/desktop/desktop_commands.dart'
     show restoreDesktopSidebar;
-import 'package:mornye/widgets/desktop/desktop_inspector.dart'
+import 'package:sistrum/widgets/desktop/desktop_inspector.dart'
     show bindDesktopFullScreenLyrics;
-import 'package:mornye/widgets/desktop/desktop_wheel_smoother.dart';
-import 'package:mornye/widgets/desktop/desktop_window.dart'
+import 'package:sistrum/widgets/desktop/desktop_wheel_smoother.dart';
+import 'package:sistrum/widgets/desktop/desktop_window.dart'
     show listenDesktopWindowFullScreen;
 
 final _log = AppLogger('Main');
@@ -263,7 +263,7 @@ void main() {
             ),
           ],
           child: EagerInitialization(
-            child: MornyeApp(
+            child: SistrumApp(
               disableOverscrollEffects: runtimeProfile.disableOverscrollEffects,
             ),
           ),
@@ -627,7 +627,7 @@ class _EagerInitializationState extends ConsumerState<EagerInitialization>
         _desktopDeepLinks = DesktopDeepLinks()..start();
         listenDesktopWindowFullScreen();
         bindDesktopFullScreenLyrics();
-        // Starts the Mornye Link server when the owner turned it on.
+        // Starts the Sistrum Link server when the owner turned it on.
         ref.read(linkDesktopHostProvider);
         // Hides a phone's songs while it is not connected.
         ref.read(linkSourcePresenceProvider);

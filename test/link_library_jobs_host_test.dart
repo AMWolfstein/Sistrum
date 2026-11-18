@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/desktop/link_library_jobs_host.dart';
-import 'package:mornye/services/link/link_host_router.dart';
-import 'package:mornye/services/link/link_library_jobs.dart';
-import 'package:mornye/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/desktop/link_library_jobs_host.dart';
+import 'package:sistrum/services/link/link_host_router.dart';
+import 'package:sistrum/services/link/link_library_jobs.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
 
 void main() {
   late LinkLibraryJobsHost host;

@@ -1,10 +1,10 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:path/path.dart' as p;
-import 'package:mornye/services/cover_store.dart';
-import 'package:mornye/widgets/cached_cover_image.dart';
-import 'package:mornye/widgets/local_library_artwork_builder.dart';
-import 'package:mornye/widgets/player_artwork.dart';
+import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/widgets/cached_cover_image.dart';
+import 'package:sistrum/widgets/local_library_artwork_builder.dart';
+import 'package:sistrum/widgets/player_artwork.dart';
 
 /// Queue entries may not have artwork yet, as for files a phone sent through
 /// Link. Recover only visible rows through the shared bounded cover cache.

@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:mornye/services/app_orientation.dart';
-import 'package:mornye/utils/android_tv.dart';
+import 'package:sistrum/services/app_orientation.dart';
+import 'package:sistrum/utils/android_tv.dart';
 
 import '../test/tv_navigation_test.dart' as remote_tests;
 

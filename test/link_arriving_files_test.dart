@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/desktop/link_arriving_files.dart';
+import 'package:sistrum/services/link/desktop/link_arriving_files.dart';
 
 const _name = '0123456789abcdef0123456789abcdef.flac';
 

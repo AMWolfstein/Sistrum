@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/services/lastfm/lastfm_service.dart';
-import 'package:mornye/widgets/scrobble_settings.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/services/lastfm/lastfm_service.dart';
+import 'package:sistrum/widgets/scrobble_settings.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
 /// A Last.fm-compatible service, signed in through its approval page.
 class LastfmSettings extends StatefulWidget {

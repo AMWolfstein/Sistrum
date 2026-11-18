@@ -5,31 +5,31 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/link/desktop/link_desktop_backend.dart';
-import 'package:mornye/services/link/desktop/link_desktop_host.dart';
-import 'package:mornye/theme/app_tokens.dart';
-import 'package:mornye/utils/nav_bar_inset.dart';
-import 'package:mornye/widgets/app_alert_dialog.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_icon_button.dart';
-import 'package:mornye/widgets/app_sliver_header.dart';
-import 'package:mornye/widgets/app_snack_bar.dart';
-import 'package:mornye/widgets/beta_badge.dart';
-import 'package:mornye/widgets/desktop/link_text_input_dialog.dart';
-import 'package:mornye/widgets/link/link_row_action.dart';
-import 'package:mornye/widgets/link/link_transfers_view.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_backend.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_host.dart';
+import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/utils/nav_bar_inset.dart';
+import 'package:sistrum/widgets/app_alert_dialog.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_icon_button.dart';
+import 'package:sistrum/widgets/app_sliver_header.dart';
+import 'package:sistrum/widgets/app_snack_bar.dart';
+import 'package:sistrum/widgets/beta_badge.dart';
+import 'package:sistrum/widgets/desktop/link_text_input_dialog.dart';
+import 'package:sistrum/widgets/link/link_row_action.dart';
+import 'package:sistrum/widgets/link/link_transfers_view.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
 /// The username third-party Subsonic apps enter; the server accepts any.
-const linkSubsonicUsername = 'mornye';
+const linkSubsonicUsername = 'sistrum';
 
 /// The security code grouped for reading: `1a2b 3c4d`.
 String _groupedCode(String code) =>
     code.length == 8 ? '${code.substring(0, 4)} ${code.substring(4)}' : code;
 
-/// Desktop settings for Mornye Link: share the Library with the phone app,
+/// Desktop settings for Sistrum Link: share the Library with the phone app,
 /// pair phones, remove them, follow the songs copied with them and mint
 /// keys for other Subsonic apps.
 class LinkDesktopSettingsPage extends ConsumerWidget {

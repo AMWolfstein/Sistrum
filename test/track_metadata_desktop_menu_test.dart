@@ -8,13 +8,13 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/download_history_provider.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/screens/track_metadata_screen.dart';
-import 'package:mornye/screens/track_metadata_edit_sheet.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/screens/track_metadata_screen.dart';
+import 'package:sistrum/screens/track_metadata_edit_sheet.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
 import 'support/app_icon_finder.dart';
 
@@ -38,7 +38,7 @@ Future<void> _settleFileIo(WidgetTester tester) async {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const channel = MethodChannel('com.zarz.mornye/backend');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
   const ffmpegEvents = MethodChannel('flutter.arthenica.com/ffmpeg_kit_event');

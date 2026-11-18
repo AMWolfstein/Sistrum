@@ -1,9 +1,9 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_switch.dart';
-import 'package:mornye/widgets/mornye_selection_pill.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_switch.dart';
+import 'package:sistrum/widgets/mornye_selection_pill.dart';
 
 /// The Mornye controls a finger moves keep the finger's velocity when let
 /// go, and go on from their own velocity when a new value interrupts them.

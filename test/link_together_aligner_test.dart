@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/together/link_together_aligner.dart';
+import 'package:sistrum/services/link/together/link_together_aligner.dart';
 
 void main() {
   group('LinkTogetherAligner', () {

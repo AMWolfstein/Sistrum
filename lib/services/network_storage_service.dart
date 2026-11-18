@@ -10,15 +10,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:html/parser.dart' as html;
-import 'package:mornye/services/link/link_protocol.dart'
+import 'package:sistrum/services/link/link_protocol.dart'
     show isLinkPhoneSourceId;
-import 'package:mornye/services/local_network_access.dart';
-import 'package:mornye/services/network_certificate.dart';
-import 'package:mornye/services/network_smb_client.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/secure_storage_options.dart';
-import 'package:mornye/services/source_deletion_events.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/local_network_access.dart';
+import 'package:sistrum/services/network_certificate.dart';
+import 'package:sistrum/services/network_smb_client.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/secure_storage_options.dart';
+import 'package:sistrum/services/source_deletion_events.dart';
+import 'package:sistrum/utils/logger.dart';
 import 'package:xml/xml.dart';
 
 part 'network_storage_upload.dart';
@@ -281,7 +281,7 @@ typedef NetworkVirtualSong = ({
 });
 
 /// `network://` hosts that are not saved connections, such as a paired
-/// phone's songs on the Mornye Link desktop. Their owner installs them as
+/// phone's songs on the Sistrum Link desktop. Their owner installs them as
 /// [NetworkStorageService.virtualSources]; Library scans, playback and tag
 /// reads of a host they own go to them. Saved connection lists never show
 /// them.
@@ -304,7 +304,7 @@ abstract interface class NetworkVirtualSources {
 }
 
 /// [NetworkVirtualSources] that keep local copies of the songs they play,
-/// such as the songs paired phones sent the Mornye Link desktop, and fetch
+/// such as the songs paired phones sent the Sistrum Link desktop, and fetch
 /// one again once it is gone.
 abstract interface class NetworkLocalCopies implements NetworkVirtualSources {
   /// What plays in place of the local file [path] when it is one of these
@@ -711,7 +711,7 @@ class NetworkStorageService {
     return 'http://127.0.0.1:${server.port}/$token';
   }
 
-  /// Marks connection [id] out of reach, as a paired Mornye Link desktop
+  /// Marks connection [id] out of reach, as a paired Sistrum Link desktop
   /// whose session cannot connect, or reachable again. Songs of a marked
   /// connection check its server briefly before playing instead of
   /// waiting [timeout] for it.

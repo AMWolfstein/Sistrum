@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/library_database.dart';
+import 'package:sistrum/services/library_database.dart';
 import 'package:sqflite/sqflite.dart';
 
 class _SourcesDatabase implements Database, Transaction {

@@ -16,7 +16,7 @@ use http::{HeaderMap, Response};
 use image::codecs::jpeg::JpegEncoder;
 use image::imageops::FilterType;
 use image::{ImageReader, Limits};
-use mornye_core::tags::CoverArt;
+use sistrum_core::tags::CoverArt;
 use sha2::{Digest, Sha256};
 use std::collections::{HashMap, HashSet};
 use std::fs;
@@ -284,7 +284,7 @@ pub(super) fn read_picture(file: impl Read + Seek, format: &str) -> Result<Optio
         file,
         failed: false,
     };
-    match mornye_core::tags::extract_cover(&mut file, format, &|| Ok(())) {
+    match sistrum_core::tags::extract_cover(&mut file, format, &|| Ok(())) {
         Ok(cover) if !cover.data.is_empty() => Ok(Some(cover)),
         _ if file.failed => Err(()),
         _ => Ok(None),

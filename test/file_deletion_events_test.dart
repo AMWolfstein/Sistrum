@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/source_deletion_events.dart';
-import 'package:mornye/utils/file_access.dart';
+import 'package:sistrum/services/source_deletion_events.dart';
+import 'package:sistrum/utils/file_access.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -127,7 +127,7 @@ void main() {
     },
   );
 
-  const channel = MethodChannel('com.zarz.mornye/backend');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   const uri = 'content://test.provider/document/song.flac';
   for (final (deleted, exists, expected) in [
     (true, true, true),

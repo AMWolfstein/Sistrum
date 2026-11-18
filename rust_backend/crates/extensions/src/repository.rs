@@ -9,8 +9,8 @@ pub use model::{LenientString, Registry, RepoExtension, normalize_sha256};
 pub use package::{destination_path, write_verified_package};
 pub use urls::{RegistryLocation, registry_location, require_https, source_name};
 
-use mornye_core::fs::{DEFAULT_TEMP_PREFIX, OpenOptionsPortableExt, write_atomic};
-use mornye_network::{HttpRequest, NetworkService, NetworkSession};
+use sistrum_core::fs::{DEFAULT_TEMP_PREFIX, OpenOptionsPortableExt, write_atomic};
+use sistrum_network::{HttpRequest, NetworkService, NetworkSession};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sha2::{Digest, Sha256};
@@ -790,7 +790,7 @@ mod tests {
                 .into(),
         )
         .unwrap();
-        let network = NetworkService::with_options(mornye_network::NetworkOptions {
+        let network = NetworkService::with_options(sistrum_network::NetworkOptions {
             extra_root_pem: certificate.cert.pem().into_bytes(),
             doh_upstreams: vec![],
             ..Default::default()

@@ -1,9 +1,9 @@
 //! Backend entry points for provider metadata: URL handling, custom search, home feeds, and lookups.
 
 use super::{Backend, ManagerError};
-use mornye_core::cancellation::{CancellationDomain, CancellationRegistry, RequestLease};
-use mornye_core::matching::lowercase;
-use mornye_providers::resolver::{Check, ResolverError};
+use sistrum_core::cancellation::{CancellationDomain, CancellationRegistry, RequestLease};
+use sistrum_core::matching::lowercase;
+use sistrum_providers::resolver::{Check, ResolverError};
 use serde_json::{Map, Value, json};
 use std::sync::{Arc, mpsc};
 use std::time::Duration;

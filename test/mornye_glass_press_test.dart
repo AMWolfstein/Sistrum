@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/widgets/mornye_glass_press.dart';
+import 'package:sistrum/widgets/mornye_glass_press.dart';
 
 void main() {
   const box = ValueKey('glass');

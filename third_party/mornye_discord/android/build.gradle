@@ -1,13 +1,13 @@
-group 'com.zarz.mornye.discord'
+group 'com.amwolfstein.sistrum.discord'
 version '1.0'
 
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
-def discordSdkEnabled = System.getenv('MORNYE_DISCORD_SDK') != '0'
+def discordSdkEnabled = System.getenv('SISTRUM_DISCORD_SDK') != '0'
 
 android {
-    namespace 'com.zarz.mornye.discord'
+    namespace 'com.amwolfstein.sistrum.discord'
     compileSdk 37
     ndkVersion '30.0.16248370'
     defaultConfig {
@@ -15,7 +15,7 @@ android {
         externalNativeBuild {
             cmake {
                 arguments '-DANDROID_STL=c++_static',
-                    "-DMORNYE_DISCORD_SDK=${discordSdkEnabled ? 'ON' : 'OFF'}"
+                    "-DSISTRUM_DISCORD_SDK=${discordSdkEnabled ? 'ON' : 'OFF'}"
             }
         }
     }

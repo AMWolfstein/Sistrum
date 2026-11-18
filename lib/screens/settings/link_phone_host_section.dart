@@ -2,14 +2,14 @@ import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/screens/settings/link_desktop_settings_page.dart';
-import 'package:mornye/services/link/client/link_client_controller.dart';
-import 'package:mornye/services/link/desktop/link_desktop_host.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/widgets/app_action_button.dart';
-import 'package:mornye/widgets/beta_badge.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/screens/settings/link_desktop_settings_page.dart';
+import 'package:sistrum/services/link/client/link_client_controller.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_host.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/widgets/app_action_button.dart';
+import 'package:sistrum/widgets/beta_badge.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
 /// Grows and shrinks around [child]. With reduced motion the size changes at
 /// once: a size animation of no length would finish inside its own layout,

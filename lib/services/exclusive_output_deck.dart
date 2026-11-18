@@ -1,5 +1,5 @@
-import 'package:mornye/services/playback_deck.dart';
-import 'package:mornye/services/switching_playback_deck.dart';
+import 'package:sistrum/services/playback_deck.dart';
+import 'package:sistrum/services/switching_playback_deck.dart';
 
 /// macOS: AVPlayer cannot play while the app holds the output in hog mode,
 /// so exclusive output plays through a libmpv deck (`audio-exclusive`)

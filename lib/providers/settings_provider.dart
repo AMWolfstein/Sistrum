@@ -5,21 +5,21 @@ import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/models/home_shortcut.dart';
-import 'package:mornye/models/metadata_separators.dart';
-import 'package:mornye/models/automix_options.dart';
-import 'package:mornye/constants/app_info.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/folder_path_template.dart';
-import 'package:mornye/services/download_file_recovery.dart';
-import 'package:mornye/services/secure_storage_options.dart';
-import 'package:mornye/utils/artist_utils.dart';
-import 'package:mornye/utils/audio_format_utils.dart';
-import 'package:mornye/utils/audio_conversion_utils.dart';
-import 'package:mornye/utils/audio_quality_badge_policy.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/models/home_shortcut.dart';
+import 'package:sistrum/models/metadata_separators.dart';
+import 'package:sistrum/models/automix_options.dart';
+import 'package:sistrum/constants/app_info.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/folder_path_template.dart';
+import 'package:sistrum/services/download_file_recovery.dart';
+import 'package:sistrum/services/secure_storage_options.dart';
+import 'package:sistrum/utils/artist_utils.dart';
+import 'package:sistrum/utils/audio_format_utils.dart';
+import 'package:sistrum/utils/audio_conversion_utils.dart';
+import 'package:sistrum/utils/audio_quality_badge_policy.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/logger.dart';
 
 const _settingsKey = 'app_settings';
 const _settingsCorruptBackupKey = 'app_settings_corrupt_backup';
@@ -27,7 +27,7 @@ const _migrationVersionKey = 'settings_migration_version';
 const _currentMigrationVersion = 15;
 
 /// Marked the removed rebrand tour as seen.
-const _retiredUpgradeIntroSeenKey = 'upgrade_intro_mornye_seen';
+const _retiredUpgradeIntroSeenKey = 'upgrade_intro_sistrum_seen';
 const _legacyDefaultLyricsProviders = ['apple_music', 'lrclib'];
 const _spotifyClientSecretKey = 'spotify_client_secret';
 const _retiredBuiltInProviderIds = {'deezer', 'qobuz', 'tidal', 'youtube'};
@@ -345,12 +345,12 @@ class SettingsNotifier extends Notifier<AppSettings> {
             lyricsProviders: const AppSettings().lyricsProviders,
           );
         } else if (providers.contains('apple_music') &&
-            !providers.contains('mornye_lyrics')) {
+            !providers.contains('sistrum_lyrics')) {
           state = state.copyWith(
             lyricsProviders: [
               for (final provider in providers) ...[
                 provider,
-                if (provider == 'apple_music') 'mornye_lyrics',
+                if (provider == 'apple_music') 'sistrum_lyrics',
               ],
             ],
           );

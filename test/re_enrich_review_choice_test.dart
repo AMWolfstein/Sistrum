@@ -4,20 +4,20 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/controllers/local_track_batch_actions.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/batch_metadata_re_enrich.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/metadata_cover_resources.dart';
-import 'package:mornye/services/metadata_persistence_service.dart';
-import 'package:mornye/services/re_enrich_undo.dart';
-import 'package:mornye/services/re_enrich_undo_store.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/app_switch.dart';
-import 'package:mornye/widgets/re_enrich_review_sheet.dart';
+import 'package:sistrum/controllers/local_track_batch_actions.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/batch_metadata_re_enrich.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/metadata_cover_resources.dart';
+import 'package:sistrum/services/metadata_persistence_service.dart';
+import 'package:sistrum/services/re_enrich_undo.dart';
+import 'package:sistrum/services/re_enrich_undo_store.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/widgets/app_switch.dart';
+import 'package:sistrum/widgets/re_enrich_review_sheet.dart';
 
 import 'support/re_enrich_settings.dart';
 
@@ -193,7 +193,7 @@ void main() {
       tester.view.physicalSize = const Size(400, 900);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
-      const channel = MethodChannel('com.zarz.mornye/backend');
+      const channel = MethodChannel('com.amwolfstein.sistrum/backend');
       final requests = <Map<String, dynamic>>[];
       tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
         call,
@@ -279,7 +279,7 @@ void main() {
       tester.view.physicalSize = const Size(400, 900);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
-      const channel = MethodChannel('com.zarz.mornye/backend');
+      const channel = MethodChannel('com.amwolfstein.sistrum/backend');
       final writes = <String>[];
       tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(channel, (
         call,

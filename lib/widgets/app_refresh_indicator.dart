@@ -6,16 +6,16 @@ import 'package:cupertino_ui/cupertino_ui.dart'
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
-import 'package:mornye/theme/material_expressive.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/theme/material_expressive.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
 /// Pull-to-refresh with the expressive shape-morphing indicator on Material.
 /// Reduced motion keeps Flutter's [RefreshIndicator].
 ///
 /// Mornye phones, whose lists bounce, use the iOS refresh control instead.
 /// It is a sliver, so a [CustomScrollView] under this widget places
-/// [AppRefreshIndicator.sliver] right after its large title. Mornye on
+/// [AppRefreshIndicator.sliver] right after its large title. Sistrum on
 /// desktop, or with bouncing off (low-end phones), keeps [RefreshIndicator].
 ///
 /// The page on screen also refreshes through [refreshVisible], which the

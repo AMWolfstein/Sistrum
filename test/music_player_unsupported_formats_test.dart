@@ -5,11 +5,11 @@ import 'dart:io';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/app_state_database.dart';
-import 'package:mornye/services/file_access_check.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/music_player_service.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/app_state_database.dart';
+import 'package:sistrum/services/file_access_check.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/music_player_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/music_player_automix_harness.dart';
@@ -164,7 +164,7 @@ void main() {
   SharedPreferences.setMockInitialValues({});
   late AudioNative native;
   late Directory folder;
-  const backend = MethodChannel('com.zarz.mornye/backend');
+  const backend = MethodChannel('com.amwolfstein.sistrum/backend');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
 

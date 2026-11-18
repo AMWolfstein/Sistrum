@@ -1,5 +1,5 @@
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/services/music_playback_deck.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/services/music_playback_deck.dart';
 
 String usbOutputStatusLabel(
   AppLocalizations l10n,

@@ -9,10 +9,10 @@ import 'package:ffmpeg_kit_flutter_new_audio/return_code.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:mornye/services/audio_analysis_jobs.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/logger.dart' show AppLogger;
+import 'package:sistrum/services/audio_analysis_jobs.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/logger.dart' show AppLogger;
 
 const musicHapticsSampleRate = 4000;
 const _hop = 40; // 10 ms frames.
@@ -356,7 +356,7 @@ class MusicHapticsAnalyzer {
 
 typedef HapticPulse = Future<void> Function(double intensity, double sharpness);
 
-const _channel = MethodChannel('com.zarz.mornye/haptics');
+const _channel = MethodChannel('com.amwolfstein.sistrum/haptics');
 
 /// Which system setting a pulse answers to on Android. Music pulses follow
 /// media vibration; UI feedback follows touch feedback. iOS ignores it.

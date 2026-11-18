@@ -1,13 +1,13 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/ffmpeg_models.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/services/cue_split_library_service.dart';
-import 'package:mornye/services/library_ingestion_store.dart';
-import 'package:mornye/services/library_queue_store.dart';
-import 'package:mornye/services/library_schema.dart';
-import 'package:mornye/utils/file_access.dart';
+import 'package:sistrum/models/ffmpeg_models.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/services/cue_split_library_service.dart';
+import 'package:sistrum/services/library_ingestion_store.dart';
+import 'package:sistrum/services/library_queue_store.dart';
+import 'package:sistrum/services/library_schema.dart';
+import 'package:sistrum/utils/file_access.dart';
 
 import 'support/library_native_fixture.dart';
 import 'support/sqlite_process_database.dart';

@@ -4,10 +4,10 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/constants/app_info.dart';
-import 'package:mornye/services/backend/ffi_backend_transport.dart';
-import 'package:mornye/services/backend/native_backend_transport.dart';
-import 'package:mornye/services/backend/rust_ffi_backend.dart';
+import 'package:sistrum/constants/app_info.dart';
+import 'package:sistrum/services/backend/ffi_backend_transport.dart';
+import 'package:sistrum/services/backend/native_backend_transport.dart';
+import 'package:sistrum/services/backend/rust_ffi_backend.dart';
 
 class _Call {
   _Call(this.id, this.method, this.args, this.bytes);
@@ -411,13 +411,13 @@ void main() {
     test('prefers the environment override', () {
       expect(
         desktopBackendLibraryCandidates(
-          environment: {'MORNYE_DESKTOP_LIB': '/dev/libmornye_desktop.dylib'},
+          environment: {'SISTRUM_DESKTOP_LIB': '/dev/libsistrum_desktop.dylib'},
           operatingSystem: 'macos',
-          executable: '/Applications/Mornye.app/Contents/MacOS/Mornye',
+          executable: '/Applications/Sistrum.app/Contents/MacOS/Sistrum',
         ),
         [
-          '/dev/libmornye_desktop.dylib',
-          '/Applications/Mornye.app/Contents/Frameworks/libmornye_desktop.dylib',
+          '/dev/libsistrum_desktop.dylib',
+          '/Applications/Sistrum.app/Contents/Frameworks/libsistrum_desktop.dylib',
         ],
       );
     });
@@ -427,17 +427,17 @@ void main() {
         desktopBackendLibraryCandidates(
           environment: const {},
           operatingSystem: 'windows',
-          executable: r'C:\Program Files\Mornye\mornye.exe',
+          executable: r'C:\Program Files\Sistrum\sistrum.exe',
         ),
-        [r'C:\Program Files\Mornye\mornye_desktop.dll'],
+        [r'C:\Program Files\Sistrum\sistrum_desktop.dll'],
       );
       expect(
         desktopBackendLibraryCandidates(
           environment: const {},
           operatingSystem: 'linux',
-          executable: '/opt/mornye/mornye',
+          executable: '/opt/sistrum/sistrum',
         ),
-        ['/opt/mornye/lib/libmornye_desktop.so'],
+        ['/opt/sistrum/lib/libsistrum_desktop.so'],
       );
     });
   });

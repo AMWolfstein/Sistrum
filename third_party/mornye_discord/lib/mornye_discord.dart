@@ -1,2 +1,2 @@
-/// Native implementation is exposed through com.zarz.mornye/discord.
+/// Native implementation is exposed through com.amwolfstein.sistrum/discord.
 library;

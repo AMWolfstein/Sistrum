@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/services/collection_suggestions.dart';
-import 'package:mornye/services/platform_bridge.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/services/collection_suggestions.dart';
+import 'package:sistrum/services/platform_bridge.dart';
 
 /// Suggestions for the collection [key] (`playlist:<id>`, `album:<id>`...)
 /// in refresh [round], from its [tracks] (most important first). Equal by

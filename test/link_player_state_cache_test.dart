@@ -3,13 +3,13 @@ import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/desktop/link_catalog_index.dart';
-import 'package:mornye/services/link/desktop/link_desktop_ops.dart';
-import 'package:mornye/services/link/desktop/link_player.dart';
-import 'package:mornye/services/link/link_host_router.dart';
-import 'package:mornye/services/link/link_playback_details.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/music_player_service.dart';
+import 'package:sistrum/services/link/desktop/link_catalog_index.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_ops.dart';
+import 'package:sistrum/services/link/desktop/link_player.dart';
+import 'package:sistrum/services/link/link_host_router.dart';
+import 'package:sistrum/services/link/link_playback_details.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/music_player_service.dart';
 
 import 'support/link_desktop_fakes.dart';
 

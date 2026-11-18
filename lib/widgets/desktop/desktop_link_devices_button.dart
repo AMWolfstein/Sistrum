@@ -1,15 +1,15 @@
 import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/services/link/desktop/link_desktop_host.dart';
-import 'package:mornye/services/link/link_transfers.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_icon_button.dart';
-import 'package:mornye/widgets/desktop/desktop_link_devices_sheet.dart';
-import 'package:mornye/widgets/link/link_transfer_tile.dart';
-import 'package:mornye/widgets/link/link_transfers_view.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_host.dart';
+import 'package:sistrum/services/link/link_transfers.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_icon_button.dart';
+import 'package:sistrum/widgets/desktop/desktop_link_devices_sheet.dart';
+import 'package:sistrum/widgets/link/link_transfer_tile.dart';
+import 'package:sistrum/widgets/link/link_transfers_view.dart';
 
 /// Opens the same device choices as the phone player. Active transfers ring
 /// the glyph without changing the player bar's layout, and playing together

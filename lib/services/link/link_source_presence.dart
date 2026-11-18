@@ -2,19 +2,19 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/link/client/link_client_controller.dart';
-import 'package:mornye/services/link/desktop/link_desktop_host.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/link/client/link_client_controller.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_host.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
 /// How long a paired device may stay disconnected before the Library hides
 /// its songs, so a reconnect or a quick app switch goes unnoticed.
 const linkSourceOfflineGrace = Duration(seconds: 10);
 
-/// Decides whether the Library shows the songs of each Mornye Link device:
+/// Decides whether the Library shows the songs of each Sistrum Link device:
 /// on a phone its paired computers, on the desktop its paired phones. Such a
 /// device is a `network://` source whose songs need it connected, so they
 /// hide once it has been disconnected for [grace] and return as soon as it
@@ -109,7 +109,7 @@ class LinkSourcePresence {
   }
 }
 
-/// Keeps the Library's network source availability in step with Mornye
+/// Keeps the Library's network source availability in step with Sistrum
 /// Link. Read for the app's lifetime on phones and on the desktop.
 final linkSourcePresenceProvider = Provider<LinkSourcePresence>((ref) {
   late final LinkSourcePresence presence;

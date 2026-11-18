@@ -3,13 +3,13 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/providers/download_queue_provider.dart';
-import 'package:mornye/services/link/features/link_save_offline.dart';
-import 'package:mornye/services/network_library_upload.dart';
-import 'package:mornye/services/network_storage_service.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/download_queue_provider.dart';
+import 'package:sistrum/services/link/features/link_save_offline.dart';
+import 'package:sistrum/services/network_library_upload.dart';
+import 'package:sistrum/services/network_storage_service.dart';
 
 UnifiedLibraryItem local(
   String path, {
@@ -151,7 +151,7 @@ void main() {
     });
 
     test('a custom template expands from the tags', () async {
-      const backend = MethodChannel('com.zarz.mornye/backend');
+      const backend = MethodChannel('com.amwolfstein.sistrum/backend');
       final messenger =
           TestWidgetsFlutterBinding.ensureInitialized().defaultBinaryMessenger;
       messenger.setMockMethodCallHandler(backend, (call) async {

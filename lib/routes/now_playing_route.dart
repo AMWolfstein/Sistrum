@@ -3,9 +3,9 @@ import 'package:flutter/physics.dart' show SpringSimulation, Tolerance;
 import 'package:flutter/services.dart' show PredictiveBackEvent;
 import 'package:material_3_expressive/material_3_expressive.dart'
     show M3EMotion;
-import 'package:mornye/services/app_orientation.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/theme/mornye_theme.dart';
+import 'package:sistrum/services/app_orientation.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 
 /// Hero tag shared by the mini player artwork and the full player artwork so
 /// the cover visually expands when the player opens.

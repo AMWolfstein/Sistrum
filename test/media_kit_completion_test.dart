@@ -6,13 +6,13 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:media_kit/media_kit.dart';
-import 'package:mornye/services/media_kit_playback_deck.dart';
-import 'package:mornye/services/playback_deck.dart';
+import 'package:sistrum/services/media_kit_playback_deck.dart';
+import 'package:sistrum/services/playback_deck.dart';
 
 // Runs the desktop engine on the host, using the same framework folder as
 // integration_test/media_kit_playback_deck_test.dart. A null audio output
 // simulates a device with 700 ms of queued audio, without playing sound.
-const _libmpvFolder = String.fromEnvironment('MORNYE_TEST_LIBMPV');
+const _libmpvFolder = String.fromEnvironment('SISTRUM_TEST_LIBMPV');
 
 Uint8List _toneWav() {
   const rate = 48000;
@@ -118,7 +118,7 @@ void main() {
         }
       },
       skip: _libmpvFolder.isEmpty || !Platform.isMacOS
-          ? 'Requires MORNYE_TEST_LIBMPV with the signed macOS audio frameworks'
+          ? 'Requires SISTRUM_TEST_LIBMPV with the signed macOS audio frameworks'
           : false,
     );
   }
@@ -239,7 +239,7 @@ void main() {
       }
     },
     skip: _libmpvFolder.isEmpty || !Platform.isMacOS
-        ? 'Requires MORNYE_TEST_LIBMPV with the signed macOS audio frameworks'
+        ? 'Requires SISTRUM_TEST_LIBMPV with the signed macOS audio frameworks'
         : false,
   );
 }

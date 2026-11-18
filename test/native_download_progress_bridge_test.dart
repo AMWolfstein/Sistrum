@@ -3,12 +3,12 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/platform_bridge.dart';
+import 'package:sistrum/services/platform_bridge.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const channel = MethodChannel('com.zarz.mornye/backend');
-  const events = MethodChannel('com.zarz.mornye/download_progress_stream');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
+  const events = MethodChannel('com.amwolfstein.sistrum/download_progress_stream');
   const codec = StandardMethodCodec();
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;

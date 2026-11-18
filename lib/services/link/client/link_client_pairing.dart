@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:mornye/services/link/client/link_client_http.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/local_network_access.dart';
+import 'package:sistrum/services/link/client/link_client_http.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/local_network_access.dart';
 
 /// How this phone introduces itself to a desktop.
 @immutable
@@ -63,7 +63,7 @@ enum LinkPairingError {
   /// desktop (or its mDNS record) claims: possibly someone in between.
   certificateMismatch,
 
-  /// Not a Mornye desktop, or another protocol version.
+  /// Not a Sistrum desktop, or another protocol version.
   incompatible,
   invalidAddress,
 
@@ -92,7 +92,7 @@ class LinkPairingException implements Exception {
 
 /// Pairing as the settings page drives it; faked in widget tests.
 abstract interface class LinkPairingApi {
-  /// Reads `GET /mornye/v1/info` at [address] and checks the certificate.
+  /// Reads `GET /sistrum/v1/info` at [address] and checks the certificate.
   /// [expectedFingerprint] is the one mDNS advertised, when known.
   Future<LinkPairingTarget> probe(Uri address, {String? expectedFingerprint});
 

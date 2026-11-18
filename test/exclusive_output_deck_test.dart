@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/exclusive_output_deck.dart';
-import 'package:mornye/services/playback_deck.dart';
+import 'package:sistrum/services/exclusive_output_deck.dart';
+import 'package:sistrum/services/playback_deck.dart';
 
 class _Deck implements PlaybackDeck, QueuedPlaybackDeck {
   _Deck(this.name);

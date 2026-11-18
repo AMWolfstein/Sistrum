@@ -1,9 +1,9 @@
 use super::paths::{album_folder, filename};
 use crate::download::native_error_response;
 use crate::manifest::ExtensionManifest;
-use mornye_core::downloads::DownloadRequest;
-use mornye_core::metadata::reenrich::text;
-use mornye_providers::resolver::Check;
+use sistrum_core::downloads::DownloadRequest;
+use sistrum_core::metadata::reenrich::text;
+use sistrum_providers::resolver::Check;
 use serde_json::{Value, json};
 use std::path::Path;
 

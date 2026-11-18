@@ -1,7 +1,7 @@
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/services/link/sync/link_sync_protocol.dart';
+import 'package:sistrum/services/link/sync/link_sync_protocol.dart';
 
-/// Change tracking for the collections database (Mornye Link sync).
+/// Change tracking for the collections database (Sistrum Link sync).
 ///
 /// `link_sync_state` holds this database's random sync device id, the
 /// sequence counter, and, only inside a transaction that applies peer

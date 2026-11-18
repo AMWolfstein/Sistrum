@@ -1,4 +1,4 @@
-use mornye_core::progress::{ItemTransferProgressReporter, ProgressRegistry};
+use sistrum_core::progress::{ItemTransferProgressReporter, ProgressRegistry};
 use std::sync::Arc;
 
 pub(crate) struct ItemProgressTarget {

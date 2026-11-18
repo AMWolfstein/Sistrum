@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/providers/download_queue_provider.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/providers/repo_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/providers/download_queue_provider.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/providers/repo_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('ExtensionAutoUpdate');
 

@@ -1,9 +1,9 @@
 //! Bounded, seekable metadata reads through the app's authenticated loopback
 //! proxy. The native reader never receives NAS credentials or external URLs.
 use base64::Engine;
-use mornye_core::fs::{DEFAULT_TEMP_PREFIX, OpenOptionsPortableExt, write_atomic};
-use mornye_core::{lower_hex, tags};
-use mornye_network::{
+use sistrum_core::fs::{DEFAULT_TEMP_PREFIX, OpenOptionsPortableExt, write_atomic};
+use sistrum_core::{lower_hex, tags};
+use sistrum_network::{
     HttpRequest, NetworkService, NetworkSession, policy::NetworkPermissions, url::UrlParts,
 };
 use serde_json::{Value, json};
@@ -96,7 +96,7 @@ pub(crate) fn matches_upload(
             body: String::new(),
             headers: BTreeMap::from([("Accept-Encoding".into(), "identity".into())]),
             default_json: false,
-            user_agent: "Mornye/NetworkUploadRecovery".into(),
+            user_agent: "Sistrum/NetworkUploadRecovery".into(),
         },
         Duration::from_secs(u32::MAX.into()),
         idle,
@@ -401,7 +401,7 @@ impl<'a> RangeReader<'a> {
                 ("Accept-Encoding".into(), "identity".into()),
             ]),
             default_json: false,
-            user_agent: "Mornye/NetworkMetadata".into(),
+            user_agent: "Sistrum/NetworkMetadata".into(),
         };
         let mut stream = self
             .session

@@ -3,12 +3,12 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/audio_file_open_service.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/audio_format_utils.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/audio_file_open_service.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/audio_format_utils.dart';
 import 'package:path/path.dart' as p;
 
 final openAudioControllerProvider = NotifierProvider<OpenAudioController, bool>(
@@ -104,7 +104,7 @@ class OpenAudioController extends Notifier<bool> {
       if (files.isEmpty) {
         throw const FileSystemException('No supported audio files found');
       }
-      // An explicit Open with Mornye request must not launch the OS handler
+      // An explicit Open with Sistrum request must not launch the OS handler
       // again when the user's ordinary Library player is external.
       if (ref.read(settingsProvider).playerMode != 'internal') {
         ref.read(settingsProvider.notifier).setPlayerMode('internal');

@@ -3,23 +3,23 @@ import 'dart:convert';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/screens/settings/link_desktop_settings_page.dart';
-import 'package:mornye/screens/settings/link_pairing_dialogs.dart';
-import 'package:mornye/screens/settings/link_phone_host_section.dart';
-import 'package:mornye/screens/settings/link_settings_page.dart';
-import 'package:mornye/services/link/client/link_client_controller.dart';
-import 'package:mornye/services/link/client/link_client_pairing.dart';
-import 'package:mornye/services/link/client/link_client_store.dart';
-import 'package:mornye/services/link/desktop/link_desktop_backend.dart';
-import 'package:mornye/services/link/features/link_phone_options.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_transfers.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_alert_dialog.dart';
-import 'package:mornye/widgets/link/link_transfer_tile.dart';
-import 'package:mornye/widgets/link/link_transfers_view.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/screens/settings/link_desktop_settings_page.dart';
+import 'package:sistrum/screens/settings/link_pairing_dialogs.dart';
+import 'package:sistrum/screens/settings/link_phone_host_section.dart';
+import 'package:sistrum/screens/settings/link_settings_page.dart';
+import 'package:sistrum/services/link/client/link_client_controller.dart';
+import 'package:sistrum/services/link/client/link_client_pairing.dart';
+import 'package:sistrum/services/link/client/link_client_store.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_backend.dart';
+import 'package:sistrum/services/link/features/link_phone_options.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_transfers.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_alert_dialog.dart';
+import 'package:sistrum/widgets/link/link_transfer_tile.dart';
+import 'package:sistrum/widgets/link/link_transfers_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/link_client_fakes.dart';
@@ -194,7 +194,7 @@ void main() {
         host: 'studio.local',
         port: 5000,
       ));
-      expect(linkParseManualAddress('https://10.0.0.2:47711/mornye', '1'), (
+      expect(linkParseManualAddress('https://10.0.0.2:47711/sistrum', '1'), (
         host: '10.0.0.2',
         port: 47711,
       ));

@@ -5,26 +5,26 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/constants/app_info.dart';
-import 'package:mornye/services/connectivity_monitor.dart';
-import 'package:mornye/services/link/client/link_client_bonsoir.dart';
-import 'package:mornye/services/link/client/link_client_discovery.dart';
-import 'package:mornye/services/link/client/link_client_http.dart';
-import 'package:mornye/services/link/client/link_client_library.dart';
-import 'package:mornye/services/link/client/link_client_pairing.dart';
-import 'package:mornye/services/link/client/link_client_session.dart';
-import 'package:mornye/services/link/client/link_client_store.dart';
-import 'package:mornye/services/link/features/link_phone_options.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/local_network_access.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/constants/app_info.dart';
+import 'package:sistrum/services/connectivity_monitor.dart';
+import 'package:sistrum/services/link/client/link_client_bonsoir.dart';
+import 'package:sistrum/services/link/client/link_client_discovery.dart';
+import 'package:sistrum/services/link/client/link_client_http.dart';
+import 'package:sistrum/services/link/client/link_client_library.dart';
+import 'package:sistrum/services/link/client/link_client_pairing.dart';
+import 'package:sistrum/services/link/client/link_client_session.dart';
+import 'package:sistrum/services/link/client/link_client_store.dart';
+import 'package:sistrum/services/link/features/link_phone_options.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/local_network_access.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('LinkClient');
 
-/// Whether this device runs the phone side of Mornye Link.
+/// Whether this device runs the phone side of Sistrum Link.
 final linkClientSupportedProvider = Provider<bool>(
   (ref) => Platform.isAndroid || Platform.isIOS,
 );
@@ -217,7 +217,7 @@ class LinkClientState {
   );
 }
 
-/// The phone side of Mornye Link: paired desktops, discovery, pairing and
+/// The phone side of Sistrum Link: paired desktops, discovery, pairing and
 /// the active session it publishes through [linkActiveClientProvider].
 /// The app root keeps it alive on phones; it does nothing elsewhere.
 class LinkClientController extends Notifier<LinkClientState> {

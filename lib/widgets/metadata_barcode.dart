@@ -1,5 +1,5 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/utils/retail_barcode.dart';
+import 'package:sistrum/utils/retail_barcode.dart';
 
 class MetadataBarcode extends StatelessWidget {
   final String value;

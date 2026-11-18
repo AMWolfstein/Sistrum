@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:mornye/utils/android_tv.dart';
+import 'package:sistrum/utils/android_tv.dart';
 
 /// Ends the mobile IME session on backgrounding without waiting for a frame.
 /// Keeping a focused editor across backgrounding can leave its old keyboard

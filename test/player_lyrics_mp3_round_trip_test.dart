@@ -3,11 +3,11 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/ffmpeg_desktop.dart';
-import 'package:mornye/services/metadata_cover_resources.dart';
-import 'package:mornye/services/metadata_persistence_service.dart';
-import 'package:mornye/utils/artist_utils.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/services/ffmpeg_desktop.dart';
+import 'package:sistrum/services/metadata_cover_resources.dart';
+import 'package:sistrum/services/metadata_persistence_service.dart';
+import 'package:sistrum/utils/artist_utils.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
 class _Covers extends MetadataCoverResources {
   @override

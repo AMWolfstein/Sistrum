@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/link/features/link_downloads.dart';
-import 'package:mornye/services/link/link_protocol.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/link/features/link_downloads.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
 
 import 'support/link_fakes.dart';
 

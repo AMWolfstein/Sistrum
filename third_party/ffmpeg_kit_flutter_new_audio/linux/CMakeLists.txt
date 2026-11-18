@@ -46,9 +46,9 @@ elseif(NOT FFMPEGKIT_LOCAL_DIR AND NOT DEFINED ENV{FFMPEGKIT_LOCAL_DIR})
   # The upstream Linux build only defines ARCH_X86_64
   # (enable_default_linux_architectures in ffmpeg-kit); there is no aarch64
   # plumbing in linux.sh, so no other architecture can be served yet.
-  # Mornye patch: build the plugin without the native bundle instead of
+  # Sistrum patch: build the plugin without the native bundle instead of
   # failing. The plugin dlopen()s libffmpegkit.so and answers every call with
-  # an error when it is missing; Mornye desktop runs the bundled ffmpeg CLI.
+  # an error when it is missing; Sistrum desktop runs the bundled ffmpeg CLI.
   message(WARNING
     "ffmpeg_kit_flutter: no Linux bundle for '${CMAKE_SYSTEM_PROCESSOR}'; "
     "building without libffmpegkit. Point FFMPEGKIT_LOCAL_DIR at a bundle "

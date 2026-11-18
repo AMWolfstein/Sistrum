@@ -3,14 +3,14 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:audio_service/audio_service.dart' show MediaItem;
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/services/link/features/link_phone_library.dart';
-import 'package:mornye/services/link/features/link_phone_player.dart';
-import 'package:mornye/services/link/features/link_track_refs.dart';
-import 'package:mornye/services/link/features/link_track_resolver.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/playable_media.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/services/link/features/link_phone_library.dart';
+import 'package:sistrum/services/link/features/link_phone_player.dart';
+import 'package:sistrum/services/link/features/link_track_refs.dart';
+import 'package:sistrum/services/link/features/link_track_resolver.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/playable_media.dart';
 
 const linkTestServer = LinkServerRecord(
   serverId: 'server-1',

@@ -5,11 +5,11 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/network_library_scanner.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/library_cleanup.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/network_library_scanner.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/library_cleanup.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/logger.dart';
 
 import 'support/network_scan_output.dart';
 
@@ -126,7 +126,7 @@ void main() {
   test(
     'cancel interrupts active native metadata reads and drains their work',
     () async {
-      const channel = MethodChannel('com.zarz.mornye/backend');
+      const channel = MethodChannel('com.amwolfstein.sistrum/backend');
       final messenger =
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
       final jobs = <String, Completer<String>>{};

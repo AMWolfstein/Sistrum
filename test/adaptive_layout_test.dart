@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/widgets/desktop/desktop_window.dart';
+import 'package:sistrum/utils/adaptive_layout.dart';
+import 'package:sistrum/widgets/desktop/desktop_window.dart';
 
 void main() {
   group('adaptive navigation', () {

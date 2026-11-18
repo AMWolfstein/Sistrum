@@ -1,4 +1,4 @@
-use mornye_core::tags::{extract_cover, read_audio_tags, rewrite_audio_tags};
+use sistrum_core::tags::{extract_cover, read_audio_tags, rewrite_audio_tags};
 use std::collections::BTreeMap;
 use std::io::Cursor;
 

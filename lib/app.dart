@@ -2,35 +2,35 @@ import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:mornye/constants/app_info.dart';
-import 'package:mornye/screens/main_shell.dart';
-import 'package:mornye/screens/setup_screen.dart';
-import 'package:mornye/screens/tutorial_screen.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/providers/equalizer_provider.dart';
-import 'package:mornye/services/app_navigation_service.dart';
-import 'package:mornye/services/app_orientation.dart';
-import 'package:mornye/services/link/client/link_client_controller.dart';
-import 'package:mornye/services/link/desktop/link_desktop_host.dart';
-import 'package:mornye/services/link/features/link_phone_features.dart';
-import 'package:mornye/services/link/link_source_presence.dart';
-import 'package:mornye/services/link/sync/link_sound_sync_runner.dart';
-import 'package:mornye/services/link/sync/link_sync_runner.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/theme/dynamic_color_wrapper.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/l10n/supported_locales.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/android_tv.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/android_keyboard_lifecycle.dart';
-import 'package:mornye/widgets/app_snack_bar.dart';
-import 'package:mornye/widgets/desktop/desktop_shortcuts.dart';
-import 'package:mornye/widgets/desktop/library_drop_target.dart';
-import 'package:mornye/widgets/link/link_actions.dart';
-import 'package:mornye/widgets/mornye_glass_preparation.dart';
-import 'package:mornye/widgets/playback_feedback.dart';
-import 'package:mornye/widgets/tv_navigation.dart';
+import 'package:sistrum/constants/app_info.dart';
+import 'package:sistrum/screens/main_shell.dart';
+import 'package:sistrum/screens/setup_screen.dart';
+import 'package:sistrum/screens/tutorial_screen.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/providers/equalizer_provider.dart';
+import 'package:sistrum/services/app_navigation_service.dart';
+import 'package:sistrum/services/app_orientation.dart';
+import 'package:sistrum/services/link/client/link_client_controller.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_host.dart';
+import 'package:sistrum/services/link/features/link_phone_features.dart';
+import 'package:sistrum/services/link/link_source_presence.dart';
+import 'package:sistrum/services/link/sync/link_sound_sync_runner.dart';
+import 'package:sistrum/services/link/sync/link_sync_runner.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/theme/dynamic_color_wrapper.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/l10n/supported_locales.dart';
+import 'package:sistrum/utils/adaptive_layout.dart';
+import 'package:sistrum/utils/android_tv.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/widgets/android_keyboard_lifecycle.dart';
+import 'package:sistrum/widgets/app_snack_bar.dart';
+import 'package:sistrum/widgets/desktop/desktop_shortcuts.dart';
+import 'package:sistrum/widgets/desktop/library_drop_target.dart';
+import 'package:sistrum/widgets/link/link_actions.dart';
+import 'package:sistrum/widgets/mornye_glass_preparation.dart';
+import 'package:sistrum/widgets/playback_feedback.dart';
+import 'package:sistrum/widgets/tv_navigation.dart';
 
 String initialLocationForAppState({
   required bool isFirstLaunch,
@@ -182,7 +182,7 @@ class _OrientationFadeState extends State<_OrientationFade>
   }
 }
 
-/// The [MaterialApp.builder] of [MornyeApp]: the app-wide layers around the
+/// The [MaterialApp.builder] of [SistrumApp]: the app-wide layers around the
 /// router's [child].
 @visibleForTesting
 Widget buildAppContent(
@@ -254,10 +254,10 @@ class _AppMediaQuery extends ConsumerWidget {
   }
 }
 
-class MornyeApp extends ConsumerWidget {
+class SistrumApp extends ConsumerWidget {
   final bool disableOverscrollEffects;
 
-  const MornyeApp({super.key, this.disableOverscrollEffects = false});
+  const SistrumApp({super.key, this.disableOverscrollEffects = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

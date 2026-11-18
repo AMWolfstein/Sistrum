@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/widgets/expressive_playback_transport.dart';
+import 'package:sistrum/widgets/expressive_playback_transport.dart';
 
 import 'support/tooltip_finder.dart';
 

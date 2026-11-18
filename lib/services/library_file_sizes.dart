@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/services/sqlite_helpers.dart' as sqlite;
-import 'package:mornye/utils/file_access.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
+import 'package:sistrum/utils/file_access.dart';
 
 bool isLibrarySizeSort(String mode) =>
     mode == 'size-desc' || mode == 'size-asc';

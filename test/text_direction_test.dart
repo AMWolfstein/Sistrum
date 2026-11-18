@@ -1,6 +1,6 @@
 import 'package:flutter/painting.dart' show TextDirection;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/utils/text_direction.dart';
+import 'package:sistrum/utils/text_direction.dart';
 
 void main() {
   group('strongTextDirection', () {

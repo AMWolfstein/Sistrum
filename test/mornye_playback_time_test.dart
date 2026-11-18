@@ -1,9 +1,9 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/widgets/decorative_phase.dart';
-import 'package:mornye/widgets/mornye_playback_time.dart';
-import 'package:mornye/widgets/player_lyrics_controls.dart';
+import 'package:sistrum/widgets/decorative_phase.dart';
+import 'package:sistrum/widgets/mornye_playback_time.dart';
+import 'package:sistrum/widgets/player_lyrics_controls.dart';
 
 Widget _app(int seconds, {bool remaining = false, bool reduceMotion = false}) =>
     MaterialApp(

@@ -115,7 +115,7 @@ impl Song {
         })
     }
 
-    /// The `mornye_core::tags::extract_cover` format for this song's file,
+    /// The `sistrum_core::tags::extract_cover` format for this song's file,
     /// when its container can embed a cover.
     pub(crate) fn embedded_cover_format(&self) -> Option<&'static str> {
         cover_format(&self.suffix)
@@ -128,7 +128,7 @@ impl Song {
     }
 }
 
-/// The `mornye_core::tags::extract_cover` format for a file with `suffix`
+/// The `sistrum_core::tags::extract_cover` format for a file with `suffix`
 /// (lowercase), when its container can embed a cover.
 pub(crate) fn cover_format(suffix: &str) -> Option<&'static str> {
     Some(match suffix {

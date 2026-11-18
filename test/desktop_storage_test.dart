@@ -8,14 +8,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/screens/setup_screen.dart';
-import 'package:mornye/services/sqlite_helpers.dart';
-import 'package:mornye/utils/desktop_folders.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/native_platform_name.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/screens/setup_screen.dart';
+import 'package:sistrum/services/sqlite_helpers.dart';
+import 'package:sistrum/utils/desktop_folders.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/native_platform_name.dart';
 
 import 'support/tooltip_finder.dart';
 
@@ -131,21 +131,21 @@ void main() {
       );
     });
 
-    test('default output folder adds the Mornye subfolder', () async {
+    test('default output folder adds the Sistrum subfolder', () async {
       expect(
         await resolveDesktopDefaultOutputDirectory(
           operatingSystem: 'windows',
           environment: const {},
           windowsMusicFolder: () async => r'C:\Users\test\Music',
         ),
-        r'C:\Users\test\Music\Mornye',
+        r'C:\Users\test\Music\Sistrum',
       );
       expect(
         await resolveDesktopDefaultOutputDirectory(
           operatingSystem: 'macos',
           environment: {'HOME': '/Users/test'},
         ),
-        '/Users/test/Music/Mornye',
+        '/Users/test/Music/Sistrum',
       );
       expect(
         await resolveDesktopDefaultOutputDirectory(
@@ -179,12 +179,12 @@ void main() {
 
     test('uses the nearest existing parent without creating output', () async {
       final music = await Directory(p.join(root.path, 'Music')).create();
-      final output = Directory(p.join(music.path, 'Mornye', 'Albums'));
+      final output = Directory(p.join(music.path, 'Sistrum', 'Albums'));
       expect(
         await resolveDesktopPickerInitialDirectory(output.path),
         music.path,
       );
-      expect(await Directory(p.join(music.path, 'Mornye')).exists(), isFalse);
+      expect(await Directory(p.join(music.path, 'Sistrum')).exists(), isFalse);
     });
 
     test('uses the parent when the saved path is now a file', () async {
@@ -209,7 +209,7 @@ void main() {
 
     test('does not pass a relative path to the native picker', () async {
       expect(
-        await resolveDesktopPickerInitialDirectory('Music/Mornye'),
+        await resolveDesktopPickerInitialDirectory('Music/Sistrum'),
         isNull,
       );
     });

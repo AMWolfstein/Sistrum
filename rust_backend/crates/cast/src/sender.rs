@@ -111,7 +111,7 @@ impl Status {
             self.token = Some(token);
         }
         let media = &entry["media"];
-        if let Some(token) = media["customData"]["mornyeToken"].as_i64() {
+        if let Some(token) = media["customData"]["sistrumToken"].as_i64() {
             self.token = Some(token);
         }
         if let Some(duration) = media["duration"].as_f64().filter(|value| *value > 0.0) {
@@ -171,7 +171,7 @@ impl Sender {
             "streamType": "BUFFERED",
             "contentType": request["mime"].as_str().ok_or("load needs a mime type")?,
             "metadata": metadata,
-            "customData": {"mornyeToken": token},
+            "customData": {"sistrumToken": token},
         });
         if let Some(duration) = request["duration"].as_i64().filter(|ms| *ms > 0) {
             media["duration"] = json!(duration as f64 / 1000.0);
@@ -681,7 +681,7 @@ mod tests {
                 "mediaSessionId": 7,
                 "playerState": "PAUSED",
                 "currentTime": 12.5,
-                "media": {"duration": 200.0, "customData": {"mornyeToken": 9}},
+                "media": {"duration": 200.0, "customData": {"sistrumToken": 9}},
             }),
             None,
         );

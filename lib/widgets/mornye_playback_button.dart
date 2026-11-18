@@ -1,7 +1,7 @@
 import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
 import 'package:flutter/physics.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/theme/app_motion.dart';
+import 'package:sistrum/theme/app_motion.dart';
 
 /// How far the pointer press disc grows: from 32 to 38 on the capsule.
 const _pressDiscGrowth = 6 / 32;

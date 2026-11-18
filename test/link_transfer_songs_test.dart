@@ -2,16 +2,16 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/download_history.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/services/link/desktop/link_catalog_index.dart';
-import 'package:mornye/services/link/desktop/link_phone_catalogs.dart';
-import 'package:mornye/services/link/desktop/link_transfer_songs.dart';
-import 'package:mornye/services/link/link_host_router.dart';
-import 'package:mornye/services/link/link_protocol.dart';
+import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/services/link/desktop/link_catalog_index.dart';
+import 'package:sistrum/services/link/desktop/link_phone_catalogs.dart';
+import 'package:sistrum/services/link/desktop/link_transfer_songs.dart';
+import 'package:sistrum/services/link/link_host_router.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
 
 import 'support/link_desktop_fakes.dart';
 
@@ -299,7 +299,7 @@ void main() {
     final stored =
         await LinkDesktopDownloadFolder(
           const AppSettings(downloadDirectory: ''),
-          defaultRoot: () async => '${folder.path}/Mornye',
+          defaultRoot: () async => '${folder.path}/Sistrum',
         ).store(
           source,
           relativeDir: 'Band/Album',
@@ -309,7 +309,7 @@ void main() {
     final sep = Platform.pathSeparator;
     expect(
       stored.filePath,
-      '${folder.path}/Mornye${sep}Band${sep}Album${sep}Song.flac',
+      '${folder.path}/Sistrum${sep}Band${sep}Album${sep}Song.flac',
     );
     expect(File(stored.filePath).existsSync(), isTrue);
   });

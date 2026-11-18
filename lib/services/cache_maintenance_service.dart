@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:flutter/services.dart';
-import 'package:mornye/services/platform_bridge.dart';
+import 'package:sistrum/services/platform_bridge.dart';
 
 class DirectoryStats {
   final int fileCount;

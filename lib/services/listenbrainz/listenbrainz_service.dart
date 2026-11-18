@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:mornye/services/listenbrainz/listenbrainz_api.dart';
-import 'package:mornye/services/scrobbling/scrobble_listening.dart';
-import 'package:mornye/services/scrobbling/scrobble_store.dart';
-import 'package:mornye/services/scrobbling/scrobbler.dart';
+import 'package:sistrum/services/listenbrainz/listenbrainz_api.dart';
+import 'package:sistrum/services/scrobbling/scrobble_listening.dart';
+import 'package:sistrum/services/scrobbling/scrobble_store.dart';
+import 'package:sistrum/services/scrobbling/scrobbler.dart';
 
 LocalScrobbleStore<ListenBrainzAccount> localListenBrainzStore() =>
     LocalScrobbleStore(

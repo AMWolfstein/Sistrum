@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:mornye/services/content_uri_playback_cache.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/content_uri_playback_cache.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('AVPlayerFormats');
 
@@ -239,7 +239,7 @@ class AvPlayerCopies {
     return _defaultFolder ??= _emptied(
       Directory(
         '${Directory.systemTemp.path}${Platform.pathSeparator}'
-        'mornye-playback-copies',
+        'sistrum-playback-copies',
       ),
     );
   }

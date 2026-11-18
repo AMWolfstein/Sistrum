@@ -2,16 +2,16 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:mornye/services/link/client/link_client_controller.dart';
-import 'package:mornye/services/link/features/link_phone_client.dart';
-import 'package:mornye/services/link/features/link_track_refs.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_library_jobs.dart';
-import 'package:mornye/services/network_metadata_service.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/source_deletion_events.dart';
-import 'package:mornye/services/source_metadata_events.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/link/client/link_client_controller.dart';
+import 'package:sistrum/services/link/features/link_phone_client.dart';
+import 'package:sistrum/services/link/features/link_track_refs.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_library_jobs.dart';
+import 'package:sistrum/services/network_metadata_service.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/source_deletion_events.dart';
+import 'package:sistrum/services/source_metadata_events.dart';
+import 'package:sistrum/utils/logger.dart';
 
 typedef LinkLibraryReconcile =
     Future<void> Function(LinkClientApi client, LinkLibraryJob job);

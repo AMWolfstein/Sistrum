@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('DownloadKeepAwake');
 

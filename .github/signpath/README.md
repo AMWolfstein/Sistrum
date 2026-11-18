@@ -13,21 +13,21 @@ whether their Windows packages are signed; older unsigned releases remain unsign
 
 Release signing requires one manual approval, a trusted GitHub build and origin
 verification against `https://github.com/mornyeapp/Mornye.git`. The workflow
-signs Mornye's executable and installer, enforcing their product name and
-version. Upstream binaries are included without re-signing them as Mornye.
+signs Sistrum's executable and installer, enforcing their product name and
+version. Upstream binaries are included without re-signing them as Sistrum.
 
 Privacy: SignPath receives release build artifacts and GitHub build metadata
-during CI signing. Mornye does not upload users' local audio libraries to
+during CI signing. Sistrum does not upload users' local audio libraries to
 SignPath. Network features in the app contact configured metadata, download,
 lyrics, storage and update services. Optional integrations and installed
 extensions can contact their own services, whose privacy policies also apply.
 
 ## Release integration
 
-The release workflow signs `mornye.exe` before packaging both the portable ZIP
+The release workflow signs `sistrum.exe` before packaging both the portable ZIP
 and Inno Setup installer, then signs the installer itself. Both Windows x64 and
 ARM64 use the same signing policies and artifact configurations. Third-party
-binaries keep their upstream signatures and are not re-signed as Mornye.
+binaries keep their upstream signatures and are not re-signed as Sistrum.
 
 ## SignPath project
 
@@ -100,7 +100,7 @@ The script tests the verification contract with a simulated Windows trust API;
 it does not replace testing real signed artifacts on Windows.
 
 After the first signed CI build, download both architectures. Verify the setup
-and extracted `mornye.exe` on Windows using
+and extracted `sistrum.exe` on Windows using
 `scripts/check_windows_signature.ps1 -Path <exe> -CertificateThumbprint <thumbprint>`.
 Check installer launch, portable launch, and the published SHA-256 checksums.
 Code signing identifies the publisher but does not guarantee that SmartScreen

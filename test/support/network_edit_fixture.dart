@@ -3,8 +3,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dart_smb2/dart_smb2.dart';
-import 'package:mornye/services/network_smb_client.dart';
-import 'package:mornye/services/network_storage_service.dart';
+import 'package:sistrum/services/network_smb_client.dart';
+import 'package:sistrum/services/network_storage_service.dart';
 
 /// The two writable NAS transports, sharing a tiny in-memory filesystem.
 class NetworkEditFixture {
@@ -62,7 +62,7 @@ class NetworkEditFixture {
   }
 
   bool _publish(String from, String to) =>
-      from.startsWith('mornye-edit-') && to == 'song.flac';
+      from.startsWith('sistrum-edit-') && to == 'song.flac';
 
   void move(String from, String to) {
     methods.add('MOVE $from $to');
@@ -105,7 +105,7 @@ class NetworkEditFixture {
         request.response.statusCode = 207;
         request.response.write('<d:multistatus xmlns:d="DAV:">');
         for (final name in path.isEmpty ? files.keys : [path]) {
-          final temporary = name.startsWith('mornye-');
+          final temporary = name.startsWith('sistrum-');
           if (temporary && hideTemporaryFiles && path.isEmpty) continue;
           final size = temporary
               ? temporaryListedSize ?? files[name]!.length
@@ -183,7 +183,7 @@ class _Handle {
 class _Share implements NetworkSmbShare {
   _Share(this.fixture);
   final NetworkEditFixture fixture;
-  static final _uploadName = RegExp(r'^mornye-[0-9a-f]{64}\.part$');
+  static final _uploadName = RegExp(r'^sistrum-[0-9a-f]{64}\.part$');
 
   List<int> _file(String path) =>
       fixture.files[path] ??

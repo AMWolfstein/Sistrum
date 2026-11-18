@@ -1,14 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/controllers/clickable_metadata.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/screens/library_mix_screen.dart';
-import 'package:mornye/screens/mornye_library_screen.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/widgets/expressive_button.dart';
-import 'package:mornye/widgets/library_view_toggle.dart';
+import 'package:sistrum/controllers/clickable_metadata.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/screens/library_mix_screen.dart';
+import 'package:sistrum/screens/mornye_library_screen.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/utils/adaptive_layout.dart';
+import 'package:sistrum/widgets/expressive_button.dart';
+import 'package:sistrum/widgets/library_view_toggle.dart';
 
 /// A Library artist: their albums, or every song of theirs, whichever view
 /// was chosen last on an artist.

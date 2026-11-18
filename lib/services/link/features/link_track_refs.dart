@@ -1,12 +1,12 @@
 import 'package:audio_service/audio_service.dart' show MediaItem;
-import 'package:mornye/models/download_history.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/playable_media.dart';
+import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/playable_media.dart';
 
 /// The match key a [TrackRef] carries: the normalized title and artist, the
 /// same key the history and Library tables index. Null without a title.

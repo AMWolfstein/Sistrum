@@ -4,42 +4,42 @@ import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
-import 'package:mornye/theme/material_expressive.dart';
-import 'package:mornye/widgets/app_alert_dialog.dart';
-import 'package:mornye/widgets/app_switch.dart';
-import 'package:mornye/widgets/app_text_field.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/app_choice_chip.dart';
-import 'package:mornye/theme/mornye_icons.dart' show mornyeArrowForward;
-import 'package:mornye/theme/mornye_theme.dart';
+import 'package:sistrum/theme/material_expressive.dart';
+import 'package:sistrum/widgets/app_alert_dialog.dart';
+import 'package:sistrum/widgets/app_switch.dart';
+import 'package:sistrum/widgets/app_text_field.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_choice_chip.dart';
+import 'package:sistrum/theme/mornye_icons.dart' show mornyeArrowForward;
+import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:mornye/controllers/clickable_metadata.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/screens/network_storage_screen.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/download_queue_provider.dart';
-import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/providers/library_collections_provider.dart';
-import 'package:mornye/providers/music_player_provider.dart'
+import 'package:sistrum/controllers/clickable_metadata.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/screens/network_storage_screen.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/download_queue_provider.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/providers/library_collections_provider.dart';
+import 'package:sistrum/providers/music_player_provider.dart'
     show playbackResumeProvider;
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/folder_path_template.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/desktop_folders.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/nav_bar_inset.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/saf_download_tree.dart';
-import 'package:mornye/widgets/settings_group.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/expressive_button.dart';
-import 'package:mornye/widgets/app_sliver_header.dart';
-import 'package:mornye/widgets/app_loading_indicator.dart';
-import 'package:mornye/widgets/batch_progress_dialog.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/folder_path_template.dart';
+import 'package:sistrum/utils/adaptive_layout.dart';
+import 'package:sistrum/utils/desktop_folders.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/nav_bar_inset.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/saf_download_tree.dart';
+import 'package:sistrum/widgets/settings_group.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/expressive_button.dart';
+import 'package:sistrum/widgets/app_sliver_header.dart';
+import 'package:sistrum/widgets/app_loading_indicator.dart';
+import 'package:sistrum/widgets/batch_progress_dialog.dart';
 
 part 'files_settings_page_widgets.dart';
 part 'files_settings_page_reorganize.dart';
@@ -145,7 +145,7 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
                             ? context.l10n.setupAppDocumentsFolder
                             : isDesktopPlatform
                             ? 'Music/$desktopOutputFolderName'
-                            : 'Download/Mornye')
+                            : 'Download/Sistrum')
                       : settings.downloadDirectory,
                   onTap: () => _pickDirectory(context, ref),
                   showDivider: false,
@@ -565,7 +565,7 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
   }
 
   Future<String> _getDefaultAndroidDirectory() async {
-    const directDownloadPath = '/storage/emulated/0/Download/Mornye';
+    const directDownloadPath = '/storage/emulated/0/Download/Sistrum';
     try {
       final downloadDir = Directory(directDownloadPath);
       if (!await downloadDir.exists()) {
@@ -577,7 +577,7 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
       final externalDir = await getExternalStorageDirectory();
       if (externalDir != null) {
         final downloadDir = Directory(
-          '${externalDir.parent.parent.parent.parent.path}/Download/Mornye',
+          '${externalDir.parent.parent.parent.parent.path}/Download/Sistrum',
         );
         if (!await downloadDir.exists()) {
           await downloadDir.create(recursive: true);
@@ -586,7 +586,7 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
       }
     } catch (_) {}
     final appDir = await getApplicationDocumentsDirectory();
-    final fallbackDir = Directory('${appDir.path}/Mornye');
+    final fallbackDir = Directory('${appDir.path}/Sistrum');
     if (!await fallbackDir.exists()) await fallbackDir.create(recursive: true);
     return fallbackDir.path;
   }
@@ -887,31 +887,31 @@ class _FilesSettingsPageState extends ConsumerState<FilesSettingsPage> {
                 'none',
                 context.l10n.folderOrganizationNone,
                 context.l10n.folderOrganizationNoneSubtitle,
-                'Mornye/Track.flac',
+                'Sistrum/Track.flac',
               ),
               (
                 'playlist',
                 context.l10n.folderOrganizationByPlaylist,
                 context.l10n.folderOrganizationByPlaylistSubtitle,
-                'Mornye/Playlist Name/Track.flac',
+                'Sistrum/Playlist Name/Track.flac',
               ),
               (
                 'artist',
                 context.l10n.folderOrganizationByArtist,
                 context.l10n.folderOrganizationByArtistSubtitle,
-                'Mornye/Artist Name/Track.flac',
+                'Sistrum/Artist Name/Track.flac',
               ),
               (
                 'album',
                 context.l10n.folderOrganizationByAlbum,
                 context.l10n.folderOrganizationByAlbumSubtitle,
-                'Mornye/Album Name/Track.flac',
+                'Sistrum/Album Name/Track.flac',
               ),
               (
                 'artist_album',
                 context.l10n.folderOrganizationByArtistAlbum,
                 context.l10n.folderOrganizationByArtistAlbumSubtitle,
-                'Mornye/Artist/Album/Track.flac',
+                'Sistrum/Artist/Album/Track.flac',
               ),
               (
                 'custom',

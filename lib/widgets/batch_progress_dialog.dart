@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/widgets/app_alert_dialog.dart';
-import 'package:mornye/widgets/app_progress_indicator.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/widgets/app_alert_dialog.dart';
+import 'package:sistrum/widgets/app_progress_indicator.dart';
 
 class _BatchProgress {
   final int current;

@@ -1,8 +1,8 @@
-import 'package:mornye/services/romanization/cyrillic.dart';
-import 'package:mornye/services/romanization/indic.dart';
-import 'package:mornye/services/romanization/kana.dart';
-import 'package:mornye/services/romanization/korean.dart';
-import 'package:mornye/services/romanization/pinyin.dart';
+import 'package:sistrum/services/romanization/cyrillic.dart';
+import 'package:sistrum/services/romanization/indic.dart';
+import 'package:sistrum/services/romanization/kana.dart';
+import 'package:sistrum/services/romanization/korean.dart';
+import 'package:sistrum/services/romanization/pinyin.dart';
 
 /// The scripts offline romanization reads.
 enum LyricsScript { hangul, cyrillic, devanagari, gurmukhi, kana, han }

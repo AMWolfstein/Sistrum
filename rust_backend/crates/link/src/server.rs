@@ -121,7 +121,7 @@ impl State {
     }
 }
 
-/// Wraps the app so every forwarded request, from `/mornye/v1` or the
+/// Wraps the app so every forwarded request, from `/sistrum/v1` or the
 /// Subsonic layer, fails with `timeout` after `request_timeout`.
 pub(crate) struct TimedHost {
     pub(crate) inner: Arc<dyn Host>,
@@ -173,7 +173,7 @@ pub(crate) fn bind(
         }
     }
     Err(format!(
-        "Mornye Link could not listen: {}",
+        "Sistrum Link could not listen: {}",
         last_error.map_or_else(|| "no port".to_owned(), |error| error.to_string())
     ))
 }

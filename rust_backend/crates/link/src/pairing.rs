@@ -1,6 +1,6 @@
 //! The pairing window (contract section 3). The desktop shows a 6-digit PIN;
 //! the phone proves it knows the PIN and saw this server's certificate:
-//! `proof = hex(HMAC-SHA256(key = PIN, message = "mornye-link-pair-v1:" +
+//! `proof = hex(HMAC-SHA256(key = PIN, message = "sistrum-link-pair-v1:" +
 //! fingerprint + ":" + deviceId))`. A relaying attacker presents another
 //! certificate, so its proof fails. Five bad proofs end the window.
 
@@ -14,7 +14,7 @@ use std::sync::Mutex;
 use std::time::{Duration, Instant};
 
 const MAX_ATTEMPTS: u32 = 5;
-const PROOF_CONTEXT: &str = "mornye-link-pair-v1:";
+const PROOF_CONTEXT: &str = "sistrum-link-pair-v1:";
 
 /// Why a pairing window ended (`linkPairingEnded.reason`).
 pub(crate) const PAIRED: &str = "paired";
@@ -22,7 +22,7 @@ pub(crate) const EXPIRED: &str = "expired";
 pub(crate) const ATTEMPTS: &str = "attempts";
 pub(crate) const CANCELLED: &str = "cancelled";
 
-/// A rejected `POST /mornye/v1/pair`.
+/// A rejected `POST /sistrum/v1/pair`.
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum PairError {
     /// More than one request per interval from the same address (429).
@@ -215,12 +215,12 @@ mod tests {
 
     #[test]
     fn matches_the_reference_proof() {
-        // HMAC-SHA256(key = "123456", message = "mornye-link-pair-v1:ab:dev").
+        // HMAC-SHA256(key = "123456", message = "sistrum-link-pair-v1:ab:dev").
         assert_eq!(
             proof("123456", "ab", "dev"),
             hex(&{
                 let mut mac = <Hmac<Sha256> as KeyInit>::new_from_slice(b"123456").unwrap();
-                mac.update(b"mornye-link-pair-v1:ab:dev");
+                mac.update(b"sistrum-link-pair-v1:ab:dev");
                 mac.finalize().into_bytes()
             })
         );

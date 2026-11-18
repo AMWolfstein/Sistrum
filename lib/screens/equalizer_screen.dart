@@ -7,31 +7,31 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/equalizer_settings.dart';
-import 'package:mornye/providers/equalizer_provider.dart';
-import 'package:mornye/services/playback_equalizer.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/theme/app_tokens.dart';
-import 'package:mornye/theme/material_expressive.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/app_alert_dialog.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/app_choice_chip.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_menu_button.dart';
-import 'package:mornye/widgets/app_slider.dart';
-import 'package:mornye/widgets/app_sliver_header.dart';
-import 'package:mornye/widgets/app_switch.dart';
-import 'package:mornye/widgets/app_text_field.dart';
-import 'package:mornye/widgets/beta_badge.dart';
-import 'package:mornye/widgets/expressive_button.dart';
-import 'package:mornye/widgets/expressive_icon_button.dart';
-import 'package:mornye/widgets/mornye_chrome.dart';
-import 'package:mornye/widgets/mornye_level_slider.dart';
-import 'package:mornye/widgets/settings_group.dart';
-import 'package:mornye/widgets/slider_value_header.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/equalizer_settings.dart';
+import 'package:sistrum/providers/equalizer_provider.dart';
+import 'package:sistrum/services/playback_equalizer.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/theme/material_expressive.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/widgets/app_alert_dialog.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_choice_chip.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_menu_button.dart';
+import 'package:sistrum/widgets/app_slider.dart';
+import 'package:sistrum/widgets/app_sliver_header.dart';
+import 'package:sistrum/widgets/app_switch.dart';
+import 'package:sistrum/widgets/app_text_field.dart';
+import 'package:sistrum/widgets/beta_badge.dart';
+import 'package:sistrum/widgets/expressive_button.dart';
+import 'package:sistrum/widgets/expressive_icon_button.dart';
+import 'package:sistrum/widgets/mornye_chrome.dart';
+import 'package:sistrum/widgets/mornye_level_slider.dart';
+import 'package:sistrum/widgets/settings_group.dart';
+import 'package:sistrum/widgets/slider_value_header.dart';
 
 part 'equalizer_widgets.dart';
 part 'equalizer_curve.dart';
@@ -104,7 +104,7 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
               mimeType: 'application/json',
             ),
           ],
-          fileNameOverrides: ['mornye-equalizer.json'],
+          fileNameOverrides: ['sistrum-equalizer.json'],
           sharePositionOrigin: box == null
               ? null
               : box.localToGlobal(Offset.zero) & box.size,
@@ -205,7 +205,7 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
   @override
   Widget build(BuildContext context) => MornyeSettingsTheme(
     // Reached from Playback and Now Playing alike, so the page brings its own
-    // inset grouped surfaces in Mornye.
+    // inset grouped surfaces in Sistrum.
     child: Builder(builder: _buildPage),
   );
 

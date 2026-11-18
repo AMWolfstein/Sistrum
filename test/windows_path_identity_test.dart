@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/library_directory_index.dart';
-import 'package:mornye/utils/path_match_keys.dart';
-import 'package:mornye/utils/windows_path_identity.dart';
+import 'package:sistrum/services/library_directory_index.dart';
+import 'package:sistrum/utils/path_match_keys.dart';
+import 'package:sistrum/utils/windows_path_identity.dart';
 
 void main() {
   test('extended drive and UNC paths share physical and folder identities', () {

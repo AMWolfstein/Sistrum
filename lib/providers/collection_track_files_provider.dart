@@ -1,13 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/providers/playback_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/local_track_redownload_service.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/utils/file_access.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/providers/playback_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/local_track_redownload_service.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/utils/file_access.dart';
 
 /// Keeps one file lookup for an unchanged, ordered collection selection.
 @immutable

@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
-import 'package:mornye/theme/material_expressive.dart';
-import 'package:mornye/widgets/app_icon.dart';
+import 'package:sistrum/theme/material_expressive.dart';
+import 'package:sistrum/widgets/app_icon.dart';
 
 enum _AppIconButtonVariant { standard, filled, tonal }
 

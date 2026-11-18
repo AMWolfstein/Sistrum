@@ -1,5 +1,5 @@
 [package]
-name = "mornye-cast"
+name = "sistrum-cast"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -23,7 +23,7 @@ if-addrs.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 getrandom.workspace = true
-mornye-network.workspace = true
+sistrum-network.workspace = true
 
 [dev-dependencies]
 tempfile.workspace = true

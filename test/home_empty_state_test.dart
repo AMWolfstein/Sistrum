@@ -2,24 +2,24 @@ import 'package:audio_service/audio_service.dart' show MediaItem;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/providers/download_history_provider.dart';
-import 'package:mornye/providers/explore_provider.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/providers/home_top_picks_provider.dart';
-import 'package:mornye/providers/library_mixes_provider.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/recent_access_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/providers/weekly_releases_provider.dart';
-import 'package:mornye/screens/home_tab.dart';
-import 'package:mornye/services/weekly_releases.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/error_card.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/providers/explore_provider.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/providers/home_top_picks_provider.dart';
+import 'package:sistrum/providers/library_mixes_provider.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/recent_access_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/providers/weekly_releases_provider.dart';
+import 'package:sistrum/screens/home_tab.dart';
+import 'package:sistrum/services/weekly_releases.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/error_card.dart';
 
 import 'support/fixed_settings.dart';
 
@@ -76,7 +76,7 @@ Future<void> _open(WidgetTester tester, Widget home) async {
 }
 
 void main() {
-  testWidgets('the Mornye Home with nothing to show says so', (tester) async {
+  testWidgets('the Sistrum Home with nothing to show says so', (tester) async {
     await _open(tester, _home(mornye: true));
     expect(tester.takeException(), isNull);
 
@@ -88,7 +88,7 @@ void main() {
     );
   });
 
-  testWidgets('a Mornye Home with a shelf has no empty state', (tester) async {
+  testWidgets('a Sistrum Home with a shelf has no empty state', (tester) async {
     await _open(
       tester,
       _home(

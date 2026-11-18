@@ -8,24 +8,24 @@ import 'package:analyzer/source/line_info.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/models/theme_settings.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/app_tokens.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/theme/cover_palette.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/app_content_card.dart';
-import 'package:mornye/widgets/album_detail_header.dart';
-import 'package:mornye/widgets/app_search_field.dart';
-import 'package:mornye/widgets/mornye_chrome.dart';
-import 'package:mornye/widgets/mornye_selection_pill.dart';
-import 'package:mornye/widgets/app_sliver_header.dart';
-import 'package:mornye/widgets/collection_scaffold.dart';
-import 'package:mornye/widgets/selection_action_button.dart';
-import 'package:mornye/widgets/selection_bottom_bar.dart';
-import 'package:mornye/widgets/settings_group.dart';
-import 'package:mornye/widgets/track_card.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/models/theme_settings.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/theme/cover_palette.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_content_card.dart';
+import 'package:sistrum/widgets/album_detail_header.dart';
+import 'package:sistrum/widgets/app_search_field.dart';
+import 'package:sistrum/widgets/mornye_chrome.dart';
+import 'package:sistrum/widgets/mornye_selection_pill.dart';
+import 'package:sistrum/widgets/app_sliver_header.dart';
+import 'package:sistrum/widgets/collection_scaffold.dart';
+import 'package:sistrum/widgets/selection_action_button.dart';
+import 'package:sistrum/widgets/selection_bottom_bar.dart';
+import 'package:sistrum/widgets/settings_group.dart';
+import 'package:sistrum/widgets/track_card.dart';
 
 import 'support/app_icon_finder.dart';
 import 'support/tooltip_finder.dart';
@@ -403,7 +403,7 @@ void main() {
       'local cache identity changes when artwork is replaced in place',
       () async {
         final directory = Directory.systemTemp.createTempSync(
-          'mornye-cover-palette-',
+          'sistrum-cover-palette-',
         );
         final file = File('${directory.path}/cover.jpg');
         try {

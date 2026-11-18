@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/link/together/link_together_deck.dart';
-import 'package:mornye/services/link/together/link_together_protocol.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/together/link_together_deck.dart';
+import 'package:sistrum/services/link/together/link_together_protocol.dart';
 
 /// A song of a [SimDeck] queue, named by title alone.
 TrackRef simSong(String title) => TrackRef(title: title, artist: 'Artist');

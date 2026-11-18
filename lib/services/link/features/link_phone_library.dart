@@ -3,11 +3,11 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/link/features/link_phone_files.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/isrc_utils.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/link/features/link_phone_files.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/isrc_utils.dart';
 
 /// The largest cover file sent as it is with `phone/covers`; a larger one
 /// is sent shrunk.

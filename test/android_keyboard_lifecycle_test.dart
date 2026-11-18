@@ -2,10 +2,10 @@ import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/android_tv.dart';
-import 'package:mornye/widgets/android_keyboard_lifecycle.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/android_tv.dart';
+import 'package:sistrum/widgets/android_keyboard_lifecycle.dart';
 
 void _setLifecycle(AppLifecycleState state) {
   final binding = TestWidgetsFlutterBinding.instance;

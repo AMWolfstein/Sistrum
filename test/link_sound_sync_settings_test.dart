@@ -4,14 +4,14 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/screens/settings/link_settings_page.dart';
-import 'package:mornye/services/link/client/link_client_store.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/sync/link_sound_sync_runner.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_switch.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/screens/settings/link_settings_page.dart';
+import 'package:sistrum/services/link/client/link_client_store.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/sync/link_sound_sync_runner.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_switch.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
 import 'support/link_client_fakes.dart';
 

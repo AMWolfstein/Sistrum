@@ -1,11 +1,11 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/providers/player_artwork_video_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/widgets/motion_header_banner.dart';
-import 'package:mornye/widgets/player_artwork.dart';
+import 'package:sistrum/providers/player_artwork_video_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/widgets/motion_header_banner.dart';
+import 'package:sistrum/widgets/player_artwork.dart';
 
 class MornyePlayerArtwork extends ConsumerStatefulWidget {
   const MornyePlayerArtwork({

@@ -3,17 +3,17 @@ import 'dart:convert';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/models/theme_settings.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/settings_search_catalog.dart';
-import 'package:mornye/widgets/app_slider.dart';
-import 'package:mornye/widgets/autoplay_randomness_slider.dart';
-import 'package:mornye/widgets/settings_group.dart';
-import 'package:mornye/widgets/slider_value_header.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/models/theme_settings.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/settings_search_catalog.dart';
+import 'package:sistrum/widgets/app_slider.dart';
+import 'package:sistrum/widgets/autoplay_randomness_slider.dart';
+import 'package:sistrum/widgets/settings_group.dart';
+import 'package:sistrum/widgets/slider_value_header.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {

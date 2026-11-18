@@ -1,8 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/models/theme_settings.dart';
-import 'package:mornye/utils/artist_utils.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/models/theme_settings.dart';
+import 'package:sistrum/utils/artist_utils.dart';
 
 void main() {
   test('Autoplay randomness defaults to least recent and restores safely', () {
@@ -212,7 +212,7 @@ void main() {
       expect(settings.lyricsProviders, [
         'apple_music',
         'lrcred',
-        'mornye_lyrics',
+        'sistrum_lyrics',
         'lyricsplus',
         'lrclib',
       ]);
@@ -241,12 +241,12 @@ void main() {
           'lrclib',
           'spotiflac_lyrics',
           'apple_music',
-          'mornye_lyrics',
+          'sistrum_lyrics',
         ],
       });
       expect(settings.lyricsProviders, [
         'lrclib',
-        'mornye_lyrics',
+        'sistrum_lyrics',
         'apple_music',
       ]);
     });

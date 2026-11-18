@@ -4,15 +4,15 @@ import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/services/cast_output.dart';
-import 'package:mornye/widgets/audio_output_button.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/services/cast_output.dart';
+import 'package:sistrum/widgets/audio_output_button.dart';
 
 import 'support/tooltip_finder.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const channel = MethodChannel('com.zarz.mornye/audio_output');
+  const channel = MethodChannel('com.amwolfstein.sistrum/audio_output');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
 

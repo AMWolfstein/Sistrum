@@ -5,7 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
-import 'package:mornye/widgets/mornye_player_background.dart'
+import 'package:sistrum/widgets/mornye_player_background.dart'
     show mornyeControlsDimAlpha;
 
 // Readback uses 8-bit sRGB. Cache each channel's exact Flutter luminance

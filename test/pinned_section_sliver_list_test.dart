@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/widgets/pinned_section_sliver_list.dart';
+import 'package:sistrum/widgets/pinned_section_sliver_list.dart';
 
 void main() {
   Widget list(

@@ -6,12 +6,12 @@ import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/theme/cover_palette.dart';
-import 'package:mornye/services/cover_cache_manager.dart';
-import 'package:mornye/widgets/album_detail_header.dart';
-import 'package:mornye/widgets/collection_scaffold.dart';
-import 'package:mornye/widgets/mornye_artist_header.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/theme/cover_palette.dart';
+import 'package:sistrum/services/cover_cache_manager.dart';
+import 'package:sistrum/widgets/album_detail_header.dart';
+import 'package:sistrum/widgets/collection_scaffold.dart';
+import 'package:sistrum/widgets/mornye_artist_header.dart';
 
 import 'support/tooltip_finder.dart';
 

@@ -5,17 +5,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:mornye/providers/library_collections_provider.dart';
-import 'package:mornye/services/library_collections_database.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_host_router.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/link/sync/link_collection_sync_store.dart';
-import 'package:mornye/services/link/sync/link_history_sync_store.dart';
-import 'package:mornye/services/link/sync/link_sync_handlers.dart';
-import 'package:mornye/services/link/sync/link_sync_runner.dart';
-import 'package:mornye/services/listening_statistics.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/providers/library_collections_provider.dart';
+import 'package:sistrum/services/library_collections_database.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_host_router.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/sync/link_collection_sync_store.dart';
+import 'package:sistrum/services/link/sync/link_history_sync_store.dart';
+import 'package:sistrum/services/link/sync/link_sync_handlers.dart';
+import 'package:sistrum/services/link/sync/link_sync_runner.dart';
+import 'package:sistrum/services/listening_statistics.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
 import 'support/link_sync_support.dart';
 

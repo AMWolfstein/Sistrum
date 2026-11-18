@@ -5,10 +5,10 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/models/theme_settings.dart';
-import 'package:mornye/providers/theme_provider.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/models/theme_settings.dart';
+import 'package:sistrum/providers/theme_provider.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('SongLyricsOffsets');
 

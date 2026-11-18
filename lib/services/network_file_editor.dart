@@ -2,11 +2,11 @@ import 'dart:io';
 
 import 'package:path/path.dart' as p;
 
-import 'package:mornye/services/network_audio_analysis_input.dart';
-import 'package:mornye/services/network_metadata_service.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/notification_service.dart';
-import 'package:mornye/services/source_metadata_events.dart';
+import 'package:sistrum/services/network_audio_analysis_input.dart';
+import 'package:sistrum/services/network_metadata_service.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/notification_service.dart';
+import 'package:sistrum/services/source_metadata_events.dart';
 
 /// Edits one seekable local copy, then publishes it back to the owning NAS.
 /// Edits of the same source are serialized without blocking other songs.

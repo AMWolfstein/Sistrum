@@ -3,8 +3,8 @@
 // same chain, so a sample index means the same thing in each pass.
 import 'dart:typed_data';
 
-import 'package:mornye/services/audio_analysis_ffmpeg.dart';
-import 'package:mornye/services/audio_compare_dsp.dart';
+import 'package:sistrum/services/audio_analysis_ffmpeg.dart';
+import 'package:sistrum/services/audio_compare_dsp.dart';
 
 /// Decodes one input to float PCM at [sampleRate] with [channels] (1 or 2).
 String audioCompareDecodeChain({

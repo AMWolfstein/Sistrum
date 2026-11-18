@@ -7,8 +7,8 @@ import 'package:audio_service_platform_interface/audio_service_platform_interfac
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/cover_cache_manager.dart';
-import 'package:mornye/services/media_session_art_cache.dart';
+import 'package:sistrum/services/cover_cache_manager.dart';
+import 'package:sistrum/services/media_session_art_cache.dart';
 
 class _CacheBinding extends AutomatedTestWidgetsFlutterBinding {
   @override

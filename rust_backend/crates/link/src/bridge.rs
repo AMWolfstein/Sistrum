@@ -170,7 +170,7 @@ impl AppBridge {
 
     fn running(&self) -> Result<Arc<LinkServer>, BridgeError> {
         self.current()
-            .ok_or_else(|| BridgeError::Failure("Mornye Link is not running".to_owned()))
+            .ok_or_else(|| BridgeError::Failure("Sistrum Link is not running".to_owned()))
     }
 
     /// `linkStart {"name", "port"?, "platform"?, "features"?, "advertise"?}`.
@@ -527,7 +527,7 @@ mod tests {
         assert_eq!(
             bridge.call(&paths, "linkBeginPairing", &json!({})),
             Err(BridgeError::Failure(
-                "Mornye Link is not running".to_owned()
+                "Sistrum Link is not running".to_owned()
             ))
         );
     }

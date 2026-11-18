@@ -5,16 +5,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/download_lyrics_translation_provider.dart';
-import 'package:mornye/providers/download_queue_provider.dart';
-import 'package:mornye/providers/lyrics_translation_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/lyrics_sidecar.dart';
-import 'package:mornye/services/lyrics_translation.dart';
-import 'package:mornye/services/lyrics_translation_alignment.dart';
-import 'package:mornye/services/source_metadata_events.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/download_lyrics_translation_provider.dart';
+import 'package:sistrum/providers/download_queue_provider.dart';
+import 'package:sistrum/providers/lyrics_translation_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/lyrics_sidecar.dart';
+import 'package:sistrum/services/lyrics_translation.dart';
+import 'package:sistrum/services/lyrics_translation_alignment.dart';
+import 'package:sistrum/services/source_metadata_events.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _song = (

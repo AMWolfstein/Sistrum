@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/home_shortcut.dart';
-import 'package:mornye/models/settings.dart';
+import 'package:sistrum/models/home_shortcut.dart';
+import 'package:sistrum/models/settings.dart';
 
 void main() {
   group('HomeShortcut.resolve', () {

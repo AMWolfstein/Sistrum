@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/notification_service.dart';
-import 'package:mornye/services/verification_notification.dart';
+import 'package:sistrum/services/notification_service.dart';
+import 'package:sistrum/services/verification_notification.dart';
 
 class _LinuxNotifications extends Fake
     implements FlutterLocalNotificationsPlugin {

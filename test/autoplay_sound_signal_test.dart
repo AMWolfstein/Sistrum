@@ -2,9 +2,9 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/autoplay_sound_signal.dart';
-import 'package:mornye/services/music_player_service.dart';
-import 'package:mornye/services/song_features.dart';
+import 'package:sistrum/services/autoplay_sound_signal.dart';
+import 'package:sistrum/services/music_player_service.dart';
+import 'package:sistrum/services/song_features.dart';
 
 PlayableMedia track(String id) =>
     PlayableMedia(id: id, source: '/$id.flac', title: id, artist: 'by $id');

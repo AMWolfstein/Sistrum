@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/utils/file_access.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/utils/file_access.dart';
 
 class _LinkSources implements NetworkVirtualSources {
   _LinkSources(this.location);
@@ -26,7 +26,7 @@ class _LinkSources implements NetworkVirtualSources {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = null;
-  const channel = MethodChannel('com.zarz.mornye/backend');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
   late List<MethodCall> calls;

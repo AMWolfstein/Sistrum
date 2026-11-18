@@ -2,8 +2,8 @@
 
 use crate::host::decode_go_utf8;
 use crate::manifest::ExtensionManifest;
-use mornye_core::fs::OpenOptionsPortableExt;
-use mornye_core::matching::lowercase;
+use sistrum_core::fs::OpenOptionsPortableExt;
+use sistrum_core::matching::lowercase;
 use std::collections::HashSet;
 use std::fs::{self, File, OpenOptions};
 use std::io::{Read, Seek, SeekFrom, Write};

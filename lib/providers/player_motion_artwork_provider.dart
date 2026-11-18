@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/motion_artwork_folder.dart';
-import 'package:mornye/services/motion_artwork_store.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/string_utils.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/motion_artwork_folder.dart';
+import 'package:sistrum/services/motion_artwork_store.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/string_utils.dart';
 
 typedef PlayerArtworkAlbum = ({String album, String artist});
 

@@ -1,10 +1,10 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/services/cast_output.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_icon_button.dart';
-import 'package:mornye/widgets/cast_device_picker.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/services/cast_output.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_icon_button.dart';
+import 'package:sistrum/widgets/cast_device_picker.dart';
 
 /// Opens the Google Cast receivers on the network. The glyph shows an active
 /// session, whose name the tooltip gives.

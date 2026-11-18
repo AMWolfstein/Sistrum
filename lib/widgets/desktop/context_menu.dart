@@ -6,14 +6,14 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
-import 'package:mornye/theme/material_expressive.dart';
-import 'package:mornye/theme/mornye_icons.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/android_tv.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/desktop/desktop_selection.dart';
-import 'package:mornye/widgets/mornye_context_menu.dart';
+import 'package:sistrum/theme/material_expressive.dart';
+import 'package:sistrum/theme/mornye_icons.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/android_tv.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/desktop/desktop_selection.dart';
+import 'package:sistrum/widgets/mornye_context_menu.dart';
 
 /// One row of a desktop context menu. Use `Icons.*`; Mornye swaps in the
 /// Cupertino glyph.

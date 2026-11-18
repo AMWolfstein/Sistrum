@@ -5,17 +5,17 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/controllers/player_metadata_controller.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/models/equalizer_settings.dart';
-import 'package:mornye/services/audio_route_info.dart';
-import 'package:mornye/services/music_playback_deck.dart';
-import 'package:mornye/services/playback_deck.dart';
-import 'package:mornye/services/playback_equalizer.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/audio_info_sheet.dart';
+import 'package:sistrum/controllers/player_metadata_controller.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/models/equalizer_settings.dart';
+import 'package:sistrum/services/audio_route_info.dart';
+import 'package:sistrum/services/music_playback_deck.dart';
+import 'package:sistrum/services/playback_deck.dart';
+import 'package:sistrum/services/playback_equalizer.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/audio_info_sheet.dart';
 
-const _route = MethodChannel('com.zarz.mornye/audio_route');
+const _route = MethodChannel('com.amwolfstein.sistrum/audio_route');
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -565,7 +565,7 @@ void main() {
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Studio Mac via Mornye Link'), findsOneWidget);
+    expect(find.text('Studio Mac via Sistrum Link'), findsOneWidget);
     expect(find.text('Network storage'), findsNothing);
   });
 
@@ -577,7 +577,7 @@ void main() {
             .setMockMethodCallHandler(_route, (call) async => null);
         // The song has no .lrc file. An unanswered platform call never
         // completes under fake time and would keep the tags loading.
-        const backend = MethodChannel('com.zarz.mornye/backend');
+        const backend = MethodChannel('com.amwolfstein.sistrum/backend');
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
             .setMockMethodCallHandler(backend, (call) async => null);
         addTearDown(

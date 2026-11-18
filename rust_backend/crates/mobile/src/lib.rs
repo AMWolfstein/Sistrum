@@ -56,5 +56,5 @@ pub use tags::read_file_metadata;
 
 #[uniffi::export]
 pub fn sanitize_filename(filename: String) -> String {
-    mornye_core::filename::sanitize_filename(&filename)
+    sistrum_core::filename::sanitize_filename(&filename)
 }

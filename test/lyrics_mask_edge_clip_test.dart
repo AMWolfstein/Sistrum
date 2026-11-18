@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/widgets/player_lyrics.dart';
+import 'package:sistrum/widgets/player_lyrics.dart';
 
 /// Rows that show white content through a fully transparent mask.
 Future<List<int>> _leakedRows(

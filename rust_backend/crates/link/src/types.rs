@@ -51,7 +51,7 @@ impl HostError {
         }
     }
 
-    /// The HTTP status for `/mornye/v1` replies (contract section 6).
+    /// The HTTP status for `/sistrum/v1` replies (contract section 6).
     pub fn http_status(&self) -> u16 {
         match self.code.as_str() {
             "invalid" => 400,
@@ -64,7 +64,7 @@ impl HostError {
 }
 
 /// The app side of the bridge. On desktop it is implemented by
-/// `mornye-desktop` over the FFI callback (`linkRequest` inbound calls answered
+/// `sistrum-desktop` over the FFI callback (`linkRequest` inbound calls answered
 /// by `linkReply`); tests use an in-memory fake.
 pub trait Host: Send + Sync + 'static {
     /// Forwards `op` for `device_id` and resolves with the app's JSON reply.

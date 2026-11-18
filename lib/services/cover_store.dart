@@ -7,11 +7,11 @@ import 'dart:isolate';
 import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:mornye/services/native_file_hash.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/utils/cover_art_utils.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/native_file_hash.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/utils/cover_art_utils.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/logger.dart';
 
 /// Durable local files for cover references.
 ///

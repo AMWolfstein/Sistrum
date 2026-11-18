@@ -1,9 +1,9 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/player_queue_dismissible.dart';
-import 'package:mornye/widgets/player_track_swipe.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/player_queue_dismissible.dart';
+import 'package:sistrum/widgets/player_track_swipe.dart';
 
 void main() {
   final queue = [

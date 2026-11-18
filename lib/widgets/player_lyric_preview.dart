@@ -6,21 +6,21 @@ import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/controllers/player_metadata_controller.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/lyrics_translation_provider.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/providers/song_lyrics_offset_provider.dart';
-import 'package:mornye/providers/theme_provider.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
-import 'package:mornye/utils/lyrics_timeline.dart';
-import 'package:mornye/utils/synced_lyrics_scroll.dart';
-import 'package:mornye/utils/text_direction.dart';
-import 'package:mornye/widgets/lyric_line_scroller.dart';
-import 'package:mornye/widgets/player_lyrics.dart';
+import 'package:sistrum/controllers/player_metadata_controller.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/lyrics_translation_provider.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/providers/song_lyrics_offset_provider.dart';
+import 'package:sistrum/providers/theme_provider.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
+import 'package:sistrum/utils/lyrics_timeline.dart';
+import 'package:sistrum/utils/synced_lyrics_scroll.dart';
+import 'package:sistrum/utils/text_direction.dart';
+import 'package:sistrum/widgets/lyric_line_scroller.dart';
+import 'package:sistrum/widgets/player_lyrics.dart';
 
 /// The synced line being sung, under the track title on the player. Tapping
 /// it opens the full lyrics. Off unless `playerShowLyricSnippet` is on, and

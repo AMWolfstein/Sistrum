@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
-import 'package:mornye/services/scrobbling/scrobble_store.dart';
+import 'package:sistrum/services/scrobbling/scrobble_store.dart';
 
 class LastfmCredentials {
   const LastfmCredentials({

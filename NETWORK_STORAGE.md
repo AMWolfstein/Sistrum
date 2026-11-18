@@ -1,6 +1,6 @@
 # Network storage
 
-Open Settings → Network storage in Material or Mornye. Add a named connection,
+Open Settings → Network storage in Material or Sistrum. Add a named connection,
 choose the protocol, enter its address and optional credentials, then choose
 **Connect and save**. The app checks access before saving. Edit the connection
 to change credentials or remove it. Removing a connection never deletes files
@@ -42,7 +42,7 @@ file). A song opens from its copy only once the copy is complete, so the next
 song starts without waiting for the server and gapless playback holds; until
 then it streams. Copies are checked against the server's size and modification
 time or entity tag, and an edit or deletion made in the app drops its copy.
-Saved offline copies take priority, and Mornye Link songs are not cached.
+Saved offline copies take priority, and Sistrum Link songs are not cached.
 
 Browsing alone does not add anything to the Library. Inside an SMB or WebDAV
 folder, choose **Add folder to Library** to index that folder and its subfolders.
@@ -199,7 +199,7 @@ range transfers and cache reuse. It also exercises the platform decoder with
 silent WAV data through the loopback proxy, including preparation, playback
 and seeking.
 
-`cargo test -p mornye-mobile network_tags --lib` from `rust_backend` checks
+`cargo test -p sistrum-mobile network_tags --lib` from `rust_backend` checks
 FLAC metadata/cover extraction, seeking past M4A audio to tail tags, and rejection
 of external URLs and large non-range responses. Flutter metadata service tests
 cover shared reads, recoverable failures, and embedded cover caching; the Now

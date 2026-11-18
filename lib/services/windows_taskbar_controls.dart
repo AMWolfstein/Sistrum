@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:audio_service_platform_interface/audio_service_platform_interface.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('WindowsTaskbar');
 
@@ -20,7 +20,7 @@ typedef _Toolbar = ({
 /// The Windows thumbnail toolbar, sharing the system media session's handler.
 class WindowsTaskbarControls {
   WindowsTaskbarControls({
-    MethodChannel channel = const MethodChannel('com.zarz.mornye/taskbar'),
+    MethodChannel channel = const MethodChannel('com.amwolfstein.sistrum/taskbar'),
   }) : _channel = channel;
 
   final MethodChannel _channel;

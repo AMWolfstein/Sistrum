@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/services/cast_output.dart';
-import 'package:mornye/services/music_player_service.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_loading_indicator.dart';
-import 'package:mornye/widgets/app_snack_bar.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/services/cast_output.dart';
+import 'package:sistrum/services/music_player_service.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_loading_indicator.dart';
+import 'package:sistrum/widgets/app_snack_bar.dart';
 
 /// Google Cast receivers for platforms without Google's device dialog (iOS
 /// and desktop). Looks for receivers while open; a row connects on tap and

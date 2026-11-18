@@ -4,12 +4,12 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/providers/library_collections_provider.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/services/autoplay_personalization.dart';
-import 'package:mornye/services/music_player_service.dart';
-import 'package:mornye/services/library_collections_database.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/library_collections_provider.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/services/autoplay_personalization.dart';
+import 'package:sistrum/services/music_player_service.dart';
+import 'package:sistrum/services/library_collections_database.dart';
 
 class _CollectionsDatabase implements LibraryCollectionsDatabase {
   final wishlist = <String, Map<String, dynamic>>{};

@@ -1,7 +1,7 @@
 //! Extension manager provider selection: priorities, fallback providers, and URL handler lookup.
 
 use super::*;
-use mornye_core::matching::lowercase;
+use sistrum_core::matching::lowercase;
 use std::collections::BTreeSet;
 
 #[derive(Default)]
@@ -19,7 +19,7 @@ impl ExtensionManager {
     pub(crate) fn share_providers(
         &self,
         source_id: &str,
-    ) -> Result<Vec<mornye_core::metadata::share::Provider>, ManagerError> {
+    ) -> Result<Vec<sistrum_core::metadata::share::Provider>, ManagerError> {
         self.check()?;
         Ok(self
             .entries
@@ -33,7 +33,7 @@ impl ExtensionManager {
                     && status.enabled
                     && status.error.is_empty()
             })
-            .map(|entry| mornye_core::metadata::share::Provider {
+            .map(|entry| sistrum_core::metadata::share::Provider {
                 id: entry.manifest.name.clone(),
                 display_name: entry.manifest.display_name.clone(),
                 source_dir: entry.source.to_string_lossy().into_owned(),

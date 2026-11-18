@@ -5,44 +5,44 @@ import 'package:audio_service/audio_service.dart';
 import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/controllers/player_metadata_controller.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/song_lyrics_offset_provider.dart';
-import 'package:mornye/theme/app_tokens.dart';
-import 'package:mornye/theme/material_expressive.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/theme/player_artwork_theme.dart';
-import 'package:mornye/services/cast_output.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
-import 'package:mornye/utils/lyrics_timeline.dart';
-import 'package:mornye/utils/string_utils.dart';
-import 'package:mornye/utils/text_direction.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_icon_button.dart';
-import 'package:mornye/widgets/app_loading_indicator.dart';
-import 'package:mornye/widgets/audio_quality_badges.dart';
-import 'package:mornye/widgets/cast_device_picker.dart';
-import 'package:mornye/widgets/desktop/desktop_commands.dart';
-import 'package:mornye/widgets/desktop/desktop_cast_button.dart';
-import 'package:mornye/widgets/desktop/desktop_downloads_button.dart';
-import 'package:mornye/widgets/desktop/desktop_inspector.dart';
-import 'package:mornye/widgets/desktop/desktop_link_devices_button.dart';
-import 'package:mornye/widgets/desktop/desktop_row_ink.dart';
-import 'package:mornye/widgets/desktop/desktop_window.dart';
-import 'package:mornye/widgets/desktop/desktop_volume_scroll.dart';
-import 'package:mornye/widgets/expressive_playback_transport.dart';
-import 'package:mornye/widgets/link/link_devices_sheet.dart';
-import 'package:mornye/widgets/mornye_chrome.dart';
-import 'package:mornye/widgets/mornye_playback_button.dart';
-import 'package:mornye/widgets/mornye_player_background.dart';
-import 'package:mornye/widgets/overflow_marquee.dart';
-import 'package:mornye/widgets/player_artwork.dart';
-import 'package:mornye/widgets/player_lyrics.dart';
-import 'package:mornye/widgets/player_track_crossfade.dart';
-import 'package:mornye/widgets/player_volume_control.dart';
-import 'package:mornye/widgets/playback_seek_slider.dart';
+import 'package:sistrum/controllers/player_metadata_controller.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/song_lyrics_offset_provider.dart';
+import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/theme/material_expressive.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/theme/player_artwork_theme.dart';
+import 'package:sistrum/services/cast_output.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
+import 'package:sistrum/utils/lyrics_timeline.dart';
+import 'package:sistrum/utils/string_utils.dart';
+import 'package:sistrum/utils/text_direction.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_icon_button.dart';
+import 'package:sistrum/widgets/app_loading_indicator.dart';
+import 'package:sistrum/widgets/audio_quality_badges.dart';
+import 'package:sistrum/widgets/cast_device_picker.dart';
+import 'package:sistrum/widgets/desktop/desktop_commands.dart';
+import 'package:sistrum/widgets/desktop/desktop_cast_button.dart';
+import 'package:sistrum/widgets/desktop/desktop_downloads_button.dart';
+import 'package:sistrum/widgets/desktop/desktop_inspector.dart';
+import 'package:sistrum/widgets/desktop/desktop_link_devices_button.dart';
+import 'package:sistrum/widgets/desktop/desktop_row_ink.dart';
+import 'package:sistrum/widgets/desktop/desktop_window.dart';
+import 'package:sistrum/widgets/desktop/desktop_volume_scroll.dart';
+import 'package:sistrum/widgets/expressive_playback_transport.dart';
+import 'package:sistrum/widgets/link/link_devices_sheet.dart';
+import 'package:sistrum/widgets/mornye_chrome.dart';
+import 'package:sistrum/widgets/mornye_playback_button.dart';
+import 'package:sistrum/widgets/mornye_player_background.dart';
+import 'package:sistrum/widgets/overflow_marquee.dart';
+import 'package:sistrum/widgets/player_artwork.dart';
+import 'package:sistrum/widgets/player_lyrics.dart';
+import 'package:sistrum/widgets/player_track_crossfade.dart';
+import 'package:sistrum/widgets/player_volume_control.dart';
+import 'package:sistrum/widgets/playback_seek_slider.dart';
 
 part 'desktop_mini_player.dart';
 
@@ -831,7 +831,7 @@ class _MornyeLcdLines extends ConsumerWidget {
 /// after Up Next and then the volume slider. The Mornye capsule leads with
 /// phones and downloads and ends with a volume button whose slider opens in
 /// a popover. The phones button shows only while a phone is
-/// connected over Mornye Link. Paused local playback adds a dismiss button
+/// connected over Sistrum Link. Paused local playback adds a dismiss button
 /// at the end in both styles.
 class _TrailingControls extends ConsumerWidget {
   const _TrailingControls({required this.enabled, this.appTheme});

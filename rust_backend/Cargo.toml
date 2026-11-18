@@ -20,11 +20,11 @@ publish = false
 
 [workspace.dependencies]
 image = { version = "=0.25.10", default-features = false, features = ["jpeg", "png", "gif", "webp"] }
-mornye-core = { path = "crates/core" }
-mornye-extensions = { path = "crates/extensions" }
-mornye-network = { path = "crates/network" }
-mornye-providers = { path = "crates/providers" }
-mornye-cast = { path = "crates/cast" }
+sistrum-core = { path = "crates/core" }
+sistrum-extensions = { path = "crates/extensions" }
+sistrum-network = { path = "crates/network" }
+sistrum-providers = { path = "crates/providers" }
+sistrum-cast = { path = "crates/cast" }
 # Crates enable `bindgen` per target: rquickjs-sys ships Windows bindings.
 rquickjs = "=0.14.0"
 base64 = "0.23"
@@ -81,8 +81,8 @@ libc = "=0.2.191"
 windows-sys = "0.61"
 # Desktop library folder watching (crates/desktop).
 notify = "=8.2.2"
-# Mornye Link server (crates/link): HTTPS, WebSocket, mDNS, certificates.
-mornye-link = { path = "crates/link" }
+# Sistrum Link server (crates/link): HTTPS, WebSocket, mDNS, certificates.
+sistrum-link = { path = "crates/link" }
 hyper = { version = "=1.12.0", features = ["server", "http1"] }
 tokio-rustls = { version = "=0.26.6", default-features = false, features = ["ring", "tls12"] }
 tokio-tungstenite = { version = "=0.30.0", default-features = false, features = ["handshake"] }

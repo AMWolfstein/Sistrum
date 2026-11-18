@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/equalizer_settings.dart';
-import 'package:mornye/services/alsa_output_devices.dart';
-import 'package:mornye/services/media_kit_playback_deck.dart';
-import 'package:mornye/services/music_playback_deck.dart';
-import 'package:mornye/services/playback_deck.dart';
-import 'package:mornye/services/playback_equalizer.dart';
+import 'package:sistrum/models/equalizer_settings.dart';
+import 'package:sistrum/services/alsa_output_devices.dart';
+import 'package:sistrum/services/media_kit_playback_deck.dart';
+import 'package:sistrum/services/music_playback_deck.dart';
+import 'package:sistrum/services/playback_deck.dart';
+import 'package:sistrum/services/playback_equalizer.dart';
 
 import 'support/fake_mpv_engine.dart';
 
@@ -342,7 +342,7 @@ void main() {
     await _settle();
     expect(
       engine.properties['af'],
-      contains('@mornye_dsp:lavfi=[volume@pre=precision=float:volume=0dB,'),
+      contains('@sistrum_dsp:lavfi=[volume@pre=precision=float:volume=0dB,'),
     );
 
     await deck.setFileSource('/song.flac');
@@ -395,14 +395,14 @@ void main() {
     expect(playbackEqualizerError.value, contains('balance'));
 
     final probes = engine.filterWrites
-        .where((call) => call[2].startsWith('@mornye_probe'))
+        .where((call) => call[2].startsWith('@sistrum_probe'))
         .length;
     expect(probes, 4);
     final other = FakeMpvEngine()..missingFilters = engine.missingFilters;
     final second = MediaKitPlaybackDeck(playerId: 'mpv-other', engine: other);
     await _settle();
     expect(
-      other.filterWrites.where((call) => call[2].startsWith('@mornye_probe')),
+      other.filterWrites.where((call) => call[2].startsWith('@sistrum_probe')),
       isEmpty,
     );
     await second.dispose();
@@ -413,10 +413,10 @@ void main() {
     await _settle();
     engine.errorEvents.add((
       prefix: 'af',
-      text: 'Disabling filter mornye_dsp because it has failed.',
+      text: 'Disabling filter sistrum_dsp because it has failed.',
     ));
     await Future<void>.delayed(Duration.zero);
-    expect(playbackEqualizerError.value, contains('mornye_dsp'));
+    expect(playbackEqualizerError.value, contains('sistrum_dsp'));
     final writes = engine.filterWrites.length;
     // Same chain as before: a rate change that leaves every band in place.
     engine.sampleRateEvents.add(48000);
@@ -515,8 +515,8 @@ void main() {
       await _settle();
       expect(
         engine.properties['af'],
-        '@mornye_format:format=format=floatp,'
-        '@mornye_dsp:lavfi=[rubberband@pitch=pitch=2:pitchq=quality]',
+        '@sistrum_format:format=format=floatp,'
+        '@sistrum_dsp:lavfi=[rubberband@pitch=pitch=2:pitchq=quality]',
       );
       playbackPitch.value = PlaybackPitch.none;
       await _settle();
@@ -530,19 +530,19 @@ void main() {
       await _settle();
       expect(
         engine.filterWrites.where(
-          (call) => call[2].startsWith('@mornye_probe'),
+          (call) => call[2].startsWith('@sistrum_probe'),
         ),
         [
-          ['set', 'af', '@mornye_probe:lavfi-rubberband'],
+          ['set', 'af', '@sistrum_probe:lavfi-rubberband'],
         ],
       );
-      expect(engine.properties['af'], '@mornye_tempo:scaletempo=scale=0.75');
+      expect(engine.properties['af'], '@sistrum_tempo:scaletempo=scale=0.75');
       expect(engine.properties['audio-pitch-correction'], 'no');
       expect(speeds().last, '2.0');
       expect(deck.tempoSupport, PlaybackTempoSupport.full);
       // The chain follows each speed.
       await deck.setPlaybackRate(0.5);
-      expect(engine.properties['af'], '@mornye_tempo:scaletempo=scale=0.375');
+      expect(engine.properties['af'], '@sistrum_tempo:scaletempo=scale=0.375');
     });
 
     test(

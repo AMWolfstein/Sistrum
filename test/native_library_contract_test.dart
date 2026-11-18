@@ -2,15 +2,15 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/library_row_mapper.dart';
-import 'package:mornye/services/library_schema.dart';
-import 'package:mornye/utils/path_match_keys.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/library_row_mapper.dart';
+import 'package:sistrum/services/library_schema.dart';
+import 'package:sistrum/utils/path_match_keys.dart';
 
 void main() {
   test('native History writers accept the current Dart History schema', () {
     final kotlin = File(
-      'android/app/src/main/kotlin/com/zarz/mornye/NativeHistoryStore.kt',
+      'android/app/src/main/kotlin/com/amwolfstein/sistrum/NativeHistoryStore.kt',
     ).readAsStringSync();
     final nativeVersion = RegExp(
       r'HISTORY_SCHEMA_VERSION = (\d+)',

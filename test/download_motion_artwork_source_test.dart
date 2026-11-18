@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/download_motion_artwork_source.dart';
-import 'package:mornye/services/motion_artwork_store.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/download_motion_artwork_source.dart';
+import 'package:sistrum/services/motion_artwork_store.dart';
 
 void main() {
   const track = Track(

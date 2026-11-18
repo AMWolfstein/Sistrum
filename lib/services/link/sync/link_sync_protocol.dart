@@ -1,6 +1,6 @@
-import 'package:mornye/utils/cover_art_utils.dart';
+import 'package:sistrum/utils/cover_art_utils.dart';
 
-/// Mornye Link collections and history sync. Both directions use
+/// Sistrum Link collections and history sync. Both directions use
 /// the same JSON, so the desktop (server) and the phone (client) share one
 /// store implementation per database.
 ///
@@ -10,7 +10,7 @@ import 'package:mornye/utils/cover_art_utils.dart';
 /// kept as tombstones. A change applied from a peer keeps the author's
 /// `origin` and `updatedMs`, so it is never mistaken for a local change.
 ///
-/// `GET /mornye/v1/collections`, query (strings on the wire):
+/// `GET /sistrum/v1/collections`, query (strings on the wire):
 ///   `since`  the responder's cursor from the previous page (default 0),
 ///   `device` the requester's sync id; changes it authored are skipped,
 ///   `limit`  page size, 1 to [linkSyncPageSize] (default the maximum).
@@ -21,7 +21,7 @@ import 'package:mornye/utils/cover_art_utils.dart';
 ///   newest sequence (a `since` above it means the responder was reset).
 ///   While `more` is true the requester asks again with the new cursor.
 ///
-/// `POST /mornye/v1/collections`, body `{"device", "changes": [Change]}`.
+/// `POST /sistrum/v1/collections`, body `{"device", "changes": [Change]}`.
 /// Reply `{"applied": int, "cursor": int}` (`cursor` = the receiver's newest
 /// sequence, informational).
 ///
@@ -50,7 +50,7 @@ import 'package:mornye/utils/cover_art_utils.dart';
 /// A page that adds members also carries those playlists' records, so a
 /// receiver can create a playlist before its members in any page order.
 ///
-/// History (`/mornye/v1/history`) uses the same query, cursors and replies
+/// History (`/sistrum/v1/history`) uses the same query, cursors and replies
 /// with `events` instead of `changes`. An event is one author's running
 /// total for one song on one day:
 ///   `{"origin", "day": "YYYY-MM-DD", "trackKey", "title", "artist",

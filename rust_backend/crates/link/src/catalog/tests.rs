@@ -604,7 +604,7 @@ fn web_copies_come_after_every_other_cover() {
     assert_eq!(artist("k:1").cover_album, Some(album("k:1")));
 }
 
-/// Run with `cargo test --release -p mornye-link -- --ignored --nocapture`.
+/// Run with `cargo test --release -p sistrum-link -- --ignored --nocapture`.
 #[test]
 #[ignore = "timing check for release builds"]
 fn loads_a_hundred_thousand_songs_quickly() {

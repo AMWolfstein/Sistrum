@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/download_history.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/services/playback_session_restore.dart';
+import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/services/playback_session_restore.dart';
 
 Map<String, dynamic> _media(int index, {String? artwork, String? source}) =>
     PlayableMedia(

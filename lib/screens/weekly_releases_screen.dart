@@ -1,17 +1,17 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:mornye/controllers/clickable_metadata.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/weekly_releases_provider.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/nav_bar_inset.dart';
-import 'package:mornye/widgets/app_loading_indicator.dart';
-import 'package:mornye/widgets/app_refresh_indicator.dart';
-import 'package:mornye/widgets/app_sliver_header.dart';
-import 'package:mornye/widgets/cached_cover_image.dart';
-import 'package:mornye/widgets/error_card.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/controllers/clickable_metadata.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/weekly_releases_provider.dart';
+import 'package:sistrum/utils/adaptive_layout.dart';
+import 'package:sistrum/utils/nav_bar_inset.dart';
+import 'package:sistrum/widgets/app_loading_indicator.dart';
+import 'package:sistrum/widgets/app_refresh_indicator.dart';
+import 'package:sistrum/widgets/app_sliver_header.dart';
+import 'package:sistrum/widgets/cached_cover_image.dart';
+import 'package:sistrum/widgets/error_card.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
 class WeeklyReleasesScreen extends ConsumerStatefulWidget {
   const WeeklyReleasesScreen({super.key, this.days = 7});

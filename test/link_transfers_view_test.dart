@@ -1,16 +1,16 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/services/link/link_transfers.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/cached_cover_image.dart';
-import 'package:mornye/widgets/error_card.dart' show EmptyState;
-import 'package:mornye/widgets/link/link_transfer_tile.dart';
-import 'package:mornye/widgets/link/link_transfers_view.dart';
-import 'package:mornye/widgets/sliver_layout_info_builder.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/services/link/link_transfers.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/widgets/cached_cover_image.dart';
+import 'package:sistrum/widgets/error_card.dart' show EmptyState;
+import 'package:sistrum/widgets/link/link_transfer_tile.dart';
+import 'package:sistrum/widgets/link/link_transfers_view.dart';
+import 'package:sistrum/widgets/sliver_layout_info_builder.dart';
 
 final _l10n = lookupAppLocalizations(const Locale('en'));
 

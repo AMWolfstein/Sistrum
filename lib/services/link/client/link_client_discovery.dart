@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/local_network_access.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/local_network_access.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('LinkDiscovery');
 
@@ -113,7 +113,7 @@ class LinkDiscoveredServer {
 
 final _fingerprintPattern = RegExp(r'^[0-9a-f]{64}$');
 
-/// The desktop behind a resolved service, or null when it is not a Mornye
+/// The desktop behind a resolved service, or null when it is not a Sistrum
 /// Link server of this protocol or has no usable address.
 LinkDiscoveredServer? linkDiscoveredServerFrom(LinkServiceResolved service) {
   final attributes = service.attributes;

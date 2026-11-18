@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/widgets/lyric_scroll_motion.dart';
+import 'package:sistrum/widgets/lyric_scroll_motion.dart';
 
 void main() {
   testWidgets(

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/extension.dart';
-import 'package:mornye/services/link/desktop/link_downloads.dart';
+import 'package:sistrum/models/extension.dart';
+import 'package:sistrum/services/link/desktop/link_downloads.dart';
 
 Extension _extension(
   String id, {

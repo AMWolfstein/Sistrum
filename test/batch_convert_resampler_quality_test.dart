@@ -2,10 +2,10 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/audio_conversion_utils.dart';
-import 'package:mornye/widgets/batch_convert_sheet.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/audio_conversion_utils.dart';
+import 'package:sistrum/widgets/batch_convert_sheet.dart';
 
 void main() {
   for (final mornye in [false, true]) {

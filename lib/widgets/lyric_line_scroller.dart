@@ -3,7 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/rendering.dart' show OverflowBoxFit;
 import 'package:flutter/widgets.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
 
 /// Slides a lyric line too wide for its space so the part being sung stays
 /// in view, in place of an ellipsis: the line holds at its start until the

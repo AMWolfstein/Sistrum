@@ -1,6 +1,6 @@
 #include <jni.h>
 
-#ifdef MORNYE_DISCORD_SDK
+#ifdef SISTRUM_DISCORD_SDK
 #define DISCORDPP_IMPLEMENTATION
 #include <discordpp.h>
 #include <chrono>
@@ -38,10 +38,10 @@ std::string utf8(JNIEnv* env, jstring value) {
 }
 #endif
 
-#define JNI_METHOD(name) Java_com_zarz_mornye_discord_DiscordPresencePlugin_##name
+#define JNI_METHOD(name) Java_com_amwolfstein_sistrum_discord_DiscordPresencePlugin_##name
 
 extern "C" JNIEXPORT jboolean JNICALL JNI_METHOD(nativeStart)(JNIEnv*, jobject) {
-#ifdef MORNYE_DISCORD_SDK
+#ifdef SISTRUM_DISCORD_SDK
     if (!client) {
         client = std::make_unique<discordpp::Client>();
         client->SetApplicationId(1549854098801692862ULL);
@@ -55,7 +55,7 @@ extern "C" JNIEXPORT jboolean JNICALL JNI_METHOD(nativeStart)(JNIEnv*, jobject) 
 }
 
 extern "C" JNIEXPORT jint JNICALL JNI_METHOD(nativeTick)(JNIEnv*, jobject) {
-#ifdef MORNYE_DISCORD_SDK
+#ifdef SISTRUM_DISCORD_SDK
     discordpp::RunCallbacks();
     // A connection the Discord app dropped without closing never answers.
     // The update then counts as failed, so that it is sent again.
@@ -74,10 +74,10 @@ extern "C" JNIEXPORT void JNICALL JNI_METHOD(nativeUpdate)(
     [[maybe_unused]] jstring title, [[maybe_unused]] jstring artist,
     [[maybe_unused]] jstring album, [[maybe_unused]] jstring artwork,
     [[maybe_unused]] jlong start, [[maybe_unused]] jlong end) {
-#ifdef MORNYE_DISCORD_SDK
+#ifdef SISTRUM_DISCORD_SDK
     if (!client) return;
     discordpp::Activity activity;
-    activity.SetName("Mornye");
+    activity.SetName("Sistrum");
     activity.SetType(discordpp::ActivityTypes::Listening);
     activity.SetDetails(utf8(env, title));
     activity.SetState(utf8(env, artist));
@@ -103,7 +103,7 @@ extern "C" JNIEXPORT void JNICALL JNI_METHOD(nativeUpdate)(
 }
 
 extern "C" JNIEXPORT void JNICALL JNI_METHOD(nativeClear)(JNIEnv*, jobject) {
-#ifdef MORNYE_DISCORD_SDK
+#ifdef SISTRUM_DISCORD_SDK
     ++generation;
     waiting = false;
     if (client) client->ClearRichPresence();
@@ -112,7 +112,7 @@ extern "C" JNIEXPORT void JNICALL JNI_METHOD(nativeClear)(JNIEnv*, jobject) {
 }
 
 extern "C" JNIEXPORT void JNICALL JNI_METHOD(nativeStop)(JNIEnv*, jobject) {
-#ifdef MORNYE_DISCORD_SDK
+#ifdef SISTRUM_DISCORD_SDK
     ++generation;
     waiting = false;
     if (client) {

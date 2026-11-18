@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:mornye/services/network_storage_service.dart';
+import 'package:sistrum/services/network_storage_service.dart';
 
 // Android 17 requires ACCESS_LOCAL_NETWORK to be granted before this transport
 // test. It deliberately exercises HTTP independently of the permission prompt.

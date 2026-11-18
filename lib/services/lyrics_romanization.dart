@@ -13,11 +13,11 @@ import 'dart:ui' show Locale;
 
 import 'package:flutter/foundation.dart' show setEquals;
 import 'package:flutter/services.dart';
-import 'package:mornye/services/lyrics_translation.dart';
-import 'package:mornye/services/romanization/pinyin.dart';
-import 'package:mornye/services/romanization/text_romanizer.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
+import 'package:sistrum/services/lyrics_translation.dart';
+import 'package:sistrum/services/romanization/pinyin.dart';
+import 'package:sistrum/services/romanization/text_romanizer.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
 
 final _log = AppLogger('LyricsRomanization');
 

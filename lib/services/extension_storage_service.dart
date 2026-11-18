@@ -6,9 +6,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:mornye/services/secure_storage_options.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/secure_storage_options.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/logger.dart';
 
 const _extensionMasterKeyName = 'extension_storage_master_key_v2';
 const _localMasterKeyFileName = '.master_key_unsecured';

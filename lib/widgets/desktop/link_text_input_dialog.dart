@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/widgets/app_alert_dialog.dart';
-import 'package:mornye/widgets/app_text_field.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/widgets/app_alert_dialog.dart';
+import 'package:sistrum/widgets/app_text_field.dart';
 
 /// Asks for one line of text (a name, a link) in the app's dialog style.
 /// Returns the trimmed text, or null when cancelled. The confirm action

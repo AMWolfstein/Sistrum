@@ -4,10 +4,10 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/preview_player_provider.dart';
-import 'package:mornye/services/music_player_service.dart';
-import 'package:mornye/services/playback_deck.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/preview_player_provider.dart';
+import 'package:sistrum/services/music_player_service.dart';
+import 'package:sistrum/services/playback_deck.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -102,8 +102,8 @@ void main() {
   });
 
   group('deferred preview links', () {
-    const backend = MethodChannel('com.zarz.mornye/backend');
-    const link = 'mornye-preview:example-provider/track%2F1';
+    const backend = MethodChannel('com.amwolfstein.sistrum/backend');
+    const link = 'sistrum-preview:example-provider/track%2F1';
     final messenger =
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     tearDown(() => messenger.setMockMethodCallHandler(backend, null));

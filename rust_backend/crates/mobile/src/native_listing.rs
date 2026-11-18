@@ -26,7 +26,7 @@ pub(crate) fn execute(request: &Value, bytes: Option<&[u8]>) -> Result<Value, St
     let base_segments = decoded_segments(&base)?;
     let webdav = request["protocol"] == "webdav";
     let document = if webdav {
-        mornye_core::xml::check_depth(&body)?;
+        sistrum_core::xml::check_depth(&body)?;
         let document = roxmltree::Document::parse(&body).map_err(|e| e.to_string())?;
         if !named(document.root_element(), "multistatus") {
             return Err("Server did not return a WebDAV directory listing".into());

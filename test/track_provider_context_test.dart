@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/providers/track_provider.dart';
+import 'package:sistrum/providers/track_provider.dart';
 
 class _SearchResults extends TrackNotifier {
   @override

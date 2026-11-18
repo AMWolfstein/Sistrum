@@ -4,18 +4,18 @@ import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/models/album_track_order.dart';
-import 'package:mornye/models/download_history.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/cover_store.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/library_collections_database.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/library_search.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/services/track_file_resolver.dart';
-import 'package:mornye/utils/file_access.dart' show isCueVirtualPath;
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/models/album_track_order.dart';
+import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/library_collections_database.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/library_search.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/services/track_file_resolver.dart';
+import 'package:sistrum/utils/file_access.dart' show isCueVirtualPath;
 import 'package:path/path.dart' as p;
 
 /// The songs a media browser item plays, the one to start at, and whether
@@ -44,7 +44,7 @@ class BrowserCoverProvider {
   /// `/data/data/<package>`, and stored cover paths use either.
   final Map<String, List<String>> aliases;
 
-  static const _channel = MethodChannel('com.zarz.mornye/covers');
+  static const _channel = MethodChannel('com.amwolfstein.sistrum/covers');
 
   /// This app's cover provider, or null where there is none or it could
   /// not be reached.
@@ -113,7 +113,7 @@ class BrowserCoverProvider {
 
 /// The Library as media browsers such as Android Auto show it: tabs for
 /// songs, albums, artists and playlists, a search, and the queue each item
-/// plays. Item ids are `mornye-browse:` URIs, apart from the queue's own ids.
+/// plays. Item ids are `sistrum-browse:` URIs, apart from the queue's own ids.
 class MediaLibraryBrowser {
   MediaLibraryBrowser({
     required this.library,
@@ -142,7 +142,7 @@ class MediaLibraryBrowser {
 
   CoverStore get _covers => _coverStore ?? CoverStore.instance;
 
-  static const _scheme = 'mornye-browse';
+  static const _scheme = 'sistrum-browse';
 
   /// The most items one list shows. Cars cut long lists short while driving,
   /// and a search reaches the rest.
@@ -614,7 +614,7 @@ class MediaLibraryBrowser {
       ? null
       : (items: songs, index: Random().nextInt(songs.length), shuffle: true);
 
-  /// What a spoken request such as "play Blue on Mornye" plays: matching
+  /// What a spoken request such as "play Blue on Sistrum" plays: matching
   /// songs, else the first matching album, artist or playlist. [extras] can
   /// name the kind asked for first. An empty request shuffles the Library.
   Future<BrowserQueue?> queueForSearch(

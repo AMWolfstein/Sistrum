@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/controllers/library_re_enrich_all.dart';
-import 'package:mornye/models/library_database_models.dart';
+import 'package:sistrum/controllers/library_re_enrich_all.dart';
+import 'package:sistrum/models/library_database_models.dart';
 
 Map<String, dynamic> _local(String id, String path) => {
   'source': 'local',

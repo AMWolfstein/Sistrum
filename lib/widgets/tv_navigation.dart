@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/utils/android_tv.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/utils/android_tv.dart';
 
 /// Keeps the touch behavior while making cover tiles reachable by a remote.
 class TvTapTarget extends StatelessWidget {

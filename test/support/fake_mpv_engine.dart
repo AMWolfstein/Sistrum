@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:mornye/services/media_kit_playback_deck.dart';
+import 'package:sistrum/services/media_kit_playback_deck.dart';
 
 /// An in-memory libmpv for `MediaKitPlaybackDeck` tests on any host.
 class FakeMpvEngine implements MpvEngine, MpvPlaylistEngine {
@@ -117,7 +117,7 @@ class FakeMpvEngine implements MpvEngine, MpvPlaylistEngine {
       if (missingFilters.any((filter) => value.contains('lavfi-$filter'))) {
         return -9;
       }
-      if (rejectFilters && value.startsWith('@mornye_format')) return -7;
+      if (rejectFilters && value.startsWith('@sistrum_format')) return -7;
     }
     properties[name] = value;
     if (name == 'volume') volume = double.parse(value);

@@ -21,7 +21,7 @@ Test files sit directly in `test/`; only shared code has subfolders.
 - Otherwise prefix by feature area and describe the behavior, for example
   `download_queue_persistence_test.dart`, `library_partial_scan_test.dart`,
   `mornye_bottom_bar_test.dart`, `network_storage_service_test.dart`. The
-  common prefixes are `download_`, `library_`, `mornye_`, `network_`,
+  common prefixes are `download_`, `library_`, `sistrum_`, `network_`,
   `track_`, `native_` and `extension_`.
 - Put a fake used by more than one suite in `test/support/`, not in a copy per
   file.
@@ -88,7 +88,7 @@ only for that:
     notifying Dart, which pauses and requeues.
   - `NativeDownloadFinalizer.kt`, `NativeFinalizerHistory.kt`,
     `NativeHistoryStore.kt` and `DownloadServiceSnapshot.kt` (in
-    `android/app/src/main/kotlin/com/zarz/mornye/`), with
+    `android/app/src/main/kotlin/com/amwolfstein/sistrum/`), with
     `lib/services/history_schema.dart` and
     `lib/providers/download_queue_provider_native_worker.dart`: the native
     worker contract version, the history schema version, columns and
@@ -131,7 +131,7 @@ same commit. Never delete these checks.
 | `ffmpeg` and `ffprobe` on `PATH` | `ffmpeg_opus_metadata_test.dart` | The round-trip cases are skipped |
 | `python3` | Suites using `SqliteProcessDatabase` | Those suites fail |
 
-`MORNYE_TEST_FFMPEG` selects another FFmpeg binary for
+`SISTRUM_TEST_FFMPEG` selects another FFmpeg binary for
 `automix_effect_renderer_test.dart`. The CI workflow
 (`.github/workflows/ci.yml`) installs `ffmpeg` before running the tests, so
 these cases are not skipped there.

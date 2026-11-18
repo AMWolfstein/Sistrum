@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:mornye/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
 
 enum LinkLibraryAction {
   readMetadata,

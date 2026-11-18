@@ -7,18 +7,24 @@
       "title": "Rebrand to Sistrum and ship Android ARM64 offline"
     }
   },
-  "next_completion": 3,
+  "next_completion": 4,
   "next_mission": 2,
   "next_tor": 3,
   "tasks": {
     "M001-T001": {
-      "completion": null,
+      "completion": 3,
+      "evidence": {
+        "checks": "flutter analyze == baseline (1 info); full flutter test vs baseline: 57 common failures, 6 pinyin regressions fixed and rerun green (55 pass); cargo check --locked PASS; bridge verify identical to baseline; workflow 47 + scripts 10/9 unit tests OK; validate PASS; device run not possible",
+        "result": "PASS",
+        "reviewer": "independent-reviewer (a7de344)",
+        "round": 2
+      },
       "final": false,
       "kind": "T",
       "mission": "M001",
       "nonce": "835926371e5b4095839973b19ecaf997",
       "record": "specs/001-sistrum-android-offline/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Apply Sistrum identity across app and native contracts"
     },
     "M001-T002": {

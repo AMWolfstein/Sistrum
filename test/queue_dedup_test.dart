@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/queue_dedup.dart';
-import 'package:mornye/services/playable_media.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/queue_dedup.dart';
+import 'package:sistrum/services/playable_media.dart';
 
 PlayableMedia _song(String source, {String? id}) => PlayableMedia(
   id: id ?? source,

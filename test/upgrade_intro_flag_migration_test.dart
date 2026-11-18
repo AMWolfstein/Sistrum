@@ -4,8 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/settings_provider.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/settings_provider.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -22,14 +22,14 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'app_settings': jsonEncode(const AppSettings().toJson()),
       'settings_migration_version': 14,
-      'upgrade_intro_mornye_seen': true,
+      'upgrade_intro_sistrum_seen': true,
     });
     final container = ProviderContainer();
     addTearDown(container.dispose);
     await container.read(settingsProvider.notifier).ensureLoaded();
 
     final preferences = await SharedPreferences.getInstance();
-    expect(preferences.containsKey('upgrade_intro_mornye_seen'), isFalse);
+    expect(preferences.containsKey('upgrade_intro_sistrum_seen'), isFalse);
     expect(preferences.getInt('settings_migration_version'), 15);
   });
 }

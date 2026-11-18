@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoButton;
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/mini_player.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/mini_player.dart';
 
 /// Remote destinations stay visible while the content and player own focus.
 class TvShell extends StatefulWidget {

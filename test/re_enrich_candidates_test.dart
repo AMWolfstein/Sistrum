@@ -1,14 +1,14 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/controllers/local_track_batch_actions.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/batch_metadata_re_enrich.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/widgets/app_action_button.dart';
-import 'package:mornye/widgets/re_enrich_candidate_sheet.dart';
-import 'package:mornye/widgets/re_enrich_review_sheet.dart';
+import 'package:sistrum/controllers/local_track_batch_actions.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/batch_metadata_re_enrich.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/widgets/app_action_button.dart';
+import 'package:sistrum/widgets/re_enrich_candidate_sheet.dart';
+import 'package:sistrum/widgets/re_enrich_review_sheet.dart';
 
 LocalLibraryItem _song(String id, {String album = 'Album'}) => LocalLibraryItem(
   id: id,

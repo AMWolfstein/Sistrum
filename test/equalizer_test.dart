@@ -5,17 +5,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/equalizer_settings.dart';
-import 'package:mornye/providers/equalizer_provider.dart';
-import 'package:mornye/screens/equalizer_screen.dart';
-import 'package:mornye/services/playback_equalizer.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_slider.dart';
-import 'package:mornye/widgets/mornye_chrome.dart';
-import 'package:mornye/widgets/mornye_level_slider.dart';
-import 'package:mornye/widgets/slider_value_header.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/equalizer_settings.dart';
+import 'package:sistrum/providers/equalizer_provider.dart';
+import 'package:sistrum/screens/equalizer_screen.dart';
+import 'package:sistrum/services/playback_equalizer.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_slider.dart';
+import 'package:sistrum/widgets/mornye_chrome.dart';
+import 'package:sistrum/widgets/mornye_level_slider.dart';
+import 'package:sistrum/widgets/slider_value_header.dart';
 
 class _CountedSettings extends EqualizerSettings {
   _CountedSettings(double preamp, this.serialized) : super(preamp: preamp);
@@ -147,7 +147,7 @@ void main() {
         await tester.pumpAndSettle();
         notifier.importPreset(
           jsonEncode({
-            'format': 'mornye-equalizer',
+            'format': 'sistrum-equalizer',
             'version': 1,
             'name': 'Signed zero',
             'settings': EqualizerSettings(
@@ -313,11 +313,11 @@ void main() {
     final export = notifier.exportPreset('Portable');
     expect(
       (jsonDecode(export) as Map<String, dynamic>)['format'],
-      'mornye-equalizer',
+      'sistrum-equalizer',
     );
     notifier.importPreset(export);
     notifier.importPreset(
-      export.replaceFirst('mornye-equalizer', 'spotiflac-equalizer'),
+      export.replaceFirst('sistrum-equalizer', 'spotiflac-equalizer'),
     );
     expect(container.read(equalizerProvider).presets.map((v) => v.name), [
       'Headphones',

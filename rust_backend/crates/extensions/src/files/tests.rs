@@ -144,7 +144,7 @@ fn stage_names_have_no_leading_dot_and_a_partial_suffix() {
     // A dot name can become a hidden attribute that the rename keeps.
     assert_eq!(names.len(), 1, "{names:?}");
     assert!(
-        names[0].starts_with("mornye-") && names[0].ends_with(".partial"),
+        names[0].starts_with("sistrum-") && names[0].ends_with(".partial"),
         "{names:?}"
     );
 }
@@ -208,12 +208,12 @@ fn windows_publication_supports_paths_longer_than_max_path() {
 
 #[cfg(windows)]
 #[test]
-#[ignore = "requires a writable SMB share in MORNYE_TEST_SMB_ROOT"]
+#[ignore = "requires a writable SMB share in SISTRUM_TEST_SMB_ROOT"]
 fn windows_network_share_directory_operations() {
-    let share = std::env::var_os("MORNYE_TEST_SMB_ROOT")
-        .expect("set MORNYE_TEST_SMB_ROOT to a writable UNC path or mapped drive");
+    let share = std::env::var_os("SISTRUM_TEST_SMB_ROOT")
+        .expect("set SISTRUM_TEST_SMB_ROOT to a writable UNC path or mapped drive");
     let root = tempfile::Builder::new()
-        .prefix("mornye-smb-test-")
+        .prefix("sistrum-smb-test-")
         .tempdir_in(share)
         .unwrap();
     // Exercise both the supplied spelling and the verbatim path obtained

@@ -3,7 +3,7 @@
     <parameter name="version" required="true" />
   </parameters>
   <zip-file>
-    <pe-file path="Mornye-*-windows-*-setup.exe" product-name="Mornye"
+    <pe-file path="Sistrum-*-windows-*-setup.exe" product-name="Sistrum"
              product-version="${version}">
       <authenticode-sign />
     </pe-file>

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/playback_deck.dart';
-import 'package:mornye/services/playback_output_volume.dart';
+import 'package:sistrum/services/playback_deck.dart';
+import 'package:sistrum/services/playback_output_volume.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {

@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/cover_store.dart';
-import 'package:mornye/services/link/desktop/link_phone_playback.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/playable_media.dart';
+import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/services/link/desktop/link_phone_playback.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/playable_media.dart';
 
 void main() {
   // Phone songs bring their covers as files; none is a network cover.

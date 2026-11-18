@@ -4,13 +4,13 @@ import 'dart:collection';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/services/link/desktop/link_catalog_index.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/music_player_runtime.dart';
-import 'package:mornye/services/playback_metadata.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/services/playback_deck.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/services/link/desktop/link_catalog_index.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/music_player_runtime.dart';
+import 'package:sistrum/services/playback_metadata.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/services/playback_deck.dart';
 
 /// One queue entry of the desktop player.
 @immutable

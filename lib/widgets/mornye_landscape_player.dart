@@ -4,11 +4,11 @@ import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/widgets/audio_output_button.dart';
-import 'package:mornye/widgets/player_lyrics.dart';
-import 'package:mornye/utils/android_tv.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/widgets/audio_output_button.dart';
+import 'package:sistrum/widgets/player_lyrics.dart';
+import 'package:sistrum/utils/android_tv.dart';
 
 /// Landscape opens on the player. Lyrics can hide their bottom actions until
 /// the user touches the player, while the cover and header stay in place.

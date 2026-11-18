@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/controllers/extension_auth_launcher.dart';
-import 'package:mornye/models/download_item.dart';
-import 'package:mornye/utils/download_error_type.dart';
+import 'package:sistrum/controllers/extension_auth_launcher.dart';
+import 'package:sistrum/models/download_item.dart';
+import 'package:sistrum/utils/download_error_type.dart';
 
 void main() {
   test('typed provider auth errors override misleading verification text', () {

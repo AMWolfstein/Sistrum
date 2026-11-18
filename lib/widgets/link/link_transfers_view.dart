@@ -1,23 +1,23 @@
 import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoButton;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/services/link/link_transfers.dart';
-import 'package:mornye/theme/app_tokens.dart';
-import 'package:mornye/theme/mornye_icons.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/nav_bar_inset.dart';
-import 'package:mornye/widgets/animation_utils.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_icon_button.dart';
-import 'package:mornye/widgets/app_sliver_header.dart';
-import 'package:mornye/widgets/error_card.dart' show EmptyState;
-import 'package:mornye/widgets/expressive_button.dart';
-import 'package:mornye/widgets/link/link_transfer_tile.dart';
-import 'package:mornye/widgets/settings_group.dart';
-import 'package:mornye/widgets/sliver_layout_info_builder.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/services/link/link_transfers.dart';
+import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/theme/mornye_icons.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/nav_bar_inset.dart';
+import 'package:sistrum/widgets/animation_utils.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_icon_button.dart';
+import 'package:sistrum/widgets/app_sliver_header.dart';
+import 'package:sistrum/widgets/error_card.dart' show EmptyState;
+import 'package:sistrum/widgets/expressive_button.dart';
+import 'package:sistrum/widgets/link/link_transfer_tile.dart';
+import 'package:sistrum/widgets/settings_group.dart';
+import 'package:sistrum/widgets/sliver_layout_info_builder.dart';
 
 /// Opens the Transfers list: a page on phones, a dialog of the list size
 /// class on desktop.
@@ -257,7 +257,7 @@ class _TransfersListState extends ConsumerState<_TransfersList> {
 
 /// A group of transfers drawn like a [SettingsGroup], in its fill as the
 /// Devices sheet is: connected surfaces on Material, one inset grouped
-/// surface with separators on Mornye.
+/// surface with separators on Sistrum.
 class _TransferGroup extends StatelessWidget {
   const _TransferGroup({
     required this.transfers,
@@ -338,7 +338,7 @@ class _TransferGroup extends StatelessWidget {
 }
 
 /// Clear finished: an icon in the Material page header, a text button in
-/// the desktop dialog's footer ([text]) and in Mornye.
+/// the desktop dialog's footer ([text]) and in Sistrum.
 class _ClearFinishedButton extends StatelessWidget {
   const _ClearFinishedButton({required this.onPressed, this.text = false});
 

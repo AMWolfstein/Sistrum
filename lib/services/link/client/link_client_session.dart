@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:mornye/services/link/client/link_client_http.dart';
-import 'package:mornye/services/link/client/link_client_pairing.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/local_network_access.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/link/client/link_client_http.dart';
+import 'package:sistrum/services/link/client/link_client_pairing.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/local_network_access.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('LinkSession');
 
@@ -107,7 +107,7 @@ const linkCloseUnauthorized = 4401;
 final _opPattern = RegExp(r'^[A-Za-z0-9_.-]+(/[A-Za-z0-9_.-]+)*$');
 
 /// Whether [op] names a path under the API: plain segments, none of them
-/// `.` or `..`, which would resolve outside `/mornye/v1`.
+/// `.` or `..`, which would resolve outside `/sistrum/v1`.
 bool _validOp(String op) =>
     _opPattern.hasMatch(op) &&
     op.split('/').every((segment) => segment != '.' && segment != '..');

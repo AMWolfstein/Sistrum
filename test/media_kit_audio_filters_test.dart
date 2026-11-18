@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/equalizer_settings.dart';
-import 'package:mornye/services/media_kit_audio_filters.dart';
-import 'package:mornye/services/playback_deck.dart';
+import 'package:sistrum/models/equalizer_settings.dart';
+import 'package:sistrum/services/media_kit_audio_filters.dart';
+import 'package:sistrum/services/playback_deck.dart';
 
 void main() {
   test('a disabled equalizer clears the chain', () {
@@ -19,8 +19,8 @@ void main() {
     expect(
       chain.spec,
       startsWith(
-        '@mornye_format:format=format=floatp,'
-        '@mornye_dsp:lavfi=[volume@pre=precision=float:volume=0dB,'
+        '@sistrum_format:format=format=floatp,'
+        '@sistrum_dsp:lavfi=[volume@pre=precision=float:volume=0dB,'
         'equalizer@band0=f=31.25:t=q:w=1.4142:g=0,',
       ),
     );
@@ -181,8 +181,8 @@ void main() {
       // Without the equalizer the shift still has its graph.
       expect(
         MpvAudioFilterChain.empty.withTempo(tempo).spec,
-        '@mornye_format:format=format=floatp,'
-        '@mornye_dsp:lavfi=[rubberband@pitch=pitch=2:pitchq=quality]',
+        '@sistrum_format:format=format=floatp,'
+        '@sistrum_dsp:lavfi=[rubberband@pitch=pitch=2:pitchq=quality]',
       );
     });
 
@@ -207,10 +207,10 @@ void main() {
       final chain = MpvAudioFilterChain.fromEqualizer(
         const EqualizerSettings(enabled: true),
       ).withTempo(kept);
-      expect(chain.spec, endsWith('],@mornye_tempo:scaletempo=scale=0.75'));
+      expect(chain.spec, endsWith('],@sistrum_tempo:scaletempo=scale=0.75'));
       expect(
         MpvAudioFilterChain.empty.withTempo(kept).spec,
-        '@mornye_tempo:scaletempo=scale=0.75',
+        '@sistrum_tempo:scaletempo=scale=0.75',
       );
       expect(MpvAudioFilterChain.empty.withTempo(kept).isEmpty, isFalse);
     });

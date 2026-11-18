@@ -3,11 +3,11 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/theme/app_motion.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/theme/app_motion.dart';
 import 'package:video_player/video_player.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/services/music_player_service.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/services/music_player_service.dart';
 
 final _log = AppLogger('MotionHeaderBanner');
 

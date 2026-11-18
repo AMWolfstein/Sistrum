@@ -2,33 +2,33 @@ import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/providers/download_history_provider.dart';
-import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/app_navigation_service.dart';
-import 'package:mornye/services/link/features/link_downloads.dart';
-import 'package:mornye/services/link/features/link_library_lookup.dart';
-import 'package:mornye/services/link/features/link_phone_features.dart';
-import 'package:mornye/services/link/features/link_phone_sender.dart';
-import 'package:mornye/services/link/features/link_remote_playback.dart';
-import 'package:mornye/services/link/features/link_save_offline.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/widgets/album_detail_header.dart';
-import 'package:mornye/widgets/desktop/context_menu.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_snack_bar.dart';
-import 'package:mornye/widgets/link/link_transfers_view.dart';
-import 'package:mornye/widgets/selection_action_button.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/app_navigation_service.dart';
+import 'package:sistrum/services/link/features/link_downloads.dart';
+import 'package:sistrum/services/link/features/link_library_lookup.dart';
+import 'package:sistrum/services/link/features/link_phone_features.dart';
+import 'package:sistrum/services/link/features/link_phone_sender.dart';
+import 'package:sistrum/services/link/features/link_remote_playback.dart';
+import 'package:sistrum/services/link/features/link_save_offline.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/widgets/album_detail_header.dart';
+import 'package:sistrum/widgets/desktop/context_menu.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_snack_bar.dart';
+import 'package:sistrum/widgets/link/link_transfers_view.dart';
+import 'package:sistrum/widgets/selection_action_button.dart';
 
-export 'package:mornye/services/link/features/link_phone_client.dart'
+export 'package:sistrum/services/link/features/link_phone_client.dart'
     show linkDesktopName, linkPhoneClientProvider;
 
 final _log = AppLogger('LinkActions');
@@ -482,7 +482,7 @@ Future<void> _showTrackTransferSheet(
   );
 }
 
-/// The Library selection toolbar's Mornye Link actions for the selected
+/// The Library selection toolbar's Sistrum Link actions for the selected
 /// [items]: "Send to (desktop)" for this phone's own songs and "Save to
 /// this phone" for the paired desktop's, while that desktop is connected.
 /// [onClose] ends the selection once one starts.

@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/equalizer_settings.dart';
-import 'package:mornye/services/media3_playback_deck.dart';
-import 'package:mornye/services/music_playback_deck.dart';
-import 'package:mornye/services/playback_deck.dart';
-import 'package:mornye/services/playback_equalizer.dart';
+import 'package:sistrum/models/equalizer_settings.dart';
+import 'package:sistrum/services/media3_playback_deck.dart';
+import 'package:sistrum/services/music_playback_deck.dart';
+import 'package:sistrum/services/playback_deck.dart';
+import 'package:sistrum/services/playback_equalizer.dart';
 
-const _channel = MethodChannel('com.zarz.mornye/media3_player');
+const _channel = MethodChannel('com.amwolfstein.sistrum/media3_player');
 
 TestDefaultBinaryMessenger get _messenger =>
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
@@ -54,7 +54,7 @@ class _Native {
     switch (call.method) {
       case 'create':
         _messenger.setMockStreamHandler(
-          EventChannel('com.zarz.mornye/media3_player/events/$id'),
+          EventChannel('com.amwolfstein.sistrum/media3_player/events/$id'),
           MockStreamHandler.inline(
             onListen: (_, sink) => sinks[id] = sink,
             onCancel: (_) => cancelled.add(id),

@@ -1,8 +1,8 @@
-import 'package:mornye/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
 
-/// Mornye Link Play together: the phone and the paired computer play the
+/// Sistrum Link Play together: the phone and the paired computer play the
 /// same queue at the same time. The wire constants and models both sides
-/// share; the ops are forwarded to Dart like every unknown Mornye op.
+/// share; the ops are forwarded to Dart like every unknown Sistrum op.
 abstract final class LinkTogetherOps {
   /// GET: the computer's player as a [LinkTogetherReport].
   static const time = 'together/time';

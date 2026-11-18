@@ -3,24 +3,24 @@ import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/services/link/features/link_handoff.dart';
-import 'package:mornye/services/link/features/link_phone_features.dart';
-import 'package:mornye/services/link/features/link_phone_player.dart';
-import 'package:mornye/services/link/features/link_remote_playback.dart';
-import 'package:mornye/services/link/features/link_track_resolver.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/link/together/link_together_controller.dart';
-import 'package:mornye/services/remote_playback.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_slider.dart';
-import 'package:mornye/widgets/beta_badge.dart';
-import 'package:mornye/widgets/link/link_devices_sheet.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/services/link/features/link_handoff.dart';
+import 'package:sistrum/services/link/features/link_phone_features.dart';
+import 'package:sistrum/services/link/features/link_phone_player.dart';
+import 'package:sistrum/services/link/features/link_remote_playback.dart';
+import 'package:sistrum/services/link/features/link_track_resolver.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/together/link_together_controller.dart';
+import 'package:sistrum/services/remote_playback.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_slider.dart';
+import 'package:sistrum/widgets/beta_badge.dart';
+import 'package:sistrum/widgets/link/link_devices_sheet.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
 import 'support/link_fakes.dart';
 import 'support/tooltip_finder.dart';
@@ -632,7 +632,7 @@ void main() {
 
         expect(find.byType(LinkDevicesSheet), findsNothing);
         expect(
-          find.text('Update Mornye on Studio PC to play together'),
+          find.text('Update Sistrum on Studio PC to play together'),
           findsOneWidget,
         );
       });

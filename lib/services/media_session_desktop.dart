@@ -1,9 +1,9 @@
 import 'package:audio_service_platform_interface/audio_service_platform_interface.dart';
 import 'package:flutter/foundation.dart';
-import 'package:mornye/services/media_session_mpris.dart';
-import 'package:mornye/services/media_session_smtc.dart';
-import 'package:mornye/services/windows_taskbar_controls.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/services/media_session_mpris.dart';
+import 'package:sistrum/services/media_session_smtc.dart';
+import 'package:sistrum/services/windows_taskbar_controls.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
 /// The media session audio_service drives on this OS, or null to keep its
 /// own: the plugin on Android, iOS and macOS. Linux gets MPRIS and Windows

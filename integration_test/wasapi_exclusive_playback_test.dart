@@ -7,9 +7,9 @@ import 'package:flutter/foundation.dart'
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:media_kit/media_kit.dart';
-import 'package:mornye/services/media_kit_playback_deck.dart';
-import 'package:mornye/services/playback_deck.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/services/media_kit_playback_deck.dart';
+import 'package:sistrum/services/playback_deck.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
 // Run on a Windows device with an output that supports exclusive mode:
 // flutter test integration_test/wasapi_exclusive_playback_test.dart -d windows

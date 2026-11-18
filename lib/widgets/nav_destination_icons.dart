@@ -1,5 +1,5 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/theme/app_motion.dart';
+import 'package:sistrum/theme/app_motion.dart';
 
 /// Plays a selected destination's icon in once: on the fast expressive
 /// spatial spring in Material, which overshoots by itself, and on the fast

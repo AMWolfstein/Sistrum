@@ -4,26 +4,26 @@ import 'package:cupertino_ui/cupertino_ui.dart'
     show CupertinoButton, CupertinoIcons;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/services/link/features/link_desktop_remote.dart';
-import 'package:mornye/services/link/features/link_downloads.dart';
-import 'package:mornye/services/link/features/link_remote_playback.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/link/together/link_together_controller.dart';
-import 'package:mornye/theme/app_tokens.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_icon_button.dart';
-import 'package:mornye/widgets/app_progress_indicator.dart';
-import 'package:mornye/widgets/expressive_icon_button.dart';
-import 'package:mornye/widgets/link/link_actions.dart';
-import 'package:mornye/widgets/link/link_library_actions.dart';
-import 'package:mornye/widgets/link/link_play_together.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/services/link/features/link_desktop_remote.dart';
+import 'package:sistrum/services/link/features/link_downloads.dart';
+import 'package:sistrum/services/link/features/link_remote_playback.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/together/link_together_controller.dart';
+import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_icon_button.dart';
+import 'package:sistrum/widgets/app_progress_indicator.dart';
+import 'package:sistrum/widgets/expressive_icon_button.dart';
+import 'package:sistrum/widgets/link/link_actions.dart';
+import 'package:sistrum/widgets/link/link_library_actions.dart';
+import 'package:sistrum/widgets/link/link_play_together.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
 /// Opens the Devices sheet: where the music plays, this phone or the paired
 /// desktop, and the desktop's downloads.

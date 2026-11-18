@@ -8,12 +8,12 @@ import 'package:ffmpeg_kit_flutter_new_audio/return_code.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:media_kit/media_kit.dart';
-import 'package:mornye/models/equalizer_settings.dart';
-import 'package:mornye/services/media_kit_playback_deck.dart';
-import 'package:mornye/services/music_player_runtime.dart';
-import 'package:mornye/services/playback_deck.dart';
-import 'package:mornye/services/playback_equalizer.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/models/equalizer_settings.dart';
+import 'package:sistrum/services/media_kit_playback_deck.dart';
+import 'package:sistrum/services/music_player_runtime.dart';
+import 'package:sistrum/services/playback_deck.dart';
+import 'package:sistrum/services/playback_equalizer.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
 /// Drives the Windows and Linux deck (media_kit) on macOS, where the app
 /// itself keeps audioplayers. The macOS app does not bundle libmpv, so the
@@ -24,8 +24,8 @@ import 'package:mornye/utils/desktop_platform.dart';
 ///    extract it and ad-hoc sign each framework
 ///    (`codesign -s - --force NAME.xcframework/macos-arm64_x86_64/NAME.framework`).
 /// 2. `fvm flutter test integration_test/media_kit_playback_deck_test.dart
-///    -d macos --dart-define=MORNYE_TEST_LIBMPV=EXTRACTED_FOLDER`
-const _libmpvFolder = String.fromEnvironment('MORNYE_TEST_LIBMPV');
+///    -d macos --dart-define=SISTRUM_TEST_LIBMPV=EXTRACTED_FOLDER`
+const _libmpvFolder = String.fromEnvironment('SISTRUM_TEST_LIBMPV');
 
 // Load order of the frameworks Mpv links through @rpath. Already loaded
 // images satisfy those references.
@@ -251,7 +251,7 @@ void main() {
       ).withToneOf(bassBoost.settings);
       await Future<void>.delayed(const Duration(milliseconds: 500));
       final af = await mpv.debugProperty('af');
-      expect(af, contains('@mornye_dsp:lavfi'));
+      expect(af, contains('@sistrum_dsp:lavfi'));
       expect(af, contains('equalizer@band0=f=31.25:t=q:w=1.4142:g=6'));
       expect(playbackEqualizerError.value, isNull);
       // media_kit's macOS audio build has no volume filter, so the preamp

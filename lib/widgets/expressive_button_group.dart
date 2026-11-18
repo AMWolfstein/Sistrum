@@ -2,8 +2,8 @@ import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/theme/material_expressive.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/theme/material_expressive.dart';
 
 /// A row of header actions laid out as a Material 3 Expressive button group.
 ///

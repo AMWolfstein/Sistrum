@@ -74,9 +74,9 @@ Windows additionally exercises paths beyond `MAX_PATH`. For a real SMB share,
 run these commands in PowerShell from `rust_backend`:
 
 ```powershell
-$env:MORNYE_TEST_SMB_ROOT = '\\server\share\writable-test-folder'
+$env:SISTRUM_TEST_SMB_ROOT = '\\server\share\writable-test-folder'
 cargo test -p mornye-extensions windows_network_share_directory_operations -- --ignored
-$env:MORNYE_TEST_SMB_ROOT = 'Z:\writable-test-folder'
+$env:SISTRUM_TEST_SMB_ROOT = 'Z:\writable-test-folder'
 cargo test -p mornye-extensions windows_network_share_directory_operations -- --ignored
 ```
 

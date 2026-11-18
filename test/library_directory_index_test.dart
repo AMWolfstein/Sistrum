@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/library_directory_index.dart';
+import 'package:sistrum/services/library_directory_index.dart';
 
 LibraryDirectoryEntry _entry(
   String id,
@@ -145,13 +145,13 @@ void main() {
         _entry('a2', '/storage/emulated/0/Music/a/Album/1.flac'),
         _entry(
           'l1',
-          '/storage/emulated/0/Music/Mornye/Single.flac',
+          '/storage/emulated/0/Music/Sistrum/Single.flac',
           source: 'local',
         ),
       ]);
       final root = index.root;
       expect(root.path, '/storage/emulated/0/Music');
-      expect(_names(root), ['a', 'B', 'Mornye']);
+      expect(_names(root), ['a', 'B', 'Sistrum']);
       expect(root.tracks, isEmpty);
       expect(root.trackCount, 3);
       expect(root.cover, isNull);

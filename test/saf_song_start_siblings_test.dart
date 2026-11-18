@@ -5,14 +5,14 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
-import 'package:mornye/controllers/player_metadata_controller.dart';
-import 'package:mornye/services/lyrics_sidecar.dart';
-import 'package:mornye/services/motion_artwork_folder.dart';
-import 'package:mornye/services/source_metadata_events.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
+import 'package:sistrum/controllers/player_metadata_controller.dart';
+import 'package:sistrum/services/lyrics_sidecar.dart';
+import 'package:sistrum/services/motion_artwork_folder.dart';
+import 'package:sistrum/services/source_metadata_events.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
 
-const _channel = MethodChannel('com.zarz.mornye/backend');
+const _channel = MethodChannel('com.amwolfstein.sistrum/backend');
 const _listings = {'readSafSidecar', 'findSafSibling', 'findSafSiblings'};
 
 String _encoded(String text) => base64.encode(utf8.encode(text));

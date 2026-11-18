@@ -1,9 +1,9 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/collection_track_sort_provider.dart';
-import 'package:mornye/widgets/album_detail_header.dart';
-import 'package:mornye/widgets/desktop/context_menu.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/collection_track_sort_provider.dart';
+import 'package:sistrum/widgets/album_detail_header.dart';
+import 'package:sistrum/widgets/desktop/context_menu.dart';
 
 /// Picks how a playlist, Liked Songs or the Wishlist lists its songs, for
 /// the header. The choice is kept for the collection named [sortKey].

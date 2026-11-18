@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/services/preference_blob_store.dart';
-import 'package:mornye/services/sqlite_helpers.dart' show normalizeLookupText;
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/services/preference_blob_store.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' show normalizeLookupText;
+import 'package:sistrum/utils/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _key = 'autoplay_rotation_v1';

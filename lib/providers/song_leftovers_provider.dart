@@ -4,18 +4,18 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
-import 'package:mornye/providers/download_queue_provider.dart';
-import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/folder_cover_file.dart'
+import 'package:sistrum/providers/download_queue_provider.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/folder_cover_file.dart'
     show folderCoverFileNames;
-import 'package:mornye/services/lyrics_sidecar.dart' show mlrcExtension;
-import 'package:mornye/services/motion_artwork_folder.dart'
+import 'package:sistrum/services/lyrics_sidecar.dart' show mlrcExtension;
+import 'package:sistrum/services/motion_artwork_folder.dart'
     show motionArtworkFileName;
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('SongLeftovers');
 

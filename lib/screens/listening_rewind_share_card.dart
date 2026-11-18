@@ -262,7 +262,7 @@ class _RewindShareSheetState extends State<_RewindShareSheet> {
       final file = await captureBoundaryToPngFile(
         _cardKey,
         pixelRatio: _shareCardPixelRatio,
-        fileName: 'mornye_rewind_card.png',
+        fileName: 'sistrum_rewind_card.png',
       );
       if (file == null) throw StateError('Card could not be captured');
       await SharePlus.instance.share(

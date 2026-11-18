@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/link_cover_shrink.dart';
+import 'package:sistrum/services/link/link_cover_shrink.dart';
 
 Future<Uint8List> _image(int width, int height) async {
   final recorder = ui.PictureRecorder();

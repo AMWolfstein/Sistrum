@@ -1,4 +1,4 @@
-import 'package:mornye/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
 
 /// Keeps the phone's preferences with the computer currently playing for it.
 /// Incoming state and command rollbacks must not echo another command.

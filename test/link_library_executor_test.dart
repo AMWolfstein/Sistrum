@@ -4,17 +4,17 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/providers/download_history_provider.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/link/desktop/link_catalog_index.dart';
-import 'package:mornye/services/link/desktop/link_library_executor.dart';
-import 'package:mornye/services/link/link_host_router.dart';
-import 'package:mornye/services/link/link_library_jobs.dart';
-import 'package:mornye/services/source_metadata_events.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/link/desktop/link_catalog_index.dart';
+import 'package:sistrum/services/link/desktop/link_library_executor.dart';
+import 'package:sistrum/services/link/link_host_router.dart';
+import 'package:sistrum/services/link/link_library_jobs.dart';
+import 'package:sistrum/services/source_metadata_events.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
 class _Settings extends SettingsNotifier {
   @override
@@ -77,7 +77,7 @@ class _Library extends LocalLibraryNotifier {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const channel = MethodChannel('com.zarz.mornye/backend');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   const paths = MethodChannel('plugins.flutter.io/path_provider');
   late Directory directory;
   late File audio;

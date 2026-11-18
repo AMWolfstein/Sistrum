@@ -4,8 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/settings_provider.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/settings_provider.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -42,7 +42,7 @@ void main() {
     expect(await load(['lrclib', 'apple_music', 'netease'], 12), [
       'lrclib',
       'apple_music',
-      'mornye_lyrics',
+      'sistrum_lyrics',
       'netease',
     ]);
   });
@@ -50,7 +50,7 @@ void main() {
   test('renames the saved provider while keeping a custom order', () async {
     expect(await load(['lrclib', 'spotiflac_lyrics', 'apple_music'], 13), [
       'lrclib',
-      'mornye_lyrics',
+      'sistrum_lyrics',
       'apple_music',
     ]);
   });

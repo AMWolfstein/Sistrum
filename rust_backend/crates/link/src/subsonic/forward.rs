@@ -11,7 +11,7 @@ use serde_json::{Map, Value, json};
 use std::collections::BTreeSet;
 
 /// Owner reported for playlists and the play queue.
-const OWNER: &str = "mornye";
+const OWNER: &str = "sistrum";
 
 const METHODS: &[&str] = &[
     "getPlaylists",

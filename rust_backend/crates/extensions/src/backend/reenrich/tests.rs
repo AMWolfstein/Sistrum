@@ -2,7 +2,7 @@ use super::*;
 use crate::RuntimeLimits;
 use crate::backend::MetadataOptions;
 use crate::environment::ExtensionEnvironment;
-use mornye_network::{NetworkOptions, NetworkService};
+use sistrum_network::{NetworkOptions, NetworkService};
 use std::io::{BufRead, BufReader};
 use std::net::TcpListener;
 use std::sync::Arc;

@@ -1,8 +1,8 @@
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/link/link_host_router.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/utils/isrc_utils.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/link/link_host_router.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/utils/isrc_utils.dart';
 
 /// Two durations name the same recording when they differ by at most this.
 const linkDurationToleranceMs = 2000;

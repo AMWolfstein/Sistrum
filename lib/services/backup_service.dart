@@ -7,14 +7,14 @@ import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/constants/app_info.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/sqlite_native_snapshot.dart';
-import 'package:mornye/services/user_profile_store.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/native_platform_name.dart';
+import 'package:sistrum/constants/app_info.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/sqlite_native_snapshot.dart';
+import 'package:sistrum/services/user_profile_store.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/native_platform_name.dart';
 
 typedef BackupHistoryPageLoader =
     Future<List<Map<String, dynamic>>> Function(int limit, int offset);
@@ -157,7 +157,7 @@ class BackupBundle {
 class BackupService {
   static final _log = AppLogger('BackupService');
 
-  static const String magic = 'mornye-backup';
+  static const String magic = 'sistrum-backup';
   static const String _legacyMagic = 'spotiflac-backup';
   // V3 permits omitted categories. Older readers reject it instead of treating
   // an omitted history as an empty history and clearing existing downloads.
@@ -191,7 +191,7 @@ class BackupService {
     final staging = await Directory(
       p.join(
         tempRoot.path,
-        'mornye_backup_${DateTime.now().microsecondsSinceEpoch}',
+        'sistrum_backup_${DateTime.now().microsecondsSinceEpoch}',
       ),
     ).create(recursive: true);
     final historyFile = File(p.join(staging.path, 'history.ndjson'));
@@ -342,7 +342,7 @@ class BackupService {
     final stamp =
         '${now.year}${two(now.month)}${two(now.day)}_'
         '${two(now.hour)}${two(now.minute)}${two(now.second)}';
-    return File(p.join(backupsDir.path, 'mornye_backup_$stamp.$fileExtension'));
+    return File(p.join(backupsDir.path, 'sistrum_backup_$stamp.$fileExtension'));
   }
 
   static Future<BackupBundle?> parseFile(
@@ -497,7 +497,7 @@ class BackupService {
     Directory temporary,
   ) async {
     await temporary.create(recursive: true);
-    final staging = await temporary.createTemp('mornye_legacy_backup_');
+    final staging = await temporary.createTemp('sistrum_legacy_backup_');
     try {
       final historyPath = p.join(staging.path, 'history.ndjson');
       final metadataPath = p.join(staging.path, 'metadata.json');
@@ -646,7 +646,7 @@ class BackupService {
       extractionDir = await Directory(
         p.join(
           temporaryDirectory.path,
-          'mornye_restore_${DateTime.now().microsecondsSinceEpoch}',
+          'sistrum_restore_${DateTime.now().microsecondsSinceEpoch}',
         ),
       ).create(recursive: true);
       String? historyPath;

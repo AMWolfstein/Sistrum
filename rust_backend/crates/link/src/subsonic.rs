@@ -26,7 +26,7 @@ use std::str::FromStr;
 /// The Subsonic API version this server implements.
 pub(crate) const API_VERSION: &str = "1.16.1";
 /// OpenSubsonic `type`.
-pub(crate) const SERVER_TYPE: &str = "mornye";
+pub(crate) const SERVER_TYPE: &str = "sistrum";
 /// Largest page any list endpoint returns.
 pub(crate) const MAX_PAGE: usize = 500;
 

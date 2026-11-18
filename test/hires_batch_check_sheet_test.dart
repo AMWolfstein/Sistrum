@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/services/hires_check_service.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/widgets/hires_batch_check_sheet.dart';
-import 'package:mornye/widgets/hires_report_content.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/services/hires_check_service.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/widgets/hires_batch_check_sheet.dart';
+import 'package:sistrum/widgets/hires_report_content.dart';
 
 UnifiedLibraryItem _song(String name, {String extension = 'flac'}) =>
     UnifiedLibraryItem(

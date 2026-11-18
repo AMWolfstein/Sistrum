@@ -5,13 +5,13 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
-import 'package:mornye/services/link/features/link_phone_files.dart';
-import 'package:mornye/services/link/features/link_phone_library.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_cover_shrink.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/playback_metadata.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/link/features/link_phone_files.dart';
+import 'package:sistrum/services/link/features/link_phone_library.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_cover_shrink.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/playback_metadata.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('LinkPhoneLibrary');
 

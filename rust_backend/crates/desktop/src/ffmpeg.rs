@@ -6,7 +6,7 @@
 //! semantics and cancellation.
 
 use crate::paths::{self, RemoveOnDrop};
-use mornye_mobile::{ExtensionManager, FfmpegCommands};
+use sistrum_mobile::{ExtensionManager, FfmpegCommands};
 use serde_json::Value;
 use std::collections::HashSet;
 use std::fs;
@@ -64,7 +64,7 @@ pub(crate) fn with_ffmpeg_commands<T>(
     let running = Arc::new(AtomicBool::new(true));
     let pump_running = Arc::clone(&running);
     let pump = std::thread::Builder::new()
-        .name("mornye-ffmpeg-pump".into())
+        .name("sistrum-ffmpeg-pump".into())
         .spawn(move || pump_commands(&commands, &pump_running, ffmpeg.as_deref()));
     if let Err(error) = pump {
         crate::runtime::log("error", &format!("FFmpeg pump could not start: {error}"));
@@ -123,7 +123,7 @@ mod staging {
     /// No leading dot: Samba and NTFS drivers with hide_dot_files keep a dot
     /// name's hidden attribute through the rename onto the song. Library
     /// scans skip the `.partial.<ext>` stage instead.
-    pub(super) const PREFIX: &str = "mornye-ffmpeg-mornye-desktop-";
+    pub(super) const PREFIX: &str = "sistrum-ffmpeg-sistrum-desktop-";
 
     static SWEPT: Mutex<Option<HashSet<PathBuf>>> = Mutex::new(None);
 
@@ -394,7 +394,7 @@ mod tests {
         let dotted = directory
             .path()
             .join(format!(".{}{}.flac", staging::PREFIX, paths::uuid()));
-        let foreign = directory.path().join("mornye-ffmpeg-other-app-x.flac");
+        let foreign = directory.path().join("sistrum-ffmpeg-other-app-x.flac");
         for path in [&current, &dotted, &foreign] {
             fs::write(path, b"left over").unwrap();
         }

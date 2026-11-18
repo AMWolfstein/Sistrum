@@ -1,16 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/supported_locales.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/providers/download_queue_provider.dart';
-import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/providers/network_offline_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/link/features/link_save_offline.dart';
-import 'package:mornye/services/network_library_upload.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/notification_service.dart';
+import 'package:sistrum/l10n/supported_locales.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/download_queue_provider.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/providers/network_offline_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/link/features/link_save_offline.dart';
+import 'package:sistrum/services/network_library_upload.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/notification_service.dart';
 
 /// The saved connections that accept uploads. Invalidate it after a
 /// connection is added, edited or removed.

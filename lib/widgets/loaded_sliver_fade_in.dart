@@ -1,5 +1,5 @@
 import 'package:flutter/widgets.dart';
-import 'package:mornye/theme/app_motion.dart';
+import 'package:sistrum/theme/app_motion.dart';
 
 /// How far into its fade loaded content starts, so the frame that drops the
 /// skeleton already shows the content: one frame at 60 Hz.

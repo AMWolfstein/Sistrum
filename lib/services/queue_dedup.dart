@@ -1,4 +1,4 @@
-import 'package:mornye/services/playable_media.dart';
+import 'package:sistrum/services/playable_media.dart';
 
 /// The key that makes two queue entries the same song: where it plays from,
 /// not its id or tags. Ids differ for one file between the Library, the

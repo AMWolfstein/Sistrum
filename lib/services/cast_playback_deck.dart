@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:mornye/services/cast_output.dart';
-import 'package:mornye/services/playback_deck.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/cast_output.dart';
+import 'package:sistrum/services/playback_deck.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('CastPlaybackDeck');
 

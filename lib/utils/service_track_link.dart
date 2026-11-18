@@ -1,5 +1,5 @@
-import 'package:mornye/constants/music_services.dart';
-import 'package:mornye/models/track.dart';
+import 'package:sistrum/constants/music_services.dart';
+import 'package:sistrum/models/track.dart';
 
 final _spotifyTrackIdPattern = RegExp(r'^[A-Za-z0-9]{22}$');
 

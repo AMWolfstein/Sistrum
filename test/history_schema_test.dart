@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/history_row_mapper.dart';
-import 'package:mornye/services/history_schema.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/history_row_mapper.dart';
+import 'package:sistrum/services/history_schema.dart';
 
 import 'support/sqlite_process_database.dart';
 

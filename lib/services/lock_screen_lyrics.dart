@@ -5,12 +5,12 @@ import 'package:audio_service_platform_interface/audio_service_platform_interfac
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:mornye/controllers/player_metadata_controller.dart';
-import 'package:mornye/models/theme_settings.dart';
-import 'package:mornye/providers/song_lyrics_offset_provider.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
-import 'package:mornye/utils/lyrics_timeline.dart';
+import 'package:sistrum/controllers/player_metadata_controller.dart';
+import 'package:sistrum/models/theme_settings.dart';
+import 'package:sistrum/providers/song_lyrics_offset_provider.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
+import 'package:sistrum/utils/lyrics_timeline.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final _log = AppLogger('LockScreenLyrics');
@@ -292,11 +292,11 @@ bool _afterPunctuation(List<int> runes, int index) {
 
 /// Whether the lock screen is showing. Android reports the screen on with
 /// the keyguard up. iOS tells an app nothing about the lock screen, so
-/// there it is whether Mornye is in the background, which includes it.
+/// there it is whether Sistrum is in the background, which includes it.
 Stream<bool> lockScreenShowing() {
   if (defaultTargetPlatform == TargetPlatform.android) {
     return const EventChannel(
-      'com.zarz.mornye/lock_screen',
+      'com.amwolfstein.sistrum/lock_screen',
     ).receiveBroadcastStream().map((showing) => showing == true);
   }
   return _inBackground();

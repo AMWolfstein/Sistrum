@@ -3,12 +3,12 @@ import 'dart:convert';
 
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/models/download_history.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('DownloadFileRecovery');
 

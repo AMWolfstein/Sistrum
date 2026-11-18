@@ -9,13 +9,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/models/download_item.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/providers/download_queue_provider.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/app_state_database.dart';
+import 'package:sistrum/models/download_item.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/download_queue_provider.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/app_state_database.dart';
 
 import 'support/fixed_settings.dart';
 
@@ -79,7 +79,7 @@ void main() {
       SharedPreferences.setMockInitialValues({
         'app_state_migrated_queue_to_sqlite_v1': true,
       });
-      const backend = MethodChannel('com.zarz.mornye/backend');
+      const backend = MethodChannel('com.amwolfstein.sistrum/backend');
       const sqlite = MethodChannel('com.tekartik.sqflite');
       const paths = MethodChannel('plugins.flutter.io/path_provider');
       const notifications = MethodChannel(
@@ -89,7 +89,7 @@ void main() {
         'dev.fluttercommunity.plus/connectivity_status',
       );
       const progress = MethodChannel(
-        'com.zarz.mornye/download_progress_stream',
+        'com.amwolfstein.sistrum/download_progress_stream',
       );
       final requests = <Map<String, dynamic>>[];
       final formatted = <String>[];

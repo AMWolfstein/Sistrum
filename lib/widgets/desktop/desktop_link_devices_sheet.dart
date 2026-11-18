@@ -2,18 +2,18 @@ import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/services/link/desktop/link_desktop_host.dart';
-import 'package:mornye/services/link/link_library_jobs.dart';
-import 'package:mornye/services/link/link_transfers.dart';
-import 'package:mornye/theme/app_tokens.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_snack_bar.dart';
-import 'package:mornye/widgets/desktop/desktop_link_library_jobs_view.dart';
-import 'package:mornye/widgets/link/link_play_together.dart';
-import 'package:mornye/widgets/link/link_transfers_view.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_host.dart';
+import 'package:sistrum/services/link/link_library_jobs.dart';
+import 'package:sistrum/services/link/link_transfers.dart';
+import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_snack_bar.dart';
+import 'package:sistrum/widgets/desktop/desktop_link_library_jobs_view.dart';
+import 'package:sistrum/widgets/link/link_play_together.dart';
+import 'package:sistrum/widgets/link/link_transfers_view.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
 Future<void> showDesktopLinkDevicesSheet(BuildContext context) =>
     showAppScrollableBottomSheet<void>(

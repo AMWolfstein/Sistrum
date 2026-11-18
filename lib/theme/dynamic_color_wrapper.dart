@@ -1,10 +1,10 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/providers/theme_provider.dart';
-import 'package:mornye/providers/custom_font_provider.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/models/theme_settings.dart';
-import 'package:mornye/theme/mornye_theme.dart';
+import 'package:sistrum/providers/theme_provider.dart';
+import 'package:sistrum/providers/custom_font_provider.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/models/theme_settings.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 
 class DynamicColorWrapper extends ConsumerWidget {
   final Widget Function(ThemeData light, ThemeData dark, ThemeMode mode)

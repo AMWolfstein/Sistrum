@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/services/platform_bridge.dart';
+import 'package:sistrum/services/platform_bridge.dart';
 
 final _sha256Pattern = RegExp(r'^[a-f0-9]{64}$');
 

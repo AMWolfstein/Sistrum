@@ -1,7 +1,7 @@
-import 'package:mornye/models/download_history.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/audio_conversion_utils.dart';
+import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/audio_conversion_utils.dart';
 
 class ConversionLibraryService {
   const ConversionLibraryService._();

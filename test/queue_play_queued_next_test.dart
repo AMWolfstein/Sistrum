@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/music_player_runtime.dart';
+import 'package:sistrum/services/music_player_runtime.dart';
 
 import 'support/music_player_automix_harness.dart';
 

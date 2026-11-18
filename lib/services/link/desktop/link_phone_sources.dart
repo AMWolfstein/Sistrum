@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:mornye/services/link/desktop/link_arriving_files.dart';
-import 'package:mornye/services/link/desktop/link_catalog_index.dart';
-import 'package:mornye/services/link/desktop/link_desktop_ops.dart';
-import 'package:mornye/services/link/desktop/link_phone_catalogs.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/link/desktop/link_arriving_files.dart';
+import 'package:sistrum/services/link/desktop/link_catalog_index.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_ops.dart';
+import 'package:sistrum/services/link/desktop/link_phone_catalogs.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/logger.dart';
 import 'package:path/path.dart' as p;
 
 final _log = AppLogger('LinkPhoneSources');
@@ -585,7 +585,7 @@ class LinkPhoneSources
     for (final pending in _answers.values.toList()) {
       if (!pending.answer.isCompleted) {
         pending.answer.completeError(
-          const LinkException('unavailable', 'Mornye Link stopped'),
+          const LinkException('unavailable', 'Sistrum Link stopped'),
         );
       }
     }

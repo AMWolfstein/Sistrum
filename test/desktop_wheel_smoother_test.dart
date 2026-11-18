@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/widgets/desktop/desktop_wheel_smoother.dart';
+import 'package:sistrum/widgets/desktop/desktop_wheel_smoother.dart';
 
 class _FakeWheel {
   bool reduced = false;

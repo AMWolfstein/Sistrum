@@ -8,15 +8,15 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/screens/listening_rewind_screen.dart';
-import 'package:mornye/services/listening_rewind.dart';
-import 'package:mornye/services/listening_statistics.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_shape.dart';
-import 'package:mornye/widgets/cached_cover_image.dart';
-import 'package:mornye/widgets/decorative_phase.dart';
-import 'package:mornye/widgets/settled_blur.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/screens/listening_rewind_screen.dart';
+import 'package:sistrum/services/listening_rewind.dart';
+import 'package:sistrum/services/listening_statistics.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_shape.dart';
+import 'package:sistrum/widgets/cached_cover_image.dart';
+import 'package:sistrum/widgets/decorative_phase.dart';
+import 'package:sistrum/widgets/settled_blur.dart';
 
 const _size = Size(1080, 2400);
 const _pixelRatio = 2.5;
@@ -523,8 +523,8 @@ void main() {
   });
 
   for (final (choice, fileName, width, height) in [
-    ('Share summary card', 'mornye_rewind_card.png', 1080, 1920),
-    ('Share this slide', 'mornye_rewind.png', _size.width, _size.height),
+    ('Share summary card', 'sistrum_rewind_card.png', 1080, 1920),
+    ('Share this slide', 'sistrum_rewind.png', _size.width, _size.height),
   ]) {
     testWidgets('$choice shares $fileName at $width x $height', (tester) async {
       reduced.value = true;

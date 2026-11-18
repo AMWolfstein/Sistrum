@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/services/library_collections_database.dart';
-import 'package:mornye/services/link/sync/link_collection_sync_schema.dart';
-import 'package:mornye/services/link/sync/link_sync_protocol.dart';
-import 'package:mornye/services/sqlite_helpers.dart' as sqlite;
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/library_collections_database.dart';
+import 'package:sistrum/services/link/sync/link_collection_sync_schema.dart';
+import 'package:sistrum/services/link/sync/link_sync_protocol.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('LinkCollectionSync');
 
@@ -81,7 +81,7 @@ Map<String, dynamic>? _decodeMap(Object? json) {
   }
 }
 
-/// Reads and writes collection changes for Mornye Link sync. The desktop
+/// Reads and writes collection changes for Sistrum Link sync. The desktop
 /// serves pages from it and applies phone changes; the phone does the
 /// reverse with its own database.
 class LinkCollectionSyncStore {

@@ -2,11 +2,11 @@ import 'package:cupertino_ui/cupertino_ui.dart'
     show CupertinoColors, CupertinoIcons;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/scheduler.dart' show SchedulerBinding;
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/queue_swipe.dart';
-import 'package:mornye/widgets/swipe_commit_haptic.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/queue_swipe.dart';
+import 'package:sistrum/widgets/swipe_commit_haptic.dart';
 
 /// Removing a row affects the queue only, never the song on disk.
 ///

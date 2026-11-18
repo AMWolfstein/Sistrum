@@ -1,12 +1,12 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/services/batch_track_actions.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_action_button.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/services/batch_track_actions.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_action_button.dart';
 
 void main() {
   for (final mornye in [false, true]) {

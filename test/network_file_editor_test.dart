@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/metadata_cover_resources.dart';
-import 'package:mornye/services/metadata_persistence_service.dart';
-import 'package:mornye/services/network_audio_analysis_input.dart';
-import 'package:mornye/services/network_file_editor.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/utils/artist_utils.dart';
+import 'package:sistrum/services/metadata_cover_resources.dart';
+import 'package:sistrum/services/metadata_persistence_service.dart';
+import 'package:sistrum/services/network_audio_analysis_input.dart';
+import 'package:sistrum/services/network_file_editor.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/utils/artist_utils.dart';
 
 import 'support/network_edit_fixture.dart';
 
@@ -288,7 +288,7 @@ void main() {
         nas.rejectPublish = true;
         var restores = 0;
         nas.beforeMove = (from, to) {
-          if (from.startsWith('mornye-original-') && restores++ == 0) {
+          if (from.startsWith('sistrum-original-') && restores++ == 0) {
             throw const SocketException('offline');
           }
         };
@@ -303,7 +303,7 @@ void main() {
           jsonEncode({...original, 'title': 'Other editor'}),
         );
         nas.beforeMove = (from, to) {
-          if (from == 'song.flac' && to.startsWith('mornye-original-')) {
+          if (from == 'song.flac' && to.startsWith('sistrum-original-')) {
             nas.files[from] = external;
           }
         };

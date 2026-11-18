@@ -1,23 +1,23 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/providers/collection_suggestions_provider.dart';
-import 'package:mornye/providers/library_collections_provider.dart';
-import 'package:mornye/services/collection_suggestions.dart';
-import 'package:mornye/theme/app_tokens.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_icon_button.dart';
-import 'package:mornye/widgets/cached_cover_image.dart';
-import 'package:mornye/widgets/desktop/track_list_table.dart';
-import 'package:mornye/widgets/playlist_picker_sheet.dart';
-import 'package:mornye/widgets/preview_button.dart';
-import 'package:mornye/widgets/track_card.dart';
-import 'package:mornye/widgets/track_collection_quick_actions.dart';
-import 'package:mornye/widgets/track_detail_actions.dart';
-import 'package:mornye/widgets/track_list_tile.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/collection_suggestions_provider.dart';
+import 'package:sistrum/providers/library_collections_provider.dart';
+import 'package:sistrum/services/collection_suggestions.dart';
+import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/utils/adaptive_layout.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_icon_button.dart';
+import 'package:sistrum/widgets/cached_cover_image.dart';
+import 'package:sistrum/widgets/desktop/track_list_table.dart';
+import 'package:sistrum/widgets/playlist_picker_sheet.dart';
+import 'package:sistrum/widgets/preview_button.dart';
+import 'package:sistrum/widgets/track_card.dart';
+import 'package:sistrum/widgets/track_collection_quick_actions.dart';
+import 'package:sistrum/widgets/track_detail_actions.dart';
+import 'package:sistrum/widgets/track_list_tile.dart';
 
 /// Songs like an album's, single's or playlist's under it, each with a
 /// preview, an add button and a tap that downloads it. Phones list them as

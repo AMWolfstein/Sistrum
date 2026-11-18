@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:mornye/utils/windows_path_identity.dart';
+import 'package:sistrum/utils/windows_path_identity.dart';
 
 const _androidStoragePathAliases = <String>[
   '/storage/emulated/0',

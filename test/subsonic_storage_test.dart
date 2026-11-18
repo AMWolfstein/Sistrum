@@ -4,12 +4,12 @@ import 'dart:math';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/network_certificate.dart';
-import 'package:mornye/services/network_library_scanner.dart';
-import 'package:mornye/services/network_metadata_service.dart';
-import 'package:mornye/services/network_storage_error.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/playable_media.dart';
+import 'package:sistrum/services/network_certificate.dart';
+import 'package:sistrum/services/network_library_scanner.dart';
+import 'package:sistrum/services/network_metadata_service.dart';
+import 'package:sistrum/services/network_storage_error.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/playable_media.dart';
 
 import 'support/subsonic_fixture.dart';
 import 'support/network_scan_output.dart';
@@ -611,7 +611,7 @@ void main() {
   ];
 
   test(
-    'a Mornye desktop syncs through search3 pages with the same rows',
+    'a Sistrum desktop syncs through search3 pages with the same rows',
     () async {
       Future<List<String>> rows() async {
         final scan = await scanner().scan(
@@ -627,7 +627,7 @@ void main() {
       }
 
       final songs = library();
-      server.type = 'mornye';
+      server.type = 'sistrum';
       // search3 lists songs in export order, which keeps no album together.
       server.library = [...songs]..shuffle(Random(7));
       final searched = await rows();
@@ -667,7 +667,7 @@ void main() {
     },
   );
 
-  test('a Mornye sync puts the desktop order first in latest', () async {
+  test('a Sistrum sync puts the desktop order first in latest', () async {
     Future<List<(String, int)>> scanned() async {
       final scan = await scanner().scan(
         'network://fixture/',
@@ -691,7 +691,7 @@ void main() {
     ];
 
     final songs = library();
-    server.type = 'mornye';
+    server.type = 'sistrum';
     server.library = [...songs]..shuffle(Random(7));
     final searched = await scanned();
     final latest = [...searched]..sort((a, b) => b.$2.compareTo(a.$2));
@@ -708,8 +708,8 @@ void main() {
     }
   });
 
-  test('a forced Mornye sync refreshes each cover once', () async {
-    server.type = 'mornye';
+  test('a forced Sistrum sync refreshes each cover once', () async {
+    server.type = 'sistrum';
     server.library = library()..shuffle(Random(7));
     Future<void> scan({bool forceFullScan = false}) => scanner().scan(
       'network://fixture/',
@@ -723,8 +723,8 @@ void main() {
     expect(requested('getCoverArt'), hasLength(160));
   });
 
-  test('a Mornye desktop with smaller song pages syncs every song', () async {
-    server.type = 'mornye';
+  test('a Sistrum desktop with smaller song pages syncs every song', () async {
+    server.type = 'sistrum';
     // The last page holds only the video.
     server.library = library();
     server.searchPage = 120;
@@ -748,9 +748,9 @@ void main() {
   });
 
   test(
-    'a Mornye desktop that repeats full song pages cannot publish a truncated catalogue',
+    'a Sistrum desktop that repeats full song pages cannot publish a truncated catalogue',
     () async {
-      server.type = 'mornye';
+      server.type = 'sistrum';
       server.library = library();
       server.repeatPage = true;
       server.searchPage = 120;
@@ -844,7 +844,7 @@ void main() {
           'line': [
             {'start': 1000, 'value': 'Word timed'},
           ],
-          'mornyeRaw': stored,
+          'sistrumRaw': stored,
         },
       ],
     };

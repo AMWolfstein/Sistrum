@@ -1,5 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/services/preference_blob_store.dart';
+import 'package:sistrum/services/preference_blob_store.dart';
 
 class ExploreCacheSnapshot {
   const ExploreCacheSnapshot({

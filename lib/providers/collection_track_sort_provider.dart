@@ -2,10 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/models/library_collections.dart';
-import 'package:mornye/services/library_directory_index.dart'
+import 'package:sistrum/models/library_collections.dart';
+import 'package:sistrum/services/library_directory_index.dart'
     show compareNaturally;
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/utils/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final _log = AppLogger('CollectionTrackSort');

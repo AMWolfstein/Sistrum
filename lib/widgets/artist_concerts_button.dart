@@ -1,10 +1,10 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/artist_concert.dart';
-import 'package:mornye/screens/artist_concerts_screen.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/animation_utils.dart';
-import 'package:mornye/widgets/expressive_button.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/artist_concert.dart';
+import 'package:sistrum/screens/artist_concerts_screen.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/animation_utils.dart';
+import 'package:sistrum/widgets/expressive_button.dart';
 
 class ArtistConcertsButton extends StatelessWidget {
   const ArtistConcertsButton({

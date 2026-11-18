@@ -4,11 +4,11 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:mornye/services/autoplay_taste.dart';
-import 'package:mornye/services/backend/ffi_backend_transport.dart';
-import 'package:mornye/services/backend/rust_ffi_backend.dart';
-import 'package:mornye/services/cache_maintenance_service.dart';
-import 'package:mornye/services/platform_bridge.dart';
+import 'package:sistrum/services/autoplay_taste.dart';
+import 'package:sistrum/services/backend/ffi_backend_transport.dart';
+import 'package:sistrum/services/backend/rust_ffi_backend.dart';
+import 'package:sistrum/services/cache_maintenance_service.dart';
+import 'package:sistrum/services/platform_bridge.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../test/support/autoplay_taste_fixture.dart';

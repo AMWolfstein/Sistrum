@@ -3,16 +3,16 @@ import 'dart:async';
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/services/listenbrainz/listenbrainz_api.dart';
-import 'package:mornye/services/listenbrainz/listenbrainz_service.dart';
-import 'package:mornye/services/scrobbling/scrobbler.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_alert_dialog.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_text_field.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/services/listenbrainz/listenbrainz_api.dart';
+import 'package:sistrum/services/listenbrainz/listenbrainz_service.dart';
+import 'package:sistrum/services/scrobbling/scrobbler.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_alert_dialog.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_text_field.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// The words a scrobbling service's settings use. Last.fm keeps its own

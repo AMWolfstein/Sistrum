@@ -1,7 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:mornye/models/automix_options.dart';
-import 'package:mornye/models/metadata_separators.dart';
-import 'package:mornye/utils/artist_utils.dart';
+import 'package:sistrum/models/automix_options.dart';
+import 'package:sistrum/models/metadata_separators.dart';
+import 'package:sistrum/utils/artist_utils.dart';
 
 part 'settings.g.dart';
 
@@ -408,7 +408,7 @@ class AppSettings {
   final String
   localLibraryAutoScan; // Auto-scan mode: 'off', 'on_open', 'daily', 'weekly'
 
-  /// Hide a Mornye Link device's songs from the Library while it is not
+  /// Hide a Sistrum Link device's songs from the Library while it is not
   /// connected: a phone's on the desktop, a computer's on a phone.
   final bool linkHideDisconnectedSongs;
 
@@ -641,7 +641,7 @@ class AppSettings {
     this.lyricsProviders = const [
       'apple_music',
       'lrcred',
-      'mornye_lyrics',
+      'sistrum_lyrics',
       'lyricsplus',
       'lrclib',
     ],
@@ -687,7 +687,7 @@ class AppSettings {
   };
 
   /// The cover art style the player shows: the one chosen, else the app
-  /// style's own, full screen in Material and a card in Mornye.
+  /// style's own, full screen in Material and a card in Sistrum.
   String playerCoverStyleFor({required bool mornye}) =>
       playerCoverStyle.isNotEmpty
       ? playerCoverStyle
@@ -1099,7 +1099,7 @@ class AppSettings {
     return settings.copyWith(
       lyricsProviders: {
         for (final provider in settings.lyricsProviders)
-          provider == 'spotiflac_lyrics' ? 'mornye_lyrics' : provider,
+          provider == 'spotiflac_lyrics' ? 'sistrum_lyrics' : provider,
       }.toList(),
     );
   }

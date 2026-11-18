@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/utils/lyrics_draft.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
+import 'package:sistrum/utils/lyrics_draft.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
 
 String _b64(String value) => base64.encode(utf8.encode(value));
 

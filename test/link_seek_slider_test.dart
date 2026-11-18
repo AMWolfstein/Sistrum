@@ -1,14 +1,14 @@
 import 'package:audio_service/audio_service.dart' show PlaybackState;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/cover_store.dart';
-import 'package:mornye/services/link/desktop/link_phone_playback.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/playback_seek_preview.dart';
-import 'package:mornye/widgets/mornye_player_slider.dart';
-import 'package:mornye/widgets/playback_seek_slider.dart';
+import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/services/link/desktop/link_phone_playback.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/playback_seek_preview.dart';
+import 'package:sistrum/widgets/mornye_player_slider.dart';
+import 'package:sistrum/widgets/playback_seek_slider.dart';
 
 void main() {
   const song = TrackRef(

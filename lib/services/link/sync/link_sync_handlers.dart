@@ -3,21 +3,21 @@ import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/models/download_history.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/providers/library_collections_provider.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/link/link_host_router.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/link/sync/link_collection_sync_store.dart';
-import 'package:mornye/services/link/sync/link_history_sync_store.dart';
-import 'package:mornye/services/link/sync/link_history_artwork.dart';
-import 'package:mornye/services/link/sync/link_sync_protocol.dart';
-import 'package:mornye/services/link/sync/link_sync_runner.dart';
-import 'package:mornye/services/listening_statistics.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/library_collections_provider.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/link/link_host_router.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/sync/link_collection_sync_store.dart';
+import 'package:sistrum/services/link/sync/link_history_sync_store.dart';
+import 'package:sistrum/services/link/sync/link_history_artwork.dart';
+import 'package:sistrum/services/link/sync/link_sync_protocol.dart';
+import 'package:sistrum/services/link/sync/link_sync_runner.dart';
+import 'package:sistrum/services/listening_statistics.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('LinkSyncHandlers');
 

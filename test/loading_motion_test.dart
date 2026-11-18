@@ -1,9 +1,9 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/widgets/animation_utils.dart';
-import 'package:mornye/widgets/decorative_phase.dart';
-import 'package:mornye/widgets/loaded_sliver_fade_in.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/widgets/animation_utils.dart';
+import 'package:sistrum/widgets/decorative_phase.dart';
+import 'package:sistrum/widgets/loaded_sliver_fade_in.dart';
 
 Widget _app(Widget child, {bool reduced = false}) => MaterialApp(
   theme: AppTheme.light(),

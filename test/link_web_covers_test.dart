@@ -4,10 +4,10 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/services/link/desktop/link_catalog_exporter.dart';
-import 'package:mornye/services/link/desktop/link_web_covers.dart';
-import 'package:mornye/services/link/link_protocol.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/services/link/desktop/link_catalog_exporter.dart';
+import 'package:sistrum/services/link/desktop/link_web_covers.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
 
 final _jpeg = Uint8List.fromList([0xFF, 0xD8, 0xFF, 0xE0, 1, 2, 3]);
 final _png = Uint8List.fromList([0x89, 0x50, 0x4E, 0x47, 4, 5, 6]);

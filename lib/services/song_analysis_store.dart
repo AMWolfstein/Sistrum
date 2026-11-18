@@ -3,8 +3,8 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/services/song_features.dart';
-import 'package:mornye/services/sqlite_helpers.dart' as sqlite;
+import 'package:sistrum/services/song_features.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
 
 /// A file's size in bytes and modification time in milliseconds; -1 where the
 /// platform cannot tell, such as a document provider's size.

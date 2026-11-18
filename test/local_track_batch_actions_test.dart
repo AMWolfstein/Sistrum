@@ -2,20 +2,20 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/services.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/providers/local_library_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/controllers/local_track_batch_actions.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/batch_metadata_re_enrich.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/local_track_redownload_service.dart';
-import 'package:mornye/services/re_enrich_undo.dart';
-import 'package:mornye/services/re_enrich_undo_store.dart';
+import 'package:sistrum/controllers/local_track_batch_actions.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/batch_metadata_re_enrich.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/local_track_redownload_service.dart';
+import 'package:sistrum/services/re_enrich_undo.dart';
+import 'package:sistrum/services/re_enrich_undo_store.dart';
 
 LocalLibraryItem item(String id) => LocalLibraryItem(
   id: id,
@@ -394,7 +394,7 @@ void main() {
     testWidgets(
       'batch completion respects owner lifecycle during refresh: $leaveDuringRefresh',
       (tester) async {
-        const channel = MethodChannel('com.zarz.mornye/backend');
+        const channel = MethodChannel('com.amwolfstein.sistrum/backend');
         final settings = _BatchSettings();
         final library = _BatchLibrary();
         var active = true;

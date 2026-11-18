@@ -1,25 +1,25 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart' show ScrollDirection;
-import 'package:mornye/widgets/app_alert_dialog.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/app_content_card.dart';
-import 'package:mornye/widgets/app_crash_banner.dart';
-import 'package:mornye/widgets/expressive_button.dart';
+import 'package:sistrum/widgets/app_alert_dialog.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_content_card.dart';
+import 'package:sistrum/widgets/app_crash_banner.dart';
+import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderScope;
 import 'package:share_plus/share_plus.dart' show ShareParams, SharePlus;
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/runtime_profile_provider.dart'
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/runtime_profile_provider.dart'
     show mornyeGlassLevelProvider;
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/widgets/settings_group.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_icon_button.dart';
-import 'package:mornye/widgets/app_menu_button.dart';
-import 'package:mornye/widgets/app_sliver_header.dart';
-import 'package:mornye/widgets/app_search_field.dart';
-import 'package:mornye/widgets/sliver_layout_info_builder.dart';
-import 'package:mornye/utils/ordered_range_selection.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/widgets/settings_group.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_icon_button.dart';
+import 'package:sistrum/widgets/app_menu_button.dart';
+import 'package:sistrum/widgets/app_sliver_header.dart';
+import 'package:sistrum/widgets/app_search_field.dart';
+import 'package:sistrum/widgets/sliver_layout_info_builder.dart';
+import 'package:sistrum/utils/ordered_range_selection.dart';
 
 part 'log_screen_widgets.dart';
 

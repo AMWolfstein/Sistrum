@@ -3,17 +3,17 @@ import 'dart:typed_data';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/download_history.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/services/link/features/link_phone_files.dart';
-import 'package:mornye/services/link/features/link_phone_library.dart';
-import 'package:mornye/services/link/features/link_phone_library_sync.dart';
-import 'package:mornye/services/link/features/link_phone_sender.dart';
-import 'package:mornye/services/link/features/link_track_refs.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/link/link_transfers.dart';
+import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/services/link/features/link_phone_files.dart';
+import 'package:sistrum/services/link/features/link_phone_library.dart';
+import 'package:sistrum/services/link/features/link_phone_library_sync.dart';
+import 'package:sistrum/services/link/features/link_phone_sender.dart';
+import 'package:sistrum/services/link/features/link_track_refs.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/link_transfers.dart';
 
 import 'support/link_fakes.dart';
 

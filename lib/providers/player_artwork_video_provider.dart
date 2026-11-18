@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/services/music_player_service.dart';
+import 'package:sistrum/services/music_player_service.dart';
 import 'package:video_player/video_player.dart';
 
 /// The artwork video a widget has on screen: the current track's once it is

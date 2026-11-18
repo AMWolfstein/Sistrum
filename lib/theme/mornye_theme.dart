@@ -1,14 +1,14 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/models/theme_settings.dart';
-import 'package:mornye/theme/app_tokens.dart';
-import 'package:mornye/theme/page_transitions.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/models/theme_settings.dart';
+import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/theme/page_transitions.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
 /// Flutter counterpart of Mornye's iPhone visual system. Reference values come
 /// from AccentColor.colorset, Components.swift, PlayerViews.swift and Motion.md
-/// in the Mornye project; keep this palette independent of wallpaper colors.
+/// in the Sistrum project; keep this palette independent of wallpaper colors.
 @immutable
 class MornyeTheme extends ThemeExtension<MornyeTheme> {
   const MornyeTheme({

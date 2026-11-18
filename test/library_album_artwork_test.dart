@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/library_album_artwork.dart';
+import 'package:sistrum/services/library_album_artwork.dart';
 
 import 'support/sqlite_process_database.dart';
 

@@ -1,8 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/download_item.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/download_state_switcher.dart';
+import 'package:sistrum/models/download_item.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/download_state_switcher.dart';
 
 void main() {
   Widget control(DownloadStatus status) => switch (status) {

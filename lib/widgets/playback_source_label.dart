@@ -1,9 +1,9 @@
 import 'package:audio_service/audio_service.dart' show MediaItem;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/services/link/link_source_names.dart';
-import 'package:mornye/services/network_storage_service.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/services/link/link_source_names.dart';
+import 'package:sistrum/services/network_storage_service.dart';
 
 final _sourceNameProvider = FutureProvider.family<String?, String>((
   ref,

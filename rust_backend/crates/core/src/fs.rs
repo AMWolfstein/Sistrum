@@ -262,11 +262,11 @@ mod tests {
         write_atomic(
             directory.path(),
             &path,
-            ".mornye-",
+            ".sistrum-",
             |file| {
                 let staged = names(directory.path());
                 assert_eq!(staged.len(), 2, "{staged:?}");
-                assert!(staged[0].starts_with(".mornye-"), "{staged:?}");
+                assert!(staged[0].starts_with(".sistrum-"), "{staged:?}");
                 order.borrow_mut().push("write");
                 file.write_all(b"new")
             },

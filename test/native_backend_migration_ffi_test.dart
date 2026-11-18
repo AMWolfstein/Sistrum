@@ -3,12 +3,12 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/backend/ffi_backend_transport.dart';
-import 'package:mornye/services/backend/rust_ffi_backend.dart';
-import 'package:mornye/services/lyrics_ai_client.dart';
-import 'package:mornye/services/native_file_hash.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/services/backend/ffi_backend_transport.dart';
+import 'package:sistrum/services/backend/rust_ffi_backend.dart';
+import 'package:sistrum/services/lyrics_ai_client.dart';
+import 'package:sistrum/services/native_file_hash.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
 Map<String, Object?> _lines(Map<int, LyricsAiLine> lines) => {
   for (final entry in lines.entries)
@@ -24,7 +24,7 @@ Map<String, Object?> _lines(Map<int, LyricsAiLine> lines) => {
     },
 };
 
-/// Run against a freshly built desktop library with MORNYE_DESKTOP_LIB set.
+/// Run against a freshly built desktop library with SISTRUM_DESKTOP_LIB set.
 /// Unlike mock channel tests, these cases cross the actual Dart C ABI worker.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -36,7 +36,7 @@ void main() {
     late Directory root;
 
     setUpAll(() async {
-      root = await Directory.systemTemp.createTemp('mornye-migration-ffi-');
+      root = await Directory.systemTemp.createTemp('sistrum-migration-ffi-');
       debugDesktopPlatformOverride = true;
       RustFfiBackend.debugShared = RustFfiBackend(
         openTransport: FfiBackendTransport.open,

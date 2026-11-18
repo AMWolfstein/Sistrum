@@ -8,11 +8,11 @@ import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/expressive_button.dart';
-import 'package:mornye/widgets/hires_check_card.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/expressive_button.dart';
+import 'package:sistrum/widgets/hires_check_card.dart';
 
 import 'support/tooltip_finder.dart';
 
@@ -28,7 +28,7 @@ const _limitedResult = <String, dynamic>{
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const channel = MethodChannel('com.zarz.mornye/backend');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   final capture = GlobalKey();
   var calls = 0;
 
@@ -106,7 +106,7 @@ void main() {
       final image = await boundary.toImage(pixelRatio: 2);
       final data = await image.toByteData(format: ui.ImageByteFormat.png);
       await File(
-        '/tmp/mornye-hires-$name.png',
+        '/tmp/sistrum-hires-$name.png',
       ).writeAsBytes(data!.buffer.asUint8List());
       image.dispose();
     });

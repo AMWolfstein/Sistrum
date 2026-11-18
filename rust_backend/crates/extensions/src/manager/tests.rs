@@ -1,7 +1,7 @@
 use super::{ExtensionManager, RuntimeLimits};
 use crate::runtime::source_compiles;
 use crate::storage::{StorageMasterKey, encrypt};
-use mornye_core::cancellation::{CancellationDomain, CancellationRegistry};
+use sistrum_core::cancellation::{CancellationDomain, CancellationRegistry};
 use serde_json::{Value, json};
 use std::fs::File;
 use std::io::Write;

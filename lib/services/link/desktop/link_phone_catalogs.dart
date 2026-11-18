@@ -5,14 +5,14 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/services/link/desktop/link_catalog_index.dart'
+import 'package:sistrum/services/link/desktop/link_catalog_index.dart'
     show linkDurationToleranceMs, linkMatchKey;
-import 'package:mornye/services/link/desktop/link_web_covers.dart';
-import 'package:mornye/services/link/link_cover_shrink.dart';
-import 'package:mornye/services/link/link_host_router.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/utils/isrc_utils.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/link/desktop/link_web_covers.dart';
+import 'package:sistrum/services/link/link_cover_shrink.dart';
+import 'package:sistrum/services/link/link_host_router.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/utils/isrc_utils.dart';
+import 'package:sistrum/utils/logger.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 

@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:mornye/services/remote_playback.dart';
+import 'package:sistrum/services/remote_playback.dart';
 
 /// What the system media session (notification, lock screen, headset and
 /// car buttons) shows while [remote] plays in this device's place: its

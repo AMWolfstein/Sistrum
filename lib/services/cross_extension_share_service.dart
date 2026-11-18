@@ -1,5 +1,5 @@
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/artist_utils.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/artist_utils.dart';
 
 class CrossExtensionShareResult {
   final String extensionId;

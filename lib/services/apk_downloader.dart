@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:mornye/services/native_file_hash.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/native_file_hash.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('ApkDownloader');
 
@@ -43,7 +43,7 @@ class ApkDownloader {
 
       final safeVersion = version.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_');
       final finalFile = File(
-        '${dir.path}${Platform.pathSeparator}Mornye-$safeVersion.apk',
+        '${dir.path}${Platform.pathSeparator}Sistrum-$safeVersion.apk',
       );
       final partFile = File('${finalFile.path}.part');
       final metadataFile = File('${partFile.path}.json');

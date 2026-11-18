@@ -1,8 +1,8 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/services/hires_check_service.dart';
-import 'package:mornye/theme/mornye_icons.dart';
-import 'package:mornye/widgets/hires_report_content.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/services/hires_check_service.dart';
+import 'package:sistrum/theme/mornye_icons.dart';
+import 'package:sistrum/widgets/hires_report_content.dart';
 
 /// The report of a whole-file inspection: the outcome, the spectrum it was
 /// read from, and one section per test. Sections share the card they sit in.

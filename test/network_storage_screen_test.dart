@@ -6,24 +6,24 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/network_upload_provider.dart';
-import 'package:mornye/providers/playback_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/screens/network_storage_screen.dart';
-import 'package:mornye/services/link/features/link_save_offline.dart';
-import 'package:mornye/services/link/link_source_names.dart';
-import 'package:mornye/services/local_network_access.dart';
-import 'package:mornye/services/network_certificate.dart';
-import 'package:mornye/services/network_library_upload.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/services/music_player_service.dart'
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/network_upload_provider.dart';
+import 'package:sistrum/providers/playback_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/screens/network_storage_screen.dart';
+import 'package:sistrum/services/link/features/link_save_offline.dart';
+import 'package:sistrum/services/link/link_source_names.dart';
+import 'package:sistrum/services/local_network_access.dart';
+import 'package:sistrum/services/network_certificate.dart';
+import 'package:sistrum/services/network_library_upload.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/services/music_player_service.dart'
     show MusicPlayerHandler;
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_action_button.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_action_button.dart';
 
 import 'support/tooltip_finder.dart';
 
@@ -470,7 +470,7 @@ void main() {
       expect(find.text('Last upload'), findsNothing);
       expect(tester.takeException(), isNull);
     });
-    testWidgets('a paired computer shows as Mornye Link (Mornye: $mornye)', (
+    testWidgets('a paired computer shows as Sistrum Link (Mornye: $mornye)', (
       tester,
     ) async {
       final service = _NetworkFixture();
@@ -508,7 +508,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('Mornye Link · 192.168.1.20'), findsOneWidget);
+      expect(find.text('Sistrum Link · 192.168.1.20'), findsOneWidget);
       expect(find.text('Subsonic · nas.test'), findsOneWidget);
       // Link manages the computer, so only the NAS can be edited here.
       expect(findByTooltip('Edit connection'), findsOneWidget);

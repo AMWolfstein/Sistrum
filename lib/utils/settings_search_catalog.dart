@@ -1,9 +1,9 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/services/spatial_audio.dart';
-import 'package:mornye/utils/android_tv.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/exclusive_output_labels.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/services/spatial_audio.dart';
+import 'package:sistrum/utils/android_tv.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/exclusive_output_labels.dart';
 
 /// A control or submenu that can be discovered from the root Settings search.
 ///

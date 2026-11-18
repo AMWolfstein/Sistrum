@@ -4,11 +4,11 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/constants/app_info.dart';
-import 'package:mornye/services/backend/backend_channel.dart';
-import 'package:mornye/services/backend/ffi_backend_transport.dart';
-import 'package:mornye/services/backend/native_backend_transport.dart';
-import 'package:mornye/services/ffmpeg_desktop.dart';
+import 'package:sistrum/constants/app_info.dart';
+import 'package:sistrum/services/backend/backend_channel.dart';
+import 'package:sistrum/services/backend/ffi_backend_transport.dart';
+import 'package:sistrum/services/backend/native_backend_transport.dart';
+import 'package:sistrum/services/ffmpeg_desktop.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// Error code of calls made while the desktop library cannot be loaded.
@@ -27,7 +27,7 @@ final _jsonBytesDecoder = const Utf8Decoder().fuse(const JsonDecoder());
 Object? _decodeJsonBytes(Uint8List data) =>
     data.isEmpty ? null : _jsonBytesDecoder.convert(data);
 
-/// The JSON config passed once to `mornye_init`.
+/// The JSON config passed once to `sistrum_init`.
 @immutable
 class DesktopBackendConfig {
   const DesktopBackendConfig({
@@ -104,7 +104,7 @@ class DesktopBackendConfig {
   };
 }
 
-/// Encodes MethodChannel arguments for `mornye_call`.
+/// Encodes MethodChannel arguments for `sistrum_call`.
 ///
 /// A top-level [Uint8List] map value travels as raw bytes: it is removed from
 /// the map and its key is recorded under [backendBytesKey]. More than one such
@@ -255,7 +255,7 @@ class RustFfiBackend extends BackendChannel {
     } on Object catch (error) {
       throw PlatformException(
         code: desktopBackendUnavailableCode,
-        message: 'The Mornye desktop backend library could not be loaded',
+        message: 'The Sistrum desktop backend library could not be loaded',
         details: error.toString(),
       );
     }

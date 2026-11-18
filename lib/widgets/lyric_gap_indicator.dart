@@ -2,10 +2,10 @@ import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/utils/synced_lyrics_scroll.dart';
-import 'package:mornye/widgets/decorative_phase.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/utils/synced_lyrics_scroll.dart';
+import 'package:sistrum/widgets/decorative_phase.dart';
 
 /// Playback controls the fill; a gentle pulse accompanies instrumental gaps.
 class LyricGapIndicator extends ConsumerStatefulWidget {

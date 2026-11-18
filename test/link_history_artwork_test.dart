@@ -3,11 +3,11 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_host_router.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/link/sync/link_history_artwork.dart';
-import 'package:mornye/services/link/sync/link_history_sync_store.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_host_router.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/sync/link_history_artwork.dart';
+import 'package:sistrum/services/link/sync/link_history_sync_store.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'support/link_sync_support.dart';

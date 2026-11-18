@@ -437,10 +437,10 @@ fn parse_object(data: &[u8]) -> Result<Map<String, Value>, StorageError> {
 pub(crate) fn atomic_write(path: &Path, data: &[u8]) -> Result<(), StorageError> {
     file_identity(path)?;
     let directory = path.parent().ok_or(StorageError::InvalidPath)?;
-    mornye_core::fs::write_atomic(
+    sistrum_core::fs::write_atomic(
         directory,
         path,
-        ".mornye-",
+        ".sistrum-",
         |file| file.write_all(data),
         || Ok(()),
         true,

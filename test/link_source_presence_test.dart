@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/link_source_presence.dart';
+import 'package:sistrum/services/link/link_source_presence.dart';
 
 bool _isLink(String source) => source.startsWith('link-');
 

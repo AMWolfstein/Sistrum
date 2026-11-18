@@ -1,6 +1,6 @@
 //! OpenSubsonic `getLyricsBySongId` (songLyrics version 1): the lyrics a
 //! song's file embeds, else its `.lrc` sidecar, as line-level structured
-//! lyrics. `mornyeRaw` carries the stored text as well; a Mornye phone
+//! lyrics. `sistrumRaw` carries the stored text as well; a Sistrum phone
 //! parses it as it parses a local file's, keeping word timing, voices and
 //! backing vocals that the line-level shape drops.
 
@@ -8,7 +8,7 @@ use super::{Failure, Payload, payload, required};
 use crate::catalog::Catalog;
 use crate::source::{self, Readable};
 use crate::types::{Shared, SubsonicRequest};
-use mornye_core::lyrics::{file, lrc};
+use sistrum_core::lyrics::{file, lrc};
 use regex::Regex;
 use serde_json::{Value, json};
 use std::fs::File;
@@ -121,7 +121,7 @@ fn structured(artist: &str, title: &str, raw: String) -> Value {
         "offset": 0,
         "synced": synced,
         "line": line,
-        "mornyeRaw": raw,
+        "sistrumRaw": raw,
     })
 }
 

@@ -1,9 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/app_crash_report.dart';
-import 'package:mornye/services/desktop_diagnostics.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/models/app_crash_report.dart';
+import 'package:sistrum/services/desktop_diagnostics.dart';
+import 'package:sistrum/utils/logger.dart';
 import 'package:path/path.dart' as p;
 
 void main() {
@@ -176,10 +176,10 @@ void main() {
         directory
             .listSync()
             .map((file) => p.basename(file.path))
-            .where((name) => name.startsWith('mornye'))
+            .where((name) => name.startsWith('sistrum'))
             .toList()
           ..sort();
-    expect(names, ['mornye.1.log', 'mornye.2.log', 'mornye.log']);
+    expect(names, ['sistrum.1.log', 'sistrum.2.log', 'sistrum.log']);
     expect(diagnostics.logFile.readAsStringSync(), contains('line 11'));
     expect(diagnostics.logFile.lengthSync(), lessThanOrEqualTo(200));
   });

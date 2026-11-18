@@ -5,10 +5,10 @@ import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/ffmpeg_desktop.dart';
-import 'package:mornye/services/ffmpeg_probe.dart';
-import 'package:mornye/services/ffmpeg_support.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/services/ffmpeg_desktop.dart';
+import 'package:sistrum/services/ffmpeg_probe.dart';
+import 'package:sistrum/services/ffmpeg_support.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
 class _DiscardingConsumer implements StreamConsumer<List<int>> {
   @override
@@ -130,13 +130,13 @@ void main() {
       expect(
         DesktopFFmpegTools.searchDirectories(
           operatingSystem: 'macos',
-          executablePath: '/Applications/Mornye.app/Contents/MacOS/Mornye',
-          environment: {'MORNYE_FFMPEG_DIR': '/opt/ff', 'PATH': '/a:/b'},
+          executablePath: '/Applications/Sistrum.app/Contents/MacOS/Sistrum',
+          environment: {'SISTRUM_FFMPEG_DIR': '/opt/ff', 'PATH': '/a:/b'},
         ),
         [
           '/opt/ff',
-          '/Applications/Mornye.app/Contents/Resources/ffmpeg',
-          '/Applications/Mornye.app/Contents/MacOS',
+          '/Applications/Sistrum.app/Contents/Resources/ffmpeg',
+          '/Applications/Sistrum.app/Contents/MacOS',
           '/a',
           '/b',
         ],
@@ -144,48 +144,48 @@ void main() {
       expect(
         DesktopFFmpegTools.searchDirectories(
           operatingSystem: 'linux',
-          executablePath: '/opt/mornye/mornye',
+          executablePath: '/opt/sistrum/sistrum',
           environment: {'PATH': '/usr/bin'},
         ),
-        ['/opt/mornye/lib/ffmpeg', '/usr/bin'],
+        ['/opt/sistrum/lib/ffmpeg', '/usr/bin'],
       );
       expect(
         DesktopFFmpegTools.searchDirectories(
           operatingSystem: 'windows',
-          executablePath: r'C:\Program Files\Mornye\mornye.exe',
+          executablePath: r'C:\Program Files\Sistrum\sistrum.exe',
           environment: {'PATH': r'C:\tools;;C:\bin'},
         ),
-        [r'C:\Program Files\Mornye\ffmpeg', r'C:\tools', r'C:\bin'],
+        [r'C:\Program Files\Sistrum\ffmpeg', r'C:\tools', r'C:\bin'],
       );
     });
 
     test('takes each tool from the first folder that has it', () async {
       final existing = {
         '/usr/local/bin/ffmpeg',
-        '/opt/mornye/lib/ffmpeg/ffmpeg',
-        '/opt/mornye/lib/ffmpeg/ffprobe',
+        '/opt/sistrum/lib/ffmpeg/ffmpeg',
+        '/opt/sistrum/lib/ffmpeg/ffprobe',
       };
       final tools = await DesktopFFmpegTools.locate(
         operatingSystem: 'linux',
-        executablePath: '/opt/mornye/mornye',
+        executablePath: '/opt/sistrum/sistrum',
         environment: {
-          'MORNYE_FFMPEG_DIR': '/usr/local/bin',
+          'SISTRUM_FFMPEG_DIR': '/usr/local/bin',
           'PATH': '/usr/bin',
         },
         isFile: (path) async => existing.contains(path),
       );
       expect(tools.ffmpegPath, '/usr/local/bin/ffmpeg');
-      expect(tools.ffprobePath, '/opt/mornye/lib/ffmpeg/ffprobe');
+      expect(tools.ffprobePath, '/opt/sistrum/lib/ffmpeg/ffprobe');
     });
 
     test('appends .exe on Windows and leaves missing tools null', () async {
       final tools = await DesktopFFmpegTools.locate(
         operatingSystem: 'windows',
-        executablePath: r'C:\Mornye\mornye.exe',
+        executablePath: r'C:\Sistrum\sistrum.exe',
         environment: const {},
-        isFile: (path) async => path == r'C:\Mornye\ffmpeg\ffmpeg.exe',
+        isFile: (path) async => path == r'C:\Sistrum\ffmpeg\ffmpeg.exe',
       );
-      expect(tools.ffmpegPath, r'C:\Mornye\ffmpeg\ffmpeg.exe');
+      expect(tools.ffmpegPath, r'C:\Sistrum\ffmpeg\ffmpeg.exe');
       expect(tools.ffprobePath, isNull);
     });
   });
@@ -255,7 +255,7 @@ void main() {
           isA<FFmpegUnavailableException>().having(
             (e) => e.message,
             'message',
-            contains('MORNYE_FFMPEG_DIR'),
+            contains('SISTRUM_FFMPEG_DIR'),
           ),
         ),
       );
@@ -406,7 +406,7 @@ void main() {
       DesktopFFmpegRunner.debugShared = DesktopFFmpegRunner(
         tools: () async => tools,
       );
-      final directory = await Directory.systemTemp.createTemp('mornye-ff-');
+      final directory = await Directory.systemTemp.createTemp('sistrum-ff-');
       addTearDown(() async {
         debugDesktopPlatformOverride = null;
         DesktopFFmpegRunner.debugShared = null;

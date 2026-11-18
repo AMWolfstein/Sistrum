@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/ffmpeg_support.dart';
+import 'package:sistrum/services/ffmpeg_support.dart';
 
 void main() {
   late Directory directory;
@@ -23,7 +23,7 @@ void main() {
     // A dot name can become a hidden attribute that the rename keeps, and a
     // `.partial.<ext>` stage stays out of library scans.
     final name = File(plan.workingPath).uri.pathSegments.last;
-    expect(name, startsWith('song.mornye-'));
+    expect(name, startsWith('song.sistrum-'));
     expect(name, endsWith('.partial.flac'));
     expect(plan.finalPath, source.path);
   });
@@ -127,7 +127,7 @@ void main() {
         onError: (e) {
           error = e;
           stagingRemained = directory.listSync().any(
-            (entry) => entry.path.contains('.mornye-staging-'),
+            (entry) => entry.path.contains('.sistrum-staging-'),
           );
         },
       ),

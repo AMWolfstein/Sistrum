@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
-/// Mornye Link's phone features run in the Android and iOS builds, the
+/// Sistrum Link's phone features run in the Android and iOS builds, the
 /// builds that are not desktop. Host tests count as a phone unless they set
 /// [debugDesktopPlatformOverride].
 bool get isLinkPhonePlatform => !isDesktopPlatform;
@@ -10,7 +10,7 @@ bool get isLinkPhonePlatform => !isDesktopPlatform;
 /// The paired desktop's name for labels such as "Play on Studio PC".
 String linkDesktopName(LinkClientApi client) {
   final name = client.server.name.trim();
-  return name.isEmpty ? 'Mornye' : name;
+  return name.isEmpty ? 'Sistrum' : name;
 }
 
 /// The paired desktop's session on a phone, or null when none is paired or

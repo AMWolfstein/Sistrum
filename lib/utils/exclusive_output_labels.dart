@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:mornye/l10n/app_localizations.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
 
 /// The exclusive output setting's wording on this desktop: WASAPI on
 /// Windows, hog mode on macOS, ALSA on Linux.

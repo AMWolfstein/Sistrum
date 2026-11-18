@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/controllers/open_audio_controller.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/audio_file_open_service.dart';
-import 'package:mornye/services/playable_media.dart';
+import 'package:sistrum/controllers/open_audio_controller.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/audio_file_open_service.dart';
+import 'package:sistrum/services/playable_media.dart';
 
 class _Player extends MusicPlayerController {
   final queues = <List<PlayableMedia>>[];
@@ -40,7 +40,7 @@ void main() {
   late ProviderContainer container;
   late _Player player;
   setUp(() async {
-    folder = await Directory.systemTemp.createTemp('mornye-open-controller-');
+    folder = await Directory.systemTemp.createTemp('sistrum-open-controller-');
     player = _Player();
     container = ProviderContainer(
       overrides: [

@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/utils/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final _log = AppLogger('LyricsSongLanguages');

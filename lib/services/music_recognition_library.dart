@@ -1,6 +1,6 @@
-import 'package:mornye/models/recognized_song.dart';
+import 'package:sistrum/models/recognized_song.dart';
 
-/// A playable file in Mornye for a recognized song.
+/// A playable file in Sistrum for a recognized song.
 class RecognitionLibraryMatch {
   const RecognitionLibraryMatch({
     required this.path,
@@ -26,7 +26,7 @@ abstract interface class RecognitionLibrary {
   Future<RecognitionLibraryMatch?> byTitleArtist(String title, String artist);
 }
 
-/// Finds a recognized song in Mornye: by ISRC first, then by title and
+/// Finds a recognized song in Sistrum: by ISRC first, then by title and
 /// artist, loosening each to its plain form.
 Future<RecognitionLibraryMatch?> findRecognizedSong(
   RecognizedSong song,

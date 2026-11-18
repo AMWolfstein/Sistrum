@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/widgets/extension_row.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/widgets/extension_row.dart';
 
 const _buttonKey = ValueKey('extension-row-button');
 

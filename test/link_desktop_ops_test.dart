@@ -1,14 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/download_item.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/link/desktop/link_arriving_files.dart';
-import 'package:mornye/services/link/desktop/link_catalog_index.dart';
-import 'package:mornye/services/link/desktop/link_desktop_ops.dart';
-import 'package:mornye/services/link/desktop/link_player.dart';
-import 'package:mornye/services/link/link_host_router.dart';
-import 'package:mornye/services/link/link_protocol.dart';
+import 'package:sistrum/models/download_item.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/link/desktop/link_arriving_files.dart';
+import 'package:sistrum/services/link/desktop/link_catalog_index.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_ops.dart';
+import 'package:sistrum/services/link/desktop/link_player.dart';
+import 'package:sistrum/services/link/link_host_router.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
 
 import 'support/link_desktop_fakes.dart';
 
@@ -720,7 +720,7 @@ void main() {
     expect(await call(LinkOps.open, {'url': 'https://example.com/t/1'}), {
       'ok': true,
     });
-    expect(await call(LinkOps.open, {'url': 'mornye://callback?x=1'}), {
+    expect(await call(LinkOps.open, {'url': 'sistrum://callback?x=1'}), {
       'ok': true,
     });
     for (final url in [
@@ -734,7 +734,7 @@ void main() {
         reason: url,
       );
     }
-    expect(opened, ['https://example.com/t/1', 'mornye://callback?x=1']);
+    expect(opened, ['https://example.com/t/1', 'sistrum://callback?x=1']);
   });
 
   test('resolve maps refs to song ids in order', () async {

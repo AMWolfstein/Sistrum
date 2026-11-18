@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:audio_service_platform_interface/audio_service_platform_interface.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/windows_taskbar_controls.dart';
+import 'package:sistrum/services/windows_taskbar_controls.dart';
 
 class _Callbacks implements AudioHandlerCallbacks {
   final requests = <Object>[];

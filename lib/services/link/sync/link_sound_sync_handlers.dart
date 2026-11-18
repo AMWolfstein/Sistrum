@@ -1,15 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/providers/equalizer_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/providers/song_lyrics_offset_provider.dart';
-import 'package:mornye/services/link/link_host_router.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/link/sync/link_sound_sync_protocol.dart';
-import 'package:mornye/services/link/sync/link_sound_sync_runner.dart';
-import 'package:mornye/services/link/sync/link_sound_sync_store.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/providers/equalizer_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/providers/song_lyrics_offset_provider.dart';
+import 'package:sistrum/services/link/link_host_router.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/sync/link_sound_sync_protocol.dart';
+import 'package:sistrum/services/link/sync/link_sound_sync_runner.dart';
+import 'package:sistrum/services/link/sync/link_sound_sync_store.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('LinkSoundSyncHandlers');
 

@@ -4,13 +4,13 @@ import 'dart:math' as math;
 import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
 import 'package:media_kit/media_kit.dart';
-import 'package:mornye/models/equalizer_settings.dart';
-import 'package:mornye/services/media_kit_audio_filters.dart';
-import 'package:mornye/services/music_playback_deck.dart'
+import 'package:sistrum/models/equalizer_settings.dart';
+import 'package:sistrum/services/media_kit_audio_filters.dart';
+import 'package:sistrum/services/music_playback_deck.dart'
     show UsbDsdUnavailable;
-import 'package:mornye/services/playback_deck.dart';
-import 'package:mornye/services/playback_equalizer.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/playback_deck.dart';
+import 'package:sistrum/services/playback_equalizer.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('MediaKitDeck');
 
@@ -55,17 +55,17 @@ abstract interface class MpvPlaylistEngine implements MpvEngine {
 class MediaKitEngine implements MpvEngine, MpvPlaylistEngine {
   MediaKitEngine()
     : _player = NativePlayer(
-        configuration: const PlayerConfiguration(title: 'Mornye'),
+        configuration: const PlayerConfiguration(title: 'Sistrum'),
       ) {
     _player.onLoadHooks.add(_onLoad);
     _configured = Future.wait([
       // Names the PulseAudio and PipeWire stream. The app applies ReplayGain
       // itself, so mpv's stays at its default (off).
-      setProperty('audio-client-name', 'Mornye'),
+      setProperty('audio-client-name', 'Sistrum'),
       // media_kit caches streams on disk, which fails where the cache folder
       // is not writable and reports a load error. Memory is enough for audio.
       setProperty('cache-on-disk', 'no'),
-      // Mornye reads sidecar lyrics itself. A failed mpv subtitle autoload
+      // Sistrum reads sidecar lyrics itself. A failed mpv subtitle autoload
       // must not turn an otherwise playable song into a source error.
       setProperty('sub-auto', 'no'),
       // Music playback needs scheduling headroom rather than the shortest
@@ -484,7 +484,7 @@ class MediaKitPlaybackDeck implements PlaybackDeck, QueuedPlaybackDeck {
       // including the filter probes of _probeFilters.
       if (_isRejectedFilterValue(error)) return;
       _log.w('mpv ${error.prefix}: ${error.text}');
-      if (error.text.contains('mornye_tempo')) {
+      if (error.text.contains('sistrum_tempo')) {
         // The speed a shift through scaletempo set needs that filter; play
         // the unshifted speed instead and keep this chain from returning.
         _rejectedSpec = _appliedSpec;
@@ -781,7 +781,7 @@ class MediaKitPlaybackDeck implements PlaybackDeck, QueuedPlaybackDeck {
   /// first deck probes once while it has no source.
   Future<void> _probeFilters() => _probe ??= () async {
     for (final name in MpvAudioFilterChain.optionalFilters) {
-      if (await _engine.setProperty('af', '@mornye_probe:lavfi-$name') < 0) {
+      if (await _engine.setProperty('af', '@sistrum_probe:lavfi-$name') < 0) {
         _missingFilters.add(name);
       }
     }
@@ -797,7 +797,7 @@ class MediaKitPlaybackDeck implements PlaybackDeck, QueuedPlaybackDeck {
   Future<void> _probeTempoFilters() => _tempoProbe ??= () async {
     final missing = <String>{};
     for (final name in MpvTempo.optionalFilters) {
-      if (await _engine.setProperty('af', '@mornye_probe:lavfi-$name') < 0) {
+      if (await _engine.setProperty('af', '@sistrum_probe:lavfi-$name') < 0) {
         missing.add(name);
       }
     }

@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:mornye/services/lastfm/lastfm_api.dart';
-import 'package:mornye/services/lastfm/lastfm_store.dart';
-import 'package:mornye/services/scrobbling/scrobble_listening.dart';
-import 'package:mornye/services/scrobbling/scrobble_store.dart';
+import 'package:sistrum/services/lastfm/lastfm_api.dart';
+import 'package:sistrum/services/lastfm/lastfm_store.dart';
+import 'package:sistrum/services/scrobbling/scrobble_listening.dart';
+import 'package:sistrum/services/scrobbling/scrobble_store.dart';
 
 const lastfmTestSession = LastfmSession(
   username: 'listener',

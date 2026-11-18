@@ -4,12 +4,12 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:path/path.dart' as p;
-import 'package:mornye/services/motion_artwork_store.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/saf_siblings.dart';
-import 'package:mornye/services/song_folder_file.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/motion_artwork_store.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/saf_siblings.dart';
+import 'package:sistrum/services/song_folder_file.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/logger.dart';
 
 const motionArtworkFileName = 'cover.mp4';
 const _maxBytes = 64 << 20;

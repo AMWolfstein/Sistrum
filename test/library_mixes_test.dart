@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/providers/library_mixes_provider.dart';
-import 'package:mornye/services/library_mixes.dart';
-import 'package:mornye/services/library_queue_store.dart';
-import 'package:mornye/services/library_schema.dart';
-import 'package:mornye/services/library_shadow_sql.dart';
-import 'package:mornye/services/playable_media.dart';
+import 'package:sistrum/providers/library_mixes_provider.dart';
+import 'package:sistrum/services/library_mixes.dart';
+import 'package:sistrum/services/library_queue_store.dart';
+import 'package:sistrum/services/library_schema.dart';
+import 'package:sistrum/services/library_shadow_sql.dart';
+import 'package:sistrum/services/playable_media.dart';
 
 import 'support/sqlite_process_database.dart';
 

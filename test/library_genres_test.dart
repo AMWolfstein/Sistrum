@@ -5,13 +5,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart'
     show databaseFactoryFfi, sqfliteFfiInit;
-import 'package:mornye/providers/library_genres_provider.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/library_queue_store.dart';
-import 'package:mornye/services/library_row_mapper.dart';
-import 'package:mornye/services/sqlite_helpers.dart' as sqlite;
-import 'package:mornye/utils/genre_tags.dart';
+import 'package:sistrum/providers/library_genres_provider.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/library_queue_store.dart';
+import 'package:sistrum/services/library_row_mapper.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
+import 'package:sistrum/utils/genre_tags.dart';
 
 Map<String, dynamic> _download(String id, String? genre, {String? path}) => {
   'id': id,

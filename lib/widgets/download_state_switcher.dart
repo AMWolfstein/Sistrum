@@ -1,6 +1,6 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/theme/material_expressive.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/theme/material_expressive.dart';
 
 /// Switches a download row's trailing control when its state changes.
 ///

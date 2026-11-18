@@ -2,12 +2,12 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/lyrics_romanization.dart';
-import 'package:mornye/services/romanization/cyrillic.dart';
-import 'package:mornye/services/romanization/pinyin.dart';
-import 'package:mornye/services/romanization/text_romanizer.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/lyrics_romanization.dart';
+import 'package:sistrum/services/romanization/cyrillic.dart';
+import 'package:sistrum/services/romanization/pinyin.dart';
+import 'package:sistrum/services/romanization/text_romanizer.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
 
 // Every sample line below was written for these tests.
 

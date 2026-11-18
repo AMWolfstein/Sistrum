@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/utils/isrc_utils.dart';
-import 'package:mornye/utils/ordered_range_selection.dart';
+import 'package:sistrum/utils/isrc_utils.dart';
+import 'package:sistrum/utils/ordered_range_selection.dart';
 
 void main() {
   group('issue 542 utility behavior', () {

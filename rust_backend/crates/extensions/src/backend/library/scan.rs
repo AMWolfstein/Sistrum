@@ -376,7 +376,7 @@ impl Backend {
                 let image = own.clone().or_else(|| {
                     inherited.filter(|_| {
                         Path::new(&path).file_name().is_some_and(|name| {
-                            mornye_core::cover::is_disc_folder(&name.to_string_lossy())
+                            sistrum_core::cover::is_disc_folder(&name.to_string_lossy())
                         })
                     })
                 });
@@ -725,7 +725,7 @@ fn folder_image(
     directory: &str,
     entries: &[(String, bool)],
 ) -> Option<Arc<FolderImage>> {
-    let name = mornye_core::cover::folder_image(
+    let name = sistrum_core::cover::folder_image(
         entries
             .iter()
             .filter(|(_, directory)| !directory)
@@ -1014,7 +1014,7 @@ mod tests {
         let expected: Vec<_> = (0..2)
             .map(|album| {
                 let art = artwork(7_000 + album, 1200);
-                mornye_core::cover::library_thumbnail(&art, &|| Ok(())).unwrap()
+                sistrum_core::cover::library_thumbnail(&art, &|| Ok(())).unwrap()
             })
             .collect();
         let backend = backend(root.path(), &library);
@@ -1163,7 +1163,7 @@ mod tests {
     }
 
     fn thumbnail(art: &[u8]) -> Vec<u8> {
-        mornye_core::cover::library_thumbnail(art, &|| Ok(()))
+        sistrum_core::cover::library_thumbnail(art, &|| Ok(()))
             .unwrap()
             .to_vec()
     }
@@ -1417,7 +1417,7 @@ mod tests {
                 .artwork
                 .get_or_read(&|| Ok(()), || {
                     reads.fetch_add(1, Ordering::Relaxed);
-                    let cover = mornye_core::tags::CoverArt {
+                    let cover = sistrum_core::tags::CoverArt {
                         data: b"image".to_vec(),
                         mime: "image/jpeg".into(),
                     };
@@ -1654,8 +1654,8 @@ mod tests {
         let setting = |name: &str, default: u32| {
             std::env::var(name).map_or(default, |value| value.parse().unwrap())
         };
-        let albums = setting("MORNYE_BENCH_ALBUMS", 100);
-        let tracks = setting("MORNYE_BENCH_TRACKS", 10);
+        let albums = setting("SISTRUM_BENCH_ALBUMS", 100);
+        let tracks = setting("SISTRUM_BENCH_TRACKS", 10);
         let root = tempfile::tempdir().unwrap();
         // The thumbnail cache is process-wide; fresh pictures keep runs apart.
         let seed = std::time::SystemTime::now()

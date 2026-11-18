@@ -51,7 +51,7 @@ async fn synced_lyrics_are_lines_by_start_with_the_stored_text() {
             { "start": 3000, "value": "Third line" },
         ])
     );
-    assert_eq!(entry["mornyeRaw"], SYNCED.trim());
+    assert_eq!(entry["sistrumRaw"], SYNCED.trim());
 }
 
 #[tokio::test]
@@ -105,7 +105,7 @@ async fn xml_lines_carry_their_text_as_content() {
         .find(|node| node.has_tag_name("structuredLyrics"))
         .expect("structuredLyrics");
     assert_eq!(entry.attribute("synced"), Some("true"));
-    assert_eq!(entry.attribute("mornyeRaw"), Some(SYNCED.trim()));
+    assert_eq!(entry.attribute("sistrumRaw"), Some(SYNCED.trim()));
     let first = entry
         .children()
         .find(|node| node.has_tag_name("line"))

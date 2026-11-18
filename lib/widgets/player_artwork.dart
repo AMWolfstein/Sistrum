@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:mornye/services/cover_cache_manager.dart';
-import 'package:mornye/services/cover_store.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/cached_cover_image.dart';
+import 'package:sistrum/services/cover_cache_manager.dart';
+import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/cached_cover_image.dart';
 
 class PlayerArtwork extends StatelessWidget {
   /// Shared decode for the mini player and the full player's blurred cover.

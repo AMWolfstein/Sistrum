@@ -1,6 +1,6 @@
-# Contributing to Mornye
+# Contributing to Sistrum
 
-Thank you for helping improve Mornye. Bug reports, focused pull
+Thank you for helping improve Sistrum. Bug reports, focused pull
 requests, documentation, and translations are all welcome.
 
 Please follow the [Code of Conduct](CODE_OF_CONDUCT.md) when participating in
@@ -16,7 +16,7 @@ the project.
   artifacts.
 
 Translations are managed through the
-[Mornye Crowdin project](https://crowdin.com/project/mornye).
+[Sistrum Crowdin project](https://crowdin.com/project/mornye).
 The English source strings live in `lib/l10n/arb/app_en.arb`.
 
 ## Toolchain
@@ -39,7 +39,7 @@ exact Flutter version declared in `.fvmrc` and replace `fvm flutter` with
 
    ```bash
    git clone https://github.com/YOUR_USERNAME/Mornye.git
-   cd Mornye
+   cd Sistrum
    git remote add upstream https://github.com/mornyeapp/Mornye.git
    ```
 
@@ -100,7 +100,7 @@ For development release APKs, use `bash scripts/build_android.sh`. Full builds
 remain the default; add `--lite` to omit the optional Discord SDK while keeping
 playback and downloads. Debug builds can also run without the SDK.
 
-To build only ARM64, set `MORNYE_RUST_ANDROID_ABIS=arm64-v8a`. The script uses
+To build only ARM64, set `SISTRUM_RUST_ANDROID_ABIS=arm64-v8a`. The script uses
 the Flutter version in `.fvmrc` and audits the selected split APKs and universal
 APK. Android Gradle builds the Rust native artifacts automatically.
 
@@ -109,7 +109,7 @@ APK. Android Gradle builds the Rust native artifacts automatically.
 On macOS, run `bash scripts/build_ios.sh`, then `(cd ios && pod install)` before
 opening `ios/Runner.xcworkspace`. The application uses the Rust backend.
 
-For iOS Lite, run CocoaPods and the app build with `MORNYE_DISCORD_SDK=0`.
+For iOS Lite, run CocoaPods and the app build with `SISTRUM_DISCORD_SDK=0`.
 An existing Pods installation must be regenerated with that setting. Production
 release CI requires the staged Discord SDK on iOS as well.
 
@@ -139,7 +139,7 @@ when choosing symbols; equal version numbers do not guarantee a match.
 
 ### Last.fm Integration
 
-Create a Last.fm API account for Mornye at
+Create a Last.fm API account for Sistrum at
 <https://www.last.fm/api/account/create>. Authorization uses a request token
 and a browser approval on every platform, so no callback URL is needed. Put
 its API key and shared secret in the Git-ignored `.env.lastfm` file:
@@ -178,7 +178,7 @@ docs/         Local documentation and migration archives (gitignored)
 scripts/      Reproducible project build helpers
 ```
 
-Mornye is extension-driven. Extension-specific behavior must be
+Sistrum is extension-driven. Extension-specific behavior must be
 declared through a generic manifest field, capability, or reusable app API.
 Do not add provider-name checks such as `if source == 'provider-name'` to the
 main app. The backend should parse and expose the generic declaration, and Dart
@@ -189,15 +189,15 @@ not repeated here: [android/README.md](android/README.md) (native channel
 contract), [rust_backend/README.md](rust_backend/README.md) (crate map),
 [test/README.md](test/README.md),
 [integration_test/README.md](integration_test/README.md),
-[lib/theme/README.md](lib/theme/README.md), and the `MORNYE_PATCHES.md` file
+[lib/theme/README.md](lib/theme/README.md), and the `SISTRUM_PATCHES.md` file
 in each `third_party/` fork, for example
-[audio_service](third_party/audio_service/MORNYE_PATCHES.md).
+[audio_service](third_party/audio_service/SISTRUM_PATCHES.md).
 
 ## Codebase Map
 
 ### Flutter (`lib/`)
 
-App files import each other as `package:mornye/...`. The intended
+App files import each other as `package:sistrum/...`. The intended
 direction is screens and widgets on top, then controllers, providers, services,
 and models and utilities at the bottom. The last column is the current state
 found by scanning import lines, including today's exceptions; do not add new
@@ -205,7 +205,7 @@ ones.
 
 | Folder | What belongs there | Imports today |
 | --- | --- | --- |
-| `main.dart`, `app.dart` | Startup, `ProviderScope`, `MornyeApp`, and the `GoRouter` (`/`, `/setup`, `/tutorial`) | Any folder |
+| `main.dart`, `app.dart` | Startup, `ProviderScope`, `SistrumApp`, and the `GoRouter` (`/`, `/setup`, `/tutorial`) | Any folder |
 | `screens/` | Routes and tab roots; large screens split into `<screen>_*.dart` files; settings pages in `screens/settings/` | Any folder |
 | `widgets/` | Reusable widgets and design-system components | Any folder except `screens/`; exceptions: `library_search_results.dart`, `artist_concerts_button.dart`, `mini_player.dart` |
 | `controllers/` | UI logic shared by screens and widgets: selection mixins, batch actions, the metadata editor | controllers, widgets, providers, services, models, utils, theme, l10n; `clickable_metadata.dart` also imports `screens/` |
@@ -230,27 +230,27 @@ Workspace dependencies point only downward:
 
 | Crate | Package | Role | Depends on |
 | --- | --- | --- | --- |
-| `core/` | `mornye-core` | Shared logic without bindings: tags, lyrics parsing and provider config, metadata, filenames, CUE, covers | none |
-| `network/` | `mornye-network` | Shared, cancellable HTTP transport | none |
-| `providers/` | `mornye-providers` | Built-in clients: Deezer, MusicBrainz, platform resolver, lyrics | core, network |
-| `extensions/` | `mornye-extensions` | Extension JavaScript runtime (rquickjs), host functions, manager, repository, and backend operations such as downloads, library scan, and tags | core, network, providers |
-| `mobile/` | `mornye-mobile` | UniFFI API, mostly methods on `ExtensionManager`; built as `cdylib` and `staticlib`; Kotlin package `com.mornye.backend`, Swift module `MornyeBackend` | core, network, extensions |
-| `bindgen/` | `mornye-bindgen` | UniFFI bindgen CLI used by `scripts/build_rust_backend.sh` | none |
+| `core/` | `sistrum-core` | Shared logic without bindings: tags, lyrics parsing and provider config, metadata, filenames, CUE, covers | none |
+| `network/` | `sistrum-network` | Shared, cancellable HTTP transport | none |
+| `providers/` | `sistrum-providers` | Built-in clients: Deezer, MusicBrainz, platform resolver, lyrics | core, network |
+| `extensions/` | `sistrum-extensions` | Extension JavaScript runtime (rquickjs), host functions, manager, repository, and backend operations such as downloads, library scan, and tags | core, network, providers |
+| `mobile/` | `sistrum-mobile` | UniFFI API, mostly methods on `ExtensionManager`; built as `cdylib` and `staticlib`; Kotlin package `com.amwolfstein.sistrum.backend`, Swift module `MornyeBackend` | core, network, extensions |
+| `bindgen/` | `sistrum-bindgen` | UniFFI bindgen CLI used by `scripts/build_rust_backend.sh` | none |
 
 ### Native
 
-Android Kotlin lives in `android/app/src/main/kotlin/com/zarz/mornye/`.
-`android/app/build.gradle.kts` adds `android/app/src/rust/kotlin/com/zarz/mornye/`
+Android Kotlin lives in `android/app/src/main/kotlin/com/amwolfstein/sistrum/`.
+`android/app/build.gradle.kts` adds `android/app/src/rust/kotlin/com/amwolfstein/sistrum/`
 and the generated bindings to the same source set.
 
 | Files | Role |
 | --- | --- |
-| `MainActivity.kt` | Backend channel `com.zarz.mornye/backend`, the `nativeBackendMethods` set, and the `when (call.method)` dispatch |
+| `MainActivity.kt` | Backend channel `com.amwolfstein.sistrum/backend`, the `nativeBackendMethods` set, and the `when (call.method)` dispatch |
 | `MainActivity*Calls.kt`, `MainActivitySaf*.kt`, `MainActivityProgressStreams.kt`, `MainActivitySmallChannels.kt` | `MainActivity.handleX(call, result)` extension functions grouped by area, progress EventChannels, small channels |
 | `DownloadService*.kt`, `BackgroundWorkService.kt` | Foreground services: the native download worker and its snapshot, other background work |
 | `NativeDownloadFinalizer.kt`, `NativeFinalizer*.kt`, `NativeHistoryStore.kt` | Post-download finalization and the native history write |
 | `Saf*.kt` | Storage Access Framework helpers |
-| `UsbBitPerfectPlugin.kt`, `Usb*.kt`, `BitPerfectPcm.kt`, `Dsd*.kt`, `HiResPlayback.kt`, `NativeAudio.kt` | Bit-perfect and USB playback (`com.zarz.mornye/usb_pcm`) |
+| `UsbBitPerfectPlugin.kt`, `Usb*.kt`, `BitPerfectPcm.kt`, `Dsd*.kt`, `HiResPlayback.kt`, `NativeAudio.kt` | Bit-perfect and USB playback (`com.amwolfstein.sistrum/usb_pcm`) |
 | `PlayerWidget*.kt`, `DownloadQueueWidgetProvider.kt` | Home-screen widgets |
 | `CoreBackend.kt`; `SelectedCoreBackend.kt`, `RustCoreBackendApplication.kt`, `NativeDataJobs.kt` | The `CoreBackend` interface and its Rust implementation `RustCoreBackend`, which maps method names to UniFFI calls |
 
@@ -421,7 +421,7 @@ in `handleDownloadByStrategy`; iOS in `CoreBackend.swift`.
 - New Rust entry points are `#[uniffi::export]` items in
   `rust_backend/crates/mobile/src/`; the build regenerates bindings (see
   [Development Setup](#development-setup)).
-- Dart tests stub `com.zarz.mornye/backend` with `setMockMethodCallHandler`,
+- Dart tests stub `com.amwolfstein.sistrum/backend` with `setMockMethodCallHandler`,
   for example `test/extension_initialization_test.dart`.
 
 ### A Lyrics Provider
@@ -477,7 +477,7 @@ Commands are in [Validation](#validation).
 | --- | --- | --- |
 | Dart unit and widget | `test/` | [test/README.md](test/README.md); fixtures in `test/fixtures/`, helpers in `test/support/` |
 | Device and performance | `integration_test/` | [integration_test/README.md](integration_test/README.md) |
-| Kotlin JVM | `android/app/src/test/kotlin/com/zarz/mornye/` | Case tables in `android/app/src/test/resources/` are also read by Dart tests |
+| Kotlin JVM | `android/app/src/test/kotlin/com/amwolfstein/sistrum/` | Case tables in `android/app/src/test/resources/` are also read by Dart tests |
 | Rust | `tests.rs` modules beside the code, `rust_backend/crates/extensions/tests/` | For example `rust_backend/crates/extensions/src/runtime/tests.rs` |
 | iOS | `ios/RunnerTests/` | `RunnerTests.swift` |
 
@@ -552,7 +552,7 @@ fvm flutter test
 ```
 
 Some Dart tests render audio and need `ffmpeg` and `ffprobe` on `PATH`. Set
-`MORNYE_TEST_FFMPEG` to an `ffmpeg` binary to override the path used by the
+`SISTRUM_TEST_FFMPEG` to an `ffmpeg` binary to override the path used by the
 automix renderer test; the other ffmpeg tests read `PATH` directly.
 
 Performance drive runs need a dedicated emulator, `--profile` on Android and
@@ -601,6 +601,6 @@ before/after screenshots for UI changes.
 5. Respond to review feedback with follow-up commits; maintainers may squash
    commits when merging.
 
-When reporting a crash, include the Mornye version, release channel,
+When reporting a crash, include the Sistrum version, release channel,
 device/OS, exact reproduction steps, storage mode, and exported app logs. For a
 cold-start Android crash, `adb logcat -b crash -d` is especially useful.

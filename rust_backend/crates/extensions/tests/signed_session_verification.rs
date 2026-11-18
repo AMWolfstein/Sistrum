@@ -1,5 +1,5 @@
-use mornye_extensions::RuntimeLimits;
-use mornye_extensions::environment::ExtensionEnvironment;
+use sistrum_extensions::RuntimeLimits;
+use sistrum_extensions::environment::ExtensionEnvironment;
 use serde_json::{Value, json};
 
 #[test]

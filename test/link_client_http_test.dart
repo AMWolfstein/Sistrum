@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/client/link_client_http.dart';
+import 'package:sistrum/services/link/client/link_client_http.dart';
 
 class _OpeningClient implements HttpClient {
   final opening = Completer<HttpClientRequest>();
@@ -60,7 +60,7 @@ void main() {
           '${directory.path}/song.flac',
         ).writeAsBytes([1]);
         final client = _OpeningClient();
-        final uri = Uri.parse('https://example.test/mornye/v1/files/song.flac');
+        final uri = Uri.parse('https://example.test/sistrum/v1/files/song.flac');
         const timeout = Duration(milliseconds: 10);
         final sending = upload
             ? linkHttpUpload(client, uri, file, timeout: timeout)

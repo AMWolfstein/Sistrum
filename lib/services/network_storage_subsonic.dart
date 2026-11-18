@@ -58,7 +58,7 @@ Uri _subsonicTarget(
   path.add('$method.view');
   final parameters = <String, String>{
     'v': '1.16.1',
-    'c': 'Mornye',
+    'c': 'Sistrum',
     'f': 'json',
     ...arguments,
   };
@@ -416,8 +416,8 @@ class SubsonicClient {
   }
 
   /// The lyrics of [song] from the OpenSubsonic songLyrics extension, as
-  /// LRC or plain text; empty when the server has none. A Mornye desktop
-  /// also sends the stored text (`mornyeRaw`), which keeps word timing.
+  /// LRC or plain text; empty when the server has none. A Sistrum desktop
+  /// also sends the stored text (`sistrumRaw`), which keeps word timing.
   /// Throws when the server lacks the extension.
   Future<String> lyrics(SubsonicSong song) async {
     final result = await request('getLyricsBySongId', {'id': song.id});
@@ -425,7 +425,7 @@ class SubsonicClient {
       _subsonicMap(result['lyricsList'])['structuredLyrics'],
     );
     for (final entry in entries) {
-      if (entry['mornyeRaw'] case final String raw when raw.trim().isNotEmpty) {
+      if (entry['sistrumRaw'] case final String raw when raw.trim().isNotEmpty) {
         return raw;
       }
     }
@@ -453,7 +453,7 @@ class SubsonicClient {
     return '${two(time ~/ 60000)}:${two(time ~/ 1000 % 60)}.${two(time % 1000 ~/ 10)}';
   }
 
-  /// Every song of the server once. A Mornye desktop (`type: "mornye"`)
+  /// Every song of the server once. A Sistrum desktop (`type: "sistrum"`)
   /// pages them through an empty `search3` query, which answers the same
   /// song objects as `getAlbum`; other servers are walked album by album.
   Stream<SubsonicSong> catalog({
@@ -461,13 +461,13 @@ class SubsonicClient {
   }) async* {
     await checkpoint();
     final first = await _albumList(0);
-    _catalogNewestFirst = first['type'] == 'mornye';
+    _catalogNewestFirst = first['type'] == 'sistrum';
     yield* _catalogNewestFirst
         ? _searchCatalog(checkpoint)
         : _albumCatalog(first, checkpoint);
   }
 
-  /// Whether [catalog] lists songs newest first: a Mornye desktop pages them
+  /// Whether [catalog] lists songs newest first: a Sistrum desktop pages them
   /// in its export order, its Library's latest sort. Known by the first song.
   bool get catalogNewestFirst => _catalogNewestFirst;
   bool _catalogNewestFirst = false;

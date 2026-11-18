@@ -3,14 +3,14 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/services/link/desktop/link_phone_sources.dart';
-import 'package:mornye/services/link/desktop/link_transfer_songs.dart';
-import 'package:mornye/services/link/features/link_save_offline.dart';
-import 'package:mornye/services/link/link_host_router.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/link/link_transfers.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/link/desktop/link_phone_sources.dart';
+import 'package:sistrum/services/link/desktop/link_transfer_songs.dart';
+import 'package:sistrum/services/link/features/link_save_offline.dart';
+import 'package:sistrum/services/link/link_host_router.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/link_transfers.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('LinkDesktopTransfers');
 

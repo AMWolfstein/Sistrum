@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/lyrics_translation_sharing.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/lyrics_translation_sharing.dart';
+import 'package:sistrum/utils/logger.dart';
 
 /// Exchanges completed lyric overlays in both Link directions. Reconnecting
 /// asks for the lyrics being viewed, including a result made while offline.

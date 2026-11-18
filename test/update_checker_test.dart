@@ -9,12 +9,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/services/update_checker.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/runtime_profile_provider.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/widgets/update_dialog.dart';
+import 'package:sistrum/services/update_checker.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/runtime_profile_provider.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/widgets/update_dialog.dart';
 
 Map<String, Object?> release(String version) => {
   'tag_name': 'v$version',
@@ -26,9 +26,9 @@ Map<String, Object?> release(String version) => {
   'assets': [
     for (final abi in ['arm32', 'arm64'])
       {
-        'name': 'Mornye-v$version-$abi.apk',
+        'name': 'Sistrum-v$version-$abi.apk',
         'browser_download_url':
-            'https://example.test/Mornye-v$version-$abi.apk',
+            'https://example.test/Sistrum-v$version-$abi.apk',
         'digest': 'sha256:${List.filled(64, 'a').join()}',
       },
   ],
@@ -112,9 +112,9 @@ void main() {
       ..['assets'] = [
         for (final abi in ['arm32', 'arm64'])
           {
-            'name': 'Mornye-5.2.1-$abi.apk',
+            'name': 'Sistrum-5.2.1-$abi.apk',
             'browser_download_url':
-                'https://example.test/Mornye-5.2.1-$abi.apk',
+                'https://example.test/Sistrum-5.2.1-$abi.apk',
             'digest': 'sha256:${List.filled(64, 'a').join()}',
           },
       ];
@@ -129,7 +129,7 @@ void main() {
     final update = await checker.checkForUpdate();
     expect(
       update?.apkDownloadUrl,
-      'https://example.test/Mornye-5.2.1-arm64.apk',
+      'https://example.test/Sistrum-5.2.1-arm64.apk',
     );
     expect(update?.apkSha256, List.filled(64, 'a').join());
   });

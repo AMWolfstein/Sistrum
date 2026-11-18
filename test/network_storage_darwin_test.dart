@@ -3,12 +3,12 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/network_storage_service.dart';
+import 'package:sistrum/services/network_storage_service.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = null;
-  final nativeTest = Platform.environment['MORNYE_DARWIN_SOURCE_TEST'];
+  final nativeTest = Platform.environment['SISTRUM_DARWIN_SOURCE_TEST'];
 
   test(
     'native AVPlayer prepares audio through the real NAS playback proxy',
@@ -78,7 +78,7 @@ void main() {
       expect(ranges, isNotEmpty);
     },
     skip: !Platform.isMacOS || nativeTest == null
-        ? 'Set MORNYE_DARWIN_SOURCE_TEST to the compiled SourceLifecycleTests binary'
+        ? 'Set SISTRUM_DARWIN_SOURCE_TEST to the compiled SourceLifecycleTests binary'
         : false,
     timeout: const Timeout(Duration(seconds: 30)),
   );

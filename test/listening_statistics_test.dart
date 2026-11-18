@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/album_track_order.dart';
-import 'package:mornye/services/listening_statistics.dart';
+import 'package:sistrum/models/album_track_order.dart';
+import 'package:sistrum/services/listening_statistics.dart';
 
 import 'support/link_sync_support.dart';
 import 'support/sqlite_process_database.dart';

@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/client/link_client_http.dart';
-import 'package:mornye/services/link/client/link_client_pairing.dart';
-import 'package:mornye/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/client/link_client_http.dart';
+import 'package:sistrum/services/link/client/link_client_pairing.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
 
 const _device = LinkDeviceIdentity(
   deviceId: 'phone-1',
@@ -43,7 +43,7 @@ Future<HttpServer> _desktop({
   server.listen((request) async {
     final response = request.response;
     response.headers.contentType = ContentType.json;
-    if (request.uri.path == '/mornye/v1/info') {
+    if (request.uri.path == '/sistrum/v1/info') {
       response.write(
         jsonEncode({
           'serverId': 'server-1',
@@ -54,7 +54,7 @@ Future<HttpServer> _desktop({
           'pairing': pairing,
         }),
       );
-    } else if (request.uri.path == '/mornye/v1/pair' &&
+    } else if (request.uri.path == '/sistrum/v1/pair' &&
         request.method == 'POST') {
       final body =
           jsonDecode(await utf8.decoder.bind(request).join())
@@ -81,7 +81,7 @@ void main() {
     });
     tearDown(() => server.close(force: true));
 
-    Uri info() => Uri.parse('https://127.0.0.1:${server.port}/mornye/v1/info');
+    Uri info() => Uri.parse('https://127.0.0.1:${server.port}/sistrum/v1/info');
 
     test('accepts exactly the pinned certificate', () async {
       final client = linkPinnedHttpClient(fingerprint.toUpperCase());

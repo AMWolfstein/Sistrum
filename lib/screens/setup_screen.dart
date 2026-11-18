@@ -6,37 +6,37 @@ import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart' show LogicalKeyboardKey;
 import 'package:material_3_expressive/material_3_expressive.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/theme/material_expressive.dart';
-import 'package:mornye/widgets/app_alert_dialog.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/app_content_card.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_icon_button.dart';
-import 'package:mornye/widgets/app_loading_indicator.dart';
-import 'package:mornye/widgets/app_progress_indicator.dart';
-import 'package:mornye/widgets/expressive_button.dart';
-import 'package:mornye/widgets/app_snack_bar.dart';
-import 'package:mornye/widgets/extension_storage_setting.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/theme/material_expressive.dart';
+import 'package:sistrum/widgets/app_alert_dialog.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_content_card.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_icon_button.dart';
+import 'package:sistrum/widgets/app_loading_indicator.dart';
+import 'package:sistrum/widgets/app_progress_indicator.dart';
+import 'package:sistrum/widgets/expressive_button.dart';
+import 'package:sistrum/widgets/app_snack_bar.dart';
+import 'package:sistrum/widgets/extension_storage_setting.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:mornye/services/link/client/link_client_controller.dart';
-import 'package:mornye/services/local_network_access.dart';
-import 'package:mornye/services/setup_progress_store.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/constants/language_choices.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/desktop_folders.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/android_tv.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/widgets/scroll_edge_fade.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/link/client/link_client_controller.dart';
+import 'package:sistrum/services/local_network_access.dart';
+import 'package:sistrum/services/setup_progress_store.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/constants/language_choices.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/adaptive_layout.dart';
+import 'package:sistrum/utils/desktop_folders.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/android_tv.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/widgets/scroll_edge_fade.dart';
+import 'package:sistrum/utils/logger.dart';
 
 part 'setup_steps.dart';
 
@@ -88,7 +88,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
       ? (_asksNearby ? 6 : 5)
       : 4;
 
-  /// Android 17 asks for Nearby devices before LAN access, which Mornye Link
+  /// Android 17 asks for Nearby devices before LAN access, which Sistrum Link
   /// and network storage need. Earlier releases allow it without asking.
   bool get _asksNearby =>
       _platform == TargetPlatform.android &&
@@ -609,10 +609,10 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
   Future<String> _getDefaultDirectory() async {
     if (isAndroidTv) {
       final appDir = await getApplicationDocumentsDirectory();
-      return '${appDir.path}/Mornye';
+      return '${appDir.path}/Sistrum';
     }
     if (_platform == TargetPlatform.android) {
-      final downloadDir = Directory('/storage/emulated/0/Download/Mornye');
+      final downloadDir = Directory('/storage/emulated/0/Download/Sistrum');
       try {
         if (!await downloadDir.exists()) {
           await downloadDir.create(recursive: true);
@@ -623,7 +623,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
       }
     }
     final appDir = await getApplicationDocumentsDirectory();
-    return '${appDir.path}/Mornye';
+    return '${appDir.path}/Sistrum';
   }
 
   Future<void> _completeSetup() async {

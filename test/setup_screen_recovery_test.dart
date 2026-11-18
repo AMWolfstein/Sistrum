@@ -8,11 +8,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/screens/setup_screen.dart';
-import 'package:mornye/utils/android_tv.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/screens/setup_screen.dart';
+import 'package:sistrum/utils/android_tv.dart';
 
 class _Settings extends SettingsNotifier {
   @override
@@ -22,7 +22,7 @@ class _Settings extends SettingsNotifier {
   Future<void> ensureLoaded() async {}
 }
 
-const _backend = MethodChannel('com.zarz.mornye/backend');
+const _backend = MethodChannel('com.amwolfstein.sistrum/backend');
 const _device = MethodChannel('dev.fluttercommunity.plus/device_info');
 const _permissions = MethodChannel('flutter.baseflow.com/permissions/methods');
 const _treeUri =
@@ -173,7 +173,7 @@ void main() {
     (tester) async {
       debugAndroidTvOverride = true;
       addTearDown(() => debugAndroidTvOverride = null);
-      final directory = Directory.systemTemp.createTempSync('mornye-tv-setup-');
+      final directory = Directory.systemTemp.createTempSync('sistrum-tv-setup-');
       addTearDown(() => directory.deleteSync(recursive: true));
       const paths = MethodChannel('plugins.flutter.io/path_provider');
       messenger.setMockMethodCallHandler(paths, (_) async => directory.path);
@@ -190,7 +190,7 @@ void main() {
         await tester.pumpAndSettle();
       }
       expect(find.text('3/3'), findsOneWidget);
-      expect(find.text('${directory.path}/Mornye'), findsOneWidget);
+      expect(find.text('${directory.path}/Sistrum'), findsOneWidget);
       expect(find.text('Get Started'), findsOneWidget);
       expect(permissionRequests, 0);
       expect(pickerCalls, 0);

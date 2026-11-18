@@ -4,7 +4,7 @@ import 'package:audio_service/audio_service.dart';
 // ignore: depend_on_referenced_packages
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/lastfm/lastfm_service.dart';
+import 'package:sistrum/services/lastfm/lastfm_service.dart';
 
 import 'support/lastfm_fakes.dart';
 

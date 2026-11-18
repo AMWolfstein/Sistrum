@@ -4,22 +4,22 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/models/theme_settings.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/screens/settings/playback_settings_page.dart';
-import 'package:mornye/services/music_playback_deck.dart';
-import 'package:mornye/services/spatial_audio.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/android_tv.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/settings_search_catalog.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/models/theme_settings.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/screens/settings/playback_settings_page.dart';
+import 'package:sistrum/services/music_playback_deck.dart';
+import 'package:sistrum/services/spatial_audio.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/android_tv.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/settings_search_catalog.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
 const _title = 'Spatial audio';
-const _events = EventChannel('com.zarz.mornye/spatial_audio');
+const _events = EventChannel('com.amwolfstein.sistrum/spatial_audio');
 
 final _l10n = lookupAppLocalizations(const Locale('en'));
 

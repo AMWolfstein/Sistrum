@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/audio_file_open_service.dart';
+import 'package:sistrum/services/audio_file_open_service.dart';
 import 'package:path/path.dart' as p;
 
 void main() {
@@ -10,7 +10,7 @@ void main() {
   late Directory directory;
 
   setUp(() async {
-    directory = await Directory.systemTemp.createTemp('mornye-open-audio-');
+    directory = await Directory.systemTemp.createTemp('sistrum-open-audio-');
   });
   tearDown(() => directory.delete(recursive: true));
 
@@ -19,7 +19,7 @@ void main() {
     expect(OpenAudioFile.parse(Uri.file(path).toString())?.source, path);
     for (final input in [
       'https://example.com/song.mp3',
-      'mornye://callback',
+      'sistrum://callback',
       '--help',
       'relative.mp3',
       '/invalid\u0000.mp3',

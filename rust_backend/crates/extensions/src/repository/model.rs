@@ -2,8 +2,8 @@
 
 use super::{RepositoryError, error};
 use crate::environment::compare_versions;
-use mornye_core::json::field_name;
-use mornye_core::matching::lowercase;
+use sistrum_core::json::field_name;
+use sistrum_core::matching::lowercase;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::{Value, json};
 use std::cmp::Ordering;
@@ -180,8 +180,8 @@ impl RepoExtension {
         ])
     }
 
-    /// Registries may also list packages for other Mornye hosts (for example
-    /// Mornye-Python, `"runtime": "python"`). This app only runs JavaScript
+    /// Registries may also list packages for other Sistrum hosts (for example
+    /// Sistrum-Python, `"runtime": "python"`). This app only runs JavaScript
     /// extensions, so entries with any other runtime are hidden and refused.
     pub fn is_supported_runtime(&self) -> bool {
         let runtime = self.runtime.trim();

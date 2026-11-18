@@ -1,6 +1,6 @@
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/utils/string_utils.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/utils/string_utils.dart';
 
 /// Field group keys understood by the native re-enrich backend.
 class ReEnrichFields {

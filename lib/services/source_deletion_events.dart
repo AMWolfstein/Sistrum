@@ -1,4 +1,4 @@
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('SourceDeletionEvents');
 

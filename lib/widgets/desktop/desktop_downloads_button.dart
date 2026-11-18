@@ -1,15 +1,15 @@
 import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/download_item.dart';
-import 'package:mornye/providers/download_queue_provider.dart';
-import 'package:mornye/services/shell_navigation_service.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_icon_button.dart';
-import 'package:mornye/widgets/app_progress_indicator.dart';
-import 'package:mornye/widgets/player_artwork.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/download_item.dart';
+import 'package:sistrum/providers/download_queue_provider.dart';
+import 'package:sistrum/services/shell_navigation_service.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_icon_button.dart';
+import 'package:sistrum/widgets/app_progress_indicator.dart';
+import 'package:sistrum/widgets/player_artwork.dart';
 
 /// How many of [items] are active and their overall progress: waiting items
 /// count as not started. One pass, so a progress sample allocates nothing.

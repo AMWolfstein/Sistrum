@@ -1,13 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/services/library_duplicates.dart';
-import 'package:mornye/services/library_schema.dart';
-import 'package:mornye/services/sqlite_helpers.dart';
-import 'package:mornye/utils/path_match_keys.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/services/library_duplicates.dart';
+import 'package:sistrum/services/library_schema.dart';
+import 'package:sistrum/services/sqlite_helpers.dart';
+import 'package:sistrum/utils/path_match_keys.dart';
 
 import 'support/sqlite_process_database.dart';
 
-const _plain = r'C:\Users\me\Music\Mornye\Artist\Album\01 - Song.flac';
+const _plain = r'C:\Users\me\Music\Sistrum\Artist\Album\01 - Song.flac';
 const _verbatim = '\\\\?\\$_plain';
 
 void main() {

@@ -4,19 +4,19 @@ import 'dart:io';
 import 'package:audio_service/audio_service.dart' show MediaItem;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/controllers/clickable_metadata.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/screens/extension_collection_screens.dart'
+import 'package:sistrum/controllers/clickable_metadata.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/screens/extension_collection_screens.dart'
     show ExtensionAlbumScreen;
-import 'package:mornye/services/background_favorites.dart';
-import 'package:mornye/services/cover_store.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/library_collections_database.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/library_media_identity.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/utils/playback_artwork.dart';
-import 'package:mornye/widgets/cached_cover_image.dart';
+import 'package:sistrum/services/background_favorites.dart';
+import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/library_collections_database.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/library_media_identity.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/utils/playback_artwork.dart';
+import 'package:sistrum/widgets/cached_cover_image.dart';
 
 const _source = 'network://nas/Album/song.flac';
 const _ref = 'network://nas/Album/cover.jpg';

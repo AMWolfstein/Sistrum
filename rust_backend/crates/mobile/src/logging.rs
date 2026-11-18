@@ -1,4 +1,4 @@
-use mornye_extensions::logging::{LogBuffer as CoreLogBuffer, LogClosed};
+use sistrum_extensions::logging::{LogBuffer as CoreLogBuffer, LogClosed};
 use std::sync::Arc;
 
 #[derive(Debug, thiserror::Error, uniffi::Error)]

@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/features/link_phone_files.dart';
-import 'package:mornye/services/link/features/link_phone_library_sync.dart';
-import 'package:mornye/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/features/link_phone_files.dart';
+import 'package:sistrum/services/link/features/link_phone_library_sync.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
 
 import 'support/link_fakes.dart';
 

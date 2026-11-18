@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/utils/audio_format_utils.dart';
-import 'package:mornye/utils/hash_utils.dart';
+import 'package:sistrum/utils/audio_format_utils.dart';
+import 'package:sistrum/utils/hash_utils.dart';
 
 String _hex(int hash) => hash.toRadixString(16).padLeft(8, '0');
 

@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/models/album_track_order.dart';
-import 'package:mornye/services/listening_statistics.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/models/album_track_order.dart';
+import 'package:sistrum/services/listening_statistics.dart';
+import 'package:sistrum/utils/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final _log = AppLogger('AlbumTrackSort');

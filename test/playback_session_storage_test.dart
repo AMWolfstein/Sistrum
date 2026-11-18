@@ -7,13 +7,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart'
     show databaseFactoryFfi, sqfliteFfiInit;
-import 'package:mornye/services/app_state_database.dart';
-import 'package:mornye/services/library_cover_snapshot.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/services/playback_resume_store.dart';
-import 'package:mornye/services/playback_session_restore.dart';
-import 'package:mornye/services/playback_session_writer.dart';
-import 'package:mornye/services/sqlite_long_text.dart';
+import 'package:sistrum/services/app_state_database.dart';
+import 'package:sistrum/services/library_cover_snapshot.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/services/playback_resume_store.dart';
+import 'package:sistrum/services/playback_session_restore.dart';
+import 'package:sistrum/services/playback_session_writer.dart';
+import 'package:sistrum/services/sqlite_long_text.dart';
 
 PlayableMedia _song(int i) => PlayableMedia(
   id: 'song-$i',

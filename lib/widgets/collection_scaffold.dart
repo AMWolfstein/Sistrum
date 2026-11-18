@@ -1,9 +1,9 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/nav_bar_inset.dart';
-import 'package:mornye/widgets/desktop/detail_header.dart';
-import 'package:mornye/widgets/album_detail_header.dart';
-import 'package:mornye/widgets/selection_bottom_bar.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/nav_bar_inset.dart';
+import 'package:sistrum/widgets/desktop/detail_header.dart';
+import 'package:sistrum/widgets/album_detail_header.dart';
+import 'package:sistrum/widgets/selection_bottom_bar.dart';
 
 /// Shared shell for every track-collection screen: album, playlist, local
 /// album, downloaded album and library folders.

@@ -2,21 +2,21 @@ import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/services/link/desktop/link_desktop_host.dart';
-import 'package:mornye/services/link/desktop/link_desktop_transfers.dart';
-import 'package:mornye/services/link/desktop/link_transfer_songs.dart';
-import 'package:mornye/services/link/link_host_router.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/link/link_transfers.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/app_snack_bar.dart';
-import 'package:mornye/widgets/desktop/context_menu.dart';
-import 'package:mornye/widgets/link/link_transfers_view.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_host.dart';
+import 'package:sistrum/services/link/desktop/link_desktop_transfers.dart';
+import 'package:sistrum/services/link/desktop/link_transfer_songs.dart';
+import 'package:sistrum/services/link/link_host_router.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/link_transfers.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/widgets/app_snack_bar.dart';
+import 'package:sistrum/widgets/desktop/context_menu.dart';
+import 'package:sistrum/widgets/link/link_transfers_view.dart';
 
-/// The phones connected to the desktop's Mornye Link server. The app root
+/// The phones connected to the desktop's Sistrum Link server. The app root
 /// starts the host on desktop; a menu never starts it.
 List<LinkClientInfo> _connectedPhones(WidgetRef ref) {
   if (!isDesktopPlatform || !ref.read(linkDesktopHostProvider.exists)) {
@@ -29,14 +29,14 @@ List<LinkClientInfo> _connectedPhones(WidgetRef ref) {
 String _phoneName(LinkClientInfo phone) =>
     phone.name.isEmpty ? phone.deviceId : phone.name;
 
-/// Whether a desktop page offers Mornye Link transfers: a phone is
+/// Whether a desktop page offers Sistrum Link transfers: a phone is
 /// connected. Rebuilds the page when that changes.
 bool watchDesktopLinkPhones(WidgetRef ref) =>
     isDesktopPlatform &&
     ref.read(linkDesktopHostProvider.exists) &&
     ref.watch(linkDevicesAvailableProvider);
 
-/// The Mornye Link rows of a desktop song menu acting on [items] (contract
+/// The Sistrum Link rows of a desktop song menu acting on [items] (contract
 /// 13.5): "Send to (phone)" for each connected phone while [items] hold
 /// songs of this computer, and "Save to this computer" while they hold
 /// songs of a connected phone. Empty while no phone is connected. [onDone]
@@ -72,7 +72,7 @@ List<ContextMenuAction> desktopLinkTransferActions(
   );
 }
 
-/// The Mornye Link rows for playlist [tracks], which are looked up in the
+/// The Sistrum Link rows for playlist [tracks], which are looked up in the
 /// Library once a row is chosen. "Save to this computer" shows while a
 /// track may be a phone song.
 List<ContextMenuAction> desktopLinkTransferTrackActions(

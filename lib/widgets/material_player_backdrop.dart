@@ -5,13 +5,13 @@ import 'dart:ui' as ui;
 import 'package:audio_service/audio_service.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
-import 'package:mornye/routes/now_playing_route.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/theme/player_artwork_theme.dart';
-import 'package:mornye/widgets/cached_cover_image.dart';
-import 'package:mornye/widgets/mornye_player_artwork.dart';
-import 'package:mornye/widgets/player_artwork.dart';
-import 'package:mornye/widgets/player_track_crossfade.dart';
+import 'package:sistrum/routes/now_playing_route.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/theme/player_artwork_theme.dart';
+import 'package:sistrum/widgets/cached_cover_image.dart';
+import 'package:sistrum/widgets/mornye_player_artwork.dart';
+import 'package:sistrum/widgets/player_artwork.dart';
+import 'package:sistrum/widgets/player_track_crossfade.dart';
 
 /// Full-screen cover style for the Material player: the cover fills the top
 /// of the page edge to edge, then fades into a blurred copy of itself.

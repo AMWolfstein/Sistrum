@@ -2,10 +2,10 @@ import 'dart:ui' as ui;
 
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/providers/player_artwork_video_provider.dart';
-import 'package:mornye/providers/runtime_profile_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/widgets/mornye_player_background.dart';
+import 'package:sistrum/providers/player_artwork_video_provider.dart';
+import 'package:sistrum/providers/runtime_profile_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/widgets/mornye_player_background.dart';
 import 'package:video_player/video_player.dart';
 
 /// What moving artwork in the Mornye player ends in: the video turns soft

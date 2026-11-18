@@ -371,13 +371,13 @@ fn a_transient_outage_recovers_before_flac_lyrics_embedding() {
     assert!(state.negative.is_empty());
     assert!(state.health.is_empty());
     drop(state);
-    let lrc = mornye_core::lyrics::lrc::with_metadata(&found, "Song", "Artist");
+    let lrc = sistrum_core::lyrics::lrc::with_metadata(&found, "Song", "Artist");
     let mut original = b"fLaC\x80\x00\x00\x22".to_vec();
     original.extend_from_slice(&[0; 34]);
     let audio = b"\xff\xf8original audio frames";
     original.extend_from_slice(audio);
     let mut tagged = Vec::new();
-    mornye_core::tags::embed_flac_metadata(
+    sistrum_core::tags::embed_flac_metadata(
         &mut std::io::Cursor::new(original),
         &mut tagged,
         &BTreeMap::from([("LYRICS".into(), lrc.clone())]),
@@ -388,7 +388,7 @@ fn a_transient_outage_recovers_before_flac_lyrics_embedding() {
     .unwrap();
     assert!(tagged.ends_with(audio));
     let metadata =
-        mornye_core::tags::read_audio_tags(&mut std::io::Cursor::new(tagged), "flac", &|| Ok(()))
+        sistrum_core::tags::read_audio_tags(&mut std::io::Cursor::new(tagged), "flac", &|| Ok(()))
             .unwrap();
     assert_eq!(metadata.lyrics, lrc);
 }

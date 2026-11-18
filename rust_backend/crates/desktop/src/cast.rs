@@ -1,5 +1,5 @@
 //! Google Cast on desktop: `castCall {"method","args"}` runs a
-//! `mornye_cast::CastService` method, whose events become the inbound calls
+//! `sistrum_cast::CastService` method, whose events become the inbound calls
 //! `castStatus` and `castDevices`. The service starts on first use.
 
 use crate::call::{Args, CallError, CallResult, Reply};
@@ -7,7 +7,7 @@ use std::sync::OnceLock;
 
 #[derive(Default)]
 pub(crate) struct Cast {
-    service: OnceLock<Result<mornye_cast::CastService, String>>,
+    service: OnceLock<Result<sistrum_cast::CastService, String>>,
 }
 
 impl Cast {
@@ -15,7 +15,7 @@ impl Cast {
         let service = self
             .service
             .get_or_init(|| {
-                mornye_cast::CastService::new(crate::runtime::inbound)
+                sistrum_cast::CastService::new(crate::runtime::inbound)
                     .map_err(|error| format!("Google Cast is unavailable: {error}"))
             })
             .as_ref()

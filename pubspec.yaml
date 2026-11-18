@@ -1,5 +1,5 @@
-name: mornye
-description: Mornye, extension-driven music metadata and downloads for mobile devices
+name: sistrum
+description: Sistrum, extension-driven music metadata and downloads for mobile devices
 publish_to: "none"
 version: 5.4.0+169
 
@@ -44,7 +44,7 @@ dependencies:
   # 7.3.2 requires dbus 0.8, while desktop_drop 0.8.4 still requires 0.7.
   connectivity_plus: ^7.3.1
   crypto: ^3.0.8
-  # Mornye Link: finds the desktop app on the local network (mDNS).
+  # Sistrum Link: finds the desktop app on the local network (mDNS).
   bonsoir: ^7.1.5
 
   # Streaming backup archives

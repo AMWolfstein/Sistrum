@@ -5,14 +5,14 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/download_history_provider.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/screens/track_metadata_screen.dart';
-import 'package:mornye/services/source_deletion_events.dart';
-import 'package:mornye/services/source_metadata_events.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/album_detail_header.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/screens/track_metadata_screen.dart';
+import 'package:sistrum/services/source_deletion_events.dart';
+import 'package:sistrum/services/source_metadata_events.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> _settleFileIo(WidgetTester tester) async {
@@ -29,7 +29,7 @@ Future<void> _settleFileIo(WidgetTester tester) async {
 }
 
 void main() {
-  const channel = MethodChannel('com.zarz.mornye/backend');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   const paths = MethodChannel('plugins.flutter.io/path_provider');
   late Directory cache;
   setUpAll(() async {

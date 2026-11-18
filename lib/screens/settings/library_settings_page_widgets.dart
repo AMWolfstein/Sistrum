@@ -3,7 +3,7 @@ part of 'library_settings_page.dart';
 class _LibrarySourceSettingsItem extends StatelessWidget {
   final LocalLibrarySource source;
 
-  /// Whether [source] is a paired computer or phone over Mornye Link.
+  /// Whether [source] is a paired computer or phone over Sistrum Link.
   final bool link;
 
   /// Files the last finished scan of [source] could not read.

@@ -1,4 +1,4 @@
-use mornye_core::tags::read_audio_tags;
+use sistrum_core::tags::read_audio_tags;
 use std::io::Cursor;
 
 fn syncsafe(size: usize) -> [u8; 4] {

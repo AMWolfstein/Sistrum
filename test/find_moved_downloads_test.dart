@@ -3,10 +3,10 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/providers/download_history_provider.dart';
-import 'package:mornye/services/download_file_recovery.dart';
-import 'package:mornye/services/history_database.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/services/download_file_recovery.dart';
+import 'package:sistrum/services/history_database.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 

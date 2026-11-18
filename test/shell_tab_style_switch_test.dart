@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/screens/main_shell.dart';
-import 'package:mornye/services/shell_navigation_service.dart';
+import 'package:sistrum/screens/main_shell.dart';
+import 'package:sistrum/services/shell_navigation_service.dart';
 
 void main() {
   int? switched(

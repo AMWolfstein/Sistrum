@@ -7,9 +7,9 @@ import 'package:flutter/physics.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:material_3_expressive/material_3_expressive.dart'
     show M3EMotion;
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/widgets/swipe_commit_haptic.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/swipe_commit_haptic.dart';
 
 /// Shares one horizontal gesture between artwork and metadata. Only the
 /// titles translate; artwork, menus and the rest of the player stay anchored.

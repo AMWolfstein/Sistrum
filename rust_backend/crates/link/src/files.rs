@@ -1,5 +1,5 @@
 //! Song files the phone sends so the desktop can play them
-//! (`PUT /mornye/v1/files/<name>`), kept in `<state_dir>/received/`. A body
+//! (`PUT /sistrum/v1/files/<name>`), kept in `<state_dir>/received/`. A body
 //! streams into a part file that is renamed into place once complete, and
 //! the folder is pruned after every upload so it stays bounded.
 

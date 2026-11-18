@@ -1,4 +1,4 @@
-import 'package:mornye/utils/string_utils.dart';
+import 'package:sistrum/utils/string_utils.dart';
 
 /// Another transfer published the same origin while this one was fetching.
 class OfflineCopyAlreadySaved implements Exception {
@@ -56,7 +56,7 @@ class DownloadHistoryItem {
   /// The legacy spotifyId column also stores foreign ids from other sources.
   bool get _offlineLibraryFile =>
       originFilePath != null &&
-      const {'Network offline', 'Mornye Link'}.contains(service);
+      const {'Network offline', 'Sistrum Link'}.contains(service);
   String get collectionTrackId => _offlineLibraryFile ? spotifyId ?? id : id;
   String get collectionTrackSource => _offlineLibraryFile ? 'local' : service;
 

@@ -4,12 +4,12 @@ import 'dart:io';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
-import 'package:mornye/controllers/player_metadata_controller.dart';
-import 'package:mornye/services/lyrics_sidecar.dart';
-import 'package:mornye/services/lyrics_translation.dart';
-import 'package:mornye/services/source_metadata_events.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
+import 'package:sistrum/controllers/player_metadata_controller.dart';
+import 'package:sistrum/services/lyrics_sidecar.dart';
+import 'package:sistrum/services/lyrics_translation.dart';
+import 'package:sistrum/services/source_metadata_events.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
 
 String _encoded(String text) => base64.encode(utf8.encode(text));
 

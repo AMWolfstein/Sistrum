@@ -5,9 +5,9 @@ import 'package:audio_service_platform_interface/audio_service_platform_interfac
 import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/media_session_filter.dart';
-import 'package:mornye/services/remote_media_session.dart';
-import 'package:mornye/services/remote_playback.dart';
+import 'package:sistrum/services/media_session_filter.dart';
+import 'package:sistrum/services/remote_media_session.dart';
+import 'package:sistrum/services/remote_playback.dart';
 
 final _start = DateTime.utc(2026, 10, 30, 12);
 

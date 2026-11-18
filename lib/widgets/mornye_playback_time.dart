@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/utils/string_utils.dart';
-import 'package:mornye/widgets/decorative_phase.dart';
+import 'package:sistrum/utils/string_utils.dart';
+import 'package:sistrum/widgets/decorative_phase.dart';
 
 /// Rolls only the changed digits, keeping the timeline labels steady in width.
 ///

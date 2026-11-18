@@ -2,17 +2,17 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/providers/library_collections_provider.dart';
-import 'package:mornye/providers/listening_rewind_provider.dart';
-import 'package:mornye/providers/listening_statistics_provider.dart';
-import 'package:mornye/services/link/link_client_api.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/link/sync/link_collection_sync_store.dart';
-import 'package:mornye/services/link/sync/link_history_sync_store.dart';
-import 'package:mornye/services/link/sync/link_history_artwork.dart';
-import 'package:mornye/services/link/sync/link_sync_protocol.dart';
-import 'package:mornye/services/listening_statistics.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/providers/library_collections_provider.dart';
+import 'package:sistrum/providers/listening_rewind_provider.dart';
+import 'package:sistrum/providers/listening_statistics_provider.dart';
+import 'package:sistrum/services/link/link_client_api.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/sync/link_collection_sync_store.dart';
+import 'package:sistrum/services/link/sync/link_history_sync_store.dart';
+import 'package:sistrum/services/link/sync/link_history_artwork.dart';
+import 'package:sistrum/services/link/sync/link_sync_protocol.dart';
+import 'package:sistrum/services/listening_statistics.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('LinkSyncRunner');
 

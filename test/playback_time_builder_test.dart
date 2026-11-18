@@ -2,7 +2,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:clock/clock.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/widgets/playback_time_builder.dart';
+import 'package:sistrum/widgets/playback_time_builder.dart';
 
 PlaybackState _state(
   int milliseconds, {

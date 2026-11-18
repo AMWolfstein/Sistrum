@@ -1,5 +1,5 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/theme/app_motion.dart';
+import 'package:sistrum/theme/app_motion.dart';
 
 /// Material's immersive lyrics: fades the controls and folds their height
 /// away, sliding them down, so the lyrics take the room they leave. The

@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:mornye/services/link/sync/link_history_sync_schema.dart';
-import 'package:mornye/services/link/sync/link_history_sync_store.dart';
-import 'package:mornye/services/link/sync/link_sync_protocol.dart';
-import 'package:mornye/services/listening_statistics.dart';
+import 'package:sistrum/services/link/sync/link_history_sync_schema.dart';
+import 'package:sistrum/services/link/sync/link_history_sync_store.dart';
+import 'package:sistrum/services/link/sync/link_sync_protocol.dart';
+import 'package:sistrum/services/listening_statistics.dart';
 
 import 'support/link_sync_support.dart';
 

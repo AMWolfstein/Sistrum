@@ -3,18 +3,18 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/backend/ffi_backend_transport.dart';
-import 'package:mornye/services/backend/rust_ffi_backend.dart';
-import 'package:mornye/services/cache_maintenance_service.dart';
-import 'package:mornye/services/cover_cache_manager.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/services/backend/ffi_backend_transport.dart';
+import 'package:sistrum/services/backend/rust_ffi_backend.dart';
+import 'package:sistrum/services/cache_maintenance_service.dart';
+import 'package:sistrum/services/cover_cache_manager.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
 import 'support/directory_stats_reference.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  const channel = MethodChannel('com.zarz.mornye/backend');
+  const channel = MethodChannel('com.amwolfstein.sistrum/backend');
   const paths = MethodChannel('plugins.flutter.io/path_provider');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
@@ -167,7 +167,7 @@ void main() {
   group('actual native directory statistics', () {
     late Directory support;
     setUpAll(() async {
-      support = await Directory.systemTemp.createTemp('mornye-stats-ffi-');
+      support = await Directory.systemTemp.createTemp('sistrum-stats-ffi-');
       debugDesktopPlatformOverride = true;
       RustFfiBackend.debugShared = RustFfiBackend(
         openTransport: FfiBackendTransport.open,

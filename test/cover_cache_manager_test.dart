@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/cover_cache_manager.dart';
+import 'package:sistrum/services/cover_cache_manager.dart';
 
 /// Counts index rewrites: every save writes `<index>.tmp` and renames it.
 final class _IndexWrites extends IOOverrides {

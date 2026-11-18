@@ -3,8 +3,8 @@
 
 use super::{CallGraph, CallNode, Check, LyricsError, cache::LyricsCache};
 use crate::coalescer::{Coalescer, Flight, Waiter};
-use mornye_core::lyrics::{LyricsResponse, config, config::FetchOptions, lrc, matching};
-use mornye_core::matching::lowercase;
+use sistrum_core::lyrics::{LyricsResponse, config, config::FetchOptions, lrc, matching};
+use sistrum_core::matching::lowercase;
 use std::cmp::Reverse;
 use std::collections::BTreeMap;
 use std::panic::{AssertUnwindSafe, catch_unwind};

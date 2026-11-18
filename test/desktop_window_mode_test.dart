@@ -6,21 +6,21 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/system_volume_provider.dart';
-import 'package:mornye/theme/app_theme.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/desktop/desktop_commands.dart';
-import 'package:mornye/widgets/desktop/desktop_player_bar.dart';
-import 'package:mornye/widgets/desktop/desktop_shortcuts.dart';
-import 'package:mornye/widgets/desktop/desktop_window.dart';
-import 'package:mornye/widgets/desktop/desktop_window_controls.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/system_volume_provider.dart';
+import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/widgets/desktop/desktop_commands.dart';
+import 'package:sistrum/widgets/desktop/desktop_player_bar.dart';
+import 'package:sistrum/widgets/desktop/desktop_shortcuts.dart';
+import 'package:sistrum/widgets/desktop/desktop_window.dart';
+import 'package:sistrum/widgets/desktop/desktop_window_controls.dart';
 
 import 'support/tooltip_finder.dart';
 
-const _channel = MethodChannel('com.zarz.mornye/window');
+const _channel = MethodChannel('com.amwolfstein.sistrum/window');
 
 class _Player implements MusicPlayerController {
   @override

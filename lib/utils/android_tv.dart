@@ -12,7 +12,7 @@ Future<void> initializeAndroidTv() async {
   if (!Platform.isAndroid) return;
   _isAndroidTv =
       await const MethodChannel(
-        'com.zarz.mornye/backend',
+        'com.amwolfstein.sistrum/backend',
       ).invokeMethod<bool>('isAndroidTv') ??
       false;
 }

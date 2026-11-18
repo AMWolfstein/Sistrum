@@ -3,15 +3,15 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/services/app_navigation_service.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/extension_session_callback.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/widgets/app_alert_dialog.dart';
-import 'package:mornye/widgets/app_loading_indicator.dart';
-import 'package:mornye/widgets/expressive_button.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/services/app_navigation_service.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/extension_session_callback.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/widgets/app_alert_dialog.dart';
+import 'package:sistrum/widgets/app_loading_indicator.dart';
+import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 final _log = AppLogger('ExtensionAuthLauncher');
@@ -508,7 +508,7 @@ Future<void> _completeSessionGrantFromClipboard(
 
 /// Opens an extension auth/verification page using the browser preference.
 /// In-app HTTPS verification on iOS uses ASWebAuthenticationSession to capture
-/// the mornye:// callback even when the app's URL scheme is not registered
+/// the sistrum:// callback even when the app's URL scheme is not registered
 /// with the OS (sideload containers like LiveContainer).
 Future<bool> launchExtensionAuthUrl(Uri uri, {required String browserMode}) {
   return _launchVerificationUrl(uri, browserMode);
@@ -524,7 +524,7 @@ Future<bool> _launchVerificationUrl(
     unawaited(cancellationSignal.then((_) => cancelled = true));
   }
   // Desktop has no in-app browser or web auth session: the system browser
-  // opens the page and returns through the registered mornye:// scheme
+  // opens the page and returns through the registered sistrum:// scheme
   // (DesktopDeepLinks hands the callback to the backend).
   if (isDesktopPlatform) {
     if (cancelled) return false;

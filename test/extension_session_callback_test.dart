@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/utils/extension_session_callback.dart';
+import 'package:sistrum/utils/extension_session_callback.dart';
 
 void main() {
   test('parses a signed-session callback without treating state as an id', () {
     final callback = parseExtensionSessionGrantCallback(
-      'mornye://session-grant?cb_version=v2grant&state=nonce_123&grant=gr_456',
+      'sistrum://session-grant?cb_version=v2grant&state=nonce_123&grant=gr_456',
     );
 
     expect(callback, isNotNull);
@@ -14,7 +14,7 @@ void main() {
 
   test('extracts the expected state from a nested challenge callback', () {
     final callback = Uri(
-      scheme: 'mornye',
+      scheme: 'sistrum',
       host: 'session-grant',
       queryParameters: const {'cb_version': 'v2grant', 'state': 'nonce_123'},
     );
@@ -27,12 +27,12 @@ void main() {
 
   test('rejects callbacks without both a grant and state', () {
     expect(
-      parseExtensionSessionGrantCallback('mornye://session-grant?grant=gr_456'),
+      parseExtensionSessionGrantCallback('sistrum://session-grant?grant=gr_456'),
       isNull,
     );
     expect(
       parseExtensionSessionGrantCallback(
-        'mornye://session-grant?state=nonce_123',
+        'sistrum://session-grant?state=nonce_123',
       ),
       isNull,
     );

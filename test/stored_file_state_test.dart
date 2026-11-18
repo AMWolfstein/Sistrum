@@ -4,9 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/providers/download_history_provider.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/utils/file_access.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/utils/file_access.dart';
 
 class _HistoryNotifier extends DownloadHistoryNotifier {
   _HistoryNotifier(HistoryDatabase database, this._items)
@@ -71,7 +71,7 @@ DownloadHistoryItem _download(String id, String path) => DownloadHistoryItem(
 /// filesystem root.
 String _unpluggedPath(String name) => p.join(
   p.rootPrefix(Directory.systemTemp.path),
-  'mornye-unplugged-$pid',
+  'sistrum-unplugged-$pid',
   'Album',
   name,
 );

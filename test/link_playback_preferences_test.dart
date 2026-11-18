@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/features/link_playback_preferences.dart';
-import 'package:mornye/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/features/link_playback_preferences.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
 
 void main() {
   late bool autoplay;

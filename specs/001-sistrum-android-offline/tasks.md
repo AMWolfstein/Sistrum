@@ -2,7 +2,7 @@
 
 Run sequentially after implementation is authorized. Each task starts with `python3 workflow/codegraph/code_tools.py update` and scope inspection. Record checks and independent review in [task-log.md](task-log.md). Follow the existing three-round limit and one commit per completed task. T001–T003 form the rebrand checkpoint before T004 begins.
 
-- [ ] M001-T001 Apply Sistrum identity across app and native contracts
+- [x] M001-T001 Apply Sistrum identity across app and native contracts
   - Paths: `pubspec.yaml`, `lib/`, `android/app/`, `rust_backend/`, Android phone scripts, CI, docs, tests and generated bindings. Not Android TV, iOS, macOS, Windows or Linux.
   - Design app-owned identifiers, packages and version from current code. Use WIP only for artwork. Record and verify the new values against current cross-language callers. Classify references as product, Mornye theme, attribution or external API. Keep theme selector/state keys, theme symbols and existing behavior. Preserve external IDs unless the provider contract explicitly supports the new value.
   - Checks: `git grep -in mornye` with reviewed exceptions (theme, attribution, external, and untouched non-Android/TV paths), `flutter analyze`, `flutter test`, `cargo check --manifest-path rust_backend/Cargo.toml --workspace --locked` and `python3 workflow/work.py quality bridge verify`. Verify generated JNI/UniFFI registration and loader names in an authorized device run.

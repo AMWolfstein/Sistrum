@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/audio_compare_dsp.dart';
-import 'package:mornye/services/audio_compare_ffmpeg.dart';
+import 'package:sistrum/services/audio_compare_dsp.dart';
+import 'package:sistrum/services/audio_compare_ffmpeg.dart';
 
 String _graph(List<String> arguments) =>
     arguments[arguments.indexOf('-filter_complex') + 1];

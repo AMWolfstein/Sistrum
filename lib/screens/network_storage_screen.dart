@@ -1,32 +1,32 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/providers/playback_provider.dart';
-import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/providers/network_upload_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/link/link_source_names.dart';
-import 'package:mornye/services/music_player_service.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/services/network_storage_error.dart';
-import 'package:mornye/services/network_certificate.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/nav_bar_inset.dart';
-import 'package:mornye/widgets/app_sliver_header.dart';
-import 'package:mornye/widgets/app_search_field.dart';
-import 'package:mornye/theme/mornye_theme.dart';
-import 'package:mornye/theme/app_tokens.dart';
-import 'package:mornye/widgets/app_action_button.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_loading_indicator.dart';
-import 'package:mornye/widgets/app_progress_indicator.dart';
-import 'package:mornye/widgets/expressive_button.dart';
-import 'package:mornye/widgets/expressive_icon_button.dart';
-import 'package:mornye/widgets/link/link_transfer_tile.dart';
-import 'package:mornye/widgets/network_upload_actions.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/providers/playback_provider.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/providers/network_upload_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/link/link_source_names.dart';
+import 'package:sistrum/services/music_player_service.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/services/network_storage_error.dart';
+import 'package:sistrum/services/network_certificate.dart';
+import 'package:sistrum/utils/adaptive_layout.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/nav_bar_inset.dart';
+import 'package:sistrum/widgets/app_sliver_header.dart';
+import 'package:sistrum/widgets/app_search_field.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/widgets/app_action_button.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_loading_indicator.dart';
+import 'package:sistrum/widgets/app_progress_indicator.dart';
+import 'package:sistrum/widgets/expressive_button.dart';
+import 'package:sistrum/widgets/expressive_icon_button.dart';
+import 'package:sistrum/widgets/link/link_transfer_tile.dart';
+import 'package:sistrum/widgets/network_upload_actions.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
 class NetworkStorageScreen extends ConsumerStatefulWidget {
   const NetworkStorageScreen({
@@ -345,7 +345,7 @@ class _NetworkStorageScreenState extends ConsumerState<NetworkStorageScreen> {
         ? connection.name
         : widget.displayName ??
               widget.path.split('/').where((p) => p.isNotEmpty).last;
-    // Paired computers are served over Subsonic but are Mornye Link, which
+    // Paired computers are served over Subsonic but are Sistrum Link, which
     // manages them, so they show as that and are not edited here.
     final links = ref.watch(linkSourceNamesProvider);
     final visible = _entries
@@ -1128,11 +1128,11 @@ String _protocolLabel(NetworkProtocol protocol) => switch (protocol) {
   NetworkProtocol.subsonic => 'Subsonic',
 };
 
-/// What [connection] is: Mornye Link for a paired computer ([links]), else
+/// What [connection] is: Sistrum Link for a paired computer ([links]), else
 /// its protocol.
 String _kindLabel(NetworkConnection connection, Map<String, String> links) =>
     links.containsKey(connection.id)
-    ? 'Mornye Link'
+    ? 'Sistrum Link'
     : _protocolLabel(connection.protocol);
 
 String _networkErrorMessage(BuildContext context, NetworkStorageError error) =>

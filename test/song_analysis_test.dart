@@ -5,14 +5,14 @@ import 'dart:typed_data';
 import 'package:audio_service/audio_service.dart' show MediaItem;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/automix_status.dart';
-import 'package:mornye/services/autoplay_sound_signal.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/services/song_analysis.dart';
-import 'package:mornye/services/song_analysis_store.dart';
-import 'package:mornye/services/song_feature_analyzer.dart';
-import 'package:mornye/services/song_features.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/automix_status.dart';
+import 'package:sistrum/services/autoplay_sound_signal.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/services/song_analysis.dart';
+import 'package:sistrum/services/song_analysis_store.dart';
+import 'package:sistrum/services/song_feature_analyzer.dart';
+import 'package:sistrum/services/song_features.dart';
 
 const _timeout = Duration(seconds: 10);
 

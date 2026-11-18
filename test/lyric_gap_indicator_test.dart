@@ -1,10 +1,10 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/widgets/decorative_phase.dart';
-import 'package:mornye/widgets/lyric_gap_indicator.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/widgets/decorative_phase.dart';
+import 'package:sistrum/widgets/lyric_gap_indicator.dart';
 
 const _vsync = Duration(microseconds: 8333);
 

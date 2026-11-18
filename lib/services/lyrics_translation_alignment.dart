@@ -1,4 +1,4 @@
-import 'package:mornye/utils/lyrics_parser.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
 
 /// A translated phrase tied to a zero-based unit of the original text.
 /// No absolute timestamps are cached or sent to another device.

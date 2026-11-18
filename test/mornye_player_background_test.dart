@@ -5,8 +5,8 @@ import 'dart:ui' as ui;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/theme/cover_palette.dart';
-import 'package:mornye/widgets/mornye_player_background.dart';
+import 'package:sistrum/theme/cover_palette.dart';
+import 'package:sistrum/widgets/mornye_player_background.dart';
 
 const _width = 200.0;
 const _height = 400.0;

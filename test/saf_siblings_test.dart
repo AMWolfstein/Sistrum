@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/lyrics_sidecar.dart';
-import 'package:mornye/services/motion_artwork_folder.dart';
-import 'package:mornye/services/saf_siblings.dart';
+import 'package:sistrum/services/lyrics_sidecar.dart';
+import 'package:sistrum/services/motion_artwork_folder.dart';
+import 'package:sistrum/services/saf_siblings.dart';
 
 const _song = 'content://tree/a/document/song';
 const _lrc = (uri: 'content://tree/a/document/lrc', size: 4, modified: 1);

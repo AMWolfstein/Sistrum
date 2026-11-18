@@ -1,15 +1,15 @@
 import 'dart:io';
 
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/batch_metadata_re_enrich.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/lyrics_sidecar.dart';
-import 'package:mornye/services/metadata_cover_resources.dart';
-import 'package:mornye/services/metadata_persistence_service.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/re_enrich_undo_store.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/batch_metadata_re_enrich.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/lyrics_sidecar.dart';
+import 'package:sistrum/services/metadata_cover_resources.dart';
+import 'package:sistrum/services/metadata_persistence_service.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/re_enrich_undo_store.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/logger.dart';
 import 'package:path/path.dart' as p;
 
 final _log = AppLogger('ReEnrichUndo');

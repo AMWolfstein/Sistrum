@@ -4,65 +4,65 @@ import 'dart:math';
 import 'package:file_picker/file_picker.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:path/path.dart' as p;
-import 'package:mornye/widgets/app_icon_button.dart';
-import 'package:mornye/widgets/collection_scaffold.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/desktop/context_menu.dart';
-import 'package:mornye/widgets/desktop/desktop_link_transfer_actions.dart';
-import 'package:mornye/widgets/desktop/desktop_selection.dart';
-import 'package:mornye/widgets/desktop/track_list_table.dart';
-import 'package:mornye/widgets/expressive_button.dart';
-import 'package:mornye/widgets/expressive_button_group.dart';
-import 'package:mornye/theme/app_tokens.dart';
-import 'package:mornye/widgets/song_row_tap.dart';
-import 'package:mornye/widgets/track_card.dart';
-import 'package:mornye/widgets/queue_swipe.dart';
-import 'package:mornye/widgets/app_snack_bar.dart';
+import 'package:sistrum/widgets/app_icon_button.dart';
+import 'package:sistrum/widgets/collection_scaffold.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/widgets/desktop/context_menu.dart';
+import 'package:sistrum/widgets/desktop/desktop_link_transfer_actions.dart';
+import 'package:sistrum/widgets/desktop/desktop_selection.dart';
+import 'package:sistrum/widgets/desktop/track_list_table.dart';
+import 'package:sistrum/widgets/expressive_button.dart';
+import 'package:sistrum/widgets/expressive_button_group.dart';
+import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/widgets/song_row_tap.dart';
+import 'package:sistrum/widgets/track_card.dart';
+import 'package:sistrum/widgets/queue_swipe.dart';
+import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:share_plus/share_plus.dart' show ShareParams, SharePlus, XFile;
-import 'package:mornye/widgets/album_detail_header.dart';
-import 'package:mornye/widgets/cached_cover_image.dart';
+import 'package:sistrum/widgets/album_detail_header.dart';
+import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/models/library_database_models.dart'
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/models/library_database_models.dart'
     show LocalLibraryItem;
-import 'package:mornye/services/m3u_playlist_service.dart';
-import 'package:mornye/services/downloaded_embedded_cover_resolver.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/providers/download_queue_provider.dart';
-import 'package:mornye/providers/collection_track_files_provider.dart';
-import 'package:mornye/providers/collection_track_sort_provider.dart';
-import 'package:mornye/providers/deleted_library_files.dart';
-import 'package:mornye/providers/extension_provider.dart';
-import 'package:mornye/providers/library_collections_provider.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/playback_provider.dart';
-import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/cover_art_utils.dart';
-import 'package:mornye/controllers/collapsing_header_scroll_mixin.dart';
-import 'package:mornye/controllers/confirm_and_delete_tracks.dart';
-import 'package:mornye/controllers/library_tracks_folder_data.dart';
-import 'package:mornye/controllers/local_track_batch_actions.dart';
-import 'package:mornye/controllers/selection_mode_mixin.dart';
-import 'package:mornye/widgets/collection_reorder_sliver.dart';
-import 'package:mornye/widgets/collection_track_sort_button.dart';
-import 'package:mornye/widgets/discard_changes_dialog.dart';
-import 'package:mornye/screens/track_metadata_screen.dart';
-import 'package:mornye/widgets/selection_action_button.dart';
-import 'package:mornye/widgets/destructive_selection_button.dart';
-import 'package:mornye/widgets/in_library_badge.dart';
-import 'package:mornye/widgets/link/link_actions.dart';
-import 'package:mornye/widgets/link/link_keep_actions.dart';
-import 'package:mornye/widgets/network_offline_actions.dart';
-import 'package:mornye/widgets/playlist_picker_sheet.dart';
-import 'package:mornye/widgets/collection_suggestions_section.dart';
-import 'package:mornye/widgets/animation_utils.dart';
-import 'package:mornye/widgets/track_detail_actions.dart';
-import 'package:mornye/services/playable_media.dart';
+import 'package:sistrum/services/m3u_playlist_service.dart';
+import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/providers/download_queue_provider.dart';
+import 'package:sistrum/providers/collection_track_files_provider.dart';
+import 'package:sistrum/providers/collection_track_sort_provider.dart';
+import 'package:sistrum/providers/deleted_library_files.dart';
+import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/providers/library_collections_provider.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/playback_provider.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/utils/adaptive_layout.dart';
+import 'package:sistrum/utils/cover_art_utils.dart';
+import 'package:sistrum/controllers/collapsing_header_scroll_mixin.dart';
+import 'package:sistrum/controllers/confirm_and_delete_tracks.dart';
+import 'package:sistrum/controllers/library_tracks_folder_data.dart';
+import 'package:sistrum/controllers/local_track_batch_actions.dart';
+import 'package:sistrum/controllers/selection_mode_mixin.dart';
+import 'package:sistrum/widgets/collection_reorder_sliver.dart';
+import 'package:sistrum/widgets/collection_track_sort_button.dart';
+import 'package:sistrum/widgets/discard_changes_dialog.dart';
+import 'package:sistrum/screens/track_metadata_screen.dart';
+import 'package:sistrum/widgets/selection_action_button.dart';
+import 'package:sistrum/widgets/destructive_selection_button.dart';
+import 'package:sistrum/widgets/in_library_badge.dart';
+import 'package:sistrum/widgets/link/link_actions.dart';
+import 'package:sistrum/widgets/link/link_keep_actions.dart';
+import 'package:sistrum/widgets/network_offline_actions.dart';
+import 'package:sistrum/widgets/playlist_picker_sheet.dart';
+import 'package:sistrum/widgets/collection_suggestions_section.dart';
+import 'package:sistrum/widgets/animation_utils.dart';
+import 'package:sistrum/widgets/track_detail_actions.dart';
+import 'package:sistrum/services/playable_media.dart';
 
-export 'package:mornye/models/library_collections.dart'
+export 'package:sistrum/models/library_collections.dart'
     show LibraryTracksFolderMode;
 
 String? _resolveRawCoverUrl(Track track) =>
@@ -945,7 +945,7 @@ class _LibraryTracksFolderScreenState
       var sourcePath = picked.path;
       if (sourcePath == null || sourcePath.isEmpty) {
         materializedDir = await Directory.systemTemp.createTemp(
-          'mornye_playlist_cover_',
+          'sistrum_playlist_cover_',
         );
         final pickedExtension = p.extension(picked.name);
         final materializedFile = File(
@@ -1009,7 +1009,7 @@ class _LibraryTracksFolderScreenState
     final hasCustomCover =
         customCoverPath != null && customCoverPath.isNotEmpty;
     final hasCoverUrl = coverUrl != null;
-    // Desktop: Mornye Link transfers of the whole collection while a phone
+    // Desktop: Sistrum Link transfers of the whole collection while a phone
     // is connected.
     final linkTransfers =
         widget.mode != LibraryTracksFolderMode.wishlist &&
@@ -1243,7 +1243,7 @@ class _LibraryTracksFolderScreenState
     );
   }
 
-  /// The Mornye Link kept collection id of this page: Loved or the playlist.
+  /// The Sistrum Link kept collection id of this page: Loved or the playlist.
   String? _keptCollection(UserPlaylistCollection? playlist) {
     switch (widget.mode) {
       case LibraryTracksFolderMode.loved:

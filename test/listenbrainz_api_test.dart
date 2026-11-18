@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:mornye/services/listenbrainz/listenbrainz_api.dart';
-import 'package:mornye/services/scrobbling/scrobble_listening.dart';
-import 'package:mornye/services/scrobbling/scrobble_store.dart';
+import 'package:sistrum/services/listenbrainz/listenbrainz_api.dart';
+import 'package:sistrum/services/scrobbling/scrobble_listening.dart';
+import 'package:sistrum/services/scrobbling/scrobble_store.dart';
 
 void main() {
   const account = ListenBrainzAccount(
@@ -214,7 +214,7 @@ void main() {
     expect(info['duration_ms'], 240000);
     expect(info['isrc'], 'XX0000000001');
     expect(info['tracknumber'], 3);
-    expect(info['submission_client'], 'Mornye');
+    expect(info['submission_client'], 'Sistrum');
     final sparse =
         ((bodies[2]['payload'] as List)[1] as Map)['track_metadata'] as Map;
     expect(sparse.containsKey('release_name'), isFalse);

@@ -2,15 +2,15 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:path/path.dart' as p;
-import 'package:mornye/services/lyrics_translation.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/saf_siblings.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/lyrics_draft.dart';
-import 'package:mornye/utils/lyrics_parser.dart';
+import 'package:sistrum/services/lyrics_translation.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/saf_siblings.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/lyrics_draft.dart';
+import 'package:sistrum/utils/lyrics_parser.dart';
 
-/// `.mlrc`, Mornye's lyrics file: saved next to a song, it keeps the song's
+/// `.mlrc`, Sistrum's lyrics file: saved next to a song, it keeps the song's
 /// lyrics together with their translation and pronunciation, for synced LRC,
 /// TTML and lyrics without timing alike, and leaves the song's own file as
 /// it is.
@@ -171,7 +171,7 @@ Future<ParsedLyrics> readMlrc(
 
 /// [lyrics] with the translations and pronunciations of [saved], the song's
 /// `.mlrc` lyrics, on the lines with the same text. A saved one replaces the
-/// song's own, since only Mornye writes it. Word timing applies only to a
+/// song's own, since only Sistrum writes it. Word timing applies only to a
 /// line sung at the same time. Without lyrics of its own, the song shows
 /// [saved].
 ParsedLyrics mergeSavedLyrics(ParsedLyrics lyrics, ParsedLyrics? saved) {

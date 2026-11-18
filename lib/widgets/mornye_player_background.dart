@@ -1,8 +1,8 @@
 import 'dart:ui' as ui;
 
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/theme/app_motion.dart';
-import 'package:mornye/theme/cover_palette.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/theme/cover_palette.dart';
 
 /// The player's background for a cover whose average is [sourceColor]: the
 /// same two muted tones on every page, so the controls keep their surface

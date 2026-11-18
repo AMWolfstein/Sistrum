@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
-import 'package:mornye/l10n/app_localizations.dart';
-import 'package:mornye/services/hires_check_service.dart';
+import 'package:sistrum/l10n/app_localizations.dart';
+import 'package:sistrum/services/hires_check_service.dart';
 
 /// How much a finding matters, which picks its icon and color.
 enum HiResLevel { ok, info, warning, bad }

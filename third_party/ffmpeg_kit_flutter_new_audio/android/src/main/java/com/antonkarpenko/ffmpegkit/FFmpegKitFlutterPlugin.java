@@ -137,7 +137,7 @@ public class FFmpegKitFlutterPlugin implements FlutterPlugin, ActivityAware, Met
     private static final AtomicBoolean globalCallbacksRegistered = new AtomicBoolean(false);
 
     // Registering loads about 20 MB of native libraries, so the first method call starts it on
-    // the executor and calls wait in arrival order (MORNYE_PATCHES.md).
+    // the executor and calls wait in arrival order (SISTRUM_PATCHES.md).
     private static final Object globalCallbacksRegistrationLock = new Object();
     private static volatile Throwable globalCallbacksFailure;
     private static final Object globalCallbacksLock = new Object();

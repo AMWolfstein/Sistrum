@@ -3,7 +3,7 @@
 use super::{RecordStore, RuntimeHints, protocol};
 use crate::auth::{AuthRegistry, PendingAuthRequest};
 use crate::manifest::SignedSession;
-use mornye_network::{HttpRequest, HttpResponse, NetworkSession};
+use sistrum_network::{HttpRequest, HttpResponse, NetworkSession};
 use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
@@ -271,7 +271,7 @@ impl SignedSessionClient {
                 body,
                 headers,
                 default_json: false,
-                user_agent: format!("Mornye/{}", self.config.app_version),
+                user_agent: format!("Sistrum/{}", self.config.app_version),
             },
             || self.check(check),
         )

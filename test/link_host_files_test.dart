@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/desktop/link_host_files.dart';
-import 'package:mornye/services/link/link_host_router.dart';
-import 'package:mornye/services/link/link_protocol.dart';
+import 'package:sistrum/services/link/desktop/link_host_files.dart';
+import 'package:sistrum/services/link/link_host_router.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
 
 const _uri =
     'content://com.example.documents/tree/a%3AMusic/document/a%3AMusic%2FSong.flac';

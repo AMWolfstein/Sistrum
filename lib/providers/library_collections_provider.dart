@@ -2,19 +2,19 @@ import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
-import 'package:mornye/models/library_collections.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/providers/music_player_provider.dart'
+import 'package:sistrum/models/library_collections.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/music_player_provider.dart'
     show musicPlayerRuntimeProvider;
-import 'package:mornye/services/autoplay_personalization.dart'
+import 'package:sistrum/services/autoplay_personalization.dart'
     show AutoplayFeedbackKind, AutoplayLearningTrack;
-import 'package:mornye/services/library_collections_database.dart';
-import 'package:mornye/services/library_collections_hydration.dart';
-import 'package:mornye/services/collection_track_batch.dart';
-import 'package:mornye/services/playlist_cover_store.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/library_collections_database.dart';
+import 'package:sistrum/services/library_collections_hydration.dart';
+import 'package:sistrum/services/collection_track_batch.dart';
+import 'package:sistrum/services/playlist_cover_store.dart';
+import 'package:sistrum/utils/logger.dart';
 
-export 'package:mornye/models/library_collections.dart';
+export 'package:sistrum/models/library_collections.dart';
 
 final _log = AppLogger('LibraryCollections');
 
@@ -862,7 +862,7 @@ class LibraryCollectionsNotifier extends Notifier<LibraryCollectionsState> {
     _invalidatePlaylistPickerSummaries();
   });
 
-  /// Reloads every collection after another writer (Mornye Link sync)
+  /// Reloads every collection after another writer (Sistrum Link sync)
   /// changed the database. Queued behind pending mutations.
   Future<void> reloadFromDatabase() => _mutate(() async {
     await _load();

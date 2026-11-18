@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/link_clock_offset.dart';
+import 'package:sistrum/services/link/link_clock_offset.dart';
 
 void main() {
   test('takes the offset of the shortest round trip', () {

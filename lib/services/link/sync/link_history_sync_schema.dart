@@ -1,6 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 
-/// Change tracking for listening statistics (Mornye Link sync).
+/// Change tracking for listening statistics (Sistrum Link sync).
 ///
 /// `listening` aggregates time per day and song. `listening_sync` keeps
 /// every author's own running totals per (origin, day, author's track key),

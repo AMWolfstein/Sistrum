@@ -6,7 +6,7 @@ changes the app's audio session. The SDK is initialized only after opt-in.
 
 ## Build setup
 
-Download the C++ Social SDK from the Mornye application's **Social SDK
+Download the C++ Social SDK from the Sistrum application's **Social SDK
 → Downloads** page in the Discord Developer Portal. Extract it, then run:
 
 ```sh
@@ -32,7 +32,7 @@ in Android assets and iOS resources. Without these files the app still builds, b
 the presence setting reports that the SDK is unavailable. A clean clone alone
 does not produce a Discord-enabled build.
 
-To deliberately omit a staged SDK, set `MORNYE_DISCORD_SDK=0` during Android
+To deliberately omit a staged SDK, set `SISTRUM_DISCORD_SDK=0` during Android
 builds or iOS `pod install` and app builds. `bash scripts/build_android.sh --lite`
 sets this flag for Android. The bridge remains registered and reports presence
 as unavailable; the staged SDK files are retained for subsequent full builds.

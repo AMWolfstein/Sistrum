@@ -4,18 +4,18 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/controllers/extension_auth_launcher.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/providers/track_provider.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/controllers/extension_auth_launcher.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/providers/track_provider.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
 import 'support/fixed_settings.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   const channel = MethodChannel('plugins.flutter.io/url_launcher');
-  const backend = MethodChannel('com.zarz.mornye/backend');
+  const backend = MethodChannel('com.amwolfstein.sistrum/backend');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
   final uri = Uri.parse('https://example.invalid/verify?state=sample');
@@ -39,7 +39,7 @@ void main() {
       expect(call.method, 'startWebAuthSession');
       expect(call.arguments, {
         'url': uri.toString(),
-        'callback_scheme': 'mornye',
+        'callback_scheme': 'sistrum',
       });
       attempts.add('web-auth');
       return startSession == null ? true : await startSession();

@@ -3,13 +3,13 @@ import 'dart:io';
 
 import 'package:dart_smb2/dart_smb2.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/controllers/local_track_batch_actions.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/services/batch_metadata_re_enrich.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/network_audio_analysis_input.dart';
-import 'package:mornye/services/network_file_editor.dart';
-import 'package:mornye/services/network_storage_service.dart';
+import 'package:sistrum/controllers/local_track_batch_actions.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/services/batch_metadata_re_enrich.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/network_audio_analysis_input.dart';
+import 'package:sistrum/services/network_file_editor.dart';
+import 'package:sistrum/services/network_storage_service.dart';
 
 import 'support/network_edit_fixture.dart';
 
@@ -172,7 +172,7 @@ void main() {
         () async {
           nas.files['song.lrc'] = utf8.encode('Old lyrics');
           nas.beforeMove = (from, to) {
-            if (from.startsWith('mornye-edit-') && to == 'song.lrc') {
+            if (from.startsWith('sistrum-edit-') && to == 'song.lrc') {
               throw const Smb2Exception(
                 'Cannot publish lyrics',
                 type: Smb2ErrorType.accessDenied,

@@ -4,7 +4,7 @@
 //! boundary.
 #![allow(unsafe_code)]
 
-use crate::runtime::{self, MornyeCallback};
+use crate::runtime::{self, SistrumCallback};
 use std::ffi::{CStr, c_char};
 
 /// Copies `len` bytes at `data`, treating NULL as empty.
@@ -32,8 +32,8 @@ fn guard(body: impl FnOnce()) {
 /// # Safety
 /// `config_json` must be NULL or valid for reads of `len` bytes.
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn mornye_init(
-    cb: Option<MornyeCallback>,
+pub unsafe extern "C" fn sistrum_init(
+    cb: Option<SistrumCallback>,
     config_json: *const u8,
     len: usize,
 ) {
@@ -48,7 +48,7 @@ pub unsafe extern "C" fn mornye_init(
 /// `method` must be NULL or a NUL-terminated string; `args_json` and `bytes`
 /// must be NULL or valid for reads of their lengths.
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn mornye_call(
+pub unsafe extern "C" fn sistrum_call(
     id: u64,
     method: *const c_char,
     args_json: *const u8,
@@ -76,7 +76,7 @@ pub unsafe extern "C" fn mornye_call(
 
 /// Best-effort cancellation of an in-flight call.
 #[unsafe(no_mangle)]
-pub extern "C" fn mornye_cancel(id: u64) {
+pub extern "C" fn sistrum_cancel(id: u64) {
     guard(|| {
         if let Some(runtime) = runtime::get() {
             runtime.cancel(id);
@@ -86,7 +86,7 @@ pub extern "C" fn mornye_cancel(id: u64) {
 
 /// Starts pushing an event kind. Idempotent.
 #[unsafe(no_mangle)]
-pub extern "C" fn mornye_subscribe(kind: i32) {
+pub extern "C" fn sistrum_subscribe(kind: i32) {
     guard(|| {
         if let Some(runtime) = runtime::get() {
             crate::events::subscribe(runtime, kind);
@@ -96,7 +96,7 @@ pub extern "C" fn mornye_subscribe(kind: i32) {
 
 /// Stops pushing an event kind. Idempotent.
 #[unsafe(no_mangle)]
-pub extern "C" fn mornye_unsubscribe(kind: i32) {
+pub extern "C" fn sistrum_unsubscribe(kind: i32) {
     guard(|| {
         if let Some(runtime) = runtime::get() {
             crate::events::unsubscribe(runtime, kind);
@@ -110,7 +110,7 @@ pub extern "C" fn mornye_unsubscribe(kind: i32) {
 /// `data` must be NULL or a pointer this library passed to the callback with
 /// the same `len`, freed at most once.
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn mornye_free(data: *mut u8, len: usize) {
+pub unsafe extern "C" fn sistrum_free(data: *mut u8, len: usize) {
     if data.is_null() || len == 0 {
         return;
     }

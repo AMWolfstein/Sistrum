@@ -1,11 +1,11 @@
 import 'dart:io';
 
-import 'package:mornye/services/ffmpeg_metadata.dart';
-import 'package:mornye/services/metadata_cover_resources.dart';
-import 'package:mornye/services/network_file_editor.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/source_metadata_events.dart';
-import 'package:mornye/utils/artist_utils.dart';
+import 'package:sistrum/services/ffmpeg_metadata.dart';
+import 'package:sistrum/services/metadata_cover_resources.dart';
+import 'package:sistrum/services/network_file_editor.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/source_metadata_events.dart';
+import 'package:sistrum/utils/artist_utils.dart';
 
 enum MetadataSaveFailure {
   backend,

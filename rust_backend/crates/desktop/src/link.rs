@@ -1,14 +1,14 @@
-//! Mornye Link on desktop (`LINK_CONTRACT.md` section 6): runs the
-//! `mornye-link` HTTPS server for the `link*` methods and bridges it to Dart.
+//! Sistrum Link on desktop (`LINK_CONTRACT.md` section 6): runs the
+//! `sistrum-link` HTTPS server for the `link*` methods and bridges it to Dart.
 //! A request the server forwards becomes the inbound call `linkRequest`
 //! (kind 12), and Dart answers it with `linkReply`; the server's other
 //! events become the inbound calls `linkMessage`, `linkClients`,
 //! `linkPaired` and `linkPairingEnded`. The glue itself is
-//! [`mornye_link::bridge`], shared with the phone backend.
+//! [`sistrum_link::bridge`], shared with the phone backend.
 
 use crate::call::{Args, CallError, CallResult, Reply};
 use crate::runtime::Config;
-use mornye_link::bridge::{AppBridge, BridgeError, BridgePaths, Emitter};
+use sistrum_link::bridge::{AppBridge, BridgeError, BridgePaths, Emitter};
 use serde_json::Value;
 use std::sync::Arc;
 
@@ -180,7 +180,7 @@ mod tests {
             .unwrap(),
             Reply::Json(json!({"pictures": [false, null, null, null]}))
         );
-        let many = vec![""; mornye_link::bridge::MAX_PICTURE_PROBES + 1];
+        let many = vec![""; sistrum_link::bridge::MAX_PICTURE_PROBES + 1];
         for bad in [json!({}), json!({"paths": "x"}), json!({"paths": many})] {
             assert_eq!(
                 link.embedded_pictures(&args(bad)).unwrap_err().code,

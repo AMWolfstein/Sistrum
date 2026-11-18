@@ -2,9 +2,9 @@ import 'dart:developer' as developer;
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/network_library_scanner.dart';
-import 'package:mornye/services/network_smb_client.dart';
-import 'package:mornye/services/network_storage_service.dart';
+import 'package:sistrum/services/network_library_scanner.dart';
+import 'package:sistrum/services/network_smb_client.dart';
+import 'package:sistrum/services/network_storage_service.dart';
 
 import 'support/vm_service_probe.dart';
 

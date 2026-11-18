@@ -1,11 +1,11 @@
 import 'dart:convert';
 
-import 'package:mornye/models/automix_options.dart';
-import 'package:mornye/models/equalizer_settings.dart';
-import 'package:mornye/models/settings.dart';
-import 'package:mornye/models/theme_settings.dart';
+import 'package:sistrum/models/automix_options.dart';
+import 'package:sistrum/models/equalizer_settings.dart';
+import 'package:sistrum/models/settings.dart';
+import 'package:sistrum/models/theme_settings.dart';
 
-/// Mornye Link sound settings sync: the sound a user saved travels between
+/// Sistrum Link sound settings sync: the sound a user saved travels between
 /// the phone and the paired computer when the phone's "Sync sound settings"
 /// switch is on. The desktop answers any phone that asks.
 ///
@@ -31,7 +31,7 @@ import 'package:mornye/models/theme_settings.dart';
 /// delay, such as Bluetooth), output devices, direct USB, spatial audio and
 /// skip silence.
 ///
-/// `POST /mornye/v1/preferences`, body `{"device": sync id, "items": [Item]}`
+/// `POST /sistrum/v1/preferences`, body `{"device": sync id, "items": [Item]}`
 /// with every item the phone holds, tombstones included. The desktop merges
 /// them and replies `{"device": its sync id, "items": [Item]}` with every
 /// item it holds after the merge; the phone merges the reply. One exchange

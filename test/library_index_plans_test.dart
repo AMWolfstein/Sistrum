@@ -9,14 +9,14 @@ import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common/sqflite_logger.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart'
     show databaseFactoryFfi, sqfliteFfiInit;
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/history_schema.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/library_lyrics_search.dart';
-import 'package:mornye/services/library_queue_store.dart';
-import 'package:mornye/services/library_row_mapper.dart';
-import 'package:mornye/services/library_search.dart';
-import 'package:mornye/services/sqlite_helpers.dart' as sqlite;
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/history_schema.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/library_lyrics_search.dart';
+import 'package:sistrum/services/library_queue_store.dart';
+import 'package:sistrum/services/library_row_mapper.dart';
+import 'package:sistrum/services/library_search.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
 
 /// The indexes v21 and v16 dropped, as v20 and v15 created them.
 const _droppedLibraryIndexes = {
@@ -536,7 +536,7 @@ void main() {
 
   test('the dropped History indexes match the native writer', () {
     final native = File(
-      'android/app/src/main/kotlin/com/zarz/mornye/NativeHistoryStore.kt',
+      'android/app/src/main/kotlin/com/amwolfstein/sistrum/NativeHistoryStore.kt',
     ).readAsStringSync();
     final list = RegExp(
       r'unusedHistoryIndexes = listOf\(([^)]*)\)',

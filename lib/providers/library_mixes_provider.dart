@@ -6,26 +6,26 @@ import 'package:flutter/foundation.dart'
 import 'package:flutter/scheduler.dart' show SchedulerBinding;
 import 'package:flutter/widgets.dart' show WidgetsBinding;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/providers/download_history_provider.dart';
-import 'package:mornye/providers/library_counts_provider.dart';
-import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/providers/music_player_provider.dart';
-import 'package:mornye/providers/recent_access_provider.dart'
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/providers/library_counts_provider.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/providers/music_player_provider.dart';
+import 'package:sistrum/providers/recent_access_provider.dart'
     show RecentAccessItem, RecentAccessType;
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/app_state_database.dart';
-import 'package:mornye/services/autoplay_signal.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/library_collections_database.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/library_mixes.dart';
-import 'package:mornye/services/listening_statistics.dart';
-import 'package:mornye/services/music_player_runtime.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/services/sqlite_helpers.dart' show normalizeLookupText;
-import 'package:mornye/utils/int_utils.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/app_state_database.dart';
+import 'package:sistrum/services/autoplay_signal.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/library_collections_database.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/library_mixes.dart';
+import 'package:sistrum/services/listening_statistics.dart';
+import 'package:sistrum/services/music_player_runtime.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' show normalizeLookupText;
+import 'package:sistrum/utils/int_utils.dart';
+import 'package:sistrum/utils/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final _log = AppLogger('LibraryMixes');

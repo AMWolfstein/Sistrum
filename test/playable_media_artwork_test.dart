@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/services/playable_media.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/services/playable_media.dart';
 
 void main() {
   LocalLibraryItem song(String? cover) => LocalLibraryItem(

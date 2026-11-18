@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:audio_service/audio_service.dart' show MediaItem;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/library_media_identity.dart';
+import 'package:sistrum/services/library_media_identity.dart';
 
 void main() {
   test('a loved song keeps only a cover that outlasts this run', () {

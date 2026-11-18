@@ -239,7 +239,7 @@ pub(crate) fn build(path: &str, android: bool) -> Result<BTreeSet<String>, Strin
     let mut keys = BTreeSet::new();
     let mut visited = BTreeSet::new();
     let mut pending = VecDeque::from([cleaned.to_string()]);
-    if let Some(path) = mornye_core::windows_path_identity::identity(cleaned) {
+    if let Some(path) = sistrum_core::windows_path_identity::identity(cleaned) {
         keys.insert(format!("windows-file:{path}"));
         pending.push_back(path);
     }

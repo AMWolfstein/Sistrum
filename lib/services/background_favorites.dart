@@ -1,14 +1,14 @@
 import 'dart:convert';
 
 import 'package:audio_service/audio_service.dart' show MediaItem;
-import 'package:mornye/models/download_history.dart';
-import 'package:mornye/models/library_collections.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/services/cover_store.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/library_collections_database.dart';
-import 'package:mornye/services/library_database.dart';
-import 'package:mornye/services/library_media_identity.dart';
+import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/models/library_collections.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/library_collections_database.dart';
+import 'package:sistrum/services/library_database.dart';
+import 'package:sistrum/services/library_media_identity.dart';
 
 /// Loved songs for the media controls while the app shell is closed, such as
 /// when a car starts playback. It reads and writes the same Loved collection

@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/providers/library_collections_provider.dart';
-import 'package:mornye/services/library_collections_database.dart';
+import 'package:sistrum/providers/library_collections_provider.dart';
+import 'package:sistrum/services/library_collections_database.dart';
 
 import 'support/link_sync_support.dart';
 

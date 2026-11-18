@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:mornye/services/network_storage_service.dart';
+import 'package:sistrum/services/network_storage_service.dart';
 
 class SubsonicFixture {
   SubsonicFixture._(this.server, this.secure) {
@@ -47,7 +47,7 @@ class SubsonicFixture {
   List<int>? audio;
   List<int>? cover;
 
-  /// The OpenSubsonic `type` of every response (`mornye` for a desktop).
+  /// The OpenSubsonic `type` of every response (`sistrum` for a desktop).
   String? type;
 
   /// Sent with the cover; a request naming it in If-None-Match gets 304.

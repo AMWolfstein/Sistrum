@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/link/link_lyrics_translations.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/lyrics_translation.dart';
-import 'package:mornye/services/lyrics_translation_alignment.dart';
-import 'package:mornye/services/lyrics_translation_sharing.dart';
+import 'package:sistrum/services/link/link_lyrics_translations.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/lyrics_translation.dart';
+import 'package:sistrum/services/lyrics_translation_alignment.dart';
+import 'package:sistrum/services/lyrics_translation_sharing.dart';
 
 SharedLyricsTranslation update({int version = 1}) => SharedLyricsTranslation(
   sourceHash: List.filled(64, 'a').join(),

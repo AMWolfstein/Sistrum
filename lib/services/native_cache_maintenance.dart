@@ -1,4 +1,4 @@
-import 'package:mornye/services/platform_bridge.dart';
+import 'package:sistrum/services/platform_bridge.dart';
 
 typedef NativeCacheJobRunner =
     Future<Map<String, dynamic>> Function(

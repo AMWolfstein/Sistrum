@@ -3,11 +3,11 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/backend/native_backend_transport.dart';
-import 'package:mornye/services/backend/rust_ffi_backend.dart';
-import 'package:mornye/services/desktop_deep_links.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/services/backend/native_backend_transport.dart';
+import 'package:sistrum/services/backend/rust_ffi_backend.dart';
+import 'package:sistrum/services/desktop_deep_links.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
 class _FakeTransport implements NativeBackendTransport {
   final calls = <(String, Object?)>[];
@@ -79,18 +79,18 @@ void main() {
 
   setUp(transport.calls.clear);
 
-  test('only mornye URLs are app links, logged without the query', () {
-    expect(DesktopDeepLinks.isAppLink(Uri.parse('MORNYE://callback')), true);
+  test('only sistrum URLs are app links, logged without the query', () {
+    expect(DesktopDeepLinks.isAppLink(Uri.parse('SISTRUM://callback')), true);
     expect(DesktopDeepLinks.isAppLink(Uri.parse('https://example.com')), false);
     expect(
       DesktopDeepLinks.describe(
-        Uri.parse('mornye://callback?code=secret&state=nonce'),
+        Uri.parse('sistrum://callback?code=secret&state=nonce'),
       ),
-      'mornye://callback?...',
+      'sistrum://callback?...',
     );
     expect(
-      DesktopDeepLinks.describe(Uri.parse('mornye://test')),
-      'mornye://test',
+      DesktopDeepLinks.describe(Uri.parse('sistrum://test')),
+      'sistrum://test',
     );
   });
 
@@ -108,21 +108,21 @@ void main() {
       addTearDown(deepLinks.dispose);
 
       links.add(Uri.parse('https://example.com/ignored'));
-      links.add(Uri.parse('mornye://callback?code=a&state=b'));
+      links.add(Uri.parse('sistrum://callback?code=a&state=b'));
       await pumpEventQueue();
 
       expect(transport.calls, hasLength(1));
       expect(transport.calls.single.$1, 'queueExtensionCallbackUrl');
       expect(transport.calls.single.$2, {
-        'url': 'mornye://callback?code=a&state=b',
+        'url': 'sistrum://callback?code=a&state=b',
       });
       expect(events, hasLength(1));
     },
   );
 
-  test('a non-callback mornye URL is reported as not queued', () async {
+  test('a non-callback sistrum URL is reported as not queued', () async {
     final deepLinks = DesktopDeepLinks();
-    expect(await deepLinks.handle(Uri.parse('mornye://test')), false);
+    expect(await deepLinks.handle(Uri.parse('sistrum://test')), false);
     expect(transport.calls.single.$1, 'queueExtensionCallbackUrl');
   });
 
@@ -130,6 +130,6 @@ void main() {
     final deepLinks = DesktopDeepLinks(
       queueCallback: (_) async => throw StateError('backend gone'),
     );
-    expect(await deepLinks.handle(Uri.parse('mornye://callback?x')), false);
+    expect(await deepLinks.handle(Uri.parse('sistrum://callback?x')), false);
   });
 }

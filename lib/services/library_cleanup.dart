@@ -2,18 +2,18 @@ import 'dart:io';
 import 'dart:isolate';
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/services/app_state_database.dart';
-import 'package:mornye/services/cache_maintenance_service.dart';
-import 'package:mornye/services/history_database.dart';
-import 'package:mornye/services/library_collections_database.dart';
-import 'package:mornye/services/library_cover_snapshot.dart';
-import 'package:mornye/services/listening_statistics.dart';
-import 'package:mornye/services/native_cache_maintenance.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/sqlite_helpers.dart' as sqlite;
-import 'package:mornye/utils/file_access.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/services/app_state_database.dart';
+import 'package:sistrum/services/cache_maintenance_service.dart';
+import 'package:sistrum/services/history_database.dart';
+import 'package:sistrum/services/library_collections_database.dart';
+import 'package:sistrum/services/library_cover_snapshot.dart';
+import 'package:sistrum/services/listening_statistics.dart';
+import 'package:sistrum/services/native_cache_maintenance.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
+import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/utils/logger.dart';
 
 /// Removes rows superseded by a staged scan inside the caller's transaction.
 /// On partial scans, an unreadable file is not evidence that it was deleted.

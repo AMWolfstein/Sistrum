@@ -69,7 +69,7 @@ fn primary_artist_uses_the_shared_separator_set() {
 
 fn editable_flac() -> (Vec<u8>, usize, Fields) {
     let mut comments = Vec::new();
-    put_string(&mut comments, b"Mornye");
+    put_string(&mut comments, b"Sistrum");
     comments.extend(2_u32.to_le_bytes());
     put_string(&mut comments, b"CUSTOM=preserve");
     put_string(&mut comments, b"TITLE=Example");
@@ -149,7 +149,7 @@ fn changed_flac_tags_match_full_rewrite_and_preserve_audio() {
 
 fn flac_with_comments(items: &[&str]) -> Vec<u8> {
     let mut comments = Vec::new();
-    put_string(&mut comments, b"Mornye");
+    put_string(&mut comments, b"Sistrum");
     comments.extend((items.len() as u32).to_le_bytes());
     for item in items {
         put_string(&mut comments, item.as_bytes());

@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:app_links/app_links.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('DeepLinks');
 
-/// Receives `mornye://` URLs on desktop. The mobile hosts handle the scheme
+/// Receives `sistrum://` URLs on desktop. The mobile hosts handle the scheme
 /// natively; desktop gets the launch URL and later ones through app_links
 /// (Apple events on macOS, the single-instance forwarding in the Windows and
 /// Linux runners). Extension callbacks go to the backend inbox, which then
@@ -23,7 +23,7 @@ class DesktopDeepLinks {
   final Future<bool> Function(String url) _queueCallback;
   StreamSubscription<Uri>? _subscription;
 
-  static bool isAppLink(Uri uri) => uri.scheme.toLowerCase() == 'mornye';
+  static bool isAppLink(Uri uri) => uri.scheme.toLowerCase() == 'sistrum';
 
   /// The URL without its query, which carries one time codes and grants.
   static String describe(Uri uri) =>

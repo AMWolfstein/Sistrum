@@ -1,8 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
 
 enum _LibraryFolderLocation { documents, files }
 

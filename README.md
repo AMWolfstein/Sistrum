@@ -3,12 +3,12 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/brand/logo/svg/mornye-lockup-horizontal-dark.svg">
   <source media="(prefers-color-scheme: light)" srcset="assets/brand/logo/svg/mornye-lockup-horizontal-light.svg">
-  <img alt="Mornye" src="assets/brand/logo/svg/mornye-lockup-horizontal-light.svg" width="650" height="auto">
+  <img alt="Sistrum" src="assets/brand/logo/svg/mornye-lockup-horizontal-light.svg" width="650" height="auto">
 </picture>
 
 <p align="center">
   <a href="https://trendshift.io/repositories/25971" target="_blank">
-    <img src="https://trendshift.io/api/badge/repositories/25971" alt="Mornye | Trendshift" width="250" height="55">
+    <img src="https://trendshift.io/api/badge/repositories/25971" alt="Sistrum | Trendshift" width="250" height="55">
   </a>
   <a href="https://fmhy.net/mobile#android-audio" target="_blank">
     <img src="assets/readme/featured-on-fmhy.svg" alt="Featured on FMHY" height="55">
@@ -51,7 +51,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/readme/showcase-dark.png">
-  <img src="assets/readme/showcase-light.png" width="100%" alt="Mornye screens: Home, Library, Now Playing and Equalizer">
+  <img src="assets/readme/showcase-light.png" width="100%" alt="Sistrum screens: Home, Library, Now Playing and Equalizer">
 </picture>
 
 ---
@@ -225,7 +225,7 @@
 
 ## <picture><source media="(prefers-color-scheme: dark)" srcset="assets/readme/sections/section-development-dark.svg"><img src="assets/readme/sections/section-development-light.svg" height="32" align="top" alt=""></picture> Development
 
-Mornye combines a Flutter/Dart UI, a Rust backend from
+Sistrum combines a Flutter/Dart UI, a Rust backend from
 [`rust_backend/`](rust_backend/), and thin Android/iOS platform bridges.
 
 See the [Contributing Guide](CONTRIBUTING.md) for setup, Android and iOS builds,
@@ -239,7 +239,7 @@ Full/Lite variants, crash symbols, validation, and pull request guidelines.
 <summary><b>Why does the Repo tab ask me to enter a URL?</b></summary>
 <br>
 
-Mornye uses a decentralized extension repository system.
+Sistrum uses a decentralized extension repository system.
 Extensions are hosted independently rather than on a built-in server, so
 anyone can create and host a compatible repository. In the **Repo** tab, tap
 **Add Repository** and enter a GitHub repository URL that contains a
@@ -353,10 +353,10 @@ play counts after 30 seconds.
 </details>
 
 <details>
-<summary><b>Can I use Mornye on Android TV or Google TV?</b></summary>
+<summary><b>Can I use Sistrum on Android TV or Google TV?</b></summary>
 <br>
 
-Install the Android APK on an ARM TV device. Mornye appears in the TV launcher
+Install the Android APK on an ARM TV device. Sistrum appears in the TV launcher
 and opens in landscape with a persistent sidebar and larger controls. Both
 Material and Mornye styles support the remote: use the D-pad to move focus,
 OK to open or activate an item, and Back to close the current page. Playback
@@ -374,7 +374,7 @@ browser needs a compatible browser on the TV, just as on a phone.
 <summary><b>Which download folder should I choose?</b></summary>
 <br>
 
-On Android, **App Folder** saves to `Music/Mornye` by default. You can
+On Android, **App Folder** saves to `Music/Sistrum` by default. You can
 instead pick any folder with the system folder picker. If Android later
 revokes access to that folder, select it again under
 **Settings > Files & Folders**.
@@ -385,7 +385,7 @@ revokes access to that folder, select it again under
 <summary><b>Is this app safe?</b></summary>
 <br>
 
-Mornye is open source, so its code and build workflows can be
+Sistrum is open source, so its code and build workflows can be
 inspected directly in this repository.
 
 </details>
@@ -402,7 +402,7 @@ another country's recommendations without a VPN.
 </details>
 
 <details>
-<summary><b>Can I add Mornye to AltStore or SideStore?</b></summary>
+<summary><b>Can I add Sistrum to AltStore or SideStore?</b></summary>
 <br>
 
 Yes! Add the official source to receive updates directly within the app. Copy this link:
@@ -416,7 +416,7 @@ In AltStore/SideStore, go to **Browse > Sources**, tap **+**, and paste the link
 </details>
 
 > [!NOTE]
-> If Mornye is useful to you, consider supporting development:
+> If Sistrum is useful to you, consider supporting development:
 >
 > [![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/zarzet)
 
@@ -424,7 +424,7 @@ In AltStore/SideStore, go to **Browse > Sources**, tap **+**, and paste the link
 
 ## <picture><source media="(prefers-color-scheme: dark)" srcset="assets/readme/sections/section-contributors-dark.svg"><img src="assets/readme/sections/section-contributors-light.svg" height="32" align="top" alt=""></picture> Contributors
 
-Thanks to everyone who has contributed to Mornye!
+Thanks to everyone who has contributed to Sistrum!
 
 <a href="https://github.com/mornyeapp/Mornye/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=mornyeapp/Mornye" />
@@ -461,14 +461,14 @@ See the [Windows code signing policy and release setup](.github/signpath/README.
 
 ## <picture><source media="(prefers-color-scheme: dark)" srcset="assets/readme/sections/section-disclaimer-dark.svg"><img src="assets/readme/sections/section-disclaimer-light.svg" height="32" align="top" alt=""></picture> Disclaimer
 
-Mornye is licensed under the [GNU Lesser General Public License v3.0 only (LGPL-3.0-only)](LICENSE), together with the incorporated [GNU GPL v3.0 terms](COPYING). Copyright 2026 zarzet. Third-party components retain their own license notices.
+Sistrum is licensed under the [GNU Lesser General Public License v3.0 only (LGPL-3.0-only)](LICENSE), together with the incorporated [GNU GPL v3.0 terms](COPYING). Copyright 2026 zarzet. Third-party components retain their own license notices.
 
 This repository and its contents are provided for educational and research purposes. The software is provided "as-is" without warranty of any kind, express or implied, as stated in the license.
 
 - No copyrighted content is hosted, stored, mirrored, or distributed by this repository.
 - Users must ensure that their use of this software is properly authorized and complies with all applicable laws, regulations, and third-party terms of service.
 - This software is provided free of charge by the maintainer. If you paid a third party for access to this software in its original form from this repository, you may have been misled or scammed. Any redistribution or commercial use by third parties must comply with the terms of the repository license. No affiliation, endorsement, or support by the maintainer is implied unless explicitly stated in writing.
-- Mornye is an independent project. It is not affiliated with, endorsed by, or connected to any other project or version on other platforms that may share a similar name. The maintainer of this repository has no control over or responsibility for third-party projects.
+- Sistrum is an independent project. It is not affiliated with, endorsed by, or connected to any other project or version on other platforms that may share a similar name. The maintainer of this repository has no control over or responsibility for third-party projects.
 - The author(s) disclaim all liability for any direct, indirect, incidental, or consequential damages arising from the use or misuse of this software. Users assume all risk associated with its use.
 - If you are a copyright holder or authorized representative and believe this repository infringes upon your rights, please contact the maintainer with sufficient detail (including relevant URLs and proof of ownership). The matter will be promptly investigated and appropriate action will be taken, which may include removal of the referenced material.
 

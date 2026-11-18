@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/services/library_queue_store.dart';
-import 'package:mornye/services/library_schema.dart';
+import 'package:sistrum/services/library_queue_store.dart';
+import 'package:sistrum/services/library_schema.dart';
 
 import 'support/sqlite_process_database.dart';
 

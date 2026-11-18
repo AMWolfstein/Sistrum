@@ -3,13 +3,13 @@ import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart' show listEquals, protected;
-import 'package:mornye/services/cover_store.dart';
-import 'package:mornye/services/downloaded_embedded_cover_resolver.dart';
-import 'package:mornye/services/link/link_protocol.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/services/remote_playback.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/playback_artwork.dart';
+import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/services/remote_playback.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/playback_artwork.dart';
 
 final _log = AppLogger('LinkMirroredPlayback');
 
@@ -45,7 +45,7 @@ class _LinkSeek {
   }
 }
 
-/// Another Mornye Link device's player, from the `player.state` it pushes,
+/// Another Sistrum Link device's player, from the `player.state` it pushes,
 /// as this device's player screens show and drive it. Each track shows as
 /// [resolvePlayable] finds it on this device, else as its ref describes it.
 /// The phone shows the computer this way, and the computer a phone.

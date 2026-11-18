@@ -1,6 +1,6 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/theme/mornye_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 
 Color extensionHealthColor(BuildContext context, String status) {
   final colorScheme = Theme.of(context).colorScheme;

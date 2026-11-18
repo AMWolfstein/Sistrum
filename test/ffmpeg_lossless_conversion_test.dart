@@ -2,14 +2,14 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/download_result.dart';
-import 'package:mornye/services/download_file_finalizer.dart';
-import 'package:mornye/services/ffmpeg_conversion.dart';
-import 'package:mornye/models/ffmpeg_models.dart';
-import 'package:mornye/services/ffmpeg_desktop.dart';
-import 'package:mornye/services/ffmpeg_probe.dart';
-import 'package:mornye/utils/audio_conversion_utils.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/models/download_result.dart';
+import 'package:sistrum/services/download_file_finalizer.dart';
+import 'package:sistrum/services/ffmpeg_conversion.dart';
+import 'package:sistrum/models/ffmpeg_models.dart';
+import 'package:sistrum/services/ffmpeg_desktop.dart';
+import 'package:sistrum/services/ffmpeg_probe.dart';
+import 'package:sistrum/utils/audio_conversion_utils.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +23,7 @@ void main() {
       environment: {'PATH': Platform.environment['PATH'] ?? ''},
     );
     // Fixture generation needs lavfi. A bundled converter can still be tested
-    // via MORNYE_FFMPEG_DIR even when that bundle excludes input generators.
+    // via SISTRUM_FFMPEG_DIR even when that bundle excludes input generators.
     conversionTools = await DesktopFFmpegTools.locate();
     if (conversionTools.ffmpegPath != null) {
       final configuration = await Process.run(conversionTools.ffmpegPath!, [

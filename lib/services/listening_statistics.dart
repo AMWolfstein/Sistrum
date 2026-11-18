@@ -1,12 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
-import 'package:mornye/services/cover_store.dart';
-import 'package:mornye/services/link/sync/link_history_sync_schema.dart';
-import 'package:mornye/services/sqlite_helpers.dart' as sqlite;
-import 'package:mornye/utils/artist_utils.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/utils/string_utils.dart';
+import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/services/link/sync/link_history_sync_schema.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
+import 'package:sistrum/utils/artist_utils.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/utils/string_utils.dart';
 import 'package:sqflite/sqflite.dart';
 
 final _log = AppLogger('ListeningStatistics');
@@ -287,7 +287,7 @@ class ListeningStatisticsStore {
 
   final _database = sqlite.SingleFlightInitializer<Database>();
 
-  /// v2 adds Mornye Link change tracking beside the `listening` table.
+  /// v2 adds Sistrum Link change tracking beside the `listening` table.
   static const _version = 2;
 
   Future<Database> _open() => _database.getOrCreate(
@@ -335,7 +335,7 @@ class ListeningStatisticsStore {
     ),
   );
 
-  /// The statistics database (Mornye Link history sync).
+  /// The statistics database (Sistrum Link history sync).
   Future<Database> get database => _open();
 
   Future<void> add(List<ListeningDelta> deltas) async =>

@@ -4,29 +4,29 @@ import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:audio_service/audio_service.dart' show MediaItem;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/unified_library_item.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/providers/download_history_provider.dart';
-import 'package:mornye/providers/local_library_provider.dart';
-import 'package:mornye/providers/settings_provider.dart';
-import 'package:mornye/services/link/features/link_library_lookup.dart';
-import 'package:mornye/providers/deleted_library_files.dart';
-import 'package:mornye/services/network_storage_service.dart';
-import 'package:mornye/utils/file_access.dart' show deleteFile, fileExists;
-import 'package:mornye/widgets/app_alert_dialog.dart';
-import 'package:mornye/providers/network_offline_provider.dart';
-import 'package:mornye/services/network_offline_saver.dart';
-import 'package:mornye/widgets/album_detail_header.dart';
-import 'package:mornye/widgets/desktop/context_menu.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/app_progress_indicator.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/link/link_library_actions.dart';
-import 'package:mornye/services/link/link_library_jobs.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/services/link/features/link_library_lookup.dart';
+import 'package:sistrum/providers/deleted_library_files.dart';
+import 'package:sistrum/services/network_storage_service.dart';
+import 'package:sistrum/utils/file_access.dart' show deleteFile, fileExists;
+import 'package:sistrum/widgets/app_alert_dialog.dart';
+import 'package:sistrum/providers/network_offline_provider.dart';
+import 'package:sistrum/services/network_offline_saver.dart';
+import 'package:sistrum/widgets/album_detail_header.dart';
+import 'package:sistrum/widgets/desktop/context_menu.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_progress_indicator.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/link/link_library_actions.dart';
+import 'package:sistrum/services/link/link_library_jobs.dart';
 
-export 'package:mornye/services/network_offline_saver.dart'
+export 'package:sistrum/services/network_offline_saver.dart'
     show canSaveNetworkOfflineSource;
 
 String offlineDeviceFilterLabel(BuildContext context) =>

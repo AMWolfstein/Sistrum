@@ -3,11 +3,11 @@ import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mornye/providers/system_volume_provider.dart';
-import 'package:mornye/services/playback_deck.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/utils/logger.dart';
-import 'package:mornye/widgets/desktop/desktop_wheel_smoother.dart';
+import 'package:sistrum/providers/system_volume_provider.dart';
+import 'package:sistrum/services/playback_deck.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/logger.dart';
+import 'package:sistrum/widgets/desktop/desktop_wheel_smoother.dart';
 
 /// Scrolls the desktop app's output volume over a speaker or volume slider.
 class DesktopVolumeScroll extends ConsumerWidget {

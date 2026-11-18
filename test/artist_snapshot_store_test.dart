@@ -4,11 +4,11 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/models/track.dart';
-import 'package:mornye/providers/track_provider.dart';
-import 'package:mornye/screens/artist_screen.dart';
-import 'package:mornye/services/artist_snapshot_store.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/providers/track_provider.dart';
+import 'package:sistrum/screens/artist_screen.dart';
+import 'package:sistrum/services/artist_snapshot_store.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const _album = ArtistAlbum(
@@ -90,7 +90,7 @@ void main() {
 
   testWidgets('a saved copy says so and shows the page', (tester) async {
     SharedPreferences.setMockInitialValues({});
-    const channel = MethodChannel('com.zarz.mornye/backend');
+    const channel = MethodChannel('com.amwolfstein.sistrum/backend');
     final messenger =
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     messenger.setMockMethodCallHandler(channel, (_) async => null);

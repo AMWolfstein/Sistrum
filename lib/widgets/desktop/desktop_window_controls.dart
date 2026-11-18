@@ -1,16 +1,16 @@
 import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
-import 'package:mornye/l10n/l10n.dart';
-import 'package:mornye/services/app_navigation_service.dart';
-import 'package:mornye/theme/app_tokens.dart';
-import 'package:mornye/utils/desktop_platform.dart';
-import 'package:mornye/widgets/app_bottom_sheet.dart';
-import 'package:mornye/widgets/app_icon.dart';
-import 'package:mornye/widgets/app_icon_button.dart';
-import 'package:mornye/widgets/desktop/desktop_commands.dart';
-import 'package:mornye/widgets/desktop/desktop_window.dart';
-import 'package:mornye/widgets/settings_group.dart';
+import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/services/app_navigation_service.dart';
+import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_icon_button.dart';
+import 'package:sistrum/widgets/desktop/desktop_commands.dart';
+import 'package:sistrum/widgets/desktop/desktop_window.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 
 String desktopWindowModeLabel(BuildContext context, DesktopWindowMode mode) =>
     switch (mode) {

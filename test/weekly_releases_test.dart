@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mornye/providers/library_collections_provider.dart';
-import 'package:mornye/services/weekly_releases.dart';
+import 'package:sistrum/providers/library_collections_provider.dart';
+import 'package:sistrum/services/weekly_releases.dart';
 
 CollectionArtistEntry _artist(String id) => CollectionArtistEntry(
   key: 'provider-a:$id',

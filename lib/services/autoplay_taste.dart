@@ -4,12 +4,12 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart' show compute, visibleForTesting;
 import 'package:flutter/services.dart' show MissingPluginException;
-import 'package:mornye/services/autoplay_personalization.dart';
-import 'package:mornye/services/autoplay_signal.dart';
-import 'package:mornye/services/playable_media.dart';
-import 'package:mornye/services/platform_bridge.dart';
-import 'package:mornye/services/sqlite_helpers.dart' as sqlite;
-import 'package:mornye/utils/logger.dart';
+import 'package:sistrum/services/autoplay_personalization.dart';
+import 'package:sistrum/services/autoplay_signal.dart';
+import 'package:sistrum/services/playable_media.dart';
+import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
+import 'package:sistrum/utils/logger.dart';
 import 'package:sqflite/sqflite.dart';
 
 final _log = AppLogger('AutoplayTaste');

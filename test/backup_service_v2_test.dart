@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:archive/archive_io.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
-import 'package:mornye/services/backup_service.dart';
+import 'package:sistrum/services/backup_service.dart';
 
 class _UnreadableArchiveFile extends ArchiveFile {
   _UnreadableArchiveFile(this.failure) : super('history.ndjson', 0, <int>[]);
@@ -41,7 +41,7 @@ void main() {
   test(
     'ZIP backup pages history and streams cover files during restore',
     () async {
-      final root = await Directory.systemTemp.createTemp('mornye-backup-test-');
+      final root = await Directory.systemTemp.createTemp('sistrum-backup-test-');
       addTearDown(() async {
         if (await root.exists()) await root.delete(recursive: true);
       });
@@ -179,7 +179,7 @@ void main() {
       final root = await Directory.systemTemp.createTemp('legacy-backup-');
       addTearDown(() => root.delete(recursive: true));
       final envelope = <String, dynamic>{
-        'magic': 'mornye-backup',
+        'magic': 'sistrum-backup',
         'format_version': 1,
         'data': {
           'settings': {'theme': 'light'},

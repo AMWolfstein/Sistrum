@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mornye/models/library_database_models.dart';
-import 'package:mornye/services/link/desktop/link_catalog_exporter.dart';
-import 'package:mornye/services/link/desktop/link_web_covers.dart';
-import 'package:mornye/services/link/link_protocol.dart';
+import 'package:sistrum/models/library_database_models.dart';
+import 'package:sistrum/services/link/desktop/link_catalog_exporter.dart';
+import 'package:sistrum/services/link/desktop/link_web_covers.dart';
+import 'package:sistrum/services/link/link_protocol.dart';
 
 void main() {
   late Directory temp;

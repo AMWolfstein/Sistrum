@@ -193,7 +193,7 @@ pub(super) fn split(request: &Value, check: Check<'_>) -> Result<Value, String> 
         deserializer
             .end()
             .map_err(|e| err("legacy backup trailing data", e))?;
-        if (root["magic"] != "mornye-backup" && root["magic"] != "spotiflac-backup")
+        if (root["magic"] != "sistrum-backup" && root["magic"] != "spotiflac-backup")
             || !root["data"].is_object()
         {
             return Err("Invalid legacy backup envelope".into());

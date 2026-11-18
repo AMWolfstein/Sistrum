@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.zarz.mornye">
+    package="com.amwolfstein.sistrum">
 
     <uses-feature android:name="android.hardware.usb.host" android:required="false" />
     <uses-feature android:name="android.software.leanback" android:required="false" />
@@ -17,7 +17,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
-    <!-- Mornye Link finds the desktop app over mDNS (multicast lock). -->
+    <!-- Sistrum Link finds the desktop app over mDNS (multicast lock). -->
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" 
         android:maxSdkVersion="29" />
@@ -36,8 +36,8 @@
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <application
-        android:label="Mornye"
-        android:name=".MornyeApplication"
+        android:label="Sistrum"
+        android:name=".SistrumApplication"
         android:icon="@mipmap/ic_launcher"
         android:banner="@drawable/tv_banner"
         android:allowBackup="false"
@@ -49,7 +49,7 @@
         android:localeConfig="@xml/locale_config">
         <meta-data
             android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
-            android:value="com.zarz.mornye.MornyeCastOptionsProvider" />
+            android:value="com.amwolfstein.sistrum.SistrumCastOptionsProvider" />
         <!-- Presence uses RPC only; do not expose unused SDK voice/auth components. -->
         <service android:name="com.discord.socialsdk.ForegroundService" tools:node="remove" />
         <activity android:name="com.discord.socialsdk.AuthenticationActivity" tools:node="remove" />
@@ -139,19 +139,19 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="mornye" android:host="callback" />
+                <data android:scheme="sistrum" android:host="callback" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="mornye" android:host="spotify-callback" />
+                <data android:scheme="sistrum" android:host="spotify-callback" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="mornye" android:host="session-grant" />
+                <data android:scheme="sistrum" android:host="session-grant" />
             </intent-filter>
         </activity>
 

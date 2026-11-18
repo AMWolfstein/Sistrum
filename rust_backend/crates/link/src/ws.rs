@@ -1,4 +1,4 @@
-//! The push channel (contract section 7): `GET /mornye/v1/ws` with a Bearer
+//! The push channel (contract section 7): `GET /sistrum/v1/ws` with a Bearer
 //! key, JSON text frames. The first client frame must be `hello` for the
 //! key's device (else close 4401); the server answers `welcome`, reports the
 //! client list as `linkClients`, forwards later frames as `linkMessage`,
@@ -191,7 +191,7 @@ impl Clients {
     }
 }
 
-/// Answers `GET /mornye/v1/ws` for an authenticated device: `101` now, the
+/// Answers `GET /sistrum/v1/ws` for an authenticated device: `101` now, the
 /// session on its own task once hyper hands over the connection.
 pub(crate) fn upgrade(
     state: &Arc<State>,

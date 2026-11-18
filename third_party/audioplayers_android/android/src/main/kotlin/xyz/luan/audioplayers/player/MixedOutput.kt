@@ -30,7 +30,7 @@ internal class MixedOutput(private val wrappedPlayer: WrappedPlayer, private val
         try {
             // The effect takes over the player's volume. On a USB DAC that
             // left songs at full volume after every track change, and USB
-            // output is not offloaded anyway (Mornye issue 864).
+            // output is not offloaded anyway (Sistrum issue 864).
             if (active && usbOutputAttached()) {
                 close()
                 return

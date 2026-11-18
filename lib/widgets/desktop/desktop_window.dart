@@ -4,8 +4,8 @@ import 'dart:io' show Platform;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:mornye/utils/adaptive_layout.dart';
-import 'package:mornye/utils/desktop_platform.dart';
+import 'package:sistrum/utils/adaptive_layout.dart';
+import 'package:sistrum/utils/desktop_platform.dart';
 
 /// Overrides [desktopTitleBarInContent] in tests.
 bool? debugDesktopTitleBarInContentOverride;
@@ -48,7 +48,7 @@ double desktopTitleBarHeightFor(BuildContext context) =>
 double desktopWindowControlsWidthFor(BuildContext context) =>
     desktopWindowControlsWidth / AdaptiveUiScale.of(context);
 
-const _windowChannel = MethodChannel('com.zarz.mornye/window');
+const _windowChannel = MethodChannel('com.amwolfstein.sistrum/window');
 
 enum DesktopWindowMode { windowed, fullscreen, borderless }
 

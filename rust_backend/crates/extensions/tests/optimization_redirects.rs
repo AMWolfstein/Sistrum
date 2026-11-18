@@ -1,5 +1,5 @@
-use mornye_network::policy::NetworkPermissions;
-use mornye_network::{HttpRequest, NetworkService};
+use sistrum_network::policy::NetworkPermissions;
+use sistrum_network::{HttpRequest, NetworkService};
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
