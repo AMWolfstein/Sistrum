@@ -3,6 +3,9 @@ package com.amwolfstein.sistrum
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.os.storage.StorageManager
 import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
 import io.flutter.plugin.common.MethodCall
@@ -41,13 +44,48 @@ internal suspend fun Context.handleListSafAudioFiles(call: MethodCall, result: M
     result.success(files)
 }
 
+// A removable volume that is not mounted now (unplugged card, ejected drive)
+// cannot answer for its documents, so they are unknown rather than missing. Only
+// the volumes named by safVolumeUuidToCheck are checked; Android versions before
+// 11 keep the provider's answer.
+private fun Context.safVolumeMounted(volume: String): Boolean {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return true
+    val storage = getSystemService(StorageManager::class.java)
+    return storage.storageVolumes.any {
+        it.uuid.equals(volume, ignoreCase = true) &&
+            Environment.getExternalStorageState(it.directory) == Environment.MEDIA_MOUNTED
+    }
+}
+
+// DocumentFile.exists() swallows provider and permission failures as "missing",
+// which would let a revoked grant remove library rows. Null means unknown.
 internal suspend fun Context.handleSafExists(call: MethodCall, result: MethodChannel.Result) {
     val uriStr = call.argument<String>("uri") ?: ""
-    val exists = withContext(Dispatchers.IO) {
-        val uri = Uri.parse(uriStr)
-        DocumentFile.fromSingleUri(this@handleSafExists, uri)?.exists() == true
+    val state = withContext(Dispatchers.IO) {
+        try {
+            val uri = Uri.parse(uriStr)
+            val documentId = try {
+                DocumentsContract.getDocumentId(uri)
+            } catch (_: IllegalArgumentException) {
+                null
+            }
+            val volume = safVolumeUuidToCheck(uri.authority, documentId)
+            // An unmounted volume cannot prove absence, but a document the
+            // provider still returns is present whatever the volume says.
+            val unverifiable = volume != null && !safVolumeMounted(volume)
+            val projection = arrayOf(DocumentsContract.Document.COLUMN_DOCUMENT_ID)
+            contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
+                when {
+                    cursor.moveToFirst() -> true
+                    unverifiable || cursor.extras.getBoolean(DocumentsContract.EXTRA_LOADING, false) -> null
+                    else -> false
+                }
+            }
+        } catch (_: RuntimeException) {
+            null
+        }
     }
-    result.success(exists)
+    result.success(state)
 }
 
 internal suspend fun Context.handleSafExistsBatch(call: MethodCall, result: MethodChannel.Result) {

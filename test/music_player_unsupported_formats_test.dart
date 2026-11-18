@@ -672,16 +672,23 @@ void main() {
     'found',
     'permission_denied',
     'provider_unavailable',
+    'unmounted',
   ]) {
     test('Android SAF skips only confirmed absence: $status', () async {
       const source = 'content://example.documents/document/track.flac';
       final probes = <String>[];
       messenger.setMockMethodCallHandler(backend, (call) async {
+        // The provider confirms absence on mounted storage; an unmounted
+        // volume cannot tell, so the entry stays queued.
+        if (call.method == 'safExists') {
+          return status == 'missing' ? false : null;
+        }
         if (call.method != 'safStat') return null;
         final arguments = call.arguments as Map<Object?, Object?>;
         probes.add(arguments['uri']! as String);
         if (status == 'missing') return '{"exists":false}';
         if (status == 'found') return '{"exists":true}';
+        if (status == 'unmounted') return '{"exists":false}';
         throw PlatformException(code: status);
       });
       final p = await player(android: true, avPlayer: false);
@@ -702,6 +709,10 @@ void main() {
       } else {
         expect(native.resumedSources, isEmpty);
         expect(p.handler.mediaItem.value?.id, 'saf-song');
+        expect(p.handler.queue.value.map((item) => item.id), [
+          'saf-song',
+          next.id,
+        ]);
         expect(
           p.handler.playbackState.value.processingState,
           AudioProcessingState.error,

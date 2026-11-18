@@ -357,7 +357,7 @@ Future<bool?> storedFileState(String? path) async {
     // A computer cannot open a phone's content URI; see [fileExists].
     if (isDesktopPlatform) return false;
     try {
-      return await PlatformBridge.safExists(realPath);
+      return await PlatformBridge.safExistsState(realPath);
     } catch (_) {
       return null;
     }
@@ -409,6 +409,23 @@ Future<bool> _storageAvailableFor(String path) async {
     directory = parent;
   }
   return false;
+}
+
+/// Whether [path] cannot be checked now because its storage is not mounted
+/// (an unplugged card, an ejected drive or an unmounted share). Such a file is
+/// unavailable, never missing: callers keep it. Primary storage with its folder
+/// present is always answered as available, as before. A content URI is
+/// unavailable when the provider cannot tell (null from [PlatformBridge]).
+Future<bool> storageUnavailableFor(String path) async {
+  if (path.isEmpty || path.startsWith('network://')) return false;
+  if (isContentUri(path)) {
+    try {
+      return (await PlatformBridge.safExistsState(path)) == null;
+    } catch (_) {
+      return true;
+    }
+  }
+  return !await _storageAvailableFor(stripCueTrackSuffix(path));
 }
 
 /// Folders that hold mounted drives, cards and shares rather than files of
@@ -488,7 +505,8 @@ Future<bool> deleteFile(
           .deleteFile(path);
     } else if (isContentUri(path)) {
       final deleted = await PlatformBridge.safDelete(path);
-      confirmedAbsent = deleted || !await PlatformBridge.safExists(path);
+      confirmedAbsent =
+          deleted || (await PlatformBridge.safExistsState(path)) == false;
     } else {
       final source = path;
       return await (deletionEvents ?? SourceDeletionEvents.instance).delete(
@@ -496,6 +514,10 @@ Future<bool> deleteFile(
         () async {
           final file = File(source);
           if (await file.exists()) await file.delete();
+          // Absent from an unmounted card is unavailable, not deleted.
+          if (!await file.exists() && await storageUnavailableFor(source)) {
+            return false;
+          }
           return !await file.exists();
         },
       );

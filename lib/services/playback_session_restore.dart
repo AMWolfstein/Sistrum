@@ -4,6 +4,7 @@ import 'package:audio_service/audio_service.dart' show AudioServiceRepeatMode;
 import 'package:path_provider/path_provider.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/services/cover_store.dart';
+import 'package:sistrum/services/file_access_check.dart';
 import 'package:sistrum/services/music_player_runtime.dart';
 import 'package:sistrum/services/playable_media.dart';
 import 'package:sistrum/utils/logger.dart';
@@ -95,13 +96,21 @@ prepareRestoredPlaybackMedia(
   String? iosDocumentsPath,
   required Future<String?> Function(PlayableMedia) loadLibraryCoverPath,
   Future<bool> Function(String)? fileExists,
+  Future<FileAccessCheck> Function(String)? checkAccess,
+  Future<bool> Function(String)? storageUnavailable,
   Future<String?> Function(PlayableMedia)? recoverSource,
 }) async {
   const batchSize = 8;
   final checks = <String, Future<bool>>{};
   Future<bool> exists(String path) {
     final pending =
-        checks.remove(path) ?? (fileExists?.call(path) ?? File(path).exists());
+        checks.remove(path) ??
+        (fileExists?.call(path) ??
+            _isKeptUnlessMissing(
+              path,
+              checkAccess ?? checkFileAccess,
+              storageUnavailable ?? files.storageUnavailableFor,
+            ));
     checks[path] = pending;
     if (checks.length > 256) checks.remove(checks.keys.first);
     return pending;
@@ -183,6 +192,19 @@ prepareRestoredPlaybackMedia(
     artworkRelocated: artworkRelocated,
     sourceRelocated: sourceRelocated,
   );
+}
+
+/// Only a confirmed missing file on available storage counts as absent. A
+/// permission or storage error, or a file on an unmounted card or drive, keeps
+/// the saved entry, so a later launch (or the card's return) still finds it.
+Future<bool> _isKeptUnlessMissing(
+  String path,
+  Future<FileAccessCheck> Function(String) checkAccess,
+  Future<bool> Function(String) storageUnavailable,
+) async {
+  if (files.isContentUri(path)) return File(path).exists();
+  if ((await checkAccess(path)) is! FileAccessMissing) return true;
+  return storageUnavailable(path);
 }
 
 Future<bool> restorePlaybackSession(

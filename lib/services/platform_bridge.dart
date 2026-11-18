@@ -1166,8 +1166,13 @@ class PlatformBridge {
         'payload': payload,
       });
 
-  static Future<bool> safExists(String uri) =>
-      _invokeAs('safExists', {'uri': uri});
+  static Future<bool> safExists(String uri) async =>
+      (await safExistsState(uri)) ?? false;
+
+  /// Null when the provider cannot tell (a lost grant or a failed query), so
+  /// a destructive caller keeps the document.
+  static Future<bool?> safExistsState(String uri) =>
+      _invokeAs<bool?>('safExists', {'uri': uri});
 
   /// Lists playable documents for a temporary queue, without indexing a source.
   static Future<List<dynamic>> listSafAudioFiles(String treeUri) async =>

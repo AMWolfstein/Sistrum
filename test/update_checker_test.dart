@@ -221,6 +221,18 @@ void main() {
     },
   );
 
+  test('a network that never answers ends the check without an update', () async {
+    SharedPreferences.setMockInitialValues({});
+    final checker = UpdateChecker(
+      installedVersion: '5.0.0',
+      isAndroid: true,
+      supportedAbis: ['arm64-v8a'],
+      client: MockClient((_) => Completer<http.Response>().future),
+    );
+    // Bounded by the request timeout; startup never waits on it.
+    expect(await checker.checkForUpdate(), isNull);
+  }, timeout: const Timeout(Duration(seconds: 30)));
+
   for (final failure in ['offline', 'rate limit', 'invalid JSON']) {
     test('$failure does not claim cached 5.0.0 is the latest online', () async {
       final cachedBody = jsonEncode([release('5.0.0')]);

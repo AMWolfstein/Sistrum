@@ -53,7 +53,7 @@ import 'package:sistrum/services/source_metadata_events.dart';
 import 'package:sistrum/services/system_volume_service.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/logger.dart';
-import 'package:sistrum/utils/file_access.dart' show fileExists;
+import 'package:sistrum/utils/file_access.dart' show fileExists, storageUnavailableFor;
 
 final _log = AppLogger('MusicPlayerRuntime');
 
@@ -81,6 +81,7 @@ class PlaybackDependencies {
     this.networkSourceReachable = _networkSourceReachable,
     this.recoverMissingFile = _recoverMissingFile,
     this.fileAccess = checkFileAccess,
+    this.storageUnavailable = storageUnavailableFor,
     this.recoverMovedDownload = _recoverMovedDownload,
     this.openPlaybackLease = PlatformBridge.openContentUriPlaybackLease,
     this.initializeHandler = _initializeAudioHandler,
@@ -146,6 +147,9 @@ class PlaybackDependencies {
   /// any other path; throws when it cannot be fetched.
   final Future<String?> Function(String) recoverMissingFile;
   final Future<FileAccessCheck> Function(String) fileAccess;
+
+  /// Whether a file's storage is unmounted now, so its absence is not deletion.
+  final Future<bool> Function(String) storageUnavailable;
   final Future<String?> Function(
     String source,
     String historyId,

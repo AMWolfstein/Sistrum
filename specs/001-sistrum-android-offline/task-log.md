@@ -153,3 +153,96 @@ The device-only acceptance of T003 (background playback integration test, theme 
 
 ### Review
 Round 1 (independent, read-only; same reviewer as T001/T002, resumed): PASS. The reviewer re-ran its own APK checks (sha256/size, application-id, label, version, arm64-only libs, ELF machine/alignment, `zipalign -c -P 16`, apksigner v2/debug key, JNI exports, dex strings), recomputed the test comparison from the JSON (57 failing vs 58 at baseline; one load-sensitive new name; two baseline names now pass), and compared `Cargo.lock` programmatically (pure reorder). Advisory corrections applied above (Discord export count 5, external strings in `libsistrum_mobile.so`, deferral record). Unverified by the reviewer: device install/launch, theme rendering, runtime registration, online services, a production-signed release, the Discord SDK path.
+
+## M001-T004 — Make local library and phone playback self-contained
+
+Baseline `2ee4842` (T001-T003 committed). Worker: Haiku 5.5. Map refresh first: `python3 workflow/codegraph/code_tools.py update` (55,578 symbols, 208,229 relationships; 2,421 sources extracted, 0 partial, 0 unindexed). Not committed; `task complete` not run.
+
+### Audit: what waits on the network, and where
+Startup before `runApp` (`lib/main.dart`) awaits only local work: preferences (196), install marker and restored-install reset (441-456), startup SAF tree check bounded to 2 s with errors mapped to accessible (476-487), runtime profile from device info (511). No network call precedes the first frame. **No change needed.** Read, not exercised under airplane mode.
+
+After the first frame, network work is detached or bounded:
+- `lib/main.dart:595-650` (`_initializeAppServices`, `_initializeExtensions`, deferred warmups): unawaited, local/native. **No change.**
+- `lib/screens/main_shell.dart:~318-340`: playback restore needs no network. `_restorePlayback` waits only for native extension init before artwork recovery. Extension store refresh (`extension_auto_update_provider.dart:84-123`, network) is detached. **Deferred to T005** (Store/online).
+- `lib/screens/main_shell_startup_prompts.dart:94-118`: update check (`lib/services/update_checker.dart:290`, 10 s timeout, errors caught at 320) gates only the update dialog and the announcement after it (`app_remote_config_service.dart:405`, 8 s timeout, errors caught 431/485). Local UI does not wait. **Deferred to T005.** A never-answering-network test was added (below).
+- `lib/screens/setup_screen.dart:355-377` and `setup_steps.dart:333`: the Link nearby-devices permission is refusal-tolerant (Next enables after refusal). **Deferred to T005.**
+- `lib/screens/settings/settings_tab.dart:155-166` (donate, remote config): online display only. **Deferred to T005.**
+- Local library covers and autoplay skip `http(s)` sources (`local_library_provider_covers.dart:76-85`, `music_player_autoplay.dart:87`, `library_mixes.dart:576`). **No change.**
+
+### Fresh schema and settings
+- Library database: fresh-schema test exists (`test/library_schema_test.dart:198`). Legacy upgrade tests (v1 to v20, same file) are kept: they are covered by tests and were not proven dead. Upgrade code is not removed in T004.
+- App state (playback session, resume) opens fresh through `AppStateDatabase` (`lib/services/app_state_database.dart:47-70`). Settings defaults and setup-completion persistence: `test/settings_persistence_test.dart:86-121`. **No change.**
+
+### Persistence across restart
+- Existing: download-queue restart tests (`test/download_queue_persistence_test.dart:87`, `:158`, `:621`), library queue store tests, playback session text round-trip (`test/playback_session_storage_test.dart:103`).
+- Added `test/playback_session_restart_test.dart`: a saved queue, index, position, shuffle and repeat written to a file-backed store, closed, reopened and restored through `prepareRestoredPlaybackMedia`. A second case restores with an unreadable card and keeps every entry.
+
+### Removable storage: the decision
+Rule: a file whose storage is not mounted is **unavailable**, never missing. Unavailable entries are kept (not dropped from the queue, no history row removed, no library row removed, no file reported deleted). Only a confirmed missing file on available storage is removed, as before. Primary storage keeps its behaviour.
+
+Plain paths (`/storage/<id>/...`, `/mnt/media_rw/<id>/...`): the existing helper `_storageAvailableFor` (`lib/utils/file_access.dart:389-410`) walks up to the nearest existing folder. If that folder is a mount container (`isStorageMountContainer`, `:412-440`: `/storage`, `/mnt`, `/media`, `/Volumes`, `/run/media`, `/storage/emulated`), the storage is gone. `/storage/emulated/0/...` stops at an existing folder under primary storage and stays available. The public wrapper `storageUnavailableFor` (`file_access.dart:419-432`) uses it. This is pure Dart, no channel method. **Assumption: Android removes `/storage/<volume-id>` on unmount; see Not verified.**
+
+SAF documents (`content://.../document/<id>:...`): `android/app/src/main/kotlin/com/amwolfstein/sistrum/SafVolumePolicy.kt` `safVolumeUuidToCheck(authority, documentId)` decides whether a volume must be checked:
+- Only authority `com.android.externalstorage.documents` names a volume by uuid before the colon. Every other authority (media `audio:`/`document:`, `msf:`, Downloads `raw:`, `home:`, any other provider) returns no check, so its answer is the provider query exactly as before.
+- Volume ids `primary`, `emulated`, `home`, `raw`, empty, or no colon: no check.
+- Any other id (for example `1234-ABCD:Music/a.mp3`) is checked against mounted `StorageVolume`s (`MainActivitySafCalls.kt` `safVolumeMounted`, Android 11+ only; earlier versions keep the provider answer).
+- `handleSafExists` (`MainActivitySafCalls.kt`) still runs the query. On an unverifiable (unmounted) volume a found row answers **true**; an empty result or a loading provider answers unknown (`null`); a query exception answers unknown. Only a completed empty query on a verifiable volume answers false. So a live document is never reported missing because of the volume guard.
+- The Dart bool wrapper `PlatformBridge.safExists` maps null to false. Its callers (`file_access.dart:307` `fileExists`, and the `playback_session_restore.dart`, `music_player_service.dart:1317`, `local_playback.dart:38`, `track_file_resolver.dart:83` callers) get the same false as before for unknown answers; they are not destructive. The destructive callers use the tri-state `safExistsState` (`file_access.dart:360` `storedFileState`, `:423` `storageUnavailableFor`, `:509` `deleteFile`).
+
+Where the decision is applied:
+1. Restore: `lib/services/playback_session_restore.dart` `_isKeptUnlessMissing` keeps a file whose check is missing when `storageUnavailable` is true (default `files.storageUnavailableFor`). Keeping it also skips recovery, so the queue is not rewritten and the session is not cleared.
+2. Play-time skip: `lib/services/music_player_failures.dart:91-93` returns false (keep, report a playback error) when the storage is unavailable. The dependency is `storageUnavailable` on `MusicPlayerRuntime` (`music_player_runtime.dart:84`, `:152`), injectable for tests.
+3. Deletion: `lib/utils/file_access.dart` `deleteFile` local branch (~:518) returns false for an absent file on unavailable storage, so nothing is published as deleted. SAF branch: a null `safExistsState` keeps `confirmedAbsent` false.
+4. History rows: `storedFileState` (`file_access.dart:360`, `_localFileState` `:368-387`) already returned unknown through `_storageAvailableFor`. Unchanged; covered by `test/stored_file_state_test.dart` "cannot be told".
+5. Library cleanup: `cleanupMissingLibraryRows` (`lib/services/library_cleanup.dart:439-444`) uses `fileExistenceByPath`, which uses the same `_localFileState` (unknown on unmounted storage). Unchanged; covered by `test/stored_file_state_test.dart` (unplugged path returns null).
+
+Restore on remount: nothing was dropped, so the same saved entries resolve again when the card returns (test below). No re-add is needed.
+
+### Findings and changes
+1. **Unreadable saved file dropped from the restored queue** (kept). `playback_session_restore.dart` used `File.exists()`, which reads EACCES/I/O errors as missing. Now only `FileAccessMissing` counts as absent (`checkFileAccess`). Test: "an unreadable saved file stays queued while a confirmed missing one is dropped".
+2. **SAF existence read as "missing" on a lost grant** (kept, tightened in review). `handleSafExists` used `DocumentFile.exists()`, which swallows provider and security exceptions. It now returns `null` for unknown answers as described above. `lib/services/platform_bridge.dart`: `safExistsState` (`bool?`); `safExists` keeps its `bool` contract (`?? false`).
+3. **Unplugged card: restore and play-time skip dropped entries** (this change). Restore and `music_player_failures.dart` treated `FileAccessMissing` as removable. An unplugged card gives ENOENT, so entries were dropped and the session could be cleared. Both now consult `storageUnavailable`.
+4. **Review regression, fixed.** The first SAF guard treated the text before ':' of every document id as a volume uuid and answered unknown for every other provider (`audio:`, `msf:`, `home:`, `raw:`, other authorities), so live documents came back unknown/false. Now only the ExternalStorage authority is checked, and the policy is a pure function with a JVM test (see Tests).
+5. Test-only correction: `test/music_player_unsupported_formats_test.dart` "Android SAF skips only confirmed absence". The mock never answered `safExists`, so the new unknown kept the entry. The mock now answers `safExists` as false for `missing` (provider-confirmed absence, as on mounted storage) and null for a new `unmounted` case, which must stay queued. All 5 cases pass.
+
+Earlier worker reports wrongly said `storedFileState` and library cleanup dropped unplugged entries. Re-reading showed the local path already returned unknown through `_storageAvailableFor`; the real gaps were items 3 and 2.
+
+### Tests added or changed
+- `android/app/src/test/kotlin/com/amwolfstein/sistrum/SafVolumePolicyTest.kt` (new, 4 JUnit tests): only the ExternalStorage authority yields a volume to check (`1234-ABCD:Music/a.mp3`); `primary:Music/a.mp3`, `primary:`, `emulated:0/...`, `home:`, `home:Music/a.mp3`, `raw:/storage/emulated/0/x`, `:x` and a bare `1234-ABCD` yield none; `audio:123`, `msf:123`, `document:123`, `raw:/storage/emulated/0/x`, `1234-ABCD:Music/a.mp3` and `home:` yield none under media, downloads and other authorities; a null authority or id yields none. Run: see Kotlin verification.
+- `test/removable_volume_availability_test.dart` (new, 6): unplugged local path is unavailable (with CUE suffix); missing file in a present folder is not unavailable; delete of an unplugged file is not a deletion and publishes nothing; SAF unknown (unmounted) is unavailable; SAF confirmed missing on mounted storage is not; SAF unknown is never reported deleted.
+- `test/playback_session_restore_test.dart`: "entries on an unmounted card stay queued; they play again once it returns" (keeps all three, no recovery, no rewrite; then remount resolves the same entries) and "a truly missing file on available storage is still dropped". The earlier unreadable-file test now injects `storageUnavailable`.
+- `test/music_player_unsupported_formats_test.dart`: SAF group extended with the `unmounted` case.
+- `test/playback_session_restart_test.dart` (new, 2), `test/saf_exists_state_test.dart` (new, 3; Dart contract for the channel's `bool?` answer, including null staying unknown) and `test/update_checker_test.dart` never-answers (10 s): from the previous passes.
+
+### Kotlin verification
+- `cd android && ./gradlew :app:compileReleaseKotlin --offline -Ptarget-platform=android-arm64`: **BUILD SUCCESSFUL**, task executed, after the final `MainActivitySafCalls.kt` edit (`t004d_compile2.log` in the worker scratchpad).
+- `SafVolumePolicyTest` (4 tests): **PASS, run directly with JUnit 4.12** (`OK (4 tests)`). The project's Gradle debug unit-test task (`:app:testDebugUnitTest`) cannot resolve its classpath offline here (`io.flutter:flutter_embedding_debug` not cached), and there is no release unit-test task. The test was compiled with the cached Kotlin 2.4.21 compiler and run with `org.junit.runner.JUnitCore`. Gradle's own test run is not executed.
+- The `StorageManager` check and the SAF behaviour on real volumes are **compiled only, not run on a device**.
+
+### Checks (real output)
+- `flutter analyze` (full project): 1 issue, the baseline info at `workflow/codegraph/fixtures/bridge/lib/api.dart:5`. PASS against baseline.
+- Targeted `flutter test` (9 files: the new and changed tests above, plus `playback_path_resolution_test.dart` and `track_collection_action_policy_test.dart`, which use `local_playback`/`track_file_resolver` paths): **94 tests, 0 failing** (`t004d_targeted.json`).
+- Final full `flutter test --reporter json` over 803 files, excluding `test/desktop_library_table_rows_test.dart` (see below), file `t004e_full.json`: 7,961 non-hidden test results = 7,883 pass, 53 fail, 25 skip. Excluding 3 loader/setUp pseudo-entries: 7,958 = 7,880 pass, 53 fail, 25 skip. Distinct test names: 7,951, of which 53 have a failing result.
+- Versus T003's 57 failing names (`t003_test.json`): **no failing name in `t004e_full.json` is new**. All 53 are in T003's failing set. Of the 57 T003 names, 4 are not failing in this run: 1 executed and now passes (`link_phone_sources_test.dart` "metadata asks the phone for embedded lyrics missing from the catalog", load-sensitive, also passes alone), and 3 were **not executed** (the `desktop Library Songs table` tests below). 57 - 4 = 53.
+- **`desktop_library_table_rows_test.dart` was not executed in this run.** The three `desktop Library Songs table` tests do not appear in `t004e_full.json`. The file was excluded because it stalls: run alone with a 600 s bound it reported one result and then sat on "desktop Library Songs table a click, a resize and playback keep every loaded row" until killed. T003 recorded those three tests as errors. They are not shown as passing.
+- `python3 workflow/work.py validate`: PASS (`missions 1, reserved 4, completed 5`).
+- `python3 -m unittest discover -s workflow -p 'test_*.py'`: 47 OK.
+- `cargo check`: not run; no Rust changed.
+- `flutter test integration_test/android_background_playback_test.dart -d "$ANDROID_SERIAL"`: **NOT RUN**. `adb devices` lists no device.
+
+### Not verified (device-only or assumed)
+- **Assumption:** Android removes `/storage/<volume-id>` on unmount. Plain-path unavailable detection (`_storageAvailableFor`, `isStorageMountContainer`) depends on it. If the directory stays as an empty folder, a file on an unplugged card reads as missing and is dropped, as before this change. Not observed on a device.
+- The 2 s startup SAF timeout (`main.dart:476`) and the 10 s update-check bound (`update_checker.dart:290`) were **read, not exercised** under airplane mode.
+- First-launch airplane-mode walkthrough: NOT RUN (no device or emulator).
+- Real SD card or USB drive removal and remount: not observed.
+- SAF `StorageManager` volume check on a device (volume uuid match against `StorageVolume.uuid`, `Environment.getExternalStorageState`): compiled only. The uuid match is assumed to equal the document id's volume part (for example `1234-ABCD`).
+- Provider behaviour for a document on an unmounted volume (null cursor, exception, or empty cursor): not observed; each case maps to unknown or to a found row as described.
+- Revoked grant and restore on a real device: not run.
+- `desktop_library_table_rows_test.dart`: not executed in the final run; the stall is environmental and unexplained.
+
+### Deferred to M001-T005
+Update check and announcement (`main_shell_startup_prompts.dart:94-140`, `update_checker.dart`, `app_remote_config_service.dart`), donate and remote config (`settings_tab.dart:155-166`), extension store refresh and auto-update (`main_shell.dart` post-frame, `extension_auto_update_provider.dart`), Link nearby-devices permission step (`setup_screen.dart:355-377`), network storage and Subsonic sources (`network_storage_*`). None removed in T004.
+
+### Review
+Round 1 (independent, read-only; same reviewer as T001-T003, resumed): NEEDS_FIXES. Blocking: the Kotlin volume guard turned documents of every non-ExternalStorage provider (`audio:`, `msf:`, `document:`, `home:`) into "unknown", which the bool wrapper read as missing (a regression on a supported path); also the planned commit subject was 76 characters. Advisory: log counts and the excluded-file wording. Fixes: authority-scoped `safVolumeUuidToCheck`, JUnit tests, corrected counts and Not-verified list, subject `fix(android): keep unavailable files on offline restart (M001-T004)`.
+Round 2 (independent, read-only): PASS. The reviewer re-grepped every `safExists`/`safExistsState` caller, checked uuid edge cases, recounted `t004e_full.json` (7,961 results: 7,883 pass / 25 skip / 53 fail) and confirmed the desktop-table file was not executed. Unverified by the reviewer: device/SD-removal behavior, the Gradle JUnit run, airplane-mode startup, `desktop_library_table_rows_test.dart`, `android_background_playback` integration test.

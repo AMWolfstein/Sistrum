@@ -17,7 +17,7 @@ Run sequentially after implementation is authorized. Each task starts with `pyth
   - Clean install displays Sistrum. Exercise first run, local playback, a representative existing online route where service access permits, and Mornye theme selection, persistence and rendering. Verify device registration and keep behavior/feature removals for later tasks.
   - Checks: `flutter analyze`, `flutter test`, Android manifest/loader checks, `flutter test integration_test/android_background_playback_test.dart -d "$ANDROID_SERIAL"` and a device theme walkthrough when authorized. Record external services that could not be exercised.
 
-- [ ] M001-T004 Make local library and phone playback self-contained
+- [x] M001-T004 Make local library and phone playback self-contained
   - Paths: `lib/main.dart`, `lib/app.dart`, local library providers/services, phone screens, playback decks, Kotlin SAF and media session.
   - Fresh schema and local flow work in airplane mode. Preserve queue and local state across restart. Handle denied/revoked grants, unavailable documents and removable storage. No Mornye upgrade or migration work.
   - Checks: `flutter analyze`, `flutter test`, first-launch airplane mode walkthrough and Android background playback test with a local fixture.

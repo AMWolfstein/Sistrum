@@ -89,6 +89,8 @@ class _MusicFailures {
     final access = await handler._dependencies.fileAccess(path);
     if (!handler._isCurrentPlayRequest(generation, media)) return true;
     if (access is! FileAccessMissing) return false;
+    // Storage that is not mounted (an unplugged card) keeps the queue entry.
+    if (await handler._dependencies.storageUnavailable(path)) return false;
     _recordFailure(generation);
     final removed = handler._pruneQueuedSource(media.source);
     if (removed == null) return false;

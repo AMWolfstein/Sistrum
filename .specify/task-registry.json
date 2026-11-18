@@ -7,7 +7,7 @@
       "title": "Rebrand to Sistrum and ship Android ARM64 offline"
     }
   },
-  "next_completion": 6,
+  "next_completion": 7,
   "next_mission": 2,
   "next_tor": 3,
   "tasks": {
@@ -60,13 +60,19 @@
       "title": "Verify complete rebrand before removing features"
     },
     "M001-T004": {
-      "completion": null,
+      "completion": 6,
+      "evidence": {
+        "checks": "flutter analyze == baseline (1 info); full flutter test t004e_full.json 7883 pass/25 skip/53 fail, no failing name outside T003's 57 (desktop_library_table_rows_test excluded, stalls here); 94 targeted tests pass; SafVolumePolicyTest 4 JUnit tests OK run directly; :app:compileReleaseKotlin BUILD SUCCESSFUL; validate PASS; device walkthrough and integration test NOT run (no device)",
+        "result": "PASS",
+        "reviewer": "independent-reviewer (a7de344)",
+        "round": 2
+      },
       "final": false,
       "kind": "T",
       "mission": "M001",
       "nonce": "1afd259c0376430d8aea70057dabe8fc",
       "record": "specs/001-sistrum-android-offline/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Make local library and phone playback self-contained"
     },
     "M001-T005": {

@@ -1,11 +1,14 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/models/download_history.dart';
 import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/models/unified_library_item.dart';
+import 'package:sistrum/services/file_access_check.dart';
 import 'package:sistrum/services/playable_media.dart';
 import 'package:sistrum/services/playback_session_restore.dart';
+import 'package:sistrum/utils/file_access.dart';
 
 Map<String, dynamic> _media(int index, {String? artwork, String? source}) =>
     PlayableMedia(
@@ -49,6 +52,103 @@ void main() {
       expect(result.items.single.source, '/yyy/Artist/Album/Song.flac');
       expect(result.sourceRelocated, isTrue);
       expect(result.keptOriginalIndices, [0]);
+    },
+  );
+
+  test(
+    'an unreadable saved file stays queued while a confirmed missing one is dropped',
+    () async {
+      final result = await prepareRestoredPlaybackMedia(
+        [
+          _media(0, source: '/card/locked.flac'),
+          _media(1),
+          _media(2, source: '/card/gone.flac'),
+        ],
+        checkAccess: (path) async => switch (path) {
+          '/card/locked.flac' => FileAccessUnavailable(
+            const FileSystemException('Permission denied'),
+            StackTrace.empty,
+          ),
+          '/card/gone.flac' => const FileAccessMissing(),
+          _ => const FileAccessFound(FileAccessStat()),
+        },
+        storageUnavailable: (_) async => false,
+        loadLibraryCoverPath: (_) async => null,
+      );
+      expect(result.items.map((item) => item.source), [
+        '/card/locked.flac',
+        '/music/1.flac',
+      ]);
+      expect(result.keptOriginalIndices, [0, 1]);
+      expect(result.sourceRelocated, isFalse);
+    },
+  );
+
+  test(
+    'entries on an unmounted card stay queued; they play again once it returns',
+    () async {
+      final raw = [
+        _media(0, source: '/storage/1234-ABCD/Music/a.flac'),
+        _media(1),
+        _media(2, source: '/storage/1234-ABCD/Music/c.flac'),
+      ];
+      var mounted = false;
+      Future<FileAccessCheck> access(String path) async =>
+          path.startsWith('/storage/1234-ABCD/') && !mounted
+          ? const FileAccessMissing()
+          : const FileAccessFound(FileAccessStat());
+      Future<bool> unavailable(String path) async =>
+          path.startsWith('/storage/1234-ABCD/') && !mounted;
+      var recovered = 0;
+      final offline = await prepareRestoredPlaybackMedia(
+        raw,
+        checkAccess: access,
+        storageUnavailable: unavailable,
+        recoverSource: (_) async {
+          recovered++;
+          return null;
+        },
+        loadLibraryCoverPath: (_) async => null,
+      );
+      // Nothing dropped and nothing recovered: the session keeps every entry.
+      expect(offline.keptOriginalIndices, [0, 1, 2]);
+      expect(offline.items, hasLength(3));
+      expect(offline.sourceRelocated, isFalse);
+      expect(recovered, 0);
+
+      // The card returns: the same entries resolve without being re-added.
+      mounted = true;
+      final remounted = await prepareRestoredPlaybackMedia(
+        raw,
+        checkAccess: access,
+        storageUnavailable: unavailable,
+        loadLibraryCoverPath: (_) async => null,
+      );
+      expect(remounted.items.map((item) => item.source), [
+        '/storage/1234-ABCD/Music/a.flac',
+        '/music/1.flac',
+        '/storage/1234-ABCD/Music/c.flac',
+      ]);
+      expect(remounted.keptOriginalIndices, [0, 1, 2]);
+    },
+  );
+
+  test(
+    'a truly missing file on available storage is still dropped',
+    () async {
+      final result = await prepareRestoredPlaybackMedia(
+        [
+          _media(0, source: '/storage/1234-ABCD/Music/gone.flac'),
+          _media(1, source: '/storage/1234-ABCD/Music/kept.flac'),
+        ],
+        checkAccess: (path) async => path.endsWith('gone.flac')
+            ? const FileAccessMissing()
+            : const FileAccessFound(FileAccessStat()),
+        storageUnavailable: (_) async => false,
+        loadLibraryCoverPath: (_) async => null,
+      );
+      expect(result.keptOriginalIndices, [1]);
+      expect(result.items.single.source, '/storage/1234-ABCD/Music/kept.flac');
     },
   );
 
