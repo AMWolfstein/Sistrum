@@ -7,7 +7,7 @@
       "title": "Rebrand to Sistrum and ship Android ARM64 offline"
     }
   },
-  "next_completion": 5,
+  "next_completion": 6,
   "next_mission": 2,
   "next_tor": 3,
   "tasks": {
@@ -44,13 +44,19 @@
       "title": "Match Sistrum artwork to original asset layouts"
     },
     "M001-T003": {
-      "completion": null,
+      "completion": 5,
+      "evidence": {
+        "checks": "release arm64 APK built with dev key (87,279,973 B, sha256 2e97a4e0...); manifest/dex/ELF/zipalign 16KB/apksigner v2 debug verified; flutter analyze == baseline; full flutter test 57 failing vs 58 baseline (1 load-flaky passes alone); cargo check --locked PASS; Cargo.lock pure reorder; validate PASS; device tests NOT run (no device)",
+        "result": "PASS",
+        "reviewer": "independent-reviewer (a7de344)",
+        "round": 1
+      },
       "final": false,
       "kind": "T",
       "mission": "M001",
       "nonce": "0dc572c32cf04b91b449608d0d8d74e6",
       "record": "specs/001-sistrum-android-offline/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Verify complete rebrand before removing features"
     },
     "M001-T004": {

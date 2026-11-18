@@ -12,7 +12,7 @@ Run sequentially after implementation is authorized. Each task starts with `pyth
   - Copy the approved images from `origin/wip` `ba0e973` byte for byte. Derive missing brand variants still referenced by shared or Android code from them with the baseline geometry and alpha; delete Mornye brand files that end up unreferenced, keeping those non-Android shells still use. Point the README and the Top Picks card at the `sistrum-horizontal-*` images. Update launcher background colors to match the WIP icon. Keep Mornye theme design assets, tokens and layouts.
   - Checks: copied files match `ba0e973` blob hashes; every changed destination keeps its baseline dimensions and alpha mode; no asset reference is broken (`git grep` for removed paths). Inspect rendered splash, adaptive and monochrome launcher, About/onboarding, share cards, notification and Top Picks card; run `flutter analyze` and affected Flutter tests.
 
-- [ ] M001-T003 Verify complete rebrand before removing features
+- [x] M001-T003 Verify complete rebrand before removing features
   - Paths: cumulative rebrand diff, app startup, existing feature routes and `integration_test/`.
   - Clean install displays Sistrum. Exercise first run, local playback, a representative existing online route where service access permits, and Mornye theme selection, persistence and rendering. Verify device registration and keep behavior/feature removals for later tasks.
   - Checks: `flutter analyze`, `flutter test`, Android manifest/loader checks, `flutter test integration_test/android_background_playback_test.dart -d "$ANDROID_SERIAL"` and a device theme walkthrough when authorized. Record external services that could not be exercised.
