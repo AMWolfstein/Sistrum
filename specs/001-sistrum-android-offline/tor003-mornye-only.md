@@ -21,7 +21,7 @@ main theme. Same plan as `eada690`, refreshed for the newer base, executed in on
 | Other Android home-screen widgets | Player + Download queue | **Player only** (Download widget left with M001-T005) |
 | Dart/Flutter | 3.13.7 / 3.47.8 | **3.14 / 3.50.0** |
 
-### Decision that differs from the old plan (owner must confirm)
+### Decision that differs from the old plan (owner confirmed: keep `material_ui`)
 
 The old plan removed the package `material_ui` and kept `package:flutter/material.dart`.
 **On Flutter 3.50 that import is `@Deprecated('Use package:material_ui/material_ui.dart')`**
@@ -31,7 +31,7 @@ The old plan removed the package `material_ui` and kept `package:flutter/materia
 (`ThemeData`, `Scaffold`, buttons, `Icons`) that `MornyeTheme.build` and the Mornye arms
 use. Removing it would mean rewriting Mornye or switching 488 files to a deprecated
 import (analyzer warnings, which breaks the clean-analyze gate).
-**This TOR therefore keeps `material_ui` as the framework layer and removes only the
+**Owner confirmed this recommendation. This TOR therefore keeps `material_ui` as the framework layer and removes only the
 Material *design* layer.** Same rationale as old R1; if the owner wants `material_ui`
 gone anyway, that is a separate, much larger task (rebuild Mornye on `widgets` +
 `cupertino_ui`).
