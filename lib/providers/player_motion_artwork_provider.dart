@@ -2,8 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/motion_artwork_folder.dart';
 import 'package:sistrum/services/motion_artwork_store.dart';
-import 'package:sistrum/utils/logger.dart';
-import 'package:sistrum/utils/string_utils.dart';
 
 typedef PlayerArtworkAlbum = ({String album, String artist});
 
@@ -47,33 +45,3 @@ final songMotionArtworkProvider = FutureProvider.autoDispose
       ).wait;
       return beside ?? saved;
     });
-
-/// Optional video is kept outside audio tags, after the metadata write succeeds.
-Future<void> saveReEnrichedMotionArtwork(
-  ProviderContainer container, {
-  required Map<String, dynamic> metadata,
-  required String albumName,
-  required String artistName,
-}) async {
-  final source = normalizeRemoteHttpUrl(metadata['header_video']?.toString());
-  if (source == null) return;
-  final album = (
-    album:
-        normalizeOptionalString(metadata['album_name']?.toString()) ??
-        albumName,
-    artist:
-        normalizeOptionalString(metadata['artist_name']?.toString()) ??
-        artistName,
-  );
-  try {
-    final artwork = await container
-        .read(motionArtworkStoreProvider)
-        .save(album, resolveSource: () async => source);
-    if (artwork != null) {
-      container.invalidate(playerMotionArtworkProvider(album));
-    }
-  } catch (error) {
-    final log = AppLogger('ReEnrichMotionArtwork');
-    log.w('Optional artwork save failed: $error');
-  }
-}

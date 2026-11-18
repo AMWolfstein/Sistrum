@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -5,7 +7,6 @@ import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_browse_provider.dart';
 import 'package:sistrum/providers/library_genres_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
@@ -40,14 +41,16 @@ const _jazz = LibraryBrowseEntry(
   trackCount: 1,
 );
 
+late Directory _songDir;
+
 UnifiedLibraryItem _song(String id) => UnifiedLibraryItem.fromLocalLibrary(
   LocalLibraryItem(
     id: id,
     trackName: 'Song $id',
     artistName: 'Artist $id',
     albumName: 'Album $id',
-    // Network songs need no file on disk to play.
-    filePath: 'network://example/$id.flac',
+    // Songs play only when their file is on disk.
+    filePath: '${_songDir.path}/$id.flac',
     scannedAt: DateTime(2026, 11, 16),
     duration: 200,
   ),
@@ -57,11 +60,6 @@ final _songs = {
   'rock': [_song('r1'), _song('r2'), _song('r3')],
   'jazz': [_song('j1')],
 };
-
-class _History extends DownloadHistoryNotifier {
-  @override
-  DownloadHistoryState build() => DownloadHistoryState();
-}
 
 class _Player implements MusicPlayerController {
   final queues = <List<String>>[];
@@ -107,7 +105,6 @@ Future<_Player> _pump(
             const AppSettings(listeningStatisticsEnabled: false),
           ),
         ),
-        downloadHistoryProvider.overrideWith(_History.new),
         libraryBrowsePageLoaderProvider.overrideWithValue(
           (_) async => const LibraryBrowsePage([]),
         ),
@@ -137,6 +134,14 @@ Future<void> _settle(WidgetTester tester) async {
 }
 
 void main() {
+  setUpAll(() async {
+    _songDir = await Directory.systemTemp.createTemp('genre-songs');
+    for (final id in ['r1', 'r2', 'r3', 'j1']) {
+      await File('${_songDir.path}/$id.flac').writeAsBytes(const [0]);
+    }
+  });
+  tearDownAll(() => _songDir.delete(recursive: true));
+
   for (final desktop in [false, true]) {
     testWidgets('the Mornye Library lists genres and opens one '
         '(desktop: $desktop)', (tester) async {
@@ -215,11 +220,13 @@ void main() {
         }
 
         await tester.tap(find.text('Play'));
+        // Playing checks the song files on disk, which needs real I/O.
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 50)),
+        );
         await _settle(tester);
-        const queue = [
-          'network://example/r1.flac',
-          'network://example/r2.flac',
-          'network://example/r3.flac',
+        final queue = [
+          for (final id in ['r1', 'r2', 'r3']) '${_songDir.path}/$id.flac',
         ];
         expect(player.queues.single, queue);
         expect(player.starts.single, 0);
@@ -230,6 +237,9 @@ void main() {
           mornye && !desktop
               ? find.text('Shuffle')
               : findByTooltip('Shuffle').hitTestable().first,
+        );
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 50)),
         );
         await _settle(tester);
         expect(player.queues.last, queue);

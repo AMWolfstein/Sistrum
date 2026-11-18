@@ -37,9 +37,7 @@ final homeRecentlyAddedProvider = FutureProvider.autoDispose<HomeRecentlyAdded>(
     final includeLocal = ref.watch(
       settingsProvider.select((s) => s.localLibraryEnabled),
     );
-    // Reload when a download lands or a scan rebuilds the index. Downloads
-    // in a batch arrive coalesced, at most one revision a second.
-    ref.watch(downloadHistoryProvider.select((s) => s.loadedIndexVersion));
+    // Reload when a scan rebuilds the index.
     if (includeLocal) ref.watch(localLibraryIndexRevisionProvider);
     final memo = ref.read(_homeShelfMemoProvider);
     final (rows, counts) = await (
@@ -66,12 +64,6 @@ final homeRecentlyAddedProvider = FutureProvider.autoDispose<HomeRecentlyAdded>(
           items.add(
             UnifiedLibraryItem.fromLocalLibrary(
               LocalLibraryItem.fromJson(json),
-            ),
-          );
-        case 'downloaded':
-          items.add(
-            UnifiedLibraryItem.fromDownloadHistory(
-              DownloadHistoryItem.fromJson(json),
             ),
           );
       }
@@ -154,19 +146,15 @@ Future<List<HomeRepeatTrack>> _homeReplayableTracks(
   ) {
     if (previous != null) ref.invalidateSelf();
   });
-  // A deleted download or a rescan can remove a track from the shelf.
-  final historyVersion = ref.watch(
-    downloadHistoryProvider.select((s) => s.loadedIndexVersion),
-  );
+  // A rescan can remove a track from the shelf.
   final localRevision = ref.watch(localLibraryIndexRevisionProvider);
   final includeLocal = ref.watch(
     settingsProvider.select((s) => s.localLibraryEnabled),
   );
-  final history = ref.read(downloadHistoryProvider.notifier);
   final memo = ref.read(_homeShelfMemoProvider);
   // Library matches hold until the Library changes, so a new track only
   // reads the statistics again.
-  final library = (historyVersion, localRevision, includeLocal);
+  final library = (localRevision, includeLocal);
   if (memo.repeatLibrary != library) {
     // A new map, so a load still running for the old Library keeps its own.
     memo
@@ -198,7 +186,6 @@ Future<List<HomeRepeatTrack>> _homeReplayableTracks(
       tracks.addAll(
         await _homeRepeatTracks(
           round,
-          history: history,
           includeLocal: includeLocal,
           matches: matches,
         ),
@@ -209,16 +196,15 @@ Future<List<HomeRepeatTrack>> _homeReplayableTracks(
   return tracks;
 }
 
-/// A played key's Library entry: a download or a scanned file, or none.
+/// A played key's Library entry: a scanned file, or none.
 /// [hidden] is a scanned file while Local Library is off.
 typedef _HomeRepeatMatch = ({UnifiedLibraryItem? item, bool hidden});
 
-/// [totals] that can still play, in order, matched to their Library entry
-/// as a download first, then as a scanned file. All lookups of a round run
-/// together; [matches] keeps them while the Library stays the same.
+/// [totals] that can still play, in order, matched to their scanned Library
+/// entry. All lookups of a round run together; [matches] keeps them while
+/// the Library stays the same.
 Future<List<HomeRepeatTrack>> _homeRepeatTracks(
   List<ListeningTotal> totals, {
-  required DownloadHistoryNotifier history,
   required bool includeLocal,
   required Map<String, _HomeRepeatMatch> matches,
 }) async {
@@ -228,13 +214,7 @@ Future<List<HomeRepeatTrack>> _homeRepeatTracks(
   ];
   if (missing.isNotEmpty) {
     final database = LibraryDatabase.instance;
-    final downloads = await Future.wait([
-      for (final key in missing) history.getByFilePathAsync(key),
-    ]);
-    final scannedKeys = [
-      for (final (index, key) in missing.indexed)
-        if (downloads[index] == null) key,
-    ];
+    final scannedKeys = missing;
     final scannedIds = await Future.wait([
       for (final key in scannedKeys) database.getPhysicalFileIds([key]),
     ]);
@@ -248,14 +228,6 @@ Future<List<HomeRepeatTrack>> _homeRepeatTracks(
               row['id']: row,
           }
         : const <Object?, Map<String, dynamic>>{};
-    for (final (index, key) in missing.indexed) {
-      if (downloads[index] case final downloaded?) {
-        matches[key] = (
-          item: UnifiedLibraryItem.fromDownloadHistory(downloaded),
-          hidden: false,
-        );
-      }
-    }
     for (final (index, key) in scannedKeys.indexed) {
       final ids = scannedIds[index];
       final row = ids.isEmpty ? null : rows[ids.first];
@@ -313,7 +285,6 @@ bool _sameLibraryItem(UnifiedLibraryItem? first, UnifiedLibraryItem? second) =>
     identical(first, second) ||
     first != null &&
         second != null &&
-        mapEquals(first.historyItem?.toJson(), second.historyItem?.toJson()) &&
         mapEquals(first.localItem?.toJson(), second.localItem?.toJson());
 
 /// What the Home shelves read last, kept for the app's lifetime, so a reload
@@ -321,7 +292,7 @@ bool _sameLibraryItem(UnifiedLibraryItem? first, UnifiedLibraryItem? second) =>
 class _HomeShelfMemo {
   ({List<Map<String, dynamic>> rows, List<UnifiedLibraryItem> items})?
   recentlyAdded;
-  (int, int, bool)? repeatLibrary;
+  (int, bool)? repeatLibrary;
   Map<String, _HomeRepeatMatch> repeatMatches = {};
   List<HomeRepeatTrack>? onRepeat;
   List<HomeRepeatTrack>? recentlyPlayed;
@@ -372,8 +343,6 @@ class _HomeSections extends ConsumerWidget {
         ref.watch(homeOnRepeatProvider.select((s) => s.value)) ?? const [];
     final mixes =
         ref.watch(libraryMixesProvider.select((s) => s.value)) ?? const [];
-    final newReleases =
-        ref.watch(homeNewReleasesProvider.select((s) => s.value)) ?? const [];
 
     final showContinue =
         (hasMediaItem || hasResume) &&
@@ -391,9 +360,9 @@ class _HomeSections extends ConsumerWidget {
         ref.watch(
           homeRecentlyPlayedProvider.select((s) => !s.hasValue && !s.hasError),
         );
-    final hasTopPicks = mornye && _HomeTopPicksSection.hasPicks(ref);
+    final hasMixes = mornye && (ref.watch(libraryMixesProvider.select((s) => s.value?.isNotEmpty ?? false)));
     final sections = <Widget>[
-      if (hasTopPicks) _HomeTopPicksSection(inset: inset),
+      if (hasMixes) _HomeMixBannersSection(inset: inset),
       if (_homeDesktop(context))
         _HomeDesktopTop(inset: inset, showContinue: showContinue)
       else ...[
@@ -442,20 +411,6 @@ class _HomeSections extends ConsumerWidget {
           child: _HomeRecentlyAddedShelf(
             items: recentlyAdded.items,
             trackCount: recentlyAdded.trackCount,
-            inset: mornye ? inset + 8 : inset,
-          ),
-        ),
-      if (newReleases.isNotEmpty)
-        _HomeSection(
-          title: l10n.weeklyReleases,
-          inset: inset,
-          shelf: true,
-          onShowAll: () => pushPage<void>(
-            context,
-            (_) => const WeeklyReleasesScreen(days: homeReleaseDays),
-          ),
-          child: _HomeNewReleasesShelf(
-            releases: newReleases,
             inset: mornye ? inset + 8 : inset,
           ),
         ),
@@ -1142,53 +1097,6 @@ class _HomeRecentlyAddedShelf extends ConsumerWidget {
 }
 
 /// The favorite artists' latest albums and singles, newest first.
-class _HomeNewReleasesShelf extends StatelessWidget {
-  const _HomeNewReleasesShelf({required this.releases, required this.inset});
-
-  final List<WeeklyRelease> releases;
-  final double inset;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return _HomeShelfSize(
-      inset: inset,
-      builder: (context, coverSize) {
-        final cacheWidth = (coverSize * MediaQuery.devicePixelRatioOf(context))
-            .round();
-        return _HomeShelf(
-          inset: inset,
-          coverSize: coverSize,
-          itemCount: releases.length,
-          itemBuilder: (context, index) {
-            final release = releases[index];
-            return _HomeShelfTile(
-              size: coverSize,
-              title: release.name,
-              subtitle: release.artist,
-              semanticLabel: context.l10n.a11yOpenAlbum(release.name),
-              cover: PlayerArtwork(
-                artUri: release.coverUrl,
-                colorScheme: colorScheme,
-                cacheWidth: cacheWidth,
-                iconSize: 32,
-              ),
-              onTap: () => navigateToAlbum(
-                context,
-                albumName: release.name,
-                albumId: release.id,
-                artistName: release.artist,
-                coverUrl: release.coverUrl,
-                extensionId: release.providerId,
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-}
-
 /// A Library track's own artwork: a download's embedded cover with its
 /// online cover as fallback, or a scanned file's extracted thumbnail.
 Widget _homeLibraryCover(
@@ -1197,19 +1105,6 @@ Widget _homeLibraryCover(
   double size,
   int cacheWidth,
 ) {
-  final history = item.historyItem;
-  if (history != null) {
-    return _DownloadedOrRemoteCover(
-      downloadedFilePath: history.filePath,
-      imageUrl: history.coverUrl,
-      width: size,
-      height: size,
-      borderRadius: BorderRadius.zero,
-      fallbackIcon: Icons.music_note,
-      fallbackIconSize: 32,
-      colorScheme: colorScheme,
-    );
-  }
   return PlayerArtwork(
     artUri: item.localCoverPath,
     colorScheme: colorScheme,
@@ -1220,9 +1115,6 @@ Widget _homeLibraryCover(
 
 PlayableMedia? _homePlayableFromLibrary(UnifiedLibraryItem item) =>
     switch (item) {
-      UnifiedLibraryItem(:final historyItem?) => playableFromHistory(
-        historyItem,
-      ),
       UnifiedLibraryItem(:final localItem?) => playableFromLocal(localItem),
       _ => null,
     };
@@ -1437,149 +1329,6 @@ class _HomeMixesShelf extends StatelessWidget {
 
 /// Mornye's first shelf: the day's mixes as tall banners, a little over three
 /// to the pane on desktop and one with its neighbor peeking on phones.
-class _HomeTopPicksShelf extends StatelessWidget {
-  const _HomeTopPicksShelf({
-    required this.mixes,
-    required this.playlists,
-    required this.inset,
-  });
-
-  static const _gap = 16.0;
-
-  final List<LibraryMixView> mixes;
-  final List<ExploreItem> playlists;
-  final double inset;
-
-  /// One card: mixes and playlists share the banner, so the whole shelf reads
-  /// as Mornye's own whichever service a playlist came from.
-  Widget _card({
-    required int seed,
-    required String title,
-    required String eyebrow,
-    required String subtitle,
-    required double width,
-    required VoidCallback onTap,
-  }) {
-    return Semantics(
-      button: true,
-      label: subtitle.isEmpty ? title : '$title, $subtitle',
-      excludeSemantics: true,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Stack(
-          children: [
-            MornyeMixBanner(
-              seed: seed,
-              title: title,
-              eyebrow: eyebrow,
-              subtitle: subtitle,
-              width: width,
-            ),
-            Positioned.fill(
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(onTap: onTap),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final seeds = mornyeBannerSeeds([
-      for (final view in mixes) '${view.mix.kind.name}/${view.mix.key}',
-      for (final item in playlists) 'playlist/${item.providerId}/${item.id}',
-    ]);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final content = constraints.maxWidth - 2 * inset;
-        final width = isDesktopPlatform
-            ? ((content + _gap) / 4.6 - _gap).clamp(180.0, 320.0)
-            : math.min(content - 44, 280.0);
-        return SizedBox(
-          height: width / MornyeMixBanner.aspectRatio,
-          child: DesktopScrollArrows(
-            builder: (context, controller) => ListView.separated(
-              controller: controller,
-              scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.symmetric(horizontal: inset),
-              itemCount: mixes.length + playlists.length,
-              separatorBuilder: (_, _) => const SizedBox(width: _gap),
-              itemBuilder: (context, index) {
-                if (index >= mixes.length) {
-                  final item = playlists[index - mixes.length];
-                  return _card(
-                    seed: seeds[index],
-                    title: item.name,
-                    eyebrow: l10n.collectionPlaylist,
-                    subtitle: item.artists.isNotEmpty
-                        ? item.artists
-                        : item.description ?? '',
-                    width: width,
-                    onTap: () => pushPage<void>(
-                      context,
-                      (_) => ExtensionPlaylistScreen(
-                        extensionId: item.providerId ?? '',
-                        playlistId: item.id,
-                        playlistName: item.name,
-                        coverUrl: item.coverUrl,
-                      ),
-                    ),
-                  );
-                }
-                final view = mixes[index];
-                return _card(
-                  seed: seeds[index],
-                  title: libraryMixTitle(l10n, view.mix),
-                  eyebrow: l10n.homeMadeForYou,
-                  subtitle: libraryMixSubtitle(l10n, view.mix),
-                  width: width,
-                  onTap: () => pushPage<void>(
-                    context,
-                    (_) => LibraryMixScreen(view: view),
-                  ),
-                );
-              },
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-/// Mornye's first section: the day's mixes, then random extension playlists.
-class _HomeTopPicksSection extends ConsumerWidget {
-  const _HomeTopPicksSection({required this.inset});
-
-  final double inset;
-
-  static bool hasPicks(WidgetRef ref) =>
-      ref.watch(
-        libraryMixesProvider.select((s) => s.value?.isNotEmpty ?? false),
-      ) ||
-      ref.watch(
-        homeTopPicksProvider.select((s) => s.value?.isNotEmpty ?? false),
-      );
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) => _HomeSection(
-    title: context.l10n.homeTopPicks,
-    inset: inset,
-    shelf: true,
-    child: _HomeTopPicksShelf(
-      mixes: ref.watch(libraryMixesProvider.select((s) => s.value)) ?? const [],
-      playlists:
-          ref.watch(homeTopPicksProvider.select((s) => s.value)) ?? const [],
-      inset: inset + 8,
-    ),
-  );
-}
-
 enum _HomeShortcutsLayout {
   /// Two columns of tall tiles, on phones and tablets.
   grid,
@@ -1708,11 +1457,6 @@ class _HomeShortcuts extends ConsumerWidget {
         icon: Icons.insights,
         onTap: () => open(const ListeningStatisticsScreen()),
       ),
-      HomeShortcut.networkStorage => (
-        label: l10n.networkStorage,
-        icon: Icons.lan_outlined,
-        onTap: () => open(const NetworkStorageScreen()),
-      ),
       HomeShortcut.loved => (
         label: l10n.collectionLoved,
         icon: Icons.favorite_border,
@@ -1733,23 +1477,6 @@ class _HomeShortcuts extends ConsumerWidget {
         label: l10n.collectionFavoriteArtists,
         icon: Icons.person_outline,
         onTap: () => open(const FavoriteArtistsScreen()),
-      ),
-      HomeShortcut.newReleases => (
-        label: l10n.weeklyReleases,
-        icon: Icons.new_releases_outlined,
-        onTap: () => open(const WeeklyReleasesScreen(days: homeReleaseDays)),
-      ),
-      // Pairing opens the other side's settings: the computer from a
-      // phone, the phone from a computer.
-      HomeShortcut.link when isDesktopPlatform => (
-        label: l10n.linkDesktopSettingsTitle,
-        icon: Icons.phone_android,
-        onTap: () => open(const LinkDesktopSettingsPage()),
-      ),
-      HomeShortcut.link => (
-        label: l10n.linkSettingsTitle,
-        icon: Icons.devices,
-        onTap: () => open(const LinkSettingsPage()),
       ),
     };
   }
@@ -1951,4 +1678,88 @@ class _HomeIconBadge extends StatelessWidget {
       child: Icon(icon, size: 20, color: onColor),
     ),
   );
+}
+
+/// Mornye's first section: the day's Library mixes as banners.
+class _HomeMixBannersSection extends ConsumerWidget {
+  const _HomeMixBannersSection({required this.inset});
+
+  final double inset;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => _HomeSection(
+    title: '',
+    inset: inset,
+    shelf: true,
+    child: _HomeMixBanners(
+      mixes: ref.watch(libraryMixesProvider.select((s) => s.value)) ?? const [],
+      inset: inset + 8,
+    ),
+  );
+}
+
+/// One banner per mix, in a horizontal row, as Mornye's own cards.
+class _HomeMixBanners extends StatelessWidget {
+  const _HomeMixBanners({required this.mixes, required this.inset});
+
+  static const _gap = 16.0;
+
+  final List<LibraryMixView> mixes;
+  final double inset;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final seeds = mornyeBannerSeeds([
+      for (final view in mixes) '${view.mix.kind.name}/${view.mix.key}',
+    ]);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final content = constraints.maxWidth - 2 * inset;
+        final width = isDesktopPlatform
+            ? ((content + _gap) / 4.6 - _gap).clamp(180.0, 320.0)
+            : math.min(content - 44, 280.0);
+        return SizedBox(
+          height: width / MornyeMixBanner.aspectRatio,
+          child: DesktopScrollArrows(
+            builder: (context, controller) => ListView.separated(
+              controller: controller,
+              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.symmetric(horizontal: inset),
+              itemCount: mixes.length,
+              separatorBuilder: (_, _) => const SizedBox(width: _gap),
+              itemBuilder: (context, index) {
+                final view = mixes[index];
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Stack(
+                    children: [
+                      MornyeMixBanner(
+                        seed: seeds[index],
+                        title: libraryMixTitle(l10n, view.mix),
+                        eyebrow: '',
+                        subtitle: libraryMixSubtitle(l10n, view.mix),
+                        width: width,
+                      ),
+                      Positioned.fill(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => pushPage<void>(
+                              context,
+                              (_) => LibraryMixScreen(view: view),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
 }

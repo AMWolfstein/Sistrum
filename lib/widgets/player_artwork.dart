@@ -1,10 +1,5 @@
-import 'dart:async';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:sistrum/services/cover_cache_manager.dart';
-import 'package:sistrum/services/cover_store.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
@@ -72,23 +67,8 @@ class PlayerArtwork extends StatelessWidget {
     final placeholder = _placeholder();
 
     final uri = artUri;
-    if (isHttpCoverUrl(uri)) {
-      return CachedNetworkImage(
-        imageUrl: uri!,
-        fit: BoxFit.cover,
-        cacheManager: CoverCacheManager.instance,
-        memCacheWidth: cacheWidth,
-        fadeInDuration: Duration.zero,
-        fadeOutDuration: const Duration(milliseconds: 0),
-        useOldImageOnUrlChange: true,
-        placeholder: (_, _) => placeholder,
-        errorWidget: (_, _, _) => placeholder,
-      );
-    }
     final image = coverImageProvider(uri, cacheWidth: cacheWidth);
-    if (image == null) {
-      return pendingCover(uri, placeholder: placeholder, builder: build);
-    }
+    if (image == null) return placeholder;
     return Image(
       image: image,
       fit: BoxFit.cover,
@@ -103,12 +83,8 @@ class PlayerArtwork extends StatelessWidget {
     final placeholder = _placeholder();
     final image = coverImageProvider(uri, cacheWidth: cacheWidth);
     if (image == null) {
-      if (!CoverStore.fetches(uri)) onShown();
-      return pendingCover(
-        uri,
-        placeholder: placeholder,
-        builder: (context) => _layer(context, uri, onShown),
-      );
+      onShown();
+      return placeholder;
     }
     return Image(
       image: image,
@@ -205,7 +181,6 @@ class _ArtworkCrossfadeState extends State<_ArtworkCrossfade>
         ..add(base);
     }
     _layers.add(_ArtworkLayer(widget.artUri, _opacity(0)));
-    _showWhenUnavailable(_current);
   }
 
   /// Covers under a fully faded-in one no longer show.
@@ -218,25 +193,6 @@ class _ArtworkCrossfadeState extends State<_ArtworkCrossfade>
       }
       _layers.removeRange(0, index);
     });
-  }
-
-  /// A network cover the store cannot fetch never draws a frame: fade its
-  /// placeholder in once the fetch fails, so the previous song's cover does
-  /// not stay on screen.
-  void _showWhenUnavailable(_ArtworkLayer layer) {
-    final uri = layer.uri;
-    if (!CoverStore.fetches(uri) || coverFilePath(uri) != null) return;
-    void show([Object? _]) {
-      if (!mounted || !identical(layer, _current)) return;
-      _show(layer);
-      SchedulerBinding.instance.ensureVisualUpdate();
-    }
-
-    unawaited(
-      CoverStore.instance.file(uri).then((path) {
-        if (path == null) show();
-      }, onError: show),
-    );
   }
 
   void _show(_ArtworkLayer layer) {

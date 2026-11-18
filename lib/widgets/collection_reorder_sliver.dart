@@ -87,11 +87,11 @@ class _CollectionReorderSliverState extends State<CollectionReorderSliver> {
                 leading: ClipRRect(
                   borderRadius: context.tokens.borderRadiusThumb,
                   child: track.coverUrl?.isNotEmpty == true
-                      ? LocalOrNetworkCoverImage(
+                      ? LocalCoverImage(
                           url: track.coverUrl!,
                           width: size,
                           height: size,
-                          networkCacheWidth: (size * 2).toInt(),
+                          localCacheWidth: (size * 2).toInt(),
                           placeholder: (_) => TrackCoverPlaceholder(size: size),
                         )
                       : TrackCoverPlaceholder(size: size),

@@ -6,7 +6,6 @@ import 'package:sistrum/controllers/clickable_metadata.dart';
 import 'package:sistrum/controllers/local_track_batch_actions.dart';
 import 'package:sistrum/controllers/selection_mode_mixin.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/library_directory_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
@@ -16,7 +15,6 @@ import 'package:sistrum/screens/library_directory_screen.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/services/batch_track_actions.dart';
 import 'package:sistrum/services/library_directory_index.dart';
-import 'package:sistrum/services/local_track_redownload_service.dart';
 import 'package:sistrum/services/playable_media.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
@@ -42,7 +40,6 @@ import 'package:sistrum/widgets/desktop/track_table.dart';
 import 'package:sistrum/widgets/error_card.dart';
 import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/library_selection_playback_actions.dart';
-import 'package:sistrum/widgets/network_offline_actions.dart';
 import 'package:sistrum/widgets/library_track_selection_bar.dart';
 import 'package:sistrum/widgets/local_library_artwork_builder.dart';
 import 'package:sistrum/widgets/playlist_picker_sheet.dart';
@@ -144,12 +141,6 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
   Widget _buildSelectionBar(BuildContext _) {
     final items = _selectedItems;
     final allSelected = _items.isNotEmpty && items.length == _items.length;
-    final flacEligible = items.every((item) => item.localItem != null)
-        ? items
-              .map((item) => item.localItem!)
-              .where(LocalTrackRedownloadService.isFlacUpgradeEligible)
-              .toList(growable: false)
-        : const <LocalLibraryItem>[];
     return LibraryTrackSelectionBar(
       playbackActions: LibrarySelectionPlaybackActions(
         items: items,
@@ -162,15 +153,6 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
           ? exitSelectionMode
           : () => selectAll(_items.map((item) => item.id)),
       bottomPadding: MediaQuery.paddingOf(context).bottom,
-      flacEligibleCount: flacEligible.length,
-      onQueueFlac: () => queueLocalTracksAsFlac(
-        context,
-        ref,
-        flacEligible,
-        isActive: () => mounted,
-        onComplete: exitSelectionMode,
-      ),
-      onReEnrich: () => _reEnrich(items),
       onConvert: () => showBatchConvertSheet(
         context,
         ref,
@@ -194,17 +176,6 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
     );
   }
 
-  Future<void> _reEnrich(List<UnifiedLibraryItem> items) =>
-      reEnrichLibraryTracks(
-        context,
-        ref,
-        items,
-        isActive: () => mounted,
-        onSelectionHide: () async => _hideSelectionBar(),
-        onSelectionRestore: _restoreSelectionBar,
-        onComplete: _finishSelectionAction,
-      );
-
   Future<void> _delete(List<UnifiedLibraryItem> items) => deleteLibraryTracks(
     context,
     ref,
@@ -213,14 +184,11 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
     onComplete: _finishSelectionAction,
   );
 
-  PlaybackRowKey _playbackKey(UnifiedLibraryItem item) => (
-    id: item.historyItem?.id ?? item.localItem?.id ?? item.id,
-    path: item.filePath,
-  );
+  PlaybackRowKey _playbackKey(UnifiedLibraryItem item) =>
+      (id: item.localItem?.id ?? item.id, path: item.filePath);
 
-  PlayableMedia _media(UnifiedLibraryItem item) => item.localItem != null
-      ? playableFromLocal(item.localItem!)
-      : playableFromHistory(item.historyItem!);
+  PlayableMedia _media(UnifiedLibraryItem item) =>
+      playableFromLocal(item.localItem!);
 
   /// Plays [items] from [start], or from the top, or shuffled. CUE virtual
   /// tracks need splitting first, so they are left out of the queue.
@@ -309,10 +277,8 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
 
   Future<void> _openDetails(UnifiedLibraryItem item) async {
     final local = [for (final item in _items) ?item.localItem];
-    final downloads = [for (final item in _items) ?item.historyItem];
     // The details pager steps through one kind of record.
     final localOnly = local.length == _items.length;
-    final downloadsOnly = downloads.length == _items.length;
     await prepareTrackDetailsCover(
       context,
       item.filePath,
@@ -322,11 +288,9 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
     await pushPage<void>(
       context,
       (_) => TrackMetadataScreen(
-        item: item.historyItem,
-        localItem: item.localItem,
+        localItem: item.localItem!,
         localNavigationItems: localOnly ? local : null,
-        historyNavigationItems: downloadsOnly ? downloads : null,
-        navigationIndex: localOnly || downloadsOnly
+        navigationIndex: localOnly
             ? _items.indexWhere((entry) => entry.id == item.id)
             : null,
       ),
@@ -383,7 +347,6 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
         onPlay: () => _play(_items, start: item),
         onOpenDetails: () => _openDetails(item),
         onDone: exitSelectionMode,
-        onReEnrich: () => _reEnrich(items),
         onConvert: () => showBatchConvertSheet(
           context,
           ref,
@@ -527,14 +490,6 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
     onPlay: () => _playFolder(folder),
     onShuffle: () => _playFolder(folder, shuffle: true),
     onAddToPlaylist: () => _addFolderToPlaylist(folder),
-    onDownload: !folder.key.startsWith('network://')
-        ? null
-        : () async {
-            final items = await ref.read(libraryDirectoryItemsLoaderProvider)(
-              folder.allTracks,
-            );
-            if (mounted) await saveNetworkOffline(context, ref, items);
-          },
   );
 
   /// The album pages' desktop header: the folder's cover, name and path,
@@ -927,8 +882,7 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
           artist: item.artistName,
           album: item.albumName,
           quality: item.qualityForMode(qualityMode),
-          duration: switch (item.historyItem?.duration ??
-              item.localItem?.duration) {
+          duration: switch (item.localItem?.duration) {
             final seconds? when seconds > 0 => Duration(seconds: seconds),
             _ => null,
           },
@@ -1006,7 +960,7 @@ class _FolderArtwork extends StatelessWidget {
         dimension: size,
         child: cover == null
             ? glyph(context)
-            : LocalOrNetworkCoverImage(
+            : LocalCoverImage(
                 url: cover,
                 localCacheWidth: (size * MediaQuery.devicePixelRatioOf(context))
                     .round(),
@@ -1040,7 +994,7 @@ class _SongArtwork extends StatelessWidget {
     );
     Widget image(String? cover) => cover == null || cover.isEmpty
         ? placeholder(context)
-        : LocalOrNetworkCoverImage(
+        : LocalCoverImage(
             url: cover,
             localCacheWidth: (size * MediaQuery.devicePixelRatioOf(context))
                 .round(),

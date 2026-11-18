@@ -39,12 +39,8 @@ void main() {
       extensions.path,
       data.path,
       masterKey: base64Encode(List<int>.filled(32, 1)),
-      lyricsProviders: const [],
-      lyricsFetchOptions: const {},
       allowedDirectories: [output.path],
     );
-    final implementations = await PlatformBridge.getBackendImplementations();
-    expect(implementations['extensions'], 'rust');
     db = await openDatabase(
       '${root.path}/library_collections.db',
       version: 2,
@@ -80,7 +76,6 @@ void main() {
 
   tearDown(() async {
     await db.close();
-    await PlatformBridge.cleanupExtensions();
     await root.delete(recursive: true);
   });
 

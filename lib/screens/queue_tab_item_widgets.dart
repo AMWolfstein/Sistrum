@@ -10,7 +10,6 @@ extension _QueueTabItemWidgets on _QueueTabState {
     final selectedCount = _selectedIds.length;
     final allSelected =
         selectedCount == unifiedItems.length && unifiedItems.isNotEmpty;
-    final localOnlySelection = _isLocalOnlySelection(unifiedItems);
 
     return LibraryTrackSelectionBar(
       playbackActions: LibrarySelectionPlaybackActions(
@@ -28,644 +27,11 @@ extension _QueueTabItemWidgets on _QueueTabState {
         }
       },
       bottomPadding: bottomPadding,
-      flacEligibleCount: localOnlySelection
-          ? _selectedFlacEligibleLocalItems(unifiedItems).length
-          : 0,
-      onQueueFlac: () => _queueSelectedLocalAsFlac(unifiedItems),
-      onReEnrich: () => _reEnrichSelectedFromQueue(unifiedItems),
       onConvert: () => _showBatchConvertSheet(context, unifiedItems),
       onReplayGain: ({required remove}) =>
           _runBatchReplayGain(unifiedItems, remove: remove),
       onDelete: () => _deleteSelected(unifiedItems),
     );
-  }
-
-  Widget _buildQueueItem(
-    BuildContext context,
-    DownloadItem item,
-    ColorScheme colorScheme,
-  ) {
-    final isCompleted = item.status == DownloadStatus.completed;
-    final isActive =
-        item.status == DownloadStatus.queued ||
-        item.status == DownloadStatus.downloading ||
-        item.status == DownloadStatus.finalizing;
-
-    return SmoothedProgressScope(
-      value: item.progress,
-      animate: _shouldAnimateDownloadProgress(context, item),
-      child: SwipeDeleteDismissible(
-        dismissKey: ValueKey('dismiss_${item.id}'),
-        confirmDismiss: isActive
-            ? (_) async {
-                return await showAppDialog<bool>(
-                      context: context,
-                      builder: (ctx) => AppAlertDialog(
-                        title: Text(context.l10n.cancelDownloadTitle),
-                        content: Text(
-                          context.l10n.cancelDownloadContent(item.track.name),
-                        ),
-                        actions: [
-                          AppDialogAction(
-                            onPressed: () => Navigator.of(ctx).pop(false),
-                            child: Text(context.l10n.cancelDownloadKeep),
-                          ),
-                          AppDialogAction(
-                            isDestructive: true,
-                            onPressed: () => Navigator.of(ctx).pop(true),
-                            child: Text(context.l10n.dialogCancel),
-                          ),
-                        ],
-                      ),
-                    ) ??
-                    false;
-              }
-            : null,
-        onDismissed: (_) {
-          ref.read(downloadQueueProvider.notifier).dismissItem(item.id);
-        },
-        child: TrackCard(
-          onTap: isCompleted
-              ? songRowTap(
-                  ref,
-                  openDetails: () => _navigateToMetadataScreen(item),
-                  play: () => _playCompletedDownload(item),
-                )
-              : item.status == DownloadStatus.failed ||
-                    item.status == DownloadStatus.skipped
-              ? () => _showDownloadErrorDialog(context, item)
-              : null,
-          onLongPress: item.status == DownloadStatus.queued
-              ? () => _showQueuedItemMenu(context, item)
-              : null,
-          onContextMenu: item.status == DownloadStatus.queued
-              ? (position) =>
-                    _showQueuedItemMenu(context, item, position: position)
-              : null,
-          background: item.status == DownloadStatus.downloading
-              ? SmoothedProgressBuilder(
-                  builder: (context, progress, child) => Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: FractionallySizedBox(
-                      widthFactor: progress,
-                      child: child,
-                    ),
-                  ),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: AlignmentDirectional.centerStart,
-                        end: AlignmentDirectional.centerEnd,
-                        colors: [
-                          colorScheme.primary.withValues(alpha: 0.16),
-                          colorScheme.primary.withValues(alpha: 0.04),
-                        ],
-                      ),
-                    ),
-                  ),
-                )
-              : null,
-          leading: isCompleted
-              ? Hero(
-                  tag: 'cover_${item.id}',
-                  child: _buildCoverArt(item, colorScheme),
-                )
-              : _buildCoverArt(item, colorScheme),
-          title: item.track.name,
-          subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ClickableArtistName(
-                artistName: item.track.artistName,
-                artistId: item.track.artistId,
-                coverUrl: item.track.coverUrl,
-                extensionId: item.track.source,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-              if (item.status == DownloadStatus.downloading) ...[
-                const SizedBox(height: 5),
-                Row(
-                  children: [
-                    AppIcon(
-                      Icons.download_rounded,
-                      size: 12,
-                      color: colorScheme.primary,
-                    ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: SmoothedProgressBuilder(
-                        builder: (context, progress, child) => Text(
-                          _formatDownloadStatusLine(
-                            context,
-                            item,
-                            visualProgress: progress,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.labelSmall
-                              ?.copyWith(
-                                color: colorScheme.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-              if (item.status == DownloadStatus.finalizing &&
-                  item.preparationStage == 'network_upload') ...[
-                const SizedBox(height: 4),
-                Text(
-                  '${context.l10n.networkUploading}${item.bytesTotal > 0 ? ' • ${(100 * item.bytesReceived / item.bytesTotal).round()}%' : ''}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.labelSmall?.copyWith(color: colorScheme.primary),
-                ),
-              ],
-              if (item.status == DownloadStatus.failed) ...[
-                const SizedBox(height: 4),
-                _buildDownloadFailureMessage(context, item, colorScheme),
-              ],
-            ],
-          ),
-          trailing: DownloadStateSwitcher(
-            state: item.status,
-            child: _buildActionButtons(context, item, colorScheme),
-          ),
-        ),
-      ),
-    );
-  }
-
-  bool _requiresFolderReselection(DownloadItem item) =>
-      item.status == DownloadStatus.failed &&
-      item.networkDownloadFolder.isEmpty &&
-      (item.errorType == DownloadErrorType.permission ||
-          item.error == safPermissionLostErrorMessage ||
-          item.error == downloadFolderAccessLostErrorMessage);
-
-  /// Preserve folder recovery errors before the model's generic type mapping.
-  /// Legacy permission failures also need the picker instead of another retry.
-  String _downloadErrorForDisplay(DownloadItem item) {
-    final raw = item.error;
-    if (raw == safPermissionLostErrorMessage ||
-        raw == downloadFolderAccessLostErrorMessage) {
-      return raw!;
-    }
-    if (_requiresFolderReselection(item)) {
-      return downloadFolderAccessLostErrorMessage;
-    }
-    return item.errorMessage;
-  }
-
-  /// Download error messages are stored as fixed English sentinels on the
-  /// item (so code can match on them); translate the known ones for display.
-  String _localizedDownloadError(BuildContext context, String raw) {
-    if (raw == safPermissionLostErrorMessage) {
-      return context.l10n.downloadErrorSafPermissionLost;
-    }
-    if (raw == downloadFolderAccessLostErrorMessage) {
-      return context.l10n.downloadErrorFolderAccessLost;
-    }
-    return context.friendlyError(
-      raw,
-      fallback: context.l10n.updateDownloadFailed,
-    );
-  }
-
-  Widget _buildDownloadFailureMessage(
-    BuildContext context,
-    DownloadItem item,
-    ColorScheme colorScheme,
-  ) {
-    if (item.errorType != DownloadErrorType.rateLimit) {
-      return Text(
-        _localizedDownloadError(context, _downloadErrorForDisplay(item)),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: Theme.of(
-          context,
-        ).textTheme.labelSmall?.copyWith(color: colorScheme.error),
-      );
-    }
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 1),
-          child: AppIcon(
-            Icons.hourglass_top_rounded,
-            size: 14,
-            color: colorScheme.tertiary,
-          ),
-        ),
-        const SizedBox(width: 6),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                context.l10n.queueRateLimitTitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: colorScheme.tertiary,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 1),
-              Text(
-                context.l10n.queueRateLimitMessage,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: colorScheme.tertiary.withValues(alpha: 0.8),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCoverArt(DownloadItem item, ColorScheme colorScheme) {
-    final coverSize = _queueCoverSize();
-    final radius = BorderRadius.circular(8);
-
-    final cover = item.track.coverUrl != null
-        ? CachedCoverImage(
-            imageUrl: item.track.coverUrl!,
-            width: coverSize,
-            height: coverSize,
-            borderRadius: radius,
-            fadeInDuration: const Duration(milliseconds: 180),
-            fadeOutDuration: const Duration(milliseconds: 90),
-          )
-        : Container(
-            width: coverSize,
-            height: coverSize,
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest,
-              borderRadius: radius,
-            ),
-            child: AppIcon(
-              Icons.music_note,
-              color: colorScheme.onSurfaceVariant,
-            ),
-          );
-
-    final isDownloading =
-        item.status == DownloadStatus.downloading ||
-        item.status == DownloadStatus.finalizing;
-    if (!isDownloading) return cover;
-
-    final progress = item.progress.clamp(0.0, 1.0);
-    final indeterminate =
-        item.status == DownloadStatus.finalizing || progress <= 0;
-
-    return SizedBox(
-      width: coverSize,
-      height: coverSize,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          cover,
-          ClipRRect(
-            borderRadius: radius,
-            child: ColoredBox(color: Colors.black.withValues(alpha: 0.45)),
-          ),
-          if (indeterminate)
-            Center(
-              child: SizedBox(
-                width: coverSize * 0.6,
-                height: coverSize * 0.6,
-                child: AppProgressIndicator.circular(
-                  strokeWidth: 3,
-                  color: Colors.white,
-                  trackColor: Colors.white.withValues(alpha: 0.25),
-                ),
-              ),
-            )
-          else
-            SmoothedProgressBuilder(
-              builder: (context, visualProgress, child) => Stack(
-                fit: StackFit.expand,
-                children: [
-                  Center(
-                    child: SizedBox(
-                      width: coverSize * 0.6,
-                      height: coverSize * 0.6,
-                      child: AppProgressIndicator.circular(
-                        value: visualProgress,
-                        strokeWidth: 3,
-                        color: Colors.white,
-                        trackColor: Colors.white.withValues(alpha: 0.25),
-                      ),
-                    ),
-                  ),
-                  Center(
-                    child: Text(
-                      '${(visualProgress * 100).round()}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  /// The queued download's actions: a menu at [position] on desktop, a
-  /// sheet elsewhere.
-  Future<void> _showQueuedItemMenu(
-    BuildContext context,
-    DownloadItem item, {
-    Offset? position,
-  }) {
-    final notifier = ref.read(downloadQueueProvider.notifier);
-    if (position != null && isDesktopPlatform) {
-      return showContextMenu(
-        context,
-        position: position,
-        groups: [
-          [
-            ContextMenuAction(
-              icon: Icons.skip_next,
-              label: context.l10n.queueDownloadNext,
-              onSelected: () => notifier.downloadNext(item.id),
-            ),
-            ContextMenuAction(
-              icon: Icons.arrow_upward,
-              label: context.l10n.queueMoveUp,
-              onSelected: () => notifier.moveQueuedItem(item.id, -1),
-            ),
-            ContextMenuAction(
-              icon: Icons.arrow_downward,
-              label: context.l10n.queueMoveDown,
-              onSelected: () => notifier.moveQueuedItem(item.id, 1),
-            ),
-          ],
-          [
-            ContextMenuAction(
-              icon: Icons.close,
-              label: context.l10n.dialogCancel,
-              destructive: true,
-              onSelected: () => notifier.cancelItem(item.id),
-            ),
-          ],
-        ],
-      );
-    }
-    return showAppBottomSheet<void>(
-      context: context,
-      title: item.track.name,
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(bottom: ctx.tokens.gapLg),
-        child: SettingsGroup(
-          children: [
-            SettingsItem(
-              icon: Icons.skip_next,
-              showIconInMornye: true,
-              title: context.l10n.queueDownloadNext,
-              onTap: () {
-                Navigator.of(ctx).pop();
-                notifier.downloadNext(item.id);
-              },
-            ),
-            SettingsItem(
-              icon: Icons.arrow_upward,
-              showIconInMornye: true,
-              title: context.l10n.queueMoveUp,
-              onTap: () {
-                Navigator.of(ctx).pop();
-                notifier.moveQueuedItem(item.id, -1);
-              },
-            ),
-            SettingsItem(
-              icon: Icons.arrow_downward,
-              showIconInMornye: true,
-              title: context.l10n.queueMoveDown,
-              showDivider: false,
-              onTap: () {
-                Navigator.of(ctx).pop();
-                notifier.moveQueuedItem(item.id, 1);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _openCompletedDownload(DownloadItem item) => _openFile(
-    item.filePath!,
-    title: item.track.name,
-    artist: item.track.artistName,
-    album: item.track.albumName,
-    coverUrl: item.track.coverUrl ?? '',
-  );
-
-  /// A tap on a completed download that does what its play button does; a
-  /// download whose file is missing has none and opens its details.
-  void _playCompletedDownload(DownloadItem item) {
-    final path = item.filePath;
-    if (path == null || !_fileExistsListenable(path).value) {
-      _navigateToMetadataScreen(item);
-      return;
-    }
-    _LibraryPlaybackButton.run(ref, (
-      id: '',
-      path: _cleanFilePath(path),
-    ), () => _openCompletedDownload(item));
-  }
-
-  Widget _buildActionButtons(
-    BuildContext context,
-    DownloadItem item,
-    ColorScheme colorScheme,
-  ) {
-    switch (item.status) {
-      case DownloadStatus.queued:
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppIconButton(
-              onPressed: () => ref
-                  .read(downloadQueueProvider.notifier)
-                  .downloadNext(item.id),
-              icon: Icon(Icons.skip_next, color: colorScheme.primary),
-              tooltip: context.l10n.queueDownloadNext,
-              style: IconButton.styleFrom(
-                backgroundColor: colorScheme.primaryContainer.withValues(
-                  alpha: 0.3,
-                ),
-              ),
-            ),
-            const SizedBox(width: 4),
-            AppIconButton(
-              onPressed: () =>
-                  ref.read(downloadQueueProvider.notifier).cancelItem(item.id),
-              icon: Icon(Icons.close, color: colorScheme.error),
-              tooltip: context.l10n.dialogCancel,
-              style: IconButton.styleFrom(
-                backgroundColor: colorScheme.errorContainer.withValues(
-                  alpha: 0.3,
-                ),
-              ),
-            ),
-          ],
-        );
-      case DownloadStatus.downloading:
-        return AppIconButton(
-          onPressed: () =>
-              ref.read(downloadQueueProvider.notifier).cancelItem(item.id),
-          icon: Icon(Icons.stop, color: colorScheme.error),
-          tooltip: context.l10n.actionStop,
-          style: IconButton.styleFrom(
-            backgroundColor: colorScheme.errorContainer.withValues(alpha: 0.3),
-          ),
-        );
-      case DownloadStatus.finalizing:
-        return Semantics(
-          label: context.l10n.queueFinalizingDownload,
-          child: SizedBox(
-            width: 40,
-            height: 40,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                AppProgressIndicator.circular(
-                  strokeWidth: 3,
-                  color: colorScheme.tertiary,
-                ),
-                ExcludeSemantics(
-                  child: AppIcon(
-                    Icons.edit_note,
-                    color: colorScheme.tertiary,
-                    size: 16,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      case DownloadStatus.completed:
-        return ValueListenableBuilder<bool>(
-          valueListenable: _fileExistsListenable(item.filePath),
-          builder: (context, fileExists, child) {
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (fileExists)
-                  SongRowButton(
-                    playButton: _LibraryPlaybackButton(
-                      playbackKey: (
-                        id: '',
-                        path: _cleanFilePath(item.filePath!),
-                      ),
-                      playTooltip: context.l10n.a11yPlayTrackByArtist(
-                        item.track.name,
-                        item.track.artistName,
-                      ),
-                      onPlay: () => _openCompletedDownload(item),
-                    ),
-                    onOpenDetails: () => _navigateToMetadataScreen(item),
-                  )
-                else
-                  Semantics(
-                    label: context.l10n.queueDownloadedFileMissing,
-                    child: ExcludeSemantics(
-                      child: AppIcon(
-                        Icons.error_outline,
-                        color: colorScheme.error,
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                const SizedBox(width: 4),
-                Semantics(
-                  label: context.l10n.queueDownloadCompleted,
-                  child: ExcludeSemantics(
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primaryContainer,
-                        shape: BoxShape.circle,
-                      ),
-                      child: AppIcon(
-                        Icons.check,
-                        color: colorScheme.onPrimaryContainer,
-                        size: 20,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      case DownloadStatus.failed:
-      case DownloadStatus.skipped:
-        final requiresFolderReselection = _requiresFolderReselection(item);
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppIconButton(
-              onPressed: requiresFolderReselection
-                  ? () => _showDownloadErrorDialog(context, item)
-                  : () => ref
-                        .read(downloadQueueProvider.notifier)
-                        .retryItem(item.id),
-              icon: Icon(
-                requiresFolderReselection ? Icons.folder_open : Icons.refresh,
-                color: colorScheme.primary,
-              ),
-              tooltip: requiresFolderReselection
-                  ? context.l10n.downloadFolderReselect
-                  : context.l10n.dialogRetry,
-              style: IconButton.styleFrom(
-                backgroundColor: colorScheme.primaryContainer.withValues(
-                  alpha: 0.3,
-                ),
-              ),
-            ),
-            const SizedBox(width: 4),
-            AppIconButton(
-              onPressed: () =>
-                  ref.read(downloadQueueProvider.notifier).removeItem(item.id),
-              icon: Icon(
-                Icons.close,
-                color: item.status == DownloadStatus.failed
-                    ? colorScheme.error
-                    : colorScheme.onSurfaceVariant,
-              ),
-              tooltip: context.l10n.dialogRemove,
-              style: item.status == DownloadStatus.failed
-                  ? IconButton.styleFrom(
-                      backgroundColor: colorScheme.errorContainer.withValues(
-                        alpha: 0.3,
-                      ),
-                    )
-                  : null,
-            ),
-          ],
-        );
-    }
   }
 
   Widget _buildFilterButton(BuildContext context) {
@@ -692,43 +58,19 @@ extension _QueueTabItemWidgets on _QueueTabState {
     ColorScheme colorScheme, [
     double? size,
   ]) {
-    final isDownloaded = item.source == LibraryItemSource.downloaded;
-    // Grid badges line up with the card's other corner overlays.
-    final badgeInset = size == null ? 4.0 : 0.0;
-
+    final inner = _buildUnifiedCoverImageInner(item, colorScheme, size);
     // Scanned SAF tracks also recover artwork after a transient provider error.
-    if (isDownloaded || item.filePath.startsWith('content://')) {
-      return OfflineAvailabilityCover(
-        item: item,
-        inset: badgeInset,
-        child: ValueListenableBuilder<int>(
-          valueListenable: _embeddedCoverVersion,
-          builder: (context, _, child) => _buildUnifiedCoverImageInner(
-            item,
-            colorScheme,
-            isDownloaded,
-            size,
-          ),
-        ),
-      );
-    }
-
-    return OfflineAvailabilityCover(
-      item: item,
-      inset: badgeInset,
-      child: _buildUnifiedCoverImageInner(
-        item,
-        colorScheme,
-        isDownloaded,
-        size,
-      ),
+    if (!item.filePath.startsWith('content://')) return inner;
+    return ValueListenableBuilder<int>(
+      valueListenable: _embeddedCoverVersion,
+      builder: (context, _, child) =>
+          _buildUnifiedCoverImageInner(item, colorScheme, size),
     );
   }
 
   Widget _buildUnifiedCoverImageInner(
     UnifiedLibraryItem item,
-    ColorScheme colorScheme,
-    bool isDownloaded, [
+    ColorScheme colorScheme, [
     double? size,
   ]) {
     final cacheSize = size != null ? (size * 2).toInt() : 200;
@@ -755,12 +97,8 @@ extension _QueueTabItemWidgets on _QueueTabState {
           );
         }
       }
-      final bgColor = (isDownloaded && !isLocal)
-          ? colorScheme.surfaceContainerHighest
-          : colorScheme.secondaryContainer;
-      final fgColor = (isDownloaded && !isLocal)
-          ? colorScheme.onSurfaceVariant
-          : colorScheme.onSecondaryContainer;
+      final bgColor = colorScheme.secondaryContainer;
+      final fgColor = colorScheme.onSecondaryContainer;
       return Container(
         width: size,
         height: size,
@@ -779,27 +117,10 @@ extension _QueueTabItemWidgets on _QueueTabState {
 
     Widget fadeInFileImage(Widget child, int? frame, bool wasSync) {
       if (wasSync) return child;
-      final Widget backdrop;
-      if (isDownloaded && item.coverUrl != null) {
-        backdrop = CachedCoverImage(
-          imageUrl: item.coverUrl!,
-          width: size,
-          height: size,
-          memCacheWidth: cacheSize,
-          placeholder: (context, url) =>
-              buildPlaceholder(recoverDocument: false),
-          errorWidget: (context, url, error) => buildPlaceholder(),
-        );
-      } else {
-        backdrop = buildPlaceholder(
-          isLocal: !isDownloaded,
-          recoverDocument: false,
-        );
-      }
       final animated = Stack(
         fit: StackFit.expand,
         children: [
-          backdrop,
+          buildPlaceholder(isLocal: true, recoverDocument: false),
           AnimatedOpacity(
             opacity: frame == null ? 0.0 : 1.0,
             duration: const Duration(milliseconds: 180),
@@ -810,42 +131,6 @@ extension _QueueTabItemWidgets on _QueueTabState {
       );
       if (size == null) return animated;
       return SizedBox(width: size, height: size, child: animated);
-    }
-
-    if (isDownloaded) {
-      final embeddedCoverPath = _resolveDownloadedEmbeddedCoverPath(
-        item.filePath,
-      );
-      if (embeddedCoverPath != null) {
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.file(
-            File(embeddedCoverPath),
-            width: size,
-            height: size,
-            fit: BoxFit.cover,
-            cacheWidth: cacheSize,
-            gaplessPlayback: true,
-            frameBuilder: (context, child, frame, wasSynchronouslyLoaded) =>
-                fadeInFileImage(child, frame, wasSynchronouslyLoaded),
-            errorBuilder: (context, error, stackTrace) => buildPlaceholder(),
-          ),
-        );
-      }
-    }
-
-    if (item.coverUrl != null) {
-      return CachedCoverImage(
-        imageUrl: item.coverUrl!,
-        width: size,
-        height: size,
-        memCacheWidth: cacheSize,
-        borderRadius: BorderRadius.circular(8),
-        placeholder: (context, url) => buildPlaceholder(),
-        errorWidget: (context, url, error) => buildPlaceholder(),
-        fadeInDuration: const Duration(milliseconds: 180),
-        fadeOutDuration: const Duration(milliseconds: 90),
-      );
     }
 
     if (item.localCoverPath != null && item.localCoverPath!.isNotEmpty) {
@@ -879,18 +164,9 @@ extension _QueueTabItemWidgets on _QueueTabState {
   /// the bare file when the song has no history or library record.
   VoidCallback _libraryItemOpenAction(
     UnifiedLibraryItem item, {
-    required List<DownloadHistoryItem> downloadedNavigationItems,
-    required int? downloadedNavigationIndex,
     required List<LocalLibraryItem> localNavigationItems,
     required int? localNavigationIndex,
   }) {
-    if (item.source == LibraryItemSource.downloaded) {
-      return () => _navigateToHistoryMetadataScreen(
-        item.historyItem!,
-        navigationItems: downloadedNavigationItems,
-        navigationIndex: downloadedNavigationIndex,
-      );
-    }
     if (item.localItem != null) {
       return () => _navigateToLocalMetadataScreen(
         item.localItem!,
@@ -1063,8 +339,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
             artist: item.artistName,
             album: item.albumName,
             quality: item.qualityForMode(qualityMode),
-            duration: switch (item.historyItem?.duration ??
-                item.localItem?.duration) {
+            duration: switch (item.localItem?.duration) {
               final seconds? when seconds > 0 => Duration(seconds: seconds),
               _ => null,
             },
@@ -1112,8 +387,6 @@ extension _QueueTabItemWidgets on _QueueTabState {
     BuildContext context,
     UnifiedLibraryItem item,
     ColorScheme colorScheme, {
-    required List<DownloadHistoryItem> downloadedNavigationItems,
-    required int? downloadedNavigationIndex,
     required List<LocalLibraryItem> localNavigationItems,
     required int? localNavigationIndex,
     required List<UnifiedLibraryItem> libraryItems,
@@ -1125,19 +398,14 @@ extension _QueueTabItemWidgets on _QueueTabState {
     final dateStr =
         '${shortMonthNames[date.month - 1]} ${date.day}, ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
 
-    final isDownloaded = item.source == LibraryItemSource.downloaded;
     final quality = item.qualityForMode(_libraryQualityLabelMode);
-    final sourceLabel = isDownloaded
-        ? context.l10n.librarySourceDownloaded
-        : context.l10n.librarySourceLocal;
+    final sourceLabel = context.l10n.librarySourceLocal;
     // The label text tells the sources apart; rows keep one neutral role.
     final sourceColor = colorScheme.surfaceContainerHighest;
     final sourceTextColor = colorScheme.onSurfaceVariant;
 
     final open = _libraryItemOpenAction(
       item,
-      downloadedNavigationItems: downloadedNavigationItems,
-      downloadedNavigationIndex: downloadedNavigationIndex,
       localNavigationItems: localNavigationItems,
       localNavigationIndex: localNavigationIndex,
     );
@@ -1160,11 +428,8 @@ extension _QueueTabItemWidgets on _QueueTabState {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // The history service is where the audio was downloaded from;
-            // artist lookups use the user's search provider instead.
             ClickableArtistName(
               artistName: item.artistName,
-              coverUrl: item.coverUrl,
               style: Theme.of(
                 context,
               ).textTheme.bodySmall?.copyWith(color: textColor),
@@ -1205,18 +470,6 @@ extension _QueueTabItemWidgets on _QueueTabState {
                     colorScheme,
                     quality,
                     listStyle: true,
-                  ),
-                ],
-                if (offlineAvailabilityLabel(context, item)
-                    case final status?) ...[
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: Text(
-                      status,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.labelSmall,
-                    ),
                   ),
                 ],
               ],
@@ -1311,8 +564,6 @@ extension _QueueTabItemWidgets on _QueueTabState {
     BuildContext context,
     UnifiedLibraryItem item,
     ColorScheme colorScheme, {
-    required List<DownloadHistoryItem> downloadedNavigationItems,
-    required int? downloadedNavigationIndex,
     required List<LocalLibraryItem> localNavigationItems,
     required int? localNavigationIndex,
     required List<UnifiedLibraryItem> libraryItems,
@@ -1320,13 +571,10 @@ extension _QueueTabItemWidgets on _QueueTabState {
   }) {
     final fileExistsListenable = _fileExistsListenable(item.filePath);
     final isSelected = _selectedIds.contains(item.id);
-    final isDownloaded = item.source == LibraryItemSource.downloaded;
     final quality = item.qualityForMode(_libraryQualityLabelMode);
 
     final open = _libraryItemOpenAction(
       item,
-      downloadedNavigationItems: downloadedNavigationItems,
-      downloadedNavigationIndex: downloadedNavigationIndex,
       localNavigationItems: localNavigationItems,
       localNavigationIndex: localNavigationIndex,
     );
@@ -1382,7 +630,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
                 borderRadius: context.tokens.borderRadiusBadge,
               ),
               child: AppIcon(
-                isDownloaded ? Icons.download_done : Icons.folder,
+                Icons.folder,
                 size: 12,
                 color: colorScheme.onSurfaceVariant,
               ),
@@ -1467,7 +715,6 @@ extension _QueueTabItemWidgets on _QueueTabState {
       // Not the history service: see the list row above.
       subtitle: ClickableArtistName(
         artistName: item.artistName,
-        coverUrl: item.coverUrl,
         style: Theme.of(
           context,
         ).textTheme.labelSmall?.copyWith(color: colorScheme.onSurfaceVariant),

@@ -10,14 +10,12 @@ import 'package:sistrum/providers/library_lyrics_search_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/playback_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/screens/downloaded_album_screen.dart';
 import 'package:sistrum/screens/library_tracks_folder_screen.dart';
 import 'package:sistrum/screens/local_album_screen.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/services/batch_track_actions.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_search.dart';
-import 'package:sistrum/services/local_track_redownload_service.dart';
 import 'package:sistrum/services/playable_media.dart' show PlayableMedia;
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
@@ -184,12 +182,6 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
     final visibleIds = _visibleSongs.map(_itemId).toSet();
     final allSelected =
         visibleIds.isNotEmpty && visibleIds.every(_selected.containsKey);
-    final flacEligible = items.every((item) => item.localItem != null)
-        ? items
-              .map((item) => item.localItem!)
-              .where(LocalTrackRedownloadService.isFlacUpgradeEligible)
-              .toList(growable: false)
-        : const <LocalLibraryItem>[];
     return LibraryTrackSelectionBar(
       playbackActions: LibrarySelectionPlaybackActions(
         items: items,
@@ -200,23 +192,6 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
       onClose: _exitSelection,
       onToggleSelectAll: allSelected ? _exitSelection : _selectAllVisible,
       bottomPadding: MediaQuery.paddingOf(context).bottom,
-      flacEligibleCount: flacEligible.length,
-      onQueueFlac: () => queueLocalTracksAsFlac(
-        context,
-        ref,
-        flacEligible,
-        isActive: () => mounted,
-        onComplete: _exitSelection,
-      ),
-      onReEnrich: () => reEnrichLibraryTracks(
-        context,
-        ref,
-        items,
-        isActive: () => mounted,
-        onSelectionHide: () async => _hideSelectionBar(),
-        onSelectionRestore: _restoreSelectionBar,
-        onComplete: _finishSelectionAction,
-      ),
       onConvert: () => showBatchConvertSheet(
         context,
         ref,
@@ -291,15 +266,6 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
         onPlay: () => _open(hit, play: true),
         onOpenDetails: () => _open(hit),
         onDone: _exitSelection,
-        onReEnrich: () => reEnrichLibraryTracks(
-          context,
-          ref,
-          items,
-          isActive: () => mounted,
-          onSelectionHide: () async => _hideSelectionBar(),
-          onSelectionRestore: _restoreSelectionBar,
-          onComplete: _finishSelectionAction,
-        ),
         onConvert: () => showBatchConvertSheet(
           context,
           ref,
@@ -358,10 +324,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
             if (!mounted) return;
             await pushPage<void>(
               context,
-              (_) => TrackMetadataScreen(
-                item: item.historyItem,
-                localItem: item.localItem,
-              ),
+              (_) => TrackMetadataScreen(localItem: item.localItem!),
             );
             return;
           }
@@ -390,15 +353,6 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
                 tracks: rows.map(LocalLibraryItem.fromJson).toList(),
               ),
             );
-          } else {
-            await pushPage<void>(
-              context,
-              (_) => DownloadedAlbumScreen(
-                albumName: hit.title,
-                artistName: hit.artist,
-                coverUrl: hit.cover,
-              ),
-            );
           }
       }
     } catch (error) {
@@ -412,9 +366,8 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
   /// Plays [item] within [LibrarySearchResults.songList] when the Library
   /// places it there, so playback runs on into the songs after it.
   Future<void> _play(UnifiedLibraryItem item) async {
-    PlayableMedia media(UnifiedLibraryItem song) => song.localItem != null
-        ? playableFromLocal(song.localItem!)
-        : playableFromHistory(song.historyItem!);
+    PlayableMedia media(UnifiedLibraryItem song) =>
+        playableFromLocal(song.localItem!);
     final songList = widget.songList;
     // A list that cannot be read leaves the song to play on its own.
     final placed = songList == null
@@ -484,7 +437,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
         child: SizedBox.square(
           dimension: 52,
           child: hit.cover?.isNotEmpty == true
-              ? LocalOrNetworkCoverImage(url: hit.cover!, placeholder: fallback)
+              ? LocalCoverImage(url: hit.cover!, placeholder: fallback)
               : fallback(context),
         ),
       ),
@@ -671,7 +624,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
                     ClipRRect(
                       borderRadius: radius,
                       child: hit.cover?.isNotEmpty == true
-                          ? LocalOrNetworkCoverImage(
+                          ? LocalCoverImage(
                               url: hit.cover!,
                               placeholder: fallback,
                             )

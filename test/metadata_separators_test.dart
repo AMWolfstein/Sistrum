@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/models/metadata_separators.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/services/audio_metadata_mapper.dart';
-import 'package:sistrum/services/download_request_payload.dart';
 import 'package:sistrum/utils/artist_utils.dart';
 
 void main() {
@@ -54,36 +53,6 @@ void main() {
         expect(MetadataSeparators.fromJson({'artist': invalid}).artist, '');
         expect(formatMetadataTagValue('A, B', invalid), 'A, B');
       }
-    },
-  );
-
-  test(
-    'separator preferences survive native download fallback without renaming tracks',
-    () {
-      const payload = DownloadRequestPayload(
-        trackName: 'Track',
-        artistName: 'A, B',
-        albumName: 'Album',
-        outputDir: '/music',
-        filenameFormat: '{artist}',
-        metadataSeparators: MetadataSeparators(artist: ' / ', genre: '; '),
-      );
-      final request = payload.withStrategy(useFallback: true).toJson();
-      expect(request['artist_name'], 'A, B');
-      expect(
-        request['metadata_separators'],
-        payload.metadataSeparators.toJson(),
-      );
-      expect(
-        const DownloadRequestPayload(
-          trackName: 'Track',
-          artistName: 'Artist',
-          albumName: 'Album',
-          outputDir: '/music',
-          filenameFormat: '{title}',
-        ).toJson(),
-        isNot(contains('metadata_separators')),
-      );
     },
   );
 

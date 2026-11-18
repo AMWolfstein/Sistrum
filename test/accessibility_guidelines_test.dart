@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/screens/equalizer_screen.dart';
 import 'package:sistrum/screens/settings/appearance_settings_page.dart';
-import 'package:sistrum/screens/settings/download_settings_page.dart';
 import 'package:sistrum/screens/settings/lyrics_settings_page.dart';
 import 'package:sistrum/screens/settings/playback_settings_page.dart';
 import 'package:sistrum/theme/app_theme.dart';
@@ -16,7 +15,6 @@ void main() {
     'playback': () => const PlaybackSettingsPage(),
     'appearance': () => const AppearanceSettingsPage(),
     'lyrics': () => const LyricsSettingsPage(),
-    'download': () => const DownloadSettingsPage(),
     'equalizer': () => const EqualizerScreen(),
   };
   final themes = <String, ThemeData Function()>{

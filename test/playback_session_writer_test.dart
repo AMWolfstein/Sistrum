@@ -390,7 +390,6 @@ void main() {
         title: 'N',
         artist: 'A',
         artUri: 'network://nas/cover.jpg',
-        networkArtworkSource: 'network://nas/folder.jpg',
       ),
       fixed,
       for (var i = 0; i < 100; i++) _CountedSong(i),

@@ -6,8 +6,6 @@
 # Ignore missing javax.xml.stream (not used on Android)
 -dontwarn javax.xml.stream.**
 
-# The FFmpeg plugin ships its JNI keep rules in its AAR.
-
 # UniFFI/JNA resolves FFI methods and structure fields by their generated names.
 # Preserve the generated Rust bindings used by JNA.
 -keep class com.sun.jna.** { *; }
@@ -44,12 +42,6 @@
 -keep,allowoptimization class com.amwolfstein.sistrum.MainActivity {
     public <init>();
 }
--keep,allowoptimization class com.amwolfstein.sistrum.DownloadService {
-    public <init>();
-}
--keep,allowoptimization class com.amwolfstein.sistrum.DownloadQueueWidgetProvider {
-    public <init>();
-}
 
 # Flutter's fragment builders instantiate this class through reflection.
 -keep,allowoptimization class com.amwolfstein.sistrum.MainActivity$ImpellerAwareFlutterFragment {
@@ -62,6 +54,8 @@
 -keepattributes Exceptions
 -keepattributes InnerClasses
 -keepattributes EnclosingMethod
+
+# The FFmpeg plugin ships its JNI keep rules in its AAR.
 
 # Flutter invokes the generated registrant by name. Individual plugins are
 # referenced by this class and retain their own consumer rules.

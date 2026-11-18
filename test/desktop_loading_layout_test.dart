@@ -1,15 +1,9 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/screens/extension_collection_screens.dart';
-import 'package:sistrum/services/backend/native_backend_transport.dart';
 import 'package:sistrum/services/backend/rust_ffi_backend.dart';
-import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
@@ -17,34 +11,6 @@ import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/desktop/track_table.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-class _PendingMetadata implements NativeBackendTransport {
-  late NativeMessageListener listener;
-  int? metadataId;
-
-  @override
-  void init(Uint8List configJson, NativeMessageListener listener) =>
-      this.listener = listener;
-
-  @override
-  void call(int id, String method, Uint8List argsJson, Uint8List? bytes) {
-    if (method == 'getProviderMetadata') {
-      metadataId = id;
-    } else {
-      scheduleMicrotask(
-        () => listener(id, NativeMessageKind.result, utf8.encode('null')),
-      );
-    }
-  }
-
-  void complete() =>
-      listener(metadataId!, NativeMessageKind.result, utf8.encode('{}'));
-
-  @override
-  void subscribe(int kind) {}
-  @override
-  void unsubscribe(int kind) {}
-}
 
 void main() {
   setUp(() {
@@ -226,40 +192,5 @@ void main() {
       });
     }
 
-    testWidgets('collection loading keeps one desktop header, Mornye=$mornye', (
-      tester,
-    ) async {
-      final pending = _PendingMetadata();
-      RustFfiBackend.debugShared = RustFfiBackend(
-        openTransport: () => pending,
-        loadConfig: () async => const DesktopBackendConfig(
-          appSupportDir: '/support',
-          documentsDir: '/documents',
-          tempDir: '/tmp',
-        ),
-      );
-      await PlatformBridge.clearTrackCache();
-      await mount(
-        tester,
-        mornye: mornye,
-        width: 900,
-        child: ExtensionAlbumScreen(
-          extensionId: 'example-metadata',
-          albumId: 'loading-$mornye',
-          albumName: 'Album',
-        ),
-      );
-      expect(pending.metadataId, isNotNull);
-      expect(find.text('Album'), findsWidgets);
-      expect(
-        find.byKey(const ValueKey('track-table-skeleton-row-0')),
-        findsOneWidget,
-      );
-      expect(tester.takeException(), isNull);
-      await tester.pumpWidget(const SizedBox.shrink());
-      pending.complete();
-      await tester.pump();
-      await tester.pump(const Duration(seconds: 1));
-    });
   }
 }

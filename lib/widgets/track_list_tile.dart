@@ -1,27 +1,22 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sistrum/controllers/local_playback.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/controllers/clickable_metadata.dart';
-import 'package:sistrum/controllers/local_playback.dart';
 import 'package:sistrum/widgets/audio_quality_badges.dart';
 import 'package:sistrum/widgets/track_card.dart';
 import 'package:sistrum/widgets/in_library_badge.dart';
-import 'package:sistrum/widgets/preview_button.dart';
 import 'package:sistrum/widgets/track_collection_quick_actions.dart';
 
-/// Track row shared by the album and playlist screens. Tap offers another
-/// download when quality variants are enabled, otherwise it plays the local
-/// copy when one exists and falls back to [onDownload]. Long-press opens the
-/// track options sheet. Callers supply [leading] (track number, cover art,
-/// ...) and choose whether the artist name links to the artist screen.
+/// Track row shared by the album and playlist screens. Tap plays the local
+/// copy when one exists. Long-press opens the track options sheet. Callers
+/// supply [leading] (track number, cover art, ...) and choose whether the
+/// artist name links to the artist screen.
 class TrackListTile extends ConsumerWidget {
   final Track track;
-  final bool isInHistory;
-  final void Function({bool forceQualityPicker}) onDownload;
   final Widget leading;
   final bool clickableArtist;
   final bool showQualityBadges;
@@ -36,8 +31,6 @@ class TrackListTile extends ConsumerWidget {
   const TrackListTile({
     super.key,
     required this.track,
-    required this.isInHistory,
-    required this.onDownload,
     required this.leading,
     this.clickableArtist = false,
     this.showQualityBadges = true,
@@ -54,29 +47,7 @@ class TrackListTile extends ConsumerWidget {
     final playback = ref.watch(
       catalogTrackPlaybackUiProvider(catalogTrackKey(track)),
     );
-
-    final isQueued = ref.watch(
-      downloadQueueLookupProvider.select(
-        (lookup) => lookup.byTrackId.containsKey(track.id),
-      ),
-    );
-
-    final showLocalLibraryIndicator = ref.watch(
-      settingsProvider.select(
-        (s) => s.localLibraryEnabled && s.localLibraryShowDuplicates,
-      ),
-    );
-    final isInLocalLibrary = showLocalLibraryIndicator
-        ? ref.watch(
-            localLibraryProvider.select(
-              (state) => state.existsInLibrary(
-                isrc: track.isrc,
-                trackName: track.name,
-                artistName: track.artistName,
-              ),
-            ),
-          )
-        : false;
+    final isInLocalLibrary = _isInLocalLibrary(ref, track);
 
     return TrackCard(
       style: TrackCardStyle.flat,
@@ -89,12 +60,7 @@ class TrackListTile extends ConsumerWidget {
       title: track.name,
       subtitle: TrackMetadataBadgesLine(
         primary: clickableArtist && !isSelectionMode
-            ? ClickableArtistName(
-                artistName: track.artistName,
-                artistId: track.artistId,
-                coverUrl: track.coverUrl,
-                extensionId: track.source,
-              )
+            ? ClickableArtistName(artistName: track.artistName)
             : Text(
                 track.artistName,
                 maxLines: 1,
@@ -107,27 +73,21 @@ class TrackListTile extends ConsumerWidget {
             colorScheme: colorScheme,
             explicit: track.isExplicit,
           ),
-          if (isInLocalLibrary || isInHistory) const InLibraryBadge(),
+          if (isInLocalLibrary) const InLibraryBadge(),
         ],
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          PreviewButton(track: track),
           TrackCollectionQuickActions(
             track: track,
-            hasLocalPlaybackCandidate: isInHistory || isInLocalLibrary,
+            hasLocalPlaybackCandidate: isInLocalLibrary,
           ),
         ],
       ),
       onTap: isSelectionMode
           ? onToggleSelection
-          : () => _handleTap(
-              context,
-              ref,
-              isQueued: isQueued,
-              isInLocalLibrary: isInLocalLibrary,
-            ),
+          : () => playLocalIfAvailable(context, ref, track),
       onLongPress: isSelectionMode
           ? null
           : onEnterSelectionMode ??
@@ -135,76 +95,36 @@ class TrackListTile extends ConsumerWidget {
                   context,
                   ref,
                   track,
-                  hasLocalPlaybackCandidate: isInHistory || isInLocalLibrary,
+                  hasLocalPlaybackCandidate: isInLocalLibrary,
                 ),
     );
   }
 
-  void _handleTap(
-    BuildContext context,
-    WidgetRef ref, {
-    required bool isQueued,
-    required bool isInLocalLibrary,
-  }) async {
-    if (isQueued) return;
-
-    final settings = ref.read(settingsProvider);
-    if (settings.allowQualityVariants && (isInHistory || isInLocalLibrary)) {
-      onDownload(forceQualityPicker: true);
-      return;
-    }
-
-    final playedLocal = await playLocalIfAvailable(context, ref, track);
-    if (playedLocal) {
-      return;
-    }
-
-    onDownload();
-  }
-
-  /// What a tap on the row does, for the desktop song table: offers another
-  /// quality, plays the local copy, or downloads [track].
-  static Future<void> activate(
-    BuildContext context,
-    WidgetRef ref,
-    Track track, {
-    required bool isInHistory,
-    required void Function({bool forceQualityPicker}) onDownload,
-  }) async {
-    if (ref.read(downloadQueueLookupProvider).byTrackId.containsKey(track.id)) {
-      return;
-    }
-    final settings = ref.read(settingsProvider);
-    final isInLocalLibrary =
-        settings.localLibraryEnabled &&
-        settings.localLibraryShowDuplicates &&
-        ref
-            .read(localLibraryProvider)
-            .existsInLibrary(
+  static bool _isInLocalLibrary(WidgetRef ref, Track track) {
+    final show = ref.watch(
+      settingsProvider.select(
+        (s) => s.localLibraryEnabled && s.localLibraryShowDuplicates,
+      ),
+    );
+    return show &&
+        ref.watch(
+          localLibraryProvider.select(
+            (state) => state.existsInLibrary(
               isrc: track.isrc,
               trackName: track.name,
               artistName: track.artistName,
-            );
-    if (settings.allowQualityVariants && (isInHistory || isInLocalLibrary)) {
-      onDownload(forceQualityPicker: true);
-      return;
-    }
-    if (await playLocalIfAvailable(context, ref, track)) return;
-    onDownload();
+            ),
+          ),
+        );
   }
 }
 
 /// Explicit, Dolby Atmos and In Library badges of a [TrackListTile], for the
 /// title cell of the desktop song table. Quality has its own column there.
 class TrackListTileBadges extends ConsumerWidget {
-  const TrackListTileBadges({
-    super.key,
-    required this.track,
-    required this.isInHistory,
-  });
+  const TrackListTileBadges({super.key, required this.track});
 
   final Track track;
-  final bool isInHistory;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -232,7 +152,7 @@ class TrackListTileBadges extends ConsumerWidget {
         colorScheme: colorScheme,
         explicit: track.isExplicit,
       ),
-      if (isInLocalLibrary || isInHistory) const InLibraryBadge(),
+      if (isInLocalLibrary) const InLibraryBadge(),
     ];
     if (badges.isEmpty) return const SizedBox.shrink();
     return Row(

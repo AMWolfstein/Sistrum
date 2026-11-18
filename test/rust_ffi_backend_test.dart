@@ -319,8 +319,8 @@ void main() {
     await backend.invokeMethod<void>('init');
 
     transport.sendJson(0, NativeMessageKind.inboundCall, {
-      'method': 'extensionSessionGrantCompleted',
-      'arguments': {'extension_id': 'example', 'success': true},
+      'method': 'scanProgress',
+      'arguments': {'processed': 3, 'done': true},
     });
     transport.sendJson(0, NativeMessageKind.inboundCall, {
       'method': 'libraryStorageChanged',
@@ -328,13 +328,10 @@ void main() {
     });
     await pumpEventQueue();
     expect(received.map((call) => call.method), [
-      'extensionSessionGrantCompleted',
+      'scanProgress',
       'libraryStorageChanged',
     ]);
-    expect(received.first.arguments, {
-      'extension_id': 'example',
-      'success': true,
-    });
+    expect(received.first.arguments, {'processed': 3, 'done': true});
   });
 
   test('forwards pushed log records', () async {

@@ -1,35 +1,24 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:sistrum/controllers/track_history_snapshot.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/collection_header_actions.dart';
 import 'package:sistrum/controllers/selection_mode_mixin.dart';
 import 'package:sistrum/widgets/collection_scaffold.dart';
-import 'package:sistrum/widgets/selection_action_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
-import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/utils/image_cache_utils.dart';
-import 'package:sistrum/utils/cover_art_utils.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
-import 'package:sistrum/utils/provider_resource_ids.dart';
 import 'package:sistrum/widgets/playlist_picker_sheet.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
-import 'package:sistrum/widgets/loaded_sliver_fade_in.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
-import 'package:sistrum/widgets/link/link_actions.dart';
 import 'package:sistrum/widgets/motion_header_banner.dart';
+import 'package:sistrum/controllers/local_playback.dart';
+import 'package:sistrum/widgets/track_detail_actions.dart';
 import 'package:sistrum/widgets/track_list_tile.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/desktop/desktop_selection.dart';
 import 'package:sistrum/widgets/desktop/track_list_table.dart';
-import 'package:sistrum/widgets/track_detail_actions.dart';
 import 'package:sistrum/controllers/collapsing_header_scroll_mixin.dart';
-import 'package:sistrum/widgets/error_card.dart';
-import 'package:sistrum/widgets/collection_suggestions_section.dart';
-import 'package:sistrum/widgets/downloadable_cover.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mornye_artist_header.dart';
 
@@ -61,191 +50,16 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
     with
         SelectionModeMixin<PlaylistScreen>,
         CollapsingHeaderScrollMixin<PlaylistScreen> {
-  final _historySnapshot = TrackHistorySnapshot();
-
   /// Double click and Enter actions of the desktop table rows, by row id.
   final Map<String, VoidCallback> _desktopActivations = {};
-  List<Track>? _fetchedTracks;
-  bool _isLoading = false;
-  String? _error;
-  String? _resolvedPlaylistName;
-  String? _resolvedCoverUrl;
-  String? _resolvedHeaderVideoUrl;
-
-  List<Track> get _tracks => _fetchedTracks ?? widget.tracks;
-  String get _playlistName => _resolvedPlaylistName ?? widget.playlistName;
-  String? get _coverUrl => _resolvedCoverUrl ?? widget.coverUrl;
-  String? get _headerVideoUrl =>
-      _resolvedHeaderVideoUrl ?? widget.headerVideoUrl;
+  List<Track> get _tracks => widget.tracks;
+  String get _playlistName => widget.playlistName;
+  String? get _coverUrl => widget.coverUrl;
+  String? get _headerVideoUrl => widget.headerVideoUrl;
 
   /// Playlists can legitimately contain the same track twice, so selection is
   /// keyed by position as well as id (matching the album screen).
   String _trackSelectionId(Track track, int index) => '${track.id}#$index';
-
-  List<Track> get _selectedTracks => [
-    for (var index = 0; index < _tracks.length; index++)
-      if (selectedIds.contains(_trackSelectionId(_tracks[index], index)))
-        _tracks[index],
-  ];
-
-  Widget _buildSelectionBottomBar(
-    BuildContext context,
-    ColorScheme colorScheme,
-    List<String> ids,
-    double bottomPadding,
-  ) {
-    final selectedCount = selectedIds.length;
-    return buildSelectionBar(
-      ids: ids,
-      bottomPadding: bottomPadding,
-      children: [
-        SizedBox(
-          width: double.infinity,
-          child: SelectionActionButton(
-            icon: Icons.download_rounded,
-            label: '${context.l10n.dialogDownload} ($selectedCount)',
-            onPressed: selectedCount == 0 ? null : _downloadSelected,
-            colorScheme: colorScheme,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Future<void> _downloadSelected() async {
-    final selected = _selectedTracks;
-    if (selected.isEmpty) return;
-    await queueTracksSkippingDownloaded(
-      context,
-      ref,
-      selected,
-      artistNameForPicker: _playlistName,
-      recommendedService: widget.recommendedService,
-      forceQualityPicker: true,
-      onQueued: exitSelectionMode,
-    );
-  }
-
-  String? _metadataProviderId(String playlistId) {
-    final providerId = resolvePreferredMetadataProviderId(
-      widget.metadataProviderId,
-      playlistId,
-    );
-    if (providerId == null) return null;
-    final effective = resolveEffectiveMetadataProvider(
-      providerId,
-      ref.read(extensionProvider),
-    );
-    return effective.isEmpty ? null : effective;
-  }
-
-  String _metadataResourceId(String providerId, String playlistId) {
-    return stripPrefixedResourceId(playlistId);
-  }
-
-  String? _recommendedDownloadService() {
-    final explicit = widget.recommendedService;
-    if (explicit != null && explicit.isNotEmpty) {
-      return explicit;
-    }
-
-    final playlistId = widget.playlistId;
-    if (playlistId != null) {
-      final providerId = _metadataProviderId(playlistId);
-      if (providerId != null && providerId.isNotEmpty) {
-        return resolveEffectiveDownloadService(
-          providerId,
-          ref.read(extensionProvider),
-        );
-      }
-    }
-
-    final source = _tracks.firstOrNull?.source;
-    if (source != null && source.isNotEmpty) {
-      return source;
-    }
-
-    final trackId = _tracks.firstOrNull?.id ?? '';
-    final trackProviderId = legacyProviderIdFromResourceId(trackId);
-    if (trackProviderId != null) {
-      return resolveEffectiveDownloadService(
-        trackProviderId,
-        ref.read(extensionProvider),
-      );
-    }
-    return null;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _fetchTracksIfNeeded();
-  }
-
-  Future<void> _fetchTracksIfNeeded() async {
-    if (widget.tracks.isNotEmpty || widget.playlistId == null) return;
-
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-
-    try {
-      String playlistId = widget.playlistId!;
-      late final Map<String, dynamic> result;
-      final providerId = _metadataProviderId(playlistId);
-      if (providerId != null) {
-        result = await PlatformBridge.getProviderMetadata(
-          providerId,
-          'playlist',
-          _metadataResourceId(providerId, playlistId),
-        );
-      } else {
-        result = await PlatformBridge.getProviderMetadata(
-          'deezer',
-          'playlist',
-          playlistId,
-        );
-      }
-      if (!mounted) return;
-
-      final playlistInfo = result['playlist_info'] as Map<String, dynamic>?;
-      final owner = playlistInfo?['owner'] as Map<String, dynamic>?;
-      final resolvedPlaylistName =
-          (playlistInfo?['name'] ?? owner?['name'])?.toString() ??
-          _playlistName;
-
-      final trackList = result['track_list'] as List<dynamic>? ?? [];
-      final tracks = trackList
-          .map(
-            (t) => Track.fromBackendMap(
-              t as Map<String, dynamic>,
-              playlistName: resolvedPlaylistName,
-            ),
-          )
-          .toList();
-
-      final headerVideo = playlistInfo?['header_video']?.toString();
-
-      setState(() {
-        _fetchedTracks = tracks;
-        _resolvedPlaylistName = resolvedPlaylistName;
-        _resolvedCoverUrl = (playlistInfo?['images'] ?? owner?['images'])
-            ?.toString();
-        _resolvedHeaderVideoUrl =
-            (headerVideo != null && headerVideo.isNotEmpty)
-            ? headerVideo
-            : _resolvedHeaderVideoUrl;
-        _isLoading = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _error = context.friendlyError(e);
-        _isLoading = false;
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -261,9 +75,6 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
 
   Widget _buildPage(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final bottomPadding = isSelectionMode
-        ? MediaQuery.paddingOf(context).bottom
-        : 0.0;
 
     final ids = [
       for (var index = 0; index < _tracks.length; index++)
@@ -279,29 +90,12 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
         scrollController: scrollController,
         isSelectionMode: isSelectionMode,
         onExitSelectionMode: exitSelectionMode,
-        selectionBar: _buildSelectionBottomBar(
-          context,
-          colorScheme,
-          ids,
-          bottomPadding,
-        ),
         appBar: _buildAppBar(context, colorScheme),
         slivers: [
           // The desktop table fades in once over its skeleton's place;
           // phone rows stagger in on their own.
-          LoadedSliverFadeIn(
-            loading: _isLoading,
-            enabled: isDesktopPlatform,
-            sliver: _buildTrackList(context, colorScheme),
-          ),
+          _buildTrackList(context, colorScheme),
           _buildPlaylistFooter(context, colorScheme),
-          if (!_isLoading && _tracks.isNotEmpty && !isSelectionMode)
-            CollectionSuggestionsSliver(
-              collectionKey:
-                  'playlist:${widget.metadataProviderId}:'
-                  '${widget.playlistId ?? widget.playlistName}',
-              tracks: _tracks,
-            ),
         ],
       ),
     );
@@ -327,12 +121,11 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
     }
 
     final Widget coverImage = _coverUrl != null
-        ? CachedCoverImage(
-            imageUrl: highResCoverUrl(_coverUrl) ?? _coverUrl!,
+        ? LocalCoverImage(
+            url: _coverUrl!,
             fit: BoxFit.cover,
-            memCacheWidth: cacheWidth,
-            placeholder: (_, _) => Container(color: colorScheme.surface),
-            errorWidget: (_, _, _) => Container(color: colorScheme.surface),
+            localCacheWidth: cacheWidth,
+            placeholder: (_) => Container(color: colorScheme.surface),
           )
         : playlistPlaceholder();
 
@@ -351,16 +144,11 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
       coverBuilder: hasMotion
           ? null
           : (context, coverSize) => _coverUrl != null
-                ? DownloadableCover(
-                    coverUrl: highResCoverUrl(_coverUrl) ?? _coverUrl,
-                    baseName: _playlistName,
-                    child: CachedCoverImage(
-                      imageUrl: highResCoverUrl(_coverUrl) ?? _coverUrl!,
-                      fit: BoxFit.cover,
-                      memCacheWidth: cacheWidth,
-                      placeholder: (_, _) => playlistPlaceholder(),
-                      errorWidget: (_, _, _) => playlistPlaceholder(size: 48),
-                    ),
+                ? LocalCoverImage(
+                    url: _coverUrl!,
+                    fit: BoxFit.cover,
+                    localCacheWidth: cacheWidth,
+                    placeholder: (_) => playlistPlaceholder(),
                   )
                 : playlistPlaceholder(size: 48),
       meta: HeaderMetaRow(
@@ -371,25 +159,9 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
           ),
         ],
       ),
-      appBarActions: ref.watch(linkPhoneClientProvider) == null
-          ? null
-          : [
-              LinkDownloadOnDesktopButton(
-                tracks: _tracks,
-                service: _recommendedDownloadService(),
-                playlistName: _playlistName,
-              ),
-            ],
       actions: CollectionHeaderActions(
         tracks: _tracks,
         onLoveAll: () => loveAllTracks(this.context, ref, _tracks),
-        downloadIcon: Icons.download_rounded,
-        tonalDownload: true,
-        onDownloadAll: () => confirmDownloadAllDialog(
-          context,
-          _tracks.length,
-          () => _downloadAll(context),
-        ),
         addToPlaylistIcon: Icons.playlist_add,
         onAddToPlaylist: () => showAddTracksToPlaylistSheet(
           context,
@@ -411,24 +183,6 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
       );
 
   Widget _buildTrackList(BuildContext context, ColorScheme colorScheme) {
-    if (_isLoading) {
-      // The skeleton rows carry the list's own inset.
-      return const SliverToBoxAdapter(child: TrackListSkeleton(itemCount: 8));
-    }
-
-    if (_error != null) {
-      return SliverToBoxAdapter(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: ErrorCard(
-            error: _error!,
-            colorScheme: colorScheme,
-            onRetry: _fetchTracksIfNeeded,
-          ),
-        ),
-      );
-    }
-
     if (_tracks.isEmpty) {
       return SliverToBoxAdapter(
         child: Padding(
@@ -443,44 +197,25 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
       );
     }
 
-    _historySnapshot.update(_tracks);
-    final historyKeys = _historySnapshot.lookupKeys;
-    final existingHistoryKeys = ref.watch(
-      downloadHistoryVisibleBatchExistsProvider(_historySnapshot.request),
-    );
     if (isDesktopPlatform) {
       final ids = [
         for (var i = 0; i < _tracks.length; i++)
           _trackSelectionId(_tracks[i], i),
       ];
-      final inHistory = [
-        for (final key in historyKeys) existingHistoryKeys.contains(key),
-      ];
       final tracks = _tracks;
-      void activate(int index) => TrackListTile.activate(
-        context,
-        ref,
-        tracks[index],
-        isInHistory: inHistory[index],
-        onDownload: ({bool forceQualityPicker = false}) => _downloadTrack(
-          context,
-          tracks[index],
-          playlistPosition: index + 1,
-          forceQualityPicker: forceQualityPicker,
-        ),
-      );
       _desktopActivations
         ..clear()
         ..addAll({
-          for (var i = 0; i < ids.length; i++) ids[i]: () => activate(i),
+          for (var i = 0; i < ids.length; i++)
+            ids[i]: () => playLocalIfAvailable(context, ref, tracks[i]),
         });
       return TrackListTable(
         tracks: tracks,
         ids: ids,
-        isInHistory: inHistory,
         selectedIds: selectedIds,
         onSelect: applyDesktopClick,
-        onActivate: activate,
+        onActivate: (index) =>
+            playLocalIfAvailable(context, ref, tracks[index]),
         showArtwork: true,
         showAlbum: true,
       );
@@ -491,37 +226,24 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
         delegate: SliverChildBuilderDelegate((context, index) {
           final track = _tracks[index];
           final selectionId = _trackSelectionId(track, index);
-          final isInHistory = existingHistoryKeys.contains(historyKeys[index]);
           return KeyedSubtree(
             key: ValueKey(track.id),
             child: StaggeredListItem(
               index: index,
               child: TrackListTile(
                 track: track,
-                isInHistory: isInHistory,
                 isSelectionMode: isSelectionMode,
                 isSelected: selectedIds.contains(selectionId),
                 onToggleSelection: () => toggleSelection(selectionId),
                 onEnterSelectionMode: () => enterSelectionMode(selectionId),
-                onDownload: ({bool forceQualityPicker = false}) =>
-                    _downloadTrack(
-                      context,
-                      track,
-                      playlistPosition: index + 1,
-                      forceQualityPicker: forceQualityPicker,
-                    ),
                 leadingArtwork: true,
                 leading: track.coverUrl != null
-                    ? DownloadableCover(
-                        coverUrl: track.coverUrl,
-                        baseName: '${track.artistName} - ${track.name}',
-                        enabled: !isSelectionMode,
-                        child: CachedCoverImage(
-                          imageUrl: track.coverUrl!,
-                          width: 48,
-                          height: 48,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
+                    ? LocalCoverImage(
+                        url: track.coverUrl!,
+                        width: 48,
+                        height: 48,
+                        borderRadius: BorderRadius.circular(8),
+                        placeholder: (_) => const SizedBox(width: 48, height: 48),
                       )
                     : Container(
                         width: 48,
@@ -542,35 +264,6 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
           );
         }, childCount: _tracks.length),
       ),
-    );
-  }
-
-  void _downloadTrack(
-    BuildContext context,
-    Track track, {
-    int? playlistPosition,
-    bool forceQualityPicker = false,
-  }) {
-    downloadSingleTrack(
-      context,
-      ref,
-      track,
-      recommendedService: _recommendedDownloadService(),
-      playlistName: _playlistName,
-      playlistPosition: playlistPosition,
-      forceQualityPicker: forceQualityPicker,
-    );
-  }
-
-  Future<void> _downloadAll(BuildContext context) async {
-    await queueTracksSkippingDownloaded(
-      context,
-      ref,
-      _tracks,
-      artistNameForPicker: _playlistName,
-      recommendedService: _recommendedDownloadService(),
-      playlistName: _playlistName,
-      resolveDefaultService: false,
     );
   }
 }

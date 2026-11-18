@@ -7,7 +7,6 @@ import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/services/link/link_source_names.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/theme/material_expressive.dart';
@@ -676,14 +675,7 @@ class _QualityBadge extends StatelessWidget {
           type: MaterialType.transparency,
           child: InkWell(
             borderRadius: radius,
-            onTap: () => showAudioInfoSheet(
-              context,
-              metadata: metadata,
-              linkSources: ProviderScope.containerOf(
-                context,
-                listen: false,
-              ).read(linkSourceNamesProvider),
-            ),
+            onTap: () => showAudioInfoSheet(context, metadata: metadata),
             child: badge,
           ),
         ),

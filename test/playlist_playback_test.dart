@@ -1,6 +1,3 @@
-import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
@@ -9,12 +6,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
-import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
+import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/playback_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
@@ -26,7 +21,6 @@ import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/song_row_tap.dart';
 import 'package:sistrum/widgets/track_card.dart';
 import 'package:sistrum/widgets/selection_action_button.dart';
-import 'package:sistrum/widgets/destructive_selection_button.dart';
 import 'package:sistrum/widgets/selection_bottom_bar.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 
@@ -211,13 +205,19 @@ class _RemovalCollections extends _Collections {
 }
 
 class _Library extends LocalLibraryNotifier {
-  _Library({this.matches = const {}});
+  _Library({this.matches = const {}, this.inLibrary = const {}});
 
   final Map<String, LocalLibraryItem> matches;
+  // Songs the Library index holds, by name: their rows show the file's Play.
+  final Set<String> inLibrary;
   final removedFiles = <String>[];
 
   @override
-  LocalLibraryState build() => LocalLibraryState();
+  LocalLibraryState build() => LocalLibraryState(
+    trackKeySet: {
+      for (final name in inLibrary) LibraryDatabase.matchKeyFor(name, 'Artist'),
+    },
+  );
 
   @override
   Future<List<LocalLibraryItem?>> findExistingBatchAsync(
@@ -230,26 +230,11 @@ class _Library extends LocalLibraryNotifier {
   }
 }
 
-class _History extends DownloadHistoryNotifier {
-  final removedFiles = <String>[];
-  final deletionCompleted = Completer<void>();
-
-  @override
-  DownloadHistoryState build() => DownloadHistoryState();
-
-  @override
-  Future<void> removePhysicalFiles(Iterable<String> paths) async {
-    removedFiles.addAll(paths);
-    deletionCompleted.complete();
-  }
-}
-
 Widget _selectionApp({
   required bool mornye,
   required _Player player,
   required _Playback playback,
   _Library? library,
-  _History? history,
   bool internalPlayer = true,
   bool includeLocal = false,
 }) => ProviderScope(
@@ -260,10 +245,6 @@ Widget _selectionApp({
     playbackProvider.overrideWith(() => playback),
     libraryCollectionsProvider.overrideWith(_Collections.new),
     localLibraryProvider.overrideWith(() => library ?? _Library()),
-    downloadHistoryProvider.overrideWith(() => history ?? _History()),
-    downloadHistoryVisibleBatchExistsProvider.overrideWith(
-      (ref, request) => const {},
-    ),
     localLibraryCoverProvider.overrideWith((ref, request) async => null),
     localLibraryFirstCoverProvider.overrideWith((ref, request) async => null),
   ],
@@ -295,36 +276,6 @@ Future<void> _selectAllTracks(WidgetTester tester) async {
       .widget<SelectionBottomBar>(find.byType(SelectionBottomBar))
       .onToggleSelectAll();
   await tester.pumpAndSettle();
-}
-
-class _DownloadSelection extends DownloadQueueNotifier {
-  _DownloadSelection(this._record);
-  final void Function(List<Track>, String) _record;
-
-  @override
-  DownloadQueueState build() => const DownloadQueueState();
-
-  @override
-  void addIndividualTracksToQueue(List<Track> tracks, String service) =>
-      _record(tracks, service);
-}
-
-class _DownloadExtensions extends ExtensionNotifier {
-  @override
-  ExtensionState build() => const ExtensionState(
-    extensions: [
-      Extension(
-        id: 'example',
-        name: 'example',
-        displayName: 'Example',
-        version: '1',
-        description: '',
-        enabled: true,
-        status: 'loaded',
-        hasDownloadProvider: true,
-      ),
-    ],
-  );
 }
 
 void main() {
@@ -376,87 +327,6 @@ void main() {
       }
     }
 
-    for (final desktop in [false, true]) {
-      testWidgets(
-        'playlist queues eligible FLAC selections ($mornye, $desktop)',
-        (tester) async {
-          debugDesktopPlatformOverride = desktop;
-          addTearDown(() => debugDesktopPlatformOverride = null);
-          tester.view.physicalSize = desktop
-              ? const Size(1000, 900)
-              : const Size(390, 844);
-          tester.view.devicePixelRatio = 1;
-          addTearDown(tester.view.reset);
-          final library = _Library(
-            matches: {
-              for (final (name, format) in [
-                ('First', 'mp3'),
-                ('Selected', 'FLAC'),
-                ('Last', 'm4a'),
-              ])
-                name: LocalLibraryItem(
-                  id: name,
-                  trackName: name,
-                  artistName: 'Artist',
-                  albumName: 'Album',
-                  filePath: 'content://library/$name',
-                  scannedAt: DateTime(2026),
-                  format: format,
-                ),
-            },
-          );
-          final player = _Player();
-          await tester.pumpWidget(
-            _selectionApp(
-              mornye: mornye,
-              player: player,
-              playback: _Playback(),
-              library: library,
-              includeLocal: true,
-            ),
-          );
-          await _selectAllTracks(tester);
-          final queue = find.widgetWithText(
-            SelectionActionButton,
-            'Queue FLAC (2)',
-          );
-          expect(queue, findsOneWidget);
-          await tester.ensureVisible(queue);
-          await tester.tap(queue);
-          await tester.pumpAndSettle();
-          final l10n = lookupAppLocalizations(const Locale('en'));
-          expect(find.text(l10n.queueFlacConfirmMessage(2)), findsOneWidget);
-          await tester.tap(find.text('Cancel'));
-          await tester.pumpAndSettle();
-          expect(find.byType(SelectionBottomBar), findsOneWidget);
-          expect(library.removedFiles, isEmpty);
-          expect(player.queue, isEmpty);
-
-          if (desktop) {
-            tester
-                .widget<SelectionBottomBar>(find.byType(SelectionBottomBar))
-                .onClose();
-            await tester.pumpAndSettle();
-            await tester.ensureVisible(find.text('First'));
-            final gesture = await tester.startGesture(
-              tester.getCenter(find.text('First')),
-              kind: PointerDeviceKind.mouse,
-              buttons: kSecondaryButton,
-            );
-            await gesture.up();
-            await tester.pumpAndSettle();
-            expect(find.text('Queue FLAC (1)'), findsOneWidget);
-            await tester.tap(find.text('Queue FLAC (1)'));
-            await tester.pumpAndSettle();
-            expect(find.text(l10n.queueFlacConfirmMessage(1)), findsOneWidget);
-            await tester.tap(find.text('Cancel'));
-            await tester.pumpAndSettle();
-          }
-          expect(tester.takeException(), isNull);
-        },
-      );
-    }
-
     testWidgets('playlist desktop menu acts on its clicked track ($mornye)', (
       tester,
     ) async {
@@ -488,82 +358,6 @@ void main() {
       expect(find.byType(SelectionBottomBar), findsNothing);
       expect(tester.takeException(), isNull);
     });
-
-    testWidgets(
-      'playlist file deletion confirms and cleans both indexes ($mornye)',
-      (tester) async {
-        tester.view.physicalSize = const Size(390, 844);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.reset);
-        final folder = Directory.systemTemp.createTempSync('playlist-delete-');
-        addTearDown(() => folder.delete(recursive: true));
-        final files = [
-          File('${folder.path}/first.flac'),
-          File('${folder.path}/selected.flac'),
-        ];
-        for (final file in files) {
-          file.writeAsBytesSync([1]);
-        }
-        final playback = _Playback()
-          ..paths.addAll({
-            'First': files.first.path,
-            'Selected': files.last.path,
-            'Last': 'network://example/song.flac',
-          });
-        final library = _Library();
-        final history = _History();
-        await tester.pumpWidget(
-          _selectionApp(
-            mornye: mornye,
-            player: _Player(),
-            playback: playback,
-            library: library,
-            history: history,
-          ),
-        );
-        await _selectAllTracks(tester);
-        // Phones end the selection bar with the full-width delete button.
-        final delete = find.widgetWithText(
-          DestructiveSelectionButton,
-          'Delete 2 tracks',
-        );
-        await tester.ensureVisible(delete);
-        await tester.tap(delete);
-        await tester.pumpAndSettle();
-        expect(find.text('Delete'), findsOneWidget);
-        expect(
-          find.textContaining('Permanently delete 2 audio files'),
-          findsOneWidget,
-        );
-        expect(files.every((file) => file.existsSync()), isTrue);
-        await tester.tap(find.text('Cancel'));
-        await tester.pumpAndSettle();
-        expect(library.removedFiles, isEmpty);
-        expect(history.removedFiles, isEmpty);
-
-        await tester.tap(delete);
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Delete'));
-        await tester.pumpAndSettle();
-        for (
-          var attempt = 0;
-          attempt < 100 && !history.deletionCompleted.isCompleted;
-          attempt++
-        ) {
-          await tester.runAsync(
-            () => Future<void>.delayed(const Duration(milliseconds: 10)),
-          );
-          await tester.pump(const Duration(milliseconds: 16));
-        }
-        await tester.pumpAndSettle();
-        expect(history.deletionCompleted.isCompleted, isTrue);
-        expect(files.any((file) => file.existsSync()), isFalse);
-        expect(library.removedFiles, files.map((file) => file.path));
-        expect(history.removedFiles, files.map((file) => file.path));
-        expect(find.byType(SelectionBottomBar), findsNothing);
-        expect(tester.takeException(), isNull);
-      },
-    );
 
     testWidgets(
       'playlist leaves unavailable and CUE files out of actions ($mornye)',
@@ -628,10 +422,6 @@ void main() {
             settingsProvider.overrideWith(_Settings.new),
             libraryCollectionsProvider.overrideWith(_LocalCollections.new),
             localLibraryProvider.overrideWith(_Library.new),
-            downloadHistoryProvider.overrideWith(_History.new),
-            downloadHistoryVisibleBatchExistsProvider.overrideWith(
-              (ref, request) => const {},
-            ),
             localLibraryCoverProvider.overrideWith(
               (ref, request) async => null,
             ),
@@ -663,74 +453,6 @@ void main() {
       expect(find.text('Local song 619'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
-
-    testWidgets('Wishlist enqueues one selection (Mornye: $mornye)', (
-      tester,
-    ) async {
-      tester.view.physicalSize = const Size(800, 1100);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      final calls = <(List<Track>, String)>[];
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            settingsProvider.overrideWith(_Settings.new),
-            musicPlayerControllerProvider.overrideWithValue(_Player()),
-            playbackProvider.overrideWith(_Playback.new),
-            libraryCollectionsProvider.overrideWith(
-              () => _RemovalCollections((_, _) {}),
-            ),
-            extensionProvider.overrideWith(_DownloadExtensions.new),
-            downloadQueueProvider.overrideWith(
-              () => _DownloadSelection(
-                (tracks, service) => calls.add((tracks, service)),
-              ),
-            ),
-            localLibraryProvider.overrideWith(_Library.new),
-            downloadHistoryProvider.overrideWith(_History.new),
-            downloadHistoryVisibleBatchExistsProvider.overrideWith(
-              (ref, request) => const {},
-            ),
-            localLibraryCoverProvider.overrideWith(
-              (ref, request) async => null,
-            ),
-            localLibraryFirstCoverProvider.overrideWith(
-              (ref, request) async => null,
-            ),
-          ],
-          child: MaterialApp(
-            theme: mornye
-                ? MornyeTheme.build(Brightness.dark)
-                : AppTheme.light(),
-            localizationsDelegates: appLocalizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: const LibraryTracksFolderScreen(
-              mode: LibraryTracksFolderMode.wishlist,
-            ),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text('Unavailable'));
-      await tester.longPress(find.text('Unavailable'));
-      await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text('First'));
-      await tester.tap(find.text('First'));
-      await tester.pumpAndSettle();
-      final l10n = AppLocalizations.of(
-        tester.element(find.byType(LibraryTracksFolderScreen)),
-      );
-      await tester.tap(find.text('${l10n.settingsDownload} (2)'));
-      await tester.pumpAndSettle();
-      expect(calls, hasLength(1));
-      expect(calls.single.$1, [_tracks[0], _tracks[1]]);
-      expect(calls.single.$2, 'example');
-      expect(findAppIcon(Icons.remove_circle_outline), findsNothing);
-      expect(find.text(l10n.selectionSelected(2)), findsOneWidget);
-      expect(find.text('First'), findsOneWidget);
-      expect(find.text('Unavailable'), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
   }
 
   for (final mode in LibraryTracksFolderMode.values) {
@@ -754,10 +476,6 @@ void main() {
                   ),
                 ),
                 localLibraryProvider.overrideWith(_Library.new),
-                downloadHistoryProvider.overrideWith(_History.new),
-                downloadHistoryVisibleBatchExistsProvider.overrideWith(
-                  (ref, request) => const {},
-                ),
                 localLibraryCoverProvider.overrideWith(
                   (ref, request) async => null,
                 ),
@@ -819,18 +537,15 @@ void main() {
         await tester.pumpWidget(
           ProviderScope(
             overrides: [
-              settingsProvider.overrideWith(_Settings.new),
+              settingsProvider.overrideWith(
+                () => _Settings(includeLocal: true),
+              ),
               librarySongTapPlaysProvider.overrideWithValue(tapPlays),
               musicPlayerControllerProvider.overrideWithValue(player),
               playbackProvider.overrideWith(_Playback.new),
               libraryCollectionsProvider.overrideWith(_Collections.new),
-              localLibraryProvider.overrideWith(_Library.new),
-              downloadHistoryProvider.overrideWith(_History.new),
-              downloadHistoryVisibleBatchExistsProvider.overrideWith(
-                (ref, request) => {
-                  for (final track in request.tracks)
-                    if (track.spotifyId != 'Unavailable') track.lookupKey,
-                },
+              localLibraryProvider.overrideWith(
+                () => _Library(inLibrary: {'First', 'Selected', 'Last'}),
               ),
               localLibraryCoverProvider.overrideWith(
                 (ref, request) async => null,
@@ -885,7 +600,7 @@ void main() {
     testWidgets('playlist header shuffles every song (Mornye: $mornye)', (
       tester,
     ) async {
-      // A narrow phone, so Play, Shuffle and Download all must share it.
+      // A narrow phone, so Play and Shuffle must share it.
       tester.view.physicalSize = const Size(360, 780);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
@@ -898,7 +613,6 @@ void main() {
             playbackProvider.overrideWith(_Playback.new),
             libraryCollectionsProvider.overrideWith(_Collections.new),
             localLibraryProvider.overrideWith(_Library.new),
-            downloadHistoryProvider.overrideWith(_History.new),
             localLibraryCoverProvider.overrideWith(
               (ref, request) async => null,
             ),
@@ -948,7 +662,6 @@ void main() {
             playbackProvider.overrideWith(_Playback.new),
             libraryCollectionsProvider.overrideWith(_Collections.new),
             localLibraryProvider.overrideWith(_Library.new),
-            downloadHistoryProvider.overrideWith(_History.new),
             localLibraryCoverProvider.overrideWith(
               (ref, request) async => null,
             ),
@@ -978,16 +691,12 @@ void main() {
         tester.getCenter(findByTooltip('رجوع').first).dx,
         greaterThan(width / 2),
       );
-      // Download All, Play and Shuffle run from the right, and only Play
+      // Play and Shuffle run from the right, and only Play
       // carries a label.
-      final download = tester.getCenter(
-        find.byKey(const ValueKey('collection-download-all')),
-      );
       final play = tester.getCenter(find.byType(HeaderFilledButton));
       final shuffle = tester.getCenter(
         find.byKey(const ValueKey('collection-shuffle')),
       );
-      expect(download.dx, greaterThan(play.dx));
       expect(play.dx, greaterThan(shuffle.dx));
       expect(tester.takeException(), isNull);
     });

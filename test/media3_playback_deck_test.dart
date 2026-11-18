@@ -128,15 +128,6 @@ void main() {
     expect(await deck.setNextDeck(Media3PlaybackDeck(playerId: 'two')), false);
   });
 
-  test('loads a stream as a remote source', () async {
-    await deck.setNetworkSource('https://example.com/song.flac');
-    expect(native.last('setSource'), {
-      'playerId': 'one',
-      'uri': 'https://example.com/song.flac',
-      'isLocal': false,
-    });
-  });
-
   test('a newer source supersedes one still preparing', () async {
     native.holdSource = true;
     final first = deck.setFileSource('/first.flac');

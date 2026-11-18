@@ -2,33 +2,6 @@ part of 'queue_tab.dart';
 
 sealed class _LibraryAlbumGroup {}
 
-class _GroupedAlbum extends _LibraryAlbumGroup {
-  final String albumName;
-  final String artistName;
-  final String? coverUrl;
-  final String sampleFilePath;
-  final List<DownloadHistoryItem> tracks;
-  final int? trackCount;
-  final AlbumCompleteness? completeness;
-  final DateTime latestDownload;
-  final String searchKey;
-
-  _GroupedAlbum({
-    required this.albumName,
-    required this.artistName,
-    this.coverUrl,
-    required this.sampleFilePath,
-    required this.tracks,
-    this.trackCount,
-    this.completeness,
-    required this.latestDownload,
-  }) : searchKey = '${albumName.toLowerCase()}|${artistName.toLowerCase()}';
-
-  String get key => '$albumName|$artistName';
-
-  int get displayTrackCount => trackCount ?? tracks.length;
-}
-
 class _GroupedLocalAlbum extends _LibraryAlbumGroup {
   final String albumKey;
   final String albumName;
@@ -61,7 +34,6 @@ class _GroupedLocalAlbum extends _LibraryAlbumGroup {
 class _FilterContentData {
   final List<UnifiedLibraryItem> unifiedItems;
   final List<UnifiedLibraryItem> filteredUnifiedItems;
-  final List<_GroupedAlbum> filteredGroupedAlbums;
   final List<_GroupedLocalAlbum> filteredGroupedLocalAlbums;
   final List<_LibraryAlbumGroup> orderedAlbums;
   final bool showFilteringIndicator;
@@ -71,7 +43,6 @@ class _FilterContentData {
   const _FilterContentData({
     required this.unifiedItems,
     required this.filteredUnifiedItems,
-    required this.filteredGroupedAlbums,
     required this.filteredGroupedLocalAlbums,
     required this.orderedAlbums,
     required this.showFilteringIndicator,
@@ -82,8 +53,7 @@ class _FilterContentData {
   int get totalTrackCount =>
       totalTrackCountOverride ?? filteredUnifiedItems.length;
   int get totalAlbumCount =>
-      totalAlbumCountOverride ??
-      filteredGroupedAlbums.length + filteredGroupedLocalAlbums.length;
+      totalAlbumCountOverride ?? filteredGroupedLocalAlbums.length;
 }
 
 class _QueueLibraryPageRequest
@@ -129,18 +99,6 @@ class _QueueLibraryPageRequest
     includeLocal: localLibraryEnabled,
     cursor: cursor,
   );
-
-  bool get allowsInMemoryHistoryFallback =>
-      offset == 0 &&
-      searchQuery.trim().isEmpty &&
-      filterSource != 'local' &&
-      filterQuality == null &&
-      filterFormat == null &&
-      filterMetadata == null &&
-      sortMode == 'latest' &&
-      (filterMode == 'all' ||
-          filterMode == 'albums' ||
-          filterMode == 'singles');
 
   @override
   bool hasSamePageScope(_QueueLibraryPageRequest other) =>
@@ -188,18 +146,14 @@ class _QueueLibraryPageRequest
 
 class _QueueLibraryPageData implements QueueLibraryPageContent {
   final List<UnifiedLibraryItem> items;
-  final List<DownloadHistoryItem> historyItems;
   final List<LocalLibraryItem> localItems;
-  final List<_GroupedAlbum> groupedAlbums;
   final List<_GroupedLocalAlbum> groupedLocalAlbums;
   final List<_LibraryAlbumGroup> orderedAlbums;
   final QueueLibraryDbCursor? nextCursor;
 
   const _QueueLibraryPageData({
     this.items = const [],
-    this.historyItems = const [],
     this.localItems = const [],
-    this.groupedAlbums = const [],
     this.groupedLocalAlbums = const [],
     this.orderedAlbums = const [],
     this.nextCursor,
@@ -208,110 +162,28 @@ class _QueueLibraryPageData implements QueueLibraryPageContent {
   @override
   bool get isEmpty =>
       items.isEmpty &&
-      historyItems.isEmpty &&
       localItems.isEmpty &&
-      groupedAlbums.isEmpty &&
       groupedLocalAlbums.isEmpty;
-
-  factory _QueueLibraryPageData.fromHistorySnapshot(
-    List<DownloadHistoryItem> historyItems, {
-    required String filterMode,
-    required int limit,
-  }) {
-    final albumTracks = <String, List<DownloadHistoryItem>>{};
-    for (final item in historyItems) {
-      final albumKey = LibraryDatabase.albumKeyFor(
-        item.albumName,
-        item.albumArtist,
-        item.artistName,
-      );
-      albumTracks.putIfAbsent(albumKey, () => []).add(item);
-    }
-
-    if (filterMode == 'albums') {
-      final albums = <_GroupedAlbum>[];
-      for (final tracks in albumTracks.values) {
-        if (tracks.length <= 1) continue;
-        final latest = tracks
-            .map((item) => item.downloadedAt)
-            .reduce((a, b) => a.isAfter(b) ? a : b);
-        final sample = tracks.first;
-        String? coverUrl;
-        for (final track in tracks) {
-          final candidate = track.coverUrl?.trim();
-          if (candidate != null && candidate.isNotEmpty) {
-            coverUrl = candidate;
-            break;
-          }
-        }
-        albums.add(
-          _GroupedAlbum(
-            albumName: sample.albumName,
-            artistName: sample.albumArtist?.trim().isNotEmpty == true
-                ? sample.albumArtist!
-                : sample.artistName,
-            coverUrl: coverUrl,
-            sampleFilePath: sample.filePath,
-            tracks: List.unmodifiable(tracks),
-            trackCount: tracks.length,
-            latestDownload: latest,
-          ),
-        );
-      }
-      albums.sort((a, b) => b.latestDownload.compareTo(a.latestDownload));
-      final selectedAlbums = albums.take(limit).toList(growable: false);
-      return _QueueLibraryPageData(
-        groupedAlbums: selectedAlbums,
-        orderedAlbums: selectedAlbums,
-      );
-    }
-
-    final selectedHistory =
-        (filterMode == 'singles'
-                ? historyItems.where((item) {
-                    final albumKey = LibraryDatabase.albumKeyFor(
-                      item.albumName,
-                      item.albumArtist,
-                      item.artistName,
-                    );
-                    return albumTracks[albumKey]?.length == 1;
-                  })
-                : historyItems)
-            .take(limit)
-            .toList(growable: false);
-    return _QueueLibraryPageData(
-      items: selectedHistory
-          .map(UnifiedLibraryItem.fromDownloadHistory)
-          .toList(growable: false),
-      historyItems: selectedHistory,
-    );
-  }
 
   factory _QueueLibraryPageData.combine(List<_QueueLibraryPageData> pages) {
     if (pages.isEmpty) return const _QueueLibraryPageData();
     if (pages.length == 1) return pages.first;
 
     final items = <UnifiedLibraryItem>[];
-    final historyItems = <DownloadHistoryItem>[];
     final localItems = <LocalLibraryItem>[];
-    final groupedAlbums = <_GroupedAlbum>[];
     final groupedLocalAlbums = <_GroupedLocalAlbum>[];
     final orderedAlbums = <_LibraryAlbumGroup>[];
 
     for (final page in pages) {
       items.addAll(page.items);
-      historyItems.addAll(page.historyItems);
       localItems.addAll(page.localItems);
-      groupedAlbums.addAll(page.groupedAlbums);
       groupedLocalAlbums.addAll(page.groupedLocalAlbums);
       orderedAlbums.addAll(page.orderedAlbums);
     }
 
     return _QueueLibraryPageData(
       items: items,
-      historyItems: historyItems,
       localItems: localItems,
-      groupedAlbums: groupedAlbums,
       groupedLocalAlbums: groupedLocalAlbums,
       orderedAlbums: orderedAlbums,
       nextCursor: pages.last.nextCursor,
@@ -325,7 +197,6 @@ class _QueueLibraryPageData implements QueueLibraryPageContent {
     return _FilterContentData(
       unifiedItems: items,
       filteredUnifiedItems: items,
-      filteredGroupedAlbums: groupedAlbums,
       filteredGroupedLocalAlbums: groupedLocalAlbums,
       orderedAlbums: orderedAlbums,
       showFilteringIndicator: false,
@@ -335,40 +206,17 @@ class _QueueLibraryPageData implements QueueLibraryPageContent {
   }
 }
 
-QueueLibraryCounts _historySnapshotCounts(
-  List<DownloadHistoryItem> items, {
-  required int persistedTotalCount,
-}) {
-  final albumCounts = <String, int>{};
-  for (final item in items) {
-    final key = LibraryDatabase.albumKeyFor(
-      item.albumName,
-      item.albumArtist,
-      item.artistName,
+/// Reads one page of the Songs list; tests replace it with in-memory rows.
+final queueLibraryTrackPageReaderProvider =
+    Provider<Future<QueueLibraryDbPage> Function(QueueLibraryDbQuery)>(
+      (ref) => LibraryDatabase.instance.getQueueTrackPageResult,
     );
-    albumCounts[key] = (albumCounts[key] ?? 0) + 1;
-  }
-  final albumCount = albumCounts.values.where((count) => count > 1).length;
-  final singleTrackCount = albumCounts.values
-      .where((count) => count == 1)
-      .length;
-  return QueueLibraryCounts(
-    allTrackCount: persistedTotalCount > items.length
-        ? persistedTotalCount
-        : items.length,
-    albumCount: albumCount,
-    singleTrackCount: singleTrackCount,
-  );
-}
 
 final _queueLibraryPageProvider = FutureProvider.autoDispose
     .family<_QueueLibraryPageData, _QueueLibraryPageRequest>((
       ref,
       request,
     ) async {
-      ref.watch(
-        downloadHistoryProvider.select((state) => state.loadedIndexVersion),
-      );
       if (request.localLibraryEnabled) {
         ref.watch(
           localLibraryProvider.select((state) => state.loadedIndexVersion),
@@ -384,7 +232,6 @@ final _queueLibraryPageProvider = FutureProvider.autoDispose
           dbQuery,
         );
         final rows = page.rows;
-        final groupedAlbums = <_GroupedAlbum>[];
         final groupedLocalAlbums = <_GroupedLocalAlbum>[];
         final orderedAlbums = <_LibraryAlbumGroup>[];
         for (final row in rows) {
@@ -405,35 +252,20 @@ final _queueLibraryPageProvider = FutureProvider.autoDispose
             );
             groupedLocalAlbums.add(album);
             orderedAlbums.add(album);
-          } else if (source == 'downloaded') {
-            final album = _GroupedAlbum(
-              albumName: row['album_name'] as String? ?? '',
-              artistName: row['artist_name'] as String? ?? '',
-              coverUrl: row['cover_url'] as String?,
-              sampleFilePath: row['sample_file_path'] as String? ?? '',
-              tracks: const [],
-              trackCount: (row['track_count'] as num?)?.toInt() ?? 0,
-              completeness: AlbumCompleteness.fromRow(row),
-              latestDownload: latest,
-            );
-            groupedAlbums.add(album);
-            orderedAlbums.add(album);
           }
         }
         return _QueueLibraryPageData(
-          groupedAlbums: groupedAlbums,
           groupedLocalAlbums: groupedLocalAlbums,
           orderedAlbums: orderedAlbums,
           nextCursor: page.nextCursor,
         );
       }
 
-      final page = await LibraryDatabase.instance.getQueueTrackPageResult(
+      final page = await ref.read(queueLibraryTrackPageReaderProvider)(
         dbQuery,
       );
       final rows = page.rows;
       final items = <UnifiedLibraryItem>[];
-      final historyItems = <DownloadHistoryItem>[];
       final localItems = <LocalLibraryItem>[];
       for (final row in rows) {
         final source = row['source'] as String? ?? '';
@@ -442,15 +274,10 @@ final _queueLibraryPageProvider = FutureProvider.autoDispose
           final item = LocalLibraryItem.fromJson(itemJson);
           localItems.add(item);
           items.add(UnifiedLibraryItem.fromLocalLibrary(item));
-        } else if (source == 'downloaded') {
-          final item = DownloadHistoryItem.fromJson(itemJson);
-          historyItems.add(item);
-          items.add(UnifiedLibraryItem.fromDownloadHistory(item));
         }
       }
       return _QueueLibraryPageData(
         items: items,
-        historyItems: historyItems,
         localItems: localItems,
         nextCursor: page.nextCursor,
       );

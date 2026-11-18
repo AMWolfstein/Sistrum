@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/models/library_collections.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/services/library_database.dart';
 
 Track _track(String id, {String? source, String? isrc}) => Track(
@@ -18,24 +17,6 @@ Track _track(String id, {String? source, String? isrc}) => Track(
 void main() {
   test('catalog and library collection identity agree across sources', () {
     for (final isrc in [null, '', ' ', ' us-example-1 ']) {
-      for (final service in ['example', ' Example ', ' ']) {
-        final downloaded = UnifiedLibraryItem.fromDownloadHistory(
-          DownloadHistoryItem(
-            id: 'song',
-            trackName: 'Song',
-            artistName: 'Artist',
-            albumName: 'Album',
-            filePath: '/music/song.flac',
-            downloadedAt: DateTime.utc(2026),
-            service: service,
-            isrc: isrc,
-          ),
-        );
-        expect(
-          downloaded.collectionKey,
-          trackCollectionKey(_track('song', source: service, isrc: isrc)),
-        );
-      }
       final local = UnifiedLibraryItem.fromLocalLibrary(
         LocalLibraryItem(
           id: 'song',

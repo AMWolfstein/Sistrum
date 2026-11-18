@@ -9,7 +9,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/library_browse_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/local_album_screen.dart';
@@ -24,11 +23,6 @@ import 'package:sistrum/widgets/local_library_artwork_builder.dart';
 import 'package:sistrum/widgets/mornye_artist_header.dart';
 
 import 'support/fixed_settings.dart';
-
-class _History extends DownloadHistoryNotifier {
-  @override
-  DownloadHistoryState build() => DownloadHistoryState();
-}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -377,7 +371,6 @@ void main() {
                 const AppSettings(localLibraryEnabled: false),
               ),
             ),
-            downloadHistoryProvider.overrideWith(_History.new),
             libraryBrowsePageLoaderProvider.overrideWithValue(
               (request) async => LibraryBrowsePage([
                 LibraryBrowseEntry(
@@ -411,8 +404,8 @@ void main() {
     await pumpUntil(
       tester,
       () => tester
-          .widgetList<LocalOrNetworkCoverImage>(
-            find.byType(LocalOrNetworkCoverImage),
+          .widgetList<LocalCoverImage>(
+            find.byType(LocalCoverImage),
           )
           .any((image) => image.url == preview),
     );

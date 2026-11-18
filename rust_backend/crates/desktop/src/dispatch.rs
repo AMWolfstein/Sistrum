@@ -10,9 +10,7 @@
 //!   `ios/Runner/AppDelegate.swift` `handleMethodCall`, with plain paths;
 //! - the Android extension callback inbox, fed by a desktop-only method.
 
-use crate::backend::{CallbackRoute, complete_session_grant};
 use crate::call::{Args, CallError, CallResult, CallState, OrFail, Reply};
-use crate::ffmpeg::with_ffmpeg_commands;
 use crate::paths::{self, media_path};
 use crate::runtime::{self, Runtime};
 use sistrum_mobile::{ExtensionManager, LyricsRequest, RequestLease};
@@ -84,22 +82,11 @@ fn limit(args: &Args) -> i64 {
     args.i64("limit").unwrap_or(20)
 }
 
-fn priority_kind(method_is_download: bool) -> &'static str {
-    if method_is_download {
-        "download"
-    } else {
-        "metadata"
-    }
-}
-
 pub(crate) static METHODS: &[Entry] = &[
     // CoreBackend.swift invokeApplication: methods that do not need the owner.
     pool("runNativeDataJob", run_native_data_job),
     inline("cancelNativeDataJob", |c, a| {
         null(c.rt.backend.cancel_data_job(&a.string("request_id", "")))
-    }),
-    pool("cancelExtensionRequest", |c, a| {
-        null(c.rt.backend.cancel_request(&a.string("request_id", "")))
     }),
     pool("customSearchWithExtension", extension_request),
     pool("getExtensionHomeFeed", extension_request),
@@ -119,39 +106,6 @@ pub(crate) static METHODS: &[Entry] = &[
         c.rt.backend
             .release_download_directory(&a.string("token", ""));
         Ok(Reply::null())
-    }),
-    pool("initExtensionRepo", |c, a| {
-        null(
-            c.rt.backend
-                .initialize_repository(&a.string("cache_dir", "")),
-        )
-    }),
-    pool("setRepoRegistryUrls", |c, a| {
-        let Some(Ok(urls)) = a.string_list("registry_urls") else {
-            return Err(CallError::failure("Expected registry_urls string list"));
-        };
-        null(c.rt.backend.repository()?.set_registry_urls(urls).or_fail())
-    }),
-    pool("resolveRepoRegistryUrl", |c, a| {
-        text(
-            c.rt.backend
-                .repository()?
-                .resolve_registry_url(a.string("registry_url", "")),
-        )
-    }),
-    pool("getRepoCatalog", |c, a| {
-        text(
-            c.rt.backend
-                .repository()?
-                .catalog(a.bool("force_refresh", false)),
-        )
-    }),
-    pool("downloadRepoExtension", |c, a| {
-        text(c.rt.backend.repository()?.download(
-            a.string("extension_id", ""),
-            a.string("dest_dir", ""),
-            a.string("registry_url", ""),
-        ))
     }),
     pool("cleanupExtensions", |c, _| {
         c.rt.backend.shutdown_owner();
@@ -263,52 +217,6 @@ pub(crate) static METHODS: &[Entry] = &[
         Ok(r#"{"success":true}"#.into())
     }),
     // CoreBackend.swift invokeApplication: methods that need the owner.
-    pool("loadExtensionsFromDir", |c, a| {
-        let manager = c.owner()?;
-        let path = paths::resolve_string(&a.string("dir_path", ""));
-        if c.rt.backend.source_directory().as_deref() != Some(path.as_str()) {
-            return Err(CallError::failure(
-                "Extension source directory does not match the initialized owner",
-            ));
-        }
-        text(manager.load_all())
-    }),
-    pool("loadExtensionFromPath", |c, a| {
-        text(c.owner()?.install(a.string("file_path", "")))
-    }),
-    pool("upgradeExtension", |c, a| {
-        text(c.owner()?.upgrade(a.string("file_path", "")))
-    }),
-    pool("checkExtensionUpgrade", |c, a| {
-        text(c.owner()?.check_upgrade(a.string("file_path", "")))
-    }),
-    pool("getInstalledExtensions", |c, _| {
-        text(c.owner()?.installed())
-    }),
-    pool("setExtensionEnabled", |c, a| {
-        null(
-            c.owner()?
-                .set_enabled(a.string("extension_id", ""), a.bool("enabled", false))
-                .or_fail(),
-        )
-    }),
-    pool("removeExtension", |c, a| {
-        null(c.owner()?.remove(a.string("extension_id", "")).or_fail())
-    }),
-    pool("getExtensionSettings", |c, a| {
-        text(
-            c.owner()?
-                .environment()
-                .settings(a.string("extension_id", "")),
-        )
-    }),
-    pool("setExtensionSettings", |c, a| {
-        null(
-            c.owner()?
-                .update_settings(a.string("extension_id", ""), a.string("settings", "{}"))
-                .or_fail(),
-        )
-    }),
     pool("invokeExtensionAction", |c, a| {
         let manager = c.owner()?;
         let id = a.string("extension_id", "");
@@ -318,12 +226,6 @@ pub(crate) static METHODS: &[Entry] = &[
             return text(manager.call(id, action, a.string("arguments_json", "[]"), None, 120_000));
         }
         text(manager.invoke_action(id, action))
-    }),
-    pool("checkExtensionHealth", |c, a| {
-        text(
-            c.owner()?
-                .check_extension_health_json(a.string("extension_id", "")),
-        )
     }),
     pool("searchTracksWithMetadataProviders", |c, a| {
         text(c.owner()?.search_metadata_providers(
@@ -364,26 +266,6 @@ pub(crate) static METHODS: &[Entry] = &[
         let handler = c.owner()?.find_url_handler(a.string("url", "")).or_fail()?;
         Ok(handler.unwrap_or_default().into())
     }),
-    pool("searchDeezerByISRC", |c, a| {
-        text(c.owner()?.search_deezer_by_isrc_for_item_id(
-            a.string("isrc", ""),
-            a.string("item_id", ""),
-            None,
-        ))
-    }),
-    pool("getDeezerExtendedMetadata", |c, a| {
-        text(
-            c.owner()?
-                .get_deezer_extended_metadata(a.string("track_id", ""), None),
-        )
-    }),
-    pool("convertSpotifyToDeezer", |c, a| {
-        text(c.owner()?.convert_spotify_to_deezer(
-            a.string("resource_type", ""),
-            a.string("spotify_id", ""),
-            None,
-        ))
-    }),
     pool("getTrackPlatformLinks", |c, a| {
         text(c.owner()?.get_track_platform_links_json(
             a.string("spotify_id", ""),
@@ -423,52 +305,6 @@ pub(crate) static METHODS: &[Entry] = &[
                 .or_fail(),
         )
     }),
-    pool("downloadByStrategy", download_by_strategy),
-    pool("getAllDownloadProgress", |c, _| {
-        text(c.owner()?.environment().download_state().all_progress())
-    }),
-    pool("cleanupConnections", |c, _| {
-        null(c.owner()?.environment().cleanup_connections().or_fail())
-    }),
-    pool("clearItemProgress", |c, a| {
-        let state = c.owner()?.environment().download_state();
-        null(state.clear_item_progress(a.string("item_id", "")).or_fail())
-    }),
-    pool("cancelDownload", |c, a| {
-        let state = c.owner()?.environment().download_state();
-        null(state.cancel_download(a.string("item_id", "")).or_fail())
-    }),
-    pool("resetDownloadCancel", |c, a| {
-        let state = c.owner()?.environment().download_state();
-        null(
-            state
-                .reset_download_cancel(a.string("item_id", ""))
-                .or_fail(),
-        )
-    }),
-    pool("resetDownloadCancels", |c, a| {
-        let state = c.owner()?.environment().download_state();
-        null(state.reset_download_cancels(item_ids(a)?).or_fail())
-    }),
-    pool("cancelDownloads", |c, a| {
-        let state = c.owner()?.environment().download_state();
-        null(state.cancel_downloads(item_ids(a)?).or_fail())
-    }),
-    pool("getExtensionPendingAuth", |c, a| {
-        text(
-            c.owner()?
-                .get_extension_pending_auth_json(a.string("extension_id", "")),
-        )
-    }),
-    pool("completeExtensionSessionGrant", |c, a| {
-        let manager = c.owner()?;
-        complete_session_grant(
-            &manager,
-            &a.string("extension_id", ""),
-            &a.string("grant", ""),
-        )?;
-        Ok(true.into())
-    }),
     pool("getLyricsLRC", lyrics),
     pool("getLyricsLRCWithSource", lyrics),
     pool("fetchAndSaveLyrics", lyrics),
@@ -488,25 +324,12 @@ pub(crate) static METHODS: &[Entry] = &[
     pool("getEnabledLyricsProviders", |c, _| {
         text(c.owner()?.get_enabled_lyrics_providers_json())
     }),
-    pool("runPostProcessingV2", |c, a| {
-        let manager = c.owner()?;
-        let ffmpeg = c.rt.config.ffmpeg_path.clone();
-        text(with_ffmpeg_commands(&manager, ffmpeg, || {
-            manager.run_post_processing(a.string("input", ""), a.string("metadata", ""), 120_000)
-        }))
-    }),
     pool("embedLyricsToFile", |c, a| {
         let path = a.string("file_path", "");
         c.rt.backend.with_media_files(&[&path], |manager| {
             text(manager.embed_lyrics_to_file(media_path(&path), a.string("lyrics", ""), None))
         })
     }),
-    pool("setProviderPriority", |c, a| set_priority(c, a, true)),
-    pool("setMetadataProviderPriority", |c, a| {
-        set_priority(c, a, false)
-    }),
-    pool("getProviderPriority", |c, _| get_priority(c, true)),
-    pool("getMetadataProviderPriority", |c, _| get_priority(c, false)),
     // AppDelegate.swift osMethods backed by Rust, with plain paths.
     pool("getBackendImplementations", |_, _| {
         Ok(json!({
@@ -517,17 +340,6 @@ pub(crate) static METHODS: &[Entry] = &[
         })
         .into())
     }),
-    pool("rewriteSplitArtistTags", |c, a| {
-        let path = a.string("file_path", "");
-        c.rt.backend.with_media_files(&[&path], |manager| {
-            text(manager.rewrite_split_artist_tags(
-                media_path(&path),
-                a.string("artist", ""),
-                a.string("album_artist", ""),
-                None,
-            ))
-        })
-    }),
     pool("writeM4AFreeformTags", |c, a| {
         let path = a.string("file_path", "");
         c.rt.backend.with_media_files(&[&path], |manager| {
@@ -537,21 +349,6 @@ pub(crate) static METHODS: &[Entry] = &[
                 None,
             ))
         })
-    }),
-    pool("ensureAC4Config", |c, a| {
-        text(c.owner()?.ensure_ac4_config(
-            media_path(&a.string("file_path", "")),
-            media_path(&a.string("source_path", "")),
-            None,
-        ))
-    }),
-    pool("writeAC4Metadata", |c, a| {
-        text(c.owner()?.write_ac4_metadata(
-            media_path(&a.string("file_path", "")),
-            a.string("metadata_json", "{}"),
-            media_path(&a.string("cover_path", "")),
-            None,
-        ))
     }),
     pool("downloadCoverToFile", download_cover_to_file),
     pool("extractCoverToFile", |c, a| {
@@ -628,22 +425,7 @@ pub(crate) static METHODS: &[Entry] = &[
             .parse_cue_sheet(&a.string("cue_path", ""), &a.string("audio_dir", ""))
             .map(Reply::from)
     }),
-    // Android extension callback inbox (MainActivityExtensionIntents.kt).
-    pool(
-        "processPendingExtensionCallbacks",
-        process_pending_extension_callbacks,
-    ),
     // Desktop only: Dart forwards a `sistrum://` URL it received from the OS.
-    pool("queueExtensionCallbackUrl", |c, a| {
-        let Some(route) = crate::callback_url::parse(&a.string("url", "")) else {
-            return Ok(false.into());
-        };
-        if c.rt.backend.queue_callback(route) {
-            // Keep the URL until Dart is initialized and drains the inbox.
-            runtime::inbound("extensionAuthCallbackReceived", Value::Null);
-        }
-        Ok(true.into())
-    }),
     // Desktop only: OS services (keep_awake.rs, discord.rs, watcher.rs).
     pool("beginKeepAwake", |c, a| {
         let reason = a.string("reason", "Downloading music");
@@ -688,31 +470,6 @@ pub(crate) static METHODS: &[Entry] = &[
         c.rt.watcher.stop();
         Ok(Reply::null())
     }),
-    // Desktop only: the Sistrum Link server (link.rs, LINK_CONTRACT.md 6).
-    pool("linkStart", |c, a| c.rt.link.start(&c.rt.config, a)),
-    pool("linkStop", |c, _| {
-        c.rt.link.stop();
-        Ok(Reply::null())
-    }),
-    pool("linkStatus", |c, _| {
-        Ok(c.rt.link.status(&c.rt.config).into())
-    }),
-    pool("linkSetCatalog", |c, a| c.rt.link.set_catalog(a)),
-    pool("linkBeginPairing", |c, _| c.rt.link.begin_pairing()),
-    pool("linkEndPairing", |c, _| {
-        c.rt.link.end_pairing();
-        Ok(Reply::null())
-    }),
-    pool("linkDevices", |c, _| c.rt.link.devices(&c.rt.config)),
-    pool("linkRevoke", |c, a| c.rt.link.revoke(&c.rt.config, a)),
-    pool("linkCreateKey", |c, a| c.rt.link.create_key(a)),
-    pool("linkReply", |c, a| c.rt.link.reply(a)),
-    pool("linkSend", |c, a| c.rt.link.send(a)),
-    pool("linkEmbeddedPictures", |c, a| {
-        c.rt.link.embedded_pictures(a)
-    }),
-    // Desktop only: Google Cast output (cast.rs).
-    pool("castCall", |c, a| c.rt.cast.call(a)),
 ];
 
 fn table() -> &'static HashMap<&'static str, &'static Entry> {
@@ -842,39 +599,6 @@ fn edit_file_metadata(c: &Ctx<'_>, a: &Args) -> CallResult {
     })
 }
 
-fn item_ids(a: &Args) -> Result<Vec<String>, CallError> {
-    match a.string_list("item_ids") {
-        Some(Ok(ids)) => Ok(ids),
-        _ => Err(CallError::failure("Expected item_ids string list")),
-    }
-}
-
-fn download_by_strategy(c: &Ctx<'_>, a: &Args) -> CallResult {
-    let request = a
-        .as_string()
-        .ok_or_else(|| CallError::failure("Download request must be a JSON string"))?
-        .to_owned();
-    let manager = c.owner()?;
-    let item_id = serde_json::from_str::<Value>(&request)
-        .ok()
-        .and_then(|value| value["item_id"].as_str().map(str::to_owned))
-        .filter(|id| !id.is_empty());
-    if let Some(item_id) = item_id {
-        c.on_cancel(move |rt| {
-            if let Ok(manager) = rt.backend.owner() {
-                let _ = manager
-                    .environment()
-                    .download_state()
-                    .cancel_download(item_id);
-            }
-        });
-    }
-    let ffmpeg = c.rt.config.ffmpeg_path.clone();
-    text(with_ffmpeg_commands(&manager, ffmpeg, || {
-        manager.download_by_strategy(request)
-    }))
-}
-
 /// `getLyricsLRC`, `getLyricsLRCWithSource` and `fetchAndSaveLyrics`.
 fn lyrics(c: &Ctx<'_>, a: &Args) -> CallResult {
     let save = c.method == "fetchAndSaveLyrics";
@@ -904,30 +628,6 @@ fn lyrics(c: &Ctx<'_>, a: &Args) -> CallResult {
                 }
             }
         })
-}
-
-fn set_priority(c: &Ctx<'_>, a: &Args, download: bool) -> CallResult {
-    let ids = ids(&a.string("priority", "[]"))?;
-    null(
-        c.owner()?
-            .set_provider_priority(priority_kind(download).into(), ids)
-            .or_fail(),
-    )
-}
-
-fn get_priority(c: &Ctx<'_>, download: bool) -> CallResult {
-    let priorities: Value =
-        serde_json::from_str(&c.owner()?.provider_priorities().or_fail()?).or_fail()?;
-    let value: Vec<String> = priorities[priority_kind(download)]
-        .as_array()
-        .map(|values| {
-            values
-                .iter()
-                .filter_map(|value| value.as_str().map(str::to_owned))
-                .collect()
-        })
-        .unwrap_or_default();
-    Ok(serde_json::to_string(&value).or_fail()?.into())
 }
 
 fn download_cover_to_file(c: &Ctx<'_>, a: &Args) -> CallResult {
@@ -1023,63 +723,4 @@ fn scan_library_folder_to_ndjson_file(c: &Ctx<'_>, a: &Args) -> CallResult {
 /// `parseJsonPayload`: the decoded value, or the text when it is not JSON.
 fn parse_json_payload(payload: String) -> Value {
     serde_json::from_str(&payload).unwrap_or(Value::String(payload))
-}
-
-/// Android `processPendingExtensionCallbacks` and `completeAuthCallback`.
-fn process_pending_extension_callbacks(c: &Ctx<'_>, _: &Args) -> CallResult {
-    for route in c.rt.backend.take_callbacks() {
-        let mut extension_id = String::new();
-        let result = complete_auth_callback(c, &route, &mut extension_id);
-        match result {
-            Ok(()) => {
-                runtime::log("info", "Extension callback completed");
-                if route.session_grant {
-                    notify_session_grant_completed(&extension_id, true);
-                }
-            }
-            Err(error) => {
-                runtime::log(
-                    "warn",
-                    &format!("Extension callback failed: {}", error.message),
-                );
-                if route.session_grant && !extension_id.is_empty() {
-                    notify_session_grant_completed(&extension_id, false);
-                }
-            }
-        }
-    }
-    Ok(Reply::null())
-}
-
-fn complete_auth_callback(
-    c: &Ctx<'_>,
-    route: &CallbackRoute,
-    extension_id: &mut String,
-) -> Result<(), CallError> {
-    let manager = c.owner()?;
-    let environment = manager.environment();
-    let state = route.state.clone();
-    *extension_id = if route.session_grant {
-        environment.resolve_callback_state(state)
-    } else {
-        environment.consume_callback_state(state)
-    }
-    .or_fail()?;
-    if route.session_grant {
-        return complete_session_grant(&manager, extension_id, &route.code);
-    }
-    environment
-        .set_auth_code(extension_id.clone(), route.code.clone())
-        .or_fail()?;
-    manager
-        .invoke_action(extension_id.clone(), "completeSpotifyLogin".into())
-        .or_fail()?;
-    Ok(())
-}
-
-fn notify_session_grant_completed(extension_id: &str, success: bool) {
-    runtime::inbound(
-        "extensionSessionGrantCompleted",
-        json!({"extension_id": extension_id, "success": success}),
-    );
 }

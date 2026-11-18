@@ -93,7 +93,6 @@ void main() {
 
   group('restored settings sanitization', () {
     const restored = AppSettings(
-      defaultService: 'extension.lossless',
       audioQuality: 'HI_RES_LOSSLESS',
       locale: 'id',
       downloadDirectory: '/storage/emulated/0/Music/Old',
@@ -123,7 +122,6 @@ void main() {
       expect(sanitized.localLibraryPath, isEmpty);
       expect(sanitized.localLibraryBookmark, isEmpty);
       expect(sanitized.localLibraryAutoScan, 'off');
-      expect(sanitized.defaultService, restored.defaultService);
       expect(sanitized.audioQuality, restored.audioQuality);
       expect(sanitized.locale, restored.locale);
     });
@@ -141,7 +139,6 @@ void main() {
       expect(bootstrap.isFirstLaunch, isTrue);
       expect(bootstrap.storageMode, 'app');
       expect(bootstrap.downloadTreeUri, isEmpty);
-      expect(bootstrap.defaultService, restored.defaultService);
     });
   });
 
@@ -176,37 +173,6 @@ void main() {
           hasCompletedTutorial: true,
         ),
         '/',
-      );
-    });
-  });
-
-  group('strict SAF validation', () {
-    test('returns the native persisted-grant result', () async {
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(backendChannel, (call) async {
-            expect(call.method, 'isSafTreeAccessible');
-            expect(
-              (call.arguments as Map)['tree_uri'],
-              'content://tree/missing',
-            );
-            return false;
-          });
-
-      expect(
-        await PlatformBridge.validateSafTreeAccess('content://tree/missing'),
-        isFalse,
-      );
-    });
-
-    test('surfaces bridge errors instead of allowing an unverified write', () {
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(backendChannel, (call) async {
-            throw PlatformException(code: 'bridge_failure');
-          });
-
-      expect(
-        PlatformBridge.validateSafTreeAccess('content://tree/missing'),
-        throwsA(isA<PlatformException>()),
       );
     });
   });

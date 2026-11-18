@@ -4,25 +4,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
-import 'package:sistrum/models/download_item.dart';
-import 'package:sistrum/models/track.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/system_volume_provider.dart';
 import 'package:sistrum/screens/settings/settings_tab.dart';
-import 'package:sistrum/services/app_remote_config_service.dart';
 import 'package:sistrum/services/shell_navigation_service.dart';
 import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
-import 'package:sistrum/widgets/app_progress_indicator.dart';
 import 'package:sistrum/widgets/desktop/desktop_commands.dart';
-import 'package:sistrum/widgets/desktop/desktop_downloads_button.dart';
 import 'package:sistrum/widgets/desktop/desktop_inspector.dart';
 import 'package:sistrum/widgets/desktop/desktop_navigation.dart';
 import 'package:sistrum/widgets/desktop/desktop_now_playing.dart';
@@ -32,47 +24,6 @@ import 'package:sistrum/widgets/desktop/desktop_shortcuts.dart';
 import 'package:sistrum/widgets/desktop/desktop_window.dart'
     show desktopWindowFullScreen;
 
-import 'support/tooltip_finder.dart';
-
-class _Queue extends DownloadQueueNotifier {
-  _Queue(this._items);
-
-  final List<DownloadItem> _items;
-  final cancelled = <String>[];
-
-  @override
-  DownloadQueueState build() =>
-      const DownloadQueueState().copyWith(items: _items);
-
-  @override
-  void cancelItem(String id) => cancelled.add(id);
-
-  void replace(List<DownloadItem> items) =>
-      state = state.copyWith(items: items);
-
-  void update(int index, DownloadItem item) =>
-      state = state.withItemReplacements({index: item});
-}
-
-DownloadItem _download(
-  String id,
-  String title,
-  DownloadStatus status, {
-  double progress = 0,
-}) => DownloadItem(
-  id: id,
-  track: Track(
-    id: id,
-    name: title,
-    artistName: 'An artist',
-    albumName: 'An album',
-    duration: 180,
-  ),
-  service: 'service',
-  status: status,
-  progress: progress,
-  createdAt: DateTime(2026),
-);
 
 const _track = MediaItem(id: 'track', title: 'A song', artist: 'An artist');
 
@@ -123,38 +74,6 @@ void main() {
     ),
   );
 
-  test('downloads summary matches the previous count and progress', () {
-    const progress = [-0.2, 0.0, 1 / 3, 0.5, 1.4, 0.71, 0.1];
-    final items = [
-      for (var i = 0; i < 90; i++)
-        _download(
-          '$i',
-          'Song $i',
-          DownloadStatus.values[i * 5 % DownloadStatus.values.length],
-          progress: progress[i % progress.length],
-        ),
-    ];
-    for (var length = 0; length <= items.length; length++) {
-      // The ring must count exactly the rows the popover lists.
-      final lookup = DownloadQueueLookup.fromItems(items.sublist(0, length));
-      final active = [
-        for (final id in lookup.activeItemIds) lookup.byItemId[id]!,
-      ];
-      var total = 0.0;
-      for (final item in active) {
-        total += item.status == DownloadStatus.finalizing
-            ? 1
-            : item.status == DownloadStatus.downloading
-            ? item.progress.clamp(0.0, 1.0)
-            : 0;
-      }
-      expect(desktopDownloadsSummary(items.sublist(0, length)), (
-        count: active.length,
-        progress: active.isEmpty ? 0.0 : total / active.length,
-      ));
-    }
-  });
-
   for (final mornye in [false, true]) {
     final style = mornye ? 'Mornye' : 'Material';
 
@@ -166,11 +85,7 @@ void main() {
           app(
             mornye: mornye,
             home: Scaffold(
-              body: SettingsTab(
-                remoteConfigService: AppRemoteConfigService(
-                  client: MockClient((_) async => http.Response('{}', 200)),
-                ),
-              ),
+              body: SettingsTab(),
             ),
           ),
         );
@@ -212,11 +127,7 @@ void main() {
           app(
             mornye: mornye,
             home: Scaffold(
-              body: SettingsTab(
-                remoteConfigService: AppRemoteConfigService(
-                  client: MockClient((_) async => http.Response('{}', 200)),
-                ),
-              ),
+              body: SettingsTab(),
             ),
           ),
         );
@@ -255,11 +166,7 @@ void main() {
           app(
             mornye: mornye,
             home: Scaffold(
-              body: SettingsTab(
-                remoteConfigService: AppRemoteConfigService(
-                  client: MockClient((_) async => http.Response('{}', 200)),
-                ),
-              ),
+              body: SettingsTab(),
             ),
           ),
         );
@@ -281,7 +188,6 @@ void main() {
         ),
         playQueueProvider.overrideWith((ref) => Stream.value(const [_track])),
         systemVolumeProvider.overrideWith((ref) => Stream.value(0.5)),
-        downloadQueueProvider.overrideWith(() => _Queue(const [])),
       ];
 
       Future<void> pumpShell(
@@ -514,195 +420,6 @@ void main() {
         expect(find.bySemanticsLabel(RegExp('home')), findsWidgets);
         semantics.dispose();
       });
-    });
-
-    testWidgets('$style downloads popover lists active downloads', (
-      tester,
-    ) async {
-      await setWindow(tester, 1200);
-      final queue = _Queue([
-        _download(
-          'a',
-          'Running song',
-          DownloadStatus.downloading,
-          progress: 0.4,
-        ),
-        _download('b', 'Waiting song', DownloadStatus.queued),
-        _download('c', 'Done song', DownloadStatus.completed, progress: 1),
-      ]);
-      final requested = <ShellTab>[];
-      final links = <String>[];
-      final owner = Object();
-      ShellNavigationService.registerTabSelectionHandler(
-        owner: owner,
-        handler: requested.add,
-        // Like the shell: only the Mornye sidebar has Library links.
-        libraryLinkHandler: (id) {
-          if (!mornye) return false;
-          links.add(id);
-          return true;
-        },
-      );
-      addTearDown(
-        () => ShellNavigationService.unregisterTabSelectionHandler(owner),
-      );
-      await tester.pumpWidget(
-        app(
-          mornye: mornye,
-          overrides: [downloadQueueProvider.overrideWith(() => queue)],
-          home: const Scaffold(body: Center(child: DesktopDownloadsButton())),
-        ),
-      );
-      await tester.pump();
-      expect(
-        find.byKey(const ValueKey('desktop-downloads-progress')),
-        findsOneWidget,
-      );
-
-      await tester.tap(find.byKey(const ValueKey('desktop-downloads-button')));
-      await tester.pumpAndSettle();
-      final popover = find.byKey(const ValueKey('desktop-downloads-popover'));
-      expect(popover, findsOneWidget);
-      expect(find.text('Running song'), findsOneWidget);
-      expect(find.text('Waiting song'), findsOneWidget);
-      expect(find.text('Done song'), findsNothing);
-      expect(find.textContaining('40%'), findsOneWidget);
-
-      await tester.tap(findByTooltip('Cancel download').first);
-      expect(queue.cancelled, ['a']);
-
-      await tester.tap(
-        find.byKey(const ValueKey('desktop-downloads-show-all')),
-      );
-      await tester.pumpAndSettle();
-      // Mornye opens its Downloads page, not whichever Library page was
-      // open last.
-      expect(requested, mornye ? isEmpty : [ShellTab.library]);
-      expect(links, mornye ? ['downloads'] : isEmpty);
-      expect(popover, findsNothing);
-    });
-
-    testWidgets('$style downloads popover builds only visible rows', (
-      tester,
-    ) async {
-      await setWindow(tester, 1200);
-      final queue = _Queue([
-        for (var i = 0; i < 200; i++)
-          _download('$i', 'Waiting song $i', DownloadStatus.queued),
-      ]);
-      await tester.pumpWidget(
-        app(
-          mornye: mornye,
-          overrides: [downloadQueueProvider.overrideWith(() => queue)],
-          home: const Scaffold(body: Center(child: DesktopDownloadsButton())),
-        ),
-      );
-      await tester.tap(find.byKey(const ValueKey('desktop-downloads-button')));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Waiting song 0'), findsOneWidget);
-      expect(find.byType(PlayerArtwork).evaluate().length, lessThan(20));
-      expect(find.text('Waiting song 49'), findsNothing);
-      final list = find.byKey(const ValueKey('desktop-downloads-list'));
-      await tester.drag(list, const Offset(0, -4000));
-      await tester.pumpAndSettle();
-      expect(find.text('Waiting song 49'), findsOneWidget);
-      expect(find.text('Waiting song 50'), findsNothing);
-      expect(find.byType(PlayerArtwork).evaluate().length, lessThan(20));
-      expect(
-        find.byKey(const ValueKey('desktop-downloads-show-all')),
-        findsOneWidget,
-      );
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('$style progress updates keep unrelated download rows', (
-      tester,
-    ) async {
-      await setWindow(tester, 1200);
-      final running = _download(
-        'a',
-        'Running song',
-        DownloadStatus.downloading,
-        progress: 0.4,
-      );
-      final queue = _Queue([
-        running,
-        _download('b', 'Waiting song', DownloadStatus.queued),
-      ]);
-      await tester.pumpWidget(
-        app(
-          mornye: mornye,
-          overrides: [downloadQueueProvider.overrideWith(() => queue)],
-          home: const Scaffold(body: Center(child: DesktopDownloadsButton())),
-        ),
-      );
-      await tester.tap(find.byKey(const ValueKey('desktop-downloads-button')));
-      await tester.pumpAndSettle();
-      final waitingTitle = tester.widget<Text>(find.text('Waiting song'));
-      final list = tester.widget<ListView>(
-        find.byKey(const ValueKey('desktop-downloads-list')),
-      );
-
-      queue.update(0, running.copyWith(progress: 0.7));
-      await tester.pump();
-      expect(find.textContaining('70%'), findsOneWidget);
-      expect(tester.widget(find.text('Waiting song')), same(waitingTitle));
-      expect(
-        tester.widget(find.byKey(const ValueKey('desktop-downloads-list'))),
-        same(list),
-      );
-
-      queue.update(0, running.copyWith(status: DownloadStatus.completed));
-      await tester.pumpAndSettle();
-      expect(find.text('Running song'), findsNothing);
-      expect(find.text('Waiting song'), findsOneWidget);
-      queue.replace([]);
-      await tester.pumpAndSettle();
-      expect(
-        find.byKey(const ValueKey('desktop-downloads-list')),
-        findsNothing,
-      );
-      expect(
-        find.byKey(const ValueKey('desktop-downloads-show-all')),
-        findsOneWidget,
-      );
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('$style downloads button rebuilds only for its ring', (
-      tester,
-    ) async {
-      final done = _download('c', 'Done song', DownloadStatus.completed);
-      final queue = _Queue([
-        _download('a', 'Running song', DownloadStatus.downloading),
-        done,
-      ]);
-      await tester.pumpWidget(
-        app(
-          mornye: mornye,
-          overrides: [downloadQueueProvider.overrideWith(() => queue)],
-          home: const Scaffold(body: Center(child: DesktopDownloadsButton())),
-        ),
-      );
-      final ring = find.byKey(const ValueKey('desktop-downloads-progress'));
-      final idle = tester.widget<AppProgressIndicator>(ring);
-
-      // A failed item changes the queue but not the count or the ring.
-      queue.replace([
-        _download('a', 'Running song', DownloadStatus.downloading),
-        done,
-        _download('d', 'Failed song', DownloadStatus.failed),
-      ]);
-      await tester.pump();
-      expect(identical(tester.widget(ring), idle), isTrue);
-
-      queue.replace([
-        _download('a', 'Running song', DownloadStatus.downloading, progress: 1),
-        done,
-      ]);
-      await tester.pump();
-      expect(tester.widget<AppProgressIndicator>(ring).value, 1);
     });
 
     for (final desktop in [true, false]) {

@@ -1,7 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:sistrum/services/cover_cache_manager.dart';
 import 'package:sistrum/constants/app_info.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
@@ -45,20 +42,17 @@ class AboutPage extends StatelessWidget {
                 _ContributorItem(
                   name: AppInfo.mobileAuthor,
                   description: context.l10n.aboutMobileDeveloper,
-                  githubUsername: AppInfo.mobileAuthor,
                   showDivider: true,
                 ),
                 _ContributorItem(
                   name: 'Amonoman',
                   description: context.l10n.aboutLogoArtist,
-                  githubUsername: 'Amonoman',
                   showDivider: true,
                 ),
                 _ContributorItem(
                   name: 'Ruubiiiii',
                   description:
                       'Provided many APIs and backend resources. A huge help for the project!',
-                  githubUsername: 'Ruubiiiii',
                   showDivider: false,
                 ),
               ],
@@ -78,118 +72,15 @@ class AboutPage extends StatelessWidget {
                 _ContributorItem(
                   name: 'binimum',
                   description: context.l10n.aboutBinimumDesc,
-                  githubUsername: 'binimum',
                   showDivider: true,
                 ),
                 _ContributorItem(
                   name: 'sachinsenal0x64',
                   description: context.l10n.aboutSachinsenalDesc,
-                  githubUsername: 'sachinsenal0x64',
-                  showDivider: true,
-                ),
-                _AboutSettingsItem(
-                  icon: Icons.swap_horiz_rounded,
-                  title: 'UniTune',
-                  subtitle: context.l10n.aboutUnituneDesc,
-                  onTap: () =>
-                      _launchUrl('https://github.com/FlazeIGuess/unitune-api'),
-                  showDivider: true,
-                ),
-                _AboutSettingsItem(
-                  icon: Icons.library_music_outlined,
-                  title: 'MusicBrainz',
-                  subtitle: context.l10n.aboutMusicBrainzDesc,
-                  onTap: () => _launchUrl('https://musicbrainz.org'),
-                  showDivider: true,
-                ),
-                _AboutSettingsItem(
-                  icon: Icons.hub_outlined,
-                  title: 'Squigly',
-                  subtitle: context.l10n.aboutSquiglyDesc,
-                  onTap: () => _launchUrl('https://squigly.link'),
-                  showDivider: true,
-                ),
-                _AboutSettingsItem(
-                  icon: Icons.lyrics_outlined,
-                  title: 'Zarz-LRC',
-                  subtitle: context.l10n.lyricsProviderZarzLrcDesc,
-                  onTap: () =>
-                      _launchUrl('https://api.zarz.moe/apple-music/docs'),
-                  showDivider: true,
-                ),
-                _AboutSettingsItem(
-                  icon: Icons.lyrics_outlined,
-                  title: 'Paxsenix',
-                  subtitle: context.l10n.aboutPaxsenixSubtitle,
-                  onTap: () => _launchUrl('https://lyrics.paxsenix.org'),
                   showDivider: false,
                 ),
               ],
             ),
-
-            ...settingsSectionSlivers(
-              title: context.l10n.aboutLinks,
-              connected: true,
-              children: [
-                _AboutSettingsItem(
-                  icon: Icons.phone_android,
-                  title: context.l10n.aboutMobileSource,
-                  subtitle: 'github.com/${AppInfo.githubRepo}',
-                  onTap: () => _launchUrl(AppInfo.githubUrl),
-                  showDivider: true,
-                ),
-                _AboutSettingsItem(
-                  icon: Icons.lyrics_outlined,
-                  title: context.l10n.aboutLyricsWebsite,
-                  subtitle: 'lyrics.zarz.moe',
-                  onTap: () => _launchUrl('https://lyrics.zarz.moe'),
-                  showDivider: true,
-                ),
-                _AboutSettingsItem(
-                  icon: Icons.monitor_heart_outlined,
-                  title: context.l10n.aboutServiceStatus,
-                  subtitle: 'status.zarz.moe',
-                  onTap: () => _launchUrl('https://status.zarz.moe'),
-                  showDivider: true,
-                ),
-                _AboutSettingsItem(
-                  icon: Icons.bug_report_outlined,
-                  title: context.l10n.aboutReportIssue,
-                  subtitle: context.l10n.aboutReportIssueSubtitle,
-                  onTap: () => _launchUrl('${AppInfo.githubUrl}/issues/new'),
-                  showDivider: true,
-                ),
-                _AboutSettingsItem(
-                  icon: Icons.lightbulb_outline,
-                  title: context.l10n.aboutFeatureRequest,
-                  subtitle: context.l10n.aboutFeatureRequestSubtitle,
-                  onTap: () => _launchUrl('${AppInfo.githubUrl}/issues/new'),
-                  showDivider: false,
-                ),
-              ],
-            ),
-
-            ...settingsSectionSlivers(
-              title: context.l10n.aboutSocial,
-              connected: true,
-              children: [
-                _AboutSettingsItem(
-                  icon: Icons.telegram,
-                  title: context.l10n.aboutTelegramChannel,
-                  subtitle: context.l10n.aboutTelegramChannelSubtitle,
-                  onTap: () => _launchUrl('https://t.me/mornyeupdates'),
-                  showDivider: true,
-                ),
-                _AboutSettingsItem(
-                  icon: Icons.forum_outlined,
-                  title: context.l10n.aboutTelegramChat,
-                  subtitle: context.l10n.aboutTelegramChatSubtitle,
-                  onTap: () => _launchUrl('https://t.me/mornyecommunity'),
-                  showDivider: false,
-                ),
-              ],
-            ),
-
             ...settingsSectionSlivers(
               title: context.l10n.aboutApp,
               connected: true,
@@ -240,11 +131,6 @@ class AboutPage extends StatelessWidget {
       ),
     );
   }
-}
-
-Future<void> _launchUrl(String url) async {
-  final uri = Uri.parse(url);
-  await launchUrl(uri, mode: LaunchMode.inAppBrowserView);
 }
 
 class _AppHeaderCard extends StatelessWidget {
@@ -351,13 +237,11 @@ class _AppHeaderCard extends StatelessWidget {
 class _ContributorItem extends StatelessWidget {
   final String name;
   final String description;
-  final String githubUsername;
   final bool showDivider;
 
   const _ContributorItem({
     required this.name,
     required this.description,
-    required this.githubUsername,
     this.showDivider = false,
   });
 
@@ -368,68 +252,40 @@ class _ContributorItem extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        InkWell(
-          onTap: () => _launchUrl('https://github.com/$githubUsername'),
-          splashColor: colorScheme.primary.withValues(alpha: 0.12),
-          highlightColor: colorScheme.primary.withValues(alpha: 0.08),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: CachedNetworkImage(
-                    imageUrl: 'https://github.com/$githubUsername.png',
-                    width: 40,
-                    height: 40,
-                    fit: BoxFit.cover,
-                    memCacheWidth: 120,
-                    memCacheHeight: 120,
-                    cacheManager: CoverCacheManager.instance,
-                    placeholder: (context, url) => Container(
-                      width: 40,
-                      height: 40,
-                      color: colorScheme.surfaceContainerHighest,
-                      child: AppIcon(
-                        Icons.person,
-                        color: colorScheme.onSurfaceVariant,
-                        size: 20,
-                      ),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      width: 40,
-                      height: 40,
-                      color: colorScheme.surfaceContainerHighest,
-                      child: AppIcon(
-                        Icons.person,
-                        color: colorScheme.onSurfaceVariant,
-                        size: 20,
-                      ),
-                    ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  color: colorScheme.surfaceContainerHighest,
+                  child: AppIcon(
+                    Icons.person,
+                    color: colorScheme.onSurfaceVariant,
+                    size: 20,
                   ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(name, style: Theme.of(context).textTheme.bodyLarge),
-                      const SizedBox(height: 2),
-                      Text(
-                        description,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(name, style: Theme.of(context).textTheme.bodyLarge),
+                    const SizedBox(height: 2),
+                    Text(
+                      description,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                AppIcon(
-                  Icons.chevron_right,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
         if (showDivider && !settingsRowsConnected(context))
@@ -560,42 +416,36 @@ class _TranslatorChip extends StatelessWidget {
     return Material(
       color: colorScheme.secondaryContainer,
       borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        onTap: () => _launchUrl(
-          'https://crowdin.com/profile/${translator.crowdinUsername}',
-        ),
-        borderRadius: BorderRadius.circular(20),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircleAvatar(
-                radius: 10,
-                backgroundColor: colorScheme.primary.withValues(alpha: 0.2),
-                child: Text(
-                  translator.name.isNotEmpty
-                      ? translator.name[0].toUpperCase()
-                      : '?',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.primary,
-                  ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircleAvatar(
+              radius: 10,
+              backgroundColor: colorScheme.primary.withValues(alpha: 0.2),
+              child: Text(
+                translator.name.isNotEmpty
+                    ? translator.name[0].toUpperCase()
+                    : '?',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.primary,
                 ),
               ),
-              const SizedBox(width: 8),
-              Text(
-                translator.name,
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: colorScheme.onSecondaryContainer,
-                  fontWeight: FontWeight.w500,
-                ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              translator.name,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: colorScheme.onSecondaryContainer,
+                fontWeight: FontWeight.w500,
               ),
-              const SizedBox(width: 6),
-              Text(translator.flag, style: const TextStyle(fontSize: 14)),
-            ],
-          ),
+            ),
+            const SizedBox(width: 6),
+            Text(translator.flag, style: const TextStyle(fontSize: 14)),
+          ],
         ),
       ),
     );

@@ -4,7 +4,6 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/services/audio_analysis_jobs.dart';
 import 'package:sistrum/services/hires_check_service.dart';
-import 'package:sistrum/services/network_audio_analysis_input.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/file_access.dart';
@@ -27,7 +26,7 @@ List<UnifiedLibraryItem> hiResCheckableItems(List<UnifiedLibraryItem> items) =>
         if (!isCueVirtualPath(item.filePath) &&
             HiResCheckCard.isCandidate(
               item.filePath,
-              item.localItem?.format ?? item.historyItem?.format,
+              item.localItem?.format,
             ))
           item,
     ];
@@ -86,7 +85,6 @@ class HiResBatchCheck extends StatefulWidget {
 
 class _HiResBatchCheckState extends State<HiResBatchCheck> {
   late final _entries = [for (final item in widget.songs) _Entry(item)];
-  final _networkInput = NetworkAudioAnalysisInput();
 
   /// The song being read; the number of songs once all are done.
   int _current = 0;
@@ -100,20 +98,10 @@ class _HiResBatchCheckState extends State<HiResBatchCheck> {
     _run();
   }
 
-  @override
-  void dispose() {
-    _networkInput.cancel();
-    super.dispose();
-  }
-
   Future<void> _run() async {
     final check =
         widget.check ??
-        (String path) => HiResCheckService.check(
-          path,
-          networkInput: _networkInput,
-          detailed: true,
-        );
+        (String path) => HiResCheckService.check(path, detailed: true);
     for (final entry in _entries) {
       try {
         final result = await check(entry.item.filePath);

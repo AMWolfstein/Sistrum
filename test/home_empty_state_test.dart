@@ -6,17 +6,11 @@ import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
-import 'package:sistrum/providers/explore_provider.dart';
-import 'package:sistrum/providers/extension_provider.dart';
-import 'package:sistrum/providers/home_top_picks_provider.dart';
 import 'package:sistrum/providers/library_mixes_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/recent_access_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/providers/weekly_releases_provider.dart';
 import 'package:sistrum/screens/home_tab.dart';
-import 'package:sistrum/services/weekly_releases.dart';
 import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/error_card.dart';
@@ -25,27 +19,17 @@ import 'support/fixed_settings.dart';
 
 const _title = 'Nothing here yet';
 
-/// Home without extensions, a feed or a song in the player, with [added] as
-/// its Recently added shelf.
+/// Home with nothing playing, with [added] as its Recently added shelf.
 Widget _home({
   required bool mornye,
   List<UnifiedLibraryItem> added = const [],
 }) => ProviderScope(
   overrides: [
-    homeNewReleasesProvider.overrideWith(
-      (ref) => Stream.value(const <WeeklyRelease>[]),
-    ),
     settingsProvider.overrideWith(
-      () => FixedSettingsNotifier(
-        const AppSettings(homeFeedProvider: AppSettings.homeFeedProviderOff),
-      ),
+      () => FixedSettingsNotifier(const AppSettings()),
     ),
-    extensionProvider.overrideWith(_Extensions.new),
-    exploreProvider.overrideWith(_Explore.new),
-    downloadHistoryProvider.overrideWith(_History.new),
     recentAccessProvider.overrideWith(_Recent.new),
     libraryMixesProvider.overrideWith((ref) async => const []),
-    homeTopPicksProvider.overrideWith((ref) async => const <ExploreItem>[]),
     homeRecentlyAddedProvider.overrideWith(
       (ref) async => (items: added, trackCount: added.length),
     ),
@@ -120,24 +104,6 @@ void main() {
     expect(find.text('Shortcuts'), findsOneWidget);
     expect(find.text(_title), findsNothing);
   });
-}
-
-class _Extensions extends ExtensionNotifier {
-  @override
-  ExtensionState build() => const ExtensionState();
-}
-
-class _Explore extends ExploreNotifier {
-  @override
-  ExploreState build() => const ExploreState();
-
-  @override
-  Future<void> fetchHomeFeed({bool forceRefresh = false}) async {}
-}
-
-class _History extends DownloadHistoryNotifier {
-  @override
-  DownloadHistoryState build() => DownloadHistoryState();
 }
 
 class _Recent extends RecentAccessNotifier {

@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/album_completeness.dart';
@@ -176,7 +175,6 @@ class LibraryBrowseNotifier extends AsyncNotifier<LibraryBrowseState> {
     _includeLocal = ref.watch(
       settingsProvider.select((s) => s.localLibraryEnabled),
     );
-    ref.watch(downloadHistoryProvider.select((s) => s.loadedIndexVersion));
     if (_includeLocal) {
       ref.watch(localLibraryProvider.select((s) => s.loadedIndexVersion));
     }

@@ -5,12 +5,12 @@ use super::cover::FolderArtwork;
 use crate::files::SyncBatch;
 use cap_std::fs::OpenOptions;
 use chrono::{SecondsFormat, Utc};
+use serde_json::{Value, json};
 use sistrum_core::cue::{self, CueSheet};
 use sistrum_core::tags::{
     extract_cover, library_extension, library_id, library_metadata, read_library_metadata,
     read_library_metadata_with_cover,
 };
-use serde_json::{Value, json};
 use std::cell::RefCell;
 use std::collections::BTreeSet;
 use std::path::Path;
@@ -627,14 +627,7 @@ mod tests {
     fn resolved_cue_audio_is_opaque_and_matches_legacy_tracks_without_audio() {
         let directory = tempfile::tempdir().unwrap();
         let data = directory.path().join("data");
-        let backend = Backend::new(
-            &directory.path().join("sources"),
-            &data,
-            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
-            "1",
-            crate::RuntimeLimits::default(),
-        )
-        .unwrap();
+        let backend = Backend::new(&data, "1").unwrap();
         let path = data.join("album.cue");
         std::fs::write(&path, CUE).unwrap();
         let path = path.to_str().unwrap();
@@ -702,14 +695,7 @@ mod tests {
     fn resolved_cue_metadata_scans_without_materializing_audio() {
         let directory = tempfile::tempdir().unwrap();
         let data = directory.path().join("data");
-        let backend = Backend::new(
-            &directory.path().join("sources"),
-            &data,
-            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
-            "1",
-            crate::RuntimeLimits::default(),
-        )
-        .unwrap();
+        let backend = Backend::new(&data, "1").unwrap();
         let path = data.join("album.cue");
         std::fs::write(&path, CUE).unwrap();
         let prefix = "content://example.documents/document/album.cue";

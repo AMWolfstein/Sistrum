@@ -68,27 +68,12 @@ Future<List<PlayableMedia>> loadAutoplayLibrary(
   ];
   final result = <PlayableMedia>[];
   final seen = <String>{};
-  // One answer per network host.
-  final reachable = <String, Future<bool>>{};
-  Future<bool> networkReachable(String source) =>
-      reachable.putIfAbsent(Uri.tryParse(source)?.host ?? '', () async {
-        try {
-          return await runtime.dependencies.networkSourceReachable(source);
-        } catch (_) {
-          return false;
-        }
-      });
   for (final row in rows) {
     final data = (row['item'] as Map).cast<String, dynamic>();
     if (!seen.add(data['id'] as String)) continue;
     final source = data['filePath'] as String? ?? '';
     if (source.isEmpty) continue;
-    // Do not interpret remote URLs as streamable Library items.
-    if (source.startsWith('http://') || source.startsWith('https://')) continue;
-    if (source.startsWith('network://')) {
-      if (!await networkReachable(source)) continue;
-    } else if (!source.startsWith('content://') &&
-        !await File(source).exists()) {
+    if (!source.startsWith('content://') && !await File(source).exists()) {
       continue;
     }
     final cover = data['coverPath'] as String? ?? data['coverUrl'] as String?;

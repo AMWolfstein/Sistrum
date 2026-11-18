@@ -38,7 +38,6 @@ val rustAndroidAbis = providers.environmentVariable("SISTRUM_RUST_ANDROID_ABIS")
     .get()
     .split(",")
 val supportedRustAndroidAbis = setOf("arm64-v8a", "armeabi-v7a")
-val discordSdkEnabled = providers.environmentVariable("SISTRUM_DISCORD_SDK").orElse("1").get() != "0"
 require(rustAndroidAbis.size == rustAndroidAbis.toSet().size) {
     "SISTRUM_RUST_ANDROID_ABIS must not contain duplicate ABIs"
 }
@@ -53,9 +52,6 @@ android {
 
     buildFeatures {
         buildConfig = true
-    }
-    packaging {
-        if (discordSdkEnabled) jniLibs.pickFirsts += "**/libdiscord_partner_sdk.so"
     }
 
     externalNativeBuild {
@@ -205,10 +201,6 @@ flutter {
 }
 
 dependencies {
-    val discordSdk = file("../../third_party/mornye_discord/sdk/discord_partner_sdk.aar")
-    if (discordSdkEnabled && discordSdk.exists()) {
-        implementation(files(discordSdk))
-    }
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
     implementation("net.java.dev.jna:jna:5.19.1@aar")
 
@@ -216,12 +208,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.11.0")
     implementation("androidx.documentfile:documentfile:1.1.0")
     implementation("androidx.activity:activity-ktx:1.13.0")
-    implementation("com.google.android.gms:play-services-cast-framework:23.0.0")
     // The root build pins every Media3 module, video_player_android's too.
     implementation("androidx.media3:media3-exoplayer:${rootProject.extra["media3Version"]}")
-    // NativeDownloadFinalizer imports FFmpegKit APIs directly. The Flutter
-    // plugin owns the runtime AAR; compileOnly avoids packaging it twice here.
-    compileOnly("com.antonkarpenko:ffmpeg-kit-audio:2.2.3")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.json:json:20260814")
@@ -231,4 +219,5 @@ dependencies {
     androidTestImplementation("androidx.test:runner:1.7.0")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.media:media:1.8.0")
+    androidTestImplementation("com.antonkarpenko:ffmpeg-kit-audio:2.2.3")
 }

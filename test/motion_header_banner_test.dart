@@ -7,12 +7,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/player_artwork_video_provider.dart';
 import 'package:sistrum/providers/player_motion_artwork_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/screens/downloaded_album_screen.dart';
 import 'package:sistrum/screens/local_album_screen.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/motion_artwork_store.dart';
@@ -198,10 +196,10 @@ void main() {
     expect(platform.disposals, 1);
     await tester.pumpWidget(const SizedBox());
   });
-  for (final downloaded in [false, true]) {
+  {
     for (final mode in ['saved', 'missing', 'reduced motion']) {
       testWidgets(
-        'local album uses saved motion with fallback (downloaded: $downloaded, $mode)',
+        'local album uses saved motion with fallback ($mode)',
         (tester) async {
           SharedPreferences.setMockInitialValues({});
           final previous = VideoPlayerPlatform.instance;
@@ -224,25 +222,6 @@ void main() {
                       ? null
                       : const MotionArtwork('file:///album-cover.mp4');
                 }),
-                downloadedAlbumTracksProvider(
-                  const DownloadedAlbumTracksRequest(
-                    albumName: 'Album',
-                    artistName: 'Album Artist',
-                  ),
-                ).overrideWith(
-                  (ref) async => [
-                    DownloadHistoryItem(
-                      id: 'track',
-                      trackName: 'Track',
-                      artistName: 'Track Artist',
-                      albumName: 'Album',
-                      albumArtist: 'Album Artist',
-                      filePath: 'content://library/track.flac',
-                      service: 'provider-a',
-                      downloadedAt: DateTime(2026),
-                    ),
-                  ],
-                ),
               ],
               child: MaterialApp(
                 theme: MornyeTheme.build(Brightness.light),
@@ -254,12 +233,7 @@ void main() {
                   ).copyWith(disableAnimations: mode == 'reduced motion'),
                   child: child!,
                 ),
-                home: downloaded
-                    ? const DownloadedAlbumScreen(
-                        albumName: 'Album',
-                        artistName: 'Album Artist',
-                      )
-                    : LocalAlbumScreen(
+                home: LocalAlbumScreen(
                         albumName: 'Album',
                         artistName: 'Album Artist',
                         tracks: [

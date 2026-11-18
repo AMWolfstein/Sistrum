@@ -14,28 +14,11 @@ extension _TrackMetadataDisplay on _TrackMetadataScreenState {
     }.contains(normalizeAudioFormatValue(value));
   }
 
-  String? _usableStoredQuality(String? quality) {
-    final normalized = normalizeOptionalString(quality);
-    if (normalized == null || isPlaceholderQualityLabel(normalized)) {
-      return null;
-    }
-    final bitrateMatch = RegExp(
-      r'\b(\d+)\s*kbps\b',
-      caseSensitive: false,
-    ).firstMatch(normalized);
-    if (bitrateMatch != null) {
-      final bitrate = int.tryParse(bitrateMatch.group(1) ?? '');
-      if (bitrate != null && bitrate < 16) return null;
-    }
-    return normalized;
-  }
-
   String? _displayQualityForValues({
     required String? format,
     int? bitDepth,
     int? sampleRate,
     int? bitrateKbps,
-    String? storedQuality,
   }) {
     final normalizedFormat = normalizeAudioFormatValue(format);
     final formatLabel = normalizedFormat == null
@@ -46,20 +29,10 @@ extension _TrackMetadataDisplay on _TrackMetadataScreenState {
             bitrateKbps: bitrateKbps,
             format: formatLabel,
           ) ??
-          _usableStoredQuality(storedQuality) ??
           formatLabel;
     }
-    return buildDisplayAudioQuality(
-      bitDepth: bitDepth,
-      sampleRate: sampleRate,
-      storedQuality: _usableStoredQuality(storedQuality),
-    );
+    return buildDisplayAudioQuality(bitDepth: bitDepth, sampleRate: sampleRate);
   }
-
-  String _displayServiceTrackId(String value) => displayServiceTrackId(value);
-
-  String _serviceForTrackId(String value, {required String fallbackService}) =>
-      serviceForTrackId(value, fallbackService: fallbackService);
 
   String? get _displayAudioQuality {
     final fileName = _extractFileNameFromPathOrUri(cleanFilePath);
@@ -72,7 +45,6 @@ extension _TrackMetadataDisplay on _TrackMetadataScreenState {
       bitDepth: bitDepth,
       sampleRate: sampleRate,
       bitrateKbps: _audioBitrate,
-      storedQuality: _quality,
     );
   }
 
@@ -116,23 +88,6 @@ extension _TrackMetadataDisplay on _TrackMetadataScreenState {
     );
   }
 
-  String _formatPathForDisplay(String pathOrUri) {
-    if (_isLocalItem || !pathOrUri.startsWith('content://')) {
-      return formatSafUriForDisplay(pathOrUri);
-    }
-
-    final item = _downloadItem!;
-    final settings = ref.read(settingsProvider);
-    final sameSelectedTree =
-        item.downloadTreeUri != null &&
-        item.downloadTreeUri!.isNotEmpty &&
-        item.downloadTreeUri == settings.downloadTreeUri;
-    return buildSafFileDisplayPath(
-      pathOrUri: pathOrUri,
-      treeUri: item.downloadTreeUri,
-      treeDisplayPath: sameSelectedTree ? settings.downloadDirectory : null,
-      relativeDir: item.safRelativeDir,
-      fileName: item.safFileName,
-    );
-  }
+  String _formatPathForDisplay(String pathOrUri) =>
+      formatSafUriForDisplay(pathOrUri);
 }

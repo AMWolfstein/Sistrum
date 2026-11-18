@@ -6,55 +6,26 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/history_database.dart';
-import 'package:sistrum/services/history_row_mapper.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_media_identity.dart';
 import 'package:sistrum/services/music_player_service.dart';
-import 'package:sistrum/services/remote_playback.dart';
 import 'package:sistrum/utils/artist_utils.dart';
 
 export 'package:sistrum/services/playable_media.dart'
-    show playableFromHistory, playableFromLocal;
+    show playableFromLocal;
 
 final musicPlayerRuntimeProvider = Provider<MusicPlayerRuntime>(
   (ref) => musicPlayerRuntime,
 );
 
-/// The device that plays in this one's place, or null while this one plays.
-/// The app root overrides it with Sistrum Link's paired desktop.
-final activeRemotePlaybackProvider = Provider<RemotePlayback?>((ref) => null);
-
-/// Whether this device sounds too while [activeRemotePlaybackProvider]
-/// plays, so its volume controls set its own volume. The app root overrides
-/// it with Sistrum Link's Play together.
-final soundsBesideRemoteProvider = Provider<bool>((ref) => false);
-
-/// External apps own playback on this device. A remote Sistrum player keeps
-/// its controls while this device is only controlling it.
+/// External apps own playback on this device.
 final playerUiEnabledProvider = Provider<bool>(
-  (ref) =>
-      ref.watch(settingsProvider.select((s) => s.playerMode == 'internal')) ||
-      ref.watch(activeRemotePlaybackProvider) != null,
+  (ref) => ref.watch(settingsProvider.select((s) => s.playerMode == 'internal')),
 );
 
-/// The active remote device's volume, 0 to 1; no value while this device
-/// plays.
-final activeRemoteVolumeProvider = StreamProvider<double>(
-  (ref) =>
-      ref.watch(activeRemotePlaybackProvider)?.volumes ?? const Stream.empty(),
-);
-
-/// The song file on its way to the active remote device, or null.
-final activeRemoteTransferProvider = StreamProvider<RemoteTransfer?>(
-  (ref) =>
-      ref.watch(activeRemotePlaybackProvider)?.transfers ?? Stream.value(null),
-);
-
-/// What the player screens show: the active remote device's track, else the
-/// local player's.
+/// What the player screens show: the local player's track.
 final currentMediaItemProvider =
     StreamNotifierProvider<CurrentMediaItemNotifier, MediaItem?>(
       CurrentMediaItemNotifier.new,
@@ -64,8 +35,7 @@ class CurrentMediaItemNotifier extends StreamNotifier<MediaItem?> {
   @override
   Stream<MediaItem?> build() {
     if (!ref.watch(playerUiEnabledProvider)) return Stream.value(null);
-    return ref.watch(activeRemotePlaybackProvider)?.mediaItems ??
-        ref.watch(musicPlayerRuntimeProvider).mediaItemEvents();
+    return ref.watch(musicPlayerRuntimeProvider).mediaItemEvents();
   }
 
   @override
@@ -82,8 +52,7 @@ class CurrentMediaItemNotifier extends StreamNotifier<MediaItem?> {
   }
 }
 
-/// The local player's track, also while a remote device plays in its place:
-/// what this device's media notification shows.
+/// The local player's track: what this device's media notification shows.
 final localMediaItemProvider =
     StreamNotifierProvider<LocalMediaItemNotifier, MediaItem?>(
       LocalMediaItemNotifier.new,
@@ -110,7 +79,7 @@ final playbackResumeProvider = FutureProvider<PlaybackResumePreview?>((
   final hasCurrent = ref.watch(
     currentMediaItemProvider.select((state) => state.value != null),
   );
-  if (hasCurrent || ref.watch(activeRemotePlaybackProvider) != null) {
+  if (hasCurrent) {
     return null;
   }
   final runtime = ref.watch(musicPlayerRuntimeProvider);
@@ -144,7 +113,6 @@ Future<UnifiedLibraryItem?> _libraryItemForMedia(
   source: source,
   title: title,
   artist: artist,
-  historyByPath: ref.read(downloadHistoryProvider.notifier).getByFilePathAsync,
   library: ref.watch(musicPlayerRuntimeProvider).dependencies.libraryDatabase,
 );
 
@@ -159,17 +127,12 @@ final playerCollectionTrackProvider = FutureProvider.autoDispose
         title: item.title,
         artist: item.artist ?? '',
       );
-      return collectionTrackForMedia(
-        item,
-        match,
-        covers: ref.watch(musicPlayerRuntimeProvider).dependencies.coverStore,
-      );
+      return collectionTrackForMedia(item, match);
     });
 
 final playbackStateProvider = StreamProvider<PlaybackState>((ref) {
   if (!ref.watch(playerUiEnabledProvider)) return Stream.value(PlaybackState());
-  return ref.watch(activeRemotePlaybackProvider)?.playbackStates ??
-      ref.watch(musicPlayerRuntimeProvider).playbackStateEvents();
+  return ref.watch(musicPlayerRuntimeProvider).playbackStateEvents();
 });
 
 /// Small derived providers keep position ticks from rebuilding widgets that
@@ -269,7 +232,6 @@ CatalogTrackKey catalogTrackKey(Track track) => (
 class CurrentTrackIdentity {
   const CurrentTrackIdentity({
     this.recordIds = const {},
-    this.catalogIds = const {},
     this.isrc = '',
     this.matchKey = '',
   });
@@ -278,17 +240,10 @@ class CurrentTrackIdentity {
     required String mediaId,
     UnifiedLibraryItem? record,
   }) {
-    final history = record?.historyItem;
     final local = record?.localItem;
     return CurrentTrackIdentity(
-      recordIds: {mediaId, ?history?.id, ?local?.id},
-      catalogIds: {
-        for (final id in HistoryDatabase.spotifyLookupCandidates(
-          history?.spotifyId,
-        ))
-          HistoryRowMapper.normalizeSpotifyId(id),
-      },
-      isrc: HistoryDatabase.normalizeIsrc(history?.isrc ?? local?.isrc),
+      recordIds: {mediaId, ?local?.id},
+      isrc: HistoryDatabase.normalizeIsrc(local?.isrc),
       matchKey: record == null
           ? ''
           : HistoryDatabase.matchKeyFor(record.trackName, record.artistName),
@@ -299,37 +254,26 @@ class CurrentTrackIdentity {
   /// rows. Library playlists store these for downloaded and local tracks.
   final Set<String> recordIds;
 
-  /// The catalog ids the file was downloaded as, normalized.
-  final Set<String> catalogIds;
   final String isrc;
   final String matchKey;
 
   /// Whether [row] is this track. A record id is exact. Otherwise two ISRCs
-  /// decide, and without one on both sides the catalog id must match along
-  /// with the title and artist: providers number their catalogs
-  /// independently, so an id alone can name another song. A title and artist
-  /// alone never match.
+  /// decide. A title and artist alone never match.
   bool matches(CatalogTrackKey row) {
     if (row.id.isNotEmpty && recordIds.contains(row.id)) return true;
-    if (isrc.isNotEmpty && row.isrc.isNotEmpty) return isrc == row.isrc;
-    return row.id.isNotEmpty &&
-        catalogIds.contains(HistoryRowMapper.normalizeSpotifyId(row.id)) &&
-        matchKey.isNotEmpty &&
-        matchKey == row.matchKey;
+    return isrc.isNotEmpty && row.isrc.isNotEmpty && isrc == row.isrc;
   }
 
   @override
   bool operator ==(Object other) =>
       other is CurrentTrackIdentity &&
       setEquals(other.recordIds, recordIds) &&
-      setEquals(other.catalogIds, catalogIds) &&
       other.isrc == isrc &&
       other.matchKey == matchKey;
 
   @override
   int get hashCode => Object.hash(
     Object.hashAllUnordered(recordIds),
-    Object.hashAllUnordered(catalogIds),
     isrc,
     matchKey,
   );
@@ -376,8 +320,7 @@ final catalogTrackPlaybackUiProvider = Provider.autoDispose
 
 final playQueueProvider = StreamProvider<List<MediaItem>>((ref) {
   if (!ref.watch(playerUiEnabledProvider)) return Stream.value(const []);
-  return ref.watch(activeRemotePlaybackProvider)?.queues ??
-      ref.watch(musicPlayerRuntimeProvider).queueEvents();
+  return ref.watch(musicPlayerRuntimeProvider).queueEvents();
 });
 
 /// Prefers the reported queue index while it still names the current item.
@@ -395,21 +338,12 @@ final currentQueueIndexProvider = Provider<int>((ref) {
       : queue.indexWhere((item) => item.id == id);
 });
 
-/// Drives the player the screens show: the local one, or [remote] while
-/// another device plays in its place.
+/// Drives the local player the screens show.
 class MusicPlayerController {
-  MusicPlayerController({
-    MusicPlayerRuntime? runtime,
-    RemotePlayback? Function()? remote,
-  }) : _runtime = runtime ?? musicPlayerRuntime,
-       _remote = remote;
+  MusicPlayerController({MusicPlayerRuntime? runtime})
+    : _runtime = runtime ?? musicPlayerRuntime;
 
   final MusicPlayerRuntime _runtime;
-  final RemotePlayback? Function()? _remote;
-
-  /// The device playing in this one's place at the moment, or null. Read on
-  /// each call, so a button built before a switch drives the new device.
-  RemotePlayback? get remote => _remote?.call();
 
   MusicPlayerHandler? get _handler => _runtime.handler;
 
@@ -429,9 +363,6 @@ class MusicPlayerController {
     List<PlayableMedia> items, {
     int initialIndex = 0,
   }) async {
-    if (remote case final remote?) {
-      return remote.playAll(items, initialIndex: initialIndex);
-    }
     final handler = await ensureInitialized();
     await handler?.setQueueAndPlay(items, initialIndex: initialIndex);
   }
@@ -467,11 +398,6 @@ class MusicPlayerController {
       ];
     }
     if (media.isEmpty) return false;
-    if (remote case final remote?) {
-      await remote.setShuffle(true);
-      await remote.playAll(media, initialIndex: Random().nextInt(media.length));
-      return true;
-    }
     final handler = await _runtime.initialize();
     await handler.setShuffleMode(AudioServiceShuffleMode.all);
     await handler.setQueueAndPlay(
@@ -481,15 +407,12 @@ class MusicPlayerController {
     return true;
   }
 
-  Future<void> seek(Duration position) async =>
-      remote?.seek(position) ?? _handler?.seek(position);
-  Future<void> next() async => remote?.next() ?? _handler?.skipToNext();
-  Future<void> previous() async =>
-      remote?.previous() ?? _handler?.skipToPrevious();
+  Future<void> seek(Duration position) async => _handler?.seek(position);
+  Future<void> next() async => _handler?.skipToNext();
+  Future<void> previous() async => _handler?.skipToPrevious();
 
   /// Hides a paused player, retaining its queue and position for Home's Resume.
   Future<void> dismiss() async {
-    if (remote != null) return;
     final handler = _handler;
     if (handler == null) return;
     final state = handler.playbackState.value;
@@ -512,7 +435,7 @@ class MusicPlayerController {
   }
 
   Future<bool> _resumeSavedSession() async {
-    if (remote != null || _runtime.settings.playerMode != 'internal') {
+    if (_runtime.settings.playerMode != 'internal') {
       return false;
     }
     final handler = await ensureInitialized();
@@ -541,9 +464,6 @@ class MusicPlayerController {
   void cancelSleepTimer() => _handler?.cancelSleepTimer();
 
   Future<void> togglePlayPause(bool isPlaying) async {
-    if (remote case final remote?) {
-      return isPlaying ? remote.pause() : remote.play();
-    }
     final handler = _handler;
     if (handler == null) return;
     final processingState = handler.playbackState.value.processingState;
@@ -559,7 +479,6 @@ class MusicPlayerController {
   }
 
   Future<void> setShuffle(bool enabled) async {
-    if (remote case final remote?) return remote.setShuffle(enabled);
     // A Shuffle button can be the first thing that starts the player. A
     // player that has not started has no shuffle to turn off.
     final handler = enabled ? await ensureInitialized() : _handler;
@@ -569,17 +488,13 @@ class MusicPlayerController {
   }
 
   Future<void> setRepeatMode(AudioServiceRepeatMode mode) async =>
-      remote?.setRepeatMode(mode) ?? _handler?.setRepeatMode(mode);
+      _handler?.setRepeatMode(mode);
 
   Future<void> playNext(PlayableMedia item) async {
-    if (remote case final remote?) {
-      return remote.enqueue([item], playNext: true);
-    }
     await (await ensureInitialized())?.enqueue(item, playNext: true);
   }
 
   Future<void> addToQueue(PlayableMedia item) async {
-    if (remote case final remote?) return remote.enqueue([item]);
     await (await ensureInitialized())?.enqueue(item);
   }
 
@@ -589,10 +504,7 @@ class MusicPlayerController {
   }) async {
     final media = [
       for (final item in items)
-        if (item.localItem != null)
-          playableFromLocal(item.localItem!)
-        else if (item.historyItem != null)
-          playableFromHistory(item.historyItem!),
+        if (item.localItem != null) playableFromLocal(item.localItem!),
     ];
     await enqueueMedia(media, playNext: playNext);
   }
@@ -602,17 +514,8 @@ class MusicPlayerController {
     bool playNext = false,
   }) async {
     if (media.isEmpty) return;
-    if (remote case final remote?) {
-      return remote.enqueue(media, playNext: playNext);
-    }
     await (await ensureInitialized())?.enqueueAll(media, playNext: playNext);
   }
-
-  Future<void> playNextHistory(DownloadHistoryItem item) async =>
-      playNext(playableFromHistory(item));
-
-  Future<void> addToQueueHistory(DownloadHistoryItem item) async =>
-      addToQueue(playableFromHistory(item));
 
   Future<void> playNextLocal(LocalLibraryItem item) async =>
       playNext(playableFromLocal(item));
@@ -620,40 +523,21 @@ class MusicPlayerController {
   Future<void> addToQueueLocal(LocalLibraryItem item) async =>
       addToQueue(playableFromLocal(item));
 
-  Future<void> jumpTo(int index) async =>
-      remote?.jumpTo(index) ?? _handler?.skipToQueueItem(index);
+  Future<void> jumpTo(int index) async => _handler?.skipToQueueItem(index);
 
   /// Queues a copy of [item], an entry of the local queue other than the
   /// current one, right after the current song. False when nothing was
   /// queued: the entry left the queue, or another device plays.
-  Future<bool> playQueuedItemNext(MediaItem item) async {
-    if (remote != null) return false;
-    return await _handler?.playQueuedItemNext(item) ?? false;
-  }
+  Future<bool> playQueuedItemNext(MediaItem item) async =>
+      await _handler?.playQueuedItemNext(item) ?? false;
 
-  void moveQueueItem(int oldIndex, int newIndex) {
-    if (remote case final remote?) {
-      unawaited(remote.moveQueueItem(oldIndex, newIndex));
-    } else {
+  void moveQueueItem(int oldIndex, int newIndex) =>
       _handler?.moveQueueItem(oldIndex, newIndex);
-    }
-  }
 
-  void removeQueuedItem(MediaItem item) {
-    if (remote case final remote?) {
-      unawaited(remote.removeQueueItem(item));
-    } else {
-      _handler?.removeQueuedItem(item);
-    }
-  }
+  void removeQueuedItem(MediaItem item) => _handler?.removeQueuedItem(item);
 }
 
-/// The controller the player screens use: it follows the active remote
-/// device. Features that drive this device's own player build a
-/// [MusicPlayerController] without one.
+/// The controller the player screens use.
 final musicPlayerControllerProvider = Provider<MusicPlayerController>(
-  (ref) => MusicPlayerController(
-    runtime: ref.watch(musicPlayerRuntimeProvider),
-    remote: () => ref.read(activeRemotePlaybackProvider),
-  ),
+  (ref) => MusicPlayerController(runtime: ref.watch(musicPlayerRuntimeProvider)),
 );

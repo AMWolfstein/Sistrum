@@ -68,7 +68,6 @@ void main() {
 
     final identity = CurrentTrackIdentity(
       recordIds: const {'/music/a.flac', 'history-row'},
-      catalogIds: const {'catalog-1'},
       matchKey: key().matchKey,
     );
 
@@ -76,22 +75,8 @@ void main() {
       expect(identity.matches(key(id: 'history-row', name: 'Other')), isTrue);
     });
 
-    test('a catalog id needs the same title and artist', () {
-      expect(identity.matches(key()), isTrue);
-      // Another provider numbers its catalog independently.
-      expect(
-        identity.matches(key(name: 'Other song', artist: 'Other artist')),
-        isFalse,
-      );
-    });
-
-    test('a title and artist alone never match', () {
-      expect(identity.matches(key(id: 'catalog-2')), isFalse);
-    });
-
     test('two ISRCs decide', () {
       final withIsrc = CurrentTrackIdentity(
-        catalogIds: const {'catalog-1'},
         isrc: 'XX0000000001',
         matchKey: key().matchKey,
       );
@@ -123,7 +108,7 @@ void main() {
 
     identity.complete(
       const CurrentTrackIdentity(
-        catalogIds: {'catalog-1'},
+        recordIds: {'catalog-1'},
         matchKey: 'song|artist',
       ),
     );

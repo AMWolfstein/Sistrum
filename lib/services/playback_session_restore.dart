@@ -25,34 +25,18 @@ Future<PlaybackResumePreview?> loadPlaybackResumePreview(
     final documents = runtime.dependencies.isIOS
         ? (await getApplicationDocumentsDirectory()).path
         : null;
-    var saved = PlayableMedia.fromJson(
+    final saved = PlayableMedia.fromJson(
       Map<String, dynamic>.from(preview['media'] as Map),
       iosDocumentsPath: documents,
     );
     if (saved == null) return null;
-    if (!saved.isNetwork && !await files.fileExists(saved.source)) {
-      if (!runtime.dependencies.isAndroid) return null;
-      final replacement = await runtime.dependencies.recoverMovedDownload(
-        saved.source,
-        saved.id,
-        runtime.settings,
-      );
-      if (replacement == null) return null;
-      saved = PlayableMedia.fromJson({
-        ...saved.toJson(),
-        'source': replacement,
-      })!;
-    }
+    if (!await files.fileExists(saved.source)) return null;
     // As on restore, a loopback URL or a temporary cover file of earlier
     // versions does not show.
     final artwork = durableCoverReference(saved.artUri);
     final media = artwork == saved.artUri
         ? saved
         : PlayableMedia.fromJson({...saved.toJson(), 'artUri': artwork})!;
-    // Its item then shows a stored network cover from the start.
-    if (media.coverReference != null || CoverStore.fetches(media.source)) {
-      await runtime.dependencies.coverStore.warmUp();
-    }
     return (
       media: media,
       position: Duration(
@@ -83,14 +67,7 @@ Future<PlaybackResumePreview?> resumePreviewForLibrary(
 /// Resolve a saved queue in bounded groups, retaining its original order even
 /// when later file checks finish first. File existence is shared across tracks
 /// with the same artwork for this restore only, with a bounded LRU cache.
-Future<
-  ({
-    List<PlayableMedia> items,
-    List<int> keptOriginalIndices,
-    bool artworkRelocated,
-    bool sourceRelocated,
-  })
->
+Future<({List<PlayableMedia> items, List<int> keptOriginalIndices, bool artworkRelocated})>
 prepareRestoredPlaybackMedia(
   List<Object?> rawMedia, {
   String? iosDocumentsPath,
@@ -98,7 +75,6 @@ prepareRestoredPlaybackMedia(
   Future<bool> Function(String)? fileExists,
   Future<FileAccessCheck> Function(String)? checkAccess,
   Future<bool> Function(String)? storageUnavailable,
-  Future<String?> Function(PlayableMedia)? recoverSource,
 }) async {
   const batchSize = 8;
   final checks = <String, Future<bool>>{};
@@ -116,7 +92,7 @@ prepareRestoredPlaybackMedia(
     return pending;
   }
 
-  Future<(PlayableMedia, int, bool, bool)?> resolve(int index) async {
+  Future<(PlayableMedia, int, bool)?> resolve(int index) async {
     final entry = rawMedia[index];
     if (entry is! Map) return null;
     var media = PlayableMedia.fromJson(
@@ -124,28 +100,7 @@ prepareRestoredPlaybackMedia(
       iosDocumentsPath: iosDocumentsPath,
     );
     if (media == null) return null;
-    var sourceRelocated = false;
-    if (!media.isContentUri &&
-        !media.isNetwork &&
-        !await exists(media.source)) {
-      String? replacement;
-      try {
-        replacement = await recoverSource?.call(media);
-      } catch (error) {
-        // Keep an inconclusive entry for retry instead of failing the whole
-        // restore or silently removing a song on an unavailable volume.
-        _log.w(
-          'Keeping a saved download while its folder is unavailable: $error',
-        );
-        return (media, index, false, false);
-      }
-      if (replacement == null) return null;
-      media = PlayableMedia.fromJson({
-        ...media.toJson(),
-        'source': replacement,
-      })!;
-      sourceRelocated = true;
-    }
+    if (!media.isContentUri && !await exists(media.source)) return null;
     // Sessions of earlier versions can hold a loopback URL or a temporary
     // cover file, which the next save then leaves out.
     final recoveredMedia = media;
@@ -162,14 +117,12 @@ prepareRestoredPlaybackMedia(
           : PlayableMedia.fromJson({...media.toJson(), 'artUri': artwork})!,
       index,
       artwork != entry['artUri'],
-      sourceRelocated,
     );
   }
 
   final items = <PlayableMedia>[];
   final keptOriginalIndices = <int>[];
   var artworkRelocated = false;
-  var sourceRelocated = false;
   for (var start = 0; start < rawMedia.length; start += batchSize) {
     final end = (start + batchSize).clamp(0, rawMedia.length);
     final batch = await Future.wait([
@@ -180,7 +133,6 @@ prepareRestoredPlaybackMedia(
       items.add(result.$1);
       keptOriginalIndices.add(result.$2);
       artworkRelocated |= result.$3;
-      sourceRelocated |= result.$4;
     }
     // Cached covers and remote tracks can otherwise complete entirely through
     // microtasks and starve rendering while a very large queue is restored.
@@ -190,7 +142,6 @@ prepareRestoredPlaybackMedia(
     items: items,
     keptOriginalIndices: keptOriginalIndices,
     artworkRelocated: artworkRelocated,
-    sourceRelocated: sourceRelocated,
   );
 }
 
@@ -236,13 +187,6 @@ Future<bool> restorePlaybackSession(
     final prepared = await prepareRestoredPlaybackMedia(
       rawMedia,
       iosDocumentsPath: iosDocumentsPath,
-      recoverSource: runtime.dependencies.isAndroid
-          ? (media) => runtime.dependencies.recoverMovedDownload(
-              media.source,
-              media.id,
-              runtime.settings,
-            )
-          : null,
       loadLibraryCoverPath: (media) async {
         final database = runtime.dependencies.libraryDatabase;
         final row = await database.getById(media.id);
@@ -259,8 +203,7 @@ Future<bool> restorePlaybackSession(
         return null;
       },
     );
-    final (:items, :keptOriginalIndices, :artworkRelocated, :sourceRelocated) =
-        prepared;
+    final (:items, :keptOriginalIndices, :artworkRelocated) = prepared;
     if (items.isEmpty) {
       await clear();
       return false;
@@ -296,10 +239,7 @@ Future<bool> restorePlaybackSession(
         for (final i in keptOriginalIndices)
           ((rawMedia[i] as Map)['queueOriginalIndex'] as num?)?.toInt() ?? i,
       ],
-      queueNeedsRewrite:
-          items.length != rawMedia.length ||
-          artworkRelocated ||
-          sourceRelocated,
+      queueNeedsRewrite: items.length != rawMedia.length || artworkRelocated,
       replaceStoppedQueue: fromResume,
       repeatMode: AudioServiceRepeatMode.values.firstWhere(
         (mode) => mode.name == session['repeat'],

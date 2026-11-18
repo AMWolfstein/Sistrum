@@ -9,7 +9,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/library_browse_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
@@ -28,11 +27,6 @@ const _request = (
   limit: 40,
   completeness: null,
 );
-
-class _History extends DownloadHistoryNotifier {
-  @override
-  DownloadHistoryState build() => DownloadHistoryState();
-}
 
 class _Local extends LocalLibraryNotifier {
   @override
@@ -198,7 +192,6 @@ void main() {
                     const AppSettings(localLibraryEnabled: true),
                   ),
                 ),
-                downloadHistoryProvider.overrideWith(_History.new),
                 localLibraryProvider.overrideWith(_Local.new),
                 libraryBrowsePageLoaderProvider.overrideWithValue(readPage),
                 if (before)

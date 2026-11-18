@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:sistrum/services/ffmpeg_metadata.dart';
 import 'package:sistrum/services/metadata_cover_resources.dart';
-import 'package:sistrum/services/network_file_editor.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/services/source_metadata_events.dart';
 import 'package:sistrum/utils/artist_utils.dart';
@@ -65,7 +64,6 @@ class MetadataPersistenceService {
   final Future<Map<String, dynamic>> Function(String) read;
   final MetadataEmbed embed;
   final Future<bool> Function(String, String) writeBack;
-  final NetworkFileEditor? networkEditor;
 
   const MetadataPersistenceService({
     required this.covers,
@@ -73,29 +71,11 @@ class MetadataPersistenceService {
     this.read = PlatformBridge.readFileMetadata,
     this.embed = _embed,
     this.writeBack = PlatformBridge.writeTempToSaf,
-    this.networkEditor,
   });
 
   Future<MetadataSaveResult> save(MetadataSaveRequest request) async {
     final releaseLease = covers.retain();
     try {
-      if (request.filePath.startsWith('network://')) {
-        return await (networkEditor ?? NetworkFileEditor.instance).edit(
-          request.filePath,
-          (path) => _saveLocal(
-            MetadataSaveRequest(
-              filePath: path,
-              metadata: request.metadata,
-              artistTagMode: request.artistTagMode,
-              selectedCoverPath: request.selectedCoverPath,
-              currentCoverPath: request.currentCoverPath,
-              coverMaxDimension: request.coverMaxDimension,
-              preserveUnspecifiedTags: request.preserveUnspecifiedTags,
-            ),
-          ),
-          succeeded: (result) => result.failure == null,
-        );
-      }
       final saved = await _saveLocal(request);
       if (saved.failure == null && request.metadata.containsKey('lyrics')) {
         await SourceMetadataEvents.instance.publish(request.filePath);

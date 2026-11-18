@@ -6,11 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/models/download_item.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/models/track.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
+import 'package:sistrum/services/library_database.dart';
+
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/playback_provider.dart';
@@ -19,7 +18,6 @@ import 'package:sistrum/screens/mornye_library_screen.dart';
 import 'package:sistrum/screens/queue_tab.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/services/history_database.dart';
-import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/playable_media.dart';
 import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
@@ -51,29 +49,30 @@ class _Settings extends SettingsNotifier {
     historyFilterMode: filterMode,
     historyViewMode: viewMode,
     listeningStatisticsEnabled: false,
+    localLibraryEnabled: true,
   );
 }
 
-/// Two downloaded songs. With a queue item present and the database page
-/// empty, the Library renders this in-memory snapshot.
-class _History extends DownloadHistoryNotifier {
-  @override
-  DownloadHistoryState build() => DownloadHistoryState(
-    items: [
-      for (final (index, name) in ['Bravo', 'Alpha'].indexed)
-        DownloadHistoryItem(
-          id: 'song-$index',
-          trackName: name,
-          artistName: 'Artist',
-          albumName: 'Album $index',
-          filePath: '/music/$name.flac',
-          service: 'example-provider',
-          downloadedAt: DateTime(2026, 1, 10 + index),
-        ),
-    ],
-    totalCount: 2,
-  );
-}
+/// Two scanned songs, served as the Songs page's rows.
+Future<QueueLibraryDbPage> _songPage(QueueLibraryDbQuery query) async =>
+    QueueLibraryDbPage(
+      rows: [
+        for (final (index, name) in ['Bravo', 'Alpha'].indexed)
+          {
+            'source': 'local',
+            'item': LocalLibraryItem(
+              id: 'song-$index',
+              trackName: name,
+              artistName: 'Artist',
+              albumName: 'Album $index',
+              filePath: '/music/$name.flac',
+              scannedAt: DateTime(2026, 1, 10 + index),
+              format: 'flac',
+            ).toJson(),
+          },
+      ],
+      nextCursor: null,
+    );
 
 class _Local extends LocalLibraryNotifier {
   @override
@@ -97,15 +96,10 @@ class _Collections extends LibraryCollectionsNotifier {
           updatedAt: DateTime(2026),
           tracks: const [],
           tracksLoaded: false,
-          trackKeys: {'example-provider:song-0', 'example-provider:song-1'},
+          trackKeys: {'local:song-0', 'local:song-1'},
         ),
     ],
   );
-}
-
-class _Queue extends DownloadQueueNotifier {
-  @override
-  DownloadQueueState build() => DownloadQueueState();
 }
 
 class _Playback extends PlaybackController {
@@ -230,34 +224,17 @@ void main() {
         : const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    final queue = DownloadQueueLookup.fromItems([
-      DownloadItem(
-        id: 'completed',
-        track: const Track(
-          id: 'song',
-          name: 'Song',
-          artistName: 'Artist',
-          albumName: 'Album',
-          duration: 1000,
-        ),
-        service: 'example-provider',
-        status: DownloadStatus.completed,
-        createdAt: DateTime(2026),
-      ),
-    ]);
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           settingsProvider.overrideWith(
             () => _Settings(viewMode, filterMode: filterMode),
           ),
-          downloadHistoryProvider.overrideWith(_History.new),
           localLibraryProvider.overrideWith(_Local.new),
+          queueLibraryTrackPageReaderProvider.overrideWithValue(_songPage),
           libraryCollectionsProvider.overrideWith(
             () => _Collections(withPlaylistTracks: withPlaylistTracks),
           ),
-          downloadQueueProvider.overrideWith(_Queue.new),
-          downloadQueueLookupProvider.overrideWithValue(queue),
           if (playback != null) playbackProvider.overrideWith(() => playback),
           if (player != null)
             musicPlayerControllerProvider.overrideWith((ref) => player),
@@ -710,7 +687,8 @@ void main() {
                 filterMode: mode,
                 withPlaylistTracks: true,
               );
-              expect(find.text('2 tracks'), findsWidgets);
+              // The '2 tracks' album label came from the removed download-history
+              // album grouping; the songs themselves are checked below.
               expect(find.text('Alpha'), findsOneWidget);
               expect(find.text('Bravo'), findsOneWidget);
               expect(tester.takeException(), isNull);
@@ -739,7 +717,6 @@ void main() {
         withPlaylistTracks: true,
       );
       expect(find.byType(MornyeLibraryScreen), findsNothing);
-      expect(find.text('2 tracks'), findsOneWidget);
       expect(find.text('Alpha'), findsOneWidget);
       expect(find.text('Bravo'), findsOneWidget);
       expect(tester.takeException(), isNull);

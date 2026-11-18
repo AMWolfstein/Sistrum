@@ -12,7 +12,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart'
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/library_database_models.dart';
-import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/services/backend/native_backend_transport.dart';
 import 'package:sistrum/services/backend/rust_ffi_backend.dart';
@@ -23,11 +22,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/app_icon_finder.dart';
 import 'support/tooltip_finder.dart';
-
-class _Extensions extends ExtensionNotifier {
-  @override
-  ExtensionState build() => const ExtensionState(isInitialized: true);
-}
 
 class _FolderPicker extends FilePickerPlatform {
   _FolderPicker(this.result);
@@ -189,7 +183,6 @@ void main() {
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [extensionProvider.overrideWith(_Extensions.new)],
           child: MaterialApp(
             theme: scenario.mornye
                 ? MornyeTheme.build(Brightness.light)
@@ -301,10 +294,9 @@ void main() {
           case 'startAccessingIosBookmark':
             expect(args['bookmark'], 'fixture-bookmark');
             return {'path': chosen.path, 'token': 'fixture-lease'};
-          case 'fetchAndSaveLyrics':
-            expect(args['audio_file_path'], '');
-            await File(args['output_path'] as String).writeAsString(lyrics);
-            return {'success': true};
+          case 'getLyricsLRCWithSource':
+            // The moved song's own lyrics, as the library holds them.
+            return {'lyrics': lyrics, 'source': 'embedded'};
           case 'safCreateFromPath':
             expect(args['tree_uri'], 'content://example.documents/tree/chosen');
             expect(args['relative_dir'], '');
@@ -355,7 +347,6 @@ void main() {
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [extensionProvider.overrideWith(_Extensions.new)],
           child: MaterialApp(
             theme: AppTheme.light(),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -395,9 +386,10 @@ void main() {
         expect(await File('${chosen.path}/$base.lrc').readAsString(), lyrics);
       });
       expect(await tester.runAsync(() => File(missing).exists()), isFalse);
+      // The lyrics come from the song itself: no online fetch.
       expect(
         calls.where((call) => call.method == 'fetchAndSaveLyrics'),
-        hasLength(scenario.picks ? 1 : 0),
+        isEmpty,
       );
       if (platform == TargetPlatform.iOS) {
         expect(
@@ -422,7 +414,6 @@ void main() {
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [extensionProvider.overrideWith(_Extensions.new)],
         child: MaterialApp(
           theme: AppTheme.light(),
           localizationsDelegates: AppLocalizations.localizationsDelegates,

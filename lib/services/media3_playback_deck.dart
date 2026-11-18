@@ -414,10 +414,6 @@ class Media3PlaybackDeck implements PlaybackDeck, QueuedPlaybackDeck {
   }
 
   @override
-  Future<void> setNetworkSource(String url, {bool arriving = false}) =>
-      _load(url, isLocal: false);
-
-  @override
   Future<void> setFileSource(
     String path, {
     bool preferBitPerfect = false,

@@ -21,7 +21,6 @@ import 'package:sistrum/widgets/player_lyric_preview.dart';
 import 'package:sistrum/widgets/player_lyrics.dart';
 import 'package:sistrum/widgets/player_lyrics_controls.dart';
 import 'package:sistrum/widgets/player_metadata_title.dart';
-import 'package:sistrum/widgets/playback_source_label.dart';
 import 'package:sistrum/widgets/player_playback_controls.dart';
 import 'package:sistrum/widgets/player_track_swipe.dart';
 
@@ -57,7 +56,6 @@ class MornyePlayerLayout extends ConsumerWidget {
     required this.onPageChanged,
     required this.onTrackNavigation,
     required this.onMoreActions,
-    this.showSourceLabel = true,
     this.artworkAspectRatio,
     this.controlsHeadroom = 0,
   });
@@ -77,8 +75,6 @@ class MornyePlayerLayout extends ConsumerWidget {
   final double artworkTopInset;
   final MornyePlayerArtworkKeys artworkKeys;
 
-  /// False where the Playing on row names the song's source instead.
-  final bool showSourceLabel;
   final bool lyricsControlsHidden;
   final bool lyricsOptionsOpen;
   final Widget Function(bool showOptions) lyricsBuilder;
@@ -552,13 +548,6 @@ class MornyePlayerLayout extends ConsumerWidget {
                               ),
                             ),
                           ),
-                          if (showSourceLabel)
-                            PlaybackSourceLabel(
-                              item: mediaItem,
-                              color: colorScheme.onSurface.withValues(
-                                alpha: 0.72,
-                              ),
-                            ),
                         ],
                       ),
                     ),

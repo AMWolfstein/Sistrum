@@ -264,10 +264,11 @@ void main() {
       final notifier = container.read(recentAccessProvider.notifier);
       database.releaseRead.complete();
       await _waitUntilLoaded(container);
-      const kept = 'https://example.com/album.jpg';
+      const kept = '/data/user/0/app/files/covers/album.image';
       for (final (id, cover) in [
         ('temporary', '/data/user/0/app/cache/network_metadata/a1.jpg'),
         ('loopback', 'http://127.0.0.1:41234/7f3a'),
+        ('web', 'https://example.com/album.jpg'),
         ('kept', kept),
       ]) {
         notifier
@@ -285,6 +286,8 @@ void main() {
           'artist:temporary': null,
           'album:loopback': null,
           'artist:loopback': null,
+          'album:web': null,
+          'artist:web': null,
           'album:kept': kept,
           'artist:kept': kept,
         },

@@ -83,20 +83,13 @@ void main() {
     }, skip: Platform.isWindows);
   });
 
-  test(
-    'network identity and empty paths avoid filesystem/provider calls',
-    () async {
-      messenger.setMockMethodCallHandler(channel, (_) async {
-        fail('Network identities must not query SAF');
-      });
-      expect(await fileStat(null), isNull);
-      expect(await fileStat(''), isNull);
-      final result = await fileStat('network://provider/track');
-      expect(result, isA<FileAccessStat>());
-      expect(result?.size, isNull);
-      expect(result?.modified, isNull);
-    },
-  );
+  test('empty paths avoid filesystem/provider calls', () async {
+    messenger.setMockMethodCallHandler(channel, (_) async {
+      fail('An empty path must not query SAF');
+    });
+    expect(await fileStat(null), isNull);
+    expect(await fileStat(''), isNull);
+  });
 
   test('SAF CUE stat queries once and preserves nullable metadata', () async {
     final calls = <MethodCall>[];

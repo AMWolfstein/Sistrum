@@ -42,7 +42,6 @@ class QueueLibraryPager<
 
   /// Recent combine results with their source pages, newest first.
   final List<(List<P>, P)> _combined = [];
-  DateTime? _lastBlankRepairAt;
 
   int pageOffsetFor(String filterMode) => _pageOffsetByFilter[filterMode] ?? 0;
 
@@ -169,41 +168,6 @@ class QueueLibraryPager<
     _combined.insert(0, (pages, combined));
     if (_combined.length > 4) _combined.removeLast();
     return combined;
-  }
-
-  void _invalidateDataCaches() {
-    _countsCache.clear();
-    _pageDataCache.clear();
-    _combined.clear();
-  }
-
-  /// Clears the snapshots and runs [repair] after the frame when the queue
-  /// has items but the Library shows nothing, at most once per 8 seconds.
-  void scheduleBlankLibraryRepair({
-    required bool hasQueueItems,
-    required bool hasLibraryContent,
-    required bool hasAnyLibraryItems,
-    required bool isLibraryPageLoading,
-    required bool Function() isMounted,
-    required VoidCallback repair,
-  }) {
-    if (!hasQueueItems ||
-        hasLibraryContent ||
-        hasAnyLibraryItems ||
-        isLibraryPageLoading) {
-      return;
-    }
-    final now = DateTime.now();
-    final last = _lastBlankRepairAt;
-    if (last != null && now.difference(last) < const Duration(seconds: 8)) {
-      return;
-    }
-    _lastBlankRepairAt = now;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!isMounted()) return;
-      _invalidateDataCaches();
-      repair();
-    });
   }
 
   void _trimCountsCache() {

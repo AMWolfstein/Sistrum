@@ -22,7 +22,7 @@ Run sequentially after implementation is authorized. Each task starts with `pyth
   - Fresh schema and local flow work in airplane mode. Preserve queue and local state across restart. Handle denied/revoked grants, unavailable documents and removable storage. No Mornye upgrade or migration work.
   - Checks: `flutter analyze`, `flutter test`, first-launch airplane mode walkthrough and Android background playback test with a local fixture.
 
-- [ ] M001-T005 Remove online product features and dependencies
+- [x] M001-T005 Remove online product features and dependencies
   - Paths: Flutter navigation/startup, manifest and Android services, Dart/native bridges, `rust_backend/crates/`, pub/Cargo manifests and locks, resources and tests.
   - Remove online features and permissions after callers are detached. Verify local codecs, metadata, storage and playback fallback stay wired. Keep Mornye theme and theme-specific assets.
   - Checks: `flutter analyze`, `flutter test`, `cargo tree --manifest-path rust_backend/Cargo.toml -p "$MOBILE_CRATE" --target aarch64-linux-android`, bridge verification and merged release manifest inspection. Set MOBILE_CRATE to the name chosen in T001.

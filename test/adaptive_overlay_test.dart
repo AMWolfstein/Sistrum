@@ -2,26 +2,13 @@ import 'package:material_ui/material_ui.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/screens/settings/download_settings_page.dart';
-import 'package:sistrum/services/app_remote_config_service.dart';
-import 'package:sistrum/services/update_checker.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/theme/material_symbols.dart';
-import 'package:sistrum/theme/mornye_icons.dart';
-import 'package:sistrum/utils/audio_format_utils.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
-import 'package:sistrum/widgets/app_announcement_dialog.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_choice_chip.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
-import 'package:sistrum/widgets/update_dialog.dart';
-
-import 'support/tooltip_finder.dart';
 
 Widget _app(ThemeData theme, Widget home) => ProviderScope(
   child: MaterialApp(
@@ -31,11 +18,6 @@ Widget _app(ThemeData theme, Widget home) => ProviderScope(
     home: home,
   ),
 );
-
-class _ChoiceSettings extends SettingsNotifier {
-  @override
-  AppSettings build() => const AppSettings(autoConvertDownloads: true);
-}
 
 void main() {
   for (final mornye in [false, true]) {
@@ -120,159 +102,6 @@ void main() {
               );
             }
           }
-          expect(tester.takeException(), isNull);
-        } finally {
-          semantics.dispose();
-        }
-      });
-
-      testWidgets('download choices update and dismiss ($variant)', (
-        tester,
-      ) async {
-        SharedPreferences.setMockInitialValues({});
-        tester.view.physicalSize = const Size(412, 1800);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.reset);
-        final semantics = tester.ensureSemantics();
-        try {
-          // A page-local accent must survive capture by the root modal route.
-          final pageTheme = theme.copyWith(
-            colorScheme: theme.colorScheme.copyWith(primary: Colors.green),
-          );
-          await tester.pumpWidget(
-            ProviderScope(
-              overrides: [settingsProvider.overrideWith(_ChoiceSettings.new)],
-              child: _app(
-                theme,
-                Theme(
-                  data: pageTheme,
-                  child: const MornyeSettingsTheme(
-                    child: DownloadSettingsPage(),
-                  ),
-                ),
-              ),
-            ),
-          );
-          await tester.pumpAndSettle();
-          final container = ProviderScope.containerOf(
-            tester.element(find.byType(DownloadSettingsPage)),
-          );
-          final check = mornye
-              ? mornyeIconFor(Icons.check)
-              : materialSymbolFor(Icons.check)!.icon;
-          for (final (picker, initial, next) in [
-            ('Output format', 'MP3', 'Opus'),
-            ('Output quality', '320 kbps', '160 kbps'),
-            ('Output format', 'Opus', 'FLAC'),
-            // ALAC keeps the lossless limits and Smart Dither below.
-            ('Output format', 'FLAC', 'M4A (ALAC)'),
-            ('Maximum bit depth', '16-bit', '24-bit'),
-            ('Maximum sample rate', '48 kHz', '96 kHz'),
-            (
-              'Concurrent downloads',
-              '1 track at a time',
-              'Up to 3 tracks at once',
-            ),
-          ]) {
-            Future<void> open() async {
-              await tester.ensureVisible(find.text(picker));
-              await tester.pumpAndSettle();
-              await tester.tap(find.text(picker));
-              await tester.pumpAndSettle();
-            }
-
-            Finder option(String label) => find.descendant(
-              of: find.byType(AppBottomSheet),
-              matching: find.text(label),
-            );
-            await open();
-            expect(
-              tester.getSemantics(option(initial)),
-              isSemantics(isSelected: true, hasTapAction: true),
-            );
-            expect(
-              tester.getSemantics(option(next)),
-              isSemantics(isSelected: false, hasTapAction: true),
-            );
-            final checkmark = find.descendant(
-              of: find.byType(AppBottomSheet),
-              matching: find.byIcon(check),
-            );
-            expect(checkmark, findsOneWidget);
-            expect(tester.widget<Icon>(checkmark).color, Colors.green);
-            expect(tester.getSize(checkmark), Size.square(mornye ? 20 : 24));
-            await tester.tap(option(next));
-            await tester.pumpAndSettle();
-            expect(find.byType(AppBottomSheet), findsNothing);
-            final settings = container.read(settingsProvider);
-            switch (picker) {
-              case 'Output format':
-                expect(
-                  autoConvertFormatLabel(settings.autoConvertFormat),
-                  next,
-                );
-              case 'Output quality':
-                expect(settings.autoConvertBitrate, '160k');
-              case 'Maximum bit depth':
-                expect(settings.autoConvertMaxBitDepth, 24);
-              case 'Maximum sample rate':
-                expect(settings.autoConvertMaxSampleRate, 96000);
-              case 'Concurrent downloads':
-                expect(settings.concurrentDownloads, 3);
-            }
-            await open();
-            expect(
-              tester.getSemantics(option(next)),
-              isSemantics(isSelected: true),
-            );
-            // Selecting the current option must still invoke its dismissal.
-            await tester.tap(option(next));
-            await tester.pumpAndSettle();
-            expect(find.byType(AppBottomSheet), findsNothing);
-          }
-          expect(
-            container.read(settingsProvider).autoConvertSmartDither,
-            isTrue,
-          );
-          // The M3E button group builds each label twice.
-          Future<void> tapSmartType(String label) async {
-            final finder = find.text(label).first;
-            await tester.ensureVisible(finder);
-            await tester.pumpAndSettle();
-            await tester.tap(finder, warnIfMissed: false);
-            await tester.pumpAndSettle();
-          }
-
-          expect(find.text('Smart Dither type'), findsOneWidget);
-          expect(
-            container.read(settingsProvider).autoConvertSmartDitherHighPass,
-            isFalse,
-          );
-          await tapSmartType('TPDF HP');
-          expect(
-            container.read(settingsProvider).autoConvertSmartDitherHighPass,
-            isTrue,
-          );
-          await tapSmartType('TPDF');
-          expect(
-            container.read(settingsProvider).autoConvertSmartDitherHighPass,
-            isFalse,
-          );
-          final smartDither = find.text('Smart Dither');
-          await tester.ensureVisible(smartDither);
-          await tester.pumpAndSettle();
-          await tester.tap(smartDither);
-          await tester.pumpAndSettle();
-          expect(
-            container.read(settingsProvider).autoConvertSmartDither,
-            isFalse,
-          );
-          // Without Smart Dither the type choice is disabled.
-          await tapSmartType('TPDF HP');
-          expect(
-            container.read(settingsProvider).autoConvertSmartDitherHighPass,
-            isFalse,
-          );
           expect(tester.takeException(), isNull);
         } finally {
           semantics.dispose();
@@ -572,88 +401,6 @@ void main() {
         expect(find.text('Open import'), findsOneWidget);
         expect(tester.takeException(), isNull);
       });
-
-      testWidgets('required update resists back and barrier ($variant)', (
-        tester,
-      ) async {
-        tester.view.physicalSize = const Size(393, 740);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.resetPhysicalSize);
-        addTearDown(tester.view.resetDevicePixelRatio);
-        await tester.pumpWidget(
-          _app(
-            theme,
-            Builder(
-              builder: (context) => Scaffold(
-                body: TextButton(
-                  child: const Text('Update'),
-                  onPressed: () => showUpdateDialog(
-                    context,
-                    updateInfo: UpdateInfo(
-                      version: '9.0.0',
-                      changelog: 'Playback and library improvements.\n' * 8,
-                      downloadUrl: 'https://example.com/release',
-                      releasesBehind: 3,
-                    ),
-                    onDisableUpdates: () =>
-                        fail('Cannot disable required update'),
-                    forced: true,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-        await tester.tap(find.text('Update'));
-        await tester.pumpAndSettle();
-        expect(tester.takeException(), isNull);
-        await tester.tapAt(const Offset(5, 5));
-        await tester.binding.handlePopRoute();
-        await tester.pumpAndSettle();
-        expect(find.byType(UpdateDialog), findsOneWidget);
-        expect(tester.takeException(), isNull);
-      });
     }
-
-    testWidgets('announcement keeps explicit dismissal (Mornye: $mornye)', (
-      tester,
-    ) async {
-      var dismissals = 0;
-      await tester.pumpWidget(
-        _app(
-          mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
-          Builder(
-            builder: (context) => Scaffold(
-              body: TextButton(
-                child: const Text('Open notice'),
-                onPressed: () => showAppAnnouncementDialog(
-                  context,
-                  announcement: const RemoteAnnouncement(
-                    id: 'notice',
-                    enabled: true,
-                    title: 'Service notice',
-                    message: 'An announcement without an external action.',
-                    dismissible: false,
-                  ),
-                  onDismiss: () => dismissals++,
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-      await tester.tap(find.text('Open notice'));
-      await tester.pumpAndSettle();
-      await tester.tapAt(const Offset(5, 5));
-      await tester.binding.handlePopRoute();
-      await tester.pumpAndSettle();
-      expect(find.text('Service notice'), findsOneWidget);
-      expect(dismissals, 0);
-      await tester.tap(findByTooltip('Close'));
-      await tester.pumpAndSettle();
-      expect(find.text('Service notice'), findsNothing);
-      expect(dismissals, 1);
-      expect(tester.takeException(), isNull);
-    });
   }
 }

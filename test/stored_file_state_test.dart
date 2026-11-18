@@ -1,71 +1,9 @@
 import 'dart:io';
 
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
-import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/utils/file_access.dart';
-
-class _HistoryNotifier extends DownloadHistoryNotifier {
-  _HistoryNotifier(HistoryDatabase database, this._items)
-    : super(database: database);
-
-  final List<DownloadHistoryItem> _items;
-
-  @override
-  DownloadHistoryState build() =>
-      DownloadHistoryState(items: _items, totalCount: _items.length);
-}
-
-class _HistoryRows implements HistoryDatabase {
-  _HistoryRows(Iterable<DownloadHistoryItem> items)
-    : rows = {for (final item in items) item.id: item};
-
-  final Map<String, DownloadHistoryItem> rows;
-
-  @override
-  Future<List<Map<String, dynamic>>> getEntriesWithPathsPage({
-    required int limit,
-    int offset = 0,
-  }) async => [
-    for (final item in rows.values.skip(offset).take(limit))
-      {
-        'id': item.id,
-        'file_path': item.filePath,
-        'storage_mode': item.storageMode,
-        'download_tree_uri': item.downloadTreeUri,
-        'saf_relative_dir': item.safRelativeDir,
-        'saf_file_name': item.safFileName,
-        'downloaded_at': item.downloadedAt.toUtc().toIso8601String(),
-      },
-  ];
-
-  @override
-  Future<Map<String, dynamic>?> getById(String id) async => rows[id]?.toJson();
-
-  @override
-  Future<List<String>> deleteInspectedEntries(
-    List<Map<String, dynamic>> entries,
-  ) async => [
-    for (final entry in entries)
-      if (rows.remove(entry['id']) != null) entry['id'] as String,
-  ];
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
-DownloadHistoryItem _download(String id, String path) => DownloadHistoryItem(
-  id: id,
-  trackName: 'Song $id',
-  artistName: 'Artist',
-  albumName: 'Album',
-  filePath: path,
-  service: 'test',
-  downloadedAt: DateTime.utc(2026),
-);
 
 /// A path on a drive that is not plugged in: nothing of it exists below the
 /// filesystem root.
@@ -153,46 +91,4 @@ void main() {
       expect(await storedFileState(''), isNull);
     });
   });
-
-  test(
-    'orphan cleanup removes deleted downloads and keeps those on missing storage',
-    () async {
-      final root = await Directory.systemTemp.createTemp('orphan_storage_');
-      addTearDown(() => root.delete(recursive: true));
-      final album = await Directory(
-        p.join(root.path, 'Artist', 'Album'),
-      ).create(recursive: true);
-      final kept = await File(
-        p.join(album.path, '01 Kept.flac'),
-      ).writeAsString('');
-      final db = _HistoryRows([
-        _download('kept', kept.path),
-        _download('deleted', p.join(album.path, '02 Deleted.flac')),
-        _download(
-          'folder',
-          p.join(root.path, 'Artist', 'Removed Album', '01.flac'),
-        ),
-        _download('unplugged', _unpluggedPath('01 Song.flac')),
-      ]);
-      final container = ProviderContainer(
-        overrides: [
-          downloadHistoryProvider.overrideWith(
-            () => _HistoryNotifier(db, db.rows.values.toList()),
-          ),
-        ],
-      );
-      addTearDown(container.dispose);
-
-      final removed = await container
-          .read(downloadHistoryProvider.notifier)
-          .cleanupOrphanedDownloads();
-
-      expect(removed, 2);
-      expect(db.rows.keys, unorderedEquals(['kept', 'unplugged']));
-      expect(
-        container.read(downloadHistoryProvider).items.map((item) => item.id),
-        unorderedEquals(['kept', 'unplugged']),
-      );
-    },
-  );
 }

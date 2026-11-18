@@ -5,9 +5,6 @@ import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
-import 'package:sistrum/providers/explore_provider.dart';
-import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/library_mixes_provider.dart';
 import 'package:sistrum/providers/recent_access_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
@@ -76,8 +73,6 @@ void main() {
         await tester.pump(const Duration(seconds: 1));
         expect(find.text('Tyler, The Creator and Frank Ocean'), findsOneWidget);
         if (mornye) {
-          expect(find.text('Top Picks for You'), findsOneWidget);
-          expect(find.text('Made for You'), findsOneWidget);
           expect(find.byType(MornyeMixBanner), findsOneWidget);
           expect(find.text('Mixes for you'), findsNothing);
           // Music's Home has no tools.
@@ -325,7 +320,6 @@ Future<void> _pumpMix(WidgetTester tester, {required bool mornye}) async {
         settingsProvider.overrideWith(
           () => FixedSettingsNotifier(const AppSettings()),
         ),
-        downloadHistoryProvider.overrideWith(_History.new),
       ],
       child: MaterialApp(
         theme: mornye ? MornyeTheme.build(Brightness.dark) : AppTheme.dark(),
@@ -352,15 +346,9 @@ Future<void> _pumpHome(
         settingsProvider.overrideWith(
           () => FixedSettingsNotifier(
             const AppSettings(
-              searchProvider: 'example',
-              homeFeedProvider: AppSettings.homeFeedProviderOff,
-              hasSearchedBefore: true,
             ),
           ),
         ),
-        extensionProvider.overrideWith(_Extensions.new),
-        exploreProvider.overrideWith(_Explore.new),
-        downloadHistoryProvider.overrideWith(_History.new),
         recentAccessProvider.overrideWith(_Recent.new),
         libraryMixesProvider.overrideWith(
           mixesProvider ?? (ref) async => mixes,
@@ -396,26 +384,6 @@ class _ArrivingMixes extends Notifier<List<LibraryMixView>> {
   List<LibraryMixView> build() => const [];
 
   void arrive(List<LibraryMixView> mixes) => state = mixes;
-}
-
-/// Extensions still starting, so Home neither waits for a feed nor asks for
-/// a search provider.
-class _Extensions extends ExtensionNotifier {
-  @override
-  ExtensionState build() => const ExtensionState();
-}
-
-class _Explore extends ExploreNotifier {
-  @override
-  ExploreState build() => const ExploreState();
-
-  @override
-  Future<void> fetchHomeFeed({bool forceRefresh = false}) async {}
-}
-
-class _History extends DownloadHistoryNotifier {
-  @override
-  DownloadHistoryState build() => DownloadHistoryState();
 }
 
 class _Recent extends RecentAccessNotifier {

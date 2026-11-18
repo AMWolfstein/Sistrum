@@ -6,7 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/library_search_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
@@ -31,7 +30,7 @@ import 'support/tooltip_finder.dart';
 /// under the same catalog id.
 const _tracks = [
   Track(
-    id: 'catalog-1',
+    id: 'local-current',
     name: 'Current song',
     artistName: 'Example artist',
     albumName: 'Example album',
@@ -57,10 +56,9 @@ const _tracks = [
   ),
 ];
 
-/// The downloaded file of the first track is playing.
+/// The first track's file is playing; its row id names the same file.
 final _identity = CurrentTrackIdentity(
-  recordIds: const {'/music/current.flac', 'download-row'},
-  catalogIds: const {'catalog-1'},
+  recordIds: const {'/music/current.flac', 'local-current'},
   matchKey: catalogTrackKey(_tracks.first).matchKey,
 );
 
@@ -95,19 +93,10 @@ class _Library extends LocalLibraryNotifier {
   LocalLibraryState build() => LocalLibraryState();
 }
 
-class _History extends DownloadHistoryNotifier {
-  @override
-  DownloadHistoryState build() => DownloadHistoryState();
-}
-
 List<Override> _overrides({MediaItem? current, required bool identified}) => [
   settingsProvider.overrideWith(FixedSettingsNotifier.new),
   libraryCollectionsProvider.overrideWith(_Collections.new),
   localLibraryProvider.overrideWith(_Library.new),
-  downloadHistoryProvider.overrideWith(_History.new),
-  downloadHistoryVisibleBatchExistsProvider.overrideWith(
-    (ref, request) => const {},
-  ),
   localLibraryCoverProvider.overrideWith((ref, request) async => null),
   localLibraryFirstCoverProvider.overrideWith((ref, request) async => null),
   currentMediaItemProvider.overrideWithBuild(
@@ -197,8 +186,6 @@ void main() {
           for (final track in _tracks)
             TrackListTile(
               track: track,
-              isInHistory: true,
-              onDownload: ({bool forceQualityPicker = false}) {},
               leading: Text('${track.trackNumber}'),
             ),
         ],
@@ -234,7 +221,6 @@ void main() {
           TrackListTable(
             tracks: _tracks,
             ids: [for (var i = 0; i < _tracks.length; i++) 'row-$i'],
-            isInHistory: const [true, true, true],
             selectedIds: const {},
             onSelect: (_, _, _) {},
             onActivate: (_) {},

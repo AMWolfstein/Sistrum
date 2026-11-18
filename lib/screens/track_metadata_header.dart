@@ -69,7 +69,6 @@ extension _TrackMetadataHeader on _TrackMetadataScreenState {
     final artworkSource = resolveMetadataArtworkSource(
       embeddedCoverPath: sharedEmbeddedCoverPath,
       localCoverPath: _localCoverPath,
-      remoteCoverUrl: _coverUrl,
     );
 
     Widget placeholder(double iconSize) => ColoredBox(
@@ -90,16 +89,6 @@ extension _TrackMetadataHeader on _TrackMetadataScreenState {
     }) {
       final source = artworkSource;
       if (source == null) return placeholder(iconSize);
-      if (isHttpCoverUrl(source)) {
-        return CachedCoverImage(
-          imageUrl: source,
-          fit: BoxFit.cover,
-          memCacheWidth: cacheWidth,
-          memCacheHeight: cacheHeight,
-          placeholder: (_, _) => ColoredBox(color: colorScheme.surface),
-          errorWidget: (_, _, _) => placeholder(iconSize),
-        );
-      }
       final filePath = coverFilePath(source);
       if (filePath == null) return placeholder(iconSize);
       return Image.file(
@@ -133,9 +122,7 @@ extension _TrackMetadataHeader on _TrackMetadataScreenState {
           iconSize: 80,
         ),
       ),
-      paletteSource: artworkSource == null || isHttpCoverUrl(artworkSource)
-          ? artworkSource
-          : coverFilePath(artworkSource),
+      paletteSource: coverFilePath(artworkSource),
       blurAndScrimBackground: artworkSource != null,
       // The header rounds the cover outside the Hero, so the flight rounds
       // it itself.
@@ -231,7 +218,7 @@ extension _TrackMetadataHeader on _TrackMetadataScreenState {
       label: l10n.trackMetadataPlay,
       onPressed: hasFile ? () => _openFile(context, rawFilePath) : null,
     );
-    final edit = (unchecked ? !_isNetworkItem : _canEditMetadataFile)
+    final edit = (unchecked || _canEditMetadataFile)
         ? HeaderCircleButton(
             icon: Icons.edit_outlined,
             tooltip: l10n.trackEditMetadata,

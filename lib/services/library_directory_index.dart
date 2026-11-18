@@ -43,8 +43,8 @@ class LibraryDirectoryEntry {
   final String? safFileName;
 }
 
-/// Where a Library file sits: the volume, SAF tree or network connection it
-/// is on, the folders below that, and its file name.
+/// Where a Library file sits: the volume or SAF tree it is on, the folders
+/// below that, and its file name.
 class LibraryFileLocation {
   const LibraryFileLocation({
     required this.root,
@@ -54,11 +54,10 @@ class LibraryFileLocation {
     this.separator = '/',
   });
 
-  /// Identifies the volume, tree or connection.
+  /// Identifies the volume or SAF tree.
   final String root;
 
-  /// The root as a path starts with it: `/`, `C:\`, `SD Card` or the name
-  /// of a network connection.
+  /// The root as a path starts with it: `/`, `C:\` or `SD Card`.
   final String rootLabel;
   final List<String> folders;
   final String fileName;
@@ -75,32 +74,17 @@ List<String> _segments(String path) =>
 /// The location of a stored Library path, or null when it names no file.
 ///
 /// Handles plain paths on every platform, SAF `content://` documents (shown
-/// as the storage path they map to when the provider allows), CUE virtual
-/// tracks and `network://` files, whose root reads as the connection name
-/// from [networkNames].
+/// as the storage path they map to when the provider allows) and CUE virtual
+/// tracks.
 LibraryFileLocation? libraryFileLocation(
   String path, {
   String? safTreeUri,
   String? safRelativeDir,
   String? safFileName,
-  Map<String, String> networkNames = const {},
 }) {
   final file = (isCueVirtualPath(path) ? stripCueTrackSuffix(path) : path)
       .trim();
   if (file.isEmpty) return null;
-  if (file.startsWith('network://')) {
-    final uri = Uri.tryParse(file);
-    final parts = uri?.pathSegments.where((part) => part.isNotEmpty).toList();
-    if (uri == null || uri.host.isEmpty || parts == null || parts.isEmpty) {
-      return null;
-    }
-    return LibraryFileLocation(
-      root: 'network://${uri.host}',
-      rootLabel: networkNames[uri.host] ?? uri.host,
-      folders: parts.sublist(0, parts.length - 1),
-      fileName: parts.last,
-    );
-  }
   if (isContentUri(file)) {
     return _documentLocation(
       file,
@@ -320,10 +304,7 @@ class LibraryDirectoryIndex {
   /// or several folders collapse, so [root] opens where the music starts.
   /// When the songs sit on several volumes or connections, [root] lists
   /// each of them by its collapsed path instead.
-  factory LibraryDirectoryIndex.build(
-    Iterable<LibraryDirectoryEntry> entries, {
-    Map<String, String> networkNames = const {},
-  }) {
+  factory LibraryDirectoryIndex.build(Iterable<LibraryDirectoryEntry> entries) {
     final top = LibraryDirectory._('', '', '');
     final byKey = <String, LibraryDirectory>{'': top};
     for (final entry in entries) {
@@ -332,7 +313,6 @@ class LibraryDirectoryIndex {
         safTreeUri: entry.safTreeUri,
         safRelativeDir: entry.safRelativeDir,
         safFileName: entry.safFileName,
-        networkNames: networkNames,
       );
       if (location == null) continue;
       var folder = byKey.putIfAbsent(location.root, () {

@@ -4,7 +4,6 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/folder_cover_file.dart'
@@ -12,7 +11,6 @@ import 'package:sistrum/services/folder_cover_file.dart'
 import 'package:sistrum/services/lyrics_sidecar.dart' show mlrcExtension;
 import 'package:sistrum/services/motion_artwork_folder.dart'
     show motionArtworkFileName;
-import 'package:sistrum/services/network_storage_service.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/utils/logger.dart';
@@ -118,13 +116,11 @@ final songLeftoversProvider = Provider<SongLeftovers>(SongLeftovers.new);
 
 /// Deletes the songs the user removes together with what they leave behind:
 /// their `.lrc` and `.mlrc` lyrics files, and, while Remove Empty Folders is
-/// on, the album and artist folders they leave empty inside the download
-/// and Local Library folders. A folder still counts as empty when it only
-/// holds system index files, Mornye's `cover.mp4` or lyrics files of songs
-/// that are gone, or the `folder.jpg` downloads save while Save Album
-/// Covers is on. Folders are removed while the download queue is idle, so
-/// a download never loses the folder it is writing into. Network songs and
-/// CUE tracks are only deleted.
+/// on, the album and artist folders they leave empty inside the Local Library
+/// folders. A folder still counts as empty when it only holds system index
+/// files, Mornye's `cover.mp4` or lyrics files of songs that are gone, or a
+/// `folder.jpg` cover while Save Album Covers is on. CUE tracks are only
+/// deleted.
 class SongLeftovers {
   SongLeftovers(
     this._ref, {
@@ -136,27 +132,16 @@ class SongLeftovers {
     )?
     documentPlace,
     String? home,
-    Future<bool> Function(String source)? orphanedNetworkSong,
   }) : _deleteSong = deleteSong ?? deleteFile,
-       _orphanedNetworkSong =
-           orphanedNetworkSong ??
-           NetworkStorageService.instance.isOrphanedSource,
        _files = files,
        _documents = documents,
        _documentPlace = documentPlace ?? PlatformBridge.safSongFolders,
        _home = home {
-    _ref.listen(downloadQueueProvider.select((queue) => queue.isProcessing), (
-      _,
-      processing,
-    ) {
-      if (!processing) flushFolders();
-    });
     _ref.onDispose(dispose);
   }
 
   final Ref _ref;
   final Future<bool> Function(String? source) _deleteSong;
-  final Future<bool> Function(String source) _orphanedNetworkSong;
   final SongFolderStore _files;
   final SongFolderStore _documents;
   final Future<({String name, List<({String uri, bool root})> folders})?>
@@ -170,17 +155,7 @@ class SongLeftovers {
 
   /// Deletes the song at [source] as [deleteFile] does, then what it leaves
   /// behind. Returns whether the song is gone.
-  ///
-  /// A network song whose server connection was removed cannot be reached
-  /// to delete. It counts as gone, so the caller removes it from the
-  /// Library instead of keeping a song nothing can delete.
   Future<bool> delete(String? source) async {
-    if (source != null &&
-        source.startsWith('network://') &&
-        await _orphanedNetworkSong(source)) {
-      _log.i('Removing a song of a removed network server from the Library');
-      return true;
-    }
     final place = await _placeOf(source);
     if (!await _deleteSong(source)) return false;
     if (place == null || _disposed) return true;
@@ -202,9 +177,7 @@ class SongLeftovers {
     final path = source.startsWith('EXISTS:')
         ? source.substring(7).trim()
         : source;
-    if (path.isEmpty ||
-        path.startsWith('network://') ||
-        isCueVirtualPath(path)) {
+    if (path.isEmpty || isCueVirtualPath(path)) {
       return null;
     }
     try {
@@ -243,8 +216,6 @@ class SongLeftovers {
     final settings = _ref.read(settingsProvider);
     final roots = [
       for (final root in {
-        settings.downloadDirectory,
-        _ref.read(downloadQueueProvider).outputDir,
         settings.localLibraryPath,
         for (final source in _ref.read(localLibraryProvider).sources)
           source.path,
@@ -282,10 +253,8 @@ class SongLeftovers {
     }
   }
 
-  /// Removes the folders waiting for an idle download queue.
   void flushFolders() {
     if (_removing || _disposed || _folders.isEmpty) return;
-    if (_ref.read(downloadQueueProvider).isProcessing) return;
     unawaited(_removeAll());
   }
 
@@ -293,8 +262,6 @@ class SongLeftovers {
     _removing = true;
     try {
       while (_folders.isNotEmpty && !_disposed) {
-        // A queue that starts again holds the rest until it is idle.
-        if (_ref.read(downloadQueueProvider).isProcessing) return;
         final place = _folders.removeFirst();
         try {
           await _removeEmptyFolders(place);

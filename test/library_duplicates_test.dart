@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/services/library_duplicates.dart';
 import 'package:sistrum/services/library_schema.dart';
-import 'package:sistrum/services/network_storage_service.dart';
 
 import 'support/sqlite_process_database.dart';
 
@@ -45,50 +44,6 @@ void main() {
       .then((_) {});
 
   test(
-    'disabled NAS history does not pair with the replacement RSAF library',
-    () async {
-      await db.insert('library_sources', {
-        'id': 'nas',
-        'path': 'network://nas/',
-        'display_name': 'SMB',
-        'enabled': 0,
-        'available': 1,
-      });
-      await add(
-        'old-download',
-        'network://nas/Album/Track.flac',
-        history: true,
-      );
-      await add(
-        'new-scan',
-        'content://rsaf/document/remote%3AAlbum%2FTrack.flac',
-      );
-      await add(
-        'disabled-scan',
-        'network://nas/Album/Track.flac',
-        sourceId: 'nas',
-      );
-      expect(await readIsrcDuplicateGroups(db), isEmpty);
-      // The historical record is retained, not purged while storage is disabled.
-      expect(await db.query('history_db.history'), hasLength(1));
-      await db.update(
-        'library_sources',
-        {'enabled': 1},
-        where: 'id = ?',
-        whereArgs: ['nas'],
-      );
-      expect((await readIsrcDuplicateGroups(db)).single.entries, hasLength(2));
-      await db.update(
-        'library_sources',
-        {'available': 0},
-        where: 'id = ?',
-        whereArgs: ['nas'],
-      );
-      expect(await readIsrcDuplicateGroups(db), isEmpty);
-    },
-  );
-
-  test(
     'rescans and alternate SAF tree URIs do not duplicate one physical file',
     () async {
       const document = 'remote%3AAlbum%2FTrack.flac';
@@ -107,54 +62,12 @@ void main() {
     },
   );
 
-  for (final protocol in [NetworkProtocol.smb, NetworkProtocol.webdav]) {
-    test('NAS connection aliases are one physical file ($protocol)', () async {
-      final scheme = protocol == NetworkProtocol.smb ? 'smb' : 'https';
-      final connections = {
-        for (final (id, address) in [
-          ('root', '$scheme://nas.test/music/'),
-          ('folder', '$scheme://nas.test/music/downloads/'),
-          ('other', '$scheme://other.test/music/'),
-          ('user', '$scheme://nas.test/music/'),
-        ])
-          id: NetworkConnection(
-            id: id,
-            name: 'NAS',
-            protocol: protocol,
-            address: address,
-            username: id == 'user' ? 'other-user' : 'listener',
-          ),
-      };
-      await add('first', 'network://root/downloads/Track.flac');
-      await add('alias', 'network://folder/Track.flac');
-      expect(
-        await readIsrcDuplicateGroups(
-          db,
-          loadNetworkConnections: () async => connections.values.toList(),
-        ),
-        isEmpty,
-      );
-      // A real copy, another server, and another account remain distinct.
-      await add('copy', 'network://root/processed/Track.flac');
-      await add('server', 'network://other/downloads/Track.flac');
-      await add('account', 'network://user/downloads/Track.flac');
-      final groups = await readIsrcDuplicateGroups(
-        db,
-        networkConnections: connections,
-      );
-      expect(groups.single.entries, hasLength(4));
-    });
-  }
-
   test('actual copies and different formats remain selectable', () async {
     await add('download', '/music/Track.flac', history: true);
     await add('indexed-download', 'file:///music/Track.flac');
     await add('conversion', '/music/Track.opus');
     await add('copy', '/playlist/Track.flac');
-    final group = (await readIsrcDuplicateGroups(
-      db,
-      loadNetworkConnections: () async => throw StateError('No NAS required'),
-    )).single;
+    final group = (await readIsrcDuplicateGroups(db)).single;
     expect(group.entries.map((entry) => entry.filePath).toSet(), {
       '/music/Track.flac',
       '/music/Track.opus',

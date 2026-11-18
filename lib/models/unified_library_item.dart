@@ -1,14 +1,12 @@
 import 'package:sistrum/models/library_collections.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/models/download_history.dart';
 import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/utils/audio_quality_badge_policy.dart';
 import 'package:sistrum/utils/string_utils.dart';
 
-enum LibraryItemSource { downloaded, local }
+enum LibraryItemSource { local }
 
-/// A library track backed by either a download-history record or a
-/// local-library scan record, unified for shared list and batch handling.
+/// A library track backed by a local-library scan record.
 class UnifiedLibraryItem {
   final String id;
   final String trackName;
@@ -21,7 +19,6 @@ class UnifiedLibraryItem {
   final DateTime addedAt;
   final LibraryItemSource source;
 
-  final DownloadHistoryItem? historyItem;
   final LocalLibraryItem? localItem;
 
   UnifiedLibraryItem({
@@ -35,31 +32,8 @@ class UnifiedLibraryItem {
     this.quality,
     required this.addedAt,
     required this.source,
-    this.historyItem,
     this.localItem,
   });
-
-  factory UnifiedLibraryItem.fromDownloadHistory(DownloadHistoryItem item) {
-    return UnifiedLibraryItem(
-      id: 'dl_${item.id}',
-      trackName: item.trackName,
-      artistName: item.artistName,
-      albumName: item.albumName,
-      coverUrl: item.coverUrl,
-      filePath: item.filePath,
-      quality:
-          buildDisplayAudioQuality(
-            bitDepth: item.bitDepth,
-            sampleRate: item.sampleRate,
-            bitrateKbps: item.bitrate,
-            format: item.format,
-          ) ??
-          item.quality,
-      addedAt: item.downloadedAt,
-      source: LibraryItemSource.downloaded,
-      historyItem: item,
-    );
-  }
 
   factory UnifiedLibraryItem.fromLocalLibrary(LocalLibraryItem item) {
     return UnifiedLibraryItem(
@@ -85,20 +59,6 @@ class UnifiedLibraryItem {
   }
 
   String? qualityForMode(String mode) {
-    final history = historyItem;
-    if (history != null) {
-      return buildLibraryAudioQualityLabel(
-        mode: mode,
-        format: history.format,
-        filePath: history.filePath,
-        fileName: history.safFileName,
-        bitrateKbps: history.bitrate,
-        bitDepth: history.bitDepth,
-        sampleRate: history.sampleRate,
-        storedQuality: history.quality ?? quality,
-      );
-    }
-
     final local = localItem;
     if (local != null) {
       return buildLibraryAudioQualityLabel(
@@ -118,13 +78,6 @@ class UnifiedLibraryItem {
   /// Returns the collection key used to match this item against playlist
   /// entries: prefer ISRC, fall back to source:id.
   String get collectionKey {
-    if (historyItem != null) {
-      return libraryTrackCollectionKey(
-        id: historyItem!.collectionTrackId,
-        source: historyItem!.collectionTrackSource,
-        isrc: historyItem!.isrc,
-      );
-    }
     if (localItem != null) {
       return libraryTrackCollectionKey(
         id: localItem!.id,
@@ -136,23 +89,6 @@ class UnifiedLibraryItem {
   }
 
   Track toTrack() {
-    if (historyItem != null) {
-      final h = historyItem!;
-      return Track(
-        id: h.collectionTrackId,
-        name: h.trackName,
-        artistName: h.artistName,
-        albumName: h.albumName,
-        albumArtist: h.albumArtist,
-        coverUrl: h.coverUrl,
-        isrc: h.isrc,
-        duration: h.duration ?? 0,
-        trackNumber: h.trackNumber,
-        discNumber: h.discNumber,
-        releaseDate: h.releaseDate,
-        source: h.collectionTrackSource,
-      );
-    }
     if (localItem != null) {
       final l = localItem!;
       return Track(

@@ -2,8 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math' show Random;
 import 'package:sistrum/widgets/open_audio_button.dart';
-import 'package:flutter/foundation.dart'
-    show ValueListenable, listEquals, setEquals;
+import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:material_ui/material_ui.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_choice_chip.dart';
@@ -12,8 +11,6 @@ import 'package:sistrum/services/shell_navigation_service.dart';
 import 'package:sistrum/widgets/error_card.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/queue_swipe.dart';
-import 'package:sistrum/widgets/swipe_delete_dismissible.dart';
-import 'package:sistrum/widgets/download_state_switcher.dart';
 import 'package:sistrum/widgets/track_card.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/app_tokens.dart';
@@ -24,7 +21,6 @@ import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/pinned_section_sliver_list.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
-import 'package:sistrum/widgets/app_progress_indicator.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/album_detail_header.dart'
@@ -49,7 +45,6 @@ import 'package:sistrum/providers/library_browse_provider.dart';
 import 'package:sistrum/providers/library_genres_provider.dart';
 import 'package:sistrum/providers/library_counts_provider.dart';
 import 'package:sistrum/providers/library_search_provider.dart';
-import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/widgets/app_shape.dart';
 import 'package:sistrum/widgets/library_fast_scroller.dart';
 import 'package:sistrum/widgets/player_artwork.dart';
@@ -60,13 +55,8 @@ import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/utils/library_format_filters.dart';
 import 'package:sistrum/utils/ordered_range_selection.dart';
-import 'package:sistrum/utils/saf_download_tree.dart';
-import 'package:sistrum/models/download_item.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/widgets/network_offline_actions.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
-import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
@@ -75,13 +65,11 @@ import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/services/music_player_service.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/album_completeness.dart';
-import 'package:sistrum/services/local_track_redownload_service.dart';
 import 'package:sistrum/services/batch_track_actions.dart';
 import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/screens/listening_rewind_screen.dart';
 import 'package:sistrum/screens/favorite_artists_screen.dart';
-import 'package:sistrum/screens/downloaded_album_screen.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/screens/library_artist_screen.dart';
 import 'package:sistrum/screens/library_tracks_folder_screen.dart';
@@ -89,16 +77,13 @@ import 'package:sistrum/screens/library_mix_screen.dart';
 import 'package:sistrum/screens/local_album_screen.dart';
 import 'package:sistrum/screens/mornye_library_screen.dart';
 import 'package:sistrum/controllers/clickable_metadata.dart';
-import 'package:sistrum/controllers/completion_bridge_tracker.dart';
 import 'package:sistrum/controllers/local_track_batch_actions.dart';
 import 'package:sistrum/controllers/queue_library_pager.dart';
 import 'package:sistrum/controllers/queue_library_refresh_policy.dart';
 import 'package:sistrum/utils/string_utils.dart';
-import 'package:sistrum/widgets/download_service_picker.dart';
 import 'package:sistrum/widgets/animated_library_sliver_grid.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/selection_bottom_bar.dart';
-import 'package:sistrum/widgets/smoothed_progress.dart';
 import 'package:sistrum/widgets/song_row_tap.dart';
 import 'package:sistrum/widgets/two_finger_pinch_listener.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
@@ -117,11 +102,7 @@ part 'queue_tab_filter_widgets.dart';
 part 'queue_tab_sections.dart';
 part 'queue_tab_batch_actions.dart';
 part 'queue_tab_item_widgets.dart';
-part 'queue_tab_download_labels.dart';
-part 'queue_tab_download_dialogs.dart';
 part 'queue_tab_filter_sheet.dart';
-
-const _historyItemForCompletionBridge = CompletionBridgeTracker.historyItemFor;
 
 class QueueTab extends ConsumerStatefulWidget {
   final String? librarySection;
@@ -141,7 +122,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
   static const int _libraryPageSize = 300;
   final LibraryFileAvailabilityCache _fileExistsCache =
       LibraryFileAvailabilityCache();
-  late final CompletionBridgePlayableProbeCache _completionBridgePlayableProbe;
   // Desktop windows are much wider than a phone, so covers start larger
   // there; pinching (or a trackpad pinch) resizes within the range.
   static double get _libraryGridMinExtent => isDesktopPlatform ? 140 : 92;
@@ -214,14 +194,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
   bool _searchFieldCheckScheduled = false;
   String _searchQuery = '';
   Timer? _searchDebounce;
-  final CompletionBridgeTracker _completionBridgeTracker =
-      CompletionBridgeTracker();
-  Map<String, DownloadItem> get _completionBridge =>
-      _completionBridgeTracker.items;
-  Map<String, DateTime> get _completionBridgeAt =>
-      _completionBridgeTracker.addedAt;
-  Set<String> get _bridgePrecacheStarted =>
-      _completionBridgeTracker.precacheStarted;
   String? _filterSource;
   String? _filterQuality;
   String? _filterFormat;
@@ -245,26 +217,12 @@ class _QueueTabState extends ConsumerState<QueueTab> {
   String? _sectionLocale;
   List<_LibrarySection> _cachedTrackSections = const [];
 
-  /// In-memory History snapshots and counts, regrouped only when the
-  /// (immutable) History list changes.
-  List<DownloadHistoryItem>? _snapshotHistory;
-  final Map<(String, int), _QueueLibraryPageData> _historySnapshots = {};
-  final Map<int, QueueLibraryCounts> _historySnapshotCountsByTotal = {};
-
   /// Filter data per mode with the page and totals it came
   /// from, so an unchanged page keeps its filtered rows across rebuilds.
   final Map<String, (_QueueLibraryPageData, int?, int?, _FilterContentData)>
   _filterDataByMode = {};
 
-  /// Per mode, what the page derives from its loaded songs: their ids, the
-  /// songs without the pinned download rows, their navigation lists and the
-  /// desktop table rows. Each is kept while its inputs stay the same, so a
-  /// click or a resize does not walk every loaded song.
-  final Map<String, _LoadedSongs> _loadedSongsByMode = {};
-  final Map<
-    String,
-    (List<UnifiedLibraryItem>, List<DownloadHistoryItem>, _LibraryNavigation)
-  >
+  final Map<String, (List<UnifiedLibraryItem>, _LibraryNavigation)>
   _navigationByMode = {};
   final Map<String, _LibrarySongTableRows> _songTableByMode = {};
 
@@ -277,16 +235,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
     pageSize: _libraryPageSize,
     combinePages: _QueueLibraryPageData.combine,
   );
-
-  double _queueCoverSize() {
-    // A desktop pane's shortest side is always past 390, so desktop skips
-    // the size read and resizes do not rebuild Library through it.
-    final scale = isDesktopPlatform
-        ? 1.0
-        : (MediaQuery.sizeOf(context).shortestSide / 390).clamp(0.82, 1.0);
-    final textScale = effectiveTextScale(context);
-    return (56 * scale * (1 + ((textScale - 1) * 0.12))).clamp(46.0, 56.0);
-  }
 
   /// setState is @protected, so the extension part files route rebuilds
   /// through this forwarder.
@@ -318,9 +266,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
     widget.tabActive?.addListener(_applyDefaultLibraryViewOnTabVisible);
     DownloadedEmbeddedCoverResolver.previewsCleared.addListener(
       _onEmbeddedCoverChanged,
-    );
-    _completionBridgePlayableProbe = CompletionBridgePlayableProbeCache(
-      onPlayable: _fileExistsCache.markExists,
     );
     _libraryScrollController.addListener(_scheduleSearchFieldCheck);
   }
@@ -398,7 +343,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
     _hideSelectionOverlay();
     _hidePlaylistSelectionOverlay();
     _fileExistsCache.dispose();
-    _completionBridgePlayableProbe.dispose();
     _embeddedCoverVersion.dispose();
     _libraryGridExtent.dispose();
     _filterPageController?.dispose();
@@ -504,28 +448,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
 
   void _resetLibraryPaging() => _pager.resetPaging();
 
-  void _scheduleBlankLibraryRepair({
-    required bool hasQueueItems,
-    required bool hasLibraryContent,
-    required bool hasAnyLibraryItems,
-    required bool isLibraryPageLoading,
-  }) {
-    _pager.scheduleBlankLibraryRepair(
-      hasQueueItems: hasQueueItems,
-      hasLibraryContent: hasLibraryContent,
-      hasAnyLibraryItems: hasAnyLibraryItems,
-      isLibraryPageLoading: isLibraryPageLoading,
-      isMounted: () => mounted,
-      repair: () {
-        ref.read(downloadHistoryProvider.notifier).reloadFromStorage();
-        if (ref.read(settingsProvider).localLibraryEnabled) {
-          ref.read(localLibraryProvider.notifier).reloadFromStorage();
-        }
-        setState(() {});
-      },
-    );
-  }
-
   bool _handleLibraryScrollNotification({
     required ScrollNotification notification,
     required String filterMode,
@@ -587,19 +509,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
     });
   }
 
-  Future<void> _scheduleDownloadedEmbeddedCoverRefreshForPath(
-    String? filePath, {
-    int? beforeModTime,
-    bool force = false,
-  }) async {
-    await DownloadedEmbeddedCoverResolver.scheduleRefreshForPath(
-      filePath,
-      beforeModTime: beforeModTime,
-      force: force,
-      onChanged: _onEmbeddedCoverChanged,
-    );
-  }
-
   String? _resolveDownloadedEmbeddedCoverPath(String? filePath) {
     return DownloadedEmbeddedCoverResolver.resolve(
       filePath,
@@ -609,11 +518,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
 
   ValueListenable<bool> _fileExistsListenable(String? filePath) {
     return _fileExistsCache.listenable(filePath);
-  }
-
-  void _refreshCompletionBridgePath(String? filePath) {
-    _fileExistsCache.refreshForPath(filePath);
-    _completionBridgePlayableProbe.refreshForPath(filePath);
   }
 
   int get _activeFilterCount {
@@ -653,30 +557,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
       settingsProvider.select((s) => s.localLibraryEnabled),
     );
 
-    ref.listen(downloadQueueLookupProvider, (previous, next) {
-      _completionBridgeTracker.onQueueLookupChanged(
-        previous,
-        next,
-        setState: setState,
-        refreshPath: _refreshCompletionBridgePath,
-      );
-    });
-    ref.listen<int>(
-      downloadHistoryProvider.select((state) => state.loadedIndexVersion),
-      (previous, next) {
-        if (previous == null || previous == next) return;
-        final historyItems = ref.read(downloadHistoryProvider).items;
-        _completionBridgeTracker.refreshPaths(
-          historyItems,
-          refreshPath: _refreshCompletionBridgePath,
-        );
-        // The family provider already reruns for the new revision. Retain its
-        // last successful page while SQLite is loading so metadata backfills
-        // and download completions cannot flash the Library as empty.
-        _pager.resetOffsets();
-        if (mounted) setState(() {});
-      },
-    );
     if (localLibraryEnabled) {
       ref.listen<int>(
         localLibraryProvider.select((state) => state.loadedIndexVersion),
@@ -689,53 +569,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
       );
     }
 
-    if (widget.librarySection == 'downloads') {
-      final ids = ref.watch(
-        downloadQueueLookupProvider.select((s) => s.notCompletedItemIds),
-      );
-      final colors = Theme.of(context).colorScheme;
-      return CustomScrollView(
-        slivers: [
-          AppSliverHeader.page(title: context.l10n.libraryDownloads),
-          _buildQueueHeaderSliver(context, colors),
-          // The rows share the header's centered column on wide windows.
-          SliverPadding(
-            padding: EdgeInsets.symmetric(horizontal: wideListInset(context)),
-            sliver: SliverList.builder(
-              itemCount: ids.length,
-              itemBuilder: (context, index) => TrackCardSegment.at(
-                key: ValueKey(ids[index]),
-                index: index,
-                count: ids.length,
-                child: _QueueItemSliverRow(
-                  itemId: ids[index],
-                  colorScheme: colors,
-                  itemBuilder: _buildQueueItem,
-                ),
-              ),
-            ),
-          ),
-          if (ids.isEmpty)
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: Center(child: Text(context.l10n.libraryNoActiveDownloads)),
-            ),
-          const NavBarSliverSpacer(),
-        ],
-      );
-    }
-
-    final hasQueueItems = ref.watch(
-      downloadQueueLookupProvider.select((lookup) => lookup.itemIds.isNotEmpty),
-    );
-    final historyTotalCount = ref.watch(
-      downloadHistoryProvider.select((state) => state.totalCount),
-    );
-    // Completion-bridge cells need the finalized in-memory history record
-    // immediately, before the database-backed Library page refresh lands.
-    final inMemoryHistoryItems = ref.watch(
-      downloadHistoryProvider.select((state) => state.items),
-    );
     final localLibraryTotalCount = localLibraryEnabled
         ? ref.watch(localLibraryProvider.select((state) => state.totalCount))
         : 0;
@@ -789,29 +622,7 @@ class _QueueTabState extends ConsumerState<QueueTab> {
             ),
           )
         : ref.watch(libraryCountsProvider(countsRequest));
-    if (!identical(_snapshotHistory, inMemoryHistoryItems)) {
-      _snapshotHistory = inMemoryHistoryItems;
-      _historySnapshots.clear();
-      _historySnapshotCountsByTotal.clear();
-    }
-    final historySnapshotFallbackEnabled =
-        hasQueueItems &&
-        inMemoryHistoryItems.isNotEmpty &&
-        countsRequest.allowsInMemoryHistoryFallback;
-    final historySnapshotCounts = historySnapshotFallbackEnabled
-        ? _historySnapshotCountsByTotal.putIfAbsent(
-            historyTotalCount,
-            () => _historySnapshotCounts(
-              inMemoryHistoryItems,
-              persistedTotalCount: historyTotalCount,
-            ),
-          )
-        : null;
-    final queueCounts = _pager.resolveCounts(
-      countsValue,
-      countsRequest,
-      nonEmptyFallback: historySnapshotCounts,
-    );
+    final queueCounts = _pager.resolveCounts(countsValue, countsRequest);
 
     _QueueLibraryPageRequest pageRequest(String filterMode) {
       final offset = _pager.pageOffsetFor(filterMode);
@@ -857,35 +668,17 @@ class _QueueTabState extends ConsumerState<QueueTab> {
         ? const AsyncData(_QueueLibraryPageData())
         : ref.watch(_queueLibraryPageProvider(activePageRequest));
 
-    // The in-memory snapshot regroups every history item. It is only needed
-    // when a page is still empty, so build it on demand and at most once per
-    // mode for the (immutable) history list. Each mode resolves once per
-    // build; the page view and the selection overlay share the result.
     final pageDataByMode = <String, _QueueLibraryPageData>{};
     _QueueLibraryPageData pageData(String filterMode) =>
-        pageDataByMode.putIfAbsent(filterMode, () {
-          final request = filterMode == historyFilterMode
-              ? activePageRequest
-              : pageRequest(filterMode);
-          final historySnapshotAvailable =
-              hasQueueItems &&
-              inMemoryHistoryItems.isNotEmpty &&
-              request.allowsInMemoryHistoryFallback;
-          return _pager.resolvePageData(
+        pageDataByMode.putIfAbsent(
+          filterMode,
+          () => _pager.resolvePageData(
             filterMode == historyFilterMode ? activePageValue : null,
-            request,
-            nonEmptyFallback: historySnapshotAvailable
-                ? () => _historySnapshots.putIfAbsent(
-                    (request.filterMode, request.limit),
-                    () => _QueueLibraryPageData.fromHistorySnapshot(
-                      inMemoryHistoryItems,
-                      filterMode: request.filterMode,
-                      limit: request.limit,
-                    ),
-                  )
-                : null,
-          );
-        });
+            filterMode == historyFilterMode
+                ? activePageRequest
+                : pageRequest(filterMode),
+          ),
+        );
 
     _FilterContentData getFilterData(String filterMode) {
       final page = pageData(filterMode);
@@ -919,8 +712,7 @@ class _QueueTabState extends ConsumerState<QueueTab> {
 
     final currentPageData = pageData(historyFilterMode);
     final currentLoadedCount = historyFilterMode == 'albums'
-        ? currentPageData.groupedAlbums.length +
-              currentPageData.groupedLocalAlbums.length
+        ? currentPageData.groupedLocalAlbums.length
         : currentPageData.items.length;
     final currentTotalCount = switch (historyFilterMode) {
       'albums' => queueCounts.albumCount,
@@ -933,10 +725,7 @@ class _QueueTabState extends ConsumerState<QueueTab> {
         countsValue.isLoading || activePageValue.isLoading;
     final hasAnyLibraryItems =
         queueCounts.allTrackCount > 0 || queueCounts.albumCount > 0;
-    final hasLibraryContent =
-        historyTotalCount > 0 ||
-        inMemoryHistoryItems.isNotEmpty ||
-        (localLibraryEnabled && localLibraryTotalCount > 0);
+    final hasLibraryContent = localLibraryEnabled && localLibraryTotalCount > 0;
     final hasActiveSearch =
         _searchQuery.isNotEmpty || _searchController.text.trim().isNotEmpty;
     final hasCollections =
@@ -949,17 +738,8 @@ class _QueueTabState extends ConsumerState<QueueTab> {
         hasAnyLibraryItems ||
         hasCollections ||
         hasActiveSearch;
-    final showSearchField = shouldShowLibraryControls || hasQueueItems;
+    final showSearchField = shouldShowLibraryControls;
     final listInset = wideListInset(context);
-    if (!searchingLibrary) {
-      _scheduleBlankLibraryRepair(
-        hasQueueItems: hasQueueItems,
-        hasLibraryContent: hasLibraryContent,
-        hasAnyLibraryItems: hasAnyLibraryItems,
-        isLibraryPageLoading: isLibraryPageLoading,
-      );
-    }
-
     final selectionItems = getFilterData(
       historyFilterMode,
     ).filteredUnifiedItems;
@@ -1105,13 +885,11 @@ class _QueueTabState extends ConsumerState<QueueTab> {
                       context: context,
                       colorScheme: colorScheme,
                       filterMode: historyFilterMode,
-                      historyViewMode: 'list',
-                      hasQueueItems: false,
+                      historyViewMode: historyViewMode,
                       filterData: getFilterData(historyFilterMode),
                       collectionState: collectionState,
                       hasMoreLibrary: hasMoreLibrary,
                       isPageLoading: isLibraryPageLoading,
-                      inMemoryHistoryItems: inMemoryHistoryItems,
                     )
                   : PageView.builder(
                       controller: _filterPageController!,
@@ -1140,14 +918,12 @@ class _QueueTabState extends ConsumerState<QueueTab> {
                           colorScheme: colorScheme,
                           filterMode: filterMode,
                           historyViewMode: historyViewMode,
-                          hasQueueItems: hasQueueItems,
                           filterData: filterData,
                           collectionState: collectionState,
                           hasMoreLibrary: filterMode == historyFilterMode
                               ? hasMoreLibrary
                               : false,
                           isPageLoading: isLibraryPageLoading,
-                          inMemoryHistoryItems: inMemoryHistoryItems,
                         );
                       },
                     ),
@@ -1180,150 +956,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
         if (anchor != null) _playLibraryItem(anchor, selectionItems);
       },
       child: page,
-    );
-  }
-
-  Widget _buildQueueHeaderSliver(
-    BuildContext context,
-    ColorScheme colorScheme,
-  ) {
-    return Consumer(
-      builder: (context, ref, child) {
-        final queueCount = ref.watch(
-          downloadQueueLookupProvider.select(
-            (lookup) => lookup.notCompletedItemIds.length,
-          ),
-        );
-        final failedCount = ref.watch(
-          downloadQueueProvider.select((state) => state.failedCount),
-        );
-        final isProcessing = ref.watch(
-          downloadQueueProvider.select((state) => state.isProcessing),
-        );
-        final isPaused = ref.watch(
-          downloadQueueProvider.select((state) => state.isPaused),
-        );
-        // The header opens on the default spatial spring and fades on the
-        // effects spring, both on one switcher clock; it leaves in the
-        // fade's shorter time. Reduced motion switches at once.
-        const still = AppMotionSpec(Duration.zero, Curves.linear);
-        final reveal = AppMotion.spatial(
-          context,
-          still,
-          mornye: MornyeMotion.standard,
-        );
-        final fade = AppMotion.effects(
-          context,
-          still,
-          mornye: MornyeMotion.effects,
-        );
-        final length = reveal.duration > fade.duration
-            ? reveal.duration
-            : fade.duration;
-        Curve over(AppMotionSpec spec) => length == Duration.zero
-            ? Curves.linear
-            : Interval(
-                0,
-                spec.duration.inMicroseconds / length.inMicroseconds,
-                curve: spec.curve,
-              );
-        return SliverToBoxAdapter(
-          child: AnimatedSwitcher(
-            duration: length,
-            reverseDuration: fade.duration,
-            // Played backwards, the entrance springs would hold the leaving
-            // header open and opaque for most of its exit.
-            transitionBuilder: (child, animation) => SizeTransition(
-              sizeFactor: CurvedAnimation(
-                parent: animation,
-                curve: over(reveal),
-                reverseCurve: fade.leaving,
-              ),
-              alignment: Alignment.topCenter,
-              child: FadeTransition(
-                opacity: CurvedAnimation(
-                  parent: animation,
-                  curve: over(fade),
-                  reverseCurve: fade.leaving,
-                ),
-                child: child,
-              ),
-            ),
-            child: queueCount == 0
-                ? const SizedBox(
-                    width: double.infinity,
-                    key: ValueKey('dl_header_empty'),
-                  )
-                : Padding(
-                    key: const ValueKey('dl_header'),
-                    padding: EdgeInsetsDirectional.fromSTEB(
-                      16 + wideListInset(context),
-                      4,
-                      4 + wideListInset(context),
-                      4,
-                    ),
-                    child: Row(
-                      children: [
-                        AppIcon(
-                          Icons.downloading_rounded,
-                          size: 16,
-                          color: colorScheme.primary,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            context.l10n.queueDownloadingCount(queueCount),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.labelLarge
-                                ?.copyWith(
-                                  color: colorScheme.onSurfaceVariant,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                          ),
-                        ),
-                        if (failedCount > 0 && !isProcessing)
-                          AppIconButton(
-                            onPressed: () => ref
-                                .read(downloadQueueProvider.notifier)
-                                .retryAllFailed(),
-                            icon: const Icon(Icons.replay_rounded, size: 20),
-                            tooltip: context.l10n.queueRetryAllFailed(
-                              failedCount,
-                            ),
-                            color: colorScheme.primary,
-                            visualDensity: VisualDensity.compact,
-                          ),
-                        AppIconButton(
-                          onPressed: () => ref
-                              .read(downloadQueueProvider.notifier)
-                              .togglePause(),
-                          icon: Icon(
-                            isPaused
-                                ? Icons.play_arrow_rounded
-                                : Icons.pause_rounded,
-                            size: 20,
-                          ),
-                          tooltip: isPaused
-                              ? context.l10n.actionResume
-                              : context.l10n.actionPause,
-                          color: colorScheme.onSurfaceVariant,
-                          visualDensity: VisualDensity.compact,
-                        ),
-                        AppIconButton(
-                          onPressed: () =>
-                              _showClearAllDialog(context, ref, colorScheme),
-                          icon: const Icon(Icons.clear_all_rounded, size: 20),
-                          tooltip: context.l10n.queueClearAll,
-                          color: colorScheme.error,
-                          visualDensity: VisualDensity.compact,
-                        ),
-                      ],
-                    ),
-                  ),
-          ),
-        );
-      },
     );
   }
 }

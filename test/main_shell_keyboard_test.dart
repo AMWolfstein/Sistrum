@@ -8,9 +8,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
-import 'package:sistrum/providers/explore_provider.dart';
-import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/recent_access_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
@@ -34,17 +31,10 @@ void main() {
   const backend = MethodChannel('com.amwolfstein.sistrum/backend');
   final messenger =
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
-  final languageTags = <Object?>[];
 
   setUp(() {
     SharedPreferences.setMockInitialValues({});
-    languageTags.clear();
-    messenger.setMockMethodCallHandler(backend, (call) async {
-      if (call.method == 'setMetadataLanguage') {
-        languageTags.add((call.arguments as Map)['tag']);
-      }
-      return null;
-    });
+    messenger.setMockMethodCallHandler(backend, (call) async => null);
   });
   tearDown(() => messenger.setMockMethodCallHandler(backend, null));
 
@@ -53,7 +43,6 @@ void main() {
     bool tv = false,
     bool mornye = true,
     bool externalPlayer = false,
-    bool search = false,
     Stream<MediaItem?>? media,
   }) async {
     debugAndroidTvOverride = tv;
@@ -95,9 +84,6 @@ void main() {
               ),
             ),
           ],
-          extensionProvider.overrideWith(() => _Extensions(search: search)),
-          exploreProvider.overrideWith(_Explore.new),
-          downloadHistoryProvider.overrideWith(_History.new),
           recentAccessProvider.overrideWith(_Recent.new),
         ],
         child: ValueListenableBuilder(
@@ -149,7 +135,7 @@ void main() {
 
       final media = StreamController<MediaItem?>();
       addTearDown(media.close);
-      await pumpShell(tester, mornye: false, search: true, media: media.stream);
+      await pumpShell(tester, mornye: false, media: media.stream);
       tester.view.padding = const FakeViewPadding(top: 24, bottom: 24);
       tester.view.viewPadding = const FakeViewPadding(top: 24, bottom: 24);
       media.add(
@@ -197,7 +183,7 @@ void main() {
       expect(viewport.position.pixels, greaterThan(0));
       await tester.tap(destination('Settings'));
       await settleFrames();
-      expect(tester.widget<ExpressiveNavigationBar>(bar).selectedIndex, 3);
+      expect(tester.widget<ExpressiveNavigationBar>(bar).selectedIndex, 2);
       await tester.tap(destination('Home'));
       await settleFrames();
       expect(tester.widget<ExpressiveNavigationBar>(bar).selectedIndex, 0);
@@ -242,7 +228,6 @@ void main() {
     tester,
   ) async {
     await pumpShell(tester);
-    expect(languageTags, ['en']);
     // A back press at a tab root checks the keyboard too.
     await tester.binding.handlePopRoute();
     await tester.pump();
@@ -255,7 +240,6 @@ void main() {
       await tester.pump(const Duration(milliseconds: 16));
     }
 
-    expect(languageTags, ['en']);
     // The shell did not rebuild its tab navigators.
     expect(tester.widget(homeTab), same(tabs));
     // Lets the back press snack bar time out.
@@ -264,7 +248,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('a locale change still re-runs the shell side effects', (
+  testWidgets('a locale change re-runs the shell without errors', (
     tester,
   ) async {
     final locale = await pumpShell(tester);
@@ -272,7 +256,6 @@ void main() {
     await tester.pump();
     await tester.pump();
 
-    expect(languageTags, ['en', 'id']);
     expect(tester.takeException(), isNull);
   });
 
@@ -337,44 +320,8 @@ class _Settings extends SettingsNotifier {
 
   @override
   AppSettings build() => AppSettings(
-    searchProvider: 'example',
-    hasSearchedBefore: true,
     playerMode: externalPlayer ? 'external' : 'internal',
   );
-}
-
-class _Extensions extends ExtensionNotifier {
-  _Extensions({this.search = false});
-
-  final bool search;
-
-  @override
-  ExtensionState build() => ExtensionState(
-    isInitialized: true,
-    extensions: [
-      if (search)
-        const Extension(
-          id: 'example',
-          name: 'example',
-          displayName: 'Example',
-          version: '1.0.0',
-          description: '',
-          enabled: true,
-          status: 'loaded',
-          searchBehavior: SearchBehavior(enabled: true),
-        ),
-    ],
-  );
-}
-
-class _Explore extends ExploreNotifier {
-  @override
-  ExploreState build() => const ExploreState();
-}
-
-class _History extends DownloadHistoryNotifier {
-  @override
-  DownloadHistoryState build() => DownloadHistoryState();
 }
 
 class _Recent extends RecentAccessNotifier {

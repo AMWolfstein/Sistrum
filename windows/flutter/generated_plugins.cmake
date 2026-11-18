@@ -3,16 +3,12 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  app_links
   audioplayers_windows
-  bonsoir_windows
-  connectivity_plus
   desktop_drop
   dynamic_color
   flutter_secure_storage_windows
   media_kit_libs_windows_audio
   permission_handler_windows
-  record_windows
   url_launcher_windows
   share_plus
   volume_controller

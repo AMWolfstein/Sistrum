@@ -9,7 +9,6 @@ import 'package:sistrum/constants/app_info.dart';
 import 'package:sistrum/controllers/open_audio_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
-import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/system_volume_provider.dart';
 import 'package:sistrum/services/app_navigation_service.dart';
 import 'package:sistrum/services/music_playback_deck.dart'
@@ -23,7 +22,6 @@ import 'package:sistrum/widgets/desktop/desktop_inspector.dart';
 import 'package:sistrum/widgets/desktop/desktop_player_bar.dart';
 import 'package:sistrum/widgets/desktop/desktop_window.dart';
 import 'package:sistrum/widgets/desktop/desktop_window_controls.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 /// Keyboard shortcuts for desktop builds, plus the macOS menu bar that
 /// mirrors them. Wraps the app content above the root navigator, so the
@@ -190,10 +188,7 @@ class _DesktopShortcutsState extends ConsumerState<DesktopShortcuts> {
 
   void _selectDestination(int position) {
     final context = _rootNavigator?.context ?? this.context;
-    final tabs = desktopDestinationTabs(
-      mornye: context.isMornye,
-      showStore: ref.read(settingsProvider).showExtensionStore,
-    );
+    final tabs = desktopDestinationTabs(mornye: context.isMornye);
     if (position < 1 || position > tabs.length) return;
     final tab = tabs[position - 1];
     _closePages();
@@ -405,9 +400,6 @@ class _DesktopMenuBarState extends ConsumerState<_DesktopMenuBar> {
     final material = MaterialLocalizations.of(context);
     final mornye = context.isMornye;
     final showPlayer = ref.watch(playerUiEnabledProvider);
-    final showStore = ref.watch(
-      settingsProvider.select((s) => s.showExtensionStore),
-    );
     final fullScreen = desktopWindowFullScreen.value;
     final mode = desktopWindowMode.value;
     final shown = (
@@ -416,7 +408,6 @@ class _DesktopMenuBarState extends ConsumerState<_DesktopMenuBar> {
       material,
       mornye,
       showPlayer,
-      showStore,
       fullScreen,
       mode,
       desktopMiniPlayerSupported,
@@ -426,7 +417,7 @@ class _DesktopMenuBarState extends ConsumerState<_DesktopMenuBar> {
       _menus = _buildMenus(
         l10n: l10n,
         material: material,
-        tabs: desktopDestinationTabs(mornye: mornye, showStore: showStore),
+        tabs: desktopDestinationTabs(mornye: mornye),
         showPlayer: showPlayer,
         fullScreen: fullScreen,
         mode: mode,
@@ -447,7 +438,6 @@ class _DesktopMenuBarState extends ConsumerState<_DesktopMenuBar> {
     String tabLabel(ShellTab tab) => switch (tab) {
       ShellTab.home => l10n.navHome,
       ShellTab.library => l10n.navLibrary,
-      ShellTab.repository => l10n.navStore,
       ShellTab.search => l10n.mornyeSearch,
       ShellTab.settings => l10n.navSettings,
     };
@@ -595,20 +585,6 @@ class _DesktopMenuBarState extends ConsumerState<_DesktopMenuBar> {
                 PlatformProvidedMenuItemType.arrangeWindowsInFront,
               ]),
             ],
-          ),
-        ],
-      ),
-      PlatformMenu(
-        label: l10n.desktopMenuHelp,
-        menus: [
-          PlatformMenuItem(
-            label: l10n.desktopMenuProjectPage,
-            onSelected: () => unawaited(
-              launchUrl(
-                Uri.parse(AppInfo.githubUrl),
-                mode: LaunchMode.externalApplication,
-              ),
-            ),
           ),
         ],
       ),

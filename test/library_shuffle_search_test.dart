@@ -4,12 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/models/download_item.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/models/track.dart';
-import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
+import 'package:sistrum/providers/library_counts_provider.dart';
 import 'package:sistrum/providers/library_search_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
@@ -44,45 +41,19 @@ class _Settings extends SettingsNotifier {
   );
 }
 
-/// Three downloaded songs. A [totalCount] above three says the database
-/// holds more than the page loaded.
-class _History extends DownloadHistoryNotifier {
-  _History(this.count, this.totalCount);
+/// A Library holding [totalCount] songs.
+class _Local extends LocalLibraryNotifier {
+  _Local(this.totalCount);
 
-  final int count;
   final int totalCount;
 
   @override
-  DownloadHistoryState build() => DownloadHistoryState(
-    items: [
-      for (var index = 0; index < count; index++)
-        DownloadHistoryItem(
-          id: 'song-$index',
-          trackName: 'Song $index',
-          artistName: 'Artist',
-          albumName: 'Album $index',
-          filePath: '/music/song-$index.flac',
-          service: 'example-provider',
-          downloadedAt: DateTime(2026, 1, 10 - index),
-        ),
-    ],
-    totalCount: totalCount,
-  );
-}
-
-class _Local extends LocalLibraryNotifier {
-  @override
-  LocalLibraryState build() => LocalLibraryState();
+  LocalLibraryState build() => LocalLibraryState(totalCount: totalCount);
 }
 
 class _Collections extends LibraryCollectionsNotifier {
   @override
   LibraryCollectionsState build() => LibraryCollectionsState(isLoaded: true);
-}
-
-class _Queue extends DownloadQueueNotifier {
-  @override
-  DownloadQueueState build() => DownloadQueueState();
 }
 
 class _Playback extends PlaybackController {
@@ -174,33 +145,40 @@ void main() {
     tester.view.physicalSize = const Size(1280, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    final queue = DownloadQueueLookup.fromItems([
-      if (songCount > 0)
-        DownloadItem(
-          id: 'completed',
-          track: const Track(
-            id: 'song',
-            name: 'Song',
-            artistName: 'Artist',
-            albumName: 'Album',
-            duration: 1000,
-          ),
-          service: 'example-provider',
-          status: DownloadStatus.completed,
-          createdAt: DateTime(2026),
-        ),
-    ]);
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           settingsProvider.overrideWith(() => _Settings(viewMode)),
-          downloadHistoryProvider.overrideWith(
-            () => _History(songCount, totalCount ?? songCount),
+          localLibraryProvider.overrideWith(
+            () => _Local(totalCount ?? songCount),
           ),
-          localLibraryProvider.overrideWith(_Local.new),
+          queueLibraryTrackPageReaderProvider.overrideWithValue(
+            (query) async => QueueLibraryDbPage(
+              rows: [
+                for (var index = 0; index < songCount; index++)
+                  {
+                    'source': 'local',
+                    'item': LocalLibraryItem(
+                      id: 'song-$index',
+                      trackName: 'Song $index',
+                      artistName: 'Artist',
+                      albumName: 'Album $index',
+                      filePath: '/music/song-$index.flac',
+                      scannedAt: DateTime(2026),
+                    ).toJson(),
+                  },
+              ],
+              nextCursor: null,
+            ),
+          ),
+          libraryCountsProvider.overrideWith(
+            (ref, request) async => QueueLibraryCounts(
+              allTrackCount: totalCount ?? songCount,
+              albumCount: 0,
+              singleTrackCount: totalCount ?? songCount,
+            ),
+          ),
           libraryCollectionsProvider.overrideWith(_Collections.new),
-          downloadQueueProvider.overrideWith(_Queue.new),
-          downloadQueueLookupProvider.overrideWithValue(queue),
           ...overrides,
         ],
         child: MaterialApp(
@@ -316,72 +294,6 @@ void main() {
         expect(tester.takeException(), isNull);
       });
     }
-  }
-
-  for (final mornye in [false, true]) {
-    testWidgets('Shuffle reads the whole filtered list the page shows in '
-        'part (Mornye: $mornye)', (tester) async {
-      UnifiedLibraryItem song(String id) =>
-          UnifiedLibraryItem.fromDownloadHistory(
-            DownloadHistoryItem(
-              id: id,
-              trackName: 'Track $id',
-              artistName: 'Artist',
-              albumName: 'Album',
-              filePath: '/music/$id.flac',
-              service: 'example-provider',
-              downloadedAt: DateTime(2026),
-            ),
-          );
-      final lists = <LibrarySongListRequest>[];
-      final playback = _Playback();
-      final player = _Player();
-      await pumpLibrary(
-        tester,
-        mornye: mornye,
-        totalCount: 10,
-        overrides: [
-          playbackProvider.overrideWith(() => playback),
-          musicPlayerControllerProvider.overrideWithValue(player),
-          librarySongListProvider.overrideWith((ref, request) async {
-            lists.add(request);
-            return [
-              for (final id in ['a', 'b', 'c', 'd']) song(id),
-            ];
-          }),
-        ],
-      );
-      final l10n = l10nOf(tester);
-      await tester.tap(find.text(l10n.libraryFilterTitle).hitTestable());
-      await settle(tester, 10);
-      await tester.tap(find.text(l10n.libraryFilterDownloaded).last);
-      await tester.ensureVisible(find.text(l10n.libraryFilterApply));
-      await tester.tap(find.text(l10n.libraryFilterApply));
-      await settle(tester, 10);
-
-      await tester.tap(shuffleButton(tester, mornye: mornye));
-      await settle(tester, 10);
-
-      final container = ProviderScope.containerOf(
-        tester.element(find.byType(QueueTab)),
-      );
-      expect(lists, [
-        (
-          filterMode: 'all',
-          sortMode: 'latest',
-          source: 'downloaded',
-          quality: null,
-          format: null,
-          metadata: null,
-          includeLocal: container.read(settingsProvider).localLibraryEnabled,
-        ),
-      ]);
-      expect(player.shuffles, [true]);
-      expect(playback.queues, [
-        ['/music/a.flac', '/music/b.flac', '/music/c.flac', '/music/d.flac'],
-      ]);
-      expect(tester.takeException(), isNull);
-    });
   }
 
   testWidgets('Material shows Shuffle on Songs only', (tester) async {

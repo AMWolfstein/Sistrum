@@ -6,7 +6,6 @@ import 'dart:ui' as ui;
 import 'package:audio_service/audio_service.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:sistrum/services/cover_cache_manager.dart';
 import 'package:sistrum/utils/logger.dart';
 
 class PlayerWidgetArtwork {
@@ -252,9 +251,7 @@ class PlayerWidgetService {
   static Future<PlayerWidgetArtwork?> _readArtwork(Uri? uri) async {
     if (uri == null) return null;
     final File file;
-    if (uri.scheme == 'http' || uri.scheme == 'https') {
-      file = await CoverCacheManager.instance.getSingleFile(uri.toString());
-    } else if (uri.scheme == 'file' || !uri.hasScheme) {
+    if (uri.scheme == 'file' || !uri.hasScheme) {
       file = File(uri.scheme == 'file' ? uri.toFilePath() : uri.toString());
     } else {
       return null;

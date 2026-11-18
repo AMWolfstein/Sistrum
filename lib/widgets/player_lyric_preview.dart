@@ -8,7 +8,7 @@ import 'package:flutter/services.dart' show HapticFeedback;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/providers/lyrics_translation_provider.dart';
+import 'package:sistrum/providers/lyrics_display_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/song_lyrics_offset_provider.dart';
@@ -212,7 +212,7 @@ class _LyricPreviewLineState extends ConsumerState<_LyricPreviewLine> {
     // The song is only known inside the builder below, which follows the
     // metadata; a change of any song's offset is rare.
     final songOffsets = ref.watch(songLyricsOffsetsProvider);
-    ref.watch(lyricsTranslationProvider.select((state) => state.results));
+    ref.watch(lyricsDisplayProvider);
     ref.watch(
       settingsProvider.select(
         (settings) => (
@@ -224,7 +224,7 @@ class _LyricPreviewLineState extends ConsumerState<_LyricPreviewLine> {
       ),
     );
     final state = ref.watch(playbackStateProvider).value;
-    final translation = ref.read(lyricsTranslationProvider.notifier);
+    final display = ref.read(lyricsDisplayProvider.notifier);
     // An offstage or covered player keeps no line timer running.
     final visible = TickerMode.valuesOf(context).enabled;
     return ListenableBuilder(
@@ -232,7 +232,7 @@ class _LyricPreviewLineState extends ConsumerState<_LyricPreviewLine> {
       builder: (context, _) {
         final metadata = widget.metadata;
         final track = metadata.item?.id;
-        final pending = metadata.loading || metadata.searchingOnline;
+        final pending = metadata.loading;
         ParsedLyrics? lyrics;
         if (!metadata.loading && metadata.lyrics.synced) {
           lyrics = metadata.lyrics;
@@ -249,7 +249,7 @@ class _LyricPreviewLineState extends ConsumerState<_LyricPreviewLine> {
             (songOffsets[songLyricsOffsetKeyOf(metadata.item)]?.offsetMs ?? 0);
         final lines = lyrics == null
             ? const <LyricLine>[]
-            : _timelineFor(translation.shown(lyrics), offsetMs);
+            : _timelineFor(display.shown(lyrics), offsetMs);
         _syncRow(hasLines: lines.isNotEmpty, pending: pending);
         if (lines.isEmpty) {
           _nextLine?.cancel();

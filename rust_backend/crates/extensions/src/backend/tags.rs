@@ -3,11 +3,11 @@
 use super::Backend;
 use crate::files::ExtensionFiles;
 use cap_std::fs::{File, OpenOptions};
+use serde_json::{Value, json};
 use sistrum_core::tags::{
     embed_flac_metadata, rewrite_ac4_config, rewrite_ac4_metadata, rewrite_audio_tags,
     rewrite_flac_tags_if_changed, rewrite_m4a_freeform,
 };
-use serde_json::{Value, json};
 use std::cell::RefCell;
 use std::collections::BTreeMap;
 use std::io::Read;
@@ -64,10 +64,7 @@ impl Backend {
             Ok(true)
         }) {
             check()?;
-            return Ok(
-                crate::download::native_error_response(&format!("{}: {error}", messages.0))
-                    .to_string(),
-            );
+            return Ok(error_response(&format!("{}: {error}", messages.0)).to_string());
         }
         Ok(json!({"success":true,"message":messages.1}).to_string())
     }
@@ -99,7 +96,7 @@ impl Backend {
             .into_iter()
             .map(|(key, value)| (key, value.unwrap_or_default()))
             .collect();
-        let files = self.manager.environment().native_files()?;
+        let files = self.environment().native_files()?;
         let target = files.resolve_legacy(path)?;
         target.native_display()?;
         if let Some(cover) = fields.get("cover_path").filter(|p| !p.trim().is_empty()) {
@@ -165,7 +162,7 @@ impl Backend {
                 }
                 // Recheck capabilities after a failed attempt too: a revoked
                 // grant or replaced symlink must not be handed to FFmpeg.
-                let files = self.manager.environment().native_files()?;
+                let files = self.environment().native_files()?;
                 files.resolve_legacy(path)?.native_display()?;
                 if let Some(cover) = fields.get("cover_path").filter(|p| !p.trim().is_empty()) {
                     files.resolve_legacy(cover.trim())?.native_display()?;
@@ -315,7 +312,7 @@ impl Backend {
         check: &dyn Fn() -> Result<(), String>,
         edit: impl FnOnce(&mut File, &mut File, &ExtensionFiles) -> Result<bool, String>,
     ) -> Result<bool, String> {
-        let files = self.manager.environment().native_files()?;
+        let files = self.environment().native_files()?;
         let target = files.resolve_legacy(path)?;
         let _lock = files.lock(&target, check)?;
         target.native_display()?;
@@ -375,4 +372,21 @@ fn read_cover(
         return Err("cover art is empty".into());
     }
     Ok(Some(data))
+}
+
+/// Local failure classes only: tag writes never reach network or provider code.
+fn error_response(message: &str) -> Value {
+    let lower = message.to_lowercase();
+    let kind = [
+        ("cancelled", &["cancel"][..]),
+        (
+            "permission",
+            &["permission", "operation not permitted", "access denied"][..],
+        ),
+        ("not_found", &["not found", "not available"][..]),
+    ]
+    .into_iter()
+    .find(|(_, patterns)| patterns.iter().any(|pattern| lower.contains(pattern)))
+    .map_or("unknown", |(kind, _)| kind);
+    json!({"success":false,"message":"","error":message,"error_type":kind})
 }

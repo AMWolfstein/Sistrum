@@ -106,7 +106,6 @@ class _MusicAutoMix {
   };
 
   bool get _canMix =>
-      !handler._cast.active &&
       handler._settings.autoMix &&
       !handler._settings.usbBitPerfect &&
       // A second deck cannot open a device held in exclusive mode.
@@ -476,9 +475,6 @@ class _MusicAutoMix {
             )
             .copyWith(duration: _nextDuration),
       );
-      handler._covers
-        ..fetchFor(next)
-        ..fetchAhead();
       // A song without a listed cover shows its embedded one, as when it
       // starts without a mix.
       unawaited(

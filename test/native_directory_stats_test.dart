@@ -6,7 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/services/backend/ffi_backend_transport.dart';
 import 'package:sistrum/services/backend/rust_ffi_backend.dart';
 import 'package:sistrum/services/cache_maintenance_service.dart';
-import 'package:sistrum/services/cover_cache_manager.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 
@@ -49,28 +48,6 @@ void main() {
       expect(actual.fileCount, 12);
       expect(actual.totalSizeBytes, 345);
       expect(calls, 1);
-    },
-  );
-
-  test(
-    'cover cache shares the native scan and retains link-following policy',
-    () async {
-      messenger.setMockMethodCallHandler(paths, (_) async => root.path);
-      messenger.setMockMethodCallHandler(channel, (call) async {
-        expect(call.method, 'runNativeDataJob');
-        final request = jsonDecode(
-          (call.arguments as Map)['request_json'] as String,
-        );
-        expect(request, {
-          'operation': 'directory_stats',
-          'path': '${root.absolute.path}/cover_cache',
-          'follow_links': true,
-        });
-        return {'file_count': 2, 'total_size_bytes': 10};
-      });
-      final actual = await CoverCacheManager.getStats();
-      expect(actual.fileCount, 2);
-      expect(actual.totalSizeBytes, 10);
     },
   );
 

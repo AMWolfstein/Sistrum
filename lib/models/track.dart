@@ -16,7 +16,6 @@ class Track {
   final String? coverUrl;
   final String? headerVideoUrl;
   final String? isrc;
-  final String? previewUrl;
   final int duration;
   final int? trackNumber;
   final int? discNumber;
@@ -49,7 +48,6 @@ class Track {
     this.coverUrl,
     this.headerVideoUrl,
     this.isrc,
-    this.previewUrl,
     required this.duration,
     this.trackNumber,
     this.discNumber,
@@ -143,7 +141,6 @@ class Track {
       itemType: itemType,
       audioQuality: data['audio_quality']?.toString(),
       audioModes: data['audio_modes']?.toString(),
-      previewUrl: data['preview_url']?.toString(),
       explicit: parseExplicitFlag(data['explicit']),
       upc: normalizeOptionalString(
         (data['upc'] ?? data['barcode'])?.toString(),
@@ -162,7 +159,6 @@ class Track {
     String? coverUrl,
     String? headerVideoUrl,
     String? isrc,
-    String? previewUrl,
     int? duration,
     int? trackNumber,
     int? discNumber,
@@ -195,7 +191,6 @@ class Track {
       coverUrl: coverUrl ?? this.coverUrl,
       headerVideoUrl: headerVideoUrl ?? this.headerVideoUrl,
       isrc: isrc ?? this.isrc,
-      previewUrl: previewUrl ?? this.previewUrl,
       duration: duration ?? this.duration,
       trackNumber: trackNumber ?? this.trackNumber,
       discNumber: discNumber ?? this.discNumber,
@@ -223,8 +218,6 @@ class Track {
       audioModes != null && audioModes!.contains('DOLBY_ATMOS');
 
   bool get isExplicit => explicit == true;
-
-  bool get hasPreview => previewUrl != null && previewUrl!.isNotEmpty;
 }
 
 @JsonSerializable()

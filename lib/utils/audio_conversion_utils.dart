@@ -398,30 +398,6 @@ String losslessQualityLabel(
   return parts.isEmpty ? originalQualityLabel : parts.join(' / ');
 }
 
-String convertedAudioQualityLabel({
-  required String targetFormat,
-  required String bitrate,
-  required LosslessConversionLabels labels,
-  LosslessConversionQuality losslessQuality = const LosslessConversionQuality(),
-  int? actualBitDepth,
-  int? actualSampleRate,
-}) {
-  final upper = targetFormat.toUpperCase();
-  if (isLosslessConversionTarget(targetFormat)) {
-    if (actualBitDepth != null &&
-        actualBitDepth > 0 &&
-        actualSampleRate != null &&
-        actualSampleRate > 0) {
-      return '$upper ${losslessBitDepthLabel(actualBitDepth, originalLabel: labels.original)}/${losslessSampleRateLabel(actualSampleRate, originalLabel: labels.original)}';
-    }
-    if (losslessQuality.hasCaps) {
-      return '$upper ${losslessQualityLabel(losslessQuality, originalLabel: labels.original, originalQualityLabel: labels.originalQuality)}';
-    }
-    return '$upper ${labels.lossless}';
-  }
-  return '$upper ${bitrate.trim().toLowerCase()}';
-}
-
 String normalizedConvertedAudioFormat(String targetFormat) {
   return targetFormat.trim().toLowerCase();
 }

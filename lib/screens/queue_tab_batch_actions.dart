@@ -1,43 +1,6 @@
 part of 'queue_tab.dart';
 
 extension _QueueTabBatchActions on _QueueTabState {
-  List<LocalLibraryItem> _selectedFlacEligibleLocalItems(
-    List<UnifiedLibraryItem> allItems,
-  ) {
-    final selectedItems = _selectedItemsFromAll(allItems);
-    return selectedItems
-        .map((item) => item.localItem)
-        .whereType<LocalLibraryItem>()
-        .where(LocalTrackRedownloadService.isFlacUpgradeEligible)
-        .toList(growable: false);
-  }
-
-  Future<void> _queueSelectedLocalAsFlac(List<UnifiedLibraryItem> allItems) =>
-      queueLocalTracksAsFlac(
-        context,
-        ref,
-        _selectedFlacEligibleLocalItems(allItems),
-        isActive: () => mounted,
-        onComplete: _exitSelectionMode,
-      );
-
-  Future<void> _reEnrichSelectedFromQueue(List<UnifiedLibraryItem> allItems) =>
-      reEnrichLibraryTracks(
-        context,
-        ref,
-        _selectedItemsFromAll(allItems),
-        isActive: () => mounted,
-        onSelectionHide: () async {
-          _setState(() => _isSelectionMode = false);
-          _hideSelectionOverlay();
-        },
-        onSelectionRestore: () => _setState(() => _isSelectionMode = true),
-        onComplete: () {
-          _onEmbeddedCoverChanged();
-          _exitSelectionMode();
-        },
-      );
-
   Future<void> _showBatchConvertSheet(
     BuildContext context,
     List<UnifiedLibraryItem> allItems,

@@ -68,13 +68,10 @@ String? _nonEmptyCoverPath(Map<String, dynamic>? json) {
   return trimmed == null || trimmed.isEmpty ? null : trimmed;
 }
 
-/// Whether a stored cover needs no lookup: a web URL or a `network://`
-/// reference loads on any device that holds it.
+/// Whether a stored cover needs no lookup: a web URL loads on any device.
 bool collectionCoverIsPortable(String? cover) =>
     cover != null &&
-    (cover.startsWith('http://') ||
-        cover.startsWith('https://') ||
-        CoverStore.fetches(cover));
+    (cover.startsWith('http://') || cover.startsWith('https://'));
 
 /// Whether this device can load the stored [cover].
 Future<bool> _coverLoadsHere(String cover) async {

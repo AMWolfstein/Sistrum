@@ -24,12 +24,11 @@ class _MusicFormats {
 
   bool owns(String? path) => path != null && _copies.ownsPath(path);
 
-  /// AVPlayer plays the main and prepared decks: not a cast device, nor
-  /// macOS exclusive output, which libmpv plays.
+  /// AVPlayer plays the main and prepared decks, not macOS exclusive output,
+  /// which libmpv plays.
   bool get _avPlayer =>
       (handler._dependencies.isIOS || handler._dependencies.isMacOS) &&
       playbackEngine == PlaybackEngine.audioplayers &&
-      !handler._cast.active &&
       !playbackExclusiveOutput.value;
 
   static AvPlayerFormat? _format(PlayableMedia media) =>

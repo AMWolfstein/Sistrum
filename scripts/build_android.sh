@@ -7,12 +7,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 OUTPUT_DIR="$PROJECT_DIR/build/app/outputs/flutter-apk"
 FLUTTER_ARGS=()
-PRODUCTION_BUILD=0
-LITE_BUILD=0
 for argument in "$@"; do
   case "$argument" in
-    --production) PRODUCTION_BUILD=1 ;;
-    --lite) LITE_BUILD=1; export SISTRUM_DISCORD_SDK=0 ;;
     --target-platform|--target-platform=*|--split-per-abi|--no-split-per-abi)
       echo "Error: set SISTRUM_RUST_ANDROID_ABIS to select the release APK architectures." >&2
       exit 1
@@ -20,19 +16,6 @@ for argument in "$@"; do
     *) FLUTTER_ARGS+=("$argument") ;;
   esac
 done
-
-if [[ "$PRODUCTION_BUILD" == "1" ]]; then
-  if [[ "$LITE_BUILD" == "1" ]]; then
-    echo "Error: production builds require Discord; --production cannot be combined with --lite." >&2
-    exit 1
-  fi
-  export SISTRUM_DISCORD_SDK=1
-fi
-
-case "${SISTRUM_DISCORD_SDK:-1}" in
-  0|1) ;;
-  *) echo "Error: SISTRUM_DISCORD_SDK must be 0 (Lite) or 1 (full)." >&2; exit 1 ;;
-esac
 
 ANDROID_ABIS_RAW="${SISTRUM_RUST_ANDROID_ABIS-arm64-v8a,armeabi-v7a}"
 case "$ANDROID_ABIS_RAW" in
@@ -52,27 +35,6 @@ for abi in "${ANDROID_ABIS[@]}"; do
   esac
 done
 TARGET_PLATFORM_LIST="$(IFS=','; echo "${TARGET_PLATFORMS[*]}")"
-
-if [[ "$PRODUCTION_BUILD" == "1" ]]; then
-  SDK_ROOT="$PROJECT_DIR/third_party/mornye_discord/sdk"
-  for sdk_file in discord_partner_sdk.aar notices/Discord-License-Notices.txt android/prefab/modules/discord_partner_sdk/include/discordpp.h; do
-    if [[ ! -f "$SDK_ROOT/$sdk_file" ]]; then
-      echo "Error: production requires the staged Discord SDK ($sdk_file). Run scripts/setup_discord_sdk.sh with the official SDK first." >&2
-      exit 1
-    fi
-  done
-  for abi in "${ANDROID_ABIS[@]}"; do
-    if [[ ! -f "$SDK_ROOT/android/jni/$abi/libdiscord_partner_sdk.so" ]]; then
-      echo "Error: production requires the Discord SDK library for $abi." >&2
-      exit 1
-    fi
-  done
-fi
-
-AUDIT_FLAGS=()
-if [[ "${SISTRUM_DISCORD_SDK:-1}" != "0" && -f "$PROJECT_DIR/third_party/mornye_discord/sdk/discord_partner_sdk.aar" ]]; then
-  AUDIT_FLAGS+=(--discord-sdk)
-fi
 
 cd "$PROJECT_DIR"
 if [[ -x "$PROJECT_DIR/.fvm/flutter_sdk/bin/flutter" ]]; then
@@ -116,8 +78,7 @@ for target in "${ANDROID_ABIS[@]}" universal; do
     echo "Error: expected APK was not created: $OUTPUT_DIR/$apk" >&2
     exit 1
   fi
-  python3 scripts/check_backend_apk.py "$OUTPUT_DIR/$apk" \
-    --backend rust --abis "$abis" ${AUDIT_FLAGS[@]+"${AUDIT_FLAGS[@]}"}
+  python3 scripts/check_backend_apk.py "$OUTPUT_DIR/$apk" --backend rust --abis "$abis"
 done
 
 echo "Built Android release APKs in $OUTPUT_DIR"

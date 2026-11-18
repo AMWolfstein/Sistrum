@@ -63,7 +63,6 @@ and "null" are typed channel values. Arguments are map keys unless noted.
 | `getBackendImplementations` | Implementation name for `filename`, `file_metadata`, `extensions`, `downloads` | Lifecycle | map |
 | `ensureInstallMarker` | Creates the no-backup install marker; returns `marker_existed`, `marker_created`, `fresh_package_install` | Lifecycle | map |
 | `prepareRuntimeState` | Builds runtime state from `data_dir` signed sessions and hands it to the backend | Lifecycle | map `{ready}` |
-| `downloadByStrategy` | Runs one download; SAF requests go through `SafDownloadHandler`. The argument is the request JSON string | Service | JSON text |
 | `runPostProcessingV2` | Post-processing for `input` and `metadata`; content URIs use a temp copy | Metadata | JSON text |
 | `readAudioMetadata` | Audio metadata for `file_path` (SAF read through the URI) | Metadata | JSON text |
 | `readFileMetadata` | Tag metadata for `file_path`, `display_name` | Metadata | JSON text |
@@ -83,7 +82,6 @@ and "null" are typed channel values. Arguments are map keys unless noted.
 | `pickSafTree` | Opens the folder picker (`for_setup`) and persists the grant | Picker | JSON text or null |
 | `readSetupFolderSelection` | Picker result saved for setup by `SetupFolderPickerStore` | inline | string or null |
 | `acknowledgeSetupFolderSelection` | Clears the saved result when it equals `payload` | inline | null |
-| `processPendingExtensionCallbacks` | Completes queued extension OAuth and session-grant callbacks | inline | null |
 | `safExists` | Whether the document at `uri` exists | SAF | bool |
 | `safExistsBatch` | `found`, `missing` or `unknown` per URI in `uris_json` | SAF | JSON text |
 | `isSafTreeAccessible` | Persisted read and write grant and a writable tree for `tree_uri` | SAF | bool |
@@ -112,22 +110,9 @@ and "null" are typed channel values. Arguments are map keys unless noted.
 | `writeAC4Metadata` | Writes AC-4 tags and `cover_path` | Metadata | JSON text |
 | `releaseMemory` | Releases idle backend resources | Lifecycle | null |
 | `releaseMemoryUnderPressure` | Releases backend memory under system pressure | Lifecycle | null |
-| `startDownloadService` | Starts `DownloadService` (`track_name`, `artist_name`, `queue_count`) | Service | null |
-| `stopDownloadService` | Stops `DownloadService` | inline | null |
-| `updateDownloadServiceProgress` | Updates the download notification (`progress`, `total`, `status`) | Service | null |
-| `isDownloadServiceRunning` | Whether `DownloadService` is running | inline | bool |
 | `startBackgroundWork` | Starts `BackgroundWorkService` for `kind` (`title`, `text`) | Service | bool |
 | `updateBackgroundWork` | Updates the `kind` notification (`progress`, negative for indeterminate) | Service | null |
 | `stopBackgroundWork` | Ends the `kind` work | inline | null |
-| `startNativeDownloadWorker` | Starts the native queue from inline JSON or `requests_path`, `settings_path` | Service | null |
-| `appendNativeDownloadWorkerRequests` | Appends `requests_path` to run `run_id` | Service | null |
-| `finishNativeDownloadWorkerPreparation` | Marks run `run_id` as fully queued | Service | null |
-| `acknowledgeNativeDownloadWorkerItems` | Acknowledges `item_ids_json` for run `run_id` | Service | null |
-| `pauseNativeDownloadWorker` | Pauses the native queue | inline | null |
-| `resumeNativeDownloadWorker` | Resumes the native queue | inline | null |
-| `cancelNativeDownloadWorker` | Cancels the native queue | inline | null |
-| `getNativeDownloadWorkerSnapshot` | Worker snapshot since `since_state_serial`, decoded off the main thread | Service | map |
-| `consumeVerificationNotification` | Returns and clears the pending verification notification payload | Lifecycle | string or null |
 | `exitApp` | Disables the back callback and calls `finishAndRemoveTask` | Lifecycle | null |
 
 ### Host-to-Dart Events
@@ -137,16 +122,14 @@ Native code calls Dart over the same channel. `PlatformBridge` handles them in
 
 | Method | Sent by | Payload |
 | --- | --- | --- |
-| `extensionAuthCallbackReceived` | Android | none |
-| `extensionSessionGrantCompleted` | Android, iOS | `{extension_id, success}`; iOS only sends `success: true` |
-| `extensionVerificationNotificationTapped` | Android | none |
+| `extensionSessionGrantCompleted` | iOS | `{extension_id, success}`; iOS only sends `success: true` |
 | `setupFolderSelectionChanged` | Android | none |
 | `libraryScanError` | Android | `{path, operation, message}` |
 | `libraryStorageChanged` | Android | `{action}` (media mount and unmount broadcasts) |
 | `iosBackgroundDownloadExpired` | iOS | JSON list of cancelled item IDs |
 
 Session-grant events raised before the channel exists are queued and sent
-when the engine is configured, on both platforms.
+when the engine is configured (iOS).
 
 ## The `__json_file` Spill
 
@@ -176,7 +159,7 @@ and on iOS in AppDelegate.swift. Dart listens in platform_bridge.dart.
 
 | Channel | Payload | Emission |
 | --- | --- | --- |
-| `com.amwolfstein.sistrum/download_progress_stream` | Backend delta: `seq`, optional `reset`, `items` (by item ID), `removed` | Long poll `waitDelta(seq, 15000 ms)`. Android pauses 250 ms after each delivered change or error. iOS (`ios/Runner/DownloadProgressSubscription.swift`) pauses 0.25 s before every next wait |
+| `com.amwolfstein.sistrum/download_progress_stream` | iOS only. Backend delta: `seq`, optional `reset`, `items` (by item ID), `removed` | Long poll `waitDelta(seq, 15000 ms)`. Pauses 0.25 s before every next wait (`ios/Runner/DownloadProgressSubscription.swift`) |
 | `com.amwolfstein.sistrum/library_scan_progress_stream` | `total_files`, `scanned_files`, `current_file`, `error_count`, `progress_pct`, `is_complete` | Polled; sent only when the JSON changed. Android: every 400 ms (`LIBRARY_SCAN_PROGRESS_STREAM_POLLING_INTERVAL_MS`). iOS: every 800 ms (timer in `startLibraryScanProgressStream`) |
 
 The library-scan poll interval differs between the platforms (400 ms versus
@@ -191,30 +174,27 @@ without checking with the maintainer.
 | `com.amwolfstein.sistrum/usb_pcm`, `com.amwolfstein.sistrum/usb_pcm/events` (EventChannel), `com.amwolfstein.sistrum/audio_route` | `android/app/src/main/kotlin/com/amwolfstein/sistrum/UsbBitPerfectPlugin.kt` |
 | `com.amwolfstein.sistrum/media3_player`, `com.amwolfstein.sistrum/media3_player/events/<playerId>` (EventChannel) | `android/app/src/main/kotlin/com/amwolfstein/sistrum/Media3PlayerPlugin.kt` |
 | `com.amwolfstein.sistrum/haptics` | `android/app/src/main/kotlin/com/amwolfstein/sistrum/MusicHapticsPlugin.kt` |
-| `com.amwolfstein.sistrum/local_network` | `android/app/src/main/kotlin/com/amwolfstein/sistrum/LocalNetworkPlugin.kt` |
 | `com.amwolfstein.sistrum/player_widget` | `android/app/src/main/kotlin/com/amwolfstein/sistrum/PlayerWidgetProvider.kt` |
 
 ## Foreground Services
 
-Both services are declared with `foregroundServiceType="dataSync"` in
-`android/app/src/main/AndroidManifest.xml` and call `startForeground` with
+`BackgroundWorkService` is declared with `foregroundServiceType="dataSync"` in
+`android/app/src/main/AndroidManifest.xml` and calls `startForeground` with
 `FOREGROUND_SERVICE_TYPE_DATA_SYNC` on API 29 and later.
 
-| | `DownloadService` | `BackgroundWorkService` |
-| --- | --- | --- |
-| File | `android/app/src/main/kotlin/com/amwolfstein/sistrum/DownloadService.kt` | `android/app/src/main/kotlin/com/amwolfstein/sistrum/BackgroundWorkService.kt` |
-| Channels | `download_channel` (progress), `download_alerts_v1` (alerts) | `background_work` |
-| Notification IDs | 1001 (foreground), 1 (result), 4 (verification required) | 1002 |
-| Wake lock tag | `Sistrum:DownloadWakeLock` | `Sistrum:BackgroundWorkWakeLock` |
-| Wake lock timing | 30 min timeout, renewed on progress updates once 15 min have passed | 30 min timeout, re-acquired by a 15 min timer |
-| Started by | `startDownloadService`, `startNativeDownloadWorker` (intent actions `com.amwolfstein.sistrum.action.*`) | `startBackgroundWork` for a `kind` (Dart uses `library_scan` and `app_update`) |
-| Stopped by | `stopDownloadService`, the native queue finishing or being cancelled, an invalid queue payload, a null restart intent, `onTimeout` | `stopBackgroundWork` for the last active kind, `onTimeout` |
+| | `BackgroundWorkService` |
+| --- | --- |
+| File | `android/app/src/main/kotlin/com/amwolfstein/sistrum/BackgroundWorkService.kt` |
+| Channels | `background_work` |
+| Notification IDs | 1002 |
+| Wake lock tag | `Sistrum:BackgroundWorkWakeLock` |
+| Wake lock timing | 30 min timeout, re-acquired by a 15 min timer |
+| Started by | `startBackgroundWork` for a `kind` (Dart uses `library_scan` and `app_update`) |
+| Stopped by | `stopBackgroundWork` for the last active kind, `onTimeout` |
 
 `BackgroundWorkService.start` returns false when Android refuses the start;
 the work then continues without the service. `onTimeout` (Android 15 dataSync
-limit) stops both services cleanly. The native download worker also writes
-its state to native_download_worker_state.json in `filesDir` for
-`getNativeDownloadWorkerSnapshot`.
+limit) stops the service cleanly.
 
 ## SAF Model
 
@@ -293,9 +273,8 @@ Handled in `AppDelegate` on iOS: `getBackendImplementations`,
 `resumeLibraryScan`, `parseCueSheet`, `startBackgroundWork`,
 `updateBackgroundWork` (a no-op) and `stopBackgroundWork`.
 
-Android-native names that iOS sends to Rust: `downloadByStrategy`,
-`readFileMetadata`, `editFileMetadata`, `readAudioMetadata`,
-`runPostProcessingV2`.
+Android-native names that iOS sends to Rust: `readFileMetadata`,
+`editFileMetadata`, `readAudioMetadata`, `runPostProcessingV2`.
 
 Android-native names with no iOS implementation (they reach Rust and fail):
 every `saf*` method, `pickSafTree`, `isSafTreeAccessible`,
@@ -304,9 +283,7 @@ every `saf*` method, `pickSafTree`, `isSafTreeAccessible`,
 `openContentUri`, `shareContentUri`, `writeTempToSaf`, `writeSafSidecarLrc`,
 `readSetupFolderSelection`, `acknowledgeSetupFolderSelection`,
 `ensureInstallMarker`, `prepareRuntimeState`,
-`processPendingExtensionCallbacks`, `consumeVerificationNotification`,
-`exitApp`, the download service methods and the native download worker
-methods. Dart must guard these with `Platform.isAndroid`.
+`exitApp`. Dart must guard these with `Platform.isAndroid`.
 
 iOS-only names: `beginBackgroundDownloadTask`, `endBackgroundDownloadTask`
 (a `UIApplication` background task while downloads run), `pickIosDirectory`

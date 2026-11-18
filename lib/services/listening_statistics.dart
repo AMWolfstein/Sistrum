@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:sistrum/services/cover_store.dart';
-import 'package:sistrum/services/link/sync/link_history_sync_schema.dart';
 import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
 import 'package:sistrum/utils/artist_utils.dart';
 import 'package:sistrum/utils/logger.dart';
@@ -287,7 +286,7 @@ class ListeningStatisticsStore {
 
   final _database = sqlite.SingleFlightInitializer<Database>();
 
-  /// v2 adds Sistrum Link change tracking beside the `listening` table.
+  /// Schema version; v2 is the local listening table (its Link change tracking was removed).
   static const _version = 2;
 
   Future<Database> _open() => _database.getOrCreate(
@@ -295,9 +294,15 @@ class ListeningStatisticsStore {
       'listening_statistics.db',
       version: _version,
       onCreate: _create,
-      onUpgrade: _upgrade,
+      onUpgrade: _noUpgrade,
     ),
   );
+
+  static Future<void> _noUpgrade(
+    Database db,
+    int oldVersion,
+    int newVersion,
+  ) async {}
 
   static Future<void> _create(Database db, int version) async {
     await db.execute('''
@@ -313,11 +318,6 @@ class ListeningStatisticsStore {
         PRIMARY KEY (day, track_key)
       )
     ''');
-    await createLinkHistorySyncSchema(db);
-  }
-
-  static Future<void> _upgrade(Database db, int oldVersion, int _) async {
-    if (oldVersion < 2) await createLinkHistorySyncSchema(db);
   }
 
   /// Opens [path] with the statistics schema through [factory], for host
@@ -331,11 +331,11 @@ class ListeningStatisticsStore {
     options: OpenDatabaseOptions(
       version: _version,
       onCreate: _create,
-      onUpgrade: _upgrade,
+      onUpgrade: _noUpgrade,
     ),
   );
 
-  /// The statistics database (Sistrum Link history sync).
+  /// The local listening statistics database.
   Future<Database> get database => _open();
 
   Future<void> add(List<ListeningDelta> deltas) async =>

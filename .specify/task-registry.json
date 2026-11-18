@@ -7,7 +7,7 @@
       "title": "Rebrand to Sistrum and ship Android ARM64 offline"
     }
   },
-  "next_completion": 7,
+  "next_completion": 8,
   "next_mission": 2,
   "next_tor": 3,
   "tasks": {
@@ -76,13 +76,19 @@
       "title": "Make local library and phone playback self-contained"
     },
     "M001-T005": {
-      "completion": null,
+      "completion": 7,
+      "evidence": {
+        "checks": "flutter analyze 1 baseline info; flutter test 4581 pass, 45 baseline failures; cargo check/clippy/test pass; cargo tree no network crates; :app:compileReleaseKotlin ok; merged release manifest no INTERNET; bridge verify 3 baseline fails",
+        "result": "PASS",
+        "reviewer": "task-reviewer",
+        "round": 1
+      },
       "final": false,
       "kind": "T",
       "mission": "M001",
       "nonce": "3243313bdc6040dd9688c54ffde42c1b",
       "record": "specs/001-sistrum-android-offline/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Remove online product features and dependencies"
     },
     "M001-T006": {

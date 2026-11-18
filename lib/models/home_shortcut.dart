@@ -4,18 +4,15 @@ enum HomeShortcut {
   shuffle,
   equalizer,
   listeningStats,
-  networkStorage,
   loved,
   wishlist,
-  favoriteArtists,
-  newReleases,
-  link;
+  favoriteArtists;
 
   /// How many shortcuts Home shows: two rows of two on phones and the four
   /// rows beside Continue listening on desktop.
   static const slotCount = 4;
 
-  static const defaults = [shuffle, equalizer, listeningStats, networkStorage];
+  static const defaults = [shuffle, equalizer, listeningStats, loved];
 
   /// The [slotCount] shortcuts named in [names], in order. Unknown names and
   /// repeats give way to the first defaults not chosen yet, so Home keeps a

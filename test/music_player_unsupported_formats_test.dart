@@ -79,7 +79,6 @@ class _Player {
     bool gapless = false,
     bool avPlayer = true,
     bool android = false,
-    Future<String?> Function(String)? recoverMissingFile,
     Future<FileAccessCheck> Function(String) fileAccess = checkFileAccess,
   }) : this._(
          convert,
@@ -87,7 +86,6 @@ class _Player {
          gapless,
          avPlayer,
          android,
-         recoverMissingFile,
          fileAccess,
          _SessionStore(),
          [],
@@ -99,7 +97,6 @@ class _Player {
     bool gapless,
     bool avPlayer,
     bool android,
-    Future<String?> Function(String)? recoverMissingFile,
     Future<FileAccessCheck> Function(String) fileAccess,
     this.session,
     this.conversions,
@@ -115,11 +112,9 @@ class _Player {
           isMacOS: avPlayer,
           isAndroid: android,
           synchronizePlaybackState: () async {},
-          recoverMissingFile: recoverMissingFile ?? (_) async => null,
           fileAccess: fileAccess,
           sessionDatabase: session,
           libraryDatabase: _EmptyLibrary(),
-          recoverMovedDownload: (_, _, _) async => null,
           convertAudio: (arguments) {
             conversions.add(arguments);
             return convert(arguments);
@@ -192,7 +187,6 @@ void main() {
     bool gapless = false,
     bool avPlayer = true,
     bool android = false,
-    Future<String?> Function(String)? recoverMissingFile,
     Future<FileAccessCheck> Function(String) fileAccess = checkFileAccess,
   }) async {
     if (android) {
@@ -208,7 +202,6 @@ void main() {
       gapless: gapless,
       avPlayer: avPlayer,
       android: android,
-      recoverMissingFile: recoverMissingFile,
       fileAccess: fileAccess,
     );
     addTearDown(() async {
@@ -643,29 +636,6 @@ void main() {
     },
   );
 
-  test(
-    'a recovered local file plays before considering a missing skip',
-    () async {
-      final gone = await song('gone.flac');
-      final recovered = await song('recovered.flac');
-      await File(gone.source).delete();
-      native.sourceFailures.add(gone.source);
-      final p = await player(
-        avPlayer: false,
-        recoverMissingFile: (path) async =>
-            path == gone.source ? recovered.source : null,
-      );
-      await p.handler.setQueueAndPlay([gone, await song('next.flac')]);
-
-      expect(p.handler.mediaItem.value?.id, gone.id);
-      expect(native.resumedSources, [recovered.source]);
-      expect(p.handler.playbackState.value.errorMessage, isNull);
-      await native.error('music-player');
-      await waitUntil(() => p.handler.playbackState.value.errorMessage != null);
-      expect(p.handler.mediaItem.value?.id, gone.id);
-      expect(p.handler.queue.value, hasLength(2));
-    },
-  );
 
   for (final status in [
     'missing',

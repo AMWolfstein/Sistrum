@@ -1,15 +1,12 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
-import 'package:sistrum/screens/artist_screen.dart';
-import 'package:sistrum/screens/weekly_releases_screen.dart';
-import 'package:sistrum/services/cover_cache_manager.dart';
+import 'package:sistrum/controllers/clickable_metadata.dart';
+import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
-import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_shape.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
@@ -29,17 +26,6 @@ class FavoriteArtistsScreen extends ConsumerWidget {
       body: CustomScrollView(
         slivers: [
           AppSliverHeader.page(title: context.l10n.collectionFavoriteArtists),
-          SliverToBoxAdapter(
-            child: ListTile(
-              leading: const Icon(Icons.new_releases_outlined),
-              title: Text(context.l10n.weeklyReleases),
-              subtitle: Text(context.l10n.weeklyReleasesDescription),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(
-                context,
-              ).push(slidePageRoute<void>(page: const WeeklyReleasesScreen())),
-            ),
-          ),
           if (artists.isEmpty)
             SliverFillRemaining(
               hasScrollBody: false,
@@ -123,20 +109,7 @@ class FavoriteArtistsScreen extends ConsumerWidget {
                       },
                     ),
                     onTap: () {
-                      Navigator.of(context).push(
-                        slidePageRoute<void>(
-                          page: ArtistScreen(
-                            artistId: artist.artistId,
-                            artistName: artist.name,
-                            coverUrl: artist.imageUrl,
-                            extensionId:
-                                artist.providerId != null &&
-                                    artist.providerId!.isNotEmpty
-                                ? artist.providerId
-                                : null,
-                          ),
-                        ),
-                      );
+                      navigateToArtist(context, artistName: artist.name);
                     },
                   );
                 },
@@ -160,18 +133,14 @@ class _ArtistThumbnail extends StatelessWidget {
     final imageUrl = artist.imageUrl;
     return AppShapeClip(
       kind: AppShapes.artist,
-      child: imageUrl != null && imageUrl.isNotEmpty
-          ? CachedNetworkImage(
-              imageUrl: imageUrl,
-              width: 56,
-              height: 56,
-              fit: BoxFit.cover,
-              memCacheWidth: 112,
-              memCacheHeight: 112,
-              cacheManager: CoverCacheManager.instance,
-              errorWidget: (_, _, _) => _placeholder(colorScheme),
-            )
-          : _placeholder(colorScheme),
+      child: LocalCoverImage(
+        url: imageUrl ?? '',
+        width: 56,
+        height: 56,
+        fit: BoxFit.cover,
+        localCacheWidth: 112,
+        placeholder: (_) => _placeholder(colorScheme),
+      ),
     );
   }
 

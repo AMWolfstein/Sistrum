@@ -6,13 +6,9 @@ import 'package:audio_service_platform_interface/audio_service_platform_interfac
 import 'package:audio_service_platform_interface/no_op_audio_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
-class _Cache implements BaseCacheManager {
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
 
 class _RecordingPlatform extends NoOpAudioService {
   final log = <String>[];
@@ -122,6 +118,11 @@ List<MediaItem> _songs(int count) => [
 ];
 
 List<MediaItem> _queue(String id) => [MediaItem(id: id, title: 'Song $id')];
+
+class _Cache implements BaseCacheManager {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

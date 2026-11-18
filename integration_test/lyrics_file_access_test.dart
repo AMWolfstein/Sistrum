@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:sistrum/services/platform_bridge.dart';
@@ -49,13 +48,11 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   late Directory root;
   late Directory library;
-  late Directory output;
   late Directory data;
 
   setUp(() async {
     root = await Directory.systemTemp.createTemp('lyrics-access-');
     library = await Directory('${root.path}/Library').create();
-    output = await Directory('${root.path}/Exports').create();
     data = await Directory('${root.path}/extension-data').create();
     final sources = await Directory('${root.path}/extensions').create();
     final downloads = await Directory('${root.path}/Downloads').create();
@@ -63,15 +60,12 @@ void main() {
       sources.path,
       data.path,
       masterKey: base64Encode(List<int>.filled(32, 1)),
-      lyricsProviders: const [],
-      lyricsFetchOptions: const {},
       // A selected Library file need not be in the current download folder.
       allowedDirectories: [downloads.path],
     );
   });
 
   tearDown(() async {
-    await PlatformBridge.cleanupExtensions();
     await root.delete(recursive: true);
   });
 
@@ -92,15 +86,8 @@ void main() {
 
       final result = await PlatformBridge.embedLyricsToFile(path, _lyrics);
       expect(result['success'], true, reason: result.toString());
-      expect(
-        await PlatformBridge.getLyricsLRC('', 'Song', 'Artist', filePath: path),
-        _lyrics,
-      );
       final withSource = await PlatformBridge.getLyricsLRCWithSource(
-        '',
-        'Song',
-        'Artist',
-        filePath: path,
+        path,
       );
       expect(withSource['lyrics'], _lyrics);
       expect(withSource['source'], 'Embedded');
@@ -117,54 +104,21 @@ void main() {
         true,
       );
       expect(
-        await PlatformBridge.getLyricsLRC('', 'Song', 'Artist', filePath: path),
+        (await PlatformBridge.getLyricsLRCWithSource(
+          path,
+        ))['lyrics'],
         replacement,
       );
     });
   }
 
-  testWidgets('read sidecar lyrics and export into a separate folder', (
-    tester,
-  ) async {
+  testWidgets('read sidecar lyrics next to a song', (tester) async {
     final audio = await File('${library.path}/song.flac').writeAsBytes(_flac());
     await File('${library.path}/song.lrc').writeAsString(_lyrics);
     final result = await PlatformBridge.getLyricsLRCWithSource(
-      '',
-      'Song',
-      'Artist',
-      filePath: audio.path,
+      audio.path,
     );
     expect(result['lyrics'], _lyrics);
-    final exported = File('${output.path}/song.lrc');
-    final saved = await PlatformBridge.fetchAndSaveLyrics(
-      trackName: 'Song',
-      artistName: 'Artist',
-      spotifyId: '',
-      durationMs: 0,
-      audioFilePath: audio.path,
-      outputPath: exported.path,
-    );
-    expect(saved['success'], true, reason: saved.toString());
-    expect(await exported.readAsString(), _lyrics);
     expect(await audio.readAsBytes(), _flac());
-  });
-
-  testWidgets('lyrics operations cannot grant extension storage', (
-    tester,
-  ) async {
-    final protected = await File(
-      '${data.path}/private.flac',
-    ).writeAsBytes(_flac());
-    await expectLater(
-      PlatformBridge.embedLyricsToFile(protected.path, _lyrics),
-      throwsA(
-        isA<PlatformException>().having(
-          (error) => error.message,
-          'message',
-          contains('overlaps extension storage'),
-        ),
-      ),
-    );
-    expect(await protected.readAsBytes(), _flac());
   });
 }

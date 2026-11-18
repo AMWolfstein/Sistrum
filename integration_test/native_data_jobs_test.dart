@@ -10,10 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:material_color_utilities/quantize/quantizer_celebi.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:sistrum/models/download_history.dart';
 import 'package:sistrum/services/automix_analysis.dart';
-import 'package:sistrum/services/backup_service.dart';
-import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/id3v23_lyrics.dart';
 import 'package:sistrum/services/library_row_mapper.dart';
 import 'package:sistrum/services/library_schema.dart';
@@ -187,15 +184,10 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   HttpOverrides.global = null;
   late Directory root;
-  var initialized = false;
   setUp(() async {
     root = await Directory.systemTemp.createTemp('native-data-jobs-');
   });
   tearDown(() async {
-    if (initialized) {
-      await PlatformBridge.cleanupExtensions();
-      initialized = false;
-    }
     await root.delete(recursive: true);
   });
 
@@ -494,62 +486,6 @@ void main() {
   );
 
   testWidgets(
-    'loopback metadata caches/promotes artwork and verifies upload bytes',
-    (tester) async {
-      final png = base64Decode(
-        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==',
-      );
-      final cover = await File('${root.path}/cover.png').writeAsBytes(png);
-      final picture = await _job('build_metadata_picture', {
-        'file_path': cover.path,
-      });
-      final payload = _flac(
-        picture: base64Decode(picture['picture'] as String),
-      );
-      final proxy = _ProxyFixture(payload);
-      await proxy.start();
-      addTearDown(proxy.close);
-      final result = await _job('network_metadata', {
-        'url': proxy.url,
-        'display_name': 'song.flac',
-        'cache_directory': '${root.path}/covers',
-      });
-      final metadata = result['metadata'] as Map;
-      expect(metadata['title'], 'Native song');
-      expect(metadata['artist'], 'Native artist');
-      expect(metadata['cover_base64'], isNull);
-      final cached = File(metadata['cover_path'] as String);
-      expect(await cached.readAsBytes(), png);
-      expect(metadata['cover_sha256'], sha256.convert(png).toString());
-      final promoted = await _job('promote_network_cover', {
-        'path': cached.path,
-        'directory': '${root.path}/permanent-covers',
-      });
-      expect(await File(promoted['cover_path'] as String).readAsBytes(), png);
-      final local = await File(
-        '${root.path}/upload.flac',
-      ).writeAsBytes(payload);
-      final request = {
-        'url': proxy.url,
-        'path': local.path,
-        'length': payload.length,
-        'idle_timeout_ms': 20000,
-      };
-      expect((await _job('matches_network_upload', request))['matches'], true);
-      final different = Uint8List.fromList(payload)..[payload.length - 1] ^= 1;
-      await local.writeAsBytes(different);
-      expect((await _job('matches_network_upload', request))['matches'], false);
-      expect(
-        (await _job('matches_network_upload', {
-          ...request,
-          'length': payload.length + 1,
-        }))['matches'],
-        false,
-      );
-    },
-  );
-
-  testWidgets(
     'native lease cancellation keeps the UI isolate responsive during a stream',
     (tester) async {
       final payload = Uint8List.fromList(
@@ -697,11 +633,8 @@ void main() {
         extensions.path,
         data.path,
         masterKey: base64Encode(List.filled(32, 1)),
-        lyricsProviders: const [],
-        lyricsFetchOptions: const {},
         allowedDirectories: [media.path],
       );
-      initialized = true;
       await first.delete();
       final second = await File(
         '${media.path}/second.flac',
@@ -719,138 +652,6 @@ void main() {
     },
   );
 
-  testWidgets(
-    'native backup history uses the complete app schema and stages legacy JSON',
-    (tester) async {
-      // Read the initialized production schema, then create an isolated fixture.
-      // History rows in the running app are never replaced by this test.
-      final source = await HistoryDatabase.instance.database;
-      final schema = await source.rawQuery('''
-      SELECT sql FROM sqlite_master
-      WHERE sql IS NOT NULL
-        AND tbl_name IN ('history','history_path_keys','history_search_fts')
-      ORDER BY CASE type WHEN 'table' THEN 0 WHEN 'index' THEN 1 ELSE 2 END
-    ''');
-      final database = await openDatabase(
-        '${root.path}/history.db',
-        version: HistoryDatabase.schemaVersion,
-        onConfigure: (db) async {
-          await db.rawQuery('PRAGMA journal_mode=WAL');
-          await db.execute('PRAGMA recursive_triggers=ON');
-        },
-        onCreate: (db, _) async {
-          for (final row in schema) {
-            await db.execute(row['sql'] as String);
-          }
-        },
-      );
-      addTearDown(database.close);
-      final track = DownloadHistoryItem(
-        id: 'complete',
-        trackName: '  CAFÉ İ ΑΣ ß  ',
-        artistName: ' Artist ',
-        albumName: ' Album ',
-        albumArtist: ' Album Artist ',
-        coverUrl: 'https://example.test/cover.jpg',
-        filePath: 'content://nas.provider/tree/root/document/Ab%252FC.flac',
-        storageMode: 'saf',
-        downloadTreeUri: 'content://nas.provider/tree/root',
-        safRelativeDir: 'Album',
-        safFileName: 'Track.flac',
-        safRepaired: true,
-        service: 'provider',
-        downloadedAt: DateTime.utc(2026, 10, 6, 12, 0, 0, 123, 456),
-        isrc: ' us-aa-a26 00001 ',
-        spotifyId: ' Spotify:Track:ABC ',
-        trackNumber: 3,
-        totalTracks: 10,
-        discNumber: 2,
-        totalDiscs: 3,
-        duration: 240,
-        releaseDate: ' 2026-10-01 ',
-        quality: 'lossless',
-        bitDepth: 24,
-        sampleRate: 96000,
-        bitrate: 3456,
-        format: 'flac',
-        genre: ' Rock ',
-        composer: 'Composer',
-        label: 'Label',
-        copyright: 'Copyright',
-        explicit: true,
-        hasLyrics: true,
-        lyricsMetadataScanVersion: 2,
-        hasReplayGain: true,
-        replayGainMetadataScanVersion: 1,
-      ).toJson();
-      final input = await File(
-        '${root.path}/history-input.ndjson',
-      ).writeAsString('${jsonEncode(track)}\n');
-      final common = {
-        'history_path': database.path,
-        'platform': Platform.isAndroid ? 'android' : 'ios',
-      };
-      expect(
-        (await _job('backup_history_import', {
-          ...common,
-          'ndjson_path': input.path,
-          'expected_count': 1,
-        }))['committed'],
-        true,
-      );
-      final stored = (await database.query('history')).single;
-      expect(stored.keys, hasLength(48));
-      expect(stored['isrc_norm'], 'USAAA2600001');
-      expect(stored['sort_track'], 'café i ασ ß');
-      expect((await database.query('history_path_keys')).isNotEmpty, true);
-      final output = '${root.path}/history-export.ndjson';
-      expect(
-        (await _job('backup_history_export', {
-          ...common,
-          'ndjson_path': output,
-        }))['published'],
-        true,
-      );
-      expect(jsonDecode((await File(output).readAsLines()).single), track);
-      await expectLater(
-        _job('backup_history_import', {
-          ...common,
-          'ndjson_path': input.path,
-          'expected_count': 2,
-        }),
-        throwsA(isA<PlatformException>()),
-      );
-      expect((await database.query('history')).single, stored);
-
-      final legacy = await File('${root.path}/legacy.json').writeAsString(
-        jsonEncode({
-          'magic': 'spotiflac-backup',
-          'format_version': 1,
-          'app_version': '5.0.7',
-          'data': {
-            'settings': {'theme': 'light'},
-            'history': [track, 42],
-            'collections': {
-              'loved': ['complete'],
-            },
-          },
-        }),
-      );
-      final bundle = await BackupService.parseFile(
-        legacy.path,
-        temporaryDirectory: root,
-      );
-      expect(bundle, isNotNull);
-      expect(bundle!.historyCount, 1);
-      expect(bundle.history, isEmpty);
-      expect(bundle.settings, {'theme': 'light'});
-      expect(bundle.collections, {
-        'loved': ['complete'],
-      });
-      expect(await bundle.streamHistory().single, track);
-      await bundle.cleanup();
-    },
-  );
 }
 
 // Embedded from test/fixtures/native_lyrics_parsers.json so device tests do not

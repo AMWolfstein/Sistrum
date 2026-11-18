@@ -51,6 +51,9 @@ bool queueSwipeEnabled(WidgetRef ref) =>
     ref.watch(settingsProvider.select((s) => s.swipeToQueue)) &&
     ref.watch(playerUiEnabledProvider);
 
+/// Whether the play queue's rows take the swipe to play a copy next.
+bool queueEntrySwipeEnabled(WidgetRef ref) => queueSwipeEnabled(ref);
+
 /// The swipe for a library song, running the menus' own queue actions.
 QueueSwipeActions? libraryItemQueueSwipe(
   WidgetRef ref,
@@ -72,11 +75,6 @@ QueueSwipeActions? resolvedLibraryItemQueueSwipe(
     return true;
   });
 }
-
-/// Whether the play queue's rows take the swipe to play a copy next: as
-/// song rows do ([queueSwipeEnabled]), while this device plays the queue.
-bool queueEntrySwipeEnabled(WidgetRef ref) =>
-    queueSwipeEnabled(ref) && ref.watch(activeRemotePlaybackProvider) == null;
 
 /// The swipe for [item], an entry of the play queue: toward the end of the
 /// row it queues a copy of the song right after the playing one, leaving

@@ -663,10 +663,6 @@ class MediaKitPlaybackDeck implements PlaybackDeck, QueuedPlaybackDeck {
   }
 
   @override
-  Future<void> setNetworkSource(String url, {bool arriving = false}) =>
-      _load(url);
-
-  @override
   Future<void> setFileSource(
     String path, {
     bool preferBitPerfect = false,

@@ -336,13 +336,12 @@ void main() {
       Track(id: 'a', name: 'One', artistName: 'A', albumName: 'B', duration: 9),
       Track(id: 'b', name: 'Two', artistName: 'A', albumName: 'B', duration: 9),
     ];
-    Widget table(Set<String> selected, {bool inHistory = false}) => _app(
+    Widget table(Set<String> selected) => _app(
       CustomScrollView(
         slivers: [
           TrackListTable(
             tracks: [...tracks],
             ids: const ['a', 'b'],
-            isInHistory: [inHistory, false],
             selectedIds: selected,
             onSelect: (_, _, _) {},
             onActivate: (_) {},
@@ -358,8 +357,6 @@ void main() {
     final first = rows();
     await tester.pumpWidget(table(const {'a'}));
     expect(identical(rows(), first), isTrue);
-    await tester.pumpWidget(table(const {'a'}, inHistory: true));
-    expect(identical(rows(), first), isFalse);
     expect(tester.takeException(), isNull);
   });
 }

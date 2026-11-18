@@ -10,7 +10,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/providers/lyrics_translation_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/theme/app_motion.dart';
@@ -484,12 +483,10 @@ class _InspectorLyricsState extends ConsumerState<_InspectorLyrics> {
   final _metadata = PlayerMetadataController();
   final _seekPreview = PlaybackSeekPreview();
   ProviderSubscription<AsyncValue<MediaItem?>>? _mediaItemSub;
-  late final LyricsTranslationController _lyricsTranslation;
 
   @override
   void initState() {
     super.initState();
-    _lyricsTranslation = ref.read(lyricsTranslationProvider.notifier);
     _mediaItemSub = ref.listenManual<AsyncValue<MediaItem?>>(
       currentMediaItemProvider,
       (previous, next) {
@@ -505,7 +502,6 @@ class _InspectorLyricsState extends ConsumerState<_InspectorLyrics> {
   @override
   void dispose() {
     _mediaItemSub?.close();
-    _lyricsTranslation.cancel(owner: this);
     _metadata.dispose();
     _seekPreview.dispose();
     super.dispose();
@@ -520,7 +516,6 @@ class _InspectorLyricsState extends ConsumerState<_InspectorLyrics> {
     options: LyricsOptionsButton(
       metadata: _metadata,
       colorScheme: widget.colorScheme,
-      translationOwner: this,
     ),
   );
 }

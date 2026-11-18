@@ -21,14 +21,13 @@ class ResolvedCueAudioTest {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val root = File(context.cacheDir, "descriptor-cue-${System.nanoTime()}").apply { mkdirs() }
         try {
-            val sources = File(root, "sources").apply { mkdirs() }
             val data = File(root, "data")
-            ExtensionManager(sources.path, data.path, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=", "1", 2000uL).use { manager ->
+            ExtensionManager(data.path, "1").use { manager ->
                 val cue = File(data, "album.cue").apply {
                     writeText("PERFORMER \"Artist\"\nTITLE \"Album\"\nFILE \"absent.flac\" WAVE\nTRACK 01 AUDIO\nINDEX 01 00:00:00\nTRACK 02 AUDIO\nINDEX 01 00:01:00\n")
                 }
                 val audio = File(root, "outside-cue-directory.flac")
-                val fixture = NativeDownloadFinalizer.runFFmpegArguments(arrayOf(
+                val fixture = runFfmpegFixture(arrayOf(
                     "-v", "error", "-f", "lavfi", "-i", "sine=frequency=997:sample_rate=96000",
                     "-t", "2.75", "-c:a", "flac", "-sample_fmt", "s32", audio.path,
                 ))
@@ -60,9 +59,8 @@ class ResolvedCueAudioTest {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val root = File(context.cacheDir, "resolved-cue-${System.nanoTime()}").apply { mkdirs() }
         try {
-            val sources = File(root, "sources").apply { mkdirs() }
             val data = File(root, "data")
-            ExtensionManager(sources.path, data.path, "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=", "1", 2000uL).use { manager ->
+            ExtensionManager(data.path, "1").use { manager ->
                 val cue = File(data, "album.cue").apply {
                     writeText("PERFORMER \"Artist\"\nTITLE \"Album\"\nFILE \"album.flac\" WAVE\nTRACK 01 AUDIO\nTITLE \"First\"\nINDEX 01 00:00:00\nTRACK 02 AUDIO\nTITLE \"Second\"\nINDEX 01 03:00:00\n")
                 }

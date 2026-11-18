@@ -2,10 +2,9 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/controllers/clickable_metadata.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
-import 'package:sistrum/screens/downloaded_album_screen.dart';
 import 'package:sistrum/screens/local_album_screen.dart';
+import 'package:sistrum/services/cover_store.dart';
 import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('PlayerTrackNavigation');
@@ -15,52 +14,19 @@ Future<void> openPlayingArtist(
   WidgetRef ref,
   MediaItem mediaItem,
 ) async {
-  final track = ref.read(playerCollectionTrackProvider(mediaItem)).value;
-  // A downloaded track's source is the service its audio came from, not a
-  // metadata catalog; the lookup uses the user's search provider instead.
-  await navigateToArtist(
-    context,
-    artistName: mediaItem.artist ?? '',
-    artistId: track?.artistId,
-  );
+  await navigateToArtist(context, artistName: mediaItem.artist ?? '');
 }
 
 Future<void> openPlayingAlbum(
   BuildContext context,
   WidgetRef ref, {
   required MediaItem mediaItem,
-  required String source,
 }) async {
   final albumName = (mediaItem.album ?? '').trim();
   if (albumName.isEmpty) return;
 
-  // Prefer the stored collection so this action remains useful offline and
-  // opens the exact files the user is currently playing.
-  try {
-    final historyItem = source.isEmpty
-        ? null
-        : await ref
-              .read(downloadHistoryProvider.notifier)
-              .getByFilePathAsync(source);
-    if (!context.mounted) return;
-    if (historyItem != null) {
-      final albumArtist = (historyItem.albumArtist ?? '').trim();
-      pushViaPreferredNavigator(
-        context,
-        (_) => DownloadedAlbumScreen(
-          albumName: historyItem.albumName,
-          artistName: albumArtist.isNotEmpty
-              ? albumArtist
-              : historyItem.artistName,
-          coverUrl: historyItem.coverUrl,
-        ),
-      );
-      return;
-    }
-  } catch (e) {
-    _log.w('Failed to resolve downloaded album: $e');
-  }
-
+  // Prefer the stored collection so this action opens the exact files the
+  // user is currently playing.
   try {
     final album = await ref
         .read(musicPlayerControllerProvider)
@@ -85,10 +51,10 @@ Future<void> openPlayingAlbum(
   }
 
   if (!context.mounted) return;
-  await navigateToAlbum(
+  navigateToAlbum(
     context,
     albumName: albumName,
     artistName: mediaItem.artist,
-    coverUrl: mediaItem.artUri?.toString(),
+    coverPath: localCoverPath(mediaItem.artUri?.toString()),
   );
 }

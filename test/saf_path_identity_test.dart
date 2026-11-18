@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/utils/path_match_keys.dart';
 
 String _document(String authority, String id, {String? tree}) => Uri(
@@ -87,27 +86,6 @@ void main() {
         'content://$provider/album/two/document/42',
       ),
       isFalse,
-    );
-  });
-
-  test('download history recognizes a redownload through another tree', () {
-    DownloadHistoryItem item(String id, String path, String albumName) =>
-        DownloadHistoryItem(
-          id: id,
-          trackName: 'Song',
-          artistName: 'Artist',
-          albumName: albumName,
-          filePath: path,
-          service: 'test-provider',
-          downloadedAt: DateTime.utc(2026, 10, 3),
-        );
-
-    expect(
-      historyItemsReferToSameStoredFile(
-        item('old-id', parent, 'Album'),
-        item('new-id', album, 'Unknown Album'),
-      ),
-      isTrue,
     );
   });
 }

@@ -381,7 +381,7 @@ void main() {
             ],
           ),
           currentId: 'media',
-          artUri: 'https://example.com/cover.jpg',
+          artUri: '/music/cover.jpg',
         ),
       );
       await _pumpFor(tester, _settle);
@@ -425,7 +425,7 @@ void main() {
             children: [row('Song', '1', current: true), row('Other', '2')],
           ),
           currentId: 'media',
-          artUri: 'https://example.com/cover.jpg',
+          artUri: '/music/cover.jpg',
         ),
       );
       await _pumpFor(tester, _settle);

@@ -1,50 +1,34 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'package:sistrum/services/audio_file_open_service.dart';
-import 'package:crypto/crypto.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart'
     show SystemChrome, SystemUiMode, rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/app.dart';
 import 'package:sistrum/constants/app_info.dart';
-import 'package:sistrum/controllers/extension_auth_launcher.dart';
 import 'package:sistrum/l10n/supported_locales.dart';
 import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/theme_settings.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
-import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
-import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/theme_provider.dart';
 import 'package:sistrum/services/notification_service.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/services/share_intent_service.dart';
-import 'package:sistrum/services/cover_cache_manager.dart';
 import 'package:sistrum/services/app_state_database.dart';
 import 'package:sistrum/services/app_navigation_service.dart';
 import 'package:sistrum/services/app_orientation.dart';
 import 'package:sistrum/services/activity_attachment.dart';
 import 'package:sistrum/services/app_crash_service.dart';
 import 'package:sistrum/services/background_favorites.dart';
-import 'package:sistrum/services/desktop_deep_links.dart';
 import 'package:sistrum/services/desktop_diagnostics.dart';
 import 'package:sistrum/services/desktop_library_watcher.dart';
-import 'package:sistrum/services/link/desktop/link_desktop_host.dart';
-import 'package:sistrum/services/link/desktop/link_phone_playback.dart';
-import 'package:sistrum/services/link/features/link_phone_features.dart';
-import 'package:sistrum/services/link/features/link_remote_playback.dart';
-import 'package:sistrum/services/link/link_client_api.dart';
-import 'package:sistrum/services/link/link_source_presence.dart';
-import 'package:sistrum/services/link/together/link_together_controller.dart';
 import 'package:sistrum/services/music_player_service.dart';
 import 'package:sistrum/services/playback_notification.dart';
 import 'package:sistrum/services/player_widget_service.dart';
@@ -62,7 +46,6 @@ import 'package:sistrum/widgets/desktop/desktop_window.dart'
     show listenDesktopWindowFullScreen;
 
 final _log = AppLogger('Main');
-_StartupBenchmark? _startupBenchmark;
 
 /// Desktop binding: eases mouse wheel notches before they reach the
 /// scrollables (see [DesktopWheelSmoother]).
@@ -87,9 +70,6 @@ class _DesktopBinding extends WidgetsFlutterBinding {
 }
 
 void main() {
-  if (const bool.fromEnvironment('CORE_BACKEND_STARTUP_BENCHMARK')) {
-    _startupBenchmark = _StartupBenchmark();
-  }
   // Catch uncaught Dart errors so a failing async path is logged, not fatal.
   // Native backend crashes still can't be caught here.
   runZonedGuarded(
@@ -103,7 +83,7 @@ void main() {
       if (Platform.isAndroid) {
         // A media service can start the engine before MainActivity registers
         // the backend and platform channels. Calls made earlier would fail or
-        // never be answered, leaving extensions uninitialized. Playback has
+        // never be answered, leaving the backend uninitialized. Playback has
         // its channels on the engine, so a car's media browser that started
         // the app can browse and play at once.
         if (!isActivityAttached(binding)) {
@@ -138,9 +118,6 @@ void main() {
             'assets/fonts/GoogleSansFlex-LICENSE.txt',
           ),
         );
-        yield LicenseEntryWithLineBreaks(const [
-          'libsmb2',
-        ], await rootBundle.loadString('assets/licenses/libsmb2.txt'));
         yield LicenseEntryWithLineBreaks(const [
           'Material Color Utilities (native palette)',
           'Dart SDK (native Random compatibility)',
@@ -177,7 +154,6 @@ void main() {
           ], await rootBundle.loadString('assets/licenses/flac.txt'));
         }
       });
-      _startupBenchmark?.observeFirstFrame();
 
       final previousOnError = FlutterError.onError;
       FlutterError.onError = (details) {
@@ -195,19 +171,12 @@ void main() {
 
       final prefs = await preferences;
       var bootstrapSettings = loadBootstrapSettings(prefs);
-      // The SAF check overlaps the install marker read. An installation
-      // reset rewrites the settings, so its result is then replaced.
-      var safValidation = _startSafTreeValidation(bootstrapSettings);
       if (await _prepareAndroidInstallationState(prefs)) {
         bootstrapSettings = loadBootstrapSettings(prefs);
-        safValidation = _startSafTreeValidation(bootstrapSettings);
       }
       musicPlayerRuntime.configure(bootstrapSettings);
       if (isDesktopPlatform) restoreDesktopSidebar(prefs);
       final bootstrapTheme = loadBootstrapThemeSettings(prefs);
-      final initialSafAccessLost = await _detectInitialSafAccessLoss(
-        safValidation,
-      );
       final runtimeProfile = await _resolveRuntimeProfile(prefs);
       _configureImageCache(runtimeProfile);
       await orientation;
@@ -230,37 +199,8 @@ void main() {
               !Platform.isAndroid || runtimeProfile.enableBackdropBlur,
             ),
             initialSettingsProvider.overrideWithValue(bootstrapSettings),
-            initialSafAccessLostProvider.overrideWithValue(
-              initialSafAccessLost,
-            ),
             initialThemeSettingsProvider.overrideWithValue(bootstrapTheme),
             initialDynamicColorsProvider.overrideWithValue(dynamicColors),
-            // While the paired desktop plays in the phone's place, the
-            // player screens show and drive it; on the desktop, the phone
-            // it follows.
-            activeRemotePlaybackProvider.overrideWith(
-              (ref) =>
-                  ref.watch(linkRemotePlaybackProvider) ??
-                  ref.watch(linkFollowedPhonePlaybackProvider),
-            ),
-            // Playing together, this phone sounds while its screens show
-            // the computer: its volume controls stay its own.
-            soundsBesideRemoteProvider.overrideWith(
-              (ref) => ref.watch(
-                linkPlayTogetherProvider.select((state) => state.active),
-              ),
-            ),
-            // Also while songs transfer, so the computer can still ask for
-            // this phone's files and hear how a transfer stands, and while
-            // the two play together.
-            linkKeepConnectedProvider.overrideWith(
-              (ref) =>
-                  ref.watch(linkRemotePlaybackProvider) != null ||
-                  ref.watch(linkPhoneTransfersActiveProvider) ||
-                  ref.watch(
-                    linkPlayTogetherProvider.select((state) => state.active),
-                  ),
-            ),
           ],
           child: EagerInitialization(
             child: SistrumApp(
@@ -269,7 +209,6 @@ void main() {
           ),
         ),
       );
-      musicPlayerRuntime.prepareCovers();
       // Waits until startup settles, then analyzes how songs sound for
       // Autoplay. Media browsers that start without the app shell skip it.
       musicPlayerRuntime.startSongAnalysis();
@@ -303,79 +242,6 @@ void main() {
   );
 }
 
-// Opt-in release measurement. The ordinary startup path owns initialization;
-// reporting and validation happen after both measured boundaries are captured.
-class _StartupBenchmark {
-  final _watch = Stopwatch()..start();
-  late final Future<int> _firstFrame;
-
-  void observeFirstFrame() {
-    _firstFrame = WidgetsBinding.instance.waitUntilFirstFrameRasterized.then(
-      (_) => _watch.elapsedMicroseconds,
-    );
-  }
-
-  void extensionsReady(ExtensionState state, AppSettings settings) {
-    final ready = _watch.elapsedMicroseconds;
-    unawaited(_report(state, settings, ready));
-  }
-
-  Future<void> _report(
-    ExtensionState state,
-    AppSettings settings,
-    int ready,
-  ) async {
-    try {
-      if (!kReleaseMode) throw StateError('Startup benchmark requires release');
-      final firstFrame = await _firstFrame.timeout(const Duration(seconds: 30));
-      if (!state.isInitialized || state.error != null) {
-        throw StateError('Extensions are not ready: ${state.error}');
-      }
-      final backends = await PlatformBridge.getBackendImplementations();
-      const backend = String.fromEnvironment('EXPECTED_CORE_BACKEND');
-      if (!const ['go', 'rust'].contains(backend) ||
-          backends.length != 4 ||
-          backends.values.any((value) => value != backend)) {
-        throw StateError('Unexpected backend ownership: $backends');
-      }
-      await _write({
-        'result': 'CORE_BACKEND_STARTUP_PASS backend=$backend',
-        'startup': {
-          'schema': 1,
-          'backend': backend,
-          'mode': 'release',
-          'start_boundary': 'Dart main entry before bindings',
-          'first_frame_boundary': 'first rasterized frame observed',
-          'ready_boundary': 'production ensureInitialized completed',
-          'cache': 'fresh process; warm filesystem',
-          'first_frame_us': firstFrame,
-          'extensions_ready_us': ready,
-          'settings_sha256': sha256
-              .convert(utf8.encode(jsonEncode(settings.toJson())))
-              .toString(),
-          'extensions': [
-            for (final extension in state.extensions)
-              {
-                'id': extension.id,
-                'enabled': extension.enabled,
-                'status': extension.status,
-              },
-          ],
-        },
-      });
-    } catch (error) {
-      await _write({'result': 'CORE_BACKEND_STARTUP_FAIL $error'});
-    }
-  }
-
-  Future<void> _write(Map<String, Object?> result) async {
-    final support = await getApplicationSupportDirectory();
-    await File(
-      '${support.path}/core-backend-probe-result.json',
-    ).writeAsString(jsonEncode({'pid': pid, ...result}), flush: true);
-  }
-}
-
 /// The player, its saved session and the media controls, from the stored
 /// settings, for a media browser such as Android Auto that starts the app
 /// without an Activity. The app shell takes the controls over once it opens.
@@ -385,9 +251,7 @@ Future<void> _startBackgroundPlayback() async {
     // An Activity that attached meanwhile runs the full startup instead.
     if (isActivityAttached(WidgetsBinding.instance)) return;
     final settings = loadBootstrapSettings(prefs);
-    final runtime = musicPlayerRuntime
-      ..configure(settings)
-      ..prepareCovers();
+    final runtime = musicPlayerRuntime..configure(settings);
     final l10n = appLocalizationsFor(settings.locale);
     runtime.updateStrings(
       unknownTitle: l10n.unknownTitle,
@@ -404,9 +268,7 @@ Future<void> _startBackgroundPlayback() async {
       ),
       favorites: BackgroundFavorites(
         library: dependencies.libraryDatabase,
-        history: dependencies.historyDatabase,
         collections: dependencies.collectionsDatabase,
-        covers: dependencies.coverStore,
       ),
     );
     await runtime.restoreSession();
@@ -453,46 +315,15 @@ Future<bool> _prepareAndroidInstallationState(SharedPreferences prefs) async {
     await resetRestoredInstallationSettings(prefs);
     await prefs.remove(_runtimeProfileTierKey);
     await prefs.remove(localLibraryLastScannedAtKey);
-    await AppStateDatabase.instance.clearPendingQueueAfterInstallationRestore();
+    await AppStateDatabase.instance.clearAfterInstallationRestore();
   } catch (e) {
-    // Startup SAF validation remains the second line of defense if an OEM or
-    // bridge implementation prevents install-marker inspection.
     _log.w('Failed to inspect restored installation state: $e');
   }
   return resetStarted;
 }
 
-/// Starts the startup SAF grant check for [settings]. A failure is captured
-/// with the result, so a check that is replaced never reports an error.
-Future<(bool, Object?)>? _startSafTreeValidation(AppSettings settings) {
-  if (!Platform.isAndroid ||
-      settings.isFirstLaunch ||
-      settings.storageMode != 'saf' ||
-      settings.downloadTreeUri.isEmpty) {
-    return null;
-  }
-
-  return PlatformBridge.validateSafTreeAccess(settings.downloadTreeUri)
-      .timeout(const Duration(seconds: 2))
-      .then<(bool, Object?)>(
-        (accessible) => (accessible, null),
-        onError: (Object error) => (true, error),
-      );
-}
-
-Future<bool> _detectInitialSafAccessLoss(
-  Future<(bool, Object?)>? validation,
-) async {
-  if (validation == null) return false;
-  final (accessible, error) = await validation;
-  if (error != null) {
-    // A transient bridge failure must not trap the user at launch. Download
-    // preflight validates strictly again before any write starts.
-    _log.w('Failed to validate SAF access during startup: $error');
-  }
-  return !accessible;
-}
-
+/// The runtime profile: the tier stored by an earlier launch, or one picked
+/// from the device when none is stored yet.
 Future<_RuntimeProfile> _resolveRuntimeProfile(SharedPreferences prefs) async {
   final cachedTier = prefs.getString(_runtimeProfileTierKey);
   if (cachedTier != null) {
@@ -596,13 +427,9 @@ class EagerInitialization extends ConsumerStatefulWidget {
 class _EagerInitializationState extends ConsumerState<EagerInitialization>
     with WidgetsBindingObserver {
   ProviderSubscription<bool>? _localLibraryEnabledSub;
-  Timer? _downloadHistoryWarmupTimer;
   Timer? _localLibraryWarmupTimer;
   bool _localLibraryWarmupScheduled = false;
   bool _autoScanTriggeredOnLaunch = false;
-  StreamSubscription<void>? _verificationNotificationSubscription;
-  StreamSubscription<void>? _extensionAuthCallbackSubscription;
-  DesktopDeepLinks? _desktopDeepLinks;
   DesktopLibraryWatcher? _desktopLibraryWatcher;
   ProviderSubscription<bool>? _desktopLibraryWatchSub;
   ProviderSubscription<List<LocalLibrarySource>>? _desktopLibrarySourcesSub;
@@ -614,26 +441,11 @@ class _EagerInitializationState extends ConsumerState<EagerInitialization>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _logRefreshRate();
-      _verificationNotificationSubscription =
-          PlatformBridge.verificationNotificationEvents().listen(
-            (_) => unawaited(_consumeVerificationNotification()),
-          );
-      _extensionAuthCallbackSubscription =
-          PlatformBridge.extensionAuthCallbackEvents().listen(
-            (_) => unawaited(_completeExtensionCallback()),
-          );
-      // After the callback subscription, so a launch URL is not missed.
       if (isDesktopPlatform) {
-        _desktopDeepLinks = DesktopDeepLinks()..start();
         listenDesktopWindowFullScreen();
         bindDesktopFullScreenLyrics();
-        // Starts the Sistrum Link server when the owner turned it on.
-        ref.read(linkDesktopHostProvider);
-        // Hides a phone's songs while it is not connected.
-        ref.read(linkSourcePresenceProvider);
       }
       _initializeAppServices();
-      _initializeExtensions();
       _initializeDeferredProviders();
     });
   }
@@ -641,16 +453,10 @@ class _EagerInitializationState extends ConsumerState<EagerInitialization>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    CoverCacheManager.stopMaintenance();
     _localLibraryEnabledSub?.close();
-    _downloadHistoryWarmupTimer?.cancel();
     _localLibraryWarmupTimer?.cancel();
-    _verificationNotificationSubscription?.cancel();
-    _extensionAuthCallbackSubscription?.cancel();
-    unawaited(_desktopDeepLinks?.dispose());
     _desktopLibraryWatchSub?.close();
     _stopDesktopLibraryWatcher();
-    NotificationService().verificationNotifications.setHandler(null);
     super.dispose();
   }
 
@@ -674,15 +480,6 @@ class _EagerInitializationState extends ConsumerState<EagerInitialization>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _logRefreshRate();
-      unawaited(_consumeVerificationNotification());
-      CoverCacheManager.scheduleMaintenance();
-      // Native downloads can finish while Flutter is suspended. Refresh the
-      // persisted history even when no queued item remains to reconcile.
-      if (ref.read(downloadHistoryProvider.exists)) {
-        unawaited(
-          ref.read(downloadHistoryProvider.notifier).refreshFromStorage(),
-        );
-      }
       _maybeAutoScanLocalLibrary();
       if (ref.read(localLibraryProvider.exists)) {
         unawaited(
@@ -691,25 +488,7 @@ class _EagerInitializationState extends ConsumerState<EagerInitialization>
               .refreshSourceAvailability(scanReconnected: true),
         );
       }
-      if (ref.read(downloadQueueProvider.exists)) {
-        ref
-            .read(downloadQueueProvider.notifier)
-            .resumePendingDownloadsOnForeground();
-      }
     } else if (state == AppLifecycleState.paused) {
-      CoverCacheManager.stopMaintenance();
-      // Last reliable moment before the OS may kill the process: make sure
-      // any debounced download-queue persistence reaches disk.
-      if (ref.read(downloadQueueProvider.exists)) {
-        unawaited(
-          ref
-              .read(downloadQueueProvider.notifier)
-              .flushQueuePersistence()
-              .catchError((Object error) {
-                _log.e('Failed to flush background download queue: $error');
-              }),
-        );
-      }
       unawaited(PlatformBridge.releaseNativeMemory());
     }
   }
@@ -721,17 +500,10 @@ class _EagerInitializationState extends ConsumerState<EagerInitialization>
     final imageCache = PaintingBinding.instance.imageCache;
     imageCache.clear();
     imageCache.clearLiveImages();
-    if (CoverCacheManager.isInitialized) {
-      CoverCacheManager.instance.store.emptyMemoryCache();
-    }
     unawaited(PlatformBridge.releaseNativeMemory(underPressure: true));
   }
 
   void _initializeDeferredProviders() {
-    _downloadHistoryWarmupTimer = _scheduleProviderWarmup(
-      const Duration(milliseconds: 400),
-      () => ref.read(downloadHistoryProvider),
-    );
     _maybeScheduleLocalLibraryWarmup(
       ref.read(
         settingsProvider.select((settings) => settings.localLibraryEnabled),
@@ -865,8 +637,6 @@ class _EagerInitializationState extends ConsumerState<EagerInitialization>
 
   Future<void> _initializeAppServices() async {
     try {
-      await CoverCacheManager.initialize();
-      CoverCacheManager.scheduleMaintenance();
       await Future.wait([
         NotificationService().initialize(),
         ShareIntentService().initialize(),
@@ -874,54 +644,6 @@ class _EagerInitializationState extends ConsumerState<EagerInitialization>
       ]);
     } catch (e) {
       debugPrint('Failed to initialize app services: $e');
-    }
-  }
-
-  Future<void> _initializeExtensions() async {
-    try {
-      await ref.read(extensionProvider.notifier).ensureInitialized();
-      _startupBenchmark?.extensionsReady(
-        ref.read(extensionProvider),
-        ref.read(settingsProvider),
-      );
-      if (!mounted) return;
-      NotificationService().verificationNotifications.setHandler((
-        target,
-      ) async {
-        if (!mounted) return;
-        try {
-          await ref
-              .read(downloadQueueProvider.notifier)
-              .handleVerificationNotificationTap(target);
-        } catch (error) {
-          _log.w('Could not open verification notification: $error');
-          if (mounted) showExtensionVerificationUnavailable(target.extensionId);
-        }
-      });
-      await _consumeVerificationNotification();
-    } catch (e) {
-      debugPrint('Failed to initialize extensions: $e');
-    }
-  }
-
-  Future<void> _consumeVerificationNotification() async {
-    if (!mounted || !Platform.isAndroid) return;
-    try {
-      final payload = await PlatformBridge.consumeVerificationNotification();
-      if (mounted) {
-        NotificationService().verificationNotifications.receive(payload);
-      }
-    } catch (error) {
-      _log.w('Could not read pending verification notification: $error');
-    }
-  }
-
-  Future<void> _completeExtensionCallback() async {
-    try {
-      await ref.read(extensionProvider.notifier).ensureInitialized();
-      await PlatformBridge.processPendingExtensionCallbacks();
-    } catch (error) {
-      _log.w('Could not complete extension verification: $error');
     }
   }
 

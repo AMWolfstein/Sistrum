@@ -55,44 +55,7 @@ class SettingsSearchQuery {
 /// Localized index of controls found inside every first-level settings page.
 class SettingsSearchCatalog {
   SettingsSearchCatalog(AppLocalizations l10n, {bool androidAudio = false})
-    : extensions = [
-        SettingsSearchEntry(
-          icon: Icons.low_priority,
-          title: l10n.extensionsDownloadPriority,
-          subtitle: l10n.extensionsDownloadPrioritySubtitle,
-          keywords: const ['provider order', 'service order'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.alt_route,
-          title: l10n.extensionsFallbackTitle,
-          subtitle: l10n.extensionsFallbackSubtitle,
-          keywords: const ['provider fallback'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.manage_search,
-          title: l10n.extensionsMetadataPriority,
-          subtitle: l10n.extensionsMetadataPrioritySubtitle,
-          keywords: const ['metadata provider order'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.search,
-          title: l10n.extensionsSearchProvider,
-          subtitle: l10n.extensionsSearchProviderDescription,
-          keywords: const ['home search source'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.explore_outlined,
-          title: l10n.extensionsHomeFeedProvider,
-          subtitle: l10n.extensionsHomeFeedDescription,
-          keywords: const ['home provider', 'feed source'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.add,
-          title: l10n.extensionsInstallButton,
-          keywords: const ['add plugin', 'import extension'],
-        ),
-      ],
-      appearance = [
+    : appearance = [
         SettingsSearchEntry(
           icon: Icons.rounded_corner,
           title: l10n.appearanceGlassOutlines,
@@ -711,21 +674,6 @@ class SettingsSearchCatalog {
           keywords: const ['synced', 'plain', 'lyrics type'],
         ),
         SettingsSearchEntry(
-          icon: Icons.source_outlined,
-          title: l10n.lyricsProvidersTitle,
-          keywords: const ['lyrics priority', 'lyrics source'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.timer_outlined,
-          title: l10n.lyricsPreferBestTiming,
-          keywords: const [
-            'synced lyrics',
-            'word synced',
-            'karaoke',
-            'plain lyrics',
-          ],
-        ),
-        SettingsSearchEntry(
           icon: Icons.translate_outlined,
           title: l10n.downloadNeteaseIncludeTranslation,
           keywords: const ['translated lyrics'],
@@ -794,12 +742,6 @@ class SettingsSearchCatalog {
           title: l10n.settingsDownloadNetwork,
           subtitle: l10n.settingsDownloadNetworkSubtitle,
           keywords: const ['wifi only', 'mobile data'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.dynamic_feed_outlined,
-          title: l10n.settingsConcurrentDownloads,
-          subtitle: l10n.settingsConcurrentDownloadsSubtitle,
-          keywords: const ['parallel downloads', 'simultaneous'],
         ),
         SettingsSearchEntry(
           icon: Icons.downloading_outlined,
@@ -991,12 +933,6 @@ class SettingsSearchCatalog {
           keywords: const ['stable', 'preview', 'beta'],
         ),
         SettingsSearchEntry(
-          icon: Icons.cleaning_services_outlined,
-          title: l10n.cleanupOrphanedDownloads,
-          subtitle: l10n.cleanupOrphanedDownloadsSubtitle,
-          keywords: const ['stale queue', 'missing download'],
-        ),
-        SettingsSearchEntry(
           icon: Icons.delete_forever,
           title: l10n.optionsClearHistory,
           subtitle: l10n.optionsClearHistorySubtitle,
@@ -1028,12 +964,6 @@ class SettingsSearchCatalog {
           keywords: const ['temporary files'],
         ),
         SettingsSearchEntry(
-          icon: Icons.image_outlined,
-          title: l10n.cacheCoverImage,
-          subtitle: l10n.cacheCoverImageDesc,
-          keywords: const ['artwork cache'],
-        ),
-        SettingsSearchEntry(
           icon: Icons.library_music_outlined,
           title: l10n.cacheLibraryCover,
           subtitle: l10n.cacheLibraryCoverDesc,
@@ -1044,18 +974,6 @@ class SettingsSearchCatalog {
           title: l10n.cacheAudioAnalysis,
           subtitle: l10n.cacheAudioAnalysisDesc,
           keywords: const ['spectrogram cache'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.explore_outlined,
-          title: l10n.cacheExploreFeed,
-          subtitle: l10n.cacheExploreFeedDesc,
-          keywords: const ['home feed cache'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.memory_outlined,
-          title: l10n.cacheTrackLookup,
-          subtitle: l10n.cacheTrackLookupDesc,
-          keywords: const ['search cache'],
         ),
         SettingsSearchEntry(
           icon: Icons.cleaning_services_outlined,
@@ -1139,38 +1057,8 @@ class SettingsSearchCatalog {
           title: l10n.aboutTranslators,
           keywords: const ['translation credits'],
         ),
-        SettingsSearchEntry(
-          icon: Icons.code,
-          title: l10n.aboutMobileSource,
-          keywords: const ['github', 'source code'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.bug_report_outlined,
-          title: l10n.aboutReportIssue,
-          subtitle: l10n.aboutReportIssueSubtitle,
-          keywords: const ['bug report'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.lightbulb_outline,
-          title: l10n.aboutFeatureRequest,
-          subtitle: l10n.aboutFeatureRequestSubtitle,
-          keywords: const ['suggestion', 'idea'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.telegram,
-          title: l10n.aboutTelegramChannel,
-          subtitle: l10n.aboutTelegramChannelSubtitle,
-          keywords: const ['social'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.forum_outlined,
-          title: l10n.aboutTelegramChat,
-          subtitle: l10n.aboutTelegramChatSubtitle,
-          keywords: const ['community', 'support chat'],
-        ),
       ];
 
-  final List<SettingsSearchEntry> extensions;
   final List<SettingsSearchEntry> appearance;
   final List<SettingsSearchEntry> library;
   final List<SettingsSearchEntry> playback;

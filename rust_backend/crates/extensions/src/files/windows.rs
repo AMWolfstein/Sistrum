@@ -8,6 +8,7 @@ use windows_sys::Win32::Storage::FileSystem::MoveFileExW;
 /// Publish within the opened parent without requiring hard-link support from
 /// the destination filesystem. A concurrent publisher must never be replaced.
 #[allow(unsafe_code)] // One Windows call with owned, NUL-terminated paths.
+#[cfg(test)]
 pub(super) fn publish_new(parent: &Dir, name: &str, target: &OsStr) -> io::Result<()> {
     fn wide(path: &Path) -> io::Result<Vec<u16>> {
         let mut units: Vec<_> = path.as_os_str().encode_wide().collect();

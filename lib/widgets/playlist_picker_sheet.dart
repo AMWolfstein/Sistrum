@@ -610,11 +610,11 @@ class _PlaylistPickerThumbnail extends StatelessWidget {
 
     Widget image(String? cover) => cover == null
         ? _iconFallback(context, colorScheme, size)
-        : LocalOrNetworkCoverImage(
+        : LocalCoverImage(
             url: cover,
             width: size,
             height: size,
-            networkCacheWidth: (size * 2).toInt(),
+            localCacheWidth: (size * 2).toInt(),
             placeholder: (_) => _iconFallback(context, colorScheme, size),
           );
 

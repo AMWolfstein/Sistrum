@@ -9,12 +9,9 @@ import 'package:sistrum/models/library_scan_failure.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/library_album_artwork_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/services/cover_store.dart';
 import 'package:sistrum/services/library_cleanup.dart';
 import 'package:sistrum/services/library_collections_database.dart';
 import 'package:sistrum/services/library_database.dart';
-import 'package:sistrum/services/network_library_scanner.dart';
-import 'package:sistrum/services/network_storage_service.dart';
 import 'package:sistrum/services/notification_service.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/utils/logger.dart';
@@ -153,28 +150,15 @@ class LocalLibraryState {
 typedef LocalLibraryAvailabilityProbe =
     Future<bool?> Function(String path, {String? bookmark});
 
-/// Whether the songs of the `network://` source [source] (its host) show:
-/// true or false, or null to keep them as they are. Sistrum Link decides it,
-/// so a paired device's songs hide while it is not connected.
-typedef NetworkSourceAvailability = bool? Function(String source);
-
 class LocalLibraryNotifier extends Notifier<LocalLibraryState> {
   LocalLibraryNotifier({
     LibraryDatabase? database,
     LocalLibraryAvailabilityProbe? availabilityProbe,
-    NetworkStorageService? networkStorage,
   }) : _db = database ?? LibraryDatabase.instance,
-       _networkStorage = networkStorage ?? NetworkStorageService.instance,
        _availabilityProbe = availabilityProbe;
 
   final LibraryDatabase _db;
-  final NetworkStorageService _networkStorage;
-  void Function()? _unsubscribeNetworkRemoval;
   final LocalLibraryAvailabilityProbe? _availabilityProbe;
-
-  /// Network outages are transient: without a decision here a network
-  /// source keeps its state, so its indexed songs stay visible.
-  NetworkSourceAvailability? _networkAvailability;
   final NotificationService _notificationService = NotificationService();
   static const _progressPollingInterval = Duration(milliseconds: 350);
   static const _progressStreamBootstrapTimeout = Duration(milliseconds: 900);
@@ -204,8 +188,6 @@ class LocalLibraryNotifier extends Notifier<LocalLibraryState> {
   bool _scanInProgress = false;
   bool _scanNotificationsEnabled = true;
   Future<void>? _scanCompletion;
-  NetworkLibraryScanner? _networkScanner;
-  String? _activeScanPath;
   String? _activeScanSourceId;
   String? _nativeLibraryRequestId;
   final Set<String> _pendingReconnectScans = {};
@@ -227,19 +209,10 @@ class LocalLibraryNotifier extends Notifier<LocalLibraryState> {
 
   @override
   LocalLibraryState build() {
-    _unsubscribeNetworkRemoval = _networkStorage.connectionRemovals.subscribe(
-      _onNetworkConnectionRemoved,
-    );
     ref.onDispose(() {
-      _unsubscribeNetworkRemoval?.call();
       _scanCancelRequested = true;
       _scanPauseRequested = false;
       _pendingReconnectScans.clear();
-      unawaited(
-        _networkScanner?.cancelPending().catchError((Object error) {
-          _log.w('Failed to cancel disposed network scan reads: $error');
-        }),
-      );
       if (_scanInProgress) {
         final requestId = _nativeLibraryRequestId;
         if (requestId != null) {
@@ -469,37 +442,6 @@ class LocalLibraryNotifier extends Notifier<LocalLibraryState> {
     if (waitForScan && completion != null) await completion;
   }
 
-  Future<void> _onNetworkConnectionRemoved(String connectionId) async {
-    if (!ref.mounted) return;
-    bool matches(String path) {
-      final uri = Uri.tryParse(path);
-      return uri?.scheme == 'network' && uri?.host == connectionId;
-    }
-
-    _sourceVersion++;
-    if (matches(_activeScanPath ?? '') && _activeScanSourceId != null) {
-      await _cancelSourceScan(_activeScanSourceId!);
-    }
-    if (!ref.mounted) return;
-    final sources = await _db.getSources();
-    if (!ref.mounted) return;
-    for (final source in sources.where((source) => matches(source.path))) {
-      _pendingReconnectScans.remove(source.id);
-      await _db.updateSourceState(source.id, available: false);
-      if (!ref.mounted) return;
-    }
-    await _refreshSummaryFromStorage();
-  }
-
-  /// Applies [availability] to the network sources now and at every later
-  /// availability refresh.
-  Future<void> setNetworkSourceAvailability(
-    NetworkSourceAvailability availability,
-  ) {
-    _networkAvailability = availability;
-    return refreshSourceAvailability();
-  }
-
   Future<void> refreshSourceAvailability({bool scanReconnected = false}) {
     _availabilityRequestVersion++;
     _scanReconnectedOnRefresh |= scanReconnected;
@@ -585,7 +527,6 @@ class LocalLibraryNotifier extends Notifier<LocalLibraryState> {
     _scanCompletion = completion.future;
     _scanInProgress = true;
     _scanNotificationsEnabled = notify;
-    _activeScanPath = folderPath;
     _activeScanSourceId = sourceId;
     if (sourceId != null) _pendingReconnectScans.remove(sourceId);
     _scanCancelRequested = false;
@@ -611,7 +552,6 @@ class LocalLibraryNotifier extends Notifier<LocalLibraryState> {
       }
       _scanInProgress = false;
       _scanNotificationsEnabled = true;
-      _activeScanPath = null;
       _activeScanSourceId = null;
       _scanCompletion = null;
       _nativeLibraryRequestId = null;
@@ -624,11 +564,6 @@ class LocalLibraryNotifier extends Notifier<LocalLibraryState> {
 
     _log.i('Cancelling library scan');
     _scanCancelRequested = true;
-    try {
-      await _networkScanner?.cancelPending();
-    } catch (error) {
-      _log.w('Failed to cancel network scan reads: $error');
-    }
     final requestId = _nativeLibraryRequestId;
     if (requestId != null) {
       try {
@@ -642,7 +577,7 @@ class LocalLibraryNotifier extends Notifier<LocalLibraryState> {
     _scanReconnectedOnRefresh = false;
     // Native cancel also releases a paused scan.
     _scanPauseRequested = false;
-    if (state.isScanning && !_isScanningNetwork) {
+    if (state.isScanning) {
       await PlatformBridge.cancelLibraryScan();
     }
     if (!ref.mounted) return;
@@ -668,7 +603,7 @@ class LocalLibraryNotifier extends Notifier<LocalLibraryState> {
     _scanPauseRequested = true;
     state = state.copyWith(scanIsPaused: true);
     try {
-      if (!_isScanningNetwork) await PlatformBridge.pauseLibraryScan();
+      await PlatformBridge.pauseLibraryScan();
     } catch (e) {
       _log.w('Failed to pause library scan: $e');
       _scanPauseRequested = false;

@@ -1,5 +1,4 @@
 import 'package:audio_service/audio_service.dart';
-import 'package:sistrum/services/network_metadata_service.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/utils/int_utils.dart';
 import 'package:sistrum/utils/string_utils.dart';
@@ -109,9 +108,6 @@ Future<Map<String, dynamic>> readPlaybackFileMetadataWithRetry(
     Duration(milliseconds: 750),
   ],
 }) async {
-  if (reader == null && path.startsWith('network://')) {
-    return NetworkMetadataService.instance.read(path);
-  }
   final read = reader ?? PlatformBridge.readFileMetadata;
   final delays = retryDelays.isEmpty ? const [Duration.zero] : retryDelays;
   Object? lastError;

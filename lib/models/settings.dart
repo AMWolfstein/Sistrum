@@ -112,14 +112,6 @@ String libraryAlbumSortModeFromJson(Object? value) =>
     ? value as String
     : 'a-z';
 
-const lyricsTranslationSaveToSongFile = 'songFile';
-const lyricsTranslationSaveToMlrc = 'mlrc';
-
-String lyricsTranslationSaveToFromJson(Object? value) =>
-    value == lyricsTranslationSaveToMlrc
-    ? lyricsTranslationSaveToMlrc
-    : lyricsTranslationSaveToSongFile;
-
 /// Offline romanization starts as the AI romanization switch was, so a
 /// user who turned that off is not shown romanization they did not want.
 Object? readLyricsRomanize(Map<dynamic, dynamic> json, String key) =>
@@ -136,16 +128,11 @@ class AppSettings {
   static const String librarySongTapPlay = 'play';
   static const String librarySongTapDetails = 'details';
 
-  final String defaultService;
   final String audioQuality;
-  final String filenameFormat;
   final String downloadDirectory;
-  final String networkDownloadFolder;
-  final String networkDownloadLabel;
   final String downloadDirectoryBookmark;
   final String storageMode; // 'app' or 'saf'
   final String downloadTreeUri; // SAF persistable tree URI
-  final bool autoFallback;
   final bool embedMetadata;
 
   /// Maximum width or height of remotely fetched artwork before embedding.
@@ -205,7 +192,6 @@ class AppSettings {
     echo: autoMixEcho,
     lowPass: autoMixLowPass,
   );
-  final bool discordRichPresenceEnabled;
   final bool usbBitPerfect;
   final bool usbDirect;
   final bool usbDsdOverPcm;
@@ -275,15 +261,6 @@ class AppSettings {
   // Material: idle lyrics shrink the player to a slim bar, not hide it.
   final bool compactPlayer;
   final bool isFirstLaunch;
-  final bool checkForUpdates;
-  final String updateChannel;
-  final bool hasSearchedBefore;
-  final String folderOrganization;
-  final String folderPathTemplate;
-  final bool createPlaylistFolder;
-  final bool useAlbumArtistForFolders;
-  final bool usePrimaryArtistOnly; // Strip featured artists from folder name
-  final bool filterContributingArtistsInAlbumArtist;
   final String historyViewMode;
   final String historyFilterMode;
   @JsonKey(fromJson: librarySortModeFromJson)
@@ -311,17 +288,11 @@ class AppSettings {
   /// [librarySongTapDetails], the default, opens its details and the button
   /// plays; [librarySongTapPlay] plays it and the button opens its details.
   final String librarySongTap;
-  final bool askQualityBeforeDownload;
   final bool enableLogging;
-  final bool useExtensionProviders;
-  final List<String>? downloadFallbackExtensionIds;
-  final String? searchProvider;
-  final String defaultSearchTab;
 
   /// Search results on wide screens: 'list' keeps the phone rows, 'grid'
   /// shows cover grids and shelves.
   final String searchViewMode;
-  final String? homeFeedProvider;
 
   /// The Material Home's shortcuts, in order, by `HomeShortcut` name. Read
   /// them through `HomeShortcut.resolve`, which fills in unknown names.
@@ -329,14 +300,6 @@ class AppSettings {
 
   /// Whether Home offers the last song again ("Continue listening").
   final bool homeContinueListening;
-  final bool separateSingles;
-  final String singleFilenameFormat;
-  final String albumFolderStructure;
-  final bool showExtensionStore;
-
-  /// Installs store updates for enabled extensions after each background
-  /// store check, but only while no download is queued or running.
-  final bool autoUpdateExtensions;
 
   /// Shared-element (Hero) flights, e.g. the mini player artwork expanding
   /// into the full player. Off skips the flights entirely.
@@ -351,8 +314,6 @@ class AppSettings {
   /// and TV scale. 1 is the normal size.
   @JsonKey(fromJson: interfaceScaleFromJson)
   final double interfaceScale;
-  final String
-  extensionVerificationBrowserMode; // 'external_first' or 'in_app_first'
   final String locale;
   final String lyricsMode;
   final bool keepScreenOnLyrics;
@@ -361,44 +322,16 @@ class AppSettings {
   final bool lockScreenLyrics;
   final bool motionArtworkEnabled;
 
-  /// Copy a download's animated cover into its album folder as `cover.mp4`.
-  final bool saveMotionArtworkFile;
-
   /// Save a download's cover into its album folder as `folder.jpg`, for
   /// players that do not read the cover inside a song.
   final bool saveFolderCover;
-
-  /// The longest side of that cover in pixels; 0 keeps the original.
-  final int folderCoverMaxDimension;
 
   /// Delete the album and artist folders a deleted song leaves empty, inside
   /// the download and Local Library folders.
   final bool removeEmptyFolders;
   final bool listeningStatisticsEnabled;
-  final bool autoConvertDownloads;
-  // Re-download a Hi-Res request at LOSSLESS when the file measures as fake.
-  final bool redownloadFakeHiRes;
-  final String autoConvertFormat; // 'mp3', 'aac'/'alac' (M4A), 'opus', 'flac'
-  final String autoConvertBitrate; // '128k', '160k', '192k', '256k', or '320k'
-  final int autoConvertMaxBitDepth; // 0 retains the source bit depth.
-  final int autoConvertMaxSampleRate; // 0 retains the source sample rate.
-  final bool autoConvertSmartDither;
-  // Smart Dither uses high-pass TPDF instead of plain TPDF.
-  final bool autoConvertSmartDitherHighPass;
   final bool
   useAllFilesAccess; // Android 13+ only: enable MANAGE_EXTERNAL_STORAGE
-  final bool autoExportFailedDownloads;
-  final String
-  downloadNetworkMode; // 'any' = WiFi + Mobile, 'wifi_only' = WiFi only
-  final bool
-  networkCompatibilityMode; // Try HTTP + allow invalid TLS cert for API requests
-  final bool
-  allowLocalNetwork; // Allow requests to private/local network targets (local proxy / custom DNS)
-  final String
-  songLinkRegion; // SongLink userCountry region code used for platform lookup
-  final bool nativeDownloadWorkerEnabled; // Android service-owned worker
-  final int
-  concurrentDownloads; // Max simultaneous downloads in the Dart queue (1-3)
 
   final bool localLibraryEnabled;
   final String localLibraryPath;
@@ -408,55 +341,7 @@ class AppSettings {
   final String
   localLibraryAutoScan; // Auto-scan mode: 'off', 'on_open', 'daily', 'weekly'
 
-  /// Hide a Sistrum Link device's songs from the Library while it is not
-  /// connected: a phone's on the desktop, a computer's on a phone.
-  final bool linkHideDisconnectedSongs;
-
   final bool hasCompletedTutorial;
-
-  final List<String> lyricsProviders;
-
-  /// Take the best-timed lyrics any enabled provider has (word-synced, then
-  /// line-synced, then plain) instead of the first provider's lyrics.
-  /// [lyricsProviders] order still decides between equals.
-  final bool lyricsPreferBestTiming;
-  final bool
-  lyricsIncludeTranslationNetease; // Append translated lyrics (Netease)
-  final bool
-  lyricsIncludeRomanizationNetease; // Append romanized lyrics (Netease)
-  final bool
-  lyricsMultiPersonWordByWord; // Enable v1/v2 + [bg:] tags for Apple/QQ syllable lyrics
-  final bool
-  lyricsAppleElrcWordSync; // Preserve Apple Music inline word timestamps for eLRC-capable players
-  final String
-  musixmatchLanguage; // Optional ISO language code for Musixmatch localized lyrics
-
-  /// AI lyrics translation. The API key lives in secure storage, never here.
-  final String lyricsAiProvider;
-
-  /// API root of a custom OpenAI-compatible server.
-  final String lyricsAiBaseUrl;
-
-  /// Empty uses the provider's default model.
-  final String lyricsAiModel;
-
-  /// BCP-47 target language; empty follows the app language.
-  final String lyricsTranslationLanguage;
-
-  /// BCP-47 language for songs already in the target; empty leaves them
-  /// untranslated.
-  final String lyricsTranslationSecondLanguage;
-
-  /// Optional guidance added to the translation prompt.
-  final String lyricsAiInstruction;
-
-  /// Translate lyrics without a translation as they open.
-  final bool lyricsAutoTranslate;
-
-  /// Ask the translation for a romanization of the lines written outside
-  /// the Latin alphabet that offline romanization cannot give, while
-  /// [lyricsRomanize] is on.
-  final bool lyricsAiRomanize;
 
   /// Romanize lyrics written outside the Latin alphabet on the device,
   /// where their script allows it.
@@ -465,30 +350,6 @@ class AppSettings {
 
   /// Show a line's romanization as the line, with the original under it.
   final bool lyricsRomanizedMainLine;
-
-  /// Align AI translations and readings to sung words instead of whole lines.
-  final bool lyricsAiWordSync;
-
-  /// Where saved lyrics translations go: [lyricsTranslationSaveToSongFile],
-  /// the song's own lyrics where they can carry them, or
-  /// [lyricsTranslationSaveToMlrc], a `.mlrc` file next to the song.
-  @JsonKey(fromJson: lyricsTranslationSaveToFromJson)
-  final String lyricsTranslationSaveTo;
-
-  /// Save each lyrics translation once the player shows it.
-  final bool lyricsTranslationAutoSave;
-
-  /// Translate the lyrics of each finished download and save them with the
-  /// song, so they show offline. Off by default: every download is a
-  /// request on the user's API key.
-  final bool lyricsTranslateDownloads;
-
-  final String
-  lastSeenVersion; // Last app version the user has acknowledged (e.g. '3.7.0')
-
-  final bool deduplicateDownloads;
-  final bool allowQualityVariants;
-  final bool saveDownloadHistory;
 
   final String playerMode;
   final bool playerShowPronunciation;
@@ -502,16 +363,11 @@ class AppSettings {
   final bool playerShowLyricSnippet;
 
   const AppSettings({
-    this.defaultService = '',
     this.audioQuality = 'LOSSLESS',
-    this.filenameFormat = '{title} - {artist}',
     this.downloadDirectory = '',
-    this.networkDownloadFolder = '',
-    this.networkDownloadLabel = '',
     this.downloadDirectoryBookmark = '',
     this.storageMode = 'app',
     this.downloadTreeUri = '',
-    this.autoFallback = true,
     this.embedMetadata = true,
     this.embeddedCoverMaxDimension = 0,
     this.artistTagMode = artistTagModeJoined,
@@ -536,7 +392,6 @@ class AppSettings {
     this.playbackSpeed = 1,
     this.playbackKeepPitch = true,
     this.playbackPitch = 0,
-    this.discordRichPresenceEnabled = false,
     this.usbBitPerfect = false,
     this.usbDirect = false,
     this.usbDsdOverPcm = false,
@@ -563,15 +418,6 @@ class AppSettings {
     this.autoHideLyricsControlsWithAccessibility = false,
     this.compactPlayer = false,
     this.isFirstLaunch = true,
-    this.checkForUpdates = true,
-    this.updateChannel = 'stable',
-    this.hasSearchedBefore = false,
-    this.folderOrganization = 'none',
-    this.folderPathTemplate = '{artist}/{album}',
-    this.createPlaylistFolder = false,
-    this.useAlbumArtistForFolders = true,
-    this.usePrimaryArtistOnly = false,
-    this.filterContributingArtistsInAlbumArtist = false,
     this.historyViewMode = 'grid',
     this.historyFilterMode = 'all',
     this.historySortMode = 'latest',
@@ -581,110 +427,41 @@ class AppSettings {
     this.libraryQualityLabelMode = AppSettings.libraryQualityLabelBitDepthOnly,
     this.swipeToQueue = true,
     this.librarySongTap = AppSettings.librarySongTapDetails,
-    this.askQualityBeforeDownload = true,
     this.enableLogging = false,
-    this.useExtensionProviders = true,
-    this.downloadFallbackExtensionIds,
-    this.searchProvider,
-    this.defaultSearchTab = 'all',
     this.searchViewMode = 'list',
-    this.homeFeedProvider,
     this.homeShortcuts = const [
       'shuffle',
       'equalizer',
       'listeningStats',
-      'networkStorage',
+      'loved',
     ],
     this.homeContinueListening = true,
-    this.separateSingles = false,
-    this.singleFilenameFormat = '{title} - {artist}',
-    this.albumFolderStructure = 'artist_album',
-    this.showExtensionStore = true,
-    this.autoUpdateExtensions = true,
     this.heroAnimationsEnabled = true,
     this.forceBackdropBlur = false,
     this.interfaceScale = 1,
-    this.extensionVerificationBrowserMode = 'in_app_first',
     this.locale = 'system',
     this.lyricsMode = 'embed',
     this.keepScreenOnLyrics = true,
     this.lockScreenLyrics = false,
     this.motionArtworkEnabled = true,
-    this.saveMotionArtworkFile = false,
     this.saveFolderCover = false,
-    this.folderCoverMaxDimension = 0,
     this.removeEmptyFolders = true,
     this.listeningStatisticsEnabled = true,
-    this.autoConvertDownloads = false,
-    this.redownloadFakeHiRes = false,
-    this.autoConvertFormat = 'mp3',
-    this.autoConvertBitrate = '320k',
-    this.autoConvertMaxBitDepth = 16,
-    this.autoConvertMaxSampleRate = 48000,
-    this.autoConvertSmartDither = true,
-    this.autoConvertSmartDitherHighPass = false,
     this.useAllFilesAccess = false,
-    this.autoExportFailedDownloads = false,
-    this.downloadNetworkMode = 'any',
-    this.networkCompatibilityMode = false,
-    this.allowLocalNetwork = false,
-    this.songLinkRegion = 'US',
-    this.nativeDownloadWorkerEnabled = false,
-    this.concurrentDownloads = 1,
     this.localLibraryEnabled = false,
     this.localLibraryPath = '',
     this.localLibraryBookmark = '',
     this.localLibraryShowDuplicates = true,
     this.localLibraryAutoScan = 'off',
-    this.linkHideDisconnectedSongs = true,
     this.hasCompletedTutorial = false,
-    this.lyricsProviders = const [
-      'apple_music',
-      'lrcred',
-      'sistrum_lyrics',
-      'lyricsplus',
-      'lrclib',
-    ],
-    this.lyricsPreferBestTiming = true,
-    this.lyricsIncludeTranslationNetease = false,
-    this.lyricsIncludeRomanizationNetease = false,
-    this.lyricsMultiPersonWordByWord = true,
-    this.lyricsAppleElrcWordSync = true,
-    this.musixmatchLanguage = '',
-    this.lyricsAiProvider = 'openai',
-    this.lyricsAiBaseUrl = '',
-    this.lyricsAiModel = '',
-    this.lyricsTranslationLanguage = '',
-    this.lyricsTranslationSecondLanguage = '',
-    this.lyricsAiInstruction = '',
-    this.lyricsAutoTranslate = false,
-    this.lyricsAiRomanize = true,
     this.lyricsRomanize = true,
     this.lyricsRomanizedMainLine = false,
-    this.lyricsAiWordSync = false,
-    this.lyricsTranslationSaveTo = lyricsTranslationSaveToSongFile,
-    this.lyricsTranslationAutoSave = false,
-    this.lyricsTranslateDownloads = false,
-    this.lastSeenVersion = '',
-    this.deduplicateDownloads = true,
-    this.allowQualityVariants = false,
-    this.saveDownloadHistory = true,
     this.playerMode = 'internal',
     this.playerShowPronunciation = true,
     this.playerShowTranslation = true,
     this.playerShowVolume = true,
     this.playerShowLyricSnippet = false,
   });
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  Map<String, dynamic> get lyricsFetchOptions => {
-    'include_translation_netease': lyricsIncludeTranslationNetease,
-    'include_romanization_netease': lyricsIncludeRomanizationNetease,
-    'multi_person_word_by_word': lyricsMultiPersonWordByWord,
-    'apple_elrc_word_sync': lyricsAppleElrcWordSync,
-    'musixmatch_language': musixmatchLanguage,
-    'prefer_best_timing': lyricsPreferBestTiming,
-  };
 
   /// The cover art style the player shows: the one chosen, else the app
   /// style's own, full screen in Material and a card in Sistrum.
@@ -700,16 +477,11 @@ class AppSettings {
       (!accessibleNavigation || autoHideLyricsControlsWithAccessibility);
 
   AppSettings copyWith({
-    String? defaultService,
     String? audioQuality,
-    String? filenameFormat,
     String? downloadDirectory,
-    String? networkDownloadFolder,
-    String? networkDownloadLabel,
     String? downloadDirectoryBookmark,
     String? storageMode,
     String? downloadTreeUri,
-    bool? autoFallback,
     bool? embedMetadata,
     int? embeddedCoverMaxDimension,
     String? artistTagMode,
@@ -734,7 +506,6 @@ class AppSettings {
     double? playbackSpeed,
     bool? playbackKeepPitch,
     double? playbackPitch,
-    bool? discordRichPresenceEnabled,
     bool? usbBitPerfect,
     bool? usbDirect,
     bool? usbDsdOverPcm,
@@ -761,15 +532,6 @@ class AppSettings {
     bool? autoHideLyricsControlsWithAccessibility,
     bool? compactPlayer,
     bool? isFirstLaunch,
-    bool? checkForUpdates,
-    String? updateChannel,
-    bool? hasSearchedBefore,
-    String? folderOrganization,
-    String? folderPathTemplate,
-    bool? createPlaylistFolder,
-    bool? useAlbumArtistForFolders,
-    bool? usePrimaryArtistOnly,
-    bool? filterContributingArtistsInAlbumArtist,
     String? historyViewMode,
     String? historyFilterMode,
     String? historySortMode,
@@ -779,86 +541,30 @@ class AppSettings {
     String? libraryQualityLabelMode,
     bool? swipeToQueue,
     String? librarySongTap,
-    bool? askQualityBeforeDownload,
     bool? enableLogging,
-    bool? useExtensionProviders,
-    List<String>? downloadFallbackExtensionIds,
-    bool clearDownloadFallbackExtensionIds = false,
-    String? searchProvider,
-    bool clearSearchProvider = false,
-    String? defaultSearchTab,
     String? searchViewMode,
-    String? homeFeedProvider,
-    bool clearHomeFeedProvider = false,
     List<String>? homeShortcuts,
     bool? homeContinueListening,
-    bool? separateSingles,
-    String? singleFilenameFormat,
-    String? albumFolderStructure,
-    bool? showExtensionStore,
-    bool? autoUpdateExtensions,
     bool? heroAnimationsEnabled,
     bool? forceBackdropBlur,
     double? interfaceScale,
-    String? extensionVerificationBrowserMode,
     String? locale,
     String? lyricsMode,
     bool? keepScreenOnLyrics,
     bool? lockScreenLyrics,
     bool? motionArtworkEnabled,
-    bool? saveMotionArtworkFile,
     bool? saveFolderCover,
-    int? folderCoverMaxDimension,
     bool? removeEmptyFolders,
     bool? listeningStatisticsEnabled,
-    bool? autoConvertDownloads,
-    bool? redownloadFakeHiRes,
-    String? autoConvertFormat,
-    String? autoConvertBitrate,
-    int? autoConvertMaxBitDepth,
-    int? autoConvertMaxSampleRate,
-    bool? autoConvertSmartDither,
-    bool? autoConvertSmartDitherHighPass,
     bool? useAllFilesAccess,
-    bool? autoExportFailedDownloads,
-    String? downloadNetworkMode,
-    bool? networkCompatibilityMode,
-    bool? allowLocalNetwork,
-    String? songLinkRegion,
-    bool? nativeDownloadWorkerEnabled,
-    int? concurrentDownloads,
     bool? localLibraryEnabled,
     String? localLibraryPath,
     String? localLibraryBookmark,
     bool? localLibraryShowDuplicates,
     String? localLibraryAutoScan,
-    bool? linkHideDisconnectedSongs,
     bool? hasCompletedTutorial,
-    List<String>? lyricsProviders,
-    bool? lyricsPreferBestTiming,
-    bool? lyricsIncludeTranslationNetease,
-    bool? lyricsIncludeRomanizationNetease,
-    bool? lyricsMultiPersonWordByWord,
-    bool? lyricsAppleElrcWordSync,
-    String? musixmatchLanguage,
-    String? lyricsAiProvider,
-    String? lyricsAiBaseUrl,
-    String? lyricsAiModel,
-    String? lyricsTranslationLanguage,
-    String? lyricsTranslationSecondLanguage,
-    String? lyricsAiInstruction,
-    bool? lyricsAutoTranslate,
-    bool? lyricsAiRomanize,
     bool? lyricsRomanize,
     bool? lyricsRomanizedMainLine,
-    bool? lyricsAiWordSync,
-    String? lyricsTranslationSaveTo,
-    bool? lyricsTranslationAutoSave,
-    bool? lyricsTranslateDownloads,
-    String? lastSeenVersion,
-    bool? deduplicateDownloads,
-    bool? allowQualityVariants,
-    bool? saveDownloadHistory,
     String? playerMode,
     bool? playerShowPronunciation,
     bool? playerShowTranslation,
@@ -866,18 +572,12 @@ class AppSettings {
     bool? playerShowLyricSnippet,
   }) {
     return AppSettings(
-      defaultService: defaultService ?? this.defaultService,
       audioQuality: audioQuality ?? this.audioQuality,
-      filenameFormat: filenameFormat ?? this.filenameFormat,
       downloadDirectory: downloadDirectory ?? this.downloadDirectory,
-      networkDownloadFolder:
-          networkDownloadFolder ?? this.networkDownloadFolder,
-      networkDownloadLabel: networkDownloadLabel ?? this.networkDownloadLabel,
       downloadDirectoryBookmark:
           downloadDirectoryBookmark ?? this.downloadDirectoryBookmark,
       storageMode: storageMode ?? this.storageMode,
       downloadTreeUri: downloadTreeUri ?? this.downloadTreeUri,
-      autoFallback: autoFallback ?? this.autoFallback,
       embedMetadata: embedMetadata ?? this.embedMetadata,
       embeddedCoverMaxDimension:
           embeddedCoverMaxDimension ?? this.embeddedCoverMaxDimension,
@@ -906,8 +606,6 @@ class AppSettings {
       playbackSpeed: playbackSpeed ?? this.playbackSpeed,
       playbackKeepPitch: playbackKeepPitch ?? this.playbackKeepPitch,
       playbackPitch: playbackPitch ?? this.playbackPitch,
-      discordRichPresenceEnabled:
-          discordRichPresenceEnabled ?? this.discordRichPresenceEnabled,
       usbBitPerfect: usbBitPerfect ?? this.usbBitPerfect,
       usbDirect: usbDirect ?? this.usbDirect,
       usbDsdOverPcm: usbDsdOverPcm ?? this.usbDsdOverPcm,
@@ -942,18 +640,6 @@ class AppSettings {
           this.autoHideLyricsControlsWithAccessibility,
       compactPlayer: compactPlayer ?? this.compactPlayer,
       isFirstLaunch: isFirstLaunch ?? this.isFirstLaunch,
-      checkForUpdates: checkForUpdates ?? this.checkForUpdates,
-      updateChannel: updateChannel ?? this.updateChannel,
-      hasSearchedBefore: hasSearchedBefore ?? this.hasSearchedBefore,
-      folderOrganization: folderOrganization ?? this.folderOrganization,
-      folderPathTemplate: folderPathTemplate ?? this.folderPathTemplate,
-      createPlaylistFolder: createPlaylistFolder ?? this.createPlaylistFolder,
-      useAlbumArtistForFolders:
-          useAlbumArtistForFolders ?? this.useAlbumArtistForFolders,
-      usePrimaryArtistOnly: usePrimaryArtistOnly ?? this.usePrimaryArtistOnly,
-      filterContributingArtistsInAlbumArtist:
-          filterContributingArtistsInAlbumArtist ??
-          this.filterContributingArtistsInAlbumArtist,
       historyViewMode: historyViewMode ?? this.historyViewMode,
       historyFilterMode: historyFilterMode ?? this.historyFilterMode,
       historySortMode: historySortMode ?? this.historySortMode,
@@ -965,121 +651,35 @@ class AppSettings {
           libraryQualityLabelMode ?? this.libraryQualityLabelMode,
       swipeToQueue: swipeToQueue ?? this.swipeToQueue,
       librarySongTap: librarySongTap ?? this.librarySongTap,
-      askQualityBeforeDownload:
-          askQualityBeforeDownload ?? this.askQualityBeforeDownload,
       enableLogging: enableLogging ?? this.enableLogging,
-      useExtensionProviders:
-          useExtensionProviders ?? this.useExtensionProviders,
-      downloadFallbackExtensionIds: clearDownloadFallbackExtensionIds
-          ? null
-          : (downloadFallbackExtensionIds ?? this.downloadFallbackExtensionIds),
-      searchProvider: clearSearchProvider
-          ? null
-          : (searchProvider ?? this.searchProvider),
-      defaultSearchTab: defaultSearchTab ?? this.defaultSearchTab,
       searchViewMode: searchViewMode ?? this.searchViewMode,
-      homeFeedProvider: clearHomeFeedProvider
-          ? null
-          : (homeFeedProvider ?? this.homeFeedProvider),
       homeShortcuts: homeShortcuts ?? this.homeShortcuts,
       homeContinueListening:
           homeContinueListening ?? this.homeContinueListening,
-      separateSingles: separateSingles ?? this.separateSingles,
-      singleFilenameFormat: singleFilenameFormat ?? this.singleFilenameFormat,
-      albumFolderStructure: albumFolderStructure ?? this.albumFolderStructure,
-      showExtensionStore: showExtensionStore ?? this.showExtensionStore,
-      autoUpdateExtensions: autoUpdateExtensions ?? this.autoUpdateExtensions,
       heroAnimationsEnabled:
           heroAnimationsEnabled ?? this.heroAnimationsEnabled,
       forceBackdropBlur: forceBackdropBlur ?? this.forceBackdropBlur,
       interfaceScale: interfaceScale ?? this.interfaceScale,
-      extensionVerificationBrowserMode:
-          extensionVerificationBrowserMode ??
-          this.extensionVerificationBrowserMode,
       locale: locale ?? this.locale,
       lyricsMode: lyricsMode ?? this.lyricsMode,
       keepScreenOnLyrics: keepScreenOnLyrics ?? this.keepScreenOnLyrics,
       lockScreenLyrics: lockScreenLyrics ?? this.lockScreenLyrics,
       motionArtworkEnabled: motionArtworkEnabled ?? this.motionArtworkEnabled,
-      saveMotionArtworkFile:
-          saveMotionArtworkFile ?? this.saveMotionArtworkFile,
       saveFolderCover: saveFolderCover ?? this.saveFolderCover,
-      folderCoverMaxDimension:
-          folderCoverMaxDimension ?? this.folderCoverMaxDimension,
       removeEmptyFolders: removeEmptyFolders ?? this.removeEmptyFolders,
       listeningStatisticsEnabled:
           listeningStatisticsEnabled ?? this.listeningStatisticsEnabled,
-      autoConvertDownloads: autoConvertDownloads ?? this.autoConvertDownloads,
-      redownloadFakeHiRes: redownloadFakeHiRes ?? this.redownloadFakeHiRes,
-      autoConvertFormat: autoConvertFormat ?? this.autoConvertFormat,
-      autoConvertBitrate: autoConvertBitrate ?? this.autoConvertBitrate,
-      autoConvertMaxBitDepth:
-          autoConvertMaxBitDepth ?? this.autoConvertMaxBitDepth,
-      autoConvertMaxSampleRate:
-          autoConvertMaxSampleRate ?? this.autoConvertMaxSampleRate,
-      autoConvertSmartDither:
-          autoConvertSmartDither ?? this.autoConvertSmartDither,
-      autoConvertSmartDitherHighPass:
-          autoConvertSmartDitherHighPass ?? this.autoConvertSmartDitherHighPass,
       useAllFilesAccess: useAllFilesAccess ?? this.useAllFilesAccess,
-      autoExportFailedDownloads:
-          autoExportFailedDownloads ?? this.autoExportFailedDownloads,
-      downloadNetworkMode: downloadNetworkMode ?? this.downloadNetworkMode,
-      networkCompatibilityMode:
-          networkCompatibilityMode ?? this.networkCompatibilityMode,
-      allowLocalNetwork: allowLocalNetwork ?? this.allowLocalNetwork,
-      songLinkRegion: songLinkRegion ?? this.songLinkRegion,
-      nativeDownloadWorkerEnabled:
-          nativeDownloadWorkerEnabled ?? this.nativeDownloadWorkerEnabled,
-      concurrentDownloads: concurrentDownloads ?? this.concurrentDownloads,
       localLibraryEnabled: localLibraryEnabled ?? this.localLibraryEnabled,
       localLibraryPath: localLibraryPath ?? this.localLibraryPath,
       localLibraryBookmark: localLibraryBookmark ?? this.localLibraryBookmark,
       localLibraryShowDuplicates:
           localLibraryShowDuplicates ?? this.localLibraryShowDuplicates,
       localLibraryAutoScan: localLibraryAutoScan ?? this.localLibraryAutoScan,
-      linkHideDisconnectedSongs:
-          linkHideDisconnectedSongs ?? this.linkHideDisconnectedSongs,
       hasCompletedTutorial: hasCompletedTutorial ?? this.hasCompletedTutorial,
-      lyricsProviders: lyricsProviders ?? this.lyricsProviders,
-      lyricsPreferBestTiming:
-          lyricsPreferBestTiming ?? this.lyricsPreferBestTiming,
-      lyricsIncludeTranslationNetease:
-          lyricsIncludeTranslationNetease ??
-          this.lyricsIncludeTranslationNetease,
-      lyricsIncludeRomanizationNetease:
-          lyricsIncludeRomanizationNetease ??
-          this.lyricsIncludeRomanizationNetease,
-      lyricsMultiPersonWordByWord:
-          lyricsMultiPersonWordByWord ?? this.lyricsMultiPersonWordByWord,
-      lyricsAppleElrcWordSync:
-          lyricsAppleElrcWordSync ?? this.lyricsAppleElrcWordSync,
-      musixmatchLanguage: musixmatchLanguage ?? this.musixmatchLanguage,
-      lyricsAiProvider: lyricsAiProvider ?? this.lyricsAiProvider,
-      lyricsAiBaseUrl: lyricsAiBaseUrl ?? this.lyricsAiBaseUrl,
-      lyricsAiModel: lyricsAiModel ?? this.lyricsAiModel,
-      lyricsTranslationLanguage:
-          lyricsTranslationLanguage ?? this.lyricsTranslationLanguage,
-      lyricsTranslationSecondLanguage:
-          lyricsTranslationSecondLanguage ??
-          this.lyricsTranslationSecondLanguage,
-      lyricsAiInstruction: lyricsAiInstruction ?? this.lyricsAiInstruction,
-      lyricsAutoTranslate: lyricsAutoTranslate ?? this.lyricsAutoTranslate,
-      lyricsAiRomanize: lyricsAiRomanize ?? this.lyricsAiRomanize,
       lyricsRomanize: lyricsRomanize ?? this.lyricsRomanize,
       lyricsRomanizedMainLine:
           lyricsRomanizedMainLine ?? this.lyricsRomanizedMainLine,
-      lyricsAiWordSync: lyricsAiWordSync ?? this.lyricsAiWordSync,
-      lyricsTranslationSaveTo:
-          lyricsTranslationSaveTo ?? this.lyricsTranslationSaveTo,
-      lyricsTranslationAutoSave:
-          lyricsTranslationAutoSave ?? this.lyricsTranslationAutoSave,
-      lyricsTranslateDownloads:
-          lyricsTranslateDownloads ?? this.lyricsTranslateDownloads,
-      lastSeenVersion: lastSeenVersion ?? this.lastSeenVersion,
-      deduplicateDownloads: deduplicateDownloads ?? this.deduplicateDownloads,
-      allowQualityVariants: allowQualityVariants ?? this.allowQualityVariants,
-      saveDownloadHistory: saveDownloadHistory ?? this.saveDownloadHistory,
       playerMode: playerMode ?? this.playerMode,
       playerShowPronunciation:
           playerShowPronunciation ?? this.playerShowPronunciation,
@@ -1092,16 +692,7 @@ class AppSettings {
   }
 
   factory AppSettings.fromJson(Map<String, dynamic> json) {
-    final settings = _$AppSettingsFromJson(json);
-    if (!settings.lyricsProviders.contains('spotiflac_lyrics')) {
-      return settings;
-    }
-    return settings.copyWith(
-      lyricsProviders: {
-        for (final provider in settings.lyricsProviders)
-          provider == 'spotiflac_lyrics' ? 'sistrum_lyrics' : provider,
-      }.toList(),
-    );
+    return _$AppSettingsFromJson(json);
   }
   Map<String, dynamic> toJson() => {
     ..._$AppSettingsToJson(this),

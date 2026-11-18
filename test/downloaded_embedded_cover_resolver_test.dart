@@ -56,12 +56,11 @@ void main() {
     }
   });
 
-  test('metadata artwork prefers embedded, then local, then remote', () {
+  test('metadata artwork prefers embedded, then local', () {
     expect(
       resolveMetadataArtworkSource(
         embeddedCoverPath: ' C:/covers/embedded.jpg ',
         localCoverPath: 'C:/covers/local.jpg',
-        remoteCoverUrl: 'https://example.com/online.jpg',
       ),
       'C:/covers/embedded.jpg',
     );
@@ -69,15 +68,8 @@ void main() {
       resolveMetadataArtworkSource(
         embeddedCoverPath: ' ',
         localCoverPath: ' C:/covers/local.jpg ',
-        remoteCoverUrl: 'https://example.com/online.jpg',
       ),
       'C:/covers/local.jpg',
-    );
-    expect(
-      resolveMetadataArtworkSource(
-        remoteCoverUrl: ' https://example.com/online.jpg ',
-      ),
-      'https://example.com/online.jpg',
     );
     expect(resolveMetadataArtworkSource(), isNull);
   });

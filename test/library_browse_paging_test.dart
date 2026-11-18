@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/library_browse_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
@@ -15,14 +14,6 @@ class _Settings extends SettingsNotifier {
 
   void includeLocal(bool value) =>
       state = state.copyWith(localLibraryEnabled: value);
-}
-
-class _History extends DownloadHistoryNotifier {
-  @override
-  DownloadHistoryState build() => DownloadHistoryState();
-
-  void revise() =>
-      state = state.copyWith(loadedIndexVersion: state.loadedIndexVersion + 1);
 }
 
 class _Local extends LocalLibraryNotifier {
@@ -71,7 +62,6 @@ void main() {
     container = ProviderContainer(
       overrides: [
         settingsProvider.overrideWith(_Settings.new),
-        downloadHistoryProvider.overrideWith(_History.new),
         localLibraryProvider.overrideWith(_Local.new),
         libraryBrowsePageLoaderProvider.overrideWithValue((page) async {
           requests.add(page);
@@ -158,7 +148,7 @@ void main() {
         hasLength(4),
         reason: 'scan progress must not refresh rows',
       );
-      (container.read(downloadHistoryProvider.notifier) as _History).revise();
+      (container.read(localLibraryProvider.notifier) as _Local).revise();
       result = await container.read(provider.future);
       expect(result.entries, hasLength(80));
       expect(requests.map((page) => page.offset), [0, 40, 0, 40, 0, 40]);
@@ -213,7 +203,7 @@ void main() {
 
       pending = null;
       prefix = 'Fresh';
-      (container.read(downloadHistoryProvider.notifier) as _History).revise();
+      (container.read(localLibraryProvider.notifier) as _Local).revise();
       final refreshed = await container.read(provider.future);
       latePage.complete(
         LibraryBrowsePage(List.generate(200, (index) => _entry(index))),
@@ -266,7 +256,7 @@ void main() {
     final completer = pending!;
     pending = null;
     prefix = 'Fresh';
-    (container.read(downloadHistoryProvider.notifier) as _History).revise();
+    (container.read(localLibraryProvider.notifier) as _Local).revise();
     final refreshed = await container.read(provider.future);
     completer.complete(LibraryBrowsePage([_entry(999)]));
     await latePage;
@@ -286,7 +276,7 @@ void main() {
 
       failure = StateError('refresh failed');
       prefix = 'Fresh';
-      (container.read(downloadHistoryProvider.notifier) as _History).revise();
+      (container.read(localLibraryProvider.notifier) as _Local).revise();
       await expectLater(
         container.read(provider.future),
         throwsA(same(failure)),

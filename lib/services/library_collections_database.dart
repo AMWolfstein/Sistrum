@@ -9,7 +9,6 @@ import 'package:sqflite/sqflite.dart';
 import 'package:sistrum/models/library_collections.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/services/collection_restore_codec.dart';
-import 'package:sistrum/services/link/sync/link_collection_sync_schema.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/services/collection_track_batch.dart';
 import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
@@ -179,7 +178,6 @@ class LibraryCollectionsDatabase {
   static Future<void> _createDb(Database db, int version) async {
     _log.i('Creating collections database schema v$version');
     await _createCollectionTables(db);
-    await createLinkCollectionSyncSchema(db);
   }
 
   /// The collection tables alone, as native jobs expect them (v2).
@@ -248,9 +246,6 @@ class LibraryCollectionsDatabase {
     _log.i('Upgrading collections database from v$oldVersion to v$newVersion');
     if (oldVersion < 2) {
       await _createFavoriteArtistsTable(db);
-    }
-    if (oldVersion < 3) {
-      await createLinkCollectionSyncSchema(db);
     }
   }
 

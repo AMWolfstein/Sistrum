@@ -60,9 +60,6 @@ class _Deck implements PlaybackDeck, QueuedPlaybackDeck {
   @override
   Future<void> setPlaybackRate(double rate) async => calls.add('rate $rate');
   @override
-  Future<void> setNetworkSource(String url, {bool arriving = false}) async =>
-      calls.add('url $url');
-  @override
   Future<void> setFileSource(
     String path, {
     bool preferBitPerfect = false,
@@ -160,12 +157,12 @@ void main() {
     await deck.configureOutput();
     await deck.setFileSource('/song.flac');
     await deck.resume();
-    await deck.setNetworkSource('https://example.com/song.flac');
+    await deck.setFileSource('/next.flac');
     expect(audioplayers.calls, [
       'configure',
       'file /song.flac',
       'resume',
-      'url https://example.com/song.flac',
+      'file /next.flac',
     ]);
     expect(media3, isEmpty);
     expect(deck.activeDeck, same(audioplayers));
@@ -248,14 +245,14 @@ void main() {
 
     // Without bit-perfect output the native options change nothing.
     await deck.setFileSource('/five.flac', dapExclusive: true, allowDop: true);
-    await deck.setNetworkSource('https://example.com/six.flac');
+    await deck.setFileSource('/six.flac');
     expect(media3, hasLength(2));
     expect(
       media3.last.calls,
       containsAllInOrder([
         'configure',
         'file /five.flac dop aaudio',
-        'url https://example.com/six.flac',
+        'file /six.flac',
       ]),
     );
   });
@@ -362,67 +359,5 @@ void main() {
       for (final deck in media3) ...deck.calls,
     ], isNot(contains('file /one.flac')));
     expect(deck.activeDeck, same(audioplayers));
-  });
-
-  group('cleartext streams', () {
-    setUp(() => playbackMedia3Engine.value = true);
-
-    for (final url in [
-      'http://192.168.1.20:4533/rest/stream?id=1',
-      'http://nas.example.com/song.flac',
-      'HTTP://Media.Example.com/song.flac',
-      // The security config allows these loopback names only.
-      'http://[::1]:8080/song.flac',
-      'http://127.0.0.2:8080/song.flac',
-    ]) {
-      test('a stream from another host stays on audioplayers ($url)', () async {
-        await deck.setNetworkSource(url);
-        expect(audioplayers.calls.last, 'url $url');
-        expect(media3, isEmpty);
-        expect(deck.activeDeck, same(audioplayers));
-      });
-    }
-
-    for (final url in [
-      'http://127.0.0.1:8080/song.flac',
-      'http://localhost:8080/song.flac',
-      'https://192.168.1.20/song.flac',
-      'https://example.com/song.flac',
-    ]) {
-      test('loopback http and https play through media3 ($url)', () async {
-        await deck.setNetworkSource(url);
-        expect(media3.single.calls.last, 'url $url');
-        expect(deck.activeDeck, same(media3.single));
-      });
-    }
-
-    test('a LAN stream is not queued on media3', () async {
-      await deck.setFileSource('/one.flac');
-      expect(deck.canQueueNextSource, isTrue);
-      expect(
-        await deck.queueNextSource(
-          'http://192.168.1.20/next.flac',
-          volume: 1,
-          onStarted: () {},
-        ),
-        isFalse,
-      );
-      expect(media3.single.calls, isNot(contains(startsWith('queue'))));
-
-      expect(
-        await deck.queueNextSource(
-          'http://127.0.0.1:8080/next.flac',
-          volume: 1,
-          onStarted: () {},
-        ),
-        isTrue,
-      );
-      expect(media3.single.calls.last, 'queue http://127.0.0.1:8080/next.flac');
-
-      // The ordinary handoff then opens the LAN stream on audioplayers.
-      await deck.setNetworkSource('http://192.168.1.20/next.flac');
-      expect(audioplayers.calls.last, 'url http://192.168.1.20/next.flac');
-      expect(media3.single.disposed, isTrue);
-    });
   });
 }

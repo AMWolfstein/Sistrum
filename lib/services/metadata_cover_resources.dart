@@ -3,9 +3,7 @@ import 'dart:typed_data';
 
 import 'package:sistrum/services/ffmpeg_metadata.dart';
 import 'package:sistrum/services/ffmpeg_probe.dart';
-import 'package:sistrum/services/network_metadata_service.dart';
 import 'package:sistrum/services/platform_bridge.dart';
-import 'package:sistrum/utils/logger.dart';
 
 typedef MetadataCoverDetails = ({int width, int height, int bytes});
 
@@ -24,7 +22,6 @@ class MetadataCoverPreview {
 /// Owns editor artwork, including resources created after a sheet is closed.
 /// A save lease keeps every owned file alive until the writer has finished.
 class MetadataCoverResources {
-  static final _log = AppLogger('MetadataCoverResources');
   final Set<String> _directories = {};
   final Set<String> _deferredReleases = {};
   bool _disposed = false;
@@ -115,39 +112,8 @@ class MetadataCoverResources {
     }
   }
 
-  /// Downloads the cover at [url], scaled down to [maxDimension] like an
-  /// embedded cover when it is above zero.
-  Future<MetadataCoverPreview?> download(
-    String url, {
-    int maxDimension = 0,
-  }) async {
-    try {
-      return await _create('metadata_cover_', 'cover.jpg', (path) async {
-        final result = await PlatformBridge.downloadCoverToFile(
-          url,
-          path,
-          maxDimension: maxDimension,
-        );
-        if (result['error'] != null || result['success'] == false) {
-          throw StateError(
-            result['error']?.toString() ?? 'Cover download failed',
-          );
-        }
-      });
-    } catch (error) {
-      _log.w('Could not download metadata artwork: $error');
-      return null;
-    }
-  }
-
   Future<MetadataCoverPreview?> extract(String filePath) async {
     try {
-      if (filePath.startsWith('network://')) {
-        final metadata = await NetworkMetadataService.instance.read(filePath);
-        final cover = metadata['cover_path'];
-        if (cover is! String || cover.isEmpty) return null;
-        return await copyPicked(extension: 'jpg', sourcePath: cover);
-      }
       return await _create('metadata_embedded_cover_', 'cover.jpg', (
         path,
       ) async {

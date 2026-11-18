@@ -6,8 +6,6 @@ import 'package:sistrum/controllers/collapsing_header_scroll_mixin.dart';
 import 'package:sistrum/controllers/local_track_batch_actions.dart';
 import 'package:sistrum/controllers/selection_mode_mixin.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/models/library_database_models.dart'
-    show LocalLibraryItem;
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/library_artist_songs_provider.dart';
 import 'package:sistrum/providers/library_browse_provider.dart';
@@ -16,7 +14,6 @@ import 'package:sistrum/providers/library_mixes_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/services/batch_track_actions.dart';
 import 'package:sistrum/services/library_mixes.dart';
-import 'package:sistrum/services/local_track_redownload_service.dart';
 import 'package:sistrum/services/playable_media.dart' show PlayableMedia;
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/theme/cover_palette.dart';
@@ -244,15 +241,6 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
   Widget _buildSelectionBar(BuildContext context, List<String> ids) {
     final items = _selectedItems;
     final allSelected = ids.isNotEmpty && selectedIds.length == ids.length;
-    final flacEligible = items.every((item) => item.localItem != null)
-        ? [
-            for (final item in items)
-              if (LocalTrackRedownloadService.isFlacUpgradeEligible(
-                item.localItem!,
-              ))
-                item.localItem!,
-          ]
-        : const <LocalLibraryItem>[];
     return LibraryTrackSelectionBar(
       selectedCount: selectedIds.length,
       allSelected: allSelected,
@@ -265,15 +253,6 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
         items: items,
         onClose: exitSelectionMode,
       ),
-      flacEligibleCount: flacEligible.length,
-      onQueueFlac: () => queueLocalTracksAsFlac(
-        context,
-        ref,
-        flacEligible,
-        isActive: () => mounted,
-        onComplete: exitSelectionMode,
-      ),
-      onReEnrich: _reEnrichSelected,
       onConvert: () => _convertSelected(context),
       onReplayGain: ({required remove}) => runBatchReplayGain(
         context,
@@ -284,20 +263,6 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
       onDelete: _deleteSelected,
     );
   }
-
-  Future<void> _reEnrichSelected() => reEnrichLibraryTracks(
-    context,
-    ref,
-    _selectedItems,
-    isActive: () => mounted,
-    onSelectionHide: () async {
-      setState(() => isSelectionMode = false);
-      // Allow the selection bar's 250 ms slide-out to finish.
-      await Future<void>.delayed(const Duration(milliseconds: 300));
-    },
-    onSelectionRestore: () => setState(() => isSelectionMode = true),
-    onComplete: exitSelectionMode,
-  );
 
   Future<void> _convertSelected(BuildContext context) => showBatchConvertSheet(
     context,
@@ -538,7 +503,6 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
                 items: _selectedItems,
                 onPlay: () => _play(ids.indexOf(id)),
                 onDone: exitSelectionMode,
-                onReEnrich: _reEnrichSelected,
                 onConvert: () => _convertSelected(this.context),
                 onDelete: _deleteSelected,
               ),
@@ -549,13 +513,11 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
     );
   }
 
-  PlaybackRowKey _rowKey(UnifiedLibraryItem item) => (
-    id: item.localItem?.id ?? item.historyItem?.id ?? item.id,
-    path: item.filePath,
-  );
+  PlaybackRowKey _rowKey(UnifiedLibraryItem item) =>
+      (id: item.localItem?.id ?? item.id, path: item.filePath);
 
   static int? _durationSeconds(UnifiedLibraryItem item) =>
-      item.historyItem?.duration ?? item.localItem?.duration;
+      item.localItem?.duration;
 
   /// The mix's songs whose files can still play, each with its position in
   /// the mix.
@@ -567,9 +529,7 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
       for (final (index, item) in _items.indexed)
         if (present[index])
           if (item.localItem case final local?)
-            (index, playableFromLocal(local))
-          else if (item.historyItem case final history?)
-            (index, playableFromHistory(history)),
+            (index, playableFromLocal(local)),
     ];
   }
 

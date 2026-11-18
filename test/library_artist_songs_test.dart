@@ -12,21 +12,6 @@ import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_row_mapper.dart';
 import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
 
-Map<String, dynamic> _download(
-  String id,
-  String artist, {
-  String? albumArtist,
-}) => {
-  'id': id,
-  'trackName': 'Song $id',
-  'artistName': artist,
-  'albumArtist': albumArtist,
-  'albumName': 'Album $id',
-  'filePath': '/downloads/$id.flac',
-  'service': 'example-provider',
-  'downloadedAt': DateTime.utc(2026, 11, 1).toIso8601String(),
-};
-
 Future<void> _addScanned(
   Database db,
   String id,
@@ -60,6 +45,8 @@ Future<void> _addScanned(
 /// a scanned song in a disabled folder.
 Future<void> _seed() async {
   final library = await LibraryDatabase.instance.database;
+  // The queue query still attaches the history schema; open it empty.
+  await HistoryDatabase.instance.database;
   await library.insert('library_sources', {
     'id': 'disabled',
     'path': '/Volumes/disabled',
@@ -67,16 +54,12 @@ Future<void> _seed() async {
     'available': 1,
     'enabled': 0,
   });
-  await HistoryDatabase.instance.upsertBatch([
-    _download('d1', 'Ana'),
-    _download('d2', 'Ana feat. Ben', albumArtist: 'Ana'),
-    _download('d3', 'Cleo & Ana', albumArtist: 'Various Artists'),
-    _download('d4', 'Anabel'),
-    _download('d5', 'Ben'),
-  ]);
   await _addScanned(library, 'l1', 'ANA');
   await _addScanned(library, 'l2', 'Dan', albumArtist: 'Ana');
   await _addScanned(library, 'l3', 'Ana', source: 'disabled');
+  await _addScanned(library, 'l4', 'Anabel');
+  await _addScanned(library, 'l5', 'Ben');
+  await _addScanned(library, 'l6', 'Ana feat. Ben', albumArtist: 'Ana');
 }
 
 /// The songs the artist's Songs view shows, found as its provider finds
@@ -117,16 +100,10 @@ void main() {
   });
 
   test('an artist has the songs of their albums and the songs that credit '
-      'them, from downloads and scanned folders', () async {
-    expect(await _songIds('Ana'), {
-      'dl_d1',
-      'dl_d2',
-      'dl_d3',
-      'local_l1',
-      'local_l2',
-    });
+      'them, from scanned folders', () async {
+    expect(await _songIds('Ana'), {'local_l1', 'local_l2', 'local_l6'});
     expect(await _songIds('ana '), await _songIds('Ana'));
-    expect(await _songIds('Ben'), {'dl_d2', 'dl_d5'});
+    expect(await _songIds('Ben'), {'local_l5', 'local_l6'});
     expect(await _songIds('Nobody'), isEmpty);
   });
 
@@ -138,16 +115,12 @@ void main() {
         creditedArtist: 'Ana',
       );
       // The database matches the artist tag as text.
-      expect([for (final song in found) song.id], contains('dl_d4'));
-      expect(await _songIds('Ana'), isNot(contains('dl_d4')));
+      expect([for (final song in found) song.id], contains('local_l4'));
+      expect(await _songIds('Ana'), isNot(contains('local_l4')));
     },
   );
 
   test('scanned songs stay out while the scanned Library is off', () async {
-    expect(await _songIds('Ana', includeLocal: false), {
-      'dl_d1',
-      'dl_d2',
-      'dl_d3',
-    });
+    expect(await _songIds('Ana', includeLocal: false), isEmpty);
   });
 }

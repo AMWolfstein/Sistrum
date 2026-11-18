@@ -19,9 +19,7 @@ import 'package:sistrum/services/library_album_artwork.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/batch_track_actions.dart';
 import 'package:sistrum/models/album_track_order.dart';
-import 'package:sistrum/models/track.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/services/local_track_redownload_service.dart';
 import 'package:sistrum/providers/deleted_library_files.dart';
 import 'package:sistrum/providers/library_album_artwork_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
@@ -31,19 +29,15 @@ import 'package:sistrum/providers/player_motion_artwork_provider.dart';
 import 'package:sistrum/providers/song_leftovers_provider.dart';
 import 'package:sistrum/controllers/collapsing_header_scroll_mixin.dart';
 import 'package:sistrum/controllers/confirm_and_delete_tracks.dart';
-import 'package:sistrum/controllers/local_track_batch_actions.dart';
 import 'package:sistrum/controllers/selection_mode_mixin.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/collection_scaffold.dart';
-import 'package:sistrum/widgets/collection_suggestions_section.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/desktop/context_menu.dart';
 import 'package:sistrum/widgets/desktop/desktop_selection.dart';
 import 'package:sistrum/widgets/desktop/detail_header.dart';
 import 'package:sistrum/widgets/desktop/library_track_menu.dart';
-import 'package:sistrum/widgets/link/link_library_actions.dart';
-import 'package:sistrum/services/link/link_library_jobs.dart';
 import 'package:sistrum/widgets/playlist_picker_sheet.dart';
 import 'package:sistrum/widgets/desktop/track_table.dart';
 import 'package:sistrum/widgets/expressive_button.dart';
@@ -52,9 +46,6 @@ import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/loaded_sliver_fade_in.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/library_track_selection_bar.dart';
-import 'package:sistrum/widgets/link/link_actions.dart';
-import 'package:sistrum/widgets/network_offline_actions.dart';
-import 'package:sistrum/widgets/network_upload_actions.dart';
 import 'package:sistrum/widgets/library_selection_playback_actions.dart';
 import 'package:sistrum/widgets/local_library_artwork_builder.dart';
 import 'package:sistrum/widgets/disc_separator_chip.dart';
@@ -162,19 +153,6 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
 
   Future<void> _deleteSelected(List<LocalLibraryItem> currentTracks) async {
     final container = ProviderScope.containerOf(context, listen: false);
-    final selected = _selectedUnifiedItems(currentTracks);
-    if (hasLinkLibrarySongs(container, selected)) {
-      await runLinkLibraryAction(
-        context,
-        container,
-        selected,
-        LinkLibraryAction.delete,
-        onAccepted: () {
-          if (mounted) exitSelectionMode();
-        },
-      );
-      return;
-    }
     final libraryNotifier = ref.read(localLibraryProvider.notifier);
     final tracksById = {for (final track in currentTracks) track.id: track};
 
@@ -349,22 +327,6 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
                   )
                 : _buildTrackList(context, colorScheme, tracks),
           ),
-          if (!_loadingTracks && !showsSelectionBar)
-            CollectionSuggestionsSliver(
-              collectionKey:
-                  'local-album:${widget.artistName}:${widget.albumName}',
-              tracks: [
-                for (final item in tracks)
-                  Track(
-                    id: item.id,
-                    name: item.trackName,
-                    artistName: item.artistName,
-                    albumName: item.albumName,
-                    duration: item.duration ?? 0,
-                    isrc: item.isrc,
-                  ),
-              ],
-            ),
         ],
       ],
       selectionBar: _buildSelectionBottomBar(tracks, bottomPadding),
@@ -408,7 +370,7 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
 
     final cacheWidth = coverCacheWidthForViewport(context);
     final Widget background = coverPath != null
-        ? LocalOrNetworkCoverImage(
+        ? LocalCoverImage(
             url: coverPath,
             localCacheWidth: cacheWidth,
             placeholder: (_) => Container(color: colorScheme.surface),
@@ -485,10 +447,6 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
           albumKey: _sortKey,
           songs: [for (final track in _sortedTracksCache) track.trackName],
         ),
-        NetworkOfflineButton(items: _albumItems()),
-        NetworkUploadButton(items: _albumItems()),
-        if (ref.watch(linkPhoneClientProvider) != null)
-          LinkTransferButtons(items: _albumItems()),
       ],
       actions: Consumer(
         builder: (context, ref, _) {
@@ -527,54 +485,36 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
           items: _albumItems(),
           onPlay: _playAll,
         ),
-        hasCover: coverPath != null,
-        hasMotion:
-            motion != null ||
-            !context.isMornye ||
-            MediaQuery.disableAnimationsOf(context),
       ),
     );
   }
 
-  /// The album's key and what Find Missing Artwork found for it. Null for
-  /// songs from a network connection, which keep their server's covers.
+  /// The album's key and what was found for it. Null when the album has no
+  /// Library song to look it up by.
   ({String albumKey, AlbumArtworkRecord? record})? _albumArtwork() {
     final path = _sortedTracksCache.firstOrNull?.filePath;
-    if (path == null || path.startsWith('network://')) return null;
+    if (path == null) return null;
     return ref.watch(libraryAlbumArtworkForSongProvider(path)).value;
   }
 
-  /// [groups] with Find Artwork, while the album lacks a cover or an
-  /// animated cover it could show, and Remove Found Artwork, once something
-  /// was found. They go before a last group of destructive actions.
+  /// [groups] with Remove Found Artwork, once something was found. It goes
+  /// before a last group of destructive actions.
   List<List<ContextMenuAction>> _withArtworkActions(
-    List<List<ContextMenuAction>> groups, {
-    required bool hasCover,
-    required bool hasMotion,
-  }) {
+    List<List<ContextMenuAction>> groups,
+  ) {
     final artwork = _albumArtwork();
-    if (artwork == null) return groups;
-    final record = artwork.record;
-    final busy = ref.read(libraryAlbumArtworkProvider).running;
-    final wantsMotion =
-        !hasMotion && ref.read(settingsProvider).motionArtworkEnabled;
+    final record = artwork?.record;
+    if (artwork == null ||
+        (record?.coverFile == null && record?.motionSaved != true)) {
+      return groups;
+    }
     final actions = [
-      if (!hasCover || wantsMotion)
-        ContextMenuAction(
-          icon: Icons.image_search_outlined,
-          label: context.l10n.albumFindArtwork,
-          onSelected: busy
-              ? null
-              : () => _findArtwork(artwork.albumKey, motion: wantsMotion),
-        ),
-      if (record?.coverFile != null || record?.motionSaved == true)
-        ContextMenuAction(
-          icon: Icons.hide_image_outlined,
-          label: context.l10n.albumRemoveFoundArtwork,
-          onSelected: busy ? null : () => _removeFoundArtwork(artwork.albumKey),
-        ),
+      ContextMenuAction(
+        icon: Icons.hide_image_outlined,
+        label: context.l10n.albumRemoveFoundArtwork,
+        onSelected: () => _removeFoundArtwork(artwork.albumKey),
+      ),
     ];
-    if (actions.isEmpty) return groups;
     final destructiveLast =
         groups.isNotEmpty && groups.last.every((action) => action.destructive);
     return [
@@ -582,43 +522,6 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
       actions,
       if (destructiveLast) groups.last,
     ];
-  }
-
-  Future<void> _findArtwork(String albumKey, {required bool motion}) async {
-    final artwork = ref.read(libraryAlbumArtworkProvider.notifier);
-    final l10n = context.l10n;
-    if (!artwork.canLookUp()) {
-      showAppSnackBar(
-        context,
-        content: Text(l10n.libraryFindArtworkNoProvider),
-      );
-      return;
-    }
-    try {
-      final summary = await artwork.findForAlbum(albumKey, motion: motion);
-      if (summary == null || !mounted) return;
-      final found =
-          summary.covers > 0 || summary.motion > 0 || summary.failed > 0;
-      showAppSnackBar(
-        context,
-        content: Text(
-          found
-              ? l10n.libraryFindArtworkResult(
-                  summary.covers,
-                  summary.motion,
-                  summary.failed,
-                )
-              : l10n.albumFindArtworkNotFound,
-        ),
-      );
-      if (summary.songs > 0) _loadTracks();
-    } catch (error) {
-      if (!mounted) return;
-      showAppSnackBar(
-        context,
-        content: Text(l10n.snackbarError(context.friendlyError(error))),
-      );
-    }
   }
 
   Future<void> _removeFoundArtwork(String albumKey) async {
@@ -843,7 +746,6 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
         onPlay: () => _openFile(track),
         onOpenDetails: () => _openMetadata(track),
         onDone: exitSelectionMode,
-        onReEnrich: () => _reEnrichSelected(tracks),
         onConvert: () => showBatchConvertSheet(
           this.context,
           ref,
@@ -907,44 +809,6 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
     );
   }
 
-  List<LocalLibraryItem> _selectedFlacEligibleItems(
-    List<LocalLibraryItem> allTracks,
-  ) {
-    final tracksById = {for (final t in allTracks) t.id: t};
-    return selectedIds
-        .map((id) => tracksById[id])
-        .whereType<LocalLibraryItem>()
-        .where(LocalTrackRedownloadService.isFlacUpgradeEligible)
-        .toList(growable: false);
-  }
-
-  Future<void> _queueSelectedAsFlac(List<LocalLibraryItem> allTracks) =>
-      queueLocalTracksAsFlac(
-        context,
-        ref,
-        _selectedFlacEligibleItems(allTracks),
-        isActive: () => mounted,
-        onComplete: exitSelectionMode,
-      );
-
-  Future<void> _reEnrichSelected(List<LocalLibraryItem> allTracks) async {
-    final tracksById = {for (final track in allTracks) track.id: track};
-    final selected = [for (final id in selectedIds) ?tracksById[id]];
-    await reEnrichLocalTracks(
-      context,
-      ref,
-      selected,
-      isActive: () => mounted,
-      onSelectionHide: () async {
-        setState(() => isSelectionMode = false);
-        // Allow the selection bar's 250 ms slide-out to finish.
-        await Future<void>.delayed(const Duration(milliseconds: 300));
-      },
-      onSelectionRestore: () => setState(() => isSelectionMode = true),
-      onComplete: exitSelectionMode,
-    );
-  }
-
   List<UnifiedLibraryItem> _selectedUnifiedItems(
     List<LocalLibraryItem> tracks,
   ) {
@@ -975,9 +839,6 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
         items: _selectedUnifiedItems(tracks),
         onClose: exitSelectionMode,
       ),
-      flacEligibleCount: _selectedFlacEligibleItems(tracks).length,
-      onQueueFlac: () => _queueSelectedAsFlac(tracks),
-      onReEnrich: () => _reEnrichSelected(tracks),
       onConvert: () => showBatchConvertSheet(
         context,
         ref,

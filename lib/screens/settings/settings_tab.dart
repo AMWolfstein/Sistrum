@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:sistrum/constants/app_info.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/user_profile_provider.dart';
@@ -13,21 +12,14 @@ import 'package:sistrum/screens/settings/app_settings_page.dart';
 import 'package:sistrum/screens/settings/appearance_settings_page.dart';
 import 'package:sistrum/screens/settings/backup_restore_page.dart';
 import 'package:sistrum/screens/settings/cache_management_page.dart';
-import 'package:sistrum/screens/settings/donate_page.dart';
-import 'package:sistrum/screens/settings/download_settings_page.dart';
-import 'package:sistrum/screens/settings/extensions_page.dart';
 import 'package:sistrum/screens/settings/files_settings_page.dart';
 import 'package:sistrum/screens/settings/keyboard_shortcuts_page.dart';
 import 'package:sistrum/screens/settings/library_settings_page.dart';
-import 'package:sistrum/screens/settings/link_desktop_settings_page.dart';
-import 'package:sistrum/screens/settings/link_settings_page.dart';
-import 'package:sistrum/screens/network_storage_screen.dart';
 import 'package:sistrum/screens/settings/log_screen.dart';
 import 'package:sistrum/screens/settings/lyrics_settings_page.dart';
 import 'package:sistrum/screens/settings/metadata_settings_page.dart';
 import 'package:sistrum/screens/settings/playback_settings_page.dart';
 import 'package:sistrum/utils/settings_search_catalog.dart';
-import 'package:sistrum/services/app_remote_config_service.dart';
 import 'package:sistrum/services/shell_navigation_service.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/app_tokens.dart';
@@ -37,10 +29,8 @@ import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_progress_indicator.dart';
 import 'package:sistrum/widgets/app_search_field.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
-import 'package:sistrum/widgets/beta_badge.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/profile_avatar.dart';
 import 'package:sistrum/widgets/no_scrollbars.dart';
@@ -54,8 +44,6 @@ class _Destination {
     required this.pageBuilder,
     this.keywords = const [],
     this.searchEntries = const [],
-    this.showDonationProgress = false,
-    this.beta = false,
   });
 
   final IconData icon;
@@ -63,11 +51,9 @@ class _Destination {
   final String title;
   final String subtitle;
   final Widget Function() pageBuilder;
-  final bool showDonationProgress;
 
   /// Marks the entry with a Beta tag in the phone list. The desktop category
   /// column is too narrow for it, so those pages show the tag themselves.
-  final bool beta;
 
   /// Extra search terms for things the title does not spell out (e.g. "SAF"
   /// for the Files page), so a user can find a page by what it does.
@@ -94,10 +80,9 @@ class _Group {
 }
 
 class SettingsTab extends ConsumerStatefulWidget {
-  const SettingsTab({super.key, this.asPage = false, this.remoteConfigService});
+  const SettingsTab({super.key, this.asPage = false});
 
   final bool asPage;
-  final AppRemoteConfigService? remoteConfigService;
 
   @override
   ConsumerState<SettingsTab> createState() => _SettingsTabState();
@@ -109,18 +94,12 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
   AppLocalizations? _cachedLocalizations;
   List<_Group>? _cachedGroups;
   String _query = '';
-  bool _hasRequestedDonationGoal = false;
-  MonthlyDonationGoal? _monthlyGoal;
-  String? _activeDonationJson;
-  late final AppRemoteConfigService _remoteConfigService =
-      widget.remoteConfigService ?? AppRemoteConfigService();
 
   /// Desktop list-detail: the selected category ([_profileSelection] for the
   /// profile), the setting a search result points at, and the detail pane's
   /// navigator. Each selection gets a fresh navigator, so the pages pushed
-  /// for the previous category close. Opens on Appearance, the first page
-  /// after the donation card.
-  int _selected = 1;
+  /// for the previous category close. Opens on Appearance, the first page.
+  int _selected = 0;
   String? _selectedTarget;
   var _detailNavigatorKey = GlobalKey<NavigatorState>();
   static const int _profileSelection = -1;
@@ -140,35 +119,6 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
         navigator: () => _detailNavigatorKey.currentState,
       );
     }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_hasRequestedDonationGoal) return;
-    _hasRequestedDonationGoal = true;
-    unawaited(_loadDonationGoal());
-  }
-
-  Future<void> _loadDonationGoal({bool refresh = true}) async {
-    final locale = Localizations.localeOf(context).toLanguageTag();
-    final cached = await _remoteConfigService.readCachedConfig();
-    if (!mounted) return;
-    if (cached != null) _applyDonationGoal(cached);
-    if (!refresh) return;
-    final refreshed = await _remoteConfigService.fetchConfigSnapshot(
-      locale: locale,
-    );
-    if (!mounted || refreshed == null) return;
-    _applyDonationGoal(refreshed);
-  }
-
-  void _applyDonationGoal(RemoteConfigSnapshot snapshot) {
-    if (_activeDonationJson == snapshot.rawJson) return;
-    setState(() {
-      _activeDonationJson = snapshot.rawJson;
-      _monthlyGoal = snapshot.config.donate.monthlyGoal;
-    });
   }
 
   @override
@@ -192,21 +142,6 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
       androidAudio: Platform.isAndroid,
     );
     final groups = [
-      // On its own at the top, so its progress reads as the app's status.
-      _Group(
-        destinations: [
-          _Destination(
-            icon: Icons.favorite_outline,
-            iconColor: Colors.pink,
-            title: l10n.settingsDonate,
-            subtitle: l10n.settingsDonateSubtitle,
-            keywords: const ['support', 'ko-fi', 'sponsor'],
-            pageBuilder: () =>
-                DonatePage(remoteConfigService: _remoteConfigService),
-            showDonationProgress: true,
-          ),
-        ],
-      ),
       _Group(
         destinations: [
           _Destination(
@@ -259,90 +194,10 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
             searchEntries: searchCatalog.library,
             pageBuilder: () => const LibrarySettingsPage(),
           ),
-          _Destination(
-            icon: Icons.dns_outlined,
-            iconColor: Colors.blueGrey,
-            title: l10n.networkStorage,
-            subtitle: 'SMB · WebDAV · HTTP(S) · Subsonic',
-            keywords: const [
-              'nas',
-              'server',
-              'network',
-              'smb',
-              'webdav',
-              'http',
-            ],
-            pageBuilder: () => const NetworkStorageScreen(),
-          ),
-          if (Platform.isAndroid || Platform.isIOS)
-            _Destination(
-              icon: Icons.devices,
-              iconColor: Colors.deepPurple,
-              title: l10n.linkSettingsTitle,
-              subtitle: l10n.linkSettingsSubtitle,
-              keywords: const [
-                'computer',
-                'desktop',
-                'pc',
-                'mac',
-                'phone',
-                'device',
-                'pair',
-                'link',
-                'komputer',
-                'ponsel',
-                'perangkat',
-              ],
-              pageBuilder: () => const LinkSettingsPage(),
-              beta: true,
-            ),
-          if (isDesktopPlatform)
-            _Destination(
-              icon: Icons.phone_android,
-              iconColor: Colors.lightBlue,
-              title: l10n.linkDesktopSettingsTitle,
-              subtitle: l10n.linkDesktopSettingsSubtitle,
-              keywords: const [
-                'phone',
-                'mobile',
-                'pair',
-                'remote',
-                'handoff',
-                'subsonic',
-                'ponsel',
-              ],
-              pageBuilder: () => const LinkDesktopSettingsPage(),
-            ),
         ],
       ),
       _Group(
         destinations: [
-          _Destination(
-            icon: Icons.download_outlined,
-            iconColor: Colors.green,
-            title: l10n.settingsDownload,
-            subtitle: l10n.settingsDownloadSubtitle,
-            keywords: const [
-              'quality',
-              'flac',
-              'concurrent',
-              'network',
-              'wifi',
-              'service',
-              'region',
-            ],
-            searchEntries: searchCatalog.download,
-            pageBuilder: () => const DownloadSettingsPage(),
-          ),
-          _Destination(
-            icon: Icons.extension_outlined,
-            iconColor: Colors.teal,
-            title: l10n.settingsExtensions,
-            subtitle: l10n.settingsExtensionsSubtitle,
-            keywords: const ['plugin', 'provider', 'priority', 'store'],
-            searchEntries: searchCatalog.extensions,
-            pageBuilder: () => const ExtensionsPage(),
-          ),
           _Destination(
             icon: Icons.folder_outlined,
             iconColor: Colors.orange,
@@ -454,10 +309,6 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
     ).push(slidePageRoute<void>(page: MornyeSettingsTheme(child: destination)));
     if (!mounted) return;
 
-    if (page is DonatePage) {
-      unawaited(_loadDonationGoal(refresh: false));
-    }
-
     // A route's focus scope remembers its previously focused child. Keep the
     // search field out of that restoration cycle while the child page is open,
     // then re-enable it without requesting focus when Settings becomes active.
@@ -476,17 +327,12 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
       : Theme.of(context).colorScheme.onSurfaceVariant;
 
   Widget _itemFor(_Destination destination, {required bool showDivider}) {
-    final goal = _monthlyGoal;
     return SettingsItem(
       icon: destination.icon,
       iconColor: _iconColorFor(destination),
       showIconInMornye: true,
       title: destination.title,
-      titleTrailing: destination.beta ? const BetaBadge() : null,
       subtitle: context.isMornye ? null : destination.subtitle,
-      footer: destination.showDonationProgress && goal?.isVisible == true
-          ? _DonationGoalProgress(goal: goal!)
-          : null,
       showDivider: showDivider,
       onTap: () => _navigateTo(context, destination.pageBuilder()),
     );
@@ -679,7 +525,6 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
     final query = SettingsSearchQuery(_query);
     final groups = _groups(context);
     final destinations = [for (final group in groups) ...group.destinations];
-    final goal = _monthlyGoal;
 
     Widget categoryRow(
       _Destination destination, {
@@ -697,9 +542,6 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
           selected: index == _selected,
         ),
         title: destination.title,
-        footer: destination.showDonationProgress && goal?.isVisible == true
-            ? _DonationGoalProgress(goal: goal!)
-            : null,
         selected: index == _selected,
         onTap: () => _select(index),
       );
@@ -965,46 +807,6 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
   }
 }
 
-class _DonationGoalProgress extends StatelessWidget {
-  const _DonationGoalProgress({required this.goal});
-
-  final MonthlyDonationGoal goal;
-
-  @override
-  Widget build(BuildContext context) {
-    final locale = Localizations.localeOf(context).toLanguageTag();
-    final percentage =
-        '${NumberFormat('0.#', locale).format(goal.progressPercent)}%';
-    return Row(
-      children: [
-        Expanded(
-          child: AppProgressIndicator.linear(
-            wavy: false,
-            value: goal.progressRatio,
-            minHeight: 4,
-            borderRadius: BorderRadius.circular(2),
-            semanticsLabel: goal.title,
-            semanticsValue: goal.showPercentage ? percentage : null,
-          ),
-        ),
-        if (goal.showPercentage) ...[
-          const SizedBox(width: 8),
-          // The progress bar already reads the percentage as its value.
-          ExcludeSemantics(
-            child: Text(
-              percentage,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
 /// A category in the desktop settings list. Material lays each group out as
 /// an expressive connected list, like the settings pages beside it, and
 /// marks the selected row with a fully rounded `secondaryContainer` tile;
@@ -1017,7 +819,6 @@ class _CategoryRow extends StatelessWidget {
     required this.selected,
     required this.onTap,
     this.subtitle,
-    this.footer,
     this.first = true,
     this.last = true,
   });
@@ -1025,9 +826,6 @@ class _CategoryRow extends StatelessWidget {
   final Widget leading;
   final String title;
   final String? subtitle;
-
-  /// Shown under the title, as the donation goal's progress is on phones.
-  final Widget? footer;
   final bool selected;
   final VoidCallback? onTap;
 
@@ -1118,10 +916,6 @@ class _CategoryRow extends StatelessWidget {
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
-                          if (footer != null) ...[
-                            const SizedBox(height: 6),
-                            footer!,
-                          ],
                         ],
                       ),
                     ),

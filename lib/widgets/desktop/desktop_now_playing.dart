@@ -12,7 +12,6 @@ import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/controllers/player_track_navigation.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
-import 'package:sistrum/providers/lyrics_translation_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/equalizer_screen.dart';
@@ -35,7 +34,6 @@ import 'package:sistrum/widgets/player_artwork.dart';
 import 'package:sistrum/widgets/player_details_sheet.dart';
 import 'package:sistrum/widgets/player_lyrics_section.dart';
 import 'package:sistrum/widgets/player_metadata_title.dart';
-import 'package:sistrum/widgets/playback_source_label.dart';
 import 'package:sistrum/widgets/playback_tempo_sheet.dart';
 import 'package:sistrum/widgets/player_playback_controls.dart';
 import 'package:sistrum/widgets/player_track_crossfade.dart';
@@ -63,7 +61,6 @@ class _DesktopNowPlayingState extends ConsumerState<DesktopNowPlaying> {
       widget.metadataControllerFactory?.call() ?? PlayerMetadataController();
   final _seekPreview = PlaybackSeekPreview();
   ProviderSubscription<AsyncValue<MediaItem?>>? _mediaItemSub;
-  late final LyricsTranslationController _lyricsTranslation;
 
   /// The panel on the trailing side, kept while it animates closed.
   DesktopInspectorPanel? _lastPanel;
@@ -76,7 +73,6 @@ class _DesktopNowPlayingState extends ConsumerState<DesktopNowPlaying> {
   @override
   void initState() {
     super.initState();
-    _lyricsTranslation = ref.read(lyricsTranslationProvider.notifier);
     _mediaItemSub = ref.listenManual<AsyncValue<MediaItem?>>(
       currentMediaItemProvider,
       (previous, next) {
@@ -93,7 +89,6 @@ class _DesktopNowPlayingState extends ConsumerState<DesktopNowPlaying> {
   @override
   void dispose() {
     _mediaItemSub?.close();
-    _lyricsTranslation.cancel(owner: this);
     _metadata.dispose();
     _seekPreview.dispose();
     super.dispose();
@@ -428,7 +423,6 @@ class _DesktopNowPlayingState extends ConsumerState<DesktopNowPlaying> {
                     options: LyricsOptionsButton(
                       metadata: _metadata,
                       colorScheme: colorScheme,
-                      translationOwner: this,
                     ),
                   ),
                 ),
@@ -549,10 +543,6 @@ class _PlayerColumn extends StatelessWidget {
                                     : textTheme.titleSmall)
                                 ?.copyWith(color: colorScheme.onSurfaceVariant),
                       ),
-                    PlaybackSourceLabel(
-                      item: mediaItem,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
                   ],
                 ),
               ),
@@ -719,12 +709,7 @@ class _PlayerMoreButton extends ConsumerWidget {
       case 'tempo':
         await showPlaybackTempoSheet(context);
       case 'album':
-        await openPlayingAlbum(
-          context,
-          ref,
-          mediaItem: mediaItem,
-          source: mediaItem.extras?['source']?.toString() ?? '',
-        );
+        await openPlayingAlbum(context, ref, mediaItem: mediaItem);
       case 'artist':
         await openPlayingArtist(context, ref, mediaItem);
       case 'share':

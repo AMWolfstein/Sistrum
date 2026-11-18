@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
@@ -409,30 +408,4 @@ void main() {
     },
   );
 
-  test('completion bridge cards probe before showing Play or missing', () {
-    final source = File(
-      'lib/screens/queue_tab_collection_items.dart',
-    ).readAsStringSync();
-    // One builder draws both the grid cell and the list row.
-    final bridgeStart = source.indexOf('Widget _buildBridgeItem(');
-    final badgeStart = source.indexOf('Widget _buildLibraryQualityBadge(');
-
-    expect(bridgeStart, greaterThanOrEqualTo(0));
-    expect(badgeStart, greaterThan(bridgeStart));
-
-    final bridgeSource = source.substring(bridgeStart, badgeStart);
-
-    expect(bridgeSource, contains('resolveCompletionBridgePlayablePath('));
-    expect(
-      bridgeSource,
-      contains('_completionBridgePlayableProbe.listenable('),
-    );
-    expect(bridgeSource, contains('CompletionBridgePlayableStatus.checking'));
-    expect(bridgeSource, contains('semanticLabel:'));
-    expect(bridgeSource, contains('queueCheckingDownloadedFile'));
-    expect(bridgeSource, contains('_LibraryPlaybackButton('));
-    expect(bridgeSource, contains('grid: grid'));
-    expect(bridgeSource, contains('TrackGridCard('));
-    expect(bridgeSource, contains('TrackCard('));
-  });
 }

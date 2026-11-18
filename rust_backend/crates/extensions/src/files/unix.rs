@@ -3,6 +3,7 @@ use rustix::io::Errno;
 use std::ffi::OsStr;
 use std::io;
 
+#[cfg(test)]
 pub(super) fn publish_new(parent: &Dir, name: &str, target: &OsStr) -> io::Result<()> {
     publish_new_with(parent, name, target, || {
         rustix::fs::renameat_with(
@@ -15,6 +16,7 @@ pub(super) fn publish_new(parent: &Dir, name: &str, target: &OsStr) -> io::Resul
     })
 }
 
+#[cfg(test)]
 fn publish_new_with(
     parent: &Dir,
     name: &str,

@@ -99,15 +99,13 @@ class CoverPalette {
   ) async => '${await _versionedSource(_source(source))}|${brightness.name}';
 
   static Future<String> _versionedSource(String source) async {
-    if (!isHttpCoverUrl(source)) {
-      try {
-        final stat = await File(source).stat();
-        if (stat.type != FileSystemEntityType.notFound) {
-          return '$source|${stat.modified.microsecondsSinceEpoch}|${stat.size}';
-        }
-      } catch (_) {
-        // Resolution below will return null for inaccessible local files.
+    try {
+      final stat = await File(source).stat();
+      if (stat.type != FileSystemEntityType.notFound) {
+        return '$source|${stat.modified.microsecondsSinceEpoch}|${stat.size}';
       }
+    } catch (_) {
+      // Resolution below will return null for inaccessible local files.
     }
     return source;
   }
@@ -244,7 +242,6 @@ class CoverPalette {
     String source, {
     required bool replaced,
   }) async {
-    if (isHttpCoverUrl(source)) return;
     if (replaced) await _evictDecodedImage(FileImage(File(source)));
     await _evictDecodedImage(_sample(FileImage(File(source))));
   }
@@ -329,9 +326,6 @@ class CoverPalette {
   );
 
   static Future<ImageProvider?> _coverSample(String source) async {
-    if (isHttpCoverUrl(source)) {
-      return _sample(cachedCoverImageProvider(source));
-    }
     final file = File(source);
     return await file.exists() ? _sample(FileImage(file)) : null;
   }

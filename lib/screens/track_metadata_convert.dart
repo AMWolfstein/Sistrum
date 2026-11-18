@@ -18,49 +18,45 @@ extension _TrackMetadataConvertAndCueSplit on _TrackMetadataScreenState {
     if (isCueVirtualPath(rawFilePath)) return true;
     final lower = cleanFilePath.toLowerCase();
     if (lower.endsWith('.cue')) return true;
-    if (_isLocalItem && _localLibraryItem != null) {
-      final format = _localLibraryItem!.format ?? '';
-      if (format.startsWith('cue+')) return true;
-    }
+    final format = _localLibraryItem.format ?? '';
+    if (format.startsWith('cue+')) return true;
     return false;
   }
 
   String get _currentFileFormat {
     // For CUE tracks, use the format from the library item (e.g. "cue+flac")
-    if (_isCueFile && _isLocalItem && _localLibraryItem != null) {
-      final format = _localLibraryItem!.format ?? '';
+    if (_isCueFile) {
+      final format = _localLibraryItem.format ?? '';
       if (format.startsWith('cue+')) {
         final audioFmt = format.substring(4).toUpperCase();
         return 'CUE+$audioFmt';
       }
     }
-    if (_isLocalItem && _localLibraryItem != null) {
-      final format = normalizeOptionalString(
-        _localLibraryItem!.format,
-      )?.toLowerCase().replaceAll('-', '_');
-      switch (format) {
-        case 'flac':
-          return 'FLAC';
-        case 'alac':
-          return 'ALAC';
-        case 'm4a':
-          return 'M4A';
-        case 'aac':
-        case 'mp4a':
-          return 'AAC';
-        case 'mp3':
-          return 'MP3';
-        case 'opus':
-        case 'ogg':
-          return 'Opus';
-        case 'wav':
-        case 'wave':
-          return 'WAV';
-        case 'aiff':
-        case 'aif':
-        case 'aifc':
-          return 'AIFF';
-      }
+    final format = normalizeOptionalString(
+      _localLibraryItem.format,
+    )?.toLowerCase().replaceAll('-', '_');
+    switch (format) {
+      case 'flac':
+        return 'FLAC';
+      case 'alac':
+        return 'ALAC';
+      case 'm4a':
+        return 'M4A';
+      case 'aac':
+      case 'mp4a':
+        return 'AAC';
+      case 'mp3':
+        return 'MP3';
+      case 'opus':
+      case 'ogg':
+        return 'Opus';
+      case 'wav':
+      case 'wave':
+        return 'WAV';
+      case 'aiff':
+      case 'aif':
+      case 'aifc':
+        return 'AIFF';
     }
     final lower = cleanFilePath.toLowerCase();
     if (lower.endsWith('.flac')) return 'FLAC';
@@ -501,17 +497,6 @@ extension _TrackMetadataConvertAndCueSplit on _TrackMetadataScreenState {
   }
 
   Future<Directory> _resolvePersistentCueSplitOutputDir() async {
-    final settings = ref.read(settingsProvider);
-    final queueState = ref.read(downloadQueueProvider);
-    final configuredOutputDir = queueState.outputDir.trim();
-    if (settings.storageMode != 'saf' &&
-        configuredOutputDir.isNotEmpty &&
-        !isContentUri(configuredOutputDir)) {
-      final dir = Directory(configuredOutputDir);
-      await dir.create(recursive: true);
-      return dir;
-    }
-
     if (Platform.isAndroid) {
       final externalDir = await getExternalStorageDirectory();
       if (externalDir != null) {
@@ -583,12 +568,11 @@ extension _TrackMetadataConvertAndCueSplit on _TrackMetadataScreenState {
       }
 
       final String outputDir;
-      final treeUri = !_isLocalItem
-          ? (_downloadItem?.downloadTreeUri ?? '')
-          : '';
-      final relativeDir = !_isLocalItem
-          ? (_downloadItem?.safRelativeDir ?? '')
-          : '';
+      final safLocation = isSafSource
+          ? resolveSafDocumentLocation(cleanFilePath)
+          : null;
+      final treeUri = safLocation?.treeUri ?? '';
+      final relativeDir = safLocation?.relativeDir ?? '';
       final writeBackToSaf = isSafSource && treeUri.isNotEmpty;
       if (writeBackToSaf) {
         final tempDir = await getTemporaryDirectory();
@@ -690,11 +674,11 @@ extension _TrackMetadataConvertAndCueSplit on _TrackMetadataScreenState {
           audioPath: audioPath,
           tracks: tracks,
           outputPaths: finalOutputPaths,
-          sourceId: _isLocalItem && (!isSafSource || writeBackToSaf)
-              ? _localLibraryItem?.sourceId ?? LocalLibraryItem.legacySourceId
+          sourceId: !isSafSource || writeBackToSaf
+              ? _localLibraryItem.sourceId
               : LocalLibraryItem.legacySourceId,
-          sourceItemId: _isLocalItem && (!isSafSource || writeBackToSaf)
-              ? _localLibraryItem?.id
+          sourceItemId: !isSafSource || writeBackToSaf
+              ? _localLibraryItem.id
               : null,
         );
         if (mounted) {
@@ -830,18 +814,15 @@ extension _TrackMetadataConvertAndCueSplit on _TrackMetadataScreenState {
       final shouldEmbedLyrics =
           settings.embedLyrics && settings.lyricsMode != 'external';
       final metadata = _buildFallbackMetadata();
-      final localItem = _localLibraryItem;
       final result = await convertLibraryTrack(
         filePath: cleanFilePath,
         metadata: metadata,
         trackName: trackName,
         artistName: artistName,
-        spotifyId: _spotifyId ?? '',
         durationMs: (duration ?? 0) * 1000,
         sourceBitDepth: bitDepth,
         sourceSampleRate: sampleRate,
-        historyItem: localItem == null ? _downloadItem : null,
-        localItem: localItem,
+        localItem: _localLibraryItem,
         targetFormat: targetFormat,
         bitrate: bitrate,
         losslessQuality: losslessQuality,
@@ -852,13 +833,9 @@ extension _TrackMetadataConvertAndCueSplit on _TrackMetadataScreenState {
         losslessLabels: losslessLabels,
         coverTempPrefix: 'convert_cover_',
         treatEmptySafTempPathAsFailure: false,
-        historySafFileNameFallback: _extractFileNameFromPathOrUri(
-          cleanFilePath,
-        ),
         eagerTempCleanup: true,
-        onPersisted: () => localItem == null
-            ? ref.read(downloadHistoryProvider.notifier).reloadFromStorage()
-            : ref.read(localLibraryProvider.notifier).reloadFromStorage(),
+        onPersisted: () =>
+            ref.read(localLibraryProvider.notifier).reloadFromStorage(),
         diagnosticsLog: _log,
         onCleanupFailed: (path, error) =>
             _log.w('Failed to clean conversion temp file $path: $error'),

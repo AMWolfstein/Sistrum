@@ -38,7 +38,6 @@ void main() {
         isFalse,
       );
       expect(await storageUnavailableFor(''), isFalse);
-      expect(await storageUnavailableFor('network://share/a.flac'), isFalse);
     },
   );
 
@@ -51,7 +50,8 @@ void main() {
   });
 
   group('SAF documents', () {
-    const uri = 'content://com.android.externalstorage.documents/document/'
+    const uri =
+        'content://com.android.externalstorage.documents/document/'
         '1234-ABCD%3AMusic%2Fa.flac';
     final calls = <String>[];
 
@@ -68,16 +68,22 @@ void main() {
 
     setUp(calls.clear);
 
-    test('a provider that cannot tell (unmounted volume) is unavailable', () async {
-      answer(null);
-      expect(await storageUnavailableFor(uri), isTrue);
-      expect(await PlatformBridge.safExistsState(uri), isNull);
-    });
+    test(
+      'a provider that cannot tell (unmounted volume) is unavailable',
+      () async {
+        answer(null);
+        expect(await storageUnavailableFor(uri), isTrue);
+        expect(await PlatformBridge.safExistsState(uri), isNull);
+      },
+    );
 
-    test('a confirmed missing document on mounted storage is not unavailable', () async {
-      answer(false);
-      expect(await storageUnavailableFor(uri), isFalse);
-    });
+    test(
+      'a confirmed missing document on mounted storage is not unavailable',
+      () async {
+        answer(false);
+        expect(await storageUnavailableFor(uri), isFalse);
+      },
+    );
 
     test('an unknown SAF document is never reported deleted', () async {
       answer(null);

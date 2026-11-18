@@ -1,10 +1,38 @@
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/services/library_collections_database.dart';
 
-import 'support/link_sync_support.dart';
+/// A fresh directory removed after the test.
+Future<Directory> _tempDirectory() async {
+  final directory = await Directory.systemTemp.createTemp('playlist-reorder-');
+  addTearDown(() => directory.delete(recursive: true));
+  return directory;
+}
+
+/// A collections database with the app schema, opened through FFI.
+Future<Database> _openDatabase(Directory directory, String name) async {
+  sqfliteFfiInit();
+  final db = await LibraryCollectionsDatabase.openWithFactory(
+    databaseFactoryFfi,
+    '${directory.path}/$name.db',
+  );
+  addTearDown(db.close);
+  return db;
+}
+
+Track _track(String id) => Track(
+  id: id,
+  name: 'Song $id',
+  artistName: 'Artist',
+  albumName: 'Album',
+  duration: 200,
+);
 
 ProviderContainer _container(LibraryCollectionsDatabase database) {
   final container = ProviderContainer(
@@ -31,9 +59,9 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  test('a reorder persists, syncs and keeps later additions last', () async {
-    final directory = await linkSyncTempDirectory();
-    final db = await openLinkCollectionsDatabase(directory, 'reorder');
+  test('a reorder persists and keeps later additions last', () async {
+    final directory = await _tempDirectory();
+    final db = await _openDatabase(directory, 'reorder');
     final database = LibraryCollectionsDatabase.withDatabase(db);
     final container = _container(database);
     final notifier = container.read(libraryCollectionsProvider.notifier);
@@ -41,7 +69,7 @@ void main() {
     final id = await notifier.createPlaylist('Mix');
     // One batch shares a single stamp, so only rowid orders these tracks.
     await notifier.addTracksToPlaylist(id, [
-      for (final id in ['a', 'b', 'c', 'd']) linkTestTrack(id),
+      for (final id in ['a', 'b', 'c', 'd']) _track(id),
     ]);
     final keys = [
       for (final entry
@@ -51,11 +79,6 @@ void main() {
               .tracks)
         entry.key,
     ];
-    final syncedBefore =
-        (await db.rawQuery(
-              'SELECT MAX(seq) AS seq FROM link_sync_changes',
-            )).first['seq']!
-            as int;
 
     expect(
       await notifier.reorderPlaylistTracks(id, [
@@ -67,7 +90,7 @@ void main() {
       isTrue,
     );
     expect(_order(container, id), ['c', 'a', 'd', 'b']);
-    await notifier.addTrackToPlaylist(id, linkTestTrack('e'));
+    await notifier.addTrackToPlaylist(id, _track('e'));
     expect(_order(container, id), ['c', 'a', 'd', 'b', 'e']);
 
     final reloaded = _container(database);
@@ -82,23 +105,17 @@ void main() {
       [id],
     )).map((row) => row['added_at']! as String).toList();
     expect(stamps.toSet(), hasLength(5));
-    final changes = await db.rawQuery(
-      "SELECT key FROM link_sync_changes WHERE kind = 'playlistTrack' "
-      'AND scope = ? AND seq > ?',
-      [id, syncedBefore],
-    );
-    expect(changes, hasLength(5));
   });
 
   test('a reorder must name every track exactly once', () async {
-    final directory = await linkSyncTempDirectory();
-    final db = await openLinkCollectionsDatabase(directory, 'invalid');
+    final directory = await _tempDirectory();
+    final db = await _openDatabase(directory, 'invalid');
     final container = _container(LibraryCollectionsDatabase.withDatabase(db));
     final notifier = container.read(libraryCollectionsProvider.notifier);
     final id = await notifier.createPlaylist('Mix');
     await notifier.addTracksToPlaylist(id, [
-      linkTestTrack('a'),
-      linkTestTrack('b'),
+      _track('a'),
+      _track('b'),
     ]);
     final keys = [
       for (final entry
@@ -125,15 +142,15 @@ void main() {
     LibraryTracksFolderMode.wishlist,
   ]) {
     test(
-      '${mode.name} order survives reload, syncs and keeps new songs first',
+      '${mode.name} order survives reload and keeps new songs first',
       () async {
-        final directory = await linkSyncTempDirectory();
-        final db = await openLinkCollectionsDatabase(directory, mode.name);
+        final directory = await _tempDirectory();
+        final db = await _openDatabase(directory, mode.name);
         final database = LibraryCollectionsDatabase.withDatabase(db);
         final container = _container(database);
         final notifier = container.read(libraryCollectionsProvider.notifier);
         final tracks = [
-          for (final id in ['a', 'b', 'c', 'd']) linkTestTrack(id),
+          for (final id in ['a', 'b', 'c', 'd']) _track(id),
         ];
         if (mode == LibraryTracksFolderMode.loved) {
           await notifier.toggleLovedTracks(tracks);
@@ -149,11 +166,6 @@ void main() {
         final byId = {
           for (final entry in entries(container)) entry.track.id: entry,
         };
-        final before =
-            (await db.rawQuery(
-                  'SELECT MAX(seq) AS seq FROM link_sync_changes',
-                )).first['seq']!
-                as int;
         expect(
           await notifier.reorderSavedTracks(mode, [
             for (final id in ['c', 'a', 'd', 'b']) byId[id]!.key,
@@ -162,9 +174,9 @@ void main() {
         );
         expect(entries(container).map((e) => e.track.id), ['c', 'a', 'd', 'b']);
         if (mode == LibraryTracksFolderMode.loved) {
-          await notifier.toggleLovedTracks([linkTestTrack('e')]);
+          await notifier.toggleLovedTracks([_track('e')]);
         } else {
-          await notifier.toggleWishlist(linkTestTrack('e'));
+          await notifier.toggleWishlist(_track('e'));
         }
         final reloaded = _container(database);
         await reloaded
@@ -177,11 +189,6 @@ void main() {
           'd',
           'b',
         ]);
-        final changes = await db.rawQuery(
-          'SELECT key FROM link_sync_changes WHERE kind = ? AND seq > ?',
-          [mode.name, before],
-        );
-        expect(changes, hasLength(5));
         final stable = entries(reloaded).map((e) => e.key).toList();
         final restored = reloaded.read(libraryCollectionsProvider.notifier);
         expect(

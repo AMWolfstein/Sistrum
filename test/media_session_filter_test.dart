@@ -3,11 +3,9 @@ import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_service_platform_interface/audio_service_platform_interface.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:sistrum/services/media_session_filter.dart';
-import 'package:sistrum/services/remote_media_session.dart';
-import 'package:sistrum/services/remote_playback.dart';
 
 final _start = DateTime.utc(2026, 10, 30, 12);
 
@@ -674,7 +672,7 @@ void main() {
     AudioServicePlatform.instance = os;
     installMediaSessionFilter();
     final handler = BaseAudioHandler();
-    final session = await AudioService.init(
+    await AudioService.init(
       builder: () => SwitchAudioHandler(handler),
       cacheManager: _NoCovers(),
     );
@@ -735,73 +733,7 @@ void main() {
     os.reply!.complete();
     await synchronized;
     expect(os.states.last.playing, isFalse);
-
-    // A paired computer playing in this device's place keeps its own
-    // filter, and each state that passes it reaches the OS.
-    os.reply = null;
-    final remote = _Remote();
-    addTearDown(remote.close);
-    final remoteSession = RemoteMediaSession(
-      remote,
-      local: handler,
-      onLocal: () {},
-    );
-    addTearDown(remoteSession.dispose);
-    final shown = <PlaybackState>[];
-    final watch = remoteSession.playbackState.skip(1).listen(shown.add);
-    addTearDown(watch.cancel);
-    // The remote's states arrive now, as they do over the network.
-    PlaybackState remoteState(double seconds, {bool playing = true}) =>
-        PlaybackState(
-          playing: playing,
-          processingState: AudioProcessingState.ready,
-          updatePosition: _seconds(seconds),
-        );
-    remote.states.add(remoteState(30));
-    session.inner = remoteSession;
-    for (final seconds in const [30.5, 31.0, 90.0, 90.6]) {
-      remote.states.add(remoteState(seconds));
-    }
-    remote.states.add(remoteState(91, playing: false));
-    await pumpEventQueue();
-    expect(shown, hasLength(3));
-    expect(
-      os.states.reversed
-          .take(3)
-          .toList()
-          .reversed
-          .map((state) => (state.updatePosition.inSeconds, state.playing)),
-      shown.map((state) => (state.updatePosition.inSeconds, state.playing)),
-    );
-
-    // Back on this device, the OS shows its player again at once.
-    session.inner = handler;
-    await pumpEventQueue();
-    expect(os.states.last.updatePosition, _seconds(61));
-    expect(os.states.last.playing, isFalse);
   });
-}
-
-/// A paired device whose song and state the test pushes.
-class _Remote implements RemotePlayback {
-  final states = StreamController<PlaybackState>.broadcast(sync: true);
-
-  @override
-  Stream<PlaybackState> get playbackStates => states.stream;
-
-  @override
-  Stream<MediaItem?> get mediaItems => const Stream.empty();
-
-  @override
-  Stream<List<MediaItem>> get queues => const Stream.empty();
-
-  @override
-  Stream<double> get volumes => const Stream.empty();
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-
-  Future<void> close() => states.close();
 }
 
 class _Callbacks implements AudioHandlerCallbacks {

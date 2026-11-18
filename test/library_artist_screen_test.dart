@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -5,7 +6,6 @@ import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_artist_songs_provider.dart';
 import 'package:sistrum/providers/library_browse_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
@@ -27,18 +27,23 @@ const _album = LibraryBrowseEntry(
   trackCount: 2,
 );
 
-UnifiedLibraryItem _song(String id) => UnifiedLibraryItem.fromLocalLibrary(
+final _musicDir = Directory.systemTemp.createTempSync('artist_songs_');
+
+UnifiedLibraryItem _song(String id) {
+  final path = '${_musicDir.path}/$id.flac';
+  File(path).createSync();
+  return UnifiedLibraryItem.fromLocalLibrary(
   LocalLibraryItem(
     id: id,
     trackName: 'Song $id',
     artistName: 'Ana',
     albumName: 'Album $id',
-    // Network songs need no file on disk to play.
-    filePath: 'network://example/$id.flac',
+    filePath: path,
     scannedAt: DateTime(2026, 11, 17),
     duration: 200,
   ),
-);
+  );
+}
 
 /// Keeps the chosen view in memory only.
 class _Settings extends FixedSettingsNotifier {
@@ -47,11 +52,6 @@ class _Settings extends FixedSettingsNotifier {
   @override
   void setLibraryArtistShowsSongs(bool songs) =>
       state = state.copyWith(libraryArtistShowsSongs: songs);
-}
-
-class _History extends DownloadHistoryNotifier {
-  @override
-  DownloadHistoryState build() => DownloadHistoryState();
 }
 
 class _Player implements MusicPlayerController {
@@ -91,7 +91,6 @@ Future<(_Player, ProviderContainer)> _pump(
             ),
           ),
         ),
-        downloadHistoryProvider.overrideWith(_History.new),
         libraryBrowsePageLoaderProvider.overrideWithValue((request) async {
           artists.add(request.browse.artist ?? '');
           return const LibraryBrowsePage([_album]);
@@ -148,10 +147,12 @@ void main() {
       expect(find.text('Artist Page'), findsOneWidget);
 
       await tester.tap(find.text('Play'));
+      // Checking the files is real I/O, so let it finish outside the fake clock.
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 200)));
       await _settle(tester);
       expect(player.queues.single, [
-        'network://example/a1.flac',
-        'network://example/a2.flac',
+        '${_musicDir.path}/a1.flac',
+        '${_musicDir.path}/a2.flac',
       ]);
 
       await tester.tap(find.text('Albums').hitTestable().first);

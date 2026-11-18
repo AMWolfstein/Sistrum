@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:sistrum/services/platform_bridge.dart';
-import 'package:sistrum/services/network_audio_analysis_input.dart';
 
 class HiResOriginalRestoreException implements Exception {
   const HiResOriginalRestoreException(this.backupPath, this.cause);
@@ -230,15 +229,8 @@ class HiResCheckService {
   /// and the result carries a [HiResCheckResult.report].
   static Future<HiResCheckResult> check(
     String filePath, {
-    NetworkAudioAnalysisInput? networkInput,
     bool detailed = false,
   }) async {
-    if (NetworkAudioAnalysisInput.isNetwork(filePath)) {
-      return (networkInput ?? NetworkAudioAnalysisInput()).withFile(
-        filePath,
-        (path) => check(path, detailed: detailed),
-      );
-    }
     final json = await PlatformBridge.checkHiResAuthenticity(
       filePath,
       options: detailed ? const {'detailed': true} : null,

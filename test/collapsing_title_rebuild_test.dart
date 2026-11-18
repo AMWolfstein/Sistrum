@@ -4,17 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/player_motion_artwork_provider.dart';
 import 'package:sistrum/providers/recent_access_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/providers/track_provider.dart';
-import 'package:sistrum/screens/album_screen.dart';
-import 'package:sistrum/screens/artist_screen.dart';
-import 'package:sistrum/screens/downloaded_album_screen.dart';
 import 'package:sistrum/screens/library_tracks_folder_screen.dart';
 import 'package:sistrum/screens/local_album_screen.dart';
 import 'package:sistrum/screens/playlist_screen.dart';
@@ -33,32 +28,6 @@ final _tracks = [
       artistName: 'Example artist',
       albumName: 'Example album',
       duration: 180,
-      trackNumber: i + 1,
-    ),
-];
-
-final _albums = [
-  for (var i = 0; i < 12; i++)
-    ArtistAlbum(
-      id: 'album-$i',
-      name: 'Album $i',
-      releaseDate: '2020',
-      totalTracks: 1,
-      albumType: i.isEven ? 'album' : 'single',
-      artists: 'Example artist',
-    ),
-];
-
-final _downloaded = [
-  for (var i = 0; i < 30; i++)
-    DownloadHistoryItem(
-      id: 'example-download-$i',
-      trackName: 'Example song $i',
-      artistName: 'Example artist',
-      albumName: 'Example album',
-      filePath: '/music/example-$i.flac',
-      service: 'example',
-      downloadedAt: DateTime(2026),
       trackNumber: i + 1,
     ),
 ];
@@ -107,11 +76,6 @@ class _Library extends LocalLibraryNotifier {
   LocalLibraryState build() => LocalLibraryState();
 }
 
-class _History extends DownloadHistoryNotifier {
-  @override
-  DownloadHistoryState build() => DownloadHistoryState();
-}
-
 class _Recent extends RecentAccessNotifier {
   @override
   RecentAccessState build() => const RecentAccessState(isLoaded: true);
@@ -147,10 +111,7 @@ List<double> _titleOpacities(WidgetTester tester) => [
 
 void main() {
   for (final page in [
-    'album',
     'playlist',
-    'artist',
-    'downloaded album',
     'local album',
     'library folder',
   ]) {
@@ -174,20 +135,7 @@ void main() {
             currentMediaItemProvider.overrideWithBuild(
               (ref, notifier) => Stream.value(null),
             ),
-            downloadQueueLookupProvider.overrideWithValue(
-              const DownloadQueueLookup.empty(),
-            ),
-            downloadHistoryVisibleBatchExistsProvider.overrideWith(
-              (ref, request) => const <String>{},
-            ),
-            downloadedAlbumTracksProvider(
-              const DownloadedAlbumTracksRequest(
-                albumName: 'Example album',
-                artistName: 'Example artist',
-              ),
-            ).overrideWith((ref) async => _downloaded),
             localLibraryProvider.overrideWith(_Library.new),
-            downloadHistoryProvider.overrideWith(_History.new),
             localLibraryCoverProvider.overrideWith(
               (ref, request) async => null,
             ),
@@ -201,24 +149,9 @@ void main() {
         );
         addTearDown(container.dispose);
         final Widget screen = switch (page) {
-          'album' => AlbumScreen(
-            albumId: 'example-album',
-            albumName: 'Example album',
-            tracks: _tracks,
-          ),
           'playlist' => PlaylistScreen(
             playlistName: 'Example playlist',
             tracks: _tracks,
-          ),
-          'artist' => ArtistScreen(
-            artistId: 'example-artist',
-            artistName: 'Example artist',
-            albums: _albums,
-            topTracks: _tracks.take(10).toList(),
-          ),
-          'downloaded album' => const DownloadedAlbumScreen(
-            albumName: 'Example album',
-            artistName: 'Example artist',
           ),
           'local album' => LocalAlbumScreen(
             albumName: 'Example album',

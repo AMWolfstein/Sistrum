@@ -8,17 +8,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
-import 'package:sistrum/models/download_item.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/models/track.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
-import 'package:sistrum/providers/explore_provider.dart';
-import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/recent_access_provider.dart';
-import 'package:sistrum/providers/repo_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/system_volume_provider.dart';
 import 'package:sistrum/screens/home_tab.dart';
@@ -61,9 +55,6 @@ void main() {
     desktopSidebarLink.value = null;
   });
 
-  late _Queue queue;
-  late _Repo repo;
-
   Future<void> settle(WidgetTester tester) async {
     for (var i = 0; i < 25; i++) {
       await tester.pump(const Duration(milliseconds: 20));
@@ -90,14 +81,9 @@ void main() {
       ProviderScope(
         overrides: [
           settingsProvider.overrideWith(_Settings.new),
-          extensionProvider.overrideWith(_Extensions.new),
-          exploreProvider.overrideWith(_Explore.new),
-          downloadHistoryProvider.overrideWith(_History.new),
           recentAccessProvider.overrideWith(_Recent.new),
           localLibraryProvider.overrideWith(_Local.new),
           libraryCollectionsProvider.overrideWith(_Collections.new),
-          downloadQueueProvider.overrideWith(() => queue = _Queue()),
-          repoProvider.overrideWith(() => repo = _Repo()),
           currentMediaItemProvider.overrideWithBuild(
             (ref, notifier) => Stream.value(null),
           ),
@@ -210,33 +196,6 @@ void main() {
         expectSameInstances(before, pages());
         expect(tester.takeException(), isNull);
       });
-
-      for (final (badge, setCount) in <(String, void Function(int))>[
-        ('download', (count) => queue.setQueued(count)),
-        ('Store update', (count) => repo.setUpdates(count)),
-      ]) {
-        testWidgets('a $badge count change rebuilds only the badges '
-            '($platform, $style)', (tester) async {
-          await pumpShell(tester, desktop: desktop, mornye: mornye);
-          final probeBuilds = await pushProbeInLibrary(tester);
-          final builds = probeBuilds.single;
-          final before = shellAndPages(tester);
-          expect(find.text('3'), findsNothing);
-
-          setCount(3);
-          await settle(tester);
-          expect(find.text('3'), findsWidgets);
-
-          setCount(2);
-          await settle(tester);
-          expect(find.text('3'), findsNothing);
-          expect(find.text('2'), findsWidgets);
-
-          expect(probeBuilds.single, builds);
-          expectSameInstances(before, shellAndPages(tester));
-          expect(tester.takeException(), isNull);
-        });
-      }
     }
   }
 
@@ -533,23 +492,7 @@ class _ProbePage extends StatelessWidget {
 
 class _Settings extends SettingsNotifier {
   @override
-  AppSettings build() =>
-      const AppSettings(searchProvider: 'example', hasSearchedBefore: true);
-}
-
-class _Extensions extends ExtensionNotifier {
-  @override
-  ExtensionState build() => const ExtensionState(isInitialized: true);
-}
-
-class _Explore extends ExploreNotifier {
-  @override
-  ExploreState build() => const ExploreState();
-}
-
-class _History extends DownloadHistoryNotifier {
-  @override
-  DownloadHistoryState build() => DownloadHistoryState();
+  AppSettings build() => const AppSettings();
 }
 
 class _Recent extends RecentAccessNotifier {
@@ -565,52 +508,4 @@ class _Local extends LocalLibraryNotifier {
 class _Collections extends LibraryCollectionsNotifier {
   @override
   LibraryCollectionsState build() => LibraryCollectionsState(isLoaded: true);
-}
-
-class _Queue extends DownloadQueueNotifier {
-  @override
-  DownloadQueueState build() => const DownloadQueueState();
-
-  void setQueued(int count) => state = state.copyWith(
-    items: [
-      for (var i = 0; i < count; i++)
-        DownloadItem(
-          id: 'queued-$i',
-          track: Track(
-            id: 'track-$i',
-            name: 'Song $i',
-            artistName: 'Artist',
-            albumName: 'Album',
-            duration: 1000,
-          ),
-          service: 'example-provider',
-          createdAt: DateTime(2026),
-        ),
-    ],
-  );
-}
-
-class _Repo extends RepoNotifier {
-  @override
-  RepoState build() => const RepoState(isInitialized: true);
-
-  @override
-  Future<void> initialize(String cacheDir) async {}
-
-  void setUpdates(int count) => state = state.copyWith(
-    extensions: [
-      for (var i = 0; i < count; i++)
-        RepoExtension(
-          id: 'extension-$i',
-          name: 'extension-$i',
-          displayName: 'Extension $i',
-          version: '1.0.0',
-          description: '',
-          category: RepoCategory.metadata,
-          updatedAt: '2026-01-01',
-          isInstalled: true,
-          hasUpdate: true,
-        ),
-    ],
-  );
 }

@@ -8,22 +8,16 @@ import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
-import 'package:sistrum/providers/library_album_artwork_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/audio_analysis_cache.dart';
 import 'package:sistrum/services/cache_maintenance_service.dart';
-import 'package:sistrum/services/cover_cache_manager.dart';
 import 'package:sistrum/providers/player_motion_artwork_provider.dart';
 import 'package:sistrum/services/motion_artwork_store.dart';
 import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
-import 'package:sistrum/services/explore_cache_store.dart';
 import 'package:sistrum/services/library_cleanup.dart';
 import 'package:sistrum/services/library_database.dart';
-import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/utils/string_utils.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/app_icon.dart';
@@ -79,12 +73,9 @@ class _CacheManagementPageState extends ConsumerState<CacheManagementPage> {
     final appCacheDirFuture = getApplicationCacheDirectory();
     final tempDirFuture = getTemporaryDirectory();
     final appSupportDirFuture = getApplicationSupportDirectory();
-    final coverStatsFuture = CoverCacheManager.getStats();
     final motionStatsFuture = MotionArtworkStore.defaultDirectory().then(
       CacheMaintenanceService.scanDirectory,
     );
-    final prefsFuture = SharedPreferences.getInstance();
-    final trackCacheEntriesFuture = _getTrackCacheSizeSafe();
 
     final appCacheDir = await appCacheDirFuture;
     final tempDir = await tempDirFuture;
@@ -107,37 +98,19 @@ class _CacheManagementPageState extends ConsumerState<CacheManagementPage> {
       AudioAnalysisDiskCache.directoryIn(appSupportDir.path),
     );
 
-    final prefs = await prefsFuture;
-    final exploreBytes = (await ExploreCacheStore(prefs).read()).sizeBytes;
-    final hasExploreCache = exploreBytes > 0;
-
     final appCacheStats = await appCacheStatsFuture;
     final tempStats = await tempStatsFuture;
-    final coverStats = await coverStatsFuture;
     final libraryCoverStats = await libraryCoverStatsFuture;
     final audioAnalysisStats = await audioAnalysisStatsFuture;
-    final trackCacheEntries = await trackCacheEntriesFuture;
 
     return _CacheOverview(
       appCacheStats: appCacheStats,
       tempStats: tempStats,
       tempIsSameAsAppCache: tempIsSameAsAppCache,
-      coverStats: coverStats,
       motionStats: await motionStatsFuture,
       libraryCoverStats: libraryCoverStats,
       audioAnalysisStats: audioAnalysisStats,
-      exploreCacheBytes: exploreBytes,
-      hasExploreCache: hasExploreCache,
-      trackCacheEntries: trackCacheEntries,
     );
-  }
-
-  Future<int> _getTrackCacheSizeSafe() async {
-    try {
-      return await PlatformBridge.getTrackCacheSize();
-    } catch (_) {
-      return 0;
-    }
   }
 
   Future<void> _clearAppCache() async {
@@ -151,10 +124,6 @@ class _CacheManagementPageState extends ConsumerState<CacheManagementPage> {
   Future<void> _clearTempCache() async {
     final tempDir = await getTemporaryDirectory();
     await CacheMaintenanceService.clearDirectoryContents(tempDir.path);
-  }
-
-  Future<void> _clearCoverCache() async {
-    await CoverCacheManager.clearCache();
   }
 
   Future<void> _clearMotionArtwork() async {
@@ -171,13 +140,6 @@ class _CacheManagementPageState extends ConsumerState<CacheManagementPage> {
       libraryCoverDir,
       await LibraryDatabase.instance.database,
     );
-    // Covers found online for albums come back from their saved addresses
-    // without a scan or a new search.
-    if (mounted) {
-      unawaited(
-        ref.read(libraryAlbumArtworkProvider.notifier).restoreMissing(),
-      );
-    }
   }
 
   Future<void> _clearAudioAnalysisCache() async {
@@ -186,26 +148,14 @@ class _CacheManagementPageState extends ConsumerState<CacheManagementPage> {
     await CacheMaintenanceService.clearDirectoryContents(analysisDir.path);
   }
 
-  Future<void> _clearExploreCache() async {
-    final prefs = await SharedPreferences.getInstance();
-    await ExploreCacheStore(prefs).clear();
-  }
-
-  Future<void> _clearTrackCache() async {
-    await PlatformBridge.clearTrackCache();
-  }
-
   Future<void> _clearAllCaches() async {
     final currentOverview = _overview;
     await _clearAppCache();
     if (currentOverview != null && !currentOverview.tempIsSameAsAppCache) {
       await _clearTempCache();
     }
-    await _clearCoverCache();
     await _clearLibraryCoverCache();
     await _clearAudioAnalysisCache();
-    await _clearExploreCache();
-    await _clearTrackCache();
   }
 
   Future<bool> _confirmClear(String title, String message) =>
@@ -270,9 +220,6 @@ class _CacheManagementPageState extends ConsumerState<CacheManagementPage> {
 
   Future<void> _cleanupUnusedData() async {
     await _runAction('cleanup_unused', () async {
-      final orphanedDownloads = await ref
-          .read(downloadHistoryProvider.notifier)
-          .cleanupOrphanedDownloads();
       final iosBookmark = ref.read(settingsProvider).localLibraryBookmark;
       final missingLibraryEntries = await ref
           .read(localLibraryProvider.notifier)
@@ -284,10 +231,7 @@ class _CacheManagementPageState extends ConsumerState<CacheManagementPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            context.l10n.cacheCleanupResult(
-              orphanedDownloads,
-              missingLibraryEntries,
-            ),
+            context.l10n.cacheCleanupResult(0, missingLibraryEntries),
           ),
         ),
       );
@@ -491,17 +435,6 @@ class _CacheManagementPageState extends ConsumerState<CacheManagementPage> {
                     _clearTempCache,
                   ),
                 _clearRow(
-                  Icons.image_outlined,
-                  context.l10n.cacheCoverImage,
-                  context.l10n.cacheCoverImageDesc,
-                  _sizeLabel(
-                    overview.coverStats.fileCount,
-                    overview.coverStats.totalSizeBytes,
-                  ),
-                  'clear_cover_cache',
-                  _clearCoverCache,
-                ),
-                _clearRow(
                   Icons.library_music_outlined,
                   context.l10n.cacheLibraryCover,
                   context.l10n.cacheLibraryCoverDesc,
@@ -532,28 +465,6 @@ class _CacheManagementPageState extends ConsumerState<CacheManagementPage> {
                       : context.l10n.cacheNoData,
                   'clear_motion_artwork',
                   _clearMotionArtwork,
-                ),
-                _clearRow(
-                  Icons.explore_outlined,
-                  context.l10n.cacheExploreFeed,
-                  context.l10n.cacheExploreFeedDesc,
-                  overview.hasExploreCache
-                      ? context.l10n.cacheSizeOnly(
-                          formatBytes(overview.exploreCacheBytes),
-                        )
-                      : context.l10n.cacheNoData,
-                  'clear_explore_cache',
-                  _clearExploreCache,
-                ),
-                _clearRow(
-                  Icons.memory_outlined,
-                  context.l10n.cacheTrackLookup,
-                  context.l10n.cacheTrackLookupDesc,
-                  overview.trackCacheEntries > 0
-                      ? context.l10n.cacheEntries(overview.trackCacheEntries)
-                      : context.l10n.cacheNoData,
-                  'clear_track_cache',
-                  _clearTrackCache,
                   showDivider: false,
                 ),
               ],
@@ -588,32 +499,22 @@ class _CacheOverview {
   final DirectoryStats appCacheStats;
   final DirectoryStats? tempStats;
   final bool tempIsSameAsAppCache;
-  final CacheStats coverStats;
   final DirectoryStats motionStats;
   final DirectoryStats libraryCoverStats;
   final DirectoryStats audioAnalysisStats;
-  final int exploreCacheBytes;
-  final bool hasExploreCache;
-  final int trackCacheEntries;
 
   const _CacheOverview({
     required this.appCacheStats,
     this.tempStats,
     required this.tempIsSameAsAppCache,
-    required this.coverStats,
     required this.motionStats,
     required this.libraryCoverStats,
     required this.audioAnalysisStats,
-    required this.exploreCacheBytes,
-    required this.hasExploreCache,
-    required this.trackCacheEntries,
   });
 
   int get totalKnownDiskCacheBytes {
     return appCacheStats.totalSizeBytes +
         (tempStats?.totalSizeBytes ?? 0) +
-        coverStats.totalSizeBytes +
-        libraryCoverStats.totalSizeBytes +
-        exploreCacheBytes;
+        libraryCoverStats.totalSizeBytes;
   }
 }

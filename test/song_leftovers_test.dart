@@ -4,21 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/song_leftovers_provider.dart';
 import 'package:sistrum/utils/file_access.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
-
-class _Queue extends DownloadQueueNotifier {
-  @override
-  DownloadQueueState build() => const DownloadQueueState();
-
-  void setProcessing(bool processing) =>
-      state = state.copyWith(isProcessing: processing);
-}
 
 class _Library extends LocalLibraryNotifier {
   _Library(this.folders);
@@ -95,7 +86,7 @@ void main() {
       FileSystemEntity.typeSync(p.join(root, relative)) !=
       FileSystemEntityType.notFound;
 
-  ({SongLeftovers leftovers, _Queue queue}) setUpLeftovers({
+  ({SongLeftovers leftovers}) setUpLeftovers({
     bool removeEmptyFolders = true,
     bool saveFolderCover = false,
     SongFolderStore? documents,
@@ -104,16 +95,13 @@ void main() {
     )?
     documentPlace,
     Future<bool> Function(String? source)? deleteSong,
-    Future<bool> Function(String source)? orphanedNetworkSong,
     List<String> libraryFolders = const [],
   }) {
-    final queue = _Queue();
     final provider = Provider<SongLeftovers>(
       (ref) => SongLeftovers(
         ref,
         home: p.join(temp.path, 'home'),
         deleteSong: deleteSong,
-        orphanedNetworkSong: orphanedNetworkSong,
         documents: documents ?? const DocumentSongFolderStore(),
         documentPlace: documentPlace,
       ),
@@ -122,18 +110,16 @@ void main() {
       overrides: [
         initialSettingsProvider.overrideWithValue(
           AppSettings(
-            downloadDirectory: root,
+            localLibraryPath: root,
             removeEmptyFolders: removeEmptyFolders,
             saveFolderCover: saveFolderCover,
           ),
         ),
-        downloadQueueProvider.overrideWith(() => queue),
         localLibraryProvider.overrideWith(() => _Library(libraryFolders)),
       ],
     );
     addTearDown(container.dispose);
-    container.read(downloadQueueProvider);
-    return (leftovers: container.read(provider), queue: queue);
+    return (leftovers: container.read(provider));
   }
 
   test('deletes the lyrics files and the folders the last song leaves '
@@ -145,7 +131,7 @@ void main() {
     file('Artist/Album/cover.mp4');
     // A lyrics file a song deleted earlier left behind.
     file('Artist/Album/02 Gone.lrc');
-    final (:leftovers, queue: _) = setUpLeftovers();
+    final (:leftovers) = setUpLeftovers();
 
     expect(await leftovers.delete(song), isTrue);
     await _until(() => !exists('Artist'));
@@ -158,7 +144,7 @@ void main() {
     final song = file('Artist/Album/Song.flac');
     file('Artist/Album/Song.lrc');
     file('Artist/Album/folder.jpg');
-    final (:leftovers, queue: _) = setUpLeftovers();
+    final (:leftovers) = setUpLeftovers();
 
     expect(await leftovers.delete(song), isTrue);
     await Future<void>.delayed(const Duration(milliseconds: 200));
@@ -167,10 +153,10 @@ void main() {
     expect(exists('Artist/Album/folder.jpg'), isTrue);
   });
 
-  test('removes the album cover file while downloads save it', () async {
+  test('removes the album cover file saved beside the song', () async {
     final song = file('Artist/Album/Song.flac');
     file('Artist/Album/Folder.jpg');
-    final (:leftovers, queue: _) = setUpLeftovers(saveFolderCover: true);
+    final (:leftovers) = setUpLeftovers(saveFolderCover: true);
 
     expect(await leftovers.delete(song), isTrue);
     await _until(() => !exists('Artist'));
@@ -181,7 +167,7 @@ void main() {
   test('keeps the artist folder while another album is in it', () async {
     final song = file('Artist/First/Song.flac');
     file('Artist/Second/Other.flac');
-    final (:leftovers, queue: _) = setUpLeftovers();
+    final (:leftovers) = setUpLeftovers();
 
     await leftovers.delete(song);
     await _until(() => !exists('Artist/First'));
@@ -194,7 +180,7 @@ void main() {
     final song = file('Artist/Album/Song.flac');
     file('Artist/Album/Song.mp3');
     file('Artist/Album/Song.lrc');
-    final (:leftovers, queue: _) = setUpLeftovers();
+    final (:leftovers) = setUpLeftovers();
 
     await leftovers.delete(song);
     await Future<void>.delayed(const Duration(milliseconds: 200));
@@ -207,7 +193,7 @@ void main() {
       'off', () async {
     final song = file('Artist/Album/Song.flac');
     file('Artist/Album/Song.lrc');
-    final (:leftovers, queue: _) = setUpLeftovers(removeEmptyFolders: false);
+    final (:leftovers) = setUpLeftovers(removeEmptyFolders: false);
 
     await leftovers.delete(song);
     await Future<void>.delayed(const Duration(milliseconds: 200));
@@ -216,12 +202,12 @@ void main() {
     expect(exists('Artist/Album'), isTrue);
   });
 
-  test('leaves folders outside the download and Local Library '
+  test('leaves folders outside the Local Library '
       'folders', () async {
     final elsewhere = p.join(temp.path, 'Elsewhere');
     final song = file('Album/Song.flac', under: elsewhere);
     file('Album/Song.lrc', under: elsewhere);
-    final (:leftovers, queue: _) = setUpLeftovers();
+    final (:leftovers) = setUpLeftovers();
 
     await leftovers.delete(song);
     await Future<void>.delayed(const Duration(milliseconds: 200));
@@ -233,7 +219,7 @@ void main() {
   test('removes folders inside an added Local Library folder', () async {
     final library = p.join(temp.path, 'Library');
     final song = file('Artist/Album/Song.flac', under: library);
-    final (:leftovers, queue: _) = setUpLeftovers(libraryFolders: [library]);
+    final (:leftovers) = setUpLeftovers(libraryFolders: [library]);
 
     await leftovers.delete(song);
     await _until(() => !Directory(p.join(library, 'Artist')).existsSync());
@@ -242,48 +228,16 @@ void main() {
     expect(Directory(library).existsSync(), isTrue);
   });
 
-  test('removes folders only once the download queue is idle', () async {
-    final song = file('Artist/Album/Song.flac');
-    final (:leftovers, :queue) = setUpLeftovers();
-    queue.setProcessing(true);
-
-    await leftovers.delete(song);
-    await Future<void>.delayed(const Duration(milliseconds: 200));
-    expect(exists('Artist/Album'), isTrue, reason: 'A download is running');
-
-    queue.setProcessing(false);
-    await _until(() => !exists('Artist'));
-    expect(exists('Artist'), isFalse);
-  });
-
   test('does not delete the song folder when the song stays', () async {
     final song = file('Artist/Album/Song.flac');
     file('Artist/Album/Song.lrc');
-    final (:leftovers, queue: _) = setUpLeftovers(
+    final (:leftovers) = setUpLeftovers(
       deleteSong: (_) async => false,
     );
 
     expect(await leftovers.delete(song), isFalse);
     await Future<void>.delayed(const Duration(milliseconds: 200));
     expect(exists('Artist/Album/Song.lrc'), isTrue);
-  });
-
-  test('a song of a removed network server counts as gone', () async {
-    final deleted = <String?>[];
-    final (:leftovers, queue: _) = setUpLeftovers(
-      deleteSong: (source) async {
-        deleted.add(source);
-        return false;
-      },
-      orphanedNetworkSong: (source) async =>
-          Uri.parse(source).host == 'removed',
-    );
-
-    expect(await leftovers.delete('network://removed/Album/Song.flac'), isTrue);
-    expect(deleted, isEmpty);
-    // A server the app still has is asked to delete the file.
-    expect(await leftovers.delete('network://saved/Album/Song.flac'), isFalse);
-    expect(deleted, ['network://saved/Album/Song.flac']);
   });
 
   test('removes document folders up to the granted folder', () async {
@@ -297,7 +251,7 @@ void main() {
         entry('tree/Artist/Album/cover.mp4'),
       ],
     });
-    final (:leftovers, queue: _) = setUpLeftovers(
+    final (:leftovers) = setUpLeftovers(
       documents: documents,
       deleteSong: (_) async => true,
       documentPlace: (_) async => (
