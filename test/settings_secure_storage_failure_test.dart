@@ -7,15 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 
-class _SettingsWithSync extends SettingsNotifier {
-  final syncedSettings = <AppSettings>[];
-
-  @override
-  Future<void> syncLyricsSettingsToBackend({AppSettings? settings}) async {
-    syncedSettings.add(settings ?? state);
-  }
-}
-
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   const secure = MethodChannel('plugins.it_nomads.com/flutter_secure_storage');
@@ -27,9 +18,6 @@ void main() {
     isFirstLaunch: false,
     downloadDirectory: '/music/kept',
     audioQuality: 'LOSSLESS',
-    lyricsProviders: ['extension:example.provider'],
-    downloadFallbackExtensionIds: ['example.provider'],
-    allowLocalNetwork: true,
   );
   final savedJson = jsonEncode(savedSettings.toJson());
   late Map<String, String> secrets;
@@ -78,7 +66,7 @@ void main() {
   });
   tearDown(() => messenger.setMockMethodCallHandler(secure, null));
 
-  Future<void> expectLoaded(_SettingsWithSync notifier) async {
+  Future<void> expectLoaded(SettingsNotifier notifier) async {
     final container = ProviderContainer(
       overrides: [settingsProvider.overrideWith(() => notifier)],
     );
@@ -91,9 +79,6 @@ void main() {
     expect(loaded.isFirstLaunch, isFalse);
     expect(loaded.downloadDirectory, savedSettings.downloadDirectory);
     expect(loaded.audioQuality, savedSettings.audioQuality);
-    expect(loaded.lyricsProviders, savedSettings.lyricsProviders);
-    expect(loaded.allowLocalNetwork, isTrue);
-    expect(notifier.syncedSettings, [loaded]);
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getString('app_settings'), savedJson);
     expect(prefs.containsKey('app_settings_corrupt_backup'), isFalse);
@@ -105,7 +90,7 @@ void main() {
       () async {
         failingMethod = method;
         final before = Map<String, String>.from(secrets);
-        await expectLoaded(_SettingsWithSync());
+        await expectLoaded(SettingsNotifier());
         expect(secrets, before);
         expect(calls.map((call) => call.method), [
           'read',
@@ -117,7 +102,7 @@ void main() {
 
   test('healthy cleanup removes only the retired credential', () async {
     final before = Map<String, String>.from(secrets)..remove(retiredKey);
-    await expectLoaded(_SettingsWithSync());
+    await expectLoaded(SettingsNotifier());
     expect(secrets, before);
     expect(calls.map((call) => call.method), ['read', 'delete']);
   });
@@ -125,7 +110,7 @@ void main() {
   test('missing retired credential does not mutate secure storage', () async {
     secrets.remove(retiredKey);
     final before = Map<String, String>.from(secrets);
-    await expectLoaded(_SettingsWithSync());
+    await expectLoaded(SettingsNotifier());
     expect(secrets, before);
     expect(calls.map((call) => call.method), ['read']);
   });

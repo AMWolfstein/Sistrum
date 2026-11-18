@@ -63,11 +63,7 @@ extension _LocalLibrarySources on LocalLibraryNotifier {
       if (!ref.mounted) return null;
       if (sourceVersion != _sourceVersion) continue;
       if (source == null || !source.enabled) return null;
-      // A Link device rescans its songs as it connects, before the
-      // availability refresh that shows them again has written.
-      return source.available || _networkAvailable(source.path) == true
-          ? source
-          : null;
+      return source.available ? source : null;
     }
     return null;
   }
@@ -200,17 +196,9 @@ extension _LocalLibrarySources on LocalLibraryNotifier {
     return await _probePathAvailability(path, bookmark: bookmark) ?? true;
   }
 
-  /// The decision for the `network://` [path], null for any other path or
-  /// a network source to leave as it is.
-  bool? _networkAvailable(String path) {
-    if (!path.startsWith('network://')) return null;
-    return _networkAvailability?.call(Uri.tryParse(path)?.host ?? '');
-  }
-
   Future<bool?> _probePathAvailability(String path, {String? bookmark}) async {
-    // Network outages are transient. Keep the indexed collection visible;
-    // opening/scanning a source reports connectivity errors without dropping it.
-    if (path.startsWith('network://')) return true;
+    // The schema's legacy sentinel is not a folder; it has nothing to probe.
+    if (path.startsWith('legacy://')) return true;
     try {
       if (_availabilityProbe != null) {
         return await _availabilityProbe(path, bookmark: bookmark);
@@ -251,20 +239,15 @@ extension _LocalLibrarySources on LocalLibraryNotifier {
       final sources = await _db.getSources();
       var inconclusive = false;
       for (final source in sources) {
-        final network = source.path.startsWith('network://');
-        final available = network
-            ? _networkAvailable(source.path)
-            : await _probePathAvailability(
-                source.path,
-                bookmark: source.bookmark,
-              );
+        final available = await _probePathAvailability(
+          source.path,
+          bookmark: source.bookmark,
+        );
         if (!ref.mounted ||
             sourceVersion != _sourceVersion ||
             requestVersion != _availabilityRequestVersion) {
           break;
         }
-        // Without a decision a network source keeps its state.
-        if (available == null && network) continue;
         if (available == null) {
           inconclusive = true;
           _log.w(
@@ -280,7 +263,7 @@ extension _LocalLibrarySources on LocalLibraryNotifier {
           );
           changed = true;
           // A Link device refreshes its own songs when it connects.
-          if (available && source.enabled && source.isIndexed && !network) {
+          if (available && source.enabled && source.isIndexed) {
             reconnected.add(source.id);
           }
         }

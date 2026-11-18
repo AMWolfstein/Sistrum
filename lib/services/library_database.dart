@@ -13,7 +13,6 @@ import 'package:sistrum/services/library_search.dart';
 import 'package:sistrum/services/library_lyrics_search.dart';
 import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/services/library_duplicates.dart';
-import 'package:sistrum/services/network_storage_service.dart';
 import 'package:sistrum/services/library_ingestion_store.dart';
 import 'package:sistrum/services/library_native_adapter.dart';
 import 'package:sistrum/services/library_row_mapper.dart';
@@ -801,10 +800,7 @@ class LibraryDatabase {
   Future<List<IsrcDuplicateGroup>> findIsrcDuplicateGroups() async {
     final db = await database;
     await _ensureHistoryAttached(db);
-    return readIsrcDuplicateGroups(
-      db,
-      loadNetworkConnections: NetworkStorageService.instance.connections,
-    );
+    return readIsrcDuplicateGroups(db);
   }
 
   Future<List<String>> getPhysicalFileIds(Iterable<String> filePaths) async =>

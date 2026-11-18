@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/settings/library_settings_page.dart';
@@ -20,11 +19,6 @@ import 'support/fixed_settings.dart';
 class _Library extends LocalLibraryNotifier {
   @override
   LocalLibraryState build() => LocalLibraryState();
-}
-
-class _Extensions extends ExtensionNotifier {
-  @override
-  ExtensionState build() => const ExtensionState();
 }
 
 const _settings = AppSettings(
@@ -127,7 +121,6 @@ void main() {
                 () => FixedSettingsNotifier(_settings),
               ),
               localLibraryProvider.overrideWith(_Library.new),
-              extensionProvider.overrideWith(_Extensions.new),
             ],
             child: MaterialApp(
               theme: mornye

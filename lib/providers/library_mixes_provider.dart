@@ -7,7 +7,6 @@ import 'package:flutter/scheduler.dart' show SchedulerBinding;
 import 'package:flutter/widgets.dart' show WidgetsBinding;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/library_counts_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
@@ -16,7 +15,6 @@ import 'package:sistrum/providers/recent_access_provider.dart'
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/app_state_database.dart';
 import 'package:sistrum/services/autoplay_signal.dart';
-import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_collections_database.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_mixes.dart';
@@ -153,7 +151,6 @@ final libraryMixesProvider = FutureProvider<List<LibraryMixView>>((ref) async {
   // Library is only read once startup has settled, so it keeps its own
   // deferred warmup. Downloads in a batch arrive coalesced, at most one
   // revision a second.
-  ref.watch(downloadHistoryProvider.select((s) => s.loadedIndexVersion));
   if (includeLocal) {
     ref.watch(localLibraryProvider.select((s) => s.loadedIndexVersion));
     if (ref.watch(localLibraryProvider.select((s) => s.isScanning))) {
@@ -532,35 +529,23 @@ Future<List<LibraryMixView>> _resolve(
   bool includeLocal,
 ) async {
   if (mixes.isEmpty) return const [];
-  final downloaded = <String>{}, local = <String>{};
+  final local = <String>{};
   for (final mix in mixes) {
     for (final id in mix.songIds) {
-      if (id.startsWith('dl_')) {
-        downloaded.add(id.substring(3));
-      } else if (id.startsWith('local_') && includeLocal) {
-        local.add(id.substring(6));
-      }
+      if (id.startsWith('local_') && includeLocal) local.add(id.substring(6));
     }
   }
-  final (history, scanned) = await (
-    HistoryDatabase.instance.getByIds(downloaded),
-    LibraryDatabase.instance.getByIds(local.toList()),
-  ).wait;
+  final scanned = await LibraryDatabase.instance.getByIds(local.toList());
   // Most Library changes leave the mixes' songs as they were: keep the
   // views, so Home neither decodes them again nor rebuilds the shelf.
   final last = _lastResolved;
   if (last != null &&
       identical(last.mixes, mixes) &&
       last.includeLocal == includeLocal &&
-      _sameRowsById(last.history, history) &&
       _sameRows(last.scanned, scanned)) {
     return last.views;
   }
   final items = <String, UnifiedLibraryItem>{
-    for (final MapEntry(:key, :value) in history.entries)
-      'dl_$key': UnifiedLibraryItem.fromDownloadHistory(
-        DownloadHistoryItem.fromJson(value),
-      ),
     for (final row in scanned)
       'local_${row['id']}': UnifiedLibraryItem.fromLocalLibrary(
         LocalLibraryItem.fromJson(row),
@@ -575,7 +560,6 @@ Future<List<LibraryMixView>> _resolve(
   _lastResolved = (
     mixes: mixes,
     includeLocal: includeLocal,
-    history: history,
     scanned: scanned,
     views: views,
   );
@@ -586,7 +570,6 @@ Future<List<LibraryMixView>> _resolve(
 ({
   List<LibraryMix> mixes,
   bool includeLocal,
-  Map<String, Map<String, dynamic>> history,
   List<Map<String, dynamic>> scanned,
   List<LibraryMixView> views,
 })?
@@ -602,10 +585,3 @@ bool _sameRows(
   }
   return true;
 }
-
-bool _sameRowsById(
-  Map<String, Map<String, dynamic>> first,
-  Map<String, Map<String, dynamic>> second,
-) =>
-    first.length == second.length &&
-    first.entries.every((entry) => mapEquals(entry.value, second[entry.key]));

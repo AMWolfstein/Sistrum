@@ -308,10 +308,10 @@ void main() {
     await tester.pumpWidget(_setup());
     await tester.pumpAndSettle();
     expect(find.text('Storage Permission Granted!'), findsOneWidget);
-    expect(find.text('3/6'), findsOneWidget);
+    expect(find.text('3/5'), findsOneWidget);
     await tester.tap(find.text('Next'));
     await tester.pumpAndSettle();
-    expect(find.text('4/6'), findsOneWidget);
+    expect(find.text('4/5'), findsOneWidget);
     expect(permissionRequests, 0);
   });
 
@@ -371,7 +371,7 @@ void main() {
     await prefs.setString('setup_progress_v1', '{"step":2}');
     await tester.pumpWidget(_setup());
     await tester.pumpAndSettle();
-    expect(find.text('3/6'), findsOneWidget);
+    expect(find.text('3/5'), findsOneWidget);
     expect(find.text('Storage Permission Granted!'), findsOneWidget);
     expect(permissionRequests, 0);
   });

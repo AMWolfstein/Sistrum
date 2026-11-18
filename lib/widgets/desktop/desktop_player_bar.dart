@@ -14,7 +14,6 @@ import 'package:sistrum/theme/material_expressive.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/player_artwork_theme.dart';
-import 'package:sistrum/services/cast_output.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:sistrum/utils/lyrics_timeline.dart';
 import 'package:sistrum/utils/string_utils.dart';
@@ -23,17 +22,12 @@ import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/audio_quality_badges.dart';
-import 'package:sistrum/widgets/cast_device_picker.dart';
 import 'package:sistrum/widgets/desktop/desktop_commands.dart';
-import 'package:sistrum/widgets/desktop/desktop_cast_button.dart';
-import 'package:sistrum/widgets/desktop/desktop_downloads_button.dart';
 import 'package:sistrum/widgets/desktop/desktop_inspector.dart';
-import 'package:sistrum/widgets/desktop/desktop_link_devices_button.dart';
 import 'package:sistrum/widgets/desktop/desktop_row_ink.dart';
 import 'package:sistrum/widgets/desktop/desktop_window.dart';
 import 'package:sistrum/widgets/desktop/desktop_volume_scroll.dart';
 import 'package:sistrum/widgets/expressive_playback_transport.dart';
-import 'package:sistrum/widgets/link/link_devices_sheet.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/mornye_playback_button.dart';
 import 'package:sistrum/widgets/mornye_player_background.dart';
@@ -50,8 +44,8 @@ part 'desktop_mini_player.dart';
 final desktopPlayerDismissed = ValueNotifier<bool>(false);
 
 /// The desktop player. It replaces the mobile mini player: no
-/// swipe gestures, with transport, seek, volume, lyrics, Up Next and
-/// downloads in reach. Paused local playback offers a dismiss button.
+/// swipe gestures, with transport, seek, volume, lyrics and Up Next in reach.
+/// Paused local playback offers a dismiss button.
 /// Clicking the artwork or title shows Now
 /// Playing in the content pane; lyrics and Up Next toggle the trailing
 /// inspector.
@@ -60,8 +54,8 @@ final desktopPlayerDismissed = ValueNotifier<bool>(false);
 /// `surfaceContainer` fill of the current artwork's scheme
 /// ([PlayerArtworkTheme]). Mornye draws a glass capsule that the shell
 /// floats over the bottom of the content pane: shuffle and transport, a
-/// center display with the track and its progress, then lyrics, Up Next,
-/// downloads and volume.
+/// center display with the track and its progress, then lyrics, Up Next and
+/// volume.
 class DesktopPlayerBar extends ConsumerWidget {
   const DesktopPlayerBar({super.key});
 
@@ -111,8 +105,7 @@ void _toggleNowPlaying() =>
 class _MaterialPlayerBar extends StatelessWidget {
   const _MaterialPlayerBar({required this.mediaItem, required this.appTheme});
 
-  // Lyrics, queue, mini player, Link, downloads and dismiss each keep their
-  // 48dp target. Reserve both sides equally so transport stays centered.
+  // Lyrics, queue, mini player and dismiss each keep their 48dp target. Reserve both sides equally so transport stays centered.
   static const double _sideControlsMinWidth = 6 * 48;
 
   final MediaItem? mediaItem;
@@ -180,7 +173,7 @@ class _MaterialPlayerBar extends StatelessWidget {
 }
 
 /// The Mornye capsule: shuffle, transport and repeat, the center display,
-/// then downloads, lyrics, Up Next and a volume button whose slider opens in
+/// then lyrics, Up Next and a volume button whose slider opens in
 /// a popover. Its buttons take macOS
 /// toolbar sizes rather than touch sizes.
 class _MornyePlayerBar extends StatelessWidget {
@@ -373,12 +366,6 @@ class _TitleAndArtist extends StatelessWidget {
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-          ),
-          // While the desktop follows a phone, the bar shows and drives it.
-          LinkPlayingOnText(
-            color: colorScheme.primary,
-            style: textTheme.labelSmall,
-            glyphSize: 14,
           ),
         ],
       ),
@@ -796,17 +783,7 @@ class _MornyeLcdLines extends ConsumerWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ),
-          // The capsule has two lines: while the desktop follows a phone,
-          // the second names it instead.
-          if (ref.watch(
-            activeRemotePlaybackProvider.select((remote) => remote != null),
-          ))
-            LinkPlayingOnText(
-              color: colorScheme.primary,
-              style: style?.copyWith(fontWeight: FontWeight.w600),
-              glyphSize: 12,
-            )
-          else if (subtitle.isNotEmpty)
+          if (subtitle.isNotEmpty)
             OverflowMarquee(
               resetKey: (mediaItem.id, subtitle),
               maxCycles: 2,
@@ -826,21 +803,15 @@ class _MornyeLcdLines extends ConsumerWidget {
   }
 }
 
-/// Lyrics and Up Next, which toggle the trailing inspector, downloads, and
-/// volume. Material fills its third of the bar, with phones and downloads
-/// after Up Next and then the volume slider. The Mornye capsule leads with
-/// phones and downloads and ends with a volume button whose slider opens in
-/// a popover. The phones button shows only while a phone is
-/// connected over Sistrum Link. Paused local playback adds a dismiss button
-/// at the end in both styles.
+/// Lyrics and Up Next, which toggle the trailing inspector, then the volume
+/// slider. The Mornye capsule ends with a volume button whose slider opens in
+/// a popover. Paused local playback adds a dismiss button at the end in both
+/// styles.
 class _TrailingControls extends ConsumerWidget {
   const _TrailingControls({required this.enabled, this.appTheme});
 
   /// Narrowest room in which the Material bar keeps its volume slider.
   static const double _materialVolumeMinWidth = 140;
-
-  /// The Material bar's Cast button, a standard 48 dp icon button.
-  static const double _castWidth = 48;
 
   final bool enabled;
 
@@ -855,16 +826,11 @@ class _TrailingControls extends ConsumerWidget {
     final canDismiss =
         enabled &&
         !ref.watch(playbackPlayingProvider) &&
-        !ref.watch(playbackLoadingProvider) &&
-        ref.watch(activeRemotePlaybackProvider) == null;
+        !ref.watch(playbackLoadingProvider);
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       mainAxisSize: mornye ? MainAxisSize.min : MainAxisSize.max,
       children: [
-        if (mornye) ...[
-          const DesktopLinkDevicesButton(),
-          const DesktopDownloadsButton(),
-        ],
         ValueListenableBuilder<DesktopInspectorPanel?>(
           valueListenable: desktopInspectorPanel,
           builder: (context, panel, _) => Row(
@@ -918,42 +884,19 @@ class _TrailingControls extends ConsumerWidget {
         if (mornye)
           const _MornyeVolumeButton()
         else ...[
-          Theme(
-            data: appTheme ?? Theme.of(context),
-            child: const Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [DesktopLinkDevicesButton(), DesktopDownloadsButton()],
-            ),
-          ),
-          // A narrow window leaves too little room for a usable slider, then
-          // for Cast; the volume shortcuts still work there.
+          // A narrow window leaves too little room for a usable slider; the
+          // volume shortcuts still work there.
           Flexible(
             child: LayoutBuilder(
-              builder: (context, constraints) {
-                final cast = constraints.maxWidth >= _castWidth;
-                final slider =
-                    constraints.maxWidth - (cast ? _castWidth : 0) >=
-                    _materialVolumeMinWidth;
-                return Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (cast)
-                      Theme(
-                        data: appTheme ?? Theme.of(context),
-                        child: const DesktopCastButton(),
+              builder: (context, constraints) =>
+                  constraints.maxWidth < _materialVolumeMinWidth
+                  ? const SizedBox.shrink()
+                  : ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 220),
+                      child: PlayerVolumeControl(
+                        foreground: colorScheme.onSurface,
                       ),
-                    if (slider)
-                      Flexible(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 220),
-                          child: PlayerVolumeControl(
-                            foreground: colorScheme.onSurface,
-                          ),
-                        ),
-                      ),
-                  ],
-                );
-              },
+                    ),
             ),
           ),
         ],
@@ -987,29 +930,11 @@ class _MornyeVolumeButton extends ConsumerStatefulWidget {
 
 class _MornyeVolumeButtonState extends ConsumerState<_MornyeVolumeButton> {
   final _menu = MenuController();
-  final _cast = CastOutput.instance;
-
-  @override
-  void initState() {
-    super.initState();
-    _cast.addListener(_castChanged);
-  }
-
-  @override
-  void dispose() {
-    _cast.removeListener(_castChanged);
-    super.dispose();
-  }
-
-  void _castChanged() {
-    if (mounted) setState(() {});
-  }
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final volume = ref.watch(systemVolumeProvider).value;
-    final cast = _cast;
     final icon = switch (volume) {
       null => CupertinoIcons.speaker_2_fill,
       <= 0 => CupertinoIcons.speaker_slash_fill,
@@ -1042,28 +967,6 @@ class _MornyeVolumeButtonState extends ConsumerState<_MornyeVolumeButton> {
                   height: 48,
                   child: PlayerVolumeControl(foreground: colorScheme.onSurface),
                 ),
-                // The capsule has no room for its own Cast button; output
-                // sits with volume.
-                SizedBox(
-                  width: 240,
-                  child: MenuItemButton(
-                    key: const ValueKey('desktop-player-cast'),
-                    leadingIcon: AppIcon(
-                      cast.connected ? Icons.cast_connected : Icons.cast,
-                      size: 18,
-                    ),
-                    onPressed: () {
-                      _menu.close();
-                      showCastDevicePicker(context, output: cast);
-                    },
-                    child: Text(
-                      cast.connected
-                          ? cast.deviceName ?? context.l10n.audioOutputCast
-                          : context.l10n.audioOutputCast,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -1073,8 +976,8 @@ class _MornyeVolumeButtonState extends ConsumerState<_MornyeVolumeButton> {
         child: AppIconButton(
           key: const ValueKey('desktop-player-volume'),
           tooltip: context.l10n.nowPlayingVolume,
-          color: cast.connected ? colorScheme.primary : colorScheme.onSurface,
-          icon: AppIcon(cast.connected ? Icons.cast_connected : icon),
+          color: colorScheme.onSurface,
+          icon: AppIcon(icon),
           onPressed: () => _menu.isOpen ? _menu.close() : _menu.open(),
         ),
       ),

@@ -26,14 +26,6 @@ fn sanitize_text(mut text: String) -> String {
     text
 }
 
-pub(crate) fn preview(bytes: &[u8], limit: usize) -> String {
-    let mut text = sanitize_text(crate::host::decode_go_utf8(bytes));
-    if text.len() > limit {
-        text = crate::host::decode_go_utf8(&text.as_bytes()[..limit]) + "...[truncated]";
-    }
-    text
-}
-
 /// Log arguments can end mid-codepoint after Go's 512-byte truncation. Preserve
 /// their raw bytes while matching as Go's regexp UTF-8 decoder would; converting
 /// them to replacement characters first would change the later 4000-byte cut.
@@ -87,6 +79,15 @@ fn decoded_positions(mut bytes: &[u8]) -> (String, Vec<usize>) {
 }
 
 #[cfg(test)]
+pub(crate) fn preview(bytes: &[u8], limit: usize) -> String {
+    let mut text = sanitize_text(crate::logging::decode_go_utf8(bytes));
+    if text.len() > limit {
+        text = crate::logging::decode_go_utf8(&text.as_bytes()[..limit]) + "...[truncated]";
+    }
+    text
+}
+
+#[cfg(test)]
 mod tests {
     use super::*;
 
@@ -102,7 +103,7 @@ mod tests {
             assert_eq!(sanitize_bytes(input.clone()), expected);
             assert_eq!(
                 preview(&input, usize::MAX),
-                crate::host::decode_go_utf8(&expected)
+                crate::logging::decode_go_utf8(&expected)
             );
         }
     }

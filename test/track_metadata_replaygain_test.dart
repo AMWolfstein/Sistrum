@@ -6,49 +6,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 
 import 'support/app_icon_finder.dart';
-
-class _History extends DownloadHistoryNotifier {
-  _History(this._item);
-  final DownloadHistoryItem _item;
-
-  @override
-  DownloadHistoryState build() => DownloadHistoryState(items: [_item]);
-
-  @override
-  Future<void> updateAudioMetadataForItem({
-    required String id,
-    String? quality,
-    int? bitDepth,
-    int? sampleRate,
-    int? bitrate,
-    String? format,
-    int? trackNumber,
-    int? totalTracks,
-    int? discNumber,
-    int? totalDiscs,
-    int? duration,
-    String? composer,
-    bool? explicit,
-    bool? hasLyrics,
-    int? lyricsMetadataScanVersion,
-    bool? hasReplayGain,
-    int? replayGainMetadataScanVersion,
-  }) async {
-    state = state.copyWith(
-      items: [
-        state.items.single.copyWith(
-          hasReplayGain: hasReplayGain,
-          replayGainMetadataScanVersion: replayGainMetadataScanVersion,
-        ),
-      ],
-    );
-  }
-}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -98,39 +60,28 @@ void main() {
       });
       addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
 
-      final item = DownloadHistoryItem(
+      final item = LocalLibraryItem(
         id: 'track-$hasTags',
         trackName: 'Track',
         artistName: 'Artist',
         albumName: 'Album',
         filePath: 'content://library/document/track-$hasTags.flac',
-        service: 'provider-a',
-        downloadedAt: DateTime(2026),
-        quality: '16-bit/44.1kHz',
+        scannedAt: DateTime(2026),
         bitDepth: 16,
         sampleRate: 44100,
         format: 'flac',
+        hasReplayGain: hasTags,
       );
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [
-            downloadHistoryProvider.overrideWith(() => _History(item)),
-          ],
           child: MaterialApp(
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: TrackMetadataScreen(item: item),
+            home: TrackMetadataScreen(localItem: item),
           ),
         ),
       );
       await tester.pumpAndSettle();
-      final container = ProviderScope.containerOf(
-        tester.element(find.byType(TrackMetadataScreen)),
-      );
-      expect(
-        container.read(downloadHistoryProvider).items.single.hasReplayGain,
-        hasTags,
-      );
       for (final text in [
         'BPM',
         '120',
@@ -172,17 +123,18 @@ void main() {
           matching: find.text('Remove ReplayGain'),
         ),
       );
-      await tester.runAsync(() async {
-        await Future<void>.delayed(const Duration(milliseconds: 100));
-      });
+      // The removal finishes its file I/O in real time, between frames.
+      for (var attempt = 0; attempt < 20; attempt++) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 50)),
+        );
+        await tester.pump(const Duration(milliseconds: 50));
+      }
       await tester.pumpAndSettle();
       expect(edits, 1);
       expect(find.text('ReplayGain tags removed'), findsOneWidget);
       expect(find.text('ReplayGain Track Gain'), findsNothing);
       expect(find.text('ReplayGain Album Gain'), findsNothing);
-      final updated = container.read(downloadHistoryProvider).items.single;
-      expect(updated.hasReplayGain, isFalse);
-      expect(updated.replayGainMetadataScanVersion, 1);
       expect(tester.takeException(), isNull);
     });
   }

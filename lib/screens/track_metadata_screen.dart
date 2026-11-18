@@ -15,38 +15,19 @@ import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/expressive_button.dart';
-import 'package:sistrum/providers/extension_provider.dart';
-import 'package:sistrum/services/batch_metadata_re_enrich.dart';
-import 'package:sistrum/widgets/re_enrich_candidate_sheet.dart';
-import 'package:sistrum/widgets/re_enrich_review_sheet.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/services/file_access_check.dart';
-import 'package:sistrum/services/network_file_editor.dart';
-import 'package:sistrum/services/network_storage_service.dart';
-import 'package:sistrum/services/network_library_scanner.dart';
-import 'package:sistrum/services/metadata_cover_resources.dart';
-import 'package:sistrum/services/metadata_persistence_service.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/lyrics_sidecar.dart';
 import 'package:sistrum/services/cue_split_library_service.dart';
-import 'package:sistrum/services/link/features/link_save_offline.dart';
-import 'package:sistrum/widgets/network_offline_actions.dart';
-import 'package:sistrum/widgets/network_upload_actions.dart';
-import 'package:sistrum/providers/network_upload_provider.dart';
-import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/utils/file_access.dart';
-import 'package:sistrum/utils/re_enrich_result.dart';
-import 'package:sistrum/utils/service_track_link.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sistrum/providers/deleted_library_files.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/playback_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
-import 'package:sistrum/providers/player_motion_artwork_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/song_leftovers_provider.dart';
 import 'package:sistrum/services/platform_bridge.dart';
@@ -65,7 +46,6 @@ import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/audio_conversion_utils.dart';
 import 'package:sistrum/utils/audio_format_utils.dart';
 import 'package:sistrum/utils/artist_utils.dart';
-import 'package:sistrum/utils/cover_art_utils.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/logger.dart';
 import 'package:sistrum/utils/lyrics_metadata_helper.dart';
@@ -77,7 +57,6 @@ import 'package:sistrum/utils/user_facing_error.dart';
 import 'package:sistrum/utils/int_utils.dart';
 import 'package:sistrum/utils/isrc_utils.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
-import 'package:sistrum/utils/re_enrich_release_policy.dart';
 import 'package:sistrum/utils/saf_display_path.dart';
 import 'package:sistrum/theme/cover_palette.dart' show HeaderPalette;
 import 'package:sistrum/theme/mornye_theme.dart';
@@ -94,11 +73,6 @@ import 'package:sistrum/widgets/desktop/detail_header.dart'
     show desktopDetailSubtitleStyle;
 import 'package:sistrum/widgets/error_card.dart';
 import 'package:sistrum/widgets/expressive_button_group.dart';
-import 'package:sistrum/widgets/link/link_actions.dart';
-import 'package:sistrum/widgets/link/link_library_actions.dart';
-import 'package:sistrum/services/link/features/link_track_refs.dart';
-import 'package:sistrum/services/link/link_library_jobs.dart';
-import 'package:sistrum/services/link/link_protocol.dart';
 import 'package:sistrum/widgets/mornye_context_menu.dart';
 import 'package:sistrum/widgets/mornye_metadata_row.dart';
 import 'package:sistrum/widgets/audio_analysis_widget.dart';
@@ -106,7 +80,6 @@ import 'package:sistrum/widgets/audio_quality_badges.dart' show ExplicitBadge;
 import 'package:sistrum/widgets/hires_check_card.dart';
 import 'package:sistrum/widgets/batch_convert_sheet.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
-import 'package:sistrum/widgets/open_on_platform_sheet.dart';
 import 'package:sistrum/widgets/metadata_barcode.dart';
 import 'package:sistrum/widgets/scroll_edge_fade.dart';
 import 'package:sistrum/widgets/settings_group.dart';
@@ -114,10 +87,6 @@ import 'package:sistrum/constants/music_services.dart';
 import 'package:sistrum/controllers/batch_track_actions.dart'
     show convertLibraryTrack;
 import 'package:sistrum/controllers/clickable_metadata.dart';
-import 'package:sistrum/controllers/local_track_batch_actions.dart'
-    show BatchReEnrichRunner;
-import 'package:sistrum/services/re_enrich_undo.dart'
-    show ReEnrichUndo, ReEnrichUndoOutcome;
 import 'package:sistrum/controllers/collapsing_header_scroll_mixin.dart';
 import 'package:sistrum/screens/track_metadata_edit_sheet.dart';
 
@@ -162,37 +131,22 @@ class _EmbeddedCoverPreviewCacheEntry {
 }
 
 class TrackMetadataScreen extends ConsumerStatefulWidget {
-  final DownloadHistoryItem? item;
-  final LocalLibraryItem? localItem;
-  final List<DownloadHistoryItem>? historyNavigationItems;
+  final LocalLibraryItem localItem;
   final List<LocalLibraryItem>? localNavigationItems;
   final int? navigationIndex;
   final String? coverHeroTag;
 
   const TrackMetadataScreen({
     super.key,
-    this.item,
-    this.localItem,
-    this.historyNavigationItems,
+    required this.localItem,
     this.localNavigationItems,
     this.navigationIndex,
     this.coverHeroTag,
   }) : assert(
-         item != null || localItem != null,
-         'Either item or localItem must be provided',
-       ),
-       assert(
-         historyNavigationItems == null || localNavigationItems == null,
-         'Provide only one navigation list type',
-       ),
-       assert(
          navigationIndex == null ||
-             ((historyNavigationItems != null &&
-                     navigationIndex >= 0 &&
-                     navigationIndex < historyNavigationItems.length) ||
-                 (localNavigationItems != null &&
-                     navigationIndex >= 0 &&
-                     navigationIndex < localNavigationItems.length)),
+             (localNavigationItems != null &&
+                 navigationIndex >= 0 &&
+                 navigationIndex < localNavigationItems.length),
          'navigationIndex must be within the provided navigation list',
        );
 
@@ -215,15 +169,11 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
 
   FileAccessCheck? _fileAccess;
   bool get _fileExists => _fileAccess is FileAccessFound;
-  bool get _isNetworkItem => cleanFilePath.startsWith('network://');
-  bool _networkFileDeletable = false;
-  bool get _canDeleteFile => !_isNetworkItem || _networkFileDeletable;
-  bool get _canEditMetadataFile =>
-      _fileExists && (!_isNetworkItem || _networkFileDeletable);
+  bool get _canDeleteFile => true;
+  bool get _canEditMetadataFile => _fileExists;
 
-  /// Save Cover Art and Save Lyrics write beside the song, so a NAS song
-  /// needs a connection that accepts writes (SMB or WebDAV).
-  bool get _canSaveSidecarFiles => !_isNetworkItem || _networkFileDeletable;
+  /// Save Cover Art and Save Lyrics write beside the song.
+  bool get _canSaveSidecarFiles => true;
   bool _isDeleting = false;
   int? get _fileSize => switch (_fileAccess) {
     FileAccessFound(:final stat) => stat.size,
@@ -238,7 +188,6 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
   String? _lyrics;
   String? _rawLyrics;
   bool _lyricsLoading = false;
-  String? _lyricsError;
   String? _lyricsSource;
   bool _lyricsEmbedded = false;
   bool _isEmbedding = false;
@@ -248,14 +197,12 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
   bool _hasMetadataChanges = false;
 
   /// The song has a state saved before its last re-enrich.
-  bool _reEnrichUndoAvailable = false;
   bool _hasLoadedResolvedAudioMetadata = false;
   bool _isTrackSwipeNavigationInFlight = false;
   int _metadataLoadGeneration = 0;
   int _metadataTransitionDirection = 0;
   late final void Function() _unsubscribeMetadata;
   late final void Function() _unsubscribeDeletion;
-  late DownloadHistoryItem? _currentDownloadItem;
   late LocalLibraryItem? _currentLocalLibraryItem;
   late int? _currentNavigationIndex;
   Map<String, dynamic>? _editedMetadata;
@@ -273,7 +220,6 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
   @override
   void initState() {
     super.initState();
-    _currentDownloadItem = widget.item;
     _currentLocalLibraryItem = widget.localItem;
     _currentNavigationIndex = widget.navigationIndex;
     _unsubscribeMetadata = SourceMetadataEvents.instance.subscribe((
@@ -287,11 +233,10 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
         _embeddedLyricsChecked = false;
         _lyrics = null;
         _rawLyrics = null;
-        _lyricsError = null;
         _lyricsLoading = false;
       });
       await _checkFile();
-      if (mounted && source == cleanFilePath && !_isNetworkItem) {
+      if (mounted && source == cleanFilePath) {
         unawaited(_refreshEmbeddedCoverPreview(force: true));
       }
     });
@@ -333,9 +278,6 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
     final filePath = cleanFilePath;
 
     final check = await checkFileAccess(filePath);
-    final networkFileDeletable =
-        filePath.startsWith('network://') &&
-        await NetworkStorageService.instance.canDeleteFile(filePath);
     if (!mounted ||
         generation != _metadataLoadGeneration ||
         filePath != cleanFilePath) {
@@ -346,9 +288,7 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
     }
     setState(() {
       _fileAccess = check;
-      _networkFileDeletable = networkFileDeletable;
     });
-    unawaited(_refreshReEnrichUndo());
     if (!_fileExists) return;
 
     if (_lyrics == null && !_lyricsLoading) {
@@ -357,7 +297,7 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
     if (!_isCueVirtualTrack && !_hasLoadedResolvedAudioMetadata) {
       unawaited(_refreshResolvedAudioMetadataFromFile());
     }
-    if (!_isNetworkItem && !_hasPath(_embeddedCoverPreviewPath)) {
+    if (!_hasPath(_embeddedCoverPreviewPath)) {
       // The information card reports artwork embedded in the audio file, not
       // a resized Library thumbnail or remote cover. The shared resolver owns
       // extraction; this screen only caches validation data and dimensions.
@@ -391,19 +331,16 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
   Future<void> _refreshResolvedAudioMetadataFromFile() async {
     final generation = _metadataLoadGeneration;
     final sourcePath = cleanFilePath;
-    if ((_isLocalItem && _localLibraryItem == null) ||
-        (!_isLocalItem && _downloadItem == null) ||
-        _isCueVirtualTrack ||
-        _hasLoadedResolvedAudioMetadata) {
+    if (_isCueVirtualTrack || _hasLoadedResolvedAudioMetadata) {
       return;
     }
 
     _hasLoadedResolvedAudioMetadata = true;
 
     try {
-      final metadata = _isNetworkItem
-          ? await readPlaybackFileMetadataWithRetry(sourcePath)
-          : await PlatformBridge.readDisplayAudioMetadata(sourcePath);
+      final metadata = await PlatformBridge.readDisplayAudioMetadata(
+        sourcePath,
+      );
       if (!mounted ||
           generation != _metadataLoadGeneration ||
           sourcePath != cleanFilePath) {
@@ -424,9 +361,7 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
       final resolvedBitDepth = readPositiveInt(metadata['bit_depth']);
       final resolvedSampleRate = readPositiveInt(metadata['sample_rate']);
       final resolvedFormat = detectedAudioFormatFromMetadata(metadata);
-      final storedFormat = _isLocalItem
-          ? _localLibraryItem?.format
-          : _downloadItem?.format;
+      final storedFormat = _localLibraryItem.format;
       final formatChanged =
           resolvedFormat != null &&
           resolvedFormat != normalizeAudioFormatValue(storedFormat);
@@ -449,14 +384,6 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
       final resolvedMood = normalizeOptionalString(
         metadata['mood']?.toString(),
       );
-      final resolvedQuality = _displayQualityForValues(
-        format: resolvedFormat ?? _storedAudioFormat,
-        bitDepth: resolvedBitDepth ?? bitDepth,
-        sampleRate: resolvedSampleRate ?? sampleRate,
-        bitrateKbps: resolvedBitrate ?? _audioBitrate,
-        storedQuality: _quality,
-      );
-
       final needsDuration =
           resolvedDuration != null &&
           resolvedDuration > 0 &&
@@ -485,38 +412,12 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
           resolvedExplicit != null && resolvedExplicit != isExplicit;
       final needsLyricsAvailability =
           hasResolvedLyricsValue &&
-          (_isLocalItem
-              ? resolvedHasLyrics != _localLibraryItem?.hasLyrics
-              : resolvedHasLyrics != _downloadItem?.hasLyrics ||
-                    (_downloadItem?.lyricsMetadataScanVersion ?? 0) < 1);
+          resolvedHasLyrics != _localLibraryItem.hasLyrics;
       final resolvedHasReplayGain = metadataHasReplayGain(metadata);
       final hasResolvedReplayGainValue = replayGainMetadataWasRead(metadata);
       final needsReplayGainAvailability =
           hasResolvedReplayGainValue &&
-          (_isLocalItem
-              ? resolvedHasReplayGain != _localLibraryItem?.hasReplayGain
-              : resolvedHasReplayGain != _downloadItem?.hasReplayGain ||
-                    (_downloadItem?.replayGainMetadataScanVersion ?? 0) < 1);
-      final needsTrackNumber =
-          resolvedTrackNumber != null &&
-          resolvedTrackNumber > 0 &&
-          trackNumber == null;
-      final needsTotalTracks =
-          resolvedTotalTracks != null &&
-          resolvedTotalTracks > 0 &&
-          totalTracks == null;
-      final needsDiscNumber =
-          resolvedDiscNumber != null &&
-          resolvedDiscNumber > 0 &&
-          discNumber == null;
-      final needsTotalDiscs =
-          resolvedTotalDiscs != null &&
-          resolvedTotalDiscs > 0 &&
-          totalDiscs == null;
-      final needsComposer =
-          resolvedComposer != null &&
-          resolvedComposer.isNotEmpty &&
-          (composer == null || composer!.isEmpty);
+          resolvedHasReplayGain != _localLibraryItem.hasReplayGain;
       // The file is the source of truth for edited tags: an edit writes the
       // new value into the file, but the cached history item may still carry
       // the old one. Prefer the file value whenever present so re-opening the
@@ -545,36 +446,18 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
       final fileHasTotalDiscs =
           resolvedTotalDiscs != null && resolvedTotalDiscs > 0;
 
-      final shouldPersistResolvedAudioMetadata =
-          !_isLocalItem &&
-          (resolvedBitDepth != null ||
-              resolvedSampleRate != null ||
-              resolvedBitrate != null ||
-              resolvedFormat != null ||
-              needsTrackNumber ||
-              needsTotalTracks ||
-              needsDiscNumber ||
-              needsTotalDiscs ||
-              needsDuration ||
-              needsComposer ||
-              needsExplicit ||
-              needsLyricsAvailability ||
-              needsReplayGainAvailability ||
-              (isPlaceholderQualityLabel(_quality) && resolvedQuality != null));
       final localItem = _localLibraryItem;
       final localAudioMetadataChanged =
-          localItem != null &&
           ((resolvedBitDepth != null &&
-                  resolvedBitDepth != localItem.bitDepth) ||
-              (resolvedSampleRate != null &&
-                  resolvedSampleRate != localItem.sampleRate) ||
-              (resolvedBitrate != null &&
-                  resolvedBitrate != localItem.bitrate) ||
-              needsExplicit ||
-              needsLyricsAvailability ||
-              needsReplayGainAvailability ||
-              needsDuration ||
-              formatChanged);
+              resolvedBitDepth != localItem.bitDepth) ||
+          (resolvedSampleRate != null &&
+              resolvedSampleRate != localItem.sampleRate) ||
+          (resolvedBitrate != null && resolvedBitrate != localItem.bitrate) ||
+          needsExplicit ||
+          needsLyricsAvailability ||
+          needsReplayGainAvailability ||
+          needsDuration ||
+          formatChanged);
 
       if ((replayGainChanged ||
               resolvedBpm != null ||
@@ -600,8 +483,7 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
               fileHasAlbumType ||
               fileHasUPC ||
               fileHasComment ||
-              needsExplicit ||
-              isPlaceholderQualityLabel(_quality)) &&
+              needsExplicit) &&
           mounted) {
         setState(() {
           _resolvedAudioFormat = resolvedFormat;
@@ -638,59 +520,7 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
         });
       }
 
-      if (shouldPersistResolvedAudioMetadata) {
-        await ref
-            .read(downloadHistoryProvider.notifier)
-            .updateAudioMetadataForItem(
-              id: _downloadItem!.id,
-              quality: resolvedQuality,
-              bitDepth: resolvedBitDepth,
-              sampleRate: resolvedSampleRate,
-              bitrate: resolvedBitrate,
-              format: resolvedFormat,
-              trackNumber: needsTrackNumber ? resolvedTrackNumber : null,
-              totalTracks: needsTotalTracks ? resolvedTotalTracks : null,
-              discNumber: needsDiscNumber ? resolvedDiscNumber : null,
-              totalDiscs: needsTotalDiscs ? resolvedTotalDiscs : null,
-              duration: needsDuration ? resolvedDuration : null,
-              composer: needsComposer ? resolvedComposer : null,
-              explicit: needsExplicit ? resolvedExplicit : null,
-              hasLyrics: hasResolvedLyricsValue ? resolvedHasLyrics : null,
-              lyricsMetadataScanVersion: hasResolvedLyricsValue ? 1 : null,
-              hasReplayGain: hasResolvedReplayGainValue
-                  ? resolvedHasReplayGain
-                  : null,
-              replayGainMetadataScanVersion: hasResolvedReplayGainValue
-                  ? 1
-                  : null,
-            );
-        if (mounted && _downloadItem != null) {
-          setState(() {
-            _currentDownloadItem = _downloadItem!.copyWith(
-              quality: resolvedQuality,
-              bitDepth: resolvedBitDepth,
-              sampleRate: resolvedSampleRate,
-              bitrate: resolvedBitrate,
-              format: resolvedFormat,
-              trackNumber: needsTrackNumber ? resolvedTrackNumber : null,
-              totalTracks: needsTotalTracks ? resolvedTotalTracks : null,
-              discNumber: needsDiscNumber ? resolvedDiscNumber : null,
-              totalDiscs: needsTotalDiscs ? resolvedTotalDiscs : null,
-              duration: needsDuration ? resolvedDuration : null,
-              composer: needsComposer ? resolvedComposer : null,
-              explicit: needsExplicit ? resolvedExplicit : null,
-              hasLyrics: hasResolvedLyricsValue ? resolvedHasLyrics : null,
-              lyricsMetadataScanVersion: hasResolvedLyricsValue ? 1 : null,
-              hasReplayGain: hasResolvedReplayGainValue
-                  ? resolvedHasReplayGain
-                  : null,
-              replayGainMetadataScanVersion: hasResolvedReplayGainValue
-                  ? 1
-                  : null,
-            );
-          });
-        }
-      } else if (_isLocalItem && localAudioMetadataChanged) {
+      if (localAudioMetadataChanged) {
         await LibraryDatabase.instance.updateAudioMetadata(
           localItem.id,
           duration: resolvedDuration,
@@ -762,19 +592,11 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
         _metadataLoadGeneration++;
         _metadataTransitionDirection = offset > 0 ? 1 : -1;
         _currentNavigationIndex = targetIndex;
-        if (_hasHistoryNavigation) {
-          _currentDownloadItem = widget.historyNavigationItems![targetIndex];
-          _currentLocalLibraryItem = null;
-        } else {
-          _currentDownloadItem = null;
-          _currentLocalLibraryItem = widget.localNavigationItems![targetIndex];
-        }
+        _currentLocalLibraryItem = widget.localNavigationItems![targetIndex];
         _fileAccess = null;
-        _networkFileDeletable = false;
         _lyrics = null;
         _rawLyrics = null;
         _lyricsLoading = false;
-        _lyricsError = null;
         _lyricsSource = null;
         showTitleNotifier.value = false;
         _lyricsEmbedded = false;
@@ -836,20 +658,11 @@ class _TrackMetadataScreenState extends ConsumerState<TrackMetadataScreen>
 
   Future<void> _enqueueThis(WidgetRef ref, {required bool playNext}) async {
     final controller = ref.read(musicPlayerControllerProvider);
-    final item = widget.item;
     final localItem = widget.localItem;
-    if (item != null) {
-      if (playNext) {
-        await controller.playNextHistory(item);
-      } else {
-        await controller.addToQueueHistory(item);
-      }
-    } else if (localItem != null) {
-      if (playNext) {
-        await controller.playNextLocal(localItem);
-      } else {
-        await controller.addToQueueLocal(localItem);
-      }
+    if (playNext) {
+      await controller.playNextLocal(localItem);
+    } else {
+      await controller.addToQueueLocal(localItem);
     }
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(

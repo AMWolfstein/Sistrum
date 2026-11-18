@@ -17,14 +17,11 @@ import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
 import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
-import 'package:sistrum/widgets/extension_storage_setting.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:sistrum/services/link/client/link_client_controller.dart';
-import 'package:sistrum/services/local_network_access.dart';
 import 'package:sistrum/services/setup_progress_store.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/l10n/l10n.dart';
@@ -72,10 +69,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
   bool _storagePermissionGranted = false;
   bool _notificationPermissionGranted = false;
   bool _notificationPermissionSkipped = false;
-  bool _nearbyGranted = false;
-
-  /// Set once Android refuses Nearby devices, so setup can go on.
-  bool _nearbyRefused = false;
   String? _selectedDirectory;
   String? _selectedDirectoryBookmark;
   String? _selectedTreeUri;
@@ -85,15 +78,8 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
   int get _totalSteps => _isDesktop || isAndroidTv
       ? 3
       : _androidSdkVersion >= 33
-      ? (_asksNearby ? 6 : 5)
+      ? 5
       : 4;
-
-  /// Android 17 asks for Nearby devices before LAN access, which Sistrum Link
-  /// and network storage need. Earlier releases allow it without asking.
-  bool get _asksNearby =>
-      _platform == TargetPlatform.android &&
-      !isAndroidTv &&
-      _androidSdkVersion >= 37;
 
   void _setState(VoidCallback fn) => setState(fn);
 
@@ -135,7 +121,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
         _selectedDirectoryBookmark = draft['bookmark'] as String?;
         _selectedTreeUri = draft['treeUri'] as String?;
         _notificationPermissionSkipped = draft['skipNotifications'] == true;
-        _nearbyRefused = draft['nearbyRefused'] == true;
       }
       if (_isDesktop) {
         _selectedDirectory ??= await resolveDesktopDefaultOutputDirectory();
@@ -179,7 +164,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
       'bookmark': _selectedDirectoryBookmark,
       'treeUri': _selectedTreeUri,
       'skipNotifications': _notificationPermissionSkipped,
-      'nearbyRefused': _nearbyRefused,
     });
   }
 
@@ -230,13 +214,11 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
       if (_androidSdkVersion >= 33) {
         notificationStatus = await Permission.notification.status;
       }
-      final nearbyGranted = await LocalNetworkAccess.instance.isGranted();
 
       if (mounted) {
         setState(() {
           _storagePermissionGranted = storageGranted;
           _notificationPermissionGranted = notificationStatus.isGranted;
-          _nearbyGranted = nearbyGranted;
         });
       }
     } else {
@@ -355,28 +337,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
       }
     } catch (e, stack) {
       _log.e('Failed to request notification permission', e, stack);
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _requestNearbyDevices() async {
-    final permissionNearby = context.l10n.permissionNearbyDevices;
-    setState(() => _isLoading = true);
-    try {
-      await _saveProgress();
-      // Through Link, so discovery that found nothing without it starts over.
-      await ref
-          .read(linkClientControllerProvider.notifier)
-          .requestLocalNetworkAccess();
-      if (mounted) setState(() => _nearbyGranted = true);
-    } on LocalNetworkPermissionException {
-      if (!mounted) return;
-      setState(() => _nearbyRefused = true);
-      await _saveProgress();
-      if (mounted) await _showPermissionDeniedDialog(permissionNearby);
-    } catch (e, stack) {
-      _log.e('Failed to request nearby devices permission', e, stack);
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -734,17 +694,13 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
       return logicStep == 0 && _selectedDirectory != null;
     }
     if (_androidSdkVersion >= 33) {
-      // Nearby devices, when asked, comes before the folder.
-      final folderStep = _asksNearby ? 3 : 2;
-      if (logicStep == folderStep) return _selectedDirectory != null;
+      if (logicStep == 2) return _selectedDirectory != null;
       switch (logicStep) {
         case 0:
           return _storagePermissionGranted;
         case 1:
           return _notificationPermissionGranted ||
               _notificationPermissionSkipped;
-        case 2:
-          return _nearbyGranted || _nearbyRefused;
       }
     } else {
       switch (logicStep) {
@@ -865,7 +821,6 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
               if (!_isDesktop && !isAndroidTv) _buildStorageStep(colorScheme),
               if (_androidSdkVersion >= 33 && !isAndroidTv)
                 _buildNotificationStep(colorScheme),
-              if (_asksNearby) _buildNearbyStep(colorScheme),
               _buildDirectoryStep(colorScheme),
             ],
           ),

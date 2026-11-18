@@ -1,13 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/library_database.dart';
-import 'package:sistrum/services/history_database.dart';
-import 'package:sistrum/services/download_file_recovery.dart';
 import 'package:sistrum/services/music_player_service.dart';
 import 'package:sistrum/services/track_file_resolver.dart';
 import 'package:sistrum/utils/file_access.dart';
@@ -22,14 +17,11 @@ class PlaybackState {
 class PlaybackController extends Notifier<PlaybackState> {
   PlaybackController({
     LibraryDatabase? library,
-    HistoryDatabase? history,
     Future<void> Function(String)? openExternal,
   }) : _library = library ?? LibraryDatabase.instance,
-       _history = history ?? HistoryDatabase.instance,
        _openExternal = openExternal ?? openFile;
 
   final LibraryDatabase _library;
-  final HistoryDatabase _history;
   final Future<void> Function(String) _openExternal;
 
   @override
@@ -87,13 +79,7 @@ class PlaybackController extends Notifier<PlaybackState> {
     }
 
     _log.d('Opening external player for "$title" by $artist: $path');
-    final recovered = Platform.isAndroid
-        ? await DownloadFileRecovery.instance.recover(
-            path,
-            settings: ref.read(settingsProvider),
-          )
-        : null;
-    await _openExternal(recovered ?? path);
+    await _openExternal(path);
   }
 
   /// Plays a local-library album/list starting at [startItem], queuing the rest
@@ -106,18 +92,6 @@ class PlaybackController extends Notifier<PlaybackState> {
     (i) => i.id == startItem.id,
     (i) => i.filePath,
     playableFromLocal,
-  );
-
-  /// Plays a downloaded-history album/list starting at [startItem], queuing the
-  /// rest. Honors player mode.
-  Future<void> playHistoryQueue(
-    List<DownloadHistoryItem> items, {
-    required DownloadHistoryItem startItem,
-  }) => _playQueue(
-    items,
-    (i) => i.id == startItem.id,
-    (i) => i.filePath,
-    playableFromHistory,
   );
 
   Future<void> _playQueue<T>(
@@ -154,13 +128,7 @@ class PlaybackController extends Notifier<PlaybackState> {
           .read(musicPlayerControllerProvider)
           .playAll(items, initialIndex: i);
     } else {
-      final recovered = Platform.isAndroid
-          ? await DownloadFileRecovery.instance.recover(
-              externalPath,
-              settings: ref.read(settingsProvider),
-            )
-          : null;
-      await _openExternal(recovered ?? externalPath);
+      await _openExternal(externalPath);
     }
   }
 
@@ -186,7 +154,7 @@ class PlaybackController extends Notifier<PlaybackState> {
       throw Exception(
         skippedCueVirtualTrack
             ? cueVirtualTrackRequiresSplitMessage
-            : 'No local audio file is available to open. Download the track first.',
+            : 'No local audio file is available to open.',
       );
     }
     final resolvedPaths = await resolveTrackFilePaths(tracks);
@@ -219,9 +187,7 @@ class PlaybackController extends Notifier<PlaybackState> {
       if (skippedCueVirtualTrack) {
         throw Exception(cueVirtualTrackRequiresSplitMessage);
       }
-      throw Exception(
-        'No local audio file is available to play. Download the track first.',
-      );
+      throw Exception('No local audio file is available to play.');
     }
 
     var skippedCueVirtualTrack = false;
@@ -249,35 +215,17 @@ class PlaybackController extends Notifier<PlaybackState> {
       throw Exception(cueVirtualTrackRequiresSplitMessage);
     }
 
-    throw Exception(
-      'No local audio file is available to open. Download the track first.',
-    );
+    throw Exception('No local audio file is available to open.');
   }
 
   /// Public wrapper so non-playback features (e.g. M3U export) reuse the
-  /// same library+history file resolution.
+  /// same Library file resolution.
   Future<List<String?>> resolveTrackFilePaths(List<Track> tracks) =>
-      _resolveTrackPaths(tracks);
-
-  Future<List<String?>> _resolveTrackPaths(List<Track> tracks) async {
-    if (tracks.isEmpty) return const [];
-    final recovery = DownloadFileRecovery(history: _history);
-    final (:paths, :missingHistoryIds) = await resolveTrackFiles(
-      tracks,
-      library: _library,
-      history: _history,
-      includeLocal: ref.read(settingsProvider).localLibraryEnabled,
-      recoverDownload: (source, id) => recovery.recover(
-        source,
-        historyId: id,
-        settings: ref.read(settingsProvider),
-        knownMissing: true,
-      ),
-    );
-    final historyNotifier = ref.read(downloadHistoryProvider.notifier);
-    await historyNotifier.removeManyFromHistory(missingHistoryIds);
-    return paths;
-  }
+      resolveTrackFiles(
+        tracks,
+        library: _library,
+        includeLocal: ref.read(settingsProvider).localLibraryEnabled,
+      );
 }
 
 final playbackProvider = NotifierProvider<PlaybackController, PlaybackState>(

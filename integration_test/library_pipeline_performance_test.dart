@@ -10,7 +10,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/library_browse_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
@@ -41,11 +40,6 @@ class _Settings extends SettingsNotifier {
 
   @override
   Future<void> ensureLoaded() async {}
-}
-
-class _History extends DownloadHistoryNotifier {
-  @override
-  DownloadHistoryState build() => DownloadHistoryState();
 }
 
 class _Timeline {
@@ -190,20 +184,9 @@ void main() {
     await _createCover(cover);
     final localFolder = await Directory('${root.path}/music').create();
     final scanFolder = await Directory('${root.path}/scanned').create();
-    final extensions = await Directory('${root.path}/extensions').create();
-    final data = await Directory('${root.path}/data').create();
-    final output = await Directory('${root.path}/output').create();
     SharedPreferences.setMockInitialValues({
       'library_collections_migrated_to_sqlite_v1': true,
     });
-    await PlatformBridge.initExtensionSystem(
-      extensions.path,
-      data.path,
-      masterKey: base64Encode(List<int>.filled(32, 1)),
-      lyricsProviders: const [],
-      lyricsFetchOptions: const {},
-      allowedDirectories: [output.path],
-    );
     final database = await openDatabase(
       '${root.path}/library.db',
       singleInstance: false,
@@ -271,7 +254,6 @@ void main() {
       container?.dispose();
       await collectionDatabase.close();
       await database.close();
-      await PlatformBridge.cleanupExtensions();
       await root.delete(recursive: true);
     });
     var returnedRows = 0;
@@ -314,7 +296,6 @@ void main() {
       container = ProviderContainer(
         overrides: [
           settingsProvider.overrideWith(_Settings.new),
-          downloadHistoryProvider.overrideWith(_History.new),
           localLibraryProvider.overrideWith(
             () => LocalLibraryNotifier(database: library),
           ),

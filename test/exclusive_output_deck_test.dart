@@ -67,9 +67,6 @@ class _Deck implements PlaybackDeck, QueuedPlaybackDeck {
   @override
   Future<void> setPlaybackRate(double rate) async => calls.add('rate $rate');
   @override
-  Future<void> setNetworkSource(String url, {bool arriving = false}) async =>
-      calls.add('url $url');
-  @override
   Future<void> setFileSource(
     String path, {
     bool preferBitPerfect = false,
@@ -158,7 +155,7 @@ void main() {
     playbackExclusiveStatus.value = ExclusiveOutputStatus.pending;
   });
 
-  for (final source in ['/next.flac', 'https://example.com/next.flac']) {
+  for (final source in ['/next.flac', '/music/next file.flac']) {
     test(
       'a native handoff restores its current source on shared output ($source)',
       () async {
@@ -184,7 +181,7 @@ void main() {
         await deck.configureOutput();
         expect(
           shared.calls,
-          contains('${source.startsWith('https:') ? 'url' : 'file'} $source'),
+          contains('file $source'),
         );
         expect(shared.calls, contains('volume 0.4'));
         expect(deck.canQueueNextSource, isFalse);

@@ -812,20 +812,12 @@ fn update(run: &Run, completed: usize, path: &str, error: Option<&String>) {
 #[cfg(all(test, unix))]
 mod tests {
     use super::*;
-    use crate::RuntimeLimits;
     use crate::backend::cover::tests::{artwork, flac_with_picture};
     use std::fs;
     use std::path::PathBuf;
 
     fn backend(root: &Path, library: &Path) -> Backend {
-        let backend = Backend::new(
-            &root.join("sources"),
-            &root.join("data"),
-            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
-            "1",
-            RuntimeLimits::default(),
-        )
-        .unwrap();
+        let backend = Backend::new(&root.join("data"), "1").unwrap();
         backend
             .environment()
             .set_allowed_download_directories(&[library.to_path_buf()])

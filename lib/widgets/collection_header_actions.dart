@@ -1,4 +1,3 @@
-import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
@@ -9,28 +8,20 @@ import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/expressive_button_group.dart';
 
-/// Love all, download all and add to playlist buttons of a track collection
-/// header, laid out for desktop, Mornye or Material. All three are disabled
-/// while [tracks] is empty.
+/// Love all and add to playlist buttons of a track collection header, laid
+/// out for desktop, Mornye or Material. Both are disabled while [tracks] is
+/// empty.
 class CollectionHeaderActions extends StatelessWidget {
   const CollectionHeaderActions({
     super.key,
     required this.tracks,
     required this.onLoveAll,
-    required this.downloadIcon,
-    required this.onDownloadAll,
     required this.addToPlaylistIcon,
     required this.onAddToPlaylist,
-    this.tonalDownload = false,
   });
 
   final List<Track> tracks;
   final VoidCallback onLoveAll;
-
-  /// The Material download glyph; Mornye uses its filled arrow.
-  final IconData downloadIcon;
-  final VoidCallback onDownloadAll;
-  final bool tonalDownload;
   final IconData addToPlaylistIcon;
   final VoidCallback onAddToPlaylist;
 
@@ -56,14 +47,6 @@ class CollectionHeaderActions extends StatelessWidget {
         );
       },
     );
-    final download = HeaderFilledButton(
-      icon: mornye ? CupertinoIcons.arrow_down_circle_fill : downloadIcon,
-      tonal: tonalDownload,
-      label: mornye
-          ? context.l10n.dialogDownload
-          : context.l10n.downloadAllCount(tracks.length),
-      onPressed: enabled ? onDownloadAll : null,
-    );
     final addToPlaylist = HeaderCircleButton(
       icon: addToPlaylistIcon,
       tonal: true,
@@ -74,24 +57,15 @@ class CollectionHeaderActions extends StatelessWidget {
       return Row(
         mainAxisSize: MainAxisSize.min,
         spacing: 10,
-        children: [love, download, addToPlaylist],
+        children: [love, addToPlaylist],
       );
     }
     if (mornye) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          love,
-          const SizedBox(width: 16),
-          Flexible(child: SizedBox(width: 172, child: download)),
-          const SizedBox(width: 16),
-          addToPlaylist,
-        ],
+        children: [love, const SizedBox(width: 16), addToPlaylist],
       );
     }
-    return ExpressiveButtonGroup(
-      flexible: const {1},
-      children: [love, download, addToPlaylist],
-    );
+    return ExpressiveButtonGroup(children: [love, addToPlaylist]);
   }
 }

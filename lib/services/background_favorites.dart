@@ -1,11 +1,8 @@
 import 'dart:convert';
 
 import 'package:audio_service/audio_service.dart' show MediaItem;
-import 'package:sistrum/models/download_history.dart';
 import 'package:sistrum/models/library_collections.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/services/cover_store.dart';
-import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_collections_database.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_media_identity.dart';
@@ -14,19 +11,10 @@ import 'package:sistrum/services/library_media_identity.dart';
 /// when a car starts playback. It reads and writes the same Loved collection
 /// with the same Library identity as the shell, which takes over once open.
 class BackgroundFavorites {
-  BackgroundFavorites({
-    required this.library,
-    required this.history,
-    required this.collections,
-    this.covers,
-  });
+  BackgroundFavorites({required this.library, required this.collections});
 
   final LibraryDatabase library;
-  final HistoryDatabase history;
   final LibraryCollectionsDatabase collections;
-
-  /// The player's cover store, which chose the covers media items show.
-  final CoverStore? covers;
 
   Future<Track> _track(MediaItem item) async => collectionTrackForMedia(
     item,
@@ -35,13 +23,8 @@ class BackgroundFavorites {
       source: item.extras?['source']?.toString() ?? '',
       title: item.title,
       artist: item.artist ?? '',
-      historyByPath: (path) async {
-        final row = await history.findByFilePath(path);
-        return row == null ? null : DownloadHistoryItem.fromJson(row);
-      },
       library: library,
     ),
-    covers: covers,
   );
 
   Future<bool> isLoved(MediaItem item) async =>

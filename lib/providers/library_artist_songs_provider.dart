@@ -9,7 +9,7 @@ import 'package:sistrum/utils/artist_utils.dart';
 /// artist tag lists.
 bool libraryItemCreditsArtist(UnifiedLibraryItem item, String artistKey) {
   final albumArtist =
-      (item.historyItem?.albumArtist ?? item.localItem?.albumArtist ?? '')
+      (item.localItem?.albumArtist ?? '')
           .trim();
   final owner = albumArtist.isEmpty ? item.artistName : albumArtist;
   if (normalizeLookupText(owner) == artistKey) return true;

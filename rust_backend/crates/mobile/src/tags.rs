@@ -179,20 +179,6 @@ impl ExtensionManager {
             .map_err(ExtensionManagerError::Operation)
     }
 
-    pub fn rewrite_split_artist_tags(
-        &self,
-        path: String,
-        artist: String,
-        album_artist: String,
-        lease: Option<Arc<RequestLease>>,
-    ) -> Result<String, ExtensionManagerError> {
-        self.inner
-            .rewrite_split_artist_tags(&path, &artist, &album_artist, &|| {
-                check_lease(lease.as_deref())
-            })
-            .map_err(ExtensionManagerError::Operation)
-    }
-
     pub fn extract_cover_to_file(
         &self,
         audio_path: String,
@@ -201,20 +187,6 @@ impl ExtensionManager {
     ) -> Result<(), ExtensionManagerError> {
         self.inner
             .extract_cover_to_file(&audio_path, &output_path, &|| check_lease(lease.as_deref()))
-            .map_err(ExtensionManagerError::Operation)
-    }
-
-    pub fn download_cover_to_file_sized(
-        &self,
-        url: String,
-        output_path: String,
-        max_dimension: i64,
-        lease: Option<Arc<RequestLease>>,
-    ) -> Result<(), ExtensionManagerError> {
-        self.inner
-            .download_cover_to_file_sized(&url, &output_path, max_dimension, &|| {
-                check_lease(lease.as_deref())
-            })
             .map_err(ExtensionManagerError::Operation)
     }
 
@@ -250,40 +222,6 @@ impl ExtensionManager {
             })?;
         Ok(r#"{"success":true,"method":"native_m4a_freeform"}"#.into())
     }
-
-    pub fn ensure_ac4_config(
-        &self,
-        path: String,
-        reference: String,
-        lease: Option<Arc<RequestLease>>,
-    ) -> Result<String, ExtensionManagerError> {
-        self.inner
-            .ensure_ac4_config(&path, &reference, &|| check_lease(lease.as_deref()))
-            .map_err(|error| {
-                ExtensionManagerError::Operation(format!(
-                    "failed to finalize AC-4 container: {error}"
-                ))
-            })?;
-        Ok(r#"{"success":true}"#.into())
-    }
-
-    pub fn write_ac4_metadata(
-        &self,
-        path: String,
-        metadata_json: String,
-        cover_path: String,
-        lease: Option<Arc<RequestLease>>,
-    ) -> Result<String, ExtensionManagerError> {
-        let handled = self
-            .inner
-            .write_ac4_metadata(&path, &metadata_json, &cover_path, &|| {
-                check_lease(lease.as_deref())
-            })
-            .map_err(|error| {
-                ExtensionManagerError::Operation(format!("failed to write AC-4 metadata: {error}"))
-            })?;
-        Ok(serde_json::json!({"success":true,"handled":handled}).to_string())
-    }
 }
 
 fn decode_fields(json: &str) -> Result<BTreeMap<String, String>, String> {
@@ -308,11 +246,6 @@ pub fn read_file_metadata(
     let check = || check_lease(lease.as_deref());
     check()?;
     tags::file_metadata_extension(&path, &hint)?;
-    if path.starts_with("http://") {
-        return crate::network_tags::read(&path, &hint, &check)
-            .and_then(|metadata| serde_json::to_string(&metadata).map_err(|e| e.to_string()))
-            .map_err(Into::into);
-    }
     let mut file = open_audio_file(&path)?;
     let metadata = tags::read_file_metadata(&mut file, &path, &hint, &check)?;
     serde_json::to_string(&metadata).map_err(|error| error.to_string().into())

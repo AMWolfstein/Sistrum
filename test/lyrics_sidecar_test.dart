@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/services/lyrics_sidecar.dart';
-import 'package:sistrum/services/lyrics_translation.dart';
+import 'package:sistrum/services/lyrics_plain.dart';
 import 'package:sistrum/services/source_metadata_events.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
@@ -20,12 +20,23 @@ final _translationWords = jsonEncode([
   {'text': 'mundo', 'startTimeMs': 1400, 'endTimeMs': 2000},
 ]);
 
-ParsedLyrics _translated(ParsedLyrics lyrics, List<String?> translations) =>
-    applyLyricsTranslation(
-      lyrics,
-      LyricsTranslationSource.of(lyrics),
-      translations,
-    );
+// Shows [translations] line by line, as the saved translations of a song do.
+ParsedLyrics _translated(ParsedLyrics lyrics, List<String?> translations) {
+  final base = lyricsWithPlainLines(lyrics);
+  return ParsedLyrics(
+    synced: base.synced,
+    wordSynced: base.wordSynced,
+    plainText: base.plainText,
+    writers: base.writers,
+    provider: base.provider,
+    lines: [
+      for (var i = 0; i < base.lines.length; i++)
+        i < translations.length
+            ? base.lines[i].withTranslation(translations[i])
+            : base.lines[i],
+    ],
+  );
+}
 
 class _MemorySidecar extends LyricsSidecarStore {
   _MemorySidecar({this.writable = true});

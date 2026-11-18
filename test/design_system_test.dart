@@ -1047,10 +1047,8 @@ void main() {
 
     test('every collection screen goes through the shared shell', () {
       const screens = [
-        'album_screen.dart',
         'playlist_screen.dart',
         'local_album_screen.dart',
-        'downloaded_album_screen.dart',
         'library_tracks_folder_screen.dart',
       ];
       final offenders = <String>[];
@@ -1080,7 +1078,7 @@ void main() {
       final source = playlist.readAsStringSync();
 
       expect(source, contains('SelectionModeMixin<PlaylistScreen>'));
-      expect(source, contains('SelectionBottomBar('));
+      // Its only bar action was Download, which is gone; the mixin keeps selection.
       expect(source, contains('isSelectionMode: isSelectionMode'));
     });
   });

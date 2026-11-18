@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/utils/audio_format_utils.dart';
 
@@ -115,34 +114,6 @@ void main() {
       );
       expect(replayGainMetadataWasRead({'audio_codec': 'flac'}), isTrue);
       expect(replayGainMetadataWasRead({'replaygain_track_gain': ''}), isTrue);
-    });
-
-    test('history round-trip preserves known absence after removing gain', () {
-      final item = DownloadHistoryItem(
-        id: 'gain',
-        trackName: 'Track',
-        artistName: 'Artist',
-        albumName: 'Album',
-        filePath: '/music/track.flac',
-        service: 'test',
-        downloadedAt: DateTime.utc(2026),
-        hasReplayGain: true,
-        replayGainMetadataScanVersion: 1,
-      );
-      final tagged = DownloadHistoryItem.fromJson(item.toJson());
-      expect(tagged.hasReplayGain, isTrue);
-      final removed = DownloadHistoryItem.fromJson(
-        tagged.copyWith(hasReplayGain: false).toJson(),
-      );
-      expect(removed.hasReplayGain, isFalse);
-      expect(removed.replayGainMetadataScanVersion, 1);
-      final legacy = item.toJson()
-        ..remove('hasReplayGain')
-        ..remove('replayGainMetadataScanVersion');
-      expect(
-        DownloadHistoryItem.fromJson(legacy).replayGainMetadataScanVersion,
-        0,
-      );
     });
 
     test('local scan flags survive serialization and tag removal', () {

@@ -8,7 +8,6 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/services/remote_playback.dart';
 import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mornye_player_queue.dart';
@@ -36,11 +35,6 @@ class _Settings extends SettingsNotifier {
 
   @override
   AppSettings build() => initial;
-}
-
-class _Remote implements RemotePlayback {
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 final _queue = [
@@ -74,7 +68,6 @@ void main() {
     TextDirection direction = TextDirection.ltr,
     bool locked = false,
     bool swipeToQueue = true,
-    bool remote = false,
     bool asSheet = false,
   }) async {
     final player = _Player();
@@ -90,7 +83,6 @@ void main() {
             ),
           ),
           playerUiEnabledProvider.overrideWith((ref) => true),
-          if (remote) activeRemotePlaybackProvider.overrideWithValue(_Remote()),
           musicPlayerControllerProvider.overrideWithValue(player),
           currentMediaItemProvider.overrideWithBuild(
             (ref, notifier) => Stream.value(_queue.first),
@@ -249,11 +241,4 @@ void main() {
     expect(player.removed, ['Next']);
   });
 
-  testWidgets('another device playing the queue offers no copy', (
-    tester,
-  ) async {
-    final player = await pump(tester, mornye: true, remote: true);
-    await slowDrag(tester, 'Last', 260);
-    expect(player.playedNext, isEmpty);
-  });
 }

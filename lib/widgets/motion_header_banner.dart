@@ -144,19 +144,16 @@ class _MotionHeaderBannerState extends ConsumerState<MotionHeaderBanner>
     }
 
     final uri = Uri.tryParse(url);
-    final options = VideoPlayerOptions(mixWithOthers: true);
-    final controller = uri?.scheme == 'file' || url.startsWith('/')
-        ? VideoPlayerController.file(
-            uri?.scheme == 'file' ? File.fromUri(uri!) : File(url),
-            videoPlayerOptions: options,
-          )
-        : VideoPlayerController.networkUrl(
-            Uri.parse(url),
-            formatHint: uri?.path.toLowerCase().endsWith('.m3u8') == true
-                ? VideoFormat.hls
-                : null,
-            videoPlayerOptions: options,
-          );
+    final isFile = uri?.scheme == 'file';
+    if (!isFile && !url.startsWith('/')) {
+      // Only a local file can play; a web address never opens a stream.
+      setState(() => _failed = true);
+      return;
+    }
+    final controller = VideoPlayerController.file(
+      isFile ? File.fromUri(uri!) : File(url),
+      videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+    );
     _controller = controller;
     try {
       await controller.initialize();

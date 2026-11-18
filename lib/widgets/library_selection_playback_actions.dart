@@ -7,13 +7,8 @@ import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/hires_batch_check_sheet.dart';
-import 'package:sistrum/widgets/link/link_actions.dart';
 import 'package:sistrum/widgets/playlist_picker_sheet.dart';
 import 'package:sistrum/widgets/selection_action_button.dart';
-import 'package:sistrum/services/network_offline_saver.dart';
-import 'package:sistrum/widgets/network_offline_actions.dart';
-import 'package:sistrum/providers/network_upload_provider.dart';
-import 'package:sistrum/widgets/network_upload_actions.dart';
 
 /// Collection actions stay separate from actions that modify audio files.
 class LibrarySelectionPlaybackActions extends ConsumerWidget {
@@ -31,31 +26,6 @@ class LibrarySelectionPlaybackActions extends ConsumerWidget {
     final colors = Theme.of(context).colorScheme;
     final showPlayer = ref.watch(playerUiEnabledProvider);
     final actions = <Widget>[
-      if (items.any((item) => networkOfflineOrigin(item) != null))
-        SelectionActionButton(
-          icon: Icons.download_for_offline_outlined,
-          label: context.l10n.offlineSave,
-          colorScheme: colors,
-          onPressed: () {
-            final root = Navigator.of(context, rootNavigator: true).context;
-            unawaited(saveNetworkOffline(root, ref, items));
-            onClose();
-          },
-        ),
-      if (networkUploadOffered(
-        ref.watch(networkUploadConnectionsProvider).value,
-        items,
-      ))
-        SelectionActionButton(
-          icon: Icons.cloud_upload_outlined,
-          label: context.l10n.networkUpload,
-          colorScheme: colors,
-          onPressed: () {
-            final root = Navigator.of(context, rootNavigator: true).context;
-            unawaited(uploadToNetworkStorage(root, ref, items));
-            onClose();
-          },
-        ),
       SelectionActionButton(
         icon: Icons.playlist_add,
         label: context.l10n.collectionAddToPlaylist,
@@ -87,8 +57,6 @@ class LibrarySelectionPlaybackActions extends ConsumerWidget {
                   if (context.mounted) onClose();
                 },
         ),
-      // Copying songs to or from the paired computer (Sistrum Link).
-      ...linkTransferSelectionActions(context, ref, items, onClose: onClose),
       if (hiResCheckableItems(items).isNotEmpty)
         SelectionActionButton(
           icon: Icons.verified_outlined,

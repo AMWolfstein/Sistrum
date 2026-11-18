@@ -3,9 +3,6 @@ part of 'library_settings_page.dart';
 class _LibrarySourceSettingsItem extends StatelessWidget {
   final LocalLibrarySource source;
 
-  /// Whether [source] is a paired computer or phone over Sistrum Link.
-  final bool link;
-
   /// Files the last finished scan of [source] could not read.
   final LibraryScanFailures? failures;
   final bool isScanning;
@@ -22,7 +19,6 @@ class _LibrarySourceSettingsItem extends StatelessWidget {
 
   const _LibrarySourceSettingsItem({
     required this.source,
-    this.link = false,
     required this.failures,
     required this.isScanning,
     required this.isFinalizing,
@@ -170,10 +166,7 @@ class _LibrarySourceSettingsItem extends StatelessWidget {
     final status = !source.enabled
         ? context.l10n.librarySourceDisabled
         : !source.available
-        // A Link device's songs return by themselves once it connects.
-        ? link
-              ? context.l10n.linkConnectionDisconnected
-              : context.l10n.librarySourceOffline
+        ? context.l10n.librarySourceOffline
         : isScanning
         ? isFinalizing
               ? context.l10n.libraryScanFinalizing
@@ -199,13 +192,7 @@ class _LibrarySourceSettingsItem extends StatelessWidget {
     return Opacity(
       opacity: enabled ? 1 : 0.5,
       child: SettingsItem(
-        icon: link
-            ? Icons.computer
-            : source.path.startsWith('network://')
-            ? Icons.dns_outlined
-            : source.isRemovable
-            ? Icons.usb_rounded
-            : Icons.folder_outlined,
+        icon: source.isRemovable ? Icons.usb_rounded : Icons.folder_outlined,
         title: title,
         titleTrailing: source.isRemovable
             ? Tooltip(
@@ -692,77 +679,6 @@ class _ScanProgressTile extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
             ),
           ],
-        ],
-      ),
-    );
-  }
-}
-
-/// Find Missing Artwork while it runs, laid out like [_ScanProgressTile].
-class _ArtworkProgressTile extends StatelessWidget {
-  final int done;
-  final int total;
-  final bool stopping;
-  final VoidCallback onStop;
-
-  const _ArtworkProgressTile({
-    required this.done,
-    required this.total,
-    required this.stopping,
-    required this.onStop,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              AppIcon(Icons.image_search_outlined, color: colorScheme.primary),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      context.l10n.libraryFindArtworkRunning,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    if (stopping || total > 0)
-                      Text(
-                        stopping
-                            ? context.l10n.libraryFindArtworkStopping
-                            : context.l10n.libraryFindArtworkProgress(
-                                done,
-                                total,
-                              ),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              ExpressiveButton(
-                text: true,
-                onPressed: stopping ? null : onStop,
-                child: Text(context.l10n.actionStop),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          AppProgressIndicator.linear(
-            value: total > 0 ? done / total : null,
-            trackColor: colorScheme.surfaceContainerHighest,
-            color: colorScheme.primary,
-            borderRadius: BorderRadius.circular(4),
-          ),
         ],
       ),
     );

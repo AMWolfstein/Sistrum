@@ -14,7 +14,6 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: ^0.20.3
-  timezone: ^0.11.2
 
   # State Management
   flutter_riverpod: ^3.5.0
@@ -27,8 +26,6 @@ dependencies:
   # v11 removes legacy Android readers, breaking users who skip the v10 migration.
   # Keep the compatibility release until old encrypted installs can be migrated.
   flutter_secure_storage: 10.3.4
-  mornye_discord:
-    path: third_party/mornye_discord
   path_provider: ^2.1.6
   # Windows known-folder lookup for the default desktop Music folder.
   path_provider_windows: ^2.3.0
@@ -39,20 +36,12 @@ dependencies:
   # Windows and Linux have no sqflite plugin; they use FFI with bundled SQLite.
   sqflite_common_ffi: ^2.4.5
 
-# HTTP & Network
-  http: ^1.6.0
-  # 7.3.2 requires dbus 0.8, while desktop_drop 0.8.4 still requires 0.7.
-  connectivity_plus: ^7.3.1
   crypto: ^3.0.8
-  # Sistrum Link: finds the desktop app on the local network (mDNS).
-  bonsoir: ^7.1.5
 
   # Streaming backup archives
   archive: ^4.6.0
 
   # UI Components
-  cached_network_image: ^4.0.6
-  flutter_cache_manager: ^3.5.0
   liquid_glass_easy: 5.2.0
   cupertino_icons: ^2.0.0
   material_symbols_icons: ^4.2960.0
@@ -67,8 +56,6 @@ dependencies:
 
   # Permissions
   permission_handler: ^13.0.2
-  # Microphone PCM stream for song recognition on all five platforms.
-  record: ^7.1.2
 
   # File Picker
   file_picker: ^13.3.2
@@ -93,9 +80,6 @@ dependencies:
   video_player: ^2.14.1
 
   xml: ^7.1.0
-  html: ^0.15.7
-  dart_smb2: 0.4.1
-  synchronized: ^3.6.1
 
   # Notifications
   flutter_local_notifications: ^23.0.0
@@ -103,7 +87,6 @@ dependencies:
   audio_service:
     path: third_party/audio_service
   audio_session: ^0.2.4
-  app_links: ^7.2.2
   # Windows and Linux playback (libmpv). Android, iOS and macOS keep
   # audioplayers; macOS bundles libmpv only for exclusive output (hog mode),
   # which AVPlayer cannot play through.
@@ -151,6 +134,7 @@ hooks:
         default: sqlite3
 
 dev_dependencies:
+  flutter_cache_manager: ^3.5.0
   flutter_driver:
     sdk: flutter
   integration_test:
@@ -209,7 +193,6 @@ flutter:
     - assets/licenses/flac.txt
     - assets/licenses/ffmpeg.txt
     - assets/licenses/lgpl-3.0.txt
-    - assets/licenses/libsmb2.txt
     - assets/licenses/native_palette.txt
     - assets/licenses/native_data_jobs.txt
     - assets/licenses/romanization.txt

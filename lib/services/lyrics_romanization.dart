@@ -13,7 +13,7 @@ import 'dart:ui' show Locale;
 
 import 'package:flutter/foundation.dart' show setEquals;
 import 'package:flutter/services.dart';
-import 'package:sistrum/services/lyrics_translation.dart';
+import 'package:sistrum/services/lyrics_plain.dart';
 import 'package:sistrum/services/romanization/pinyin.dart';
 import 'package:sistrum/services/romanization/text_romanizer.dart';
 import 'package:sistrum/utils/logger.dart';

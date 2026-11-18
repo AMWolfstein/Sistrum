@@ -197,42 +197,24 @@ extension _TrackMetadataCover on _TrackMetadataScreenState {
     }
   }
 
-  bool get _isLocalItem => _currentLocalLibraryItem != null;
-  DownloadHistoryItem? get _downloadItem => _currentDownloadItem;
-  LocalLibraryItem? get _localLibraryItem => _currentLocalLibraryItem;
-  bool get _hasHistoryNavigation =>
-      widget.historyNavigationItems != null && widget.navigationIndex != null;
+  LocalLibraryItem get _localLibraryItem => _currentLocalLibraryItem!;
   bool get _hasLocalNavigation =>
       widget.localNavigationItems != null && widget.navigationIndex != null;
-  bool get _hasTrackSwipeNavigation =>
-      _hasHistoryNavigation || _hasLocalNavigation;
+  bool get _hasTrackSwipeNavigation => _hasLocalNavigation;
   int? get _navigationIndex => _currentNavigationIndex;
-  int get _navigationLength =>
-      widget.historyNavigationItems?.length ??
-      widget.localNavigationItems?.length ??
-      0;
+  int get _navigationLength => widget.localNavigationItems?.length ?? 0;
 
-  String get _itemId =>
-      _isLocalItem ? _localLibraryItem!.id : _downloadItem!.id;
+  String get _itemId => _localLibraryItem.id;
   String get trackName =>
-      _editedMetadata?['title']?.toString() ??
-      (_isLocalItem ? _localLibraryItem!.trackName : _downloadItem!.trackName);
+      _editedMetadata?['title']?.toString() ?? _localLibraryItem.trackName;
   String get artistName =>
-      _editedMetadata?['artist']?.toString() ??
-      (_isLocalItem
-          ? _localLibraryItem!.artistName
-          : _downloadItem!.artistName);
+      _editedMetadata?['artist']?.toString() ?? _localLibraryItem.artistName;
   String get albumName =>
-      _editedMetadata?['album']?.toString() ??
-      (_isLocalItem ? _localLibraryItem!.albumName : _downloadItem!.albumName);
+      _editedMetadata?['album']?.toString() ?? _localLibraryItem.albumName;
   String? get albumArtist {
     final edited = _editedMetadata?['album_artist']?.toString();
     if (edited != null && edited.isNotEmpty) return edited;
-    return normalizeOptionalString(
-      _isLocalItem
-          ? _localLibraryItem!.albumArtist
-          : _downloadItem!.albumArtist,
-    );
+    return normalizeOptionalString(_localLibraryItem.albumArtist);
   }
 
   int? get trackNumber {
@@ -241,16 +223,12 @@ extension _TrackMetadataCover on _TrackMetadataScreenState {
       final v = int.tryParse(edited.toString());
       if (v != null && v > 0) return v;
     }
-    return _isLocalItem
-        ? _localLibraryItem!.trackNumber
-        : _downloadItem!.trackNumber;
+    return _localLibraryItem.trackNumber;
   }
 
   int? get totalTracks =>
       readPositiveInt(_editedMetadata?['total_tracks']) ??
-      (_isLocalItem
-          ? _localLibraryItem!.totalTracks
-          : _downloadItem!.totalTracks);
+      _localLibraryItem.totalTracks;
 
   int? get discNumber {
     final edited = _editedMetadata?['disc_number'];
@@ -258,26 +236,18 @@ extension _TrackMetadataCover on _TrackMetadataScreenState {
       final v = int.tryParse(edited.toString());
       if (v != null && v > 0) return v;
     }
-    return _isLocalItem
-        ? _localLibraryItem!.discNumber
-        : _downloadItem!.discNumber;
+    return _localLibraryItem.discNumber;
   }
 
   int? get totalDiscs =>
       readPositiveInt(_editedMetadata?['total_discs']) ??
-      (_isLocalItem
-          ? _localLibraryItem!.totalDiscs
-          : _downloadItem!.totalDiscs);
+      _localLibraryItem.totalDiscs;
 
   String? get releaseDate =>
-      _editedMetadata?['date']?.toString() ??
-      (_isLocalItem
-          ? _localLibraryItem!.releaseDate
-          : _downloadItem!.releaseDate);
+      _editedMetadata?['date']?.toString() ?? _localLibraryItem.releaseDate;
   String? get isrc {
     final raw =
-        _editedMetadata?['isrc']?.toString() ??
-        (_isLocalItem ? _localLibraryItem!.isrc : _downloadItem!.isrc);
+        _editedMetadata?['isrc']?.toString() ?? _localLibraryItem.isrc;
     if (raw == null || raw.trim().isEmpty) return null;
     final upper = raw.trim().toUpperCase();
     // Only accept valid ISRC codes (CC-XXX-YY-NNNNN, 12 alphanumeric chars).
@@ -291,17 +261,13 @@ extension _TrackMetadataCover on _TrackMetadataScreenState {
     r'^[A-Z]{2}[A-Z0-9]{3}\d{7}$',
   );
   String? get genre =>
-      _editedMetadata?['genre']?.toString() ??
-      (_isLocalItem ? _localLibraryItem!.genre : _downloadItem!.genre);
+      _editedMetadata?['genre']?.toString() ?? _localLibraryItem.genre;
   String? get label =>
-      _editedMetadata?['label']?.toString() ??
-      (_isLocalItem ? _localLibraryItem!.label : _downloadItem!.label);
+      _editedMetadata?['label']?.toString() ?? _localLibraryItem.label;
   String? get copyright =>
-      _editedMetadata?['copyright']?.toString() ??
-      (_isLocalItem ? _localLibraryItem!.copyright : _downloadItem!.copyright);
+      _editedMetadata?['copyright']?.toString() ?? _localLibraryItem.copyright;
   String? get composer =>
-      _editedMetadata?['composer']?.toString() ??
-      (_isLocalItem ? _localLibraryItem!.composer : null);
+      _editedMetadata?['composer']?.toString() ?? _localLibraryItem.composer;
   String? get albumType =>
       normalizeOptionalString(_editedMetadata?['album_type']?.toString());
   String? get upc => normalizeOptionalString(
@@ -311,51 +277,35 @@ extension _TrackMetadataCover on _TrackMetadataScreenState {
       normalizeOptionalString(_editedMetadata?['comment']?.toString());
   bool get isExplicit =>
       parseExplicitFlag(_editedMetadata?['explicit']) ??
-      (_isLocalItem ? _localLibraryItem!.explicit : _downloadItem!.explicit);
+      _localLibraryItem.explicit;
   int? get duration =>
       readPositiveInt(_editedMetadata?['duration']) ??
-      (_isLocalItem ? _localLibraryItem!.duration : _downloadItem!.duration);
+      _localLibraryItem.duration;
   int? get bitDepth =>
       readPositiveInt(_editedMetadata?['bit_depth']) ??
-      (_isLocalItem ? _localLibraryItem!.bitDepth : _downloadItem!.bitDepth);
+      _localLibraryItem.bitDepth;
   int? get sampleRate =>
       readPositiveInt(_editedMetadata?['sample_rate']) ??
-      (_isLocalItem
-          ? _localLibraryItem!.sampleRate
-          : _downloadItem!.sampleRate);
-  int? get _audioBitrate =>
-      _isLocalItem ? _localLibraryItem!.bitrate : _downloadItem?.bitrate;
+      _localLibraryItem.sampleRate;
+  int? get _audioBitrate => _localLibraryItem.bitrate;
   String? get _storedAudioFormat =>
-      _resolvedAudioFormat ??
-      (_isLocalItem ? _localLibraryItem?.format : _downloadItem?.format);
+      _resolvedAudioFormat ?? _localLibraryItem.format;
 
-  String get _filePath =>
-      _isLocalItem ? _localLibraryItem!.filePath : _downloadItem!.filePath;
+  String get _filePath => _localLibraryItem.filePath;
   String get _coverHeroTag =>
-      widget.coverHeroTag ??
-      (_isLocalItem ? 'cover_lib_$_itemId' : 'cover_$_itemId');
-  String? get _coverUrl => _isLocalItem
-      ? null
-      : highResCoverUrl(normalizeRemoteHttpUrl(_downloadItem!.coverUrl));
+      widget.coverHeroTag ?? 'cover_lib_$_itemId';
 
   String? get _localCoverPath =>
       normalizeOptionalString(_editedMetadata?['cover_path']?.toString()) ??
-      (_isLocalItem ? _localLibraryItem!.coverPath : null);
-  String? get _spotifyId => _isLocalItem ? null : _downloadItem!.spotifyId;
-  String get _service =>
-      _isLocalItem ? MusicServices.local : _downloadItem!.service;
+      _localLibraryItem.coverPath;
+  String get _service => MusicServices.local;
   DateTime get _addedAt {
-    if (_isLocalItem) {
-      final modTime = _localLibraryItem!.fileModTime;
-      if (modTime != null && modTime > 0) {
-        return DateTime.fromMillisecondsSinceEpoch(modTime);
-      }
-      return _localLibraryItem!.scannedAt;
+    final modTime = _localLibraryItem.fileModTime;
+    if (modTime != null && modTime > 0) {
+      return DateTime.fromMillisecondsSinceEpoch(modTime);
     }
-    return _downloadItem!.downloadedAt;
+    return _localLibraryItem.scannedAt;
   }
-
-  String? get _quality => _isLocalItem ? null : _downloadItem!.quality;
 
   int? _readPlausibleBitrateKbps(dynamic value) {
     final parsed = readPositiveInt(value);

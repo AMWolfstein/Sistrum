@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/conversion_library_service.dart';
@@ -19,8 +18,6 @@ import 'package:sistrum/utils/int_utils.dart';
 import 'package:sistrum/utils/lyrics_metadata_helper.dart';
 import 'package:sistrum/utils/logger.dart';
 import 'package:sistrum/widgets/batch_convert_sheet.dart';
-import 'package:sistrum/widgets/link/link_library_actions.dart';
-import 'package:sistrum/services/link/link_library_jobs.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/batch_progress_dialog.dart';
@@ -78,40 +75,17 @@ Future<void> showBatchConvertSheet(
   VoidCallback? onSheetOpen,
   Future<void> Function(bool didStartConversion)? onSheetClosed,
 }) async {
-  final container = ProviderScope.containerOf(context, listen: false);
-  if (hasLinkLibrarySongs(container, selectedItems)) {
-    final root = Navigator.of(context, rootNavigator: true).context;
-    onSheetOpen?.call();
-    var accepted = false;
-    await runLinkLibraryAction(
-      root,
-      container,
-      selectedItems,
-      LinkLibraryAction.convert,
-      onAccepted: () {
-        accepted = true;
-        if (ref.context.mounted) onExitSelectionMode();
-      },
-    );
-    if (root.mounted && ref.context.mounted) {
-      await onSheetClosed?.call(accepted);
-    }
-    return;
-  }
   final sourceFormats = <String>{};
   final sourceBitDepths = <int?>[];
   final sourceSampleRates = <int?>[];
   for (final item in selectedItems) {
     final sourceFormat = convertibleAudioSourceFormat(
-      storedFormat: item.localItem?.format ?? item.historyItem?.format,
+      storedFormat: item.localItem?.format,
       filePath: item.filePath,
-      fileName: item.historyItem?.safFileName,
     );
     if (sourceFormat != null) sourceFormats.add(sourceFormat);
-    sourceBitDepths.add(item.historyItem?.bitDepth ?? item.localItem?.bitDepth);
-    sourceSampleRates.add(
-      item.historyItem?.sampleRate ?? item.localItem?.sampleRate,
-    );
+    sourceBitDepths.add(item.localItem?.bitDepth);
+    sourceSampleRates.add(item.localItem?.sampleRate);
   }
 
   final formats = audioConversionTargetFormats
@@ -191,9 +165,8 @@ Future<void> _performBatchConversion(
   final convertibleItems = <UnifiedLibraryItem>[];
   for (final item in selectedItems) {
     final sourceFormat = convertibleAudioSourceFormat(
-      storedFormat: item.localItem?.format ?? item.historyItem?.format,
+      storedFormat: item.localItem?.format,
       filePath: item.filePath,
-      fileName: item.historyItem?.safFileName,
     );
     if (sourceFormat == null ||
         !canConvertAudioFormat(
@@ -281,20 +254,13 @@ Future<void> _performBatchConversion(
         'TITLE': item.trackName,
         'ARTIST': item.artistName,
         'ALBUM': item.albumName,
-        if (item.historyItem?.explicit == true ||
-            item.localItem?.explicit == true)
-          'ITUNESADVISORY': '1',
+        if (item.localItem?.explicit == true) 'ITUNESADVISORY': '1',
       },
       trackName: item.trackName,
       artistName: item.artistName,
-      spotifyId: item.historyItem?.spotifyId ?? '',
-      durationMs:
-          ((item.historyItem?.duration ?? item.localItem?.duration) ?? 0) *
-          1000,
-      sourceBitDepth: item.historyItem?.bitDepth ?? item.localItem?.bitDepth,
-      sourceSampleRate:
-          item.historyItem?.sampleRate ?? item.localItem?.sampleRate,
-      historyItem: item.historyItem,
+      durationMs: (item.localItem?.duration ?? 0) * 1000,
+      sourceBitDepth: item.localItem?.bitDepth,
+      sourceSampleRate: item.localItem?.sampleRate,
       localItem: item.localItem,
       targetFormat: targetFormat,
       bitrate: bitrate,
@@ -323,7 +289,6 @@ Future<void> _performBatchConversion(
     }
   }
 
-  await ref.read(downloadHistoryProvider.notifier).reloadFromStorage();
   await ref.read(localLibraryProvider.notifier).reloadFromStorage();
 
   onExitSelectionMode();
@@ -345,16 +310,15 @@ Future<void> _performBatchConversion(
 }
 
 /// Converts the track at [filePath] to [targetFormat], publishes SAF output
-/// and records the result on [historyItem] or [localItem] (with neither, the
-/// converted file is not recorded). Temporary files are removed before this
+/// and records the result on [localItem] (with none, the converted file is
+/// not recorded). Temporary files are removed before this
 /// returns. Shared by batch conversion and the track metadata screen.
 ///
 /// [metadata] holds the caller's fallback tags and is completed from the
 /// file. [readArtistTagMode] is read when FFmpeg starts.
 /// [coverTempPrefix] names the extracted cover in the temp directory.
 /// [treatEmptySafTempPathAsFailure] also fails an empty SAF temp copy path.
-/// [historySafFileNameFallback] is the original SAF file name used when
-/// [historyItem] has none. [eagerTempCleanup] deletes the cover right after
+/// [eagerTempCleanup] deletes the cover right after
 /// FFmpeg and the temp files before each checked failure, not only at the
 /// end. [onPersisted] runs right after the history or library row is written.
 /// [diagnosticsLog] receives metadata fallback and SAF original delete
@@ -364,11 +328,9 @@ Future<LibraryTrackConversionResult> convertLibraryTrack({
   required Map<String, String> metadata,
   required String trackName,
   required String artistName,
-  required String spotifyId,
   required int durationMs,
   required int? sourceBitDepth,
   required int? sourceSampleRate,
-  required DownloadHistoryItem? historyItem,
   required LocalLibraryItem? localItem,
   required String targetFormat,
   required String bitrate,
@@ -380,7 +342,6 @@ Future<LibraryTrackConversionResult> convertLibraryTrack({
   required LosslessConversionLabels losslessLabels,
   required String coverTempPrefix,
   required bool treatEmptySafTempPathAsFailure,
-  String historySafFileNameFallback = '',
   bool eagerTempCleanup = false,
   Future<void> Function()? onPersisted,
   AppLogger? diagnosticsLog,
@@ -431,15 +392,6 @@ Future<LibraryTrackConversionResult> convertLibraryTrack({
     } catch (e) {
       diagnosticsLog?.w('readFileMetadata threw, using fallback metadata: $e');
     }
-    await ensureLyricsMetadataForConversion(
-      metadata: metadata,
-      sourcePath: filePath,
-      shouldEmbedLyrics: shouldEmbedLyrics,
-      trackName: trackName,
-      artistName: artistName,
-      spotifyId: spotifyId,
-      durationMs: durationMs,
-    );
 
     try {
       final tempDir = await getTemporaryDirectory();
@@ -498,14 +450,6 @@ Future<LibraryTrackConversionResult> convertLibraryTrack({
         sourceSampleRate,
       );
     }
-    final newQuality = convertedAudioQualityLabel(
-      targetFormat: targetFormat,
-      bitrate: bitrate,
-      labels: losslessLabels,
-      losslessQuality: losslessQuality,
-      actualBitDepth: convertedBitDepth,
-      actualSampleRate: convertedSampleRate,
-    );
 
     Future<({String uri, String fileName})> publishSafOutput({
       required String treeUri,
@@ -543,40 +487,7 @@ Future<LibraryTrackConversionResult> convertLibraryTrack({
       return published!;
     }
 
-    if (isSaf && historyItem != null) {
-      failureStage = 'publish SAF output';
-      final treeUri = historyItem.downloadTreeUri;
-      if (treeUri != null && treeUri.isNotEmpty) {
-        final safFileName = historyItem.safFileName;
-        final published = await publishSafOutput(
-          treeUri: treeUri,
-          relativeDir: historyItem.safRelativeDir ?? '',
-          originalFileName: safFileName != null && safFileName.isNotEmpty
-              ? safFileName
-              : historySafFileNameFallback,
-        );
-        await ConversionLibraryService.persistHistoryConversion(
-          source: historyItem,
-          newFilePath: published.uri,
-          newQuality: newQuality,
-          targetFormat: targetFormat,
-          bitrate: bitrate,
-          bitDepth: convertedBitDepth,
-          sampleRate: convertedSampleRate,
-          keepOriginal: keepOriginal,
-          newSafFileName: published.fileName,
-        );
-        await onPersisted?.call();
-      } else {
-        await cleanUpEagerly([newPath, safTempPath]);
-        throw const _BatchConversionFailure(
-          'publish SAF output',
-          'download folder permission is unavailable',
-        );
-      }
-      await _deleteFileQuietly(newPath);
-      if (safTempPath != null) await _deleteFileQuietly(safTempPath);
-    } else if (isSaf && localItem != null) {
+    if (isSaf && localItem != null) {
       failureStage = 'publish SAF output';
       final location = resolveSafDocumentLocation(filePath);
 
@@ -606,18 +517,6 @@ Future<LibraryTrackConversionResult> convertLibraryTrack({
 
       await _deleteFileQuietly(newPath);
       if (safTempPath != null) await _deleteFileQuietly(safTempPath);
-    } else if (historyItem != null) {
-      await ConversionLibraryService.persistHistoryConversion(
-        source: historyItem,
-        newFilePath: newPath,
-        newQuality: newQuality,
-        targetFormat: targetFormat,
-        bitrate: bitrate,
-        bitDepth: convertedBitDepth,
-        sampleRate: convertedSampleRate,
-        keepOriginal: keepOriginal,
-      );
-      await onPersisted?.call();
     } else if (localItem != null) {
       await LibraryDatabase.instance.replaceWithConvertedItem(
         item: localItem,
@@ -680,25 +579,6 @@ Future<void> runBatchReplayGain(
   // The selection overlay can disappear when opening the confirmation dialog.
   final context = Navigator.of(sourceContext, rootNavigator: true).context;
 
-  if (hasLinkLibrarySongs(container, selectedItems)) {
-    onConfirmOpen?.call();
-    var accepted = false;
-    await runLinkLibraryAction(
-      context,
-      container,
-      selectedItems,
-      remove
-          ? LinkLibraryAction.removeReplayGain
-          : LinkLibraryAction.replayGain,
-      onAccepted: () {
-        accepted = true;
-        if (sourceContext.mounted) onExitSelectionMode();
-      },
-    );
-    if (context.mounted) await onConfirmClosed?.call(accepted);
-    return;
-  }
-
   onConfirmOpen?.call();
 
   final title = remove
@@ -750,15 +630,6 @@ Future<void> runBatchReplayGain(
       if (ok) {
         successCount++;
         try {
-          if (item.historyItem case final history?) {
-            await container
-                .read(downloadHistoryProvider.notifier)
-                .updateAudioMetadataForItem(
-                  id: history.id,
-                  hasReplayGain: !remove,
-                  replayGainMetadataScanVersion: 1,
-                );
-          }
           if (item.localItem case final local?) {
             await LibraryDatabase.instance.updateAudioMetadata(
               local.id,

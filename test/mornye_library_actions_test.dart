@@ -10,9 +10,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
-import 'package:sistrum/services/batch_metadata_re_enrich.dart';
 import 'package:sistrum/services/batch_track_actions.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
@@ -20,8 +19,6 @@ import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_switch.dart';
 import 'package:sistrum/widgets/batch_convert_sheet.dart';
 import 'package:sistrum/widgets/mornye_context_menu.dart';
-import 'package:sistrum/widgets/mornye_chrome.dart';
-import 'package:sistrum/widgets/re_enrich_field_dialog.dart';
 import 'package:sistrum/widgets/selection_action_button.dart';
 import 'package:sistrum/widgets/selection_bottom_bar.dart';
 import 'package:sistrum/widgets/destructive_selection_button.dart';
@@ -167,40 +164,6 @@ void main() {
   }
 
   testWidgets(
-    'Mornye Re-enrich retains field choices and disables empty review',
-    (tester) async {
-      await tester.binding.setSurfaceSize(const Size(390, 844));
-      addTearDown(() => tester.binding.setSurfaceSize(null));
-      ReEnrichFieldSelection? result;
-      await tester.pumpWidget(
-        _app(
-          Builder(
-            builder: (context) => CupertinoButton(
-              onPressed: () async {
-                result = await showReEnrichFieldDialog(
-                  context,
-                  selectedCount: 2,
-                );
-              },
-              child: const Text('Open'),
-            ),
-          ),
-        ),
-      );
-      await _tapVisible(tester, find.text('Open'));
-      await _tapVisible(tester, find.text('Update selected tags'));
-      await _tapVisible(tester, find.text('Select All'));
-      final review = find.widgetWithText(AppActionButton, 'Review changes');
-      expect(tester.widget<AppActionButton>(review).onPressed, isNull);
-      await _tapVisible(tester, find.text('Cover Art'));
-      await _tapVisible(tester, find.text('Review changes'));
-      expect(result?.mode, ReEnrichBatchMode.selectedFields);
-      expect(result?.fields, [ReEnrichFields.cover]);
-      expect(tester.takeException(), isNull);
-    },
-  );
-
-  testWidgets(
     'Mornye ReplayGain cancellation restores selection without analysis',
     (tester) async {
       bool? confirmed;
@@ -249,14 +212,13 @@ void main() {
       await tester.pumpWidget(
         _app(
           TrackMetadataScreen(
-            item: DownloadHistoryItem(
+            localItem: LocalLibraryItem(
               id: 'menu-track',
               trackName: 'Track',
               artistName: 'Artist',
               albumName: 'Album',
               filePath: 'content://library/document/menu-track.flac',
-              service: 'provider-a',
-              downloadedAt: DateTime(2026),
+              scannedAt: DateTime(2026),
             ),
           ),
           platform: platform,
@@ -307,14 +269,13 @@ void main() {
     await tester.pumpWidget(
       _app(
         TrackMetadataScreen(
-          item: DownloadHistoryItem(
+          localItem: LocalLibraryItem(
             id: 'edit-track',
             trackName: 'Track',
             artistName: 'Artist',
             albumName: 'Album',
             filePath: 'content://library/document/edit-track.flac',
-            service: 'provider-a',
-            downloadedAt: DateTime(2026),
+            scannedAt: DateTime(2026),
           ),
         ),
       ),
@@ -344,7 +305,7 @@ void main() {
     expect(find.text('Edited track'), findsOneWidget);
     expect(find.widgetWithText(AppActionButton, 'Save'), findsOneWidget);
     await tester.scrollUntilVisible(
-      find.text('Auto-fill from online'),
+      find.widgetWithText(AppActionButton, 'Save'),
       -250,
       scrollable: find
           .descendant(
@@ -353,18 +314,7 @@ void main() {
           )
           .first,
     );
-    await _tapVisible(tester, find.text('Auto-fill from online'));
-    await _tapVisible(tester, find.text('None'));
-    final search = find.widgetWithText(AppActionButton, 'Find metadata');
-    expect(tester.widget<AppActionButton>(search).onPressed, isNull);
-    await _tapVisible(tester, find.text('All'));
-    expect(tester.widget<AppActionButton>(search).onPressed, isNotNull);
-    expect(
-      tester
-          .widgetList<MornyeFilterChip>(find.byType(MornyeFilterChip))
-          .every((chip) => chip.selected),
-      isTrue,
-    );
+    expect(find.widgetWithText(AppActionButton, 'Save'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

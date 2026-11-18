@@ -11,7 +11,6 @@ import 'package:sistrum/controllers/player_track_navigation.dart';
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
-import 'package:sistrum/providers/lyrics_translation_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/song_lyrics_offset_provider.dart';
@@ -34,10 +33,6 @@ import 'package:sistrum/widgets/audio_output_button.dart';
 import 'package:sistrum/widgets/desktop/desktop_commands.dart'
     show DesktopCommand, desktopTooltip;
 import 'package:sistrum/widgets/desktop/desktop_inspector.dart';
-import 'package:sistrum/widgets/link/link_actions.dart';
-import 'package:sistrum/widgets/network_offline_actions.dart';
-import 'package:sistrum/widgets/link/link_devices_sheet.dart';
-import 'package:sistrum/widgets/playback_source_label.dart';
 import 'package:sistrum/widgets/playback_tempo_sheet.dart';
 import 'package:sistrum/widgets/lyrics_options_button.dart';
 import 'package:sistrum/widgets/lyrics_options_activity.dart';
@@ -156,7 +151,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
       _currentPage == 1 || ref.read(settingsProvider).playerShowLyricSnippet;
   late final _trackMetadata =
       widget.metadataControllerFactory?.call() ?? PlayerMetadataController();
-  late final LyricsTranslationController _lyricsTranslation;
   late int _currentPage = widget.initialPage;
   bool _landscape = false;
   bool _queueSheetShowing = false;
@@ -200,7 +194,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
   @override
   void initState() {
     super.initState();
-    _lyricsTranslation = ref.read(lyricsTranslationProvider.notifier);
     if (widget.embedded) desktopInspectorPanel.addListener(_onInspectorChanged);
     _mediaItemSub = ref.listenManual<AsyncValue<MediaItem?>>(
       currentMediaItemProvider,
@@ -336,7 +329,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
     _lyricsAutoHideSub?.close();
     _lyricsLayoutSub?.close();
     _lyricLineSub?.close();
-    _lyricsTranslation.cancel(owner: this);
     _trackMetadata.dispose();
     _artworkDim.dispose();
     _seekPreview.dispose();
@@ -634,7 +626,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
           actions: mornye
               ? null
               : [
-                  LinkDevicesButton(color: overCover ? Colors.white : null),
                   AppIconButton(
                     tooltip: context.l10n.nowPlayingUpNext,
                     color: overCover ? Colors.white : null,
@@ -678,7 +669,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
                         onNotification: _onLyricsScroll,
                         child: MornyePlayerLayout(
                           mediaItem: mediaItem,
-                          showSourceLabel: !reservesPlayingOnRow,
                           metadata: _trackMetadata,
                           seekPreview: _seekPreview,
                           colorScheme: colorScheme,
@@ -722,7 +712,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
                       )
                     : MaterialPlayerLayout(
                         mediaItem: mediaItem,
-                        showSourceLabel: !reservesPlayingOnRow,
                         metadata: _trackMetadata,
                         seekPreview: _seekPreview,
                         colorScheme: colorScheme,
@@ -782,10 +771,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
                                   _scheduleLyricsControlsHide();
                                 },
                               ),
-                              // The row spreads its buttons apart, so the
-                              // Devices entry only takes a slot when paired.
-                              if (ref.watch(linkPhoneClientProvider) != null)
-                                const LinkDevicesButton(color: Colors.white),
                               IconButton(
                                 tooltip: context.l10n.nowPlayingUpNext,
                                 color: Colors.white,
@@ -838,46 +823,10 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
                             ],
                           ),
                         ),
-                      // Landscape has no row to spare; the toolbar's devices
-                      // button shows the device there. Short phones' lyrics
+                      // Landscape has no row to spare. Short phones' lyrics
                       // keep the room an empty row would take.
-                      if (MediaQuery.orientationOf(context) ==
-                          Orientation.portrait) ...[
-                        if (!reservesPlayingOnRow) ...[
-                          LinkPlayingOnLabel(
-                            color: mornye ? Colors.white : null,
-                          ),
-                          const SizedBox(height: 8),
-                        ] else
-                          SizedBox(
-                            key: const ValueKey('link-playing-on-row'),
-                            height: _playingOnRowHeight,
-                            child: Center(
-                              child: LinkPlayingOnLabel(
-                                color: mornye ? Colors.white : null,
-                                height: _playingOnRowHeight,
-                                // Where the music plays and where it comes
-                                // from read from one place.
-                                idle: PlaybackSourceLabel(
-                                  item: mediaItem,
-                                  color: mornye
-                                      ? Colors.white
-                                      : colorScheme.primary,
-                                  style: mornye
-                                      ? Theme.of(
-                                          context,
-                                        ).textTheme.labelMedium?.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                        )
-                                      : Theme.of(context).textTheme.labelLarge,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                      ],
+                      if (reservesPlayingOnRow)
+                        const SizedBox(height: _playingOnRowHeight),
                     ],
                   ),
                 ),
@@ -1307,7 +1256,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
   Widget _lyricsOptionsButton(ColorScheme colorScheme) => LyricsOptionsButton(
     metadata: _trackMetadata,
     colorScheme: colorScheme,
-    translationOwner: this,
     onOpenChanged: _onLyricsOptionsOpenChanged,
   );
 
@@ -1399,17 +1347,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
     final settings = ref.read(settingsProvider);
     final volumeShown = settings.playerShowVolume;
     final tempoSubtitle = playbackTempoSettingsSummary(context.l10n, settings);
-    final linkClient = ref.read(linkPhoneClientProvider);
-    final transfer = await linkTransferSongsOfPlaying(
-      ref,
-      mediaId: mediaItem.id,
-      source: source,
-    );
     if (!mounted || !context.mounted) return;
-    final sendToDesktop = transfer.phone.isEmpty || linkClient == null
-        ? null
-        : linkDesktopName(linkClient);
-    final saveToPhone = transfer.desktop.isNotEmpty;
     final action = context.isMornye
         ? await showMornyeContextMenu<String>(
             context: context,
@@ -1421,9 +1359,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
               sleepTimerSubtitle: sleepTimerSubtitle,
               tempoSubtitle: tempoSubtitle,
               volumeShown: volumeShown,
-              sendToDesktop: sendToDesktop,
-              sendToPhoneHost: linkClient?.server.isPhone ?? false,
-              saveToPhone: saveToPhone,
             ),
           )
         : await showAppBottomSheet<String>(
@@ -1454,25 +1389,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
                     title: sheetContext.l10n.lyricsShareTitle,
                     onTap: () => Navigator.of(sheetContext).pop('shareLyrics'),
                   ),
-                  if (sendToDesktop != null && linkClient != null)
-                    SettingsItem(
-                      icon: linkSendToHostIcon(linkClient),
-                      title: sheetContext.l10n.linkSendToDesktop(sendToDesktop),
-                      onTap: () => Navigator.of(sheetContext).pop('linkSend'),
-                    ),
-                  if (saveToPhone)
-                    SettingsItem(
-                      icon: Icons.phone_android,
-                      title: sheetContext.l10n.linkSaveToPhone,
-                      onTap: () => Navigator.of(sheetContext).pop('linkSave'),
-                    ),
-                  if (!saveToPhone && canSaveNetworkOfflineSource(source))
-                    SettingsItem(
-                      icon: Icons.download_for_offline_outlined,
-                      title: sheetContext.l10n.offlineSave,
-                      onTap: () =>
-                          Navigator.of(sheetContext).pop('networkOffline'),
-                    ),
                   SettingsItem(
                     icon: Icons.bedtime_outlined,
                     title: sheetContext.l10n.nowPlayingSleepTimer,
@@ -1546,15 +1462,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
         break;
       case 'shareLyrics':
         await _shareLyrics();
-        break;
-      case 'linkSend':
-        await linkSendSongsToDesktop(context, ref, transfer.phone);
-        break;
-      case 'linkSave':
-        linkSaveSongsToPhone(context, ref, transfer.desktop);
-        break;
-      case 'networkOffline':
-        await savePlayingNetworkOffline(context, ref, mediaItem);
         break;
       case 'details':
         unawaited(
@@ -1664,7 +1571,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
   Future<void> _goToCurrentAlbum({
     required MediaItem mediaItem,
     required String source,
-  }) => openPlayingAlbum(context, ref, mediaItem: mediaItem, source: source);
+  }) => openPlayingAlbum(context, ref, mediaItem: mediaItem);
 
   /// Opens Up Next. The Material sheet captures the theme of [context], the
   /// player's artwork scope.

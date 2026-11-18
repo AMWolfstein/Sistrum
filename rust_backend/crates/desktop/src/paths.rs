@@ -81,14 +81,6 @@ pub(crate) fn uuid() -> String {
     )
 }
 
-pub(crate) fn is_uuid(value: &str) -> bool {
-    value.len() == 36
-        && value.char_indices().all(|(index, character)| match index {
-            8 | 13 | 18 | 23 => character == '-',
-            _ => character.is_ascii_hexdigit(),
-        })
-}
-
 /// Moves a finished staging file into place. Falls back to copy and remove
 /// when the staging root is on another filesystem (for example `/tmp`).
 pub(crate) fn publish(staged: &Path, output: &Path) -> io::Result<()> {
@@ -109,6 +101,15 @@ impl Drop for RemoveOnDrop {
     fn drop(&mut self) {
         let _ = fs::remove_file(&self.0);
     }
+}
+
+#[cfg(test)]
+pub(crate) fn is_uuid(value: &str) -> bool {
+    value.len() == 36
+        && value.char_indices().all(|(index, character)| match index {
+            8 | 13 | 18 | 23 => character == '-',
+            _ => character.is_ascii_hexdigit(),
+        })
 }
 
 #[cfg(test)]

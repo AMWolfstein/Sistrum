@@ -37,9 +37,6 @@ import 'package:sistrum/widgets/beta_badge.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/player_volume_control.dart';
 import 'package:sistrum/widgets/settings_group.dart';
-import 'package:sistrum/widgets/discord_presence_settings.dart';
-import 'package:sistrum/widgets/lastfm_settings.dart';
-import 'package:sistrum/widgets/scrobble_settings.dart';
 import 'package:sistrum/widgets/automix_settings.dart';
 import 'package:sistrum/widgets/autoplay_randomness_slider.dart';
 import 'package:sistrum/widgets/music_haptics_settings.dart';
@@ -527,37 +524,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                 showDivider: false,
               ),
             ],
-          ),
-          if (Platform.isAndroid || Platform.isIOS || isDesktopPlatform) ...[
-            const SliverToBoxAdapter(
-              child: SettingsSectionHeader(title: 'Discord'),
-            ),
-            const SliverToBoxAdapter(child: DiscordPresenceSettings()),
-          ],
-          const SliverToBoxAdapter(
-            child: SettingsSectionHeader(title: 'Last.fm'),
-          ),
-          SliverToBoxAdapter(
-            child: LastfmSettings(
-              service: ref.read(musicPlayerRuntimeProvider).lastfm,
-            ),
-          ),
-          const SliverToBoxAdapter(
-            child: SettingsSectionHeader(title: 'Libre.fm'),
-          ),
-          SliverToBoxAdapter(
-            child: LastfmSettings(
-              service: ref.read(musicPlayerRuntimeProvider).librefm,
-              serviceName: 'Libre.fm',
-            ),
-          ),
-          const SliverToBoxAdapter(
-            child: SettingsSectionHeader(title: 'ListenBrainz'),
-          ),
-          SliverToBoxAdapter(
-            child: ListenBrainzSettings(
-              service: ref.read(musicPlayerRuntimeProvider).listenBrainz,
-            ),
           ),
           if (isDesktopPlatform)
             ...settingsSectionSlivers(

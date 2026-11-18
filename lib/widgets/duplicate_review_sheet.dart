@@ -9,7 +9,6 @@ import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/song_leftovers_provider.dart';
 import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
@@ -138,24 +137,16 @@ class _DuplicateReviewSheetState extends ConsumerState<DuplicateReviewSheet> {
     List<IsrcDuplicateEntry> entries, {
     required List<IsrcDuplicateEntry> retainedEntries,
   }) async {
-    final historyNotifier = ref.read(downloadHistoryProvider.notifier);
     final deleted = await deleteReviewedDuplicateCopies(
       entries: entries,
       retainedEntries: retainedEntries,
       deleteFile: ref.read(songLeftoversProvider).delete,
       removePhysicalFile: (path) async {
-        // A download may also be indexed by a scan. Clear both references so
-        // playlist resolution by ISRC finds the surviving file, not a ghost.
-        await historyNotifier.removePhysicalFiles([path]);
         await _localLibraryNotifier.removePhysicalFiles([path]);
       },
       removeIndexEntry: (entry) async {
-        if (entry.source == 'downloaded') {
-          await historyNotifier.removeFromHistory(entry.id);
-        } else {
-          await LibraryDatabase.instance.deleteByPath(entry.filePath);
-          _deletedLocalRows = true;
-        }
+        await LibraryDatabase.instance.deleteByPath(entry.filePath);
+        _deletedLocalRows = true;
       },
     );
     if (!mounted) return;

@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/library_browse_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
@@ -12,17 +11,12 @@ import 'support/fixed_settings.dart';
 import 'support/library_paging_fixture.dart';
 import 'support/sqlite_process_database.dart';
 
-class _History extends DownloadHistoryNotifier {
-  @override
-  DownloadHistoryState build() => DownloadHistoryState();
-
-  void revise() =>
-      state = state.copyWith(loadedIndexVersion: state.loadedIndexVersion + 1);
-}
-
 class _Local extends LocalLibraryNotifier {
   @override
   LocalLibraryState build() => LocalLibraryState();
+
+  void revise() =>
+      state = state.copyWith(loadedIndexVersion: state.loadedIndexVersion + 1);
 }
 
 void main() {
@@ -55,7 +49,6 @@ void main() {
               const AppSettings(localLibraryEnabled: true),
             ),
           ),
-          downloadHistoryProvider.overrideWith(_History.new),
           localLibraryProvider.overrideWith(_Local.new),
           libraryBrowsePageLoaderProvider.overrideWithValue((page) async {
             reads.add(page);
@@ -79,7 +72,7 @@ void main() {
       ]);
       reads.clear();
       returned = 0;
-      (container.read(downloadHistoryProvider.notifier) as _History).revise();
+      (container.read(localLibraryProvider.notifier) as _Local).revise();
       final refreshed = await container.read(provider.future);
       final expected = await readLibraryPagingFixture(store, (
         browse: (
@@ -195,7 +188,6 @@ void main() {
                 const AppSettings(localLibraryEnabled: true),
               ),
             ),
-            downloadHistoryProvider.overrideWith(_History.new),
             localLibraryProvider.overrideWith(_Local.new),
             libraryBrowsePageLoaderProvider.overrideWithValue((page) async {
               reads.add(page);
@@ -255,7 +247,7 @@ void main() {
           }
           reads.clear();
           returned = 0;
-          (container.read(downloadHistoryProvider.notifier) as _History)
+          (container.read(localLibraryProvider.notifier) as _Local)
               .revise();
           final refreshed = await container.read(provider.future);
           expect(

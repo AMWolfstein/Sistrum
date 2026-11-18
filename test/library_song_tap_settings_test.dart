@@ -6,7 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/settings/library_settings_page.dart';
@@ -29,11 +28,6 @@ class _Library extends LocalLibraryNotifier {
   LocalLibraryState build() => LocalLibraryState();
 }
 
-class _Extensions extends ExtensionNotifier {
-  @override
-  ExtensionState build() => const ExtensionState();
-}
-
 Future<ProviderContainer> _pumpPage(
   WidgetTester tester, {
   bool mornye = false,
@@ -48,7 +42,6 @@ Future<ProviderContainer> _pumpPage(
     overrides: [
       initialSettingsProvider.overrideWithValue(settings),
       localLibraryProvider.overrideWith(_Library.new),
-      extensionProvider.overrideWith(_Extensions.new),
     ],
   );
   addTearDown(container.dispose);

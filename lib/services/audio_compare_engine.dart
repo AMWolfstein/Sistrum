@@ -14,7 +14,6 @@ import 'package:sistrum/services/audio_compare_dsp.dart';
 import 'package:sistrum/services/audio_compare_ffmpeg.dart';
 import 'package:sistrum/services/ffmpeg_models.dart';
 import 'package:sistrum/services/ffmpeg_support.dart';
-import 'package:sistrum/services/network_audio_analysis_input.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/utils/logger.dart';
 
@@ -218,7 +217,6 @@ class AudioCompareEngine {
     Future<MediaInformation?> Function(String path)? probe,
     Future<Directory> Function()? temporaryDirectory,
     Future<String?> Function(String uri)? copyContentUri,
-    NetworkAudioAnalysisInput? networkInput,
     AudioCompareImageDecoder? decodeImage,
   }) : _jobs = AudioAnalysisJobs<FFmpegSessionResult>(
          start: start ?? FFmpegExecution.start,
@@ -227,14 +225,12 @@ class AudioCompareEngine {
        _probe = probe ?? FFmpegExecution.mediaInformation,
        _temporaryDirectory = temporaryDirectory ?? getTemporaryDirectory,
        _copyContentUri = copyContentUri ?? PlatformBridge.copyContentUriToTemp,
-       networkInput = networkInput ?? NetworkAudioAnalysisInput(),
        _decodeImage = decodeImage ?? _decodeRgba;
 
   final AudioAnalysisJobs<FFmpegSessionResult> _jobs;
   final Future<MediaInformation?> Function(String path) _probe;
   final Future<Directory> Function() _temporaryDirectory;
   final Future<String?> Function(String uri) _copyContentUri;
-  final NetworkAudioAnalysisInput networkInput;
   final AudioCompareImageDecoder _decodeImage;
   int _generation = 0;
   bool _disposed = false;
@@ -243,18 +239,16 @@ class AudioCompareEngine {
   void cancel() {
     _generation++;
     _jobs.invalidate();
-    networkInput.cancel();
   }
 
   void dispose() {
     _disposed = true;
     _generation++;
     _jobs.dispose();
-    networkInput.cancel();
   }
 
   /// Compares [otherPath] (a local file) with [referencePath], which may
-  /// also be an Android content URI or a network source. [onStage] reports
+  /// also be an Android content URI. [onStage] reports
   /// each step. Throws [AudioCompareException],
   /// [UnsupportedAudioAnalysisCodecException] or [AudioAnalysisCancelled].
   Future<AudioCompareResult> compare({
@@ -282,19 +276,6 @@ class AudioCompareEngine {
       includeSpectrogram: includeSpectrogram,
     );
 
-    if (NetworkAudioAnalysisInput.isNetwork(referencePath)) {
-      onStage?.call(AudioCompareStage.preparing);
-      AudioCompareResult? produced;
-      try {
-        return await networkInput.withFile(
-          referencePath,
-          (path) async => produced = await run(path),
-        );
-      } catch (_) {
-        produced?.dispose();
-        rethrow;
-      }
-    }
     if (referencePath.startsWith('content://')) {
       onStage?.call(AudioCompareStage.preparing);
       final copy = await _copyContentUri(referencePath);

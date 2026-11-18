@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sistrum/models/download_history.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/playback_provider.dart';
@@ -69,28 +68,6 @@ void main() {
       await container
           .read(playbackProvider.notifier)
           .playLocalLibraryQueue(
-            items,
-            startItem: items.firstWhere((item) => item.id == start),
-          );
-      expect(player.calls, [('a b c', index)]);
-    });
-
-    test('history queue starting at $start', () async {
-      final items = [
-        for (final MapEntry(:key, :value) in _paths.entries)
-          DownloadHistoryItem(
-            id: key,
-            trackName: key,
-            artistName: 'Artist',
-            albumName: 'Album',
-            filePath: value,
-            service: 'example',
-            downloadedAt: DateTime(2026),
-          ),
-      ];
-      await container
-          .read(playbackProvider.notifier)
-          .playHistoryQueue(
             items,
             startItem: items.firstWhere((item) => item.id == start),
           );

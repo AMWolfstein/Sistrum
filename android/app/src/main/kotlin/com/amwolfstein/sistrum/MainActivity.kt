@@ -34,7 +34,6 @@ import org.json.JSONObject
 import org.json.JSONTokener
 import java.io.File
 import java.util.LinkedHashMap
-import java.util.concurrent.atomic.AtomicReference
 
 class MainActivity: FlutterFragmentActivity() {
     // Mirrors audio_service's AudioServiceFragmentActivity: the shared engine
@@ -62,7 +61,6 @@ class MainActivity: FlutterFragmentActivity() {
     internal val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     internal var backendChannel: MethodChannel? = null
     internal var audioOutputChannel: MethodChannel? = null
-    internal var concertCalendarChannel: MethodChannel? = null
     internal val coreBackend: CoreBackend by lazy { createCoreBackend(applicationContext) }
     private val nativeBackendMethods = setOf(
         "isAndroidTv",
@@ -72,13 +70,10 @@ class MainActivity: FlutterFragmentActivity() {
         "getBackendImplementations",
         "ensureInstallMarker",
         "prepareRuntimeState",
-        "downloadByStrategy",
-        "runPostProcessingV2",
         "readAudioMetadata",
         "readFileMetadata",
         "checkHiResAuthenticity",
         "editFileMetadata",
-        "reEnrichFile",
         "setLibraryCoverCacheDir",
         "scanLibraryFolderToNDJSONFile",
         "scanLibraryFolderIncremental",
@@ -98,7 +93,6 @@ class MainActivity: FlutterFragmentActivity() {
         "pickSafTree",
         "readSetupFolderSelection",
         "acknowledgeSetupFolderSelection",
-        "processPendingExtensionCallbacks",
         "safExists",
         "safExistsBatch",
         "listSafAudioFiles",
@@ -128,47 +122,21 @@ class MainActivity: FlutterFragmentActivity() {
         "readSafText",
         "safSongFolders",
         "listSafFolder",
-        "downloadCoverToFile",
         "extractCoverToFile",
-        "rewriteSplitArtistTags",
         "writeM4AFreeformTags",
-        "ensureAC4Config",
-        "writeAC4Metadata",
         "releaseMemory",
         "releaseMemoryUnderPressure",
-        "startDownloadService",
-        "stopDownloadService",
-        "updateDownloadServiceProgress",
-        "isDownloadServiceRunning",
         "startBackgroundWork",
         "updateBackgroundWork",
         "stopBackgroundWork",
-        "startLinkConnectionService",
-        "stopLinkConnectionService",
-        "startNativeDownloadWorker",
-        "appendNativeDownloadWorkerRequests",
-        "finishNativeDownloadWorkerPreparation",
-        "acknowledgeNativeDownloadWorkerItems",
-        "pauseNativeDownloadWorker",
-        "resumeNativeDownloadWorker",
-        "cancelNativeDownloadWorker",
-        "getNativeDownloadWorkerSnapshot",
-        "consumeVerificationNotification",
         "exitApp",
     )
     private var libraryStorageReceiver: BroadcastReceiver? = null
-    internal val pendingSessionGrantEvents = mutableListOf<Map<String, Any>>()
-    internal var pendingVerificationNotification: String? = null
     internal val setupFolderPickerStore by lazy {
         SetupFolderPickerStore(getSharedPreferences("setup_folder_picker", Context.MODE_PRIVATE))
     }
     internal val safScanLock = Any()
     internal var safScanProgress = SafScanProgress()
-    internal var downloadProgressStreamJob: Job? = null
-    internal var downloadProgressConnection: AtomicReference<CoreDownloadProgress?>? = null
-    internal var downloadProgressEventSink: EventChannel.EventSink? = null
-    internal var lastDownloadProgressPayload: String? = null
-    internal var lastDownloadProgressSeq = 0L
     internal var libraryScanProgressStreamJob: Job? = null
     internal var libraryScanProgressEventSink: EventChannel.EventSink? = null
     internal var lastLibraryScanProgressPayload: String? = null
@@ -195,7 +163,6 @@ class MainActivity: FlutterFragmentActivity() {
     )
 
     companion object {
-        internal val extensionAuthCallbacks = ExtensionAuthCallbacks()
         // audio_service keeps the engine across Activity recreation. Retain
         // its outstanding picker reply for the same lifetime, not the Activity.
         internal var pendingSafTreeResult: MethodChannel.Result? = null
@@ -392,8 +359,6 @@ class MainActivity: FlutterFragmentActivity() {
         AudioServicePlugin.getFlutterEngine(this)
         super.onCreate(savedInstanceState)
         requestHighestRefreshRate()
-        handleVerificationNotificationIntent(intent)
-        handleExtensionOAuthIntent(intent)
         PlayerWidgetBridge.handleIntent(intent)
     }
 
@@ -466,8 +431,6 @@ class MainActivity: FlutterFragmentActivity() {
         AudioOpenBridge.consume(this, intent)
         super.onNewIntent(intent)
         setIntent(intent)
-        handleVerificationNotificationIntent(intent)
-        handleExtensionOAuthIntent(intent)
         PlayerWidgetBridge.handleIntent(intent)
     }
 
@@ -490,8 +453,6 @@ class MainActivity: FlutterFragmentActivity() {
             pendingSafTreeResult = null
             pending?.success(null)
         }
-        concertCalendarChannel?.setMethodCallHandler(null)
-        concertCalendarChannel = null
         audioOutputChannel?.setMethodCallHandler(null)
         audioOutputChannel = null
         libraryStorageReceiver?.let {
@@ -500,10 +461,9 @@ class MainActivity: FlutterFragmentActivity() {
             } catch (_: Exception) {}
         }
         libraryStorageReceiver = null
-        // The backend belongs to the process/shared Flutter engine and download
-        // service. Activity recreation must not shut it down (or wait for its
-        // active scans/downloads on the UI thread).
-        stopDownloadProgressStream()
+        // The backend belongs to the process/shared Flutter engine. Activity
+        // recreation must not shut it down (or wait for its active scans on
+        // the UI thread).
         stopLibraryScanProgressStream()
         super.onDestroy()
     }
@@ -528,7 +488,6 @@ class MainActivity: FlutterFragmentActivity() {
         onBackPressedDispatcher.addCallback(this, flutterBackCallback!!)
 
         val messenger = flutterEngine.dartExecutor.binaryMessenger
-        registerConcertCalendarChannel(messenger)
         registerAudioOutputChannel(messenger)
 
         registerProgressStreams(messenger)
@@ -538,13 +497,6 @@ class MainActivity: FlutterFragmentActivity() {
         val channel = MethodChannel(messenger, CHANNEL)
         backendChannel = channel
         registerLibraryStorageReceiver()
-        if (pendingSessionGrantEvents.isNotEmpty()) {
-            val events = pendingSessionGrantEvents.toList()
-            pendingSessionGrantEvents.clear()
-            for (event in events) {
-                channel.invokeMethod("extensionSessionGrantCompleted", event)
-            }
-        }
 
         channel.setMethodCallHandler { call, result ->
             scope.launch {
@@ -555,17 +507,11 @@ class MainActivity: FlutterFragmentActivity() {
                     when (call.method) {
                         "isAndroidTv" -> result.success(isTelevisionDevice())
                         "getAndroidSdkVersion" -> result.success(Build.VERSION.SDK_INT)
-                        "processPendingExtensionCallbacks" -> {
-                            processPendingExtensionCallbacks()
-                            result.success(null)
-                        }
                         "setScreenAwake" -> handleSetScreenAwake(call, result)
                         "isCharging" -> handleIsCharging(call, result)
-                        "consumeVerificationNotification" -> handleConsumeVerificationNotification(call, result)
                         "ensureInstallMarker" -> handleEnsureInstallMarker(call, result)
                         "prepareRuntimeState" -> handlePrepareRuntimeState(call, result, selectedBackend)
                         "exitApp" -> handleExitApp(call, result)
-                        "downloadByStrategy" -> handleDownloadByStrategy(call, result)
                         "getBackendImplementations" -> handleGetBackendImplementations(call, result)
                         "pickSafTree" -> {
                             launchSafTreePicker(call, result)
@@ -596,13 +542,9 @@ class MainActivity: FlutterFragmentActivity() {
                         "safCreateCollisionAwareFromPath" -> handleSafCreateCollisionAwareFromPath(call, result)
                         "openContentUri" -> handleOpenContentUri(call, result)
                         "shareContentUri" -> handleShareContentUri(call, result)
-                        "rewriteSplitArtistTags" -> handleRewriteSplitArtistTags(call, result)
                         "readFileMetadata" -> handleReadFileMetadata(call, result, selectedBackend)
                         "checkHiResAuthenticity" -> handleCheckHiResAuthenticity(call, result)
                         "editFileMetadata" -> handleEditFileMetadata(call, result)
-                        "writeM4AFreeformTags" -> handleWriteM4AFreeformTags(call, result)
-                        "ensureAC4Config" -> handleEnsureAC4Config(call, result)
-                        "writeAC4Metadata" -> handleWriteAC4Metadata(call, result)
                         "writeTempToSaf" -> handleWriteTempToSaf(call, result)
                         "writeSafSidecarLrc" -> handleWriteSafSidecarLrc(call, result)
                         "writeSafSidecar" -> handleWriteSafSidecar(call, result)
@@ -612,56 +554,16 @@ class MainActivity: FlutterFragmentActivity() {
                         "readSafText" -> handleReadSafText(call, result)
                         "safSongFolders" -> handleSafSongFolders(call, result)
                         "listSafFolder" -> handleListSafFolder(call, result)
-                        "downloadCoverToFile" -> handleDownloadCoverToFile(call, result)
                         "extractCoverToFile" -> handleExtractCoverToFile(call, result)
-                        "reEnrichFile" -> handleReEnrichFile(call, result)
-                        "startDownloadService" -> handleStartDownloadService(call, result)
-                        "stopDownloadService" -> {
-                            DownloadService.stop(this@MainActivity)
-                            result.success(null)
-                        }
-                        "updateDownloadServiceProgress" -> handleUpdateDownloadServiceProgress(call, result)
-                        "isDownloadServiceRunning" -> {
-                            result.success(DownloadService.isServiceRunning())
-                        }
+                        "writeM4AFreeformTags" -> handleWriteM4AFreeformTags(call, result)
                         "startBackgroundWork" -> handleStartBackgroundWork(call, result)
-                        "startLinkConnectionService" -> {
-                            result.success(
-                                LinkConnectionService.start(
-                                    this@MainActivity,
-                                    call.argument<String>("name") ?: "Sistrum",
-                                ),
-                            )
-                        }
-                        "stopLinkConnectionService" -> {
-                            LinkConnectionService.stop(this@MainActivity)
-                            result.success(null)
-                        }
                         "updateBackgroundWork" -> handleUpdateBackgroundWork(call, result)
                         "stopBackgroundWork" -> {
                             BackgroundWorkService.stop(call.argument<String>("kind") ?: "")
                             result.success(null)
                         }
-                        "startNativeDownloadWorker" -> handleStartNativeDownloadWorker(call, result)
-                        "appendNativeDownloadWorkerRequests" -> handleAppendNativeDownloadWorkerRequests(call, result)
-                        "finishNativeDownloadWorkerPreparation" -> handleFinishNativeDownloadWorkerPreparation(call, result)
-                        "acknowledgeNativeDownloadWorkerItems" -> handleAcknowledgeNativeDownloadWorkerItems(call, result)
-                        "pauseNativeDownloadWorker" -> {
-                            DownloadService.pauseNativeQueue(this@MainActivity)
-                            result.success(null)
-                        }
-                        "resumeNativeDownloadWorker" -> {
-                            DownloadService.resumeNativeQueue(this@MainActivity)
-                            result.success(null)
-                        }
-                        "cancelNativeDownloadWorker" -> {
-                            DownloadService.cancelNativeQueue(this@MainActivity)
-                            result.success(null)
-                        }
-                        "getNativeDownloadWorkerSnapshot" -> handleGetNativeDownloadWorkerSnapshot(call, result)
                         "releaseMemory" -> handleReleaseMemory(call, result)
                         "releaseMemoryUnderPressure" -> handleReleaseMemoryUnderPressure(call, result)
-                        "runPostProcessingV2" -> handleRunPostProcessingV2(call, result)
                         "setLibraryCoverCacheDir" -> handleSetLibraryCoverCacheDir(call, result)
                         "scanLibraryFolderToNDJSONFile" -> handleScanLibraryFolderToNDJSONFile(call, result)
                         "scanLibraryFolderIncremental" -> handleScanLibraryFolderIncremental(call, result)

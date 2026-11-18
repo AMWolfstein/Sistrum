@@ -5,40 +5,22 @@ import 'package:file_picker/file_picker.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
-import 'package:sistrum/controllers/extension_auth_launcher.dart';
 import 'package:sistrum/controllers/metadata_editor_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/providers/extension_provider.dart';
-import 'package:sistrum/providers/player_motion_artwork_provider.dart';
-import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/services/batch_metadata_re_enrich.dart';
 import 'package:sistrum/services/metadata_cover_resources.dart';
-import 'package:sistrum/services/metadata_autofill_service.dart';
 import 'package:sistrum/services/metadata_persistence_service.dart';
-import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/theme/mornye_icons.dart';
-import 'package:sistrum/utils/artist_utils.dart';
-import 'package:sistrum/utils/logger.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
-import 'package:sistrum/widgets/app_choice_chip.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
-import 'package:sistrum/widgets/lyrics_provider_picker.dart';
 import 'package:sistrum/widgets/metadata_editor_fields.dart';
 import 'package:sistrum/widgets/metadata_text_field.dart';
-import 'package:sistrum/widgets/mornye_chrome.dart';
-import 'package:sistrum/widgets/re_enrich_candidate_sheet.dart';
 
-part 'track_metadata_edit_autofill.dart';
 part 'track_metadata_edit_cover.dart';
-
-final _log = AppLogger('MetadataEditor');
 
 class EditMetadataSheet extends StatefulWidget {
   static const _onlineCoverSentinel = '__online_cover__';
@@ -75,22 +57,16 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
   bool _saving = false;
   final _covers = MetadataCoverResources();
   late final _persistence = MetadataPersistenceService(covers: _covers);
-  final _autofill = MetadataAutofillService();
   bool _showAdvanced = false;
-  bool _showAutoFill = false;
-  bool _fetching = false;
   String? _selectedCoverPath;
   String? _selectedCoverTempDir;
   String? _selectedCoverName;
-  String? _selectedMotionArtworkUrl;
   String? _currentCoverPath;
   String? _currentCoverTempDir;
   bool _loadingCurrentCover = false;
   int? _coverMaxDimension;
   final Map<String, ({int width, int height, int bytes})> _coverDetails = {};
   final Set<String> _coverDetailLoads = {};
-  String? _selectedMetadataProviderId;
-  _AutoFillPreview? _autoFillPreview;
   final GlobalKey<ScaffoldMessengerState> _sheetMessengerKey =
       GlobalKey<ScaffoldMessengerState>();
 
@@ -215,65 +191,8 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
   }
 
   late final MetadataEditorController _form;
-  bool _fetchingMusicBrainz = false;
-
-  /// Lets the user compare every enabled lyrics provider's result and puts
-  /// the chosen lyrics in the field (saved with the other edits).
-  Future<void> _findLyricsOnline() async {
-    final title = _form['title']!.text.trim();
-    final artist = primaryArtistName(
-      _form['artist']!.text.trim(),
-      albumArtist: _form['album_artist']!.text.trim(),
-    );
-    if (title.isEmpty || artist.isEmpty) {
-      _showSheetSnackBar(context.l10n.lyricsPickerNeedsTitle);
-      return;
-    }
-    // The backend's provider list follows the lyrics settings.
-    await ProviderScope.containerOf(
-      context,
-      listen: false,
-    ).read(settingsProvider.notifier).syncLyricsSettingsToBackend();
-    if (!mounted) return;
-    final lyrics = await showLyricsProviderPicker(
-      context,
-      title: title,
-      artist: artist,
-      spotifyId: widget.sourceTrackId ?? '',
-      durationMs: widget.durationMs,
-    );
-    if (!mounted || lyrics == null) return;
-    setState(() => _form['lyrics']!.text = lyrics);
-  }
 
   bool _hasValue(String? value) => value != null && value.trim().isNotEmpty;
-
-  String _fieldLabel(String key) {
-    final l10n = context.l10n;
-    return switch (key) {
-      'title' => l10n.editMetadataFieldTitle,
-      'artist' => l10n.editMetadataFieldArtist,
-      'album' => l10n.editMetadataFieldAlbum,
-      'album_artist' => l10n.editMetadataFieldAlbumArtist,
-      'date' => l10n.editMetadataFieldDate,
-      'track_number' => l10n.editMetadataFieldTrackNum,
-      'total_tracks' => l10n.editMetadataFieldTrackTotal,
-      'disc_number' => l10n.editMetadataFieldDiscNum,
-      'total_discs' => l10n.editMetadataFieldDiscTotal,
-      'genre' => l10n.editMetadataFieldGenre,
-      'isrc' => l10n.editMetadataFieldIsrc,
-      'lyrics' => l10n.trackLyrics,
-      'label' => l10n.editMetadataFieldLabel,
-      'copyright' => l10n.editMetadataFieldCopyright,
-      'composer' => l10n.editMetadataFieldComposer,
-      'comment' => l10n.editMetadataFieldComment,
-      'album_type' => l10n.trackAlbumType,
-      'explicit' => l10n.editMetadataFieldExplicit,
-      'upc' => l10n.editMetadataFieldUpc,
-      'cover' => l10n.editMetadataFieldCover,
-      _ => key,
-    };
-  }
 
   @override
   void initState() {
@@ -290,7 +209,7 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
   }
 
   Future<void> _save() async {
-    if (_saving || _fetching || _fetchingMusicBrainz) return;
+    if (_saving) return;
     if (widget.saveTags case final saveTags?) {
       setState(() => _saving = true);
       final error = await saveTags(
@@ -306,10 +225,6 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
       if (error.isNotEmpty) _showSheetSnackBar(error);
       return;
     }
-    final container = ProviderScope.containerOf(context, listen: false);
-    final artworkUrl = _selectedMotionArtworkUrl;
-    final artworkAlbum = _form['album']!.text.trim();
-    final artworkArtist = _form['artist']!.text.trim();
     setState(() => _saving = true);
     try {
       final result = await _persistence.save(
@@ -323,12 +238,6 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
         ),
       );
       if (result.failure == null) {
-        await saveReEnrichedMotionArtwork(
-          container,
-          metadata: {'header_video': artworkUrl},
-          albumName: artworkAlbum,
-          artistName: artworkArtist,
-        );
         if (!mounted) return;
         Navigator.pop(context, true);
         return;
@@ -406,9 +315,7 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
                         )
                       else
                         AppActionButton(
-                          onPressed: _fetching || _fetchingMusicBrainz
-                              ? null
-                              : _save,
+                          onPressed: _save,
                           icon: const Icon(Icons.check, size: 18),
                           label: Text(context.l10n.dialogSave),
                           style: FilledButton.styleFrom(
@@ -433,10 +340,7 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
                     controller: scrollController,
                     padding: const EdgeInsets.fromLTRB(20, 6, 20, 24),
                     children: [
-                      if (widget.saveTags == null) ...[
-                        _buildCoverEditor(cs),
-                        _buildAutoFillSection(cs),
-                      ],
+                      if (widget.saveTags == null) ...[_buildCoverEditor(cs)],
                       MetadataEditorSectionCard(
                         colorScheme: widget.colorScheme,
                         icon: Icons.info_outline,
@@ -533,31 +437,6 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
                             _form['lyrics']!,
                             maxLines: 8,
                             keyboard: TextInputType.multiline,
-                          ),
-                          SizedBox(
-                            width: double.infinity,
-                            child: AppActionButton(
-                              key: const ValueKey('find-lyrics-online'),
-                              outlined: true,
-                              glass: false,
-                              tonal: true,
-                              onPressed: _fetching || _saving
-                                  ? null
-                                  : _findLyricsOnline,
-                              style: OutlinedButton.styleFrom(
-                                backgroundColor: cs.surfaceContainerHigh,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 12,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                              icon: const Icon(Icons.manage_search),
-                              label: Text(
-                                context.l10n.editMetadataLyricsSearch,
-                              ),
-                            ),
                           ),
                         ],
                       ),

@@ -2,8 +2,9 @@
 
 mod index;
 #[cfg(any(target_vendor = "apple", target_os = "linux", target_os = "android"))]
+#[cfg(test)]
 mod unix;
-#[cfg(windows)]
+#[cfg(all(windows, test))]
 mod windows;
 
 use cap_std::ambient_authority;
@@ -15,9 +16,6 @@ use std::path::{Component, Path, PathBuf};
 use std::sync::{Arc, Condvar, Mutex, RwLock, Weak};
 use std::thread::{self, ThreadId};
 use std::time::Duration;
-
-pub(crate) const MAX_READ: usize = 16 << 20;
-pub(crate) const READ_LIMIT_ERROR: &str = "file read exceeds 16 MiB limit; use file.readBytes with offset and length to read it in chunks";
 
 struct Root {
     path: PathBuf,
@@ -120,49 +118,6 @@ impl FileRegistry {
             legacy_alias: alias,
             registry: Arc::clone(self),
         }))
-    }
-
-    pub(crate) fn validate_native_replacement(
-        &self,
-        path: &str,
-        bases: &[PathBuf],
-    ) -> Result<(), String> {
-        let target = clean(Path::new(path));
-        let granted = self.allowed.read().expect("file grants lock");
-        let temporary: Vec<_> = self
-            .temporary
-            .read()
-            .expect("temporary file grants lock")
-            .iter()
-            .filter_map(Weak::upgrade)
-            .collect();
-        for base in bases
-            .iter()
-            .chain(granted.iter().chain(&temporary).map(|root| &root.path))
-        {
-            let base = clean(&std::path::absolute(base).map_err(|error| error.to_string())?);
-            if let Ok(relative) = target.strip_prefix(&base) {
-                #[cfg(not(unix))]
-                check_windows_relative(relative)?;
-                let directory = match Dir::open_ambient_dir(&base, ambient_authority()) {
-                    Ok(directory) => directory,
-                    // Go accepts a future output path; validation must not create it.
-                    Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(()),
-                    Err(error) => return Err(error.to_string()),
-                };
-                return FilePath {
-                    root: Arc::new(Root {
-                        path: base.clone(),
-                        directory,
-                    }),
-                    absolute: target.clone(),
-                    relative: relative.into(),
-                }
-                .native_display()
-                .map(|_| ());
-            }
-        }
-        Err("replacement file path is outside allowed directories".into())
     }
 
     fn lock(
@@ -323,17 +278,6 @@ impl FilePath {
             }
         }
         Ok(self.display())
-    }
-
-    pub(crate) fn open_parent(&self) -> io::Result<(Dir, std::ffi::OsString)> {
-        self.mkdir_parent()?;
-        let name = self.relative.file_name().ok_or_else(|| {
-            io::Error::new(io::ErrorKind::InvalidInput, "invalid output filename")
-        })?;
-        Ok((
-            self.root.directory.open_dir(self.parent())?,
-            name.to_owned(),
-        ))
     }
 
     pub fn display(&self) -> String {
@@ -588,25 +532,6 @@ impl FilePath {
         self.open(OpenOptions::new().read(true))
     }
 
-    pub fn remove(&self) -> io::Result<()> {
-        let info = self.root.directory.symlink_metadata(&self.relative)?;
-        if info.is_dir() {
-            self.root.directory.remove_dir(&self.relative)
-        } else {
-            self.root.directory.remove_file(&self.relative)
-        }
-    }
-
-    pub fn rename_to(&self, target: &Self) -> io::Result<()> {
-        self.root
-            .directory
-            .rename(&self.relative, &target.root.directory, &target.relative)
-    }
-
-    pub fn stage(&self) -> io::Result<StagedFile> {
-        self.stage_with_parent(true, None).map(|(stage, _)| stage)
-    }
-
     pub(crate) fn stage_existing_parent(&self) -> io::Result<StagedFile> {
         self.stage_with_parent(false, None).map(|(stage, _)| stage)
     }
@@ -639,7 +564,10 @@ impl FilePath {
             // the song. Scanners skip the `.partial` suffix instead.
             let name = format!(
                 "sistrum-{}.partial",
-                crate::binary::encode(&nonce, "hex").expect("hex encoding")
+                nonce
+                    .iter()
+                    .map(|byte| format!("{byte:02x}"))
+                    .collect::<String>()
             );
             #[cfg(unix)]
             if let Some((input, source)) = source {
@@ -735,6 +663,7 @@ pub(crate) struct StagedFile {
 impl StagedFile {
     /// Album resolution must not replace a file created by another publisher
     /// after the planner checked the destination. Both names are in this parent.
+    #[cfg(test)]
     pub fn publish_new(mut self, check: &dyn Fn() -> Result<(), String>) -> io::Result<()> {
         self.file.sync_all()?;
         check().map_err(io::Error::other)?;
@@ -881,3 +810,25 @@ impl Drop for OutputGuard {
 
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+impl FilePath {
+    pub fn remove(&self) -> io::Result<()> {
+        let info = self.root.directory.symlink_metadata(&self.relative)?;
+        if info.is_dir() {
+            self.root.directory.remove_dir(&self.relative)
+        } else {
+            self.root.directory.remove_file(&self.relative)
+        }
+    }
+
+    pub fn rename_to(&self, target: &Self) -> io::Result<()> {
+        self.root
+            .directory
+            .rename(&self.relative, &target.root.directory, &target.relative)
+    }
+
+    pub fn stage(&self) -> io::Result<StagedFile> {
+        self.stage_with_parent(true, None).map(|(stage, _)| stage)
+    }
+}

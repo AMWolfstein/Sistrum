@@ -89,10 +89,6 @@ void main() {
     );
   });
   tearDown(() async {
-    if (initialized) {
-      await PlatformBridge.cleanupExtensions();
-      initialized = false;
-    }
     await database.close();
     await root.delete(recursive: true);
   });
@@ -213,8 +209,6 @@ void main() {
             extensions.path,
             data.path,
             masterKey: base64Encode(List.filled(32, 1)),
-            lyricsProviders: const [],
-            lyricsFetchOptions: const {},
             allowedDirectories: [music.path],
           );
           initialized = true;
@@ -488,8 +482,6 @@ void main() {
         extensions.path,
         data.path,
         masterKey: base64Encode(List.filled(32, 1)),
-        lyricsProviders: const [],
-        lyricsFetchOptions: const {},
         allowedDirectories: [folder.path],
       );
       initialized = true;

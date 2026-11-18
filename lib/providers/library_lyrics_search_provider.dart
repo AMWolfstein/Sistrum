@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/library_search_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
@@ -44,7 +43,6 @@ final libraryLyricsIndexProvider =
       final includeLocal = ref.watch(
         settingsProvider.select((s) => s.localLibraryEnabled),
       );
-      ref.watch(downloadHistoryProvider.select((s) => s.loadedIndexVersion));
       if (includeLocal) {
         ref.watch(localLibraryProvider.select((s) => s.loadedIndexVersion));
       }

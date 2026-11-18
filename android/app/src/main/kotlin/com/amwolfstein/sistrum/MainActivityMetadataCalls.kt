@@ -10,42 +10,6 @@ import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.File
 
-internal suspend fun MainActivity.handleRewriteSplitArtistTags(call: MethodCall, result: MethodChannel.Result) {
-    val filePath = call.argument<String>("file_path") ?: ""
-    val artist = call.argument<String>("artist") ?: ""
-    val albumArtist = call.argument<String>("album_artist") ?: ""
-    val response = withContext(Dispatchers.IO) {
-        if (filePath.startsWith("content://")) {
-            val uri = Uri.parse(filePath)
-            val tempPath = copyUriToTemp(coreBackend, uri, ".flac")
-                ?: return@withContext errorJson("Failed to copy SAF file to temp")
-            try {
-                val raw = coreBackend.rewriteSplitArtistTags(tempPath, artist, albumArtist)
-                val obj = JSONObject(raw)
-                if (!obj.optBoolean("success", false)) {
-                    return@withContext raw
-                }
-
-                if (!writeUriFromPath(uri, tempPath)) {
-                    return@withContext errorJson("Failed to write rewritten tags back to SAF file")
-                }
-
-                obj.put("file_path", filePath)
-                obj.toString()
-            } catch (e: Exception) {
-                errorJson("Failed to rewrite split artist tags in SAF file: ${e.message}")
-            } finally {
-                try {
-                    File(tempPath).delete()
-                } catch (_: Exception) {}
-            }
-        } else {
-            coreBackend.rewriteSplitArtistTags(filePath, artist, albumArtist)
-        }
-    }
-    result.success(response)
-}
-
 internal suspend fun Context.handleReadFileMetadata(
     call: MethodCall,
     result: MethodChannel.Result,
@@ -142,71 +106,6 @@ internal suspend fun MainActivity.handleWriteM4AFreeformTags(call: MethodCall, r
     result.success(response)
 }
 
-internal suspend fun MainActivity.handleEnsureAC4Config(call: MethodCall, result: MethodChannel.Result) {
-    val filePath = call.argument<String>("file_path") ?: ""
-    val sourcePath = call.argument<String>("source_path") ?: ""
-    val response = withContext(Dispatchers.IO) {
-        try {
-            coreBackend.ensureAc4Config(filePath, sourcePath)
-        } catch (e: Exception) {
-            android.util.Log.e("Sistrum", "ensureAC4Config failed: ${e.message}", e)
-            """{"error":${org.json.JSONObject.quote(e.message ?: "unknown")}}"""
-        }
-    }
-    result.success(response)
-}
-
-internal suspend fun MainActivity.handleWriteAC4Metadata(call: MethodCall, result: MethodChannel.Result) {
-    val filePath = call.argument<String>("file_path") ?: ""
-    val metadataJson = call.argument<String>("metadata_json") ?: "{}"
-    val coverPath = call.argument<String>("cover_path") ?: ""
-    val response = withContext(Dispatchers.IO) {
-        try {
-            coreBackend.writeAc4Metadata(filePath, metadataJson, coverPath)
-        } catch (e: Exception) {
-            android.util.Log.e("Sistrum", "writeAC4Metadata failed: ${e.message}", e)
-            """{"error":${org.json.JSONObject.quote(e.message ?: "unknown")}}"""
-        }
-    }
-    result.success(response)
-}
-
-internal suspend fun MainActivity.handleDownloadCoverToFile(call: MethodCall, result: MethodChannel.Result) {
-    val coverUrl = call.argument<String>("cover_url") ?: ""
-    val outputPath = call.argument<String>("output_path") ?: ""
-    val maxDimension = call.argument<Number>("max_dimension")
-        ?.toLong()
-        ?.coerceAtLeast(0L)
-        ?: 0L
-    val response = withContext(Dispatchers.IO) {
-        var temporaryCover: File? = null
-        try {
-            val destination = if (outputPath.isBlank()) {
-                coreBackend.createTemporaryMediaFile(
-                    this@handleDownloadCoverToFile,
-                    "cover_",
-                    ".jpg",
-                ).also { temporaryCover = it }.absolutePath
-            } else {
-                outputPath
-            }
-            coreBackend.downloadCoverToFileSized(
-                coverUrl,
-                destination,
-                maxDimension
-            )
-            JSONObject()
-                .put("success", true)
-                .put("file_path", destination)
-                .toString()
-        } catch (e: Exception) {
-            temporaryCover?.delete()
-            """{"success":false,"error":"${e.message?.replace("\"", "'")}"}"""
-        }
-    }
-    result.success(response)
-}
-
 internal suspend fun MainActivity.handleExtractCoverToFile(call: MethodCall, result: MethodChannel.Result) {
     val audioPath = call.argument<String>("audio_path") ?: ""
     val outputPath = call.argument<String>("output_path") ?: ""
@@ -221,90 +120,6 @@ internal suspend fun MainActivity.handleExtractCoverToFile(call: MethodCall, res
             }
         } catch (e: Exception) {
             """{"success":false,"error":"${e.message?.replace("\"", "'")}"}"""
-        }
-    }
-    result.success(response)
-}
-
-internal suspend fun MainActivity.handleReEnrichFile(call: MethodCall, result: MethodChannel.Result) {
-    val requestJson = call.argument<String>("request_json") ?: "{}"
-    val response = withContext(Dispatchers.IO) {
-        try {
-            val reqObj = JSONObject(requestJson)
-            val filePath = reqObj.optString("file_path", "")
-
-            // Preview only resolves online metadata; it does not need
-            // a full SAF document copy and never writes the source.
-            if (filePath.startsWith("content://") && !reqObj.optBoolean("preview_only", false)) {
-                val uri = Uri.parse(filePath)
-                val tempPath = copyUriToTemp(coreBackend, uri)
-                    ?: return@withContext """{"error":"Failed to copy SAF file to temp"}"""
-                var retainedForFfmpeg = false
-                try {
-                    reqObj.put("file_path", tempPath)
-                    val raw = coreBackend.reEnrichFile(reqObj.toString())
-                    val obj = JSONObject(raw)
-
-                    if (obj.has("error")) {
-                        return@withContext raw
-                    }
-
-                    val method = obj.optString("method", "")
-                    if (method == "ffmpeg") {
-                        // MP3/Opus: Dart handles FFmpeg on temp file, then writes back
-                        obj.put("temp_path", tempPath)
-                        obj.put("saf_uri", filePath)
-                        retainedForFfmpeg = true
-                        return@withContext obj.toString()
-                        // Dart cleans up after FFmpeg + writeTempToSaf.
-                    }
-
-                    if (!writeUriFromPath(uri, tempPath)) {
-                        return@withContext """{"error":"Failed to write enriched metadata back to SAF file"}"""
-                    }
-                    if (obj.optBoolean("write_external_lrc", false) &&
-                        !writeSafSidecarLrc(uri, obj.optString("lyrics", ""))) {
-                        return@withContext errorJson(
-                            "Metadata was saved, but the LRC lyrics file could not be updated"
-                        )
-                    }
-                    raw
-                } finally {
-                    if (!retainedForFfmpeg) {
-                        try { File(tempPath).delete() } catch (_: Exception) {}
-                    }
-                }
-            } else {
-                coreBackend.reEnrichFile(requestJson)
-            }
-        } catch (e: Exception) {
-            """{"error":${org.json.JSONObject.quote(e.message ?: "unknown")}}"""
-        }
-    }
-    result.success(response)
-}
-
-internal suspend fun MainActivity.handleRunPostProcessingV2(call: MethodCall, result: MethodChannel.Result) {
-    val inputJson = call.argument<String>("input") ?: ""
-    val metadataJson = call.argument<String>("metadata") ?: ""
-    val response = withContext(Dispatchers.IO) {
-        val inputObj = if (inputJson.isNotBlank()) JSONObject(inputJson) else JSONObject()
-        val uriStr = inputObj.optString("uri", "")
-        val pathStr = inputObj.optString("path", "")
-        val effectiveUri = when {
-            uriStr.startsWith("content://") -> uriStr
-            pathStr.startsWith("content://") -> pathStr
-            else -> ""
-        }
-
-        if (effectiveUri.isNotBlank()) {
-            runPostProcessingSafV2(coreBackend, effectiveUri, metadataJson, inputObj.optString("item_id", ""))
-        } else {
-            if (pathStr.isNotBlank()) {
-                inputObj.put("name", File(pathStr).name)
-                inputObj.put("is_saf", false)
-            }
-            coreBackend.runPostProcessing(inputObj.toString(), metadataJson)
         }
     }
     result.success(response)

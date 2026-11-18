@@ -25,14 +25,12 @@ import 'package:sistrum/theme/material_expressive.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/player_artwork_theme.dart';
 import 'package:sistrum/screens/now_playing_screen.dart';
-import 'package:sistrum/services/link/features/link_phone_client.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/string_utils.dart';
 import 'package:sistrum/widgets/audio_quality_badges.dart';
 import 'package:sistrum/widgets/expressive_playback_transport.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/decorative_phase.dart';
-import 'package:sistrum/widgets/link/link_devices_sheet.dart';
 import 'package:sistrum/widgets/overflow_marquee.dart';
 import 'package:sistrum/widgets/player_artwork.dart';
 import 'package:sistrum/widgets/player_track_crossfade.dart';
@@ -218,8 +216,7 @@ class _MiniPlayerBodyState extends ConsumerState<_MiniPlayerBody> {
     }
     final direction = velocity.abs() >= 550 ? velocity : travel;
     final controller = ref.read(musicPlayerControllerProvider);
-    if (!ref.read(playbackPlayingProvider) &&
-        ref.read(activeRemotePlaybackProvider) == null) {
+    if (!ref.read(playbackPlayingProvider)) {
       if (!ref.read(playbackLoadingProvider)) unawaited(controller.dismiss());
       return;
     }
@@ -233,7 +230,6 @@ class _MiniPlayerBodyState extends ConsumerState<_MiniPlayerBody> {
   Widget _titles(
     BuildContext context,
     MediaItem mediaItem, {
-    required bool remote,
     required int? marqueeCycles,
     required bool playing,
   }) {
@@ -257,35 +253,25 @@ class _MiniPlayerBodyState extends ConsumerState<_MiniPlayerBody> {
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        // Where the music plays while the paired desktop plays in this
-        // phone's place.
-        if (remote)
-          LinkPlayingOnText(
-            key: const ValueKey('mini-player-playing-on'),
-            color: colorScheme.primary,
-            style: Theme.of(context).textTheme.bodySmall,
-            glyphSize: 14,
-          )
-        else
-          OverflowMarquee(
-            resetKey: (mediaItem.id, mediaItem.artist),
-            maxCycles: marqueeCycles,
-            playing: playing,
-            child: Text(
-              mediaItem.artist ?? '',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: mornye
-                    ? Color.lerp(
-                        colorScheme.onSurfaceVariant,
-                        colorScheme.onSurface,
-                        colorScheme.brightness == Brightness.dark ? 0.7 : 0.6,
-                      )
-                    : colorScheme.onSurfaceVariant,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+        OverflowMarquee(
+          resetKey: (mediaItem.id, mediaItem.artist),
+          maxCycles: marqueeCycles,
+          playing: playing,
+          child: Text(
+            mediaItem.artist ?? '',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: mornye
+                  ? Color.lerp(
+                      colorScheme.onSurfaceVariant,
+                      colorScheme.onSurface,
+                      colorScheme.brightness == Brightness.dark ? 0.7 : 0.6,
+                    )
+                  : colorScheme.onSurfaceVariant,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
+        ),
       ],
     );
   }
@@ -297,9 +283,6 @@ class _MiniPlayerBodyState extends ConsumerState<_MiniPlayerBody> {
 
     final isPlaying = ref.watch(playbackPlayingProvider);
     final isLoading = ref.watch(playbackLoadingProvider);
-    final remote = ref.watch(
-      activeRemotePlaybackProvider.select((remote) => remote != null),
-    );
 
     final controller = ref.read(musicPlayerControllerProvider);
     final colorScheme = Theme.of(context).colorScheme;
@@ -392,17 +375,12 @@ class _MiniPlayerBodyState extends ConsumerState<_MiniPlayerBody> {
                           builder: (mediaItem) => _titles(
                             context,
                             mediaItem,
-                            remote: remote,
                             marqueeCycles: marqueeCycles,
                             playing: isPlaying,
                           ),
                         ),
                       ),
                     ),
-                    if (!compact && ref.watch(linkPhoneClientProvider) != null)
-                      LinkDevicesButton(
-                        color: mornye ? colorScheme.onSurface : null,
-                      ),
                     if (expressive) ...[
                       const SizedBox(width: 8),
                       // The full player's transport, collapsed to play-pause

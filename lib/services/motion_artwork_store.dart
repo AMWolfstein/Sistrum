@@ -1,16 +1,11 @@
-import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:sistrum/services/ffmpeg_probe.dart';
 import 'package:sistrum/services/ffmpeg_support.dart';
-import 'package:sistrum/services/motion_artwork_download.dart';
-import 'package:sistrum/services/motion_artwork_proxy.dart';
 import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/utils/logger.dart';
-import 'package:sistrum/utils/string_utils.dart';
 
 typedef MotionArtworkAlbum = ({String album, String artist});
 
@@ -21,21 +16,18 @@ class MotionArtwork {
   final double? aspectRatio;
 }
 
-/// Durable, album-scoped artwork. Relative filenames survive iOS reinstalls
-/// that relocate the app container; temporary cache cleanup does not remove it.
+/// Album-scoped artwork saved on this device. Relative filenames survive iOS
+/// reinstalls that relocate the app container; temporary cache cleanup does
+/// not remove it. Videos are not downloaded: the store only keeps local files.
 class MotionArtworkStore {
   MotionArtworkStore({
     Future<Directory> Function()? directory,
-    Future<double?> Function(String source, String output)? download,
     Future<bool> Function(String path)? validate,
   }) : _directory = directory ?? defaultDirectory,
-       _download = download ?? _downloadVideo,
        _validate = validate ?? _validateVideo;
 
   final Future<Directory> Function() _directory;
-  final Future<double?> Function(String source, String output) _download;
   final Future<bool> Function(String path) _validate;
-  final _pending = <String, Future<MotionArtwork?>>{};
   final _legacyChecks = <String, Future<bool>>{};
   final _invalid = <String>{};
   bool _clearing = false;
@@ -88,7 +80,6 @@ class MotionArtworkStore {
   Future<void> remove(MotionArtworkAlbum album) async {
     if (_clearing) return;
     final key = _key(album);
-    await _pending[key];
     final root = await _directory();
     for (final name in ['$key.mp4', '$key.json', '$key.alias']) {
       await deleteFileQuietly(File('${root.path}/$name'));
@@ -138,29 +129,9 @@ class MotionArtworkStore {
     }
   }
 
-  Future<MotionArtwork?> save(
-    MotionArtworkAlbum album, {
-    required Future<String?> Function() resolveSource,
-  }) {
-    if (_clearing ||
-        album.album.trim().isEmpty ||
-        album.artist.trim().isEmpty) {
-      return Future.value();
-    }
-    final key = _key(album);
-    return _pending.putIfAbsent(key, () async {
-      try {
-        return await _save(album, key, resolveSource);
-      } finally {
-        _pending.remove(key);
-      }
-    });
-  }
-
   Future<void> clear() async {
     _clearing = true;
     try {
-      await Future.wait(_pending.values.toList());
       await Future.wait(_legacyChecks.values.toList());
       final root = await _directory();
       if (await root.exists()) await root.delete(recursive: true);
@@ -169,131 +140,6 @@ class MotionArtworkStore {
     } finally {
       _clearing = false;
     }
-  }
-
-  Future<MotionArtwork?> _save(
-    MotionArtworkAlbum album,
-    String key,
-    Future<String?> Function() resolveSource,
-  ) async {
-    File? temporary;
-    File? infoTemporary;
-    try {
-      final existing = await find(album);
-      if (existing != null) return existing;
-      final source = normalizeRemoteHttpUrl(await resolveSource());
-      if (source == null) return null;
-      final root = await _directory();
-      await root.create(recursive: true);
-      temporary = File('${root.path}/$key.partial.mp4');
-      final ratio = await _download(source, temporary.path);
-      if (ratio == null ||
-          !ratio.isFinite ||
-          ratio <= 0 ||
-          !await temporary.exists() ||
-          await temporary.length() == 0 ||
-          !await _validate(temporary.path)) {
-        return null;
-      }
-      infoTemporary = File('${root.path}/$key.partial.json');
-      await infoTemporary.writeAsString(
-        jsonEncode({'version': _cacheVersion, 'aspectRatio': ratio}),
-        flush: true,
-      );
-      final file = await temporary.rename('${root.path}/$key.mp4');
-      await infoTemporary.rename('${root.path}/$key.json');
-      _invalid.remove(key);
-      _legacyChecks.remove(key);
-      return MotionArtwork(file.uri.toString(), aspectRatio: ratio);
-    } catch (error) {
-      _log.w('Could not save optional motion artwork: ${error.runtimeType}');
-      return null;
-    } finally {
-      for (final file in [temporary, infoTemporary]) {
-        if (file != null) await deleteFileQuietly(file);
-      }
-    }
-  }
-
-  static Future<double?> _downloadVideo(String source, String output) async {
-    final original = await downloadMotionArtworkSource(
-      source,
-      '$output.source.mp4',
-    );
-    try {
-      if (original != null) return await _remuxVideo(original.path, output);
-      final proxy = await MotionArtworkProxy.start(Uri.parse(source));
-      try {
-        final hls = proxy.isHls;
-        final ratio = await _remuxVideo(
-          proxy.source.toString(),
-          output,
-          hlsInput: hls,
-        );
-        // Opaque or redirected URLs reveal HLS only after the first request.
-        // Retry failed HLS input with its scoped demuxer options, without
-        // passing HLS-only flags to ordinary MP4 inputs or buffering video.
-        if (ratio == null && !hls && proxy.isHls && !proxy.isClosed) {
-          return await _remuxVideo(
-            proxy.source.toString(),
-            output,
-            hlsInput: true,
-          );
-        }
-        return ratio;
-      } finally {
-        await proxy.close();
-      }
-    } finally {
-      if (original != null && await original.exists()) await original.delete();
-    }
-  }
-
-  static Future<double?> _remuxVideo(
-    String source,
-    String output, {
-    bool hlsInput = false,
-  }) async {
-    // Remux public video/HLS into a self-contained, silent MP4. Bound both
-    // transfer time and output size; never let optional artwork block audio.
-    final success = await _run([
-      '-y',
-      '-protocol_whitelist',
-      'file,http,https,tcp,tls,crypto',
-      '-rw_timeout',
-      '10000000',
-      // HLS byte ranges can share one MP4 URL. Reusing/prefetching HTTP
-      // connections can splice the next range into an unfinished segment.
-      if (hlsInput) ...[
-        // Tokenized URLs retain normal suffixes, but public HLS sources can
-        // use opaque segment paths. Only discovered HTTP resources are served.
-        '-extension_picky',
-        '0',
-        '-http_multiple',
-        '0',
-        '-http_persistent',
-        '0',
-      ],
-      '-i',
-      source,
-      '-map',
-      '0:v:0',
-      '-an',
-      '-sn',
-      '-dn',
-      '-c:v',
-      'copy',
-      '-t',
-      '30',
-      '-fs',
-      '25165824',
-      '-movflags',
-      '+faststart',
-      output,
-    ], timeout: const Duration(seconds: 60));
-    if (!success) return null;
-    final dimensions = await FFmpegProbe.imageDimensions(output);
-    return dimensions == null ? null : dimensions.width / dimensions.height;
   }
 
   static Future<bool> _validateVideo(String path) => _run([

@@ -51,7 +51,7 @@ class LibraryScanStressTest {
             image.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 90, it) }
             bitmap.recycle()
             val template = File(root, "template.flac")
-            val fixture = NativeDownloadFinalizer.runFFmpegArguments(arrayOf(
+            val fixture = runFfmpegFixture(arrayOf(
                 "-v", "error", "-f", "lavfi", "-i", "sine=frequency=997:sample_rate=48000",
                 "-i", image.path, "-t", "0.25", "-map", "0:a", "-map", "1:v",
                 "-c:a", "flac", "-c:v", "copy", "-disposition:v", "attached_pic", template.path,

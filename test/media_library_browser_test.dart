@@ -6,35 +6,12 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/services/cover_store.dart';
-import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_collections_database.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_search.dart';
 import 'package:sistrum/services/media_library_browser.dart';
-import 'package:path/path.dart' as p;
 
 const _added = '2026-01-01T00:00:00.000Z';
-
-Map<String, dynamic> _download(
-  String id, {
-  String album = 'Album',
-  String artist = 'Artist',
-  int? disc,
-  int? track,
-  String? path,
-}) => {
-  'id': id,
-  'trackName': 'Song $id',
-  'artistName': artist,
-  'albumName': album,
-  'filePath': path ?? '/music/$id.flac',
-  'coverUrl': 'https://covers.example/$id.jpg',
-  'service': 'extension',
-  'downloadedAt': _added,
-  'discNumber': ?disc,
-  'trackNumber': ?track,
-};
 
 Map<String, dynamic> _scanned(String id, {int? track}) => {
   'id': id,
@@ -128,30 +105,6 @@ class _Library implements LibraryDatabase {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-class _History implements HistoryDatabase {
-  _History({this.album = const [], this.byId = const {}});
-
-  final List<Map<String, dynamic>> album;
-  final Map<String, Map<String, dynamic>> byId;
-
-  @override
-  Future<List<Map<String, dynamic>>> getAlbumTracks(
-    String albumName,
-    String artistName,
-  ) async => albumName == 'Album' && artistName == 'Artist' ? album : const [];
-
-  @override
-  Future<Map<String, dynamic>?> getById(String id) async => byId[id];
-
-  @override
-  Future<List<Map<String, dynamic>?>> findExistingTracks(
-    List<HistoryLookupRequest> requests,
-  ) async => List.filled(requests.length, null);
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
 class _Collections implements LibraryCollectionsDatabase {
   _Collections({this.loved = const [], this.playlists = const {}});
 
@@ -188,22 +141,16 @@ Track _track(String name) => Track(
 
 MediaLibraryBrowser _browser({
   _Library? library,
-  _History? history,
   _Collections? collections,
   bool includeLocal = true,
-  CoverStore? covers,
   Future<BrowserCoverProvider?> Function()? coverProvider,
 }) => MediaLibraryBrowser(
   library: library ?? _Library(),
-  history: history ?? _History(),
   collections: collections ?? _Collections(),
   includeLocal: () => includeLocal,
   strings: () => lookupAppLocalizations(const Locale('en')),
-  covers: covers,
   coverProvider: coverProvider ?? BrowserCoverProvider.load,
 );
-
-const _jpeg = [0xFF, 0xD8, 0xFF, 0xE0, 0, 16, 0x4A, 0x46, 0x49, 0x46];
 
 List<String> _titles(List<MediaItem> items) => [
   for (final item in items) item.title,
@@ -231,7 +178,7 @@ void main() {
       final songs = [
         for (var i = 0; i <= MediaLibraryBrowser.listLimit; i++)
           i.isEven
-              ? {'source': 'downloaded', 'item': _download('d$i')}
+              ? {'source': 'local', 'item': _scanned('d$i')}
               : {'source': 'local', 'item': _scanned('l$i')},
       ];
       final browser = _browser(library: _Library(songs: songs));
@@ -241,8 +188,8 @@ void main() {
       expect(items.first.title, 'Shuffle library');
       expect(items, hasLength(MediaLibraryBrowser.listLimit + 1));
       expect(items[1].title, 'Song d0');
-      expect(items[1].artUri.toString(), 'https://covers.example/d0.jpg');
       // Without the cover provider, as here, a car cannot load local covers.
+      expect(items[1].artUri, isNull);
       expect(items[2].artUri, isNull);
 
       final queue = (await browser.queueFor(items[2].id))!;
@@ -261,13 +208,6 @@ void main() {
       library: _Library(
         albums: [
           {
-            'queue_source': 'downloaded',
-            'album_key': 'album|artist',
-            'album_name': 'Album',
-            'artist_name': 'Artist',
-            'cover_url': 'https://covers.example/album.jpg',
-          },
-          {
             'queue_source': 'local',
             'album_key': 'scanned-album',
             'album_name': 'Scanned',
@@ -277,27 +217,11 @@ void main() {
         ],
         localAlbum: [_scanned('b', track: 2), _scanned('a', track: 1)],
       ),
-      history: _History(
-        album: [
-          _download('c', disc: 2, track: 1),
-          _download('b', disc: 1, track: 2),
-          _download('a', disc: 1, track: 1),
-        ],
-      ),
     );
 
     final albums = await browser.children(MediaLibraryBrowser.albumsId);
-    expect(_titles(albums), ['Album', 'Scanned']);
-    expect(albums.first.playable, isFalse);
-    expect(albums.first.artist, 'Artist');
-
-    final downloaded = await browser.children(albums.first.id);
-    expect(_titles(downloaded), ['Song a', 'Song b', 'Song c']);
-    final queue = (await browser.queueFor(downloaded[1].id))!;
-    expect([for (final media in queue.items) media.id], ['a', 'b', 'c']);
-    expect(queue.index, 1);
-
-    final scanned = await browser.children(albums.last.id);
+    expect(_titles(albums), ['Scanned']);
+    final scanned = await browser.children(albums.single.id);
     expect(_titles(scanned), ['Song a', 'Song b']);
   });
 
@@ -379,41 +303,30 @@ void main() {
       duration: 200,
     );
     final browser = _browser(
-      library: _Library(filesByTitle: {'Old': file, 'Web': file}),
+      library: _Library(filesByTitle: {'Old': file}),
       collections: _Collections(
-        loved: [
-          loved('Old', 'http://127.0.0.1:41234/7f3a'),
-          loved('Web', 'https://covers.example/web.jpg'),
-        ],
+        loved: [loved('Old', 'http://127.0.0.1:41234/7f3a')],
       ),
     );
 
     final songs = await browser.children(MediaLibraryBrowser.lovedId);
-    expect(_titles(songs), ['Old', 'Web']);
+    expect(_titles(songs), ['Old']);
     expect(songs.first.artUri, isNull);
-    expect(songs.last.artUri.toString(), 'https://covers.example/web.jpg');
   });
 
   group('the cover provider', () {
     const library = '/data/app/files/library_covers';
     late Directory directory;
-    late CoverStore covers;
     setUp(() async {
       directory = await Directory.systemTemp.createTemp('browser-covers');
-      covers = CoverStore(
-        directory: () async => Directory('${directory.path}/covers'),
-        fetch: (ref, output) => output.writeAsBytes(_jpeg),
-      );
     });
     tearDown(() async {
-      await covers.dispose();
       await directory.delete(recursive: true);
     });
 
     BrowserCoverProvider provider() => BrowserCoverProvider(
       authority: 'app.covers',
       folders: {
-        'covers': '${directory.path}/covers',
         'library_covers': library,
         // Even a folder the provider serves shows no temporary file.
         'temporary': Directory.systemTemp.path,
@@ -488,7 +401,6 @@ void main() {
         albums: [
           album('Path', '$library/a.jpg'),
           album('File URI', 'file://$library/a.jpg'),
-          album('Web', 'https://covers.example/w.jpg'),
           album('Loopback', 'http://127.0.0.1:41234/7f3a'),
           album('Elsewhere', '/storage/emulated/0/Music/cover.jpg'),
           album('Nested', '$library/old/a.jpg'),
@@ -508,7 +420,6 @@ void main() {
       );
       final browser = _browser(
         library: rows,
-        covers: covers,
         coverProvider: () async {
           loads++;
           return provider();
@@ -521,7 +432,6 @@ void main() {
       expect(art(albums), {
         'Path': cover('library_covers', 'a.jpg'),
         'File URI': cover('library_covers', 'a.jpg'),
-        'Web': 'https://covers.example/w.jpg',
         'Loopback': null,
         'Elsewhere': null,
         'Nested': null,
@@ -541,19 +451,6 @@ void main() {
         cover('library_covers', 'artist.jpg'),
       );
       expect(loads, 1);
-
-      // Without the provider a car cannot load them.
-      final without = _browser(
-        library: rows,
-        covers: covers,
-        coverProvider: () async => null,
-      );
-      expect(
-        art(
-          await without.children(MediaLibraryBrowser.albumsId),
-        ).values.nonNulls,
-        ['https://covers.example/w.jpg'],
-      );
     });
 
     test('looks for the provider again after it was not found', () async {
@@ -561,7 +458,6 @@ void main() {
       var loads = 0;
       final browser = _browser(
         library: _Library(albums: [album('Path', '$library/a.jpg')]),
-        covers: covers,
         coverProvider: () async {
           final answer = answers[loads++];
           if (answer is Error) throw answer;
@@ -584,7 +480,6 @@ void main() {
       var loads = 0;
       final browser = _browser(
         library: _Library(albums: [album('Path', '$library/a.jpg')]),
-        covers: covers,
         coverProvider: () {
           loads++;
           return found.future;
@@ -600,57 +495,6 @@ void main() {
         cover('library_covers', 'a.jpg'),
       );
       expect(loads, 1);
-    });
-
-    test('shows the file the store keeps for a network cover', () async {
-      const stored = 'network://connection/covers/a.jpg';
-      const song = 'network://connection/music/song.flac';
-      final storedPath = (await covers.file(stored))!;
-      final tags = await File('${directory.path}/tags.jpg').writeAsBytes(_jpeg);
-      final adoptedPath = (await covers.adopt(
-        CoverStore.songCoverReference(song),
-        tags.path,
-      ))!;
-      final browser = _browser(
-        library: _Library(
-          songs: [
-            {
-              'source': 'local',
-              'item': {..._scanned('n'), 'filePath': song, 'coverPath': null},
-            },
-          ],
-          hits: {
-            LibrarySearchKind.albums: const [
-              LibrarySearchHit(
-                kind: LibrarySearchKind.albums,
-                id: 'stored',
-                title: 'Stored',
-                source: 'local',
-                cover: stored,
-              ),
-              LibrarySearchHit(
-                kind: LibrarySearchKind.albums,
-                id: 'missing',
-                title: 'Not stored',
-                source: 'local',
-                cover: 'network://connection/covers/b.jpg',
-              ),
-            ],
-          },
-        ),
-        covers: covers,
-        coverProvider: () async => provider(),
-      );
-
-      expect(art(await browser.search('stored')), {
-        'Stored': cover('covers', p.basename(storedPath)),
-        'Not stored': null,
-      });
-      final songs = await browser.children(MediaLibraryBrowser.songsId);
-      expect(
-        songs[1].artUri.toString(),
-        cover('covers', p.basename(adoptedPath)),
-      );
     });
   });
 
@@ -674,9 +518,9 @@ void main() {
           LibrarySearchKind.songs: const [
             LibrarySearchHit(
               kind: LibrarySearchKind.songs,
-              id: 'b',
+              id: 'm',
               title: 'Blue',
-              source: 'downloaded',
+              source: 'local',
             ),
             LibrarySearchHit(
               kind: LibrarySearchKind.songs,
@@ -688,10 +532,10 @@ void main() {
           LibrarySearchKind.albums: const [
             LibrarySearchHit(
               kind: LibrarySearchKind.albums,
-              id: 'album|artist',
+              id: 'scanned-album',
               title: 'Album',
               artist: 'Artist',
-              source: 'downloaded',
+              source: 'local',
             ),
           ],
           LibrarySearchKind.artists: const [
@@ -702,9 +546,8 @@ void main() {
             ),
           ],
         },
-        byId: {'l': _scanned('l')},
+        byId: {'l': _scanned('l'), 'm': _scanned('m')},
       ),
-      history: _History(byId: {'b': _download('b')}),
       collections: _Collections(
         playlists: {
           'Blue mornings': [_track('First')],
@@ -715,7 +558,7 @@ void main() {
 
     final results = await browser.search('blue');
     expect(_titles(results), [
-      'Song b',
+      'Song m',
       'Song l',
       'Album',
       'Blue Band',
@@ -727,7 +570,7 @@ void main() {
       ['Songs', 'Songs', 'Albums', 'Artists', 'Playlists'],
     );
     final queue = (await browser.queueFor(results[1].id))!;
-    expect([for (final media in queue.items) media.id], ['b', 'l']);
+    expect([for (final media in queue.items) media.id], ['m', 'l']);
     expect(queue.index, 1);
     expect(await browser.search('  '), isEmpty);
   });
@@ -735,7 +578,7 @@ void main() {
   test('a spoken request plays songs first or the kind it asks for', () async {
     final library = _Library(
       songs: [
-        {'source': 'downloaded', 'item': _download('x')},
+        {'source': 'local', 'item': _scanned('x')},
       ],
       hits: {
         LibrarySearchKind.songs: const [
@@ -743,27 +586,23 @@ void main() {
             kind: LibrarySearchKind.songs,
             id: 'b',
             title: 'Blue',
-            source: 'downloaded',
+            source: 'local',
           ),
         ],
         LibrarySearchKind.albums: const [
           LibrarySearchHit(
             kind: LibrarySearchKind.albums,
-            id: 'album|artist',
+            id: 'scanned-album',
             title: 'Album',
             artist: 'Artist',
-            source: 'downloaded',
+            source: 'local',
           ),
         ],
       },
+      byId: {'b': _scanned('b')},
+      localAlbum: [_scanned('a1', track: 1), _scanned('a2', track: 2)],
     );
-    final browser = _browser(
-      library: library,
-      history: _History(
-        byId: {'b': _download('b')},
-        album: [_download('a1', track: 1), _download('a2', track: 2)],
-      ),
-    );
+    final browser = _browser(library: library);
     List<String> ids(BrowserQueue? queue) => [
       for (final media in queue!.items) media.id,
     ];
@@ -784,10 +623,10 @@ void main() {
     final albumsOnly = _browser(
       library: _Library(
         hits: {LibrarySearchKind.albums: library.hits.values.last},
+        localAlbum: library.localAlbum,
       ),
-      history: _History(album: [_download('a1')]),
     );
-    expect(ids(await albumsOnly.queueForSearch('album')), ['a1']);
+    expect(ids(await albumsOnly.queueForSearch('album')), ['a1', 'a2']);
     expect(await _browser().queueForSearch('nothing'), isNull);
   });
 

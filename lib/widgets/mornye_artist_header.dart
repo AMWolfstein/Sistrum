@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui';
 
@@ -431,6 +432,8 @@ class MornyeArtistHeader extends StatelessWidget {
     final logoSize = _logoSize;
     final logo = logoUrl?.trim();
     if (logo == null || logo.isEmpty) return fallback;
+    final logoPath = coverFilePath(logo);
+    if (logoPath == null) return fallback;
     final pixelRatio = MediaQuery.devicePixelRatioOf(context);
     return Semantics(
       label: name,
@@ -438,7 +441,7 @@ class MornyeArtistHeader extends StatelessWidget {
       excludeSemantics: true,
       child: Image(
         image: ResizeImage(
-          cachedCoverImageProvider(logo),
+          FileImage(File(logoPath)),
           width: (logoSize.width * pixelRatio).ceil(),
           height: (logoSize.height * pixelRatio).ceil(),
           policy: ResizeImagePolicy.fit,

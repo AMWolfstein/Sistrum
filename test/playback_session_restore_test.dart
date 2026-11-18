@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sistrum/models/download_history.dart';
 import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/services/file_access_check.dart';
@@ -20,41 +19,6 @@ Map<String, dynamic> _media(int index, {String? artwork, String? source}) =>
     ).toJson();
 
 void main() {
-  test(
-    'an unavailable new folder does not abort restore of other songs',
-    () async {
-      final result = await prepareRestoredPlaybackMedia(
-        [_media(0, source: '/xxx/Song.flac'), _media(1)],
-        fileExists: (path) async => path == '/music/1.flac',
-        recoverSource: (_) => throw StateError('Folder not mounted'),
-        loadLibraryCoverPath: (_) async => null,
-      );
-      expect(result.items.map((item) => item.source), [
-        '/xxx/Song.flac',
-        '/music/1.flac',
-      ]);
-      expect(result.keptOriginalIndices, [0, 1]);
-    },
-  );
-
-  test(
-    'a moved download is repaired before restore drops its missing path',
-    () async {
-      final result = await prepareRestoredPlaybackMedia(
-        [_media(0, source: '/xxx/Artist/Album/Song.flac')],
-        fileExists: (_) async => false,
-        recoverSource: (media) async {
-          expect(media.source, '/xxx/Artist/Album/Song.flac');
-          return '/yyy/Artist/Album/Song.flac';
-        },
-        loadLibraryCoverPath: (_) async => null,
-      );
-      expect(result.items.single.source, '/yyy/Artist/Album/Song.flac');
-      expect(result.sourceRelocated, isTrue);
-      expect(result.keptOriginalIndices, [0]);
-    },
-  );
-
   test(
     'an unreadable saved file stays queued while a confirmed missing one is dropped',
     () async {
@@ -80,56 +44,6 @@ void main() {
         '/music/1.flac',
       ]);
       expect(result.keptOriginalIndices, [0, 1]);
-      expect(result.sourceRelocated, isFalse);
-    },
-  );
-
-  test(
-    'entries on an unmounted card stay queued; they play again once it returns',
-    () async {
-      final raw = [
-        _media(0, source: '/storage/1234-ABCD/Music/a.flac'),
-        _media(1),
-        _media(2, source: '/storage/1234-ABCD/Music/c.flac'),
-      ];
-      var mounted = false;
-      Future<FileAccessCheck> access(String path) async =>
-          path.startsWith('/storage/1234-ABCD/') && !mounted
-          ? const FileAccessMissing()
-          : const FileAccessFound(FileAccessStat());
-      Future<bool> unavailable(String path) async =>
-          path.startsWith('/storage/1234-ABCD/') && !mounted;
-      var recovered = 0;
-      final offline = await prepareRestoredPlaybackMedia(
-        raw,
-        checkAccess: access,
-        storageUnavailable: unavailable,
-        recoverSource: (_) async {
-          recovered++;
-          return null;
-        },
-        loadLibraryCoverPath: (_) async => null,
-      );
-      // Nothing dropped and nothing recovered: the session keeps every entry.
-      expect(offline.keptOriginalIndices, [0, 1, 2]);
-      expect(offline.items, hasLength(3));
-      expect(offline.sourceRelocated, isFalse);
-      expect(recovered, 0);
-
-      // The card returns: the same entries resolve without being re-added.
-      mounted = true;
-      final remounted = await prepareRestoredPlaybackMedia(
-        raw,
-        checkAccess: access,
-        storageUnavailable: unavailable,
-        loadLibraryCoverPath: (_) async => null,
-      );
-      expect(remounted.items.map((item) => item.source), [
-        '/storage/1234-ABCD/Music/a.flac',
-        '/music/1.flac',
-        '/storage/1234-ABCD/Music/c.flac',
-      ]);
-      expect(remounted.keptOriginalIndices, [0, 1, 2]);
     },
   );
 
@@ -165,7 +79,7 @@ void main() {
         [
           _media(
             0,
-            source: 'network://fixture/music.flac',
+            source: 'content://example.documents/music',
             artwork: Uri.file('$oldContainer$suffix').toString(),
           ),
         ],
@@ -324,16 +238,8 @@ void main() {
         [
           null,
           {'id': 'invalid'},
-          _media(
-            2,
-            source: 'network://fixture/track.flac',
-            artwork: 'https://example.test/a.jpg',
-          ),
-          _media(
-            3,
-            source: 'content://example.documents/track',
-            artwork: 'https://example.test/a.jpg',
-          ),
+          _media(2, source: 'content://example.documents/track2'),
+          _media(3, source: 'content://example.documents/track'),
         ],
         fileExists: (_) => throw StateError('Unexpected file check'),
         loadLibraryCoverPath: (_) => throw StateError('Unexpected lookup'),
@@ -344,36 +250,8 @@ void main() {
     },
   );
 
-  test(
-    'restore drops loopback and temporary covers of older sessions',
-    () async {
-      final result = await prepareRestoredPlaybackMedia(
-        [
-          _media(0, artwork: 'http://127.0.0.1:41234/2f6d1c'),
-          _media(
-            1,
-            artwork:
-                '/data/user/0/app/cache/network_metadata/subsonic_ab.image',
-          ),
-          _media(2, artwork: 'https://example.test/cover.jpg'),
-          _media(3, artwork: 'network://nas/Album/cover.jpg'),
-        ],
-        fileExists: (_) async => true,
-        loadLibraryCoverPath: (_) async => null,
-      );
-      expect(result.items.map((item) => item.artUri), [
-        null,
-        null,
-        'https://example.test/cover.jpg',
-        'network://nas/Album/cover.jpg',
-      ]);
-      // The next save writes the queue without them.
-      expect(result.artworkRelocated, isTrue);
-    },
-  );
-
   group('the session Home offers to continue', () {
-    const nas = 'network://nas/Album/Song.flac';
+    const nas = 'content://nas.example/Album/Song.flac';
     final preview = (
       media: PlayableMedia.fromJson(_media(0, source: nas))!,
       position: const Duration(seconds: 30),
@@ -386,17 +264,6 @@ void main() {
         albumName: 'Album',
         filePath: nas,
         scannedAt: DateTime(2026, 11, 17),
-      ),
-    );
-    final downloaded = UnifiedLibraryItem.fromDownloadHistory(
-      DownloadHistoryItem(
-        id: '0',
-        trackName: 'Track 0',
-        artistName: 'Fixture artist',
-        albumName: 'Album',
-        filePath: '/music/0.flac',
-        service: 'example-provider',
-        downloadedAt: DateTime(2026, 11, 17),
       ),
     );
 
@@ -417,21 +284,16 @@ void main() {
       },
     );
 
-    test(
-      'stays for a download and for a song the Library does not know',
-      () async {
-        for (final item in [downloaded, null]) {
-          expect(
-            await resumePreviewForLibrary(
-              preview,
-              localLibraryEnabled: false,
-              libraryItem: (_) async => item,
-            ),
-            same(preview),
-          );
-        }
-      },
-    );
+    test('stays for a song the Library does not know', () async {
+      expect(
+        await resumePreviewForLibrary(
+          preview,
+          localLibraryEnabled: false,
+          libraryItem: (_) async => null,
+        ),
+        same(preview),
+      );
+    });
 
     test('stays for a scanned song while the scanned Library is on', () async {
       expect(

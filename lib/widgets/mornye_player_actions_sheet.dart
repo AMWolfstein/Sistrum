@@ -8,7 +8,6 @@ import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/theme/cover_palette.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mornye_context_menu.dart';
-import 'package:sistrum/services/network_offline_saver.dart';
 
 /// Navigation for the title/artist, separate from playback and file actions.
 class MornyePlayerNavigationMenu extends StatelessWidget {
@@ -54,9 +53,6 @@ class MornyePlayerActionsSheet extends ConsumerWidget {
     this.sleepTimerSubtitle,
     this.tempoSubtitle,
     this.volumeShown = true,
-    this.sendToDesktop,
-    this.sendToPhoneHost = false,
-    this.saveToPhone = false,
   });
 
   final MediaItem mediaItem;
@@ -67,15 +63,6 @@ class MornyePlayerActionsSheet extends ConsumerWidget {
 
   /// Whether the player shows its volume slider, which the menu toggles.
   final bool volumeShown;
-
-  /// The paired desktop's name while this phone's song can go there.
-  final String? sendToDesktop;
-
-  /// Whether that paired device is another phone rather than a computer.
-  final bool sendToPhoneHost;
-
-  /// Whether the song is the paired desktop's, which can be saved here.
-  final bool saveToPhone;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -143,32 +130,6 @@ class MornyePlayerActionsSheet extends ConsumerWidget {
               context.l10n.lyricsShareTitle,
               CupertinoIcons.quote_bubble,
             ),
-            if (sendToDesktop case final name?)
-              _action(
-                context,
-                'linkSend',
-                context.l10n.linkSendToDesktop(name),
-                sendToPhoneHost
-                    ? CupertinoIcons.device_phone_portrait
-                    : CupertinoIcons.desktopcomputer,
-              ),
-            if (saveToPhone)
-              _action(
-                context,
-                'linkSave',
-                context.l10n.linkSaveToPhone,
-                CupertinoIcons.device_phone_portrait,
-              ),
-            if (!saveToPhone &&
-                canSaveNetworkOfflineSource(
-                  mediaItem.extras?['source']?.toString() ?? '',
-                ))
-              _action(
-                context,
-                'networkOffline',
-                context.l10n.offlineSave,
-                CupertinoIcons.arrow_down_circle,
-              ),
           ],
           [
             _action(

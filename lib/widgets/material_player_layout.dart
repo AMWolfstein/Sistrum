@@ -16,7 +16,6 @@ import 'package:sistrum/widgets/player_gesture_regions.dart';
 import 'package:sistrum/widgets/player_lyric_preview.dart';
 import 'package:sistrum/widgets/player_lyrics_controls.dart';
 import 'package:sistrum/widgets/player_metadata_title.dart';
-import 'package:sistrum/widgets/playback_source_label.dart';
 import 'package:sistrum/widgets/player_playback_controls.dart';
 import 'package:sistrum/widgets/player_track_crossfade.dart';
 import 'package:sistrum/widgets/player_volume_control.dart';
@@ -37,11 +36,8 @@ class MaterialPlayerLayout extends StatelessWidget {
     this.immersive = false,
     this.compactPlayer = false,
     this.onCompactPlayerTouch,
-    this.showSourceLabel = true,
   });
 
-  /// False where the Playing on row names the song's source instead.
-  final bool showSourceLabel;
   final MediaItem mediaItem;
   final PlayerMetadataController metadata;
   final PlaybackSeekPreview seekPreview;
@@ -376,31 +372,11 @@ class MaterialPlayerLayout extends StatelessWidget {
                               maxLines: compact ? 1 : 2,
                             ),
                             SizedBox(height: compact ? 4 : 6),
-                            if (showSourceLabel)
-                              PlaybackSourceLabel(
-                                item: mediaItem,
-                                color: colorScheme.onSurfaceVariant,
-                              ),
-                            Consumer(
-                              builder: (context, ref, _) {
-                                final track = ref
-                                    .watch(
-                                      playerCollectionTrackProvider(mediaItem),
-                                    )
-                                    .value;
-                                // No extensionId: a downloaded track's
-                                // source is its download service, not a
-                                // metadata catalog.
-                                return ClickableArtistName(
-                                  artistName: mediaItem.artist ?? '',
-                                  artistId: track?.artistId,
-                                  style: Theme.of(context).textTheme.titleMedium
-                                      ?.copyWith(
-                                        color: colorScheme.onSurfaceVariant,
-                                      ),
-                                  textAlign: TextAlign.start,
-                                );
-                              },
+                            ClickableArtistName(
+                              artistName: mediaItem.artist ?? '',
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(color: colorScheme.onSurfaceVariant),
+                              textAlign: TextAlign.start,
                             ),
                           ],
                         ),

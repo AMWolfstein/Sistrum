@@ -3,9 +3,9 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/models/album_track_order.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:sistrum/services/listening_statistics.dart';
 
-import 'support/link_sync_support.dart';
 import 'support/sqlite_process_database.dart';
 
 const _one = ListeningTrack(
@@ -227,7 +227,7 @@ void main() {
           'title': 'Collaboration',
           'artist': 'Artist A, Artist B; artist a',
           'album': 'Album',
-          'artwork': 'https://example.com/collaboration.jpg',
+          'artwork': '/data/user/0/app/files/covers/collaboration.jpg',
           'milliseconds': 180000,
           'plays': 1,
         },
@@ -261,8 +261,8 @@ void main() {
         );
         expect(summary.tracks.first.milliseconds, 180000);
         expect(summary.artistArtwork, {
-          'Artist A': 'https://example.com/collaboration.jpg',
-          'Artist B': 'https://example.com/collaboration.jpg',
+          'Artist A': '/data/user/0/app/files/covers/collaboration.jpg',
+          'Artist B': '/data/user/0/app/files/covers/collaboration.jpg',
         });
       }
       // Reading old credits corrects the presentation without rewriting history.
@@ -418,16 +418,11 @@ void main() {
   test(
     'older loopback and temporary covers read as none, references stay',
     () async {
-      const kept = {
-        'network': 'network://nas/Album/cover.jpg',
-        'tags': 'network://nas/Album/song.flac#cover',
-        'web': 'https://example.com/cover.jpg',
-        'file': '/data/user/0/app/files/covers/a.image',
-      };
+      const kept = {'file': '/data/user/0/app/files/covers/a.image'};
       final dropped = [
+        'https://example.com/cover.jpg',
         'http://127.0.0.1:41234/7f3a',
         'http://localhost:8080/cover',
-        '/data/user/0/app/cache/network_metadata/a1.jpg',
         '/var/mobile/Containers/Data/Application/X/tmp/'
             'download_cover_preview_x1/cover_preview.jpg',
         '${Directory.systemTemp.path}/cover.jpg',
@@ -477,16 +472,20 @@ void main() {
   );
 
   test('a later play replaces a broken cover; one without keeps it', () async {
-    final db = await openLinkListeningDatabase(
-      await linkSyncTempDirectory(),
-      'covers',
+    final directory = await Directory.systemTemp.createTemp('listening-covers-');
+    addTearDown(() => directory.delete(recursive: true));
+    sqfliteFfiInit();
+    final db = await ListeningStatisticsStore.openWithFactory(
+      databaseFactoryFfi,
+      '${directory.path}/covers-listening.db',
     );
-    const reference = 'network://nas/Album/cover.jpg';
+    addTearDown(db.close);
+    const reference = '/data/user/0/app/files/covers/cover.jpg';
     ListeningDelta play(String? artwork, {String day = '2026-10-20'}) =>
         ListeningDelta(
           day,
           ListeningTrack(
-            key: 'network://nas/Album/song.flac',
+            key: '/music/Album/song.flac',
             title: 'Song',
             artist: 'Artist',
             album: 'Album',
@@ -509,7 +508,7 @@ void main() {
     // Recorded by an older build.
     await db.insert('listening', {
       'day': '2026-10-20',
-      'track_key': 'network://nas/Album/song.flac',
+      'track_key': '/music/Album/song.flac',
       'title': 'Song',
       'artist': 'Artist',
       'album': 'Album',
@@ -525,12 +524,11 @@ void main() {
     for (final artwork in [
       null,
       'http://127.0.0.1:41234/8b2c',
-      '/data/user/0/app/cache/network_metadata/a1.jpg',
     ]) {
       await writeListeningDeltas(db, [play(artwork)]);
       expect((await stored('2026-10-20'))['artwork'], reference);
     }
-    expect((await stored('2026-10-20'))['milliseconds'], 30000);
+    expect((await stored('2026-10-20'))['milliseconds'], 25000);
     await writeListeningDeltas(db, [
       play('http://127.0.0.1:41234/8b2c', day: '2026-10-21'),
     ]);
@@ -538,8 +536,8 @@ void main() {
     // A later day without a cover still shows the one recorded before.
     expect(await shown(), reference);
     await writeListeningDeltas(db, [
-      play('https://example.com/new.jpg', day: '2026-10-21'),
+      play('/data/user/0/app/files/covers/new.jpg', day: '2026-10-21'),
     ]);
-    expect(await shown(), 'https://example.com/new.jpg');
+    expect(await shown(), '/data/user/0/app/files/covers/new.jpg');
   });
 }

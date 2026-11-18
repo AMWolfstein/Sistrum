@@ -8,7 +8,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
@@ -36,31 +35,19 @@ class _Settings extends SettingsNotifier {
   );
 }
 
-/// No song in memory, so every Library row comes from the database pages.
-class _History extends DownloadHistoryNotifier {
-  @override
-  DownloadHistoryState build() => DownloadHistoryState(totalCount: _songCount);
-
-  /// What a finished download does: the Library index moves on.
-  void reloadIndex() => state = DownloadHistoryState(
-    totalCount: _songCount,
-    loadedIndexVersion: state.loadedIndexVersion + 1,
-  );
-}
-
 class _Local extends LocalLibraryNotifier {
   @override
   LocalLibraryState build() => LocalLibraryState();
+
+  /// What a finished scan does: the Library index moves on.
+  void reloadIndex() => state = state.copyWith(
+    loadedIndexVersion: state.loadedIndexVersion + 1,
+  );
 }
 
 class _Collections extends LibraryCollectionsNotifier {
   @override
   LibraryCollectionsState build() => LibraryCollectionsState(isLoaded: true);
-}
-
-class _Queue extends DownloadQueueNotifier {
-  @override
-  DownloadQueueState build() => DownloadQueueState();
 }
 
 /// Titles the database reports instead of `Song <n>`.
@@ -192,7 +179,6 @@ void main() {
   tearDown(() => debugDesktopPlatformOverride = null);
 
   group('desktop Library Songs table', () {
-    late _History history;
     late ValueNotifier<ThemeMode> themeMode;
     late StreamController<MediaItem?> nowPlaying;
 
@@ -209,13 +195,8 @@ void main() {
         ProviderScope(
           overrides: [
             settingsProvider.overrideWith(_Settings.new),
-            downloadHistoryProvider.overrideWith(() => history = _History()),
             localLibraryProvider.overrideWith(_Local.new),
             libraryCollectionsProvider.overrideWith(_Collections.new),
-            downloadQueueProvider.overrideWith(_Queue.new),
-            downloadQueueLookupProvider.overrideWithValue(
-              DownloadQueueLookup.fromItems(const []),
-            ),
             currentMediaItemProvider.overrideWithBuild(
               (ref, notifier) => nowPlaying.stream,
             ),
@@ -331,11 +312,11 @@ void main() {
       await loadRows(tester, _songCount);
       expect(_rebuiltRows(beforePage, _tableRows(tester)), 300);
 
-      // A finished download reloads the Library from its first page, with
+      // A finished scan reloads the Library from its first page, with
       // new rows that show the changed song.
       final beforeReload = _tableRows(tester);
       _renamed[0] = 'Renamed';
-      history.reloadIndex();
+      (ProviderScope.containerOf(tester.element(find.byType(QueueTab))).read(localLibraryProvider.notifier) as _Local).reloadIndex();
       await _settle(tester);
       songsPosition(tester).jumpTo(0);
       await _settle(tester);

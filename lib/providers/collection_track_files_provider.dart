@@ -1,11 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/playback_provider.dart';
-import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/services/local_track_redownload_service.dart';
 import 'package:sistrum/services/playable_media.dart';
 import 'package:sistrum/utils/file_access.dart';
 
@@ -47,34 +43,3 @@ Future<List<PlayableMedia>> resolveCollectionTrackFiles(
           playableFromTrack(tracks[index], path),
   ];
 }
-
-/// Uses scanned metadata so FLAC files behind opaque SAF URIs stay excluded.
-final collectionTrackFlacCandidatesProvider = FutureProvider.autoDispose
-    .family<List<LocalLibraryItem>, CollectionTrackFilesRequest>((
-      ref,
-      request,
-    ) async {
-      if (!ref.watch(settingsProvider.select((s) => s.localLibraryEnabled))) {
-        return const [];
-      }
-      ref.watch(localLibraryIndexRevisionProvider);
-      final items = await ref
-          .read(localLibraryProvider.notifier)
-          .findExistingBatchAsync([
-            for (final track in request.tracks)
-              LocalLibraryBatchLookupRequest(
-                id: track.source?.toLowerCase() == 'local' ? track.id : null,
-                isrc: track.isrc,
-                trackName: track.name,
-                artistName: track.artistName,
-              ),
-          ]);
-      final seen = <String>{};
-      return [
-        for (final item in items)
-          if (item != null &&
-              LocalTrackRedownloadService.isFlacUpgradeEligible(item) &&
-              seen.add(item.filePath))
-            item,
-      ];
-    });

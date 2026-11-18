@@ -4,10 +4,7 @@ import android.content.Context
 import android.net.Uri
 import com.amwolfstein.sistrum.backend.CancellationDomain
 import com.amwolfstein.sistrum.backend.CancellationRegistry
-import com.amwolfstein.sistrum.backend.DownloadState
 import com.amwolfstein.sistrum.backend.ExtensionManager
-import com.amwolfstein.sistrum.backend.ExtensionRepository
-import com.amwolfstein.sistrum.backend.LyricsRequest
 import com.amwolfstein.sistrum.backend.RequestLease
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
@@ -35,20 +32,15 @@ internal suspend fun MainActivity.dispatchBackendApplication(call: MethodCall, r
         withContext(Dispatchers.IO) {
             when (call.method) {
                 "runNativeDataJob" -> runNativeDataJobPlatform(call.arguments, checkNotNull(jobLease))
-                "getLyricsLRC", "getLyricsLRCWithSource", "fetchAndSaveLyrics" -> {
+                "getLyricsLRCWithSource" -> {
                     val arguments = call.arguments as? Map<*, *> ?: emptyMap<Any, Any>()
                     readLyricsRequestWithSafCopy(
-                        call.method,
                         arguments,
                         copyToTemp = { copyUriToTemp(coreBackend, Uri.parse(it))?.let(::File) },
                         read = { request ->
                             coreBackend.invokeApplication(call.method, request)
                         },
-                    ) ?: when (call.method) {
-                        "getLyricsLRC" -> ""
-                        "fetchAndSaveLyrics" -> """{"success":false,"error":"Failed to access the audio document"}"""
-                        else -> """{"lyrics":"","source":"","sync_type":"","instrumental":false}"""
-                    }
+                    ) ?: """{"lyrics":"","source":"","sync_type":"","instrumental":false}"""
                 }
                 else -> coreBackend.invokeApplication(call.method, call.arguments)
             }
@@ -64,15 +56,9 @@ internal object RustCoreBackend : CoreBackend {
     override val implementation = "rust"
     private lateinit var workspace: NativeMediaWorkspace
     internal var manager: ExtensionManager? = null
-    private var repository: ExtensionRepository? = null
     private var requests: CancellationRegistry? = null
     internal var identity: Triple<String, String, List<Byte>>? = null
     internal var loggingEnabled = false
-    internal var allowPrivateNetwork = false
-    internal var allowHttpFallback = false
-    internal var fallbackProviders: List<String>? = null
-    internal var runtimeState: Pair<String, String>? = null
-    internal val directoryScopes = mutableMapOf<String, AutoCloseable>()
     private var libraryCoverScope: AutoCloseable? = null
     @Volatile private var libraryCoverDirectory: File? = null
 
@@ -88,11 +74,6 @@ internal object RustCoreBackend : CoreBackend {
     internal fun owner(): ExtensionManager {
         return checkNotNull(manager) { "Rust backend is not initialized" }
     }
-
-    internal fun <T> ExtensionManager.withDownloadState(block: (DownloadState) -> T): T =
-        environment().use { environment ->
-            environment.downloadState().use(block)
-        }
 
     private fun directoryAliases(value: String, sources: String, data: String): List<String> {
         require(File(value).isAbsolute) { "Output directories must be absolute" }
@@ -123,16 +104,6 @@ internal object RustCoreBackend : CoreBackend {
     }
 
     @Synchronized
-    internal fun setDownloadDirectory(path: String) {
-        val current = owner()
-        val storage = checkNotNull(identity)
-        val files = workspace.ensureDirectory()
-        val allowed = listOf(files.canonicalPath, files.absolutePath) +
-            if (path.isEmpty()) emptyList() else directoryAliases(path, storage.first, storage.second)
-        current.environment().use { it.setAllowedDownloadDirectories(allowed.distinct()) }
-    }
-
-    @Synchronized
     internal fun requestRegistry(): CancellationRegistry = requests ?: CancellationRegistry(
         CancellationDomain.EXTENSION_REQUEST,
     ).also { requests = it }
@@ -157,19 +128,6 @@ internal object RustCoreBackend : CoreBackend {
                 current.runNativeDataJob(request.toString(), bytes, lease)
             } finally { staged?.delete() }
         }
-    }
-
-    @Synchronized
-    internal fun repositoryOwner(): ExtensionRepository =
-        checkNotNull(repository) { "Extension repository is not initialized" }
-
-    @Synchronized
-    internal fun initializeRepository(cachePath: String) {
-        val current = owner()
-        if (repository != null) return
-        val cache = File(cachePath)
-        require(cache.isAbsolute) { "Repository cache directory must be absolute" }
-        repository = ExtensionRepository(current, cache.canonicalPath)
     }
 
     @Synchronized
@@ -198,28 +156,12 @@ internal object RustCoreBackend : CoreBackend {
             manager!!.environment().use { it.setAllowedDownloadDirectories(allowedDirectories.distinct()) }
             return
         }
-        val preparedRuntime = runtimeState
-        require(preparedRuntime == null || preparedRuntime.first == data) {
-            "Runtime state directory does not match the initialized owner"
-        }
-        val created = ExtensionManager.withLyricsSettings(
-            sources,
-            data,
-            key,
-            BuildConfig.VERSION_NAME,
-            30_000uL,
-            arguments["lyrics_providers_json"] as? String ?: "[]",
-            arguments["lyrics_options_json"] as? String ?: "{}",
-        )
+        val created = ExtensionManager(data, BuildConfig.VERSION_NAME)
         try {
             created.environment().use { environment ->
                 environment.setAllowedDownloadDirectories(allowedDirectories.distinct())
-                environment.setAllowPrivateNetwork(allowPrivateNetwork)
-                environment.setNetworkCompatibilityOptions(allowHttpFallback, false)
                 environment.logBuffer().use { it.setEnabled(loggingEnabled) }
-                preparedRuntime?.let { environment.setRuntimeState(it.second) }
             }
-            created.setFallbackProviders(fallbackProviders)
         } catch (error: Exception) {
             created.shutdown()
             created.close()
@@ -236,23 +178,15 @@ internal object RustCoreBackend : CoreBackend {
             it.close()
         }
         requests = null
-        repository?.let {
-            it.shutdown()
-            it.close()
-        }
-        repository = null
         manager?.let {
             it.shutdown()
             it.close()
         }
         manager = null
-        directoryScopes.values.forEach { it.close() }
-        directoryScopes.clear()
         libraryCoverScope?.close()
         libraryCoverScope = null
         libraryCoverDirectory = null
         identity = null
-        runtimeState = null
     }
 
     override fun fileMetadataImplementation(path: String): String = "rust"
@@ -425,20 +359,6 @@ internal object RustCoreBackend : CoreBackend {
 
     internal fun mediaPath(path: String): String = if (path.isEmpty()) "" else File(path).canonicalPath
 
-    override fun reEnrichFile(requestJson: String): String {
-        val request = JSONObject(requestJson)
-        val path = request.opt("file_path") as? String
-        if (!request.optBoolean("preview_only", false) && path?.startsWith("/") == true) {
-            request.put("file_path", mediaPath(path))
-        }
-        return if (!request.optBoolean("preview_only", false) && !path.isNullOrBlank()) {
-            withMediaFiles(listOf(path)) { it.reenrichFile(request.toString(), null) }
-        } else owner().reenrichFile(request.toString(), null)
-    }
-
-    override fun rewriteSplitArtistTags(path: String, artist: String, albumArtist: String): String =
-        withMediaFiles(listOf(path)) { it.rewriteSplitArtistTags(mediaPath(path), artist, albumArtist, null) }
-
     override fun extractCoverToFile(audioPath: String, outputPath: String, hint: String) {
         val descriptor = if (audioPath.startsWith("/proc/self/fd/")) {
             audioPath.removePrefix("/proc/self/fd/").toIntOrNull()
@@ -464,34 +384,6 @@ internal object RustCoreBackend : CoreBackend {
     override fun writeM4aFreeformTags(path: String, metadataJson: String): String =
         withMediaFiles(listOf(path)) { it.writeM4aFreeformTags(mediaPath(path), metadataJson, null) }
 
-    override fun ensureAc4Config(path: String, reference: String): String =
-        owner().ensureAc4Config(mediaPath(path), mediaPath(reference), null)
-
-    override fun writeAc4Metadata(path: String, metadataJson: String, coverPath: String): String =
-        owner().writeAc4Metadata(mediaPath(path), metadataJson, mediaPath(coverPath), null)
-
-    override fun getLyricsLrc(
-        spotifyId: String,
-        trackName: String,
-        artistName: String,
-        filePath: String,
-        durationMs: Long,
-    ): String = owner().getLyricsLrc(
-        LyricsRequest(spotifyId, trackName, artistName, filePath, durationMs),
-        null,
-    )
-
-    override fun downloadCoverToFileSized(
-        url: String,
-        outputPath: String,
-        maxDimension: Long,
-    ) = owner().downloadCoverToFileSized(
-        url,
-        File(outputPath).canonicalPath,
-        maxDimension,
-        null,
-    )
-
     override fun releaseIdleResources() {
         owner().releaseMemory(false)
     }
@@ -507,76 +399,6 @@ internal object RustCoreBackend : CoreBackend {
     ): File {
         owner()
         return workspace.createTemporaryFile(prefix, suffix)
-    }
-
-    override fun openExtensionExecution(): CoreExtensionExecution {
-        val current = owner()
-        val commands = current.environment().use { it.ffmpegCommands() }
-        return object : CoreExtensionExecution {
-            override fun download(requestJson: String): String = current.downloadByStrategy(requestJson)
-            override fun postProcess(inputJson: String, metadataJson: String): String =
-                current.runPostProcessing(inputJson, metadataJson, 120_000uL)
-            override fun waitPending(timeoutMs: Long): List<CoreFFmpegCommand> =
-                parseCoreFFmpegCommands(commands.waitPending(timeoutMs))
-            override fun commandIsActive(commandId: String): Boolean = commands.getCommand(commandId).isNotEmpty()
-            override fun complete(commandId: String, success: Boolean, output: String, error: String) {
-                commands.complete(commandId, success, output, error)
-            }
-            override fun close() { commands.close() }
-        }
-    }
-
-    override fun openDownloadProgress(): CoreDownloadProgress {
-        val current = owner()
-        val subscription = current.environment().use { environment ->
-            environment.downloadState().use { it.subscribeProgress() }
-        }
-        return object : CoreDownloadProgress {
-            override fun waitDelta(since: Long, timeoutMs: Long): String = subscription.waitDelta(since, timeoutMs)
-            override fun close() {
-                subscription.stop()
-                subscription.close()
-            }
-        }
-    }
-
-    override fun initItemProgress(itemId: String) {
-        val current = owner()
-        current.withDownloadState { state -> state.initItemProgress(itemId) }
-    }
-
-    override fun clearItemProgress(itemId: String) {
-        val current = owner()
-        current.withDownloadState { state -> state.clearItemProgress(itemId) }
-    }
-
-    override fun cancelDownload(itemId: String) {
-        val current = owner()
-        current.withDownloadState { state -> state.cancelDownload(itemId) }
-    }
-
-    override fun resetDownloadCancel(itemId: String) {
-        val current = owner()
-        current.withDownloadState { state -> state.resetDownloadCancel(itemId) }
-    }
-
-    override fun completeAuthCallback(state: String, code: String, sessionGrant: Boolean, onResolved: (String) -> Unit) {
-        val current = owner()
-        current.environment().use { environment ->
-            val id = if (sessionGrant) environment.resolveCallbackState(state) else environment.consumeCallbackState(state)
-            onResolved(id)
-            if (sessionGrant) {
-                completeSessionGrant(current, id, code)
-            } else {
-                environment.setAuthCode(id, code)
-                current.invokeAction(id, "completeSpotifyLogin")
-            }
-        }
-    }
-
-    internal fun completeSessionGrant(current: ExtensionManager, id: String, grant: String) {
-        current.environment().use { it.setSessionGrant(id, grant) }
-        requireSuccessfulExtensionAction(id, "completeGrant", current.invokeAction(id, "completeGrant"))
     }
 
     override fun invokeApplication(method: String, arguments: Any?): Any? = dispatchApplication(method, arguments)

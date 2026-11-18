@@ -1,13 +1,11 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:path/path.dart' as p;
-import 'package:sistrum/services/cover_store.dart';
-import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/local_library_artwork_builder.dart';
 import 'package:sistrum/widgets/player_artwork.dart';
 
-/// Queue entries may not have artwork yet, as for files a phone sent through
-/// Link. Recover only visible rows through the shared bounded cover cache.
+/// Queue entries may not have artwork yet: a local file's cover is read
+/// from the file itself when its row shows.
 class PlayerQueueArtwork extends StatelessWidget {
   const PlayerQueueArtwork({
     super.key,
@@ -40,9 +38,7 @@ class PlayerQueueArtwork extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // A network cover not stored yet shows once a visible row fetched it.
-    final artwork =
-        item.artUri?.toString() ?? item.extras?['artworkRef']?.toString();
+    final artwork = item.artUri?.toString();
     final source = _localSource;
     Widget image(String? uri) => PlayerArtwork(
       artUri: uri,
@@ -50,11 +46,7 @@ class PlayerQueueArtwork extends StatelessWidget {
       cacheWidth: cacheWidth,
       iconSize: iconSize,
     );
-    if (source == null ||
-        isHttpCoverUrl(artwork) ||
-        CoverStore.fetches(artwork)) {
-      return image(artwork);
-    }
+    if (source == null) return image(artwork);
     return LocalLibraryArtworkBuilder(
       coverPath: artwork,
       filePath: source,

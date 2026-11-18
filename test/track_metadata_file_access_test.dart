@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
+import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/services/source_deletion_events.dart';
@@ -59,14 +59,13 @@ void main() {
           };
         });
         addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
-        final item = DownloadHistoryItem(
+        final item = LocalLibraryItem(
           id: 'edited-track',
           trackName: title,
           artistName: 'Artist',
           albumName: 'Album',
           filePath: 'content://provider/music/edited.flac',
-          service: 'provider-a',
-          downloadedAt: DateTime(2026),
+          scannedAt: DateTime(2026),
         );
         await tester.pumpWidget(
           ProviderScope(
@@ -76,7 +75,7 @@ void main() {
                   : ThemeData.dark(useMaterial3: true),
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
-              home: TrackMetadataScreen(item: item),
+              home: TrackMetadataScreen(localItem: item),
             ),
           ),
         );
@@ -112,14 +111,13 @@ void main() {
           return null;
         });
         addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
-        final item = DownloadHistoryItem(
+        final item = LocalLibraryItem(
           id: 'provider-track',
           trackName: 'Track',
           artistName: 'Artist',
           albumName: 'Album',
           filePath: 'content://provider/music/track.flac',
-          service: 'provider-a',
-          downloadedAt: DateTime(2026),
+          scannedAt: DateTime(2026),
         );
         await tester.pumpWidget(
           ProviderScope(
@@ -129,7 +127,7 @@ void main() {
                   : ThemeData.dark(useMaterial3: true),
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
-              home: TrackMetadataScreen(item: item),
+              home: TrackMetadataScreen(localItem: item),
             ),
           ),
         );
@@ -159,14 +157,13 @@ void main() {
         (call) async => call.method == 'safStat' ? {'exists': false} : null,
       );
       addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
-      final item = DownloadHistoryItem(
+      final item = LocalLibraryItem(
         id: 'unchecked-track',
         trackName: 'Track',
         artistName: 'Artist',
         albumName: 'Album',
         filePath: 'content://provider/music/unchecked.flac',
-        service: 'provider-a',
-        downloadedAt: DateTime(2026),
+        scannedAt: DateTime(2026),
       );
       await tester.pumpWidget(
         ProviderScope(
@@ -177,7 +174,7 @@ void main() {
                 : ThemeData.dark(useMaterial3: true),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
-            home: TrackMetadataScreen(item: item),
+            home: TrackMetadataScreen(localItem: item),
           ),
         ),
       );

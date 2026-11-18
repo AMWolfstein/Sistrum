@@ -42,12 +42,11 @@ class LibraryItemArtwork extends StatelessWidget {
         builder: (context, cover) {
           final source = cover ?? item.coverUrl?.trim();
           if (source == null || source.isEmpty) return fallback(context);
-          return LocalOrNetworkCoverImage(
+          return LocalCoverImage(
             url: source,
             width: size,
             height: size,
             localCacheWidth: cacheWidth,
-            networkCacheWidth: cacheWidth,
             placeholder: fallback,
           );
         },

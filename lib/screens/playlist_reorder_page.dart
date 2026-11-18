@@ -115,11 +115,11 @@ class _ReorderTrackRow extends StatelessWidget {
       leading: ClipRRect(
         borderRadius: context.tokens.borderRadiusThumb,
         child: coverUrl != null && coverUrl.isNotEmpty
-            ? LocalOrNetworkCoverImage(
+            ? LocalCoverImage(
                 url: coverUrl,
                 width: size,
                 height: size,
-                networkCacheWidth: (size * 2).toInt(),
+                localCacheWidth: (size * 2).toInt(),
                 placeholder: (_) => TrackCoverPlaceholder(size: size),
               )
             : TrackCoverPlaceholder(size: size),

@@ -62,26 +62,6 @@ fn execute(
         "hash_file" => Ok(json!({"sha256": hash_file(string(request, "path")?, check)?})),
         "directory_stats" => crate::native_directory_stats::execute(request, check),
         "train_autoplay_taste" => crate::native_autoplay_taste::execute(request, check),
-        "matches_network_upload" => crate::network_tags::matches_upload(request, check),
-        "network_metadata" => {
-            let metadata = crate::network_tags::read_to_cache(
-                string(request, "url")?,
-                string(request, "display_name")?,
-                string(request, "cache_directory")?,
-                check,
-            )?;
-            let cacheable = serde_json::to_vec(&metadata)
-                .map_err(|error| error.to_string())?
-                .len()
-                <= 128 * 1024;
-            Ok(json!({"metadata": metadata, "cacheable": cacheable}))
-        }
-        "promote_network_cover" => crate::network_tags::promote_cover(
-            string(request, "path")?,
-            string(request, "directory")?,
-            check,
-        ),
-        "parse_network_listing" => crate::native_listing::execute(request, Some(bytes)),
         "parse_playlist" | "build_m3u" => {
             crate::native_playlists::execute(request, Some(bytes), check)
         }
@@ -89,9 +69,6 @@ fn execute(
             crate::native_id3::execute(request, Some(bytes), check)
         }
         "parse_lyrics" => crate::native_lyrics::execute(request, Some(bytes), check),
-        "parse_lyrics_translation_reply" => {
-            crate::native_lyrics_translation::execute(request, Some(bytes), check)
-        }
         "palette" => {
             let colors = sistrum_core::native_palette::quantize_rgba(bytes, check)?;
             Ok(json!({"colors": colors}))
@@ -118,7 +95,6 @@ fn execute(
                 "features": described.map(|value| value.to_vector()),
             }))
         }
-        "recognize_song" => crate::native_recognition::execute(request, bytes, check),
         "spectral_cutoff" => {
             let width = request
                 .get("width")

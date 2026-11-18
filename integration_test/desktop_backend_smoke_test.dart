@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:sistrum/services/backend/backend_channel.dart';
-import 'package:sistrum/services/platform_bridge.dart';
+import 'package:sistrum/services/native_log_source.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 
 /// Runs the desktop app against the bundled Rust library (set
@@ -20,18 +20,7 @@ void main() {
   tearDownAll(() => debugDesktopPlatformOverride = null);
 
   testWidgets('backend calls reach the Rust library', (tester) async {
-    final implementations = await PlatformBridge.getBackendImplementations();
-    expect(implementations, isNotEmpty);
-
-    final sanitized = await PlatformBridge.sanitizeFilename('a/b:c?.flac');
-    expect(sanitized, isNot(contains('/')));
-    expect(sanitized, endsWith('.flac'));
-
-    final filename = await PlatformBridge.buildFilename('{artist} - {title}', {
-      'artist': 'Artist',
-      'title': 'Title',
-    });
-    expect(filename, 'Artist - Title');
+    await const NativeLogSource().clear();
   }, skip: !desktopHost);
 
   testWidgets('mobile-only methods report a missing plugin', (tester) async {

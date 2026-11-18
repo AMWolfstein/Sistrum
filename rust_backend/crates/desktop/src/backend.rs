@@ -7,12 +7,11 @@ use crate::call::{Args, CallError, OrFail};
 use crate::paths::{self, RemoveOnDrop};
 use crate::runtime::Config;
 use sistrum_mobile::{
-    CancellationDomain, CancellationRegistry, DownloadDirectoryScope, DownloadProgressSubscription,
-    ExtensionManager, ExtensionRepository, RequestLease,
+    CancellationDomain, CancellationRegistry, DownloadDirectoryScope, ExtensionManager, RequestLease,
 };
 use serde_json::Value;
 use sha2::{Digest, Sha256};
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex, MutexGuard};
@@ -27,7 +26,6 @@ struct Identity {
 #[derive(Default)]
 struct Owner {
     manager: Option<Arc<ExtensionManager>>,
-    repository: Option<Arc<ExtensionRepository>>,
     requests: Option<Arc<CancellationRegistry>>,
     identity: Option<Identity>,
     logging_enabled: bool,
@@ -39,16 +37,6 @@ struct Owner {
     allowed_directories: Vec<String>,
 }
 
-/// One extension callback URL waiting for `processPendingExtensionCallbacks`.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct CallbackRoute {
-    pub(crate) code: String,
-    pub(crate) state: String,
-    pub(crate) session_grant: bool,
-}
-
-const MAX_PENDING_CALLBACKS: usize = 16;
-
 pub(crate) struct Backend {
     /// Private staging root (iOS: `Caches/rust-core-pilot`).
     root: PathBuf,
@@ -56,7 +44,6 @@ pub(crate) struct Backend {
     owner: Mutex<Owner>,
     data_jobs: CancellationRegistry,
     active_data_jobs: Mutex<HashMap<String, usize>>,
-    callbacks: Mutex<VecDeque<CallbackRoute>>,
 }
 
 /// Releases a directory grant when dropped (`CoreDirectoryScope.close`).
@@ -88,7 +75,6 @@ impl Backend {
             owner: Mutex::new(Owner::default()),
             data_jobs: CancellationRegistry::new(CancellationDomain::ExtensionRequest),
             active_data_jobs: Mutex::new(HashMap::new()),
-            callbacks: Mutex::new(VecDeque::new()),
         }
     }
 
@@ -134,20 +120,6 @@ impl Backend {
 
     pub(crate) fn manager_snapshot(&self) -> Option<Arc<ExtensionManager>> {
         self.lock().manager.clone()
-    }
-
-    pub(crate) fn repository(&self) -> Result<Arc<ExtensionRepository>, CallError> {
-        self.lock()
-            .repository
-            .clone()
-            .ok_or_else(|| failure("Extension repository is not initialized"))
-    }
-
-    pub(crate) fn source_directory(&self) -> Option<String> {
-        self.lock()
-            .identity
-            .as_ref()
-            .map(|identity| identity.sources.clone())
     }
 
     fn requests_locked(owner: &mut Owner) -> Arc<CancellationRegistry> {
@@ -303,9 +275,6 @@ impl Backend {
         if let Some(requests) = owner.requests.take() {
             requests.shutdown();
         }
-        if let Some(repository) = owner.repository.take() {
-            repository.shutdown();
-        }
         if let Some(manager) = owner.manager.take() {
             manager.shutdown();
         }
@@ -317,21 +286,6 @@ impl Backend {
         }
         owner.identity = None;
         owner.allowed_directories.clear();
-    }
-
-    pub(crate) fn initialize_repository(&self, cache_path: &str) -> Result<(), CallError> {
-        let mut owner = self.lock();
-        let manager = owner.manager.clone().ok_or_else(not_initialized)?;
-        if owner.repository.is_some() {
-            return Ok(());
-        }
-        if !paths::is_absolute(cache_path) {
-            return Err(failure("Repository cache directory must be absolute"));
-        }
-        let repository =
-            ExtensionRepository::new(manager, paths::resolve_string(cache_path)).or_fail()?;
-        owner.repository = Some(Arc::new(repository));
-        Ok(())
     }
 
     pub(crate) fn set_download_directory(&self, path: &str) -> Result<(), CallError> {
@@ -539,16 +493,6 @@ impl Backend {
         Ok(file)
     }
 
-    pub(crate) fn open_download_progress(
-        &self,
-    ) -> Result<Arc<DownloadProgressSubscription>, CallError> {
-        self.owner()?
-            .environment()
-            .download_state()
-            .subscribe_progress()
-            .or_fail()
-    }
-
     // Native data jobs (iOS `prepareApplicationArguments`/`runDataJob`).
 
     pub(crate) fn acquire_data_job(&self, id: &str) -> Result<Arc<RequestLease>, CallError> {
@@ -616,28 +560,6 @@ impl Backend {
                 .or_fail()
         })
     }
-
-    // Extension callback inbox (Android `extensionAuthCallbacks`).
-
-    pub(crate) fn queue_callback(&self, route: CallbackRoute) -> bool {
-        let mut pending = self.callbacks.lock().expect("callbacks lock");
-        if pending.contains(&route) {
-            return false;
-        }
-        if pending.len() == MAX_PENDING_CALLBACKS {
-            pending.pop_front();
-        }
-        pending.push_back(route);
-        true
-    }
-
-    pub(crate) fn take_callbacks(&self) -> Vec<CallbackRoute> {
-        self.callbacks
-            .lock()
-            .expect("callbacks lock")
-            .drain(..)
-            .collect()
-    }
 }
 
 /// Settings the hosts cache so they survive a later `initExtensionSystem`.
@@ -647,46 +569,6 @@ pub(crate) struct OwnerSettings<'a> {
     pub(crate) allow_private_network: &'a mut bool,
     pub(crate) allow_http_fallback: &'a mut bool,
     pub(crate) fallback_providers: &'a mut Option<Vec<String>>,
-}
-
-/// `requireSuccessfulExtensionAction`.
-pub(crate) fn require_successful_extension_action(
-    extension_id: &str,
-    action: &str,
-    response: &str,
-) -> Result<(), CallError> {
-    let prefix: String = response.chars().take(240).collect();
-    let Ok(Value::Object(object)) = serde_json::from_str::<Value>(response) else {
-        return Err(CallError::failure(format!(
-            "Extension {action} for {extension_id} returned invalid JSON: {prefix}"
-        )));
-    };
-    if object.get("success") == Some(&Value::Bool(true)) {
-        return Ok(());
-    }
-    let error = ["error", "message"]
-        .iter()
-        .find_map(|key| object.get(*key).and_then(Value::as_str))
-        .map(|text| text.trim().to_owned())
-        .unwrap_or(prefix);
-    Err(CallError::failure(format!(
-        "Extension {action} failed for {extension_id}: {error}"
-    )))
-}
-
-pub(crate) fn complete_session_grant(
-    manager: &ExtensionManager,
-    id: &str,
-    grant: &str,
-) -> Result<(), CallError> {
-    manager
-        .environment()
-        .set_session_grant(id.to_owned(), grant.to_owned())
-        .or_fail()?;
-    let response = manager
-        .invoke_action(id.to_owned(), "completeGrant".into())
-        .or_fail()?;
-    require_successful_extension_action(id, "completeGrant", &response)
 }
 
 #[cfg(test)]

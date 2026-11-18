@@ -78,98 +78,9 @@ void main() {
   });
 
   test('bridge calls reach the Rust backend on desktop', () async {
-    transport.results['getAllDownloadProgress'] = {
-      'items': {'a': 1},
-    };
-    expect(await PlatformBridge.getAllDownloadProgress(), {
-      'items': {'a': 1},
-    });
     await const NativeLogSource().clear();
-    expect(transport.methods, ['getAllDownloadProgress', 'clearLogs']);
+    expect(transport.methods, ['clearLogs']);
   });
-
-  test('progress streams come from native events', () async {
-    final events = <Map<String, dynamic>>[];
-    final subscription = PlatformBridge.downloadProgressStream().listen(
-      events.add,
-    );
-    await pumpEventQueue();
-    expect(transport.subscriptions, [NativeMessageKind.downloadProgress]);
-    transport.push(NativeMessageKind.downloadProgress, {
-      'items': {'a': 0.25},
-    });
-    await pumpEventQueue();
-    await subscription.cancel();
-    expect(events, [
-      {
-        'items': {'a': 0.25},
-      },
-    ]);
-    expect(transport.subscriptions, isEmpty);
-  });
-
-  test('inbound calls reach the bridge handler', () async {
-    final grants = <ExtensionSessionGrantEvent>[];
-    final subscription = PlatformBridge.extensionSessionGrantEvents().listen(
-      grants.add,
-    );
-    final taps = PlatformBridge.verificationNotificationEvents().first;
-    transport.push(NativeMessageKind.inboundCall, {
-      'method': 'extensionSessionGrantCompleted',
-      'arguments': {'extension_id': 'example', 'success': false},
-    });
-    transport.push(NativeMessageKind.inboundCall, {
-      'method': 'extensionVerificationNotificationTapped',
-      'arguments': null,
-    });
-    await taps;
-    await pumpEventQueue();
-    await subscription.cancel();
-    expect(grants.single.extensionId, 'example');
-    expect(grants.single.success, isFalse);
-  });
-
-  for (final (file, directory) in [
-    (
-      r'C:\Users\Example User\Temp\metadata_cover_1\cover.jpg',
-      r'C:\Users\Example User\Temp\metadata_cover_1',
-    ),
-    ('D:/Music/春の歌/cover.jpg', 'D:/Music/春の歌'),
-    (r'\\server\share\Music\cover.jpg', r'\\server\share\Music'),
-    (r'\\?\C:\Music\cover.jpg', r'\\?\C:\Music'),
-    (r'\\?\UNC\server\share\Music\cover.jpg', r'\\?\UNC\server\share\Music'),
-    ('/tmp/metadata_cover_1/cover.jpg', '/tmp/metadata_cover_1'),
-  ]) {
-    test('cover download holds a directory grant for $file', () async {
-      transport.calls.clear();
-      transport.results['downloadCoverToFile'] = {'success': true};
-
-      final result = await PlatformBridge.downloadCoverToFile(
-        'https://example.invalid/cover.jpg',
-        file,
-      );
-
-      expect(result['success'], isTrue);
-      expect(transport.calls.map((call) => [call.$1, call.$2]), [
-        [
-          'acquireDownloadDirectory',
-          {'path': directory},
-        ],
-        [
-          'downloadCoverToFile',
-          {
-            'cover_url': 'https://example.invalid/cover.jpg',
-            'output_path': file,
-            'max_dimension': 0,
-          },
-        ],
-        [
-          'releaseDownloadDirectory',
-          {'token': 'grant:$directory'},
-        ],
-      ]);
-    });
-  }
 
   test(
     'cover extraction shares one grant for audio and artwork siblings',
@@ -217,25 +128,4 @@ void main() {
     expect(transport.calls[4].$2, {'token': r'grant:C:\Music'});
   });
 
-  test(
-    'URI, relative and backend-owned outputs do not acquire folder grants',
-    () async {
-      for (final path in [
-        '',
-        'cover.jpg',
-        r'C:cover.jpg',
-        r'\Temp\cover.jpg',
-        'content://example/document/cover',
-        'network://example/cover.jpg',
-        'https://example.invalid/cover.jpg',
-      ]) {
-        transport.calls.clear();
-        await PlatformBridge.downloadCoverToFile(
-          'https://example.invalid/cover.jpg',
-          path,
-        );
-        expect(transport.calls.map((call) => call.$1), ['downloadCoverToFile']);
-      }
-    },
-  );
 }

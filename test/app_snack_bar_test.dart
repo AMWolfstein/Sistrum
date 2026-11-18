@@ -9,7 +9,6 @@ import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/view_queue_snackbar_action.dart';
-import 'package:sistrum/widgets/track_detail_actions.dart';
 import 'package:sistrum/services/shell_navigation_service.dart';
 
 import 'support/tooltip_finder.dart';
@@ -235,12 +234,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(requestedTab, ShellTab.library);
       expect(find.byType(SnackBar), findsNothing);
-      showQueuedSnackbar(messageContext, 3, 0);
+      showAddedToQueueSnackBar(messageContext, 'Track');
       await tester.pumpAndSettle();
-      expect(
-        find.text(messageContext.l10n.snackbarAddedTracksToQueue(3)),
-        findsOneWidget,
-      );
       expect(
         find.byType(MornyeGlassPanel),
         mornye ? findsOneWidget : findsNothing,

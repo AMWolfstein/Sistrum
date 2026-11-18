@@ -95,7 +95,6 @@ extension _EditMetadataSheetCover on _EditMetadataSheetState {
     _selectedCoverPath = null;
     _selectedCoverTempDir = null;
     _selectedCoverName = null;
-    _selectedMotionArtworkUrl = null;
     _coverDetails.remove(path);
     _coverDetailLoads.remove(path);
     await _covers.release(directory);

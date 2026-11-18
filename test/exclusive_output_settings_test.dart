@@ -1,4 +1,3 @@
-import 'package:audio_service/audio_service.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,8 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/theme_settings.dart';
-import 'package:sistrum/models/track.dart';
-import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/settings/playback_settings_page.dart';
 import 'package:sistrum/services/playback_deck.dart';
@@ -15,10 +12,8 @@ import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/settings_search_catalog.dart';
-import 'package:sistrum/widgets/preview_button.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 
-import 'support/tooltip_finder.dart';
 
 Future<ProviderContainer> _pumpPage(
   WidgetTester tester, {
@@ -172,44 +167,5 @@ void main() {
     expect(listed(), isFalse);
     debugDesktopPlatformOverride = true;
     expect(listed(), isTrue);
-  });
-
-  testWidgets('exclusive mode hides track previews', (tester) async {
-    const track = Track(
-      id: 'track-1',
-      name: 'Track',
-      artistName: 'Artist',
-      albumName: 'Album',
-      previewUrl: 'https://example.com/preview.mp3',
-      duration: 180,
-    );
-    Future<void> pump(bool exclusive) async {
-      await tester.pumpWidget(
-        ProviderScope(
-          key: ValueKey(exclusive),
-          overrides: [
-            initialSettingsProvider.overrideWithValue(
-              AppSettings(exclusiveOutput: exclusive),
-            ),
-            currentMediaItemProvider.overrideWithBuild(
-              (ref, notifier) => Stream<MediaItem?>.value(null),
-            ),
-            playbackPlayingProvider.overrideWith((ref) => false),
-          ],
-          child: const MaterialApp(
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: Scaffold(body: PreviewButton(track: track)),
-          ),
-        ),
-      );
-      await tester.pump();
-    }
-
-    await pump(false);
-    expect(findByTooltip('Play preview'), findsOneWidget);
-    await pump(true);
-    expect(findByTooltip('Play preview'), findsNothing);
-    expect(tester.takeException(), isNull);
   });
 }

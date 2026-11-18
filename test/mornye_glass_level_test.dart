@@ -11,7 +11,6 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/widgets/app_switch.dart';
-import 'package:sistrum/widgets/extension_repo_card.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/mornye_selection_pill.dart';
 
@@ -376,9 +375,6 @@ void main() {
                   samplesBackdrop: false,
                   child: SizedBox(width: 200, height: 40),
                 ),
-                const ExtensionRepoCard(
-                  child: SizedBox(width: 200, height: 40),
-                ),
                 const MornyeGlassPanel.overlay(
                   samplesBackdrop: false,
                   child: SizedBox(width: 200, height: 40),
@@ -407,11 +403,7 @@ void main() {
       find.descendant(of: plain, matching: find.byType(BackdropFilter)),
       findsNothing,
     );
-    for (final type in [
-      ExtensionRepoCard,
-      MornyeGlassPanel,
-      MornyeSegmentedControl,
-    ]) {
+    for (final type in [MornyeGlassPanel, MornyeSegmentedControl]) {
       expect(
         find.descendant(
           of: find.byType(type),

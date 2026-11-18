@@ -1,7 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/shell_navigation_service.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
@@ -19,13 +18,7 @@ class KeyboardShortcutsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final showStore = ref.watch(
-      settingsProvider.select((s) => s.showExtensionStore),
-    );
-    final tabs = desktopDestinationTabs(
-      mornye: context.isMornye,
-      showStore: showStore,
-    );
+    final tabs = desktopDestinationTabs(mornye: context.isMornye);
 
     List<SingleActivator> keys(DesktopCommand command) =>
         desktopCommandShortcuts(command, platform);
@@ -40,7 +33,6 @@ class KeyboardShortcutsPage extends ConsumerWidget {
     String tabLabel(ShellTab tab) => switch (tab) {
       ShellTab.home => l10n.navHome,
       ShellTab.library => l10n.navLibrary,
-      ShellTab.repository => l10n.navStore,
       ShellTab.search => l10n.mornyeSearch,
       ShellTab.settings => l10n.navSettings,
     };

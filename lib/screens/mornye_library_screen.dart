@@ -4,18 +4,15 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/controllers/clickable_metadata.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_browse_provider.dart';
 import 'package:sistrum/providers/library_genres_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/screens/downloaded_album_screen.dart';
 import 'package:sistrum/screens/library_artist_screen.dart';
 import 'package:sistrum/screens/library_directory_screen.dart';
 import 'package:sistrum/screens/library_mix_screen.dart';
 import 'package:sistrum/screens/listening_rewind_screen.dart';
 import 'package:sistrum/screens/local_album_screen.dart';
 import 'package:sistrum/services/album_completeness.dart';
-import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
@@ -154,17 +151,6 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
   }
 
   Future<void> _openAlbum(LibraryBrowseEntry entry) async {
-    if (entry.source != 'local') {
-      await pushPage<void>(
-        context,
-        (_) => DownloadedAlbumScreen(
-          albumName: entry.name,
-          artistName: entry.artist,
-          coverUrl: entry.cover,
-        ),
-      );
-      return;
-    }
     Future<List<LocalLibraryItem>> loadTracks() => _loadLocalAlbum(entry);
 
     await pushPage<void>(
@@ -384,26 +370,7 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
         icon: const Icon(Icons.search),
         onPressed: () => setState(() => _showSearch = !_showSearch),
       ),
-      if (_overview)
-        Consumer(
-          builder: (context, ref, _) {
-            final count = ref.watch(
-              downloadQueueLookupProvider.select(
-                (s) => s.notCompletedItemIds.length,
-              ),
-            );
-            return TextButton.icon(
-              onPressed: () => widget.onOpenSection('downloads'),
-              icon: Badge(
-                isLabelVisible: count > 0,
-                label: Text('$count'),
-                child: const Icon(Icons.downloading_outlined),
-              ),
-              label: Text(context.l10n.libraryDownloads),
-            );
-          },
-        )
-      else if (!_artists && !_genres) ...[
+      if (!_overview && !_artists && !_genres) ...[
         Builder(
           builder: (buttonContext) => IconButton(
             tooltip: context.l10n.searchSortTitle,
@@ -743,15 +710,7 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
 
   Future<void> _playAlbum(LibraryBrowseEntry entry) async {
     try {
-      if (entry.source == 'local') {
-        await playLocalAlbum(ref, await _loadLocalAlbum(entry));
-      } else {
-        await playDownloadedAlbum(
-          ref,
-          albumName: entry.name,
-          artistName: entry.artist,
-        );
-      }
+      await playLocalAlbum(ref, await _loadLocalAlbum(entry));
     } catch (e) {
       if (mounted) showCannotOpenFileSnackBar(context, e);
     }
@@ -839,24 +798,6 @@ class _LibraryBrowseArtwork extends StatefulWidget {
 
 class _LibraryBrowseArtworkState extends State<_LibraryBrowseArtwork> {
   @override
-  void initState() {
-    super.initState();
-    DownloadedEmbeddedCoverResolver.previewsCleared.addListener(_resolveAgain);
-  }
-
-  @override
-  void dispose() {
-    DownloadedEmbeddedCoverResolver.previewsCleared.removeListener(
-      _resolveAgain,
-    );
-    super.dispose();
-  }
-
-  void _resolveAgain() {
-    if (mounted) setState(() {});
-  }
-
-  @override
   Widget build(BuildContext context) {
     final entry = widget.entry;
     Widget fallback(BuildContext context) => ColoredBox(
@@ -869,24 +810,12 @@ class _LibraryBrowseArtworkState extends State<_LibraryBrowseArtwork> {
         ),
       ),
     );
-    if (entry.source == 'local') {
-      return LocalLibraryArtworkBuilder(
-        coverPath: entry.cover,
-        filePath: entry.samplePath,
-        builder: (context, cover) => cover == null
-            ? fallback(context)
-            : LocalOrNetworkCoverImage(url: cover, placeholder: fallback),
-      );
-    }
-    final embedded = entry.cover?.isNotEmpty == true
-        ? null
-        : DownloadedEmbeddedCoverResolver.resolve(
-            entry.samplePath,
-            onChanged: _resolveAgain,
-          );
-    final cover = entry.cover?.isNotEmpty == true ? entry.cover! : embedded;
-    return cover == null
-        ? fallback(context)
-        : LocalOrNetworkCoverImage(url: cover, placeholder: fallback);
+    return LocalLibraryArtworkBuilder(
+      coverPath: entry.cover,
+      filePath: entry.samplePath,
+      builder: (context, cover) => cover == null
+          ? fallback(context)
+          : LocalCoverImage(url: cover, placeholder: fallback),
+    );
   }
 }

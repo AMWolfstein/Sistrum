@@ -122,13 +122,12 @@ extension _QueueTabSelectionActions on _QueueTabState {
         onPlay: () => _playLibraryItem(item, libraryItems),
         onOpenDetails: onOpenDetails,
         onDone: _exitSelectionMode,
-        onReEnrich: () => _reEnrichSelectedFromQueue(libraryItems),
         onConvert: () => _showBatchConvertSheet(this.context, libraryItems),
         onDelete: () => _deleteSelected(libraryItems),
       ),
     );
     if (!forMenu || !mounted) return;
-    // A bulk action (re-enrich, convert, delete) kept the selection and
+    // A bulk action (convert, delete) kept the selection and
     // shows the toolbar again.
     _setState(() => _contextMenuSelection = false);
     if (!chosen) _exitSelectionMode();
@@ -253,105 +252,6 @@ extension _QueueTabSelectionActions on _QueueTabState {
     });
   }
 
-  Future<void> _downloadAllSelectedPlaylists(BuildContext context) async {
-    final collectionsState = ref.read(libraryCollectionsProvider);
-    var selectedPlaylists = collectionsState.playlists
-        .where((p) => _selectedPlaylistIds.contains(p.id))
-        .toList();
-
-    final totalTracks = selectedPlaylists.fold<int>(
-      0,
-      (sum, p) => sum + p.trackCount,
-    );
-
-    if (totalTracks == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.snackbarSelectedPlaylistsEmpty)),
-      );
-      return;
-    }
-
-    final confirmed = await showAppConfirmDialog(
-      context,
-      title: context.l10n.dialogDownloadAllTitle,
-      message: context.l10n.dialogDownloadPlaylistsMessage(
-        totalTracks,
-        selectedPlaylists.length,
-      ),
-      confirmLabel: context.l10n.dialogDownload,
-    );
-
-    if (!confirmed || !context.mounted) return;
-
-    await ref
-        .read(libraryCollectionsProvider.notifier)
-        .ensurePlaylistsLoaded(
-          selectedPlaylists.map((playlist) => playlist.id),
-        );
-    if (!context.mounted) return;
-    selectedPlaylists = ref
-        .read(libraryCollectionsProvider)
-        .playlists
-        .where((playlist) => _selectedPlaylistIds.contains(playlist.id))
-        .toList(growable: false);
-
-    final settings = ref.read(settingsProvider);
-    final extensionState = ref.read(extensionProvider);
-    final queueNotifier = ref.read(downloadQueueProvider.notifier);
-
-    void enqueueAll({String? qualityOverride, String? service}) {
-      final svc =
-          service ??
-          resolveEffectiveDownloadService(
-            settings.defaultService,
-            extensionState,
-          );
-      if (svc.isEmpty) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(context.l10n.extensionsNoDownloadProvider)),
-          );
-        }
-        return;
-      }
-      queueNotifier.addBatchesToQueue(
-        [
-          for (final playlist in selectedPlaylists)
-            DownloadQueueBatch(
-              tracks: playlist.tracks.map((entry) => entry.track).toList(),
-              playlistName: playlist.name,
-            ),
-        ],
-        svc,
-        qualityOverride: qualityOverride,
-      );
-    }
-
-    if (settings.askQualityBeforeDownload || settings.allowQualityVariants) {
-      DownloadServicePicker.show(
-        context,
-        trackName: context.l10n.tracksCount(totalTracks),
-        artistName: context.l10n.playlistsCount(selectedPlaylists.length),
-        onSelect: (quality, service) {
-          enqueueAll(qualityOverride: quality, service: service);
-          if (!mounted) return;
-          _exitPlaylistSelectionMode();
-          showAppSnackBar(
-            context,
-            content: Text(context.l10n.snackbarAddedTracksToQueue(totalTracks)),
-          );
-        },
-      );
-    } else {
-      enqueueAll();
-      _exitPlaylistSelectionMode();
-      showAppSnackBar(
-        context,
-        content: Text(context.l10n.snackbarAddedTracksToQueue(totalTracks)),
-      );
-    }
-  }
-
   Future<void> _deleteSelectedPlaylists(BuildContext context) async {
     final count = _selectedPlaylistIds.length;
     final confirmed = await showAppConfirmDialog(
@@ -407,37 +307,6 @@ extension _QueueTabSelectionActions on _QueueTabState {
           width: double.infinity,
           child: ExpressiveButton(
             onPressed: selectedCount > 0
-                ? () => _downloadAllSelectedPlaylists(context)
-                : null,
-            icon: const Icon(Icons.download_rounded),
-            style: FilledButton.styleFrom(
-              backgroundColor: selectedCount > 0
-                  ? colorScheme.primary
-                  : colorScheme.surfaceContainerHighest,
-              foregroundColor: selectedCount > 0
-                  ? colorScheme.onPrimary
-                  : colorScheme.onSurfaceVariant,
-              padding: EdgeInsets.symmetric(
-                vertical: isDesktopPlatform ? 8 : 16,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-            child: Text(
-              selectedCount > 0
-                  ? context.l10n.bulkDownloadPlaylistsButton(selectedCount)
-                  : context.l10n.bulkDownloadSelectPlaylists,
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 8),
-
-        SizedBox(
-          width: double.infinity,
-          child: ExpressiveButton(
-            onPressed: selectedCount > 0
                 ? () => _deleteSelectedPlaylists(context)
                 : null,
             icon: const Icon(Icons.delete_outline),
@@ -477,9 +346,5 @@ extension _QueueTabSelectionActions on _QueueTabState {
 
   String _cleanFilePath(String? filePath) {
     return DownloadedEmbeddedCoverResolver.cleanFilePath(filePath);
-  }
-
-  Future<int?> _readFileModTimeMillis(String? filePath) async {
-    return DownloadedEmbeddedCoverResolver.readFileModTimeMillis(filePath);
   }
 }

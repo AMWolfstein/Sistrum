@@ -9,19 +9,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
-import 'package:sistrum/providers/extension_provider.dart';
+import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/screens/track_metadata_edit_sheet.dart';
 import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 
 import 'support/app_icon_finder.dart';
-
-class _Extensions extends ExtensionNotifier {
-  @override
-  ExtensionState build() => const ExtensionState(isInitialized: true);
-}
 
 Future<void> _settleFileIo(WidgetTester tester) async {
   await tester.runAsync(() async {
@@ -84,20 +78,18 @@ void main() {
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [extensionProvider.overrideWith(_Extensions.new)],
           child: MaterialApp(
             theme: AppTheme.light(),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             home: TrackMetadataScreen(
-              item: DownloadHistoryItem(
+              localItem: LocalLibraryItem(
                 id: 'local-song',
                 trackName: 'Song',
                 artistName: 'Artist',
                 albumName: 'Album',
                 filePath: 'content://library/document/song.flac',
-                service: 'example-provider',
-                downloadedAt: DateTime(2026),
+                scannedAt: DateTime(2026),
                 format: 'flac',
               ),
             ),
@@ -144,20 +136,18 @@ void main() {
         addTearDown(tester.view.reset);
         await tester.pumpWidget(
           ProviderScope(
-            overrides: [extensionProvider.overrideWith(_Extensions.new)],
             child: MaterialApp(
               theme: AppTheme.light(),
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
               home: TrackMetadataScreen(
-                item: DownloadHistoryItem(
+                localItem: LocalLibraryItem(
                   id: 'local-song',
                   trackName: 'Song',
                   artistName: 'Artist',
                   albumName: 'Album',
                   filePath: 'content://library/document/song.flac',
-                  service: 'example-provider',
-                  downloadedAt: DateTime(2026),
+                  scannedAt: DateTime(2026),
                   format: 'flac',
                 ),
               ),

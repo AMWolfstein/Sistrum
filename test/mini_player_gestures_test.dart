@@ -9,7 +9,6 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/routes/now_playing_route.dart';
-import 'package:sistrum/services/remote_playback.dart';
 import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mini_player.dart';
@@ -44,17 +43,6 @@ class _Controller implements MusicPlayerController {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-class _RemotePlayback implements RemotePlayback {
-  @override
-  String get name => 'Desktop';
-
-  @override
-  Stream<RemoteTransfer?> get transfers => const Stream.empty();
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
 class _PushObserver extends NavigatorObserver {
   final pushed = <Route<dynamic>>[];
 
@@ -77,7 +65,6 @@ void main() {
       Stream<MediaItem?>? mediaItems,
       bool playing = false,
       bool loading = false,
-      RemotePlayback? remote,
       VoidCallback? onDismiss,
       NavigatorObserver? observer,
     }) async {
@@ -99,7 +86,6 @@ void main() {
             playbackStateProvider.overrideWith((ref) => const Stream.empty()),
             playbackPlayingProvider.overrideWithValue(playing),
             playbackLoadingProvider.overrideWithValue(loading),
-            activeRemotePlaybackProvider.overrideWithValue(remote),
             musicPlayerControllerProvider.overrideWithValue(controller),
             mornyeLiquidGlassProvider.overrideWithValue(false),
             backdropBlurEnabledProvider.overrideWithValue(false),
@@ -299,22 +285,6 @@ void main() {
           await tester.pump(const Duration(milliseconds: 300));
         }
         expect(controller.calls, isEmpty);
-        expect(find.text('Song'), findsOneWidget);
-        expect(tester.takeException(), isNull);
-      });
-
-      testWidgets('${configuration.name}: paused remote swipes keep track '
-          'navigation', (tester) async {
-        final controller = await pumpPlayer(tester, remote: _RemotePlayback());
-        for (final dx in [-100.0, 100.0]) {
-          await tester.timedDrag(
-            find.text('Song'),
-            Offset(dx, 0),
-            const Duration(milliseconds: 600),
-          );
-          await tester.pumpAndSettle();
-        }
-        expect(controller.calls, ['next', 'previous']);
         expect(find.text('Song'), findsOneWidget);
         expect(tester.takeException(), isNull);
       });

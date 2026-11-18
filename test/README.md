@@ -34,7 +34,6 @@ Test files sit directly in `test/`; only shared code has subfolders.
 | `test/support/sqlite_process_database.dart` | `SqliteProcessDatabase`: a sqflite `Database` backed by real SQLite through a `python3` child process |
 | `test/support/app_icon_finder.dart` | `findAppIcon`: finds an icon drawn by `Icon` or `AppIcon` |
 | `test/support/library_paging_fixture.dart`, `test/support/library_native_fixture.dart` | Library database fixtures |
-| `test/support/re_enrich_settings.dart` | `ReEnrichTestSettings`: default settings that skip the lyrics sync to the backend |
 | `test/support/virtual_time.dart` | `VirtualTime`: a timer zone that skips idle time while keeping real microtasks |
 | `test/support/music_player_automix_harness.dart` | Shared AutoMix player fakes used by the `music_player_*_test.dart` suites |
 | `*_benchmark.dart`, `*_baseline.dart` in `test/support/` | Frozen pre-optimization implementations, compared against production code in unit and device tests |
@@ -135,13 +134,6 @@ same commit. Never delete these checks.
 `automix_effect_renderer_test.dart`. The CI workflow
 (`.github/workflows/ci.yml`) installs `ffmpeg` before running the tests, so
 these cases are not skipped there.
-
-Optional SMB cases are skipped unless their environment is set:
-`TEST_SMB=1` (with `scripts/smb2_fixture_server.py`) and `TEST_SMB_GUEST_PORT`
-in `network_storage_service_test.dart`; `TEST_SMB_UPLOAD=1` in
-`network_smb_upload_test.dart`. `TEST_SMB_PORT` overrides the fixture port.
-`network_smb_transport_test.dart` runs against a loopback server with the
-native library bundled by dart_smb2's build hook, without a library override.
 
 ## Running
 

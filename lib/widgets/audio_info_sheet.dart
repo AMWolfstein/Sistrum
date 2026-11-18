@@ -10,7 +10,6 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/equalizer_settings.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/services/audio_route_info.dart';
-import 'package:sistrum/services/link/link_source_names.dart';
 import 'package:sistrum/services/music_playback_deck.dart';
 import 'package:sistrum/services/playback_deck.dart';
 import 'package:sistrum/services/music_player_service.dart';
@@ -29,12 +28,10 @@ import 'package:sistrum/widgets/hires_check_card.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 
 /// Technical details of the playing track, from the file through the
-/// processing chain to the output device. [linkSources] names the Sistrum
-/// Link devices behind network sources (`linkSourceNamesProvider`).
+/// processing chain to the output device.
 Future<void> showAudioInfoSheet(
   BuildContext context, {
   required PlayerMetadataController metadata,
-  Map<String, String> linkSources = const {},
 }) {
   unawaited(metadata.ensureFileMetadata());
   return showAppModalBottomSheet<void>(
@@ -49,26 +46,17 @@ Future<void> showAudioInfoSheet(
           subtitle: metadata.qualityLabel,
           child: child!,
         ),
-        child: _AudioInfoSheet(
-          metadata: metadata,
-          controller: controller,
-          linkSources: linkSources,
-        ),
+        child: _AudioInfoSheet(metadata: metadata, controller: controller),
       ),
     ),
   );
 }
 
 class _AudioInfoSheet extends StatefulWidget {
-  const _AudioInfoSheet({
-    required this.metadata,
-    required this.controller,
-    required this.linkSources,
-  });
+  const _AudioInfoSheet({required this.metadata, required this.controller});
 
   final PlayerMetadataController metadata;
   final ScrollController controller;
-  final Map<String, String> linkSources;
 
   @override
   State<_AudioInfoSheet> createState() => _AudioInfoSheetState();
@@ -199,10 +187,6 @@ class _AudioInfoSheetState extends State<_AudioInfoSheet>
         settings: musicPlayerRuntime.settings,
         exclusiveStatus: playbackExclusiveStatus.value,
         softwareVolume: playbackOutputVolume.value,
-        linkDevice: linkSourceName(
-          widget.linkSources,
-          widget.metadata.filePath,
-        ),
       );
       final sections = facts.sections();
       final path = widget.metadata.filePath;
@@ -436,7 +420,6 @@ class _AudioFacts {
     required this.settings,
     required this.exclusiveStatus,
     required this.softwareVolume,
-    this.linkDevice,
   });
 
   final AppLocalizations l10n;
@@ -451,9 +434,6 @@ class _AudioFacts {
   final AppSettings settings;
   final ExclusiveOutputStatus exclusiveStatus;
   final double softwareVolume;
-
-  /// The paired computer or phone the network song plays from.
-  final String? linkDevice;
 
   late final String format = (metadata['format'] ?? '').toString().trim();
   late final String codec = (metadata['audio_codec'] ?? '').toString().trim();
@@ -538,12 +518,6 @@ class _AudioFacts {
   String? get _location {
     final path = this.path;
     if (path == null || path.isEmpty) return null;
-    if (path.startsWith('network://')) {
-      final device = linkDevice;
-      return device == null
-          ? l10n.audioInfoLocationNetwork
-          : l10n.audioInfoLocationLink(device);
-    }
     if (path.startsWith('content://')) return l10n.audioInfoLocationShared;
     if (path.startsWith('/')) return l10n.audioInfoLocationLocal;
     return null;

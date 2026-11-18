@@ -24,12 +24,6 @@ internal fun MainActivity.handleIsCharging(call: MethodCall, result: MethodChann
     result.success((battery?.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) ?: 0) != 0)
 }
 
-internal fun MainActivity.handleConsumeVerificationNotification(call: MethodCall, result: MethodChannel.Result) {
-    val payload = pendingVerificationNotification
-    pendingVerificationNotification = null
-    result.success(payload)
-}
-
 internal suspend fun MainActivity.handleEnsureInstallMarker(call: MethodCall, result: MethodChannel.Result) {
     val installState = withContext(Dispatchers.IO) {
         ensureInstallMarker()

@@ -16,50 +16,32 @@ import 'package:sistrum/services/autoplay_personalization.dart';
 import 'package:sistrum/services/autoplay_ranker.dart';
 import 'package:sistrum/services/autoplay_taste.dart';
 import 'package:sistrum/services/background_favorites.dart';
-import 'package:sistrum/services/cover_store.dart';
-import 'package:sistrum/services/cast_output.dart';
-import 'package:sistrum/services/cast_playback_deck.dart';
-import 'package:sistrum/services/discord_presence_service.dart';
 import 'package:sistrum/services/history_database.dart';
-import 'package:sistrum/services/download_file_recovery.dart';
 import 'package:sistrum/services/library_collections_database.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/listening_statistics.dart';
-import 'package:sistrum/services/lastfm/lastfm_service.dart';
-import 'package:sistrum/services/listenbrainz/listenbrainz_service.dart';
 import 'package:sistrum/services/lock_screen_lyrics.dart';
 import 'package:sistrum/services/media3_playback_deck.dart';
 import 'package:sistrum/services/media_kit_playback_deck.dart';
 import 'package:sistrum/services/media_library_browser.dart';
-import 'package:sistrum/services/media_session_art_cache.dart';
 import 'package:sistrum/services/media_session_desktop.dart';
 import 'package:sistrum/services/media_session_filter.dart';
 import 'package:sistrum/services/music_playback_deck.dart';
 import 'package:sistrum/services/music_player_service.dart';
-import 'package:sistrum/services/network_metadata_service.dart';
-import 'package:sistrum/services/network_playback_cache.dart';
-import 'package:sistrum/services/network_storage_service.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/services/playback_deck.dart';
 import 'package:sistrum/services/playback_notification.dart';
 import 'package:sistrum/services/playback_output_volume.dart';
 import 'package:sistrum/services/player_widget_service.dart';
-import 'package:sistrum/services/remote_media_session.dart';
-import 'package:sistrum/services/remote_playback.dart';
-import 'package:sistrum/services/scrobbling/scrobbler.dart';
 import 'package:sistrum/services/song_analysis.dart';
 import 'package:sistrum/services/source_deletion_events.dart';
 import 'package:sistrum/services/source_metadata_events.dart';
 import 'package:sistrum/services/system_volume_service.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/logger.dart';
-import 'package:sistrum/utils/file_access.dart' show fileExists, storageUnavailableFor;
+import 'package:sistrum/utils/file_access.dart' show storageUnavailableFor;
 
 final _log = AppLogger('MusicPlayerRuntime');
-
-/// The handler the system media session talks to, and the player it shows
-/// unless a remote device plays in its place.
-({SwitchAudioHandler session, MusicPlayerHandler local})? _systemSession;
 
 /// A song the player could not play because of its [format]; [skipped]
 /// when the next song plays in its place.
@@ -70,19 +52,11 @@ typedef UnplayableSong = ({String format, bool skipped});
 class PlaybackDependencies {
   const PlaybackDependencies({
     this.createDeck = _createDeck,
-    this.createCastDeck = _createCastDeck,
     this.createPreviewDeck = _createPreviewDeck,
     this.audioSession = _getAudioSession,
     this.readMetadata = PlatformBridge.readFileMetadata,
-    this.readNetworkMetadata = _readNetworkMetadata,
-    this.resolveNetworkSource = _resolveNetworkSource,
-    this.offlineCopy = _offlineCopy,
-    this.networkCache = _networkCache,
-    this.networkSourceReachable = _networkSourceReachable,
-    this.recoverMissingFile = _recoverMissingFile,
     this.fileAccess = checkFileAccess,
     this.storageUnavailable = storageUnavailableFor,
-    this.recoverMovedDownload = _recoverMovedDownload,
     this.openPlaybackLease = PlatformBridge.openContentUriPlaybackLease,
     this.initializeHandler = _initializeAudioHandler,
     this.synchronizePlaybackState = _synchronizePlaybackState,
@@ -97,7 +71,6 @@ class PlaybackDependencies {
     HistoryDatabase? historyDatabase,
     LibraryCollectionsDatabase? collectionsDatabase,
     ListeningRecorder? recorder,
-    CoverStore? coverStore,
     SourceDeletionEvents? sourceDeletionEvents,
     SourceMetadataEvents? sourceMetadataEvents,
     Stream<double>? volumeChanges,
@@ -112,7 +85,6 @@ class PlaybackDependencies {
        _historyDatabase = historyDatabase,
        _collectionsDatabase = collectionsDatabase,
        _recorder = recorder,
-       _coverStore = coverStore,
        _sourceDeletionEvents = sourceDeletionEvents,
        _sourceMetadataEvents = sourceMetadataEvents,
        _volumeChanges = volumeChanges,
@@ -121,41 +93,16 @@ class PlaybackDependencies {
        _isMacOS = isMacOS;
 
   final PlaybackDeck Function(String playerId) createDeck;
-  final PlaybackDeck Function(CastOutput output, MediaItem? Function() metadata)
-  createCastDeck;
 
   /// The search and catalog preview player.
   final PlaybackDeck Function(String playerId) createPreviewDeck;
   final Future<AudioSession> Function() audioSession;
   final Future<Map<String, dynamic>> Function(String, {String? displayName})
   readMetadata;
-  final Future<Map<String, dynamic>> Function(String) readNetworkMetadata;
-  final Future<String> Function(String) resolveNetworkSource;
-  final Future<String?> Function(String) offlineCopy;
-
-  /// The local copies of network songs around the one playing; null plays
-  /// every network song from its server.
-  final NetworkPlaybackCache? Function() networkCache;
-
-  /// Whether a `network://` Library song can play now, as autoplay asks
-  /// before queueing it.
-  final Future<bool> Function(String) networkSourceReachable;
-
-  /// What plays in place of a local song file that is gone but can be
-  /// fetched again, such as a song a paired phone sent that the received
-  /// folder pruned: a path, or a URL streaming it as it arrives. Null for
-  /// any other path; throws when it cannot be fetched.
-  final Future<String?> Function(String) recoverMissingFile;
   final Future<FileAccessCheck> Function(String) fileAccess;
 
   /// Whether a file's storage is unmounted now, so its absence is not deletion.
   final Future<bool> Function(String) storageUnavailable;
-  final Future<String?> Function(
-    String source,
-    String historyId,
-    AppSettings settings,
-  )
-  recoverMovedDownload;
 
   /// Opens an Android document for the song starting to play.
   final Future<ContentUriPlaybackLease?> Function(String uri) openPlaybackLease;
@@ -182,7 +129,6 @@ class PlaybackDependencies {
   final HistoryDatabase? _historyDatabase;
   final LibraryCollectionsDatabase? _collectionsDatabase;
   final ListeningRecorder? _recorder;
-  final CoverStore? _coverStore;
   final SourceDeletionEvents? _sourceDeletionEvents;
   final SourceMetadataEvents? _sourceMetadataEvents;
   final Stream<double>? _volumeChanges;
@@ -197,7 +143,6 @@ class PlaybackDependencies {
   LibraryCollectionsDatabase get collectionsDatabase =>
       _collectionsDatabase ?? LibraryCollectionsDatabase.instance;
   ListeningRecorder get recorder => _recorder ?? listeningRecorder;
-  CoverStore get coverStore => _coverStore ?? CoverStore.instance;
   SourceDeletionEvents get sourceDeletionEvents =>
       _sourceDeletionEvents ?? SourceDeletionEvents.instance;
   SourceMetadataEvents get sourceMetadataEvents =>
@@ -241,11 +186,6 @@ class PlaybackDependencies {
     );
   }
 
-  static PlaybackDeck _createCastDeck(
-    CastOutput output,
-    MediaItem? Function() metadata,
-  ) => CastPlaybackDeck(output: output, metadata: metadata);
-
   // Previews follow the in-app volume on desktop. Mobile previews keep
   // playing without the equalizer, and on Android through audioplayers
   // whichever engine the music player uses: they are short streamed clips,
@@ -258,35 +198,6 @@ class PlaybackDependencies {
       (await FFmpegExecution.arguments(arguments)).success;
   static SongAnalysis _createSongAnalysis(LibraryDatabase library) =>
       SongAnalysis(library: library);
-  static Future<Map<String, dynamic>> _readNetworkMetadata(String source) =>
-      NetworkMetadataService.instance.read(source);
-  static Future<String> _resolveNetworkSource(String source) =>
-      NetworkStorageService.instance.resolve(source);
-  static Future<String?> _offlineCopy(String source) async {
-    final row = await HistoryDatabase.instance.findOfflineCopy(source);
-    final path = row?['filePath'] as String?;
-    return path != null && await fileExists(path) ? path : null;
-  }
-
-  static NetworkPlaybackCache? _networkCache() => NetworkPlaybackCache.instance;
-
-  static Future<bool> _networkSourceReachable(String source) =>
-      NetworkStorageService.instance.reachable(source);
-  static Future<String?> _recoverMissingFile(String path) async {
-    final sources = NetworkStorageService.instance.virtualSources;
-    return sources is NetworkLocalCopies ? sources.recover(path) : null;
-  }
-
-  static Future<String?> _recoverMovedDownload(
-    String source,
-    String historyId,
-    AppSettings settings,
-  ) => DownloadFileRecovery.instance.recover(
-    source,
-    historyId: historyId,
-    settings: settings,
-  );
-
   static Future<void> _synchronizePlaybackState() async {
     // The session's switch takes each state from the player a microtask
     // later; let the one just published reach it first.
@@ -304,10 +215,9 @@ class PlaybackDependencies {
     installLockScreenLyrics();
     installMediaSessionFilter();
     late final MusicPlayerHandler handler;
-    final session = await AudioService.init(
+    await AudioService.init(
       // The switch lets a remote device take over the system session.
       builder: () => SwitchAudioHandler(handler = builder()),
-      cacheManager: mediaSessionArtCache(),
       config: const AudioServiceConfig(
         androidNotificationChannelId: 'com.amwolfstein.sistrum.playback',
         androidNotificationChannelName: 'Playback',
@@ -321,7 +231,6 @@ class PlaybackDependencies {
         androidBrowsableRootExtras: MediaLibraryBrowser.rootExtras,
       ),
     );
-    _systemSession = (session: session, local: handler);
     return handler;
   }
 }
@@ -335,13 +244,6 @@ class MusicPlayerRuntime {
   }) : _settings = settings;
 
   final PlaybackDependencies dependencies;
-  LastfmService? _lastfm, _librefm;
-  ListenBrainzService? _listenBrainz;
-  LastfmService get lastfm => _lastfm ??= LastfmService();
-  LastfmService get librefm => _librefm ??= LastfmService.librefm();
-  ListenBrainzService get listenBrainz =>
-      _listenBrainz ??= ListenBrainzService();
-  List<Scrobbler?> get _createdScrobblers => [_lastfm, _librefm, _listenBrainz];
   AutoplayPersonalization? _personalization;
   // What learning observes also teaches [taste] what plays together and
   // [ranker] how much each part of a score counts.
@@ -376,22 +278,13 @@ class MusicPlayerRuntime {
   PlaybackNotification _notification = const PlaybackNotification();
   Future<bool> Function(MediaItem)? _toggleFavorite;
   StreamSubscription<MediaItem?>? _backgroundFavorites;
-  Future<void> Function()? exclusiveAudioHook;
-  RemotePlayback? _remote;
-  RemoteMediaSession? _remoteSession;
-  bool _soundsBesideRemote = false;
-  final _arriving = <String, ({String url, Future<void> done})>{};
-  bool _coversPrepared = false;
-  static const _coverTrimDelay = Duration(minutes: 2);
 
   /// The Library that media browsers such as Android Auto show.
   late final browser = MediaLibraryBrowser(
     library: dependencies.libraryDatabase,
-    history: dependencies.historyDatabase,
     collections: dependencies.collectionsDatabase,
     includeLocal: () => _settings.localLibraryEnabled,
     strings: () => appLocalizationsFor(_settings.locale),
-    covers: dependencies.coverStore,
   );
 
   AppSettings get settings => _settings;
@@ -419,9 +312,6 @@ class MusicPlayerRuntime {
     final exclusive = settings.exclusiveOutput && isDesktopPlatform;
     if (!exclusive) {
       playbackExclusiveStatus.value = ExclusiveOutputStatus.pending;
-    } else if (!playbackExclusiveOutput.value) {
-      // Stop a playing preview before its deck would reopen the output too.
-      unawaited(exclusiveAudioHook?.call());
     }
     if (exclusive && defaultTargetPlatform == TargetPlatform.linux) {
       final device = settings.exclusiveOutputDevice;
@@ -499,23 +389,6 @@ class MusicPlayerRuntime {
   /// soon after it starts.
   void startSongAnalysis() {
     if (!_disposed) songAnalysis.start(mediaItemEvents());
-  }
-
-  /// Reads which network covers are stored, so songs show theirs from the
-  /// start, then trims the stored covers once, a while later.
-  void prepareCovers() {
-    if (_coversPrepared || _disposed) return;
-    _coversPrepared = true;
-    final covers = dependencies.coverStore;
-    unawaited(
-      () async {
-        await covers.warmUp();
-        await Future<void>.delayed(_coverTrimDelay);
-        if (!_disposed) await covers.trim();
-      }().catchError((Object error) {
-        _log.w('Could not trim stored covers: $error');
-      }),
-    );
   }
 
   void updateStrings({
@@ -618,9 +491,6 @@ class MusicPlayerRuntime {
 
   void detach(MusicPlayerHandler handler) {
     if (!identical(_handler, handler)) return;
-    for (final scrobbler in _createdScrobblers) {
-      scrobbler?.bind(null);
-    }
     _unsubscribeSourceDeletion?.call();
     _unsubscribeSourceDeletion = null;
     _unsubscribeSourceMetadata?.call();
@@ -663,18 +533,6 @@ class MusicPlayerRuntime {
       if (dependencies.isAndroid || dependencies.isIOS) {
         PlayerWidgetService.instance.bind(handler);
       }
-      // Desktop presence goes through the Rust IPC client instead of the SDK.
-      if (dependencies.isAndroid || dependencies.isIOS || isDesktopPlatform) {
-        DiscordPresenceService.instance.bind(handler);
-      }
-      // Every service counts the same listen and keeps its own queue.
-      for (final scrobbler in <Scrobbler>[lastfm, librefm, listenBrainz]) {
-        scrobbler.bind(
-          handler,
-          unknownTitle: () => unknownTitle,
-          unknownArtist: () => unknownArtist,
-        );
-      }
       return handler;
     } catch (error, stack) {
       _log.e('Failed to initialize playback', error, stack);
@@ -697,70 +555,6 @@ class MusicPlayerRuntime {
     await handler?.recoverRestoredArtwork();
   }
 
-  /// Plays the local file [path], still being written (a song a paired
-  /// phone is sending), from [url] until [done] completes, so it starts
-  /// before the file is whole.
-  void streamWhileArriving(
-    String path, {
-    required String url,
-    required Future<void> done,
-  }) {
-    final entry = (url: url, done: done);
-    _arriving[path] = entry;
-    unawaited(
-      done.then<void>((_) {}, onError: (Object _) {}).whenComplete(() {
-        if (identical(_arriving[path], entry)) _arriving.remove(path);
-      }),
-    );
-  }
-
-  /// The stream and completion of [path] while it is still arriving.
-  ({String url, Future<void> done})? arrivingFile(String path) =>
-      _arriving[path];
-
-  /// Whether [url] streams a file that is still arriving.
-  bool streamsArrivingFile(String url) =>
-      _arriving.values.any((entry) => entry.url == url);
-
-  /// Hands the system media session (notification, lock screen, headset and
-  /// car buttons) to [remote] while it plays in this device's place, and
-  /// back to this device's player when null. A Library song picked in the
-  /// car plays here and takes the session back.
-  Future<void> showRemote(RemotePlayback? remote) async {
-    if (identical(remote, _remote)) return;
-    _remote = remote;
-    if (remote != null) {
-      try {
-        await initialize();
-      } on Object {
-        return;
-      }
-    }
-    if (identical(remote, _remote) && !_disposed) _showSession(remote);
-  }
-
-  void _showSession(RemotePlayback? remote) {
-    final system = _systemSession;
-    if (system == null || !identical(system.local, _handler)) return;
-    _remoteSession?.dispose();
-    _remoteSession = null;
-    system.session.inner = remote == null
-        ? system.local
-        : _remoteSession = RemoteMediaSession(
-            remote,
-            local: system.local,
-            onLocal: () => _showSession(null),
-            ownVolume: _soundsBesideRemote,
-          );
-  }
-
-  /// Whether this device sounds too while a remote one is shown, as when
-  /// the two play together: the system volume keys then stay on this device.
-  set soundsBesideRemote(bool value) {
-    _soundsBesideRemote = value;
-    _remoteSession?.ownVolume = value;
-  }
-
   /// The default runtime lives for the app lifetime. Scoped runtimes close
   /// subscriptions and reject new initialization when their owner disposes.
   Future<void> dispose() => _disposeFuture ??= _dispose();
@@ -770,14 +564,7 @@ class MusicPlayerRuntime {
     _toggleFavorite = null;
     unawaited(_backgroundFavorites?.cancel());
     _backgroundFavorites = null;
-    exclusiveAudioHook = null;
-    _remoteSession?.dispose();
-    _remoteSession = null;
     await _handler?.dispose();
-    await Future.wait([
-      for (final scrobbler in _createdScrobblers)
-        if (scrobbler != null) scrobbler.close(),
-    ]);
     try {
       await _initFuture;
     } catch (_) {

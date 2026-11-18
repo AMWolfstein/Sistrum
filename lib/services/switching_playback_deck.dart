@@ -18,28 +18,10 @@ class DeckSource {
     this.requiresDsd = false,
     this.allowFixedVolume = false,
     this.dapExclusive = false,
-  }) : network = false,
-       arriving = false;
+  });
 
-  const DeckSource.network(this.location, {this.arriving = false})
-    : network = true,
-      preferBitPerfect = false,
-      directUsb = false,
-      allowDop = false,
-      requiresDsd = false,
-      allowFixedVolume = false,
-      dapExclusive = false;
-
-  /// What a [QueuedPlaybackDeck] started: a URL or a path.
-  factory DeckSource.queued(String source) =>
-      const {'http', 'https'}.contains(Uri.tryParse(source)?.scheme)
-      ? DeckSource.network(source)
-      : DeckSource.file(source);
-
-  /// A path or URL.
+  /// A local file path.
   final String location;
-  final bool network;
-  final bool arriving;
   final bool preferBitPerfect;
   final bool directUsb;
   final bool allowDop;
@@ -53,17 +35,15 @@ class DeckSource {
   /// [preferBitPerfect] and change nothing without it.
   bool get needsNativeOutput => preferBitPerfect || requiresDsd;
 
-  Future<void> loadOn(PlaybackDeck deck) => network
-      ? deck.setNetworkSource(location, arriving: arriving)
-      : deck.setFileSource(
-          location,
-          preferBitPerfect: preferBitPerfect,
-          directUsb: directUsb,
-          allowDop: allowDop,
-          requiresDsd: requiresDsd,
-          allowFixedVolume: allowFixedVolume,
-          dapExclusive: dapExclusive,
-        );
+  Future<void> loadOn(PlaybackDeck deck) => deck.setFileSource(
+    location,
+    preferBitPerfect: preferBitPerfect,
+    directUsb: directUsb,
+    allowDop: allowDop,
+    requiresDsd: requiresDsd,
+    allowFixedVolume: allowFixedVolume,
+    dapExclusive: dapExclusive,
+  );
 }
 
 /// One deck for the music runtime that plays through a primary deck, or
@@ -330,7 +310,7 @@ abstract class SwitchingPlaybackDeck
           return;
         }
         _volume = volume;
-        _source = DeckSource.queued(source);
+        _source = DeckSource.file(source);
         onStarted();
       },
     );
@@ -373,10 +353,6 @@ abstract class SwitchingPlaybackDeck
     _rate = rate;
     return _active.setPlaybackRate(rate);
   }
-
-  @override
-  Future<void> setNetworkSource(String url, {bool arriving = false}) =>
-      _load(DeckSource.network(url, arriving: arriving));
 
   @override
   Future<void> setFileSource(

@@ -1,11 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/library_database.dart';
-import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_playlist_search.dart';
 import 'package:sistrum/services/library_search.dart';
 
@@ -23,20 +21,11 @@ final librarySearchTrackProvider = FutureProvider.autoDispose
       ref,
       key,
     ) async {
-      if (key.source == 'local') {
-        final row = await LibraryDatabase.instance.getById(key.id);
-        return row == null
-            ? null
-            : UnifiedLibraryItem.fromLocalLibrary(
-                LocalLibraryItem.fromJson(row),
-              );
-      }
-      final row = await HistoryDatabase.instance.getById(key.id);
+      if (key.source != 'local') return null;
+      final row = await LibraryDatabase.instance.getById(key.id);
       return row == null
           ? null
-          : UnifiedLibraryItem.fromDownloadHistory(
-              DownloadHistoryItem.fromJson(row),
-            );
+          : UnifiedLibraryItem.fromLocalLibrary(LocalLibraryItem.fromJson(row));
     });
 
 final librarySearchProvider = FutureProvider.autoDispose
@@ -57,7 +46,6 @@ final librarySearchProvider = FutureProvider.autoDispose
       final includeLocal = ref.watch(
         settingsProvider.select((s) => s.localLibraryEnabled),
       );
-      ref.watch(downloadHistoryProvider.select((s) => s.loadedIndexVersion));
       if (includeLocal) {
         ref.watch(localLibraryProvider.select((s) => s.loadedIndexVersion));
       }
@@ -111,19 +99,12 @@ final librarySongListProvider = FutureProvider.autoDispose
         );
         for (final row in page.rows) {
           final json = Map<String, dynamic>.from(row['item'] as Map);
-          switch (row['source']) {
-            case 'local':
-              songs.add(
-                UnifiedLibraryItem.fromLocalLibrary(
-                  LocalLibraryItem.fromJson(json),
-                ),
-              );
-            case 'downloaded':
-              songs.add(
-                UnifiedLibraryItem.fromDownloadHistory(
-                  DownloadHistoryItem.fromJson(json),
-                ),
-              );
+          if (row['source'] == 'local') {
+            songs.add(
+              UnifiedLibraryItem.fromLocalLibrary(
+                LocalLibraryItem.fromJson(json),
+              ),
+            );
           }
         }
         if (page.rows.length < pageSize) break;

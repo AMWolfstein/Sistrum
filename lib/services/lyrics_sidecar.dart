@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:path/path.dart' as p;
-import 'package:sistrum/services/lyrics_translation.dart';
+import 'package:sistrum/services/lyrics_plain.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/services/saf_siblings.dart';
 import 'package:sistrum/utils/desktop_platform.dart';

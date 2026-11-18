@@ -13,8 +13,6 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 sistrum-mobile = { path = "../mobile" }
-sistrum-link.workspace = true
-sistrum-cast.workspace = true
 chrono.workspace = true
 getrandom.workspace = true
 notify.workspace = true

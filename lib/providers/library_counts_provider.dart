@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/services/library_database.dart';
 
@@ -74,9 +73,6 @@ class LibraryCountsRequest {
 /// does not load the Library index ahead of its startup warmup.
 final libraryCountsProvider = FutureProvider.autoDispose
     .family<QueueLibraryCounts, LibraryCountsRequest>((ref, request) async {
-      ref.watch(
-        downloadHistoryProvider.select((state) => state.loadedIndexVersion),
-      );
       if (request.localLibraryEnabled) {
         ref.watch(localLibraryIndexRevisionProvider);
       }

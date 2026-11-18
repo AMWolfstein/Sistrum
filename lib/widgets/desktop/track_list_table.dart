@@ -8,7 +8,6 @@ import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/desktop/desktop_selection.dart';
 import 'package:sistrum/widgets/desktop/track_table.dart';
-import 'package:sistrum/widgets/preview_button.dart';
 import 'package:sistrum/widgets/track_card.dart';
 import 'package:sistrum/widgets/track_collection_quick_actions.dart';
 import 'package:sistrum/widgets/track_list_tile.dart';
@@ -16,14 +15,12 @@ import 'package:sistrum/widgets/track_list_tile.dart';
 /// The desktop song table for album, playlist and folder [Track] lists, in
 /// place of
 /// [TrackListTile] rows. Right-click opens the track options; a click and
-/// Enter run [onActivate], which should match a tap on a mobile row (see
-/// [TrackListTile.activate]).
+/// Enter run [onActivate], which should match a tap on a mobile row.
 class TrackListTable extends ConsumerStatefulWidget {
   const TrackListTable({
     super.key,
     required this.tracks,
     required this.ids,
-    required this.isInHistory,
     required this.selectedIds,
     required this.onSelect,
     required this.onActivate,
@@ -33,7 +30,6 @@ class TrackListTable extends ConsumerStatefulWidget {
     this.albumLayout = false,
     this.albumArtist,
     this.covers,
-    this.showPreview = false,
     this.onSaveCover,
     this.rowAction,
   });
@@ -48,7 +44,6 @@ class TrackListTable extends ConsumerStatefulWidget {
   final List<String> ids;
 
   /// Whether each track, by index, is in the download history.
-  final List<bool> isInHistory;
   final Set<String> selectedIds;
   final void Function(String id, DesktopClick kind, List<String> orderedIds)
   onSelect;
@@ -68,10 +63,6 @@ class TrackListTable extends ConsumerStatefulWidget {
   /// playlist whose stored covers this device cannot load. Null shows each
   /// track's own cover.
   final List<String?>? covers;
-
-  /// Search results keep the preview button of their phone rows beside the
-  /// title.
-  final bool showPreview;
 
   /// Saves the cover of the row at this index on a long press of its
   /// artwork, as the phone search rows do.
@@ -94,13 +85,11 @@ class _TrackListTableState extends ConsumerState<TrackListTable> {
   void didUpdateWidget(TrackListTable oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.showArtwork != oldWidget.showArtwork ||
-        widget.showPreview != oldWidget.showPreview ||
         (widget.onSaveCover == null) != (oldWidget.onSaveCover == null) ||
         (widget.rowAction == null) != (oldWidget.rowAction == null) ||
         !listEquals(widget.covers, oldWidget.covers) ||
         !listEquals(widget.tracks, oldWidget.tracks) ||
-        !listEquals(widget.ids, oldWidget.ids) ||
-        !listEquals(widget.isInHistory, oldWidget.isInHistory)) {
+        !listEquals(widget.ids, oldWidget.ids)) {
       _rows = _buildRows();
     }
   }
@@ -109,14 +98,11 @@ class _TrackListTableState extends ConsumerState<TrackListTable> {
     final TrackListTable(
       :tracks,
       :ids,
-      :isInHistory,
       :showArtwork,
       :covers,
-      :showPreview,
       :onSaveCover,
     ) = widget;
-    Widget badges(int i) =>
-        TrackListTileBadges(track: tracks[i], isInHistory: isInHistory[i]);
+    Widget badges(int i) => TrackListTileBadges(track: tracks[i]);
     return [
       for (var i = 0; i < tracks.length; i++)
         TrackTableRow(
@@ -139,15 +125,7 @@ class _TrackListTableState extends ConsumerState<TrackListTable> {
                       : () => widget.onSaveCover?.call(i),
                 )
               : null,
-          titleTrailing: showPreview
-              ? Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    PreviewButton(track: tracks[i], size: 20, dense: true),
-                    badges(i),
-                  ],
-                )
-              : badges(i),
+          titleTrailing: badges(i),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -155,7 +133,6 @@ class _TrackListTableState extends ConsumerState<TrackListTable> {
               ?widget.rowAction?.call(i),
               TrackCollectionQuickActions(
                 track: tracks[i],
-                hasLocalPlaybackCandidate: isInHistory[i],
                 dense: true,
               ),
             ],
@@ -203,7 +180,6 @@ class _TrackListTableState extends ConsumerState<TrackListTable> {
             ref,
             widget.tracks[index],
             position: position,
-            hasLocalPlaybackCandidate: widget.isInHistory[index],
           );
         },
       ),
@@ -227,12 +203,11 @@ class _Artwork extends StatelessWidget {
       return const TrackCoverPlaceholder(size: 32);
     }
     // Collection tracks can carry a local artwork path.
-    final image = LocalOrNetworkCoverImage(
+    final image = LocalCoverImage(
       url: url,
       width: 32,
       height: 32,
       borderRadius: BorderRadius.circular(4),
-      networkCacheWidth: 96,
       localCacheWidth: 96,
       placeholder: (_) => const TrackCoverPlaceholder(size: 32),
     );

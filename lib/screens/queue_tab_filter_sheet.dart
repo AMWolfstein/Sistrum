@@ -47,9 +47,7 @@ extension _QueueTabFilterSheet on _QueueTabState {
                     children: [
                       for (final (value, label) in <(String?, String)>[
                         (null, context.l10n.libraryFilterAll),
-                        ('downloaded', context.l10n.libraryFilterDownloaded),
                         ('local', context.l10n.libraryFilterLocal),
-                        ('on-device', offlineDeviceFilterLabel(context)),
                       ])
                         AppChoiceChip(
                           label: Text(label),

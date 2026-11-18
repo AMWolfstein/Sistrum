@@ -13,12 +13,12 @@ void main() {
 
     test('keeps a saved choice in its order', () {
       expect(
-        HomeShortcut.resolve(['loved', 'link', 'shuffle', 'newReleases']),
+        HomeShortcut.resolve(['loved', 'wishlist', 'shuffle', 'favoriteArtists']),
         [
           HomeShortcut.loved,
-          HomeShortcut.link,
+          HomeShortcut.wishlist,
           HomeShortcut.shuffle,
-          HomeShortcut.newReleases,
+          HomeShortcut.favoriteArtists,
         ],
       );
     });
@@ -28,7 +28,7 @@ void main() {
         HomeShortcut.equalizer,
         HomeShortcut.shuffle,
         HomeShortcut.listeningStats,
-        HomeShortcut.networkStorage,
+        HomeShortcut.loved,
       ]);
     });
 
@@ -44,11 +44,11 @@ void main() {
 
   group('HomeShortcut.place', () {
     test('replaces the slot with a shortcut not on Home', () {
-      expect(HomeShortcut.place(HomeShortcut.defaults, 1, HomeShortcut.loved), [
+      expect(HomeShortcut.place(HomeShortcut.defaults, 1, HomeShortcut.wishlist), [
         HomeShortcut.shuffle,
-        HomeShortcut.loved,
+        HomeShortcut.wishlist,
         HomeShortcut.listeningStats,
-        HomeShortcut.networkStorage,
+        HomeShortcut.loved,
       ]);
     });
 
@@ -56,7 +56,7 @@ void main() {
       expect(
         HomeShortcut.place(HomeShortcut.defaults, 3, HomeShortcut.shuffle),
         [
-          HomeShortcut.networkStorage,
+          HomeShortcut.loved,
           HomeShortcut.equalizer,
           HomeShortcut.listeningStats,
           HomeShortcut.shuffle,

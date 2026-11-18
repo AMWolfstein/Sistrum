@@ -15,8 +15,6 @@ import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/system_volume_provider.dart';
 import 'package:sistrum/services/playback_deck.dart';
-import 'package:sistrum/services/link/desktop/link_desktop_host.dart';
-import 'package:sistrum/services/remote_playback.dart';
 import 'package:sistrum/services/shell_navigation_service.dart';
 import 'package:sistrum/services/user_profile_store.dart';
 import 'package:sistrum/theme/app_theme.dart';
@@ -24,7 +22,6 @@ import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/desktop/desktop_commands.dart';
-import 'package:sistrum/widgets/desktop/desktop_downloads_button.dart';
 import 'package:sistrum/widgets/desktop/desktop_inspector.dart';
 import 'package:sistrum/widgets/desktop/desktop_navigation.dart';
 import 'package:sistrum/widgets/desktop/desktop_now_playing.dart';
@@ -66,20 +63,6 @@ class _FakeController implements MusicPlayerController {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-class _RemotePlayback implements RemotePlayback {
-  @override
-  String get name => 'Phone';
-
-  @override
-  Stream<RemoteTransfer?> get transfers => const Stream.empty();
-
-  @override
-  Stream<double> get volumes => Stream.value(0.5);
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
-
 const _track = MediaItem(
   id: 'track',
   title: 'A song',
@@ -105,7 +88,7 @@ const _libraryLinks = [
 ];
 
 List<DesktopDestination> _destinations({required bool mornye}) => [
-  for (final tab in desktopDestinationTabs(mornye: mornye, showStore: true))
+  for (final tab in desktopDestinationTabs(mornye: mornye))
     DesktopDestination(
       tab: tab,
       icon: Icons.circle_outlined,
@@ -146,8 +129,6 @@ void main() {
     Stream<MediaItem?>? mediaItems,
     bool playing = false,
     bool loading = false,
-    bool linkAvailable = false,
-    RemotePlayback? remote,
     String playerMode = 'internal',
     UserProfile profile = const UserProfile(name: 'Ada Lovelace'),
   }) => [
@@ -167,8 +148,6 @@ void main() {
         ),
       ),
     ),
-    activeRemotePlaybackProvider.overrideWithValue(remote),
-    linkDevicesAvailableProvider.overrideWithValue(linkAvailable),
     musicPlayerControllerProvider.overrideWithValue(controller),
     systemVolumeProvider.overrideWith((ref) => Stream.value(0.5)),
     systemVolumeWriterProvider.overrideWithValue((value) async {
@@ -187,8 +166,6 @@ void main() {
     Stream<MediaItem?>? mediaItems,
     bool playing = false,
     bool loading = false,
-    bool linkAvailable = false,
-    RemotePlayback? remote,
     String playerMode = 'internal',
     List<DesktopSidebarLink> libraryLinks = const [],
     ValueChanged<String>? onOpenLibraryLink,
@@ -208,8 +185,6 @@ void main() {
           mediaItems: mediaItems,
           playing: playing,
           loading: loading,
-          linkAvailable: linkAvailable,
-          remote: remote,
           profile: profile,
           playerMode: playerMode,
         ),
@@ -300,7 +275,7 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    for (final state in ['playing', 'loading', 'remote', 'idle']) {
+    for (final state in ['playing', 'loading', 'idle']) {
       testWidgets('desktop player cannot dismiss $state playback ($mornye)', (
         tester,
       ) async {
@@ -311,7 +286,6 @@ void main() {
           item: state == 'idle' ? null : _track,
           playing: state == 'playing',
           loading: state == 'loading',
-          remote: state == 'remote' ? _RemotePlayback() : null,
         );
         expect(
           find.byKey(const ValueKey('desktop-player-dismiss')),
@@ -452,31 +426,6 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('the Downloads popover opens and closes at once ($mornye)', (
-      tester,
-    ) async {
-      await pumpShell(tester, mornye: mornye, width: 1400);
-      final button = find.byKey(const ValueKey('desktop-downloads-button'));
-      double popoverOpacity() => tester
-          .widgetList<FadeTransition>(
-            find.ancestor(
-              of: find.byType(DesktopDownloadsPopover),
-              matching: find.byType(FadeTransition),
-            ),
-          )
-          .fold(1.0, (opacity, fade) => opacity * fade.opacity.value);
-
-      await tester.tap(button);
-      await tester.pump();
-      expect(find.byType(DesktopDownloadsPopover), findsOneWidget);
-      expect(popoverOpacity(), 1);
-
-      await tester.tap(button);
-      await tester.pump();
-      expect(find.byType(DesktopDownloadsPopover), findsNothing);
-      expect(tester.takeException(), isNull);
-    });
-
     testWidgets('reduced motion swaps Now Playing at once ($mornye)', (
       tester,
     ) async {
@@ -505,16 +454,14 @@ void main() {
   group('Material shell', () {
     for (final width in [800.0, 900.0]) {
       for (final playing in [false, true]) {
-        for (final link in [false, true]) {
-          testWidgets(
-            'player controls fit at $width (playing: $playing, Link: $link)',
+        testWidgets(
+            'player controls fit at $width (playing: $playing)',
             (tester) async {
               await pumpShell(
                 tester,
                 mornye: false,
                 width: width,
                 playing: playing,
-                linkAvailable: link,
               );
               expect(tester.takeException(), isNull);
               final bar = tester.getRect(find.byType(DesktopPlayerBar));
@@ -522,8 +469,6 @@ void main() {
                 'desktop-player-lyrics',
                 'desktop-player-up-next',
                 'desktop-player-mini',
-                if (link) 'desktop-link-devices-button',
-                'desktop-downloads-button',
                 if (!playing) 'desktop-player-dismiss',
               ]) {
                 final button = find.byKey(ValueKey(key));
@@ -545,7 +490,6 @@ void main() {
               expect(tester.takeException(), isNull);
             },
           );
-        }
       }
     }
 
@@ -752,8 +696,6 @@ void main() {
       // Home and Library bring their own search fields, so the shell adds
       // no second one above them.
       expect(tester.getRect(contentPage()).top, 0);
-      // Downloads live in the player bar on every page.
-      expect(find.byType(DesktopDownloadsButton), findsOneWidget);
     });
 
     testWidgets('the sidebar shortcut remembers the rail state', (
@@ -923,7 +865,7 @@ void main() {
       expect(find.text('Playlists'), findsOneWidget);
       expect(
         allPlaylists.top,
-        greaterThan(tester.getRect(find.text('repository')).bottom),
+        greaterThan(tester.getRect(find.text('library')).bottom),
       );
       expect(playlist.top, greaterThan(allPlaylists.bottom));
       expect(settings.top, greaterThan(playlist.bottom));
@@ -1130,7 +1072,7 @@ void main() {
       await pumpShell(tester, mornye: true, width: 1400);
 
       expect(findByTooltip('library (Ctrl+2)'), findsOneWidget);
-      expect(findByTooltip('settings (Ctrl+5)'), findsOneWidget);
+      expect(findByTooltip('settings (Ctrl+4)'), findsOneWidget);
       await tester.tap(find.text('library'));
       await tester.tap(find.byKey(const ValueKey('desktop-sidebar-settings')));
       expect(selections, [ShellTab.library, ShellTab.settings]);

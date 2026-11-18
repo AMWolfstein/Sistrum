@@ -5,7 +5,6 @@ import 'dart:ui' as ui;
 import 'package:audio_service/audio_service.dart';
 import 'package:clock/clock.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
-import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart'
     show
@@ -29,16 +28,12 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/player_motion_artwork_provider.dart';
 import 'package:sistrum/providers/player_artwork_video_provider.dart';
 import 'package:sistrum/services/motion_artwork_store.dart';
-import 'package:sistrum/services/network_metadata_service.dart';
-import 'package:sistrum/services/network_storage_service.dart';
-import 'package:sistrum/services/remote_playback.dart';
 import 'package:video_player/video_player.dart';
 import 'package:sistrum/screens/now_playing_screen.dart';
 import 'package:sistrum/screens/lyrics_share_screen.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
-import 'package:sistrum/widgets/audio_output_button.dart';
 import 'package:sistrum/widgets/expressive_icon_button.dart';
 import 'package:sistrum/widgets/expressive_playback_transport.dart';
 import 'package:sistrum/widgets/expressive_seek_track.dart';
@@ -190,7 +185,6 @@ void main() {
     MotionArtwork? Function(PlayerArtworkAlbum album)? motionArtworkOf,
     MusicPlayerController? controller,
     List<MediaItem> queue = const [],
-    RemotePlayback? remote,
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -202,8 +196,6 @@ void main() {
         overrides: [
           if (controller != null)
             musicPlayerControllerProvider.overrideWithValue(controller),
-          if (remote != null)
-            activeRemotePlaybackProvider.overrideWithValue(remote),
           currentMediaItemProvider.overrideWithBuild(
             (ref, notifier) => mediaItems.stream,
           ),
@@ -511,171 +503,7 @@ void main() {
     });
   }
 
-  for (final (size, kept) in [
-    (const Size(430, 932), true),
-    (const Size(320, 568), false),
-  ]) {
-    testWidgets('Material portrait keeps an empty Playing on row ($size)', (
-      tester,
-    ) async {
-      await pumpNowPlaying(tester, theme: AppTheme.light(), size: size);
-      mediaItems.add(item('first'));
-      await settlePlayer(tester);
-      expect(find.byKey(const ValueKey('link-playing-on')), findsNothing);
-      final row = find.byKey(const ValueKey('link-playing-on-row'));
-      if (kept) {
-        expect(tester.getSize(row).height, 36);
-      } else {
-        expect(row, findsNothing);
-      }
-      expect(tester.takeException(), isNull);
-    });
-  }
 
-  for (final (size, kept) in [
-    (const Size(430, 932), true),
-    (const Size(360, 700), false),
-  ]) {
-    testWidgets('Mornye portrait keeps an empty Playing on row ($size)', (
-      tester,
-    ) async {
-      await pumpNowPlaying(
-        tester,
-        theme: MornyeTheme.build(Brightness.dark),
-        size: size,
-      );
-      mediaItems.add(item('first'));
-      await settlePlayer(tester);
-      final row = find.byKey(const ValueKey('link-playing-on-row'));
-      if (kept) {
-        expect(tester.getSize(row).height, 36);
-      } else {
-        expect(row, findsNothing);
-      }
-      expect(tester.takeException(), isNull);
-    });
-  }
-
-  for (final mornye in [true, false]) {
-    final style = mornye ? 'Mornye' : 'Material';
-    final theme = mornye
-        ? MornyeTheme.build(Brightness.dark)
-        : AppTheme.light();
-    // An offline copy names its source without loading the network storage
-    // singleton, which would stay tied to this test's fake clock.
-    MediaItem streamed() => item('first').copyWith(
-      extras: {
-        'source': '/music/first.flac',
-        'originSource': 'network://nas/first.flac',
-      },
-    );
-    final source = find.text('Playing from this device');
-    final row = find.byKey(const ValueKey('link-playing-on-row'));
-
-    testWidgets('the Playing on row names the song source ($style)', (
-      tester,
-    ) async {
-      await pumpNowPlaying(tester, theme: theme, size: const Size(412, 915));
-      mediaItems.add(streamed());
-      await settlePlayer(tester);
-      expect(source, findsOneWidget);
-      expect(find.descendant(of: row, matching: source), findsOneWidget);
-      expect(tester.getSize(row).height, 36);
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('a computer that plays replaces the song source ($style)', (
-      tester,
-    ) async {
-      await pumpNowPlaying(
-        tester,
-        theme: theme,
-        size: const Size(412, 915),
-        remote: _TestRemote(),
-      );
-      mediaItems.add(streamed());
-      await settlePlayer(tester);
-      expect(source, findsNothing);
-      expect(find.byKey(const ValueKey('link-playing-on')), findsOneWidget);
-    });
-
-    testWidgets('landscape keeps the song source in the header ($style)', (
-      tester,
-    ) async {
-      await pumpNowPlaying(tester, theme: theme, size: const Size(852, 393));
-      mediaItems.add(streamed());
-      await settlePlayer(tester);
-      expect(row, findsNothing);
-      expect(source, findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('portrait stays put while a computer takes over '
-        '(${mornye ? 'Mornye' : 'Material'})', (tester) async {
-      Future<({Rect title, Rect toolbar})> measure(
-        RemotePlayback? remote,
-      ) async {
-        await pumpNowPlaying(
-          tester,
-          theme: mornye ? MornyeTheme.build(Brightness.dark) : AppTheme.light(),
-          size: const Size(412, 915),
-          remote: remote,
-        );
-        mediaItems.add(item('first'));
-        await settlePlayer(tester);
-        return (
-          title: tester.getRect(find.byType(PlayerMetadataTitle).first),
-          toolbar: tester.getRect(find.byType(AudioOutputButton)),
-        );
-      }
-
-      final idle = await measure(null);
-      await tester.pumpWidget(const SizedBox());
-      await tester.pump(const Duration(seconds: 1));
-      final playing = await measure(_TestRemote());
-
-      expect(find.text('Playing on Studio PC'), findsOneWidget);
-      expect(playing.title, idle.title);
-      expect(playing.toolbar, idle.toolbar);
-      // The toolbar sits on the row in both styles, and the header stays
-      // level with Material's rather than dropping with the shorter row.
-      expect(915 - idle.toolbar.bottom, 36);
-      expect(idle.title.top, closeTo(mornye ? 510 : 509, 0.5));
-      expect(tester.takeException(), isNull);
-    });
-  }
-
-  testWidgets(
-    'Material portrait Playing on row reaches into the home indicator inset',
-    (tester) async {
-      tester.view.padding = FakeViewPadding(top: 59, bottom: 34);
-      tester.view.viewPadding = FakeViewPadding(top: 59, bottom: 34);
-      addTearDown(tester.view.resetPadding);
-      addTearDown(tester.view.resetViewPadding);
-      await pumpNowPlaying(
-        tester,
-        theme: AppTheme.light(),
-        size: const Size(393, 852),
-      );
-      mediaItems.add(item('first'));
-      await settlePlayer(tester);
-      final row = tester.getRect(
-        find.byKey(const ValueKey('link-playing-on-row')),
-      );
-      expect(row.height, 36);
-      // An iPhone keeps only the indicator's strip under the empty row;
-      // Android's navigation inset stays clear of it.
-      expect(
-        852 - row.bottom,
-        defaultTargetPlatform == TargetPlatform.iOS ? 12 : 34,
-      );
-      expect(tester.takeException(), isNull);
-    },
-    variant: const TargetPlatformVariant({
-      TargetPlatform.android,
-      TargetPlatform.iOS,
-    }),
-  );
 
   testWidgets('landscape artwork preference leaves a wide portrait player '
       'unchanged', (tester) async {
@@ -4854,46 +4682,6 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('network lyrics use shared metadata instead of the audio URL', (
-    tester,
-  ) async {
-    final storage = NetworkStorageService.instance;
-    final source = NetworkStorageService.source('lyrics-test', 'song.flac');
-    await tester.runAsync(() async {
-      await storage.save(
-        const NetworkConnection(
-          id: 'lyrics-test',
-          name: 'Lyrics test',
-          protocol: NetworkProtocol.http,
-          address: 'https://nas.test/music/',
-        ),
-      );
-      await NetworkMetadataService.instance.read(source);
-    });
-    addTearDown(() async {
-      await storage.remove('lyrics-test');
-      await storage.dispose();
-    });
-    expect(metadataReads, hasLength(1));
-    await pumpNowPlaying(tester);
-    mediaItems.add(
-      MediaItem(
-        id: source,
-        title: 'Network song',
-        extras: {
-          'source': source,
-          'resolvedSource': 'http://127.0.0.1:9999/playback-only',
-        },
-      ),
-    );
-    await settlePlayer(tester);
-    await tester.tap(find.byKey(const ValueKey('material-lyrics-toggle')));
-    await settlePlayer(tester);
-    expect(find.text('First lyric'), findsOneWidget);
-    expect(metadataReads, hasLength(1));
-    expect(tester.takeException(), isNull);
-  });
-
   testWidgets(
     'automatic SAF track change refreshes lyrics while Lyrics page is active',
     (tester) async {
@@ -6314,22 +6102,6 @@ class _SeekController extends MusicPlayerController {
     completions.add(completion);
     return completion.future;
   }
-}
-
-/// A computer playing in the phone's place; the player reads only its name
-/// and the song on its way there.
-class _TestRemote implements RemotePlayback {
-  @override
-  String get name => 'Studio PC';
-
-  @override
-  Stream<RemoteTransfer?> get transfers => Stream.value(null);
-
-  @override
-  Stream<double> get volumes => const Stream.empty();
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
 class _TestCollections extends LibraryCollectionsNotifier {

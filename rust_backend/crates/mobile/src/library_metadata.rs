@@ -201,14 +201,7 @@ mod tests {
     fn document_scan_reuses_the_thumbnail_the_rust_scan_wrote() {
         let directory = tempfile::tempdir().unwrap();
         let data = directory.path().join("data");
-        let backend = sistrum_extensions::backend::Backend::new(
-            &directory.path().join("sources"),
-            &data,
-            "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
-            "1",
-            sistrum_extensions::RuntimeLimits::default(),
-        )
-        .unwrap();
+        let backend = sistrum_extensions::backend::Backend::new(&data, "1").unwrap();
         let mut picture = b"\0image/jpeg\0\x03\0\0".to_vec();
         picture.extend(b"\xff\xd8\xff\xe0scan");
         let mut frame = b"APIC".to_vec();

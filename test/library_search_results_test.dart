@@ -10,7 +10,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/library_search_provider.dart';
 import 'package:sistrum/providers/library_lyrics_search_provider.dart';
 import 'package:sistrum/providers/playback_provider.dart';
@@ -166,15 +165,10 @@ void main() {
   }
 
   for (final mornye in [false, true]) {
-    for (final (local, tapPlays) in [
-      (false, false),
-      (true, false),
-      (false, true),
-      (true, true),
-    ]) {
+    for (final tapPlays in [false, true]) {
       testWidgets(
         'search opens metadata on a tap or its info button and plays on the '
-        'other ($mornye/$local/tapPlays: $tapPlays)',
+        'other ($mornye/tapPlays: $tapPlays)',
         (tester) async {
           SharedPreferences.setMockInitialValues({});
           FlutterSecureStorage.setMockInitialValues({});
@@ -197,28 +191,16 @@ void main() {
                 .setMockMethodCallHandler(channel, null),
           );
           const path = 'content://library/document/song.flac';
-          final item = local
-              ? UnifiedLibraryItem.fromLocalLibrary(
-                  LocalLibraryItem(
-                    id: 'chosen',
-                    trackName: 'Song',
-                    artistName: 'Artist',
-                    albumName: 'Album',
-                    filePath: path,
-                    scannedAt: DateTime(2026),
-                  ),
-                )
-              : UnifiedLibraryItem.fromDownloadHistory(
-                  DownloadHistoryItem(
-                    id: 'chosen',
-                    trackName: 'Song',
-                    artistName: 'Artist',
-                    albumName: 'Album',
-                    filePath: path,
-                    service: 'provider-a',
-                    downloadedAt: DateTime(2026),
-                  ),
-                );
+          final item = UnifiedLibraryItem.fromLocalLibrary(
+            LocalLibraryItem(
+              id: 'chosen',
+              trackName: 'Song',
+              artistName: 'Artist',
+              albumName: 'Album',
+              filePath: path,
+              scannedAt: DateTime(2026),
+            ),
+          );
           final player = _PlaybackRecorder();
           await tester.pumpWidget(
             ProviderScope(
@@ -241,14 +223,14 @@ void main() {
                             kind: LibrarySearchKind.songs,
                             id: 'chosen',
                             title: 'Song',
-                            source: local ? 'local' : 'history',
+                            source: 'local',
                           ),
                         ]
                       : [],
                 ),
                 librarySearchTrackProvider.overrideWith((ref, key) async {
                   expect(key, (
-                    source: local ? 'local' : 'history',
+                    source: 'local',
                     id: 'chosen',
                   ));
                   return item;
@@ -287,7 +269,6 @@ void main() {
           final details = tester.widget<TrackMetadataScreen>(
             find.byType(TrackMetadataScreen),
           );
-          expect(details.item, item.historyItem);
           expect(details.localItem, item.localItem);
           expect(player.paths, isEmpty);
           tester.state<NavigatorState>(find.byType(Navigator).first).pop();
@@ -603,7 +584,6 @@ void main() {
         await tester.longPress(find.text('Song a'));
         await tester.pumpAndSettle();
         expect(find.text('1 selected'), findsOneWidget);
-        expect(find.text('Re-enrich (1)'), findsOneWidget);
         expect(find.text('Convert 1 track'), findsOneWidget);
         expect(find.text('Delete 1 track'), findsOneWidget);
         // Selecting hides row actions and keeps taps on the selection.

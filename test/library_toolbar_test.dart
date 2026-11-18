@@ -3,17 +3,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intl/intl.dart' show DateFormat;
 import 'package:material_3_expressive/material_3_expressive.dart'
     show M3EButton, M3EButtonGroup, M3EButtonGroupType;
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/models/download_item.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/library_browse_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
+import 'package:sistrum/providers/library_counts_provider.dart';
 import 'package:sistrum/providers/library_genres_provider.dart';
 import 'package:sistrum/providers/library_search_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
@@ -30,7 +28,6 @@ import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/app_search_field.dart';
-import 'package:sistrum/widgets/animated_library_sliver_grid.dart';
 import 'package:sistrum/widgets/library_directory_view.dart';
 import 'package:sistrum/widgets/song_row_tap.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -55,34 +52,9 @@ class _Settings extends SettingsNotifier {
       );
 }
 
-/// Downloaded songs added on [dates]. With a queue item present and the
-/// database page empty, the Library renders this in-memory snapshot.
-class _History extends DownloadHistoryNotifier {
-  _History(this.dates);
-
-  final List<DateTime> dates;
-
-  @override
-  DownloadHistoryState build() => DownloadHistoryState(
-    items: [
-      for (final (index, date) in dates.indexed)
-        DownloadHistoryItem(
-          id: 'song-$index',
-          trackName: 'Song $index',
-          artistName: 'Artist',
-          albumName: 'Album $index',
-          filePath: '/music/song-$index.flac',
-          service: 'example-provider',
-          downloadedAt: date,
-        ),
-    ],
-    totalCount: dates.length,
-  );
-}
-
 class _Local extends LocalLibraryNotifier {
   @override
-  LocalLibraryState build() => LocalLibraryState();
+  LocalLibraryState build() => LocalLibraryState(totalCount: 1);
 }
 
 class _Collections extends LibraryCollectionsNotifier {
@@ -93,11 +65,6 @@ class _Collections extends LibraryCollectionsNotifier {
   @override
   LibraryCollectionsState build() =>
       LibraryCollectionsState(isLoaded: true, playlists: playlists);
-}
-
-class _Queue extends DownloadQueueNotifier {
-  @override
-  DownloadQueueState build() => DownloadQueueState();
 }
 
 class _Playback extends PlaybackController {
@@ -150,6 +117,38 @@ void main() {
       }
       if (call.method != 'query') return null;
       queries.add(sql);
+      final offset = ((args['arguments'] as List?) ?? const []).lastOrNull;
+      if (sql.trimLeft().startsWith('SELECT *') &&
+          sql.contains("'local' AS queue_source") &&
+          !sql.contains('sample_file_path')) {
+        // One scanned song on the first page, as the Songs page reads it.
+        return {
+          'columns': [
+            'queue_source',
+            'id',
+            'track_name',
+            'artist_name',
+            'album_name',
+            'file_path',
+            'scanned_at',
+            'track_number',
+          ],
+          'rows': offset == 0
+              ? <List<Object?>>[
+                  [
+                    'local',
+                    'song-0',
+                    'Song 0',
+                    'Artist',
+                    'Album',
+                    '/music/song-0.flac',
+                    '2026-01-01T00:00:00.000Z',
+                    1,
+                  ],
+                ]
+              : const <List<Object?>>[],
+        };
+      }
       if (sql.toLowerCase().contains('pragma user_version')) {
         return {
           'columns': ['user_version'],
@@ -186,9 +185,7 @@ void main() {
     bool desktop = false,
     bool mornye = false,
     bool reduceMotion = false,
-    List<DateTime>? dates,
     List<UserPlaylistCollection> playlists = const [],
-    bool withQueueItem = true,
     String? librarySection,
     List<Override> overrides = const [],
     Size size = const Size(1280, 900),
@@ -198,22 +195,6 @@ void main() {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    final queue = DownloadQueueLookup.fromItems([
-      if (withQueueItem)
-        DownloadItem(
-          id: 'completed',
-          track: const Track(
-            id: 'song',
-            name: 'Song',
-            artistName: 'Artist',
-            albumName: 'Album',
-            duration: 1000,
-          ),
-          service: 'example-provider',
-          status: DownloadStatus.completed,
-          createdAt: DateTime(2026),
-        ),
-    ]);
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -226,15 +207,17 @@ void main() {
                   : null,
             ),
           ),
-          downloadHistoryProvider.overrideWith(
-            () => _History(dates ?? [DateTime(2026, 1, 10)]),
-          ),
           localLibraryProvider.overrideWith(_Local.new),
           libraryCollectionsProvider.overrideWith(
             () => _Collections(playlists),
           ),
-          downloadQueueProvider.overrideWith(_Queue.new),
-          downloadQueueLookupProvider.overrideWithValue(queue),
+          libraryCountsProvider.overrideWith(
+            (ref, request) async => const QueueLibraryCounts(
+              allTrackCount: 1,
+              albumCount: 1,
+              singleTrackCount: 0,
+            ),
+          ),
           ...overrides,
         ],
         child: MaterialApp(
@@ -289,8 +272,6 @@ void main() {
           await pumpLibrary(
             tester,
             desktop: desktop,
-            dates: const [],
-            withQueueItem: false,
             playlists: [
               if (trackCount != null)
                 UserPlaylistCollection(
@@ -533,65 +514,6 @@ void main() {
             findsOneWidget,
           );
         }
-        expect(tester.takeException(), isNull);
-      });
-
-      testWidgets('album grid preserves year order across local and downloads '
-          '(desktop: $desktop, Mornye: $mornye)', (tester) async {
-        albumRows.addAll([
-          ['local', 'new|artist', 'New', 'Artist', 2, 1, '/new.flac', 2026],
-          [
-            'downloaded',
-            'old|artist',
-            'Old',
-            'Artist',
-            2,
-            1,
-            '/old.flac',
-            2001,
-          ],
-          [
-            'local',
-            'unknown|artist',
-            'Unknown',
-            'Artist',
-            2,
-            1,
-            '/unknown.flac',
-            0,
-          ],
-        ]);
-        await pumpLibrary(
-          tester,
-          desktop: desktop,
-          mornye: mornye,
-          librarySection: 'albums',
-        );
-        final container = ProviderScope.containerOf(
-          tester.element(find.byType(QueueTab)),
-        );
-        container
-            .read(settingsProvider.notifier)
-            .setHistorySortMode('year-desc');
-        for (var i = 0; i < 20; i++) {
-          await tester.pump(const Duration(milliseconds: 50));
-        }
-        final grid = find.byType(AnimatedLibrarySliverGrid);
-        final delegate =
-            tester.widget<AnimatedLibrarySliverGrid>(grid).delegate
-                as SliverChildBuilderDelegate;
-        expect(delegate.childCount, 3);
-        expect(
-          [
-            for (var i = 0; i < delegate.childCount!; i++)
-              delegate.builder(tester.element(grid), i)!.key,
-          ],
-          [
-            const ValueKey('local_new|artist'),
-            const ValueKey('Old|Artist'),
-            const ValueKey('local_unknown|artist'),
-          ],
-        );
         expect(tester.takeException(), isNull);
       });
 
@@ -932,37 +854,6 @@ void main() {
     });
   }
 
-  for (final mornye in [false, true]) {
-    testWidgets('an unsearched song plays on into the loaded Songs list '
-        '(Mornye: $mornye)', (tester) async {
-      final lists = <LibrarySongListRequest>[];
-      final player = _Playback();
-      await pumpLibrary(
-        tester,
-        mornye: mornye,
-        dates: [DateTime(2026, 1, 12), DateTime(2026, 1, 11), DateTime(2026)],
-        overrides: [
-          playbackProvider.overrideWith(() => player),
-          librarySongListProvider.overrideWith((ref, request) async {
-            lists.add(request);
-            return const [];
-          }),
-        ],
-      );
-      // A tap on the song plays it, as its Play button did.
-      await tester.tap(find.text('Song 1').hitTestable());
-      for (var i = 0; i < 10; i++) {
-        await tester.pump(const Duration(milliseconds: 50));
-      }
-
-      expect(lists, isEmpty);
-      expect(player.queues, [
-        ['/music/song-0.flac', '/music/song-1.flac', '/music/song-2.flac'],
-      ]);
-      expect(player.starts, [1]);
-      expect(tester.takeException(), isNull);
-    });
-  }
 
   testWidgets('Mornye keeps its filter button', (tester) async {
     await pumpLibrary(tester, mornye: true);
@@ -972,55 +863,4 @@ void main() {
     expect(find.text(l10n.libraryFilterTitle), findsOneWidget);
   });
 
-  testWidgets('month headers are start-aligned text headers', (tester) async {
-    final now = DateTime.now();
-    await pumpLibrary(tester, dates: [DateTime(2020, 1, 10), now]);
-    final handle = tester.ensureSemantics();
-    final colors = Theme.of(tester.element(find.byType(QueueTab))).colorScheme;
-
-    for (final label in [DateFormat.yMMMM('en').format(now), 'January 2020']) {
-      final header = find.text(label);
-      expect(tester.widget<Text>(header).style?.color, colors.primary);
-      final band = find
-          .ancestor(of: header, matching: find.byType(ColoredBox))
-          .first;
-      expect(
-        tester.getRect(header).left,
-        moreOrLessEquals(tester.getRect(band).left + 20),
-      );
-      expect(tester.getSemantics(header), isSemantics(isHeader: true));
-    }
-    handle.dispose();
-  });
-
-  testWidgets('a rebuild with unchanged rows reuses the month sections', (
-    tester,
-  ) async {
-    await pumpLibrary(
-      tester,
-      dates: [
-        for (var day = 1; day <= 6; day++) DateTime(2026, 3, day),
-        DateTime(2025, 12, 24),
-      ],
-    );
-    final sectionList = find.byWidgetPredicate(
-      (widget) => widget.runtimeType.toString() == '_LibrarySectionList',
-    );
-    // Read the private list's sections without adding a test hook.
-    List<Object?> sections() =>
-        // ignore: avoid_dynamic_calls
-        (tester.widget(sectionList) as dynamic).sections as List<Object?>;
-    final widgetBefore = tester.widget(sectionList);
-    final before = sections();
-    expect(before, hasLength(2));
-
-    // Badge text is display-only: the Library rebuilds with the same rows.
-    ProviderScope.containerOf(tester.element(find.byType(QueueTab)))
-        .read(settingsProvider.notifier)
-        .setLibraryQualityLabelMode(AppSettings.libraryQualityLabelFileFormat);
-    await tester.pump();
-
-    expect(tester.widget(sectionList), isNot(same(widgetBefore)));
-    expect(sections(), same(before));
-  });
 }

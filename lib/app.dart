@@ -10,12 +10,6 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/equalizer_provider.dart';
 import 'package:sistrum/services/app_navigation_service.dart';
 import 'package:sistrum/services/app_orientation.dart';
-import 'package:sistrum/services/link/client/link_client_controller.dart';
-import 'package:sistrum/services/link/desktop/link_desktop_host.dart';
-import 'package:sistrum/services/link/features/link_phone_features.dart';
-import 'package:sistrum/services/link/link_source_presence.dart';
-import 'package:sistrum/services/link/sync/link_sound_sync_runner.dart';
-import 'package:sistrum/services/link/sync/link_sync_runner.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/dynamic_color_wrapper.dart';
 import 'package:sistrum/l10n/l10n.dart';
@@ -27,7 +21,6 @@ import 'package:sistrum/widgets/android_keyboard_lifecycle.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/desktop/desktop_shortcuts.dart';
 import 'package:sistrum/widgets/desktop/library_drop_target.dart';
-import 'package:sistrum/widgets/link/link_actions.dart';
 import 'package:sistrum/widgets/mornye_glass_preparation.dart';
 import 'package:sistrum/widgets/playback_feedback.dart';
 import 'package:sistrum/widgets/tv_navigation.dart';
@@ -68,8 +61,8 @@ final _routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const TutorialScreen(),
       ),
     ],
-    // Safety net: if a deep link URL (e.g. Spotify/Deezer) somehow reaches
-    // GoRouter, redirect to home instead of showing "Page Not Found".
+    // Safety net: if an unknown deep link reaches GoRouter, redirect to home
+    // instead of showing "Page Not Found".
     errorBuilder: (context, state) => const MainShell(),
   );
 });
@@ -263,19 +256,6 @@ class SistrumApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Keeps the equalizer loaded for the app's lifetime without rebuilding.
     ref.listen(equalizerProvider, (_, _) {});
-    // On phones, keeps the link to a paired computer, its sync and the
-    // remote control features running.
-    if (ref.read(linkClientSupportedProvider)) {
-      ref.listen(linkClientControllerProvider, (_, _) {});
-      ref.listen(linkSyncRunnerProvider, (_, _) {});
-      ref.listen(linkSoundSyncRunnerProvider, (_, _) {});
-      ref.listen(linkPhoneFeaturesProvider, (_, _) {});
-      ref.listen(linkTransferOfferNoticesProvider, (_, _) {});
-      // Hides a computer's songs while it is not connected.
-      ref.listen(linkSourcePresenceProvider, (_, _) {});
-      // Shares this phone with other phones when the owner turned it on.
-      if (!isDesktopPlatform) ref.listen(linkDesktopHostProvider, (_, _) {});
-    }
     final router = ref.watch(_routerProvider);
     final localeString = ref.watch(settingsProvider.select((s) => s.locale));
     final heroAnimationsEnabled = ref.watch(

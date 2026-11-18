@@ -17,7 +17,6 @@ import 'package:sistrum/services/app_state_database.dart';
 import 'package:sistrum/services/autoplay_personalization.dart';
 import 'package:sistrum/services/autoplay_ranker.dart';
 import 'package:sistrum/services/autoplay_taste.dart';
-import 'package:sistrum/services/cover_store.dart';
 import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
 import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_collections_database.dart';
@@ -25,8 +24,6 @@ import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_schema.dart';
 import 'package:sistrum/services/listening_statistics.dart';
 import 'package:sistrum/services/music_player_service.dart';
-import 'package:sistrum/services/network_metadata_service.dart';
-import 'package:sistrum/services/network_storage_service.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/services/playback_deck.dart';
 import 'package:sistrum/services/source_metadata_events.dart';
@@ -208,15 +205,6 @@ class _MeasuredDeck implements PlaybackDeck {
   }
 
   @override
-  Future<void> setNetworkSource(String url, {bool arriving = false}) {
-    source = url;
-    return trace.call(
-      'prepare',
-      () => inner.setNetworkSource(url, arriving: arriving),
-    );
-  }
-
-  @override
   Future<void> cancelPreparation() =>
       trace.call('cancel_prepare', inner.cancelPreparation);
   @override
@@ -370,33 +358,8 @@ void main() {
     late MusicPlayerHandler handler;
     PlayerMetadataController? metadata;
     StreamSubscription<MediaItem?>? items;
-    HttpServer? server;
-    NetworkStorageService? storage;
-    NetworkMetadataService? networkMetadata;
-    var backendInitialized = false;
     try {
       final media = await Directory('${root.path}/media').create();
-      final extensions = await Directory('${root.path}/extensions').create();
-      final data = await Directory('${root.path}/data').create();
-      final covers = await Directory('${root.path}/covers').create();
-      final networkCache = await Directory(
-        '${root.path}/network_metadata',
-      ).create();
-      await PlatformBridge.initExtensionSystem(
-        extensions.path,
-        data.path,
-        masterKey: base64Encode(List<int>.filled(32, 1)),
-        lyricsProviders: const [],
-        lyricsFetchOptions: const {},
-        allowedDirectories: [
-          media.path,
-          cache.path,
-          covers.path,
-          networkCache.path,
-        ],
-      );
-      backendInitialized = true;
-      await PlatformBridge.setAllowPrivateNetwork(true);
       final audio = await _taggedAudio(media);
       final setupCover = File('${cache.path}/fixture-cover-check.png');
       final coverResult = await PlatformBridge.extractCoverToFile(
@@ -444,17 +407,6 @@ void main() {
       final native = const PlaybackDependencies();
       final decks = <_MeasuredDeck>[];
       final recorderClock = Stopwatch()..start();
-      storage = NetworkStorageService(
-        read: () async => null,
-        write: (_) async {},
-        ensureAccess: (_) async {},
-      );
-      final network = storage;
-      networkMetadata = NetworkMetadataService(
-        storage: network,
-        cacheDirectory: () async => root,
-      );
-      final networkReader = networkMetadata;
       Future<Map<String, dynamic>> readFile(
         String path, {
         String? displayName,
@@ -480,11 +432,6 @@ void main() {
             return deck;
           },
           readMetadata: readFile,
-          readNetworkMetadata: (source) =>
-              trace.call('network_metadata', () => networkReader.read(source)),
-          resolveNetworkSource: (source) =>
-              trace.call('resolve_network', () => network.resolve(source)),
-          recoverMissingFile: (_) async => null,
           sessionDatabase: AppStateDatabase.withDatabase(sessionDb),
           libraryDatabase: LibraryDatabase.withDatabase(
             libraryDb,
@@ -502,7 +449,6 @@ void main() {
               () => writeListeningDeltas(listeningDb, deltas),
             ),
           ),
-          coverStore: CoverStore(directory: () async => covers),
           createPersonalization: () => AutoplayPersonalization(
             load: () async => null,
             save: (_) async {},
@@ -519,9 +465,7 @@ void main() {
         metadataEvents: SourceMetadataEvents(),
         readMetadata: (path) => trace.call(
           'player_metadata',
-          () => path.startsWith('network://')
-              ? networkReader.read(path)
-              : readPlaybackFileMetadataWithRetry(path),
+          () => readPlaybackFileMetadataWithRetry(path),
         ),
         parseLyrics: (raw) => trace.call(
           'lyrics_parse',
@@ -686,77 +630,6 @@ void main() {
         repetitions: 3,
       );
 
-      final payload = await audio.readAsBytes();
-      server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
-      final requests = <Map<String, Object?>>[];
-      var transferred = 0;
-      Completer<void>? slowResponse;
-      server.listen((request) async {
-        final range = request.headers.value('range');
-        final part = networkByteRange(range, payload.length);
-        final length = part.end - part.start + 1;
-        requests.add({
-          'method': request.method,
-          'range': range,
-          'path': request.uri.path,
-          'elapsed_ms': trace.clock.elapsedMicroseconds / 1000,
-          'bytes': request.method == 'HEAD' ? 0 : length,
-        });
-        if (request.uri.path.startsWith('/slow-')) {
-          await slowResponse?.future;
-        }
-        request.response.statusCode = range == null ? 200 : 206;
-        request.response.headers.set('Content-Type', 'audio/flac');
-        request.response.headers.set('Accept-Ranges', 'bytes');
-        if (range != null) {
-          request.response.headers.set(
-            'Content-Range',
-            'bytes ${part.start}-${part.end}/${payload.length}',
-          );
-        }
-        request.response.contentLength = length;
-        if (request.method != 'HEAD') {
-          transferred += length;
-          request.response.add(
-            Uint8List.sublistView(payload, part.start, part.end + 1),
-          );
-        }
-        try {
-          await request.response.close();
-        } on IOException {
-          // Replaced sources may close their HTTP reader during cancellation.
-        }
-      });
-      await network.save(
-        NetworkConnection(
-          id: 'pipeline',
-          name: 'Pipeline fixture',
-          protocol: NetworkProtocol.http,
-          address: 'http://127.0.0.1:${server.port}/',
-        ),
-      );
-      var networkRun = 0;
-      await probe.measure(
-        'network_resolve_native_prepare_shared_metadata_and_tail',
-        () async {
-          final requestStart = requests.length;
-          final bytesBefore = transferred;
-          final source = NetworkStorageService.source(
-            'pipeline',
-            'network-${networkRun++}.flac',
-          );
-          await clickAndWait('network_cold_$networkRun', [
-            track('network-$networkRun', source),
-          ]);
-          runs.last.addAll({
-            'http_requests': requests.skip(requestStart).toList(),
-            'http_bytes': transferred - bytesBefore,
-          });
-        },
-        warmup: () async {},
-        repetitions: 3,
-      );
-
       await probe.measure(
         'rapid_track_change_and_seek',
         () async {
@@ -804,73 +677,20 @@ void main() {
         runtime.settings.copyWith(playbackNormalization: false),
       );
       await probe.wait(const Duration(milliseconds: 200));
-      var cancelRun = 0;
-      await probe.measure(
-        'cancel_inflight_native_prepare',
-        () async {
-          final before = Map<String, int>.of(trace.counters);
-          final eventStart = trace.events.length;
-          slowResponse = Completer<void>();
-          final slowPath = '/slow-${cancelRun++}.flac';
-          final slow = handler.setQueueAndPlay([
-            track(
-              'slow-$cancelRun',
-              'http://127.0.0.1:${server!.port}$slowPath',
-            ),
-          ]);
-          try {
-            await _waitUntil(
-              () => requests.any((request) => request['path'] == slowPath),
-              'native HTTP preparation request',
-            );
-            trace.mark('cancel_click');
-            final elapsed = Stopwatch()..start();
-            await handler
-                .setQueueAndPlay([track('replacement', audio.path)])
-                .timeout(const Duration(seconds: 3));
-            trace.mark('cancel_replacement_ready');
-            expect(handler.mediaItem.value?.id, 'replacement');
-            expect(
-              handler.playbackState.value.processingState,
-              AudioProcessingState.ready,
-            );
-            expect(handler.playbackState.value.playing, isTrue);
-            runs.add({
-              'name': 'cancel_inflight_prepare',
-              'replacement_ms_while_old_http_response_held':
-                  elapsed.elapsedMicroseconds / 1000,
-              'counts': trace.delta(before),
-              'events': trace.events.skip(eventStart).toList(),
-            });
-          } finally {
-            slowResponse!.complete();
-            slowResponse = null;
-            await slow;
-          }
-          await probe.wait(const Duration(milliseconds: 300));
-          expect(handler.mediaItem.value?.id, 'replacement');
-        },
-        warmup: () async {},
-        repetitions: 3,
-      );
-
       await handler.pause();
       await probe.wait(const Duration(milliseconds: 500));
       await probe.measure(
         'paused_idle_tail',
         () async {
           final before = Map<String, int>.of(trace.counters);
-          final requestStart = requests.length;
           await probe.wait(const Duration(seconds: 2));
           final delta = trace.delta(before);
           expect(delta['normalization_metadata_start'] ?? 0, 0);
           expect(delta['player_metadata_start'] ?? 0, 0);
           expect(delta['native_position'] ?? 0, 0);
-          expect(requests.length, requestStart);
           runs.add({
             'name': 'paused_idle',
             'counts': delta,
-            'http_requests': requests.length - requestStart,
           });
         },
         warmup: () async {},
@@ -883,15 +703,13 @@ void main() {
         metadata: {
           'scope':
               'Widget click through real MusicPlayerHandler, real default native deck, Rust metadata and lyric parsing, embedded artwork, private native SQLite and loopback range HTTP. AudioService system-session initialization and the full app shell are excluded. Playback volume is zero; exclusive output, AutoMix, gapless and online lyrics are disabled.',
-          'audio_bytes': payload.length,
+          'audio_bytes': audio.lengthSync(),
           'native_output_preflight': output,
           'fixture_cover_extraction_verified': true,
           'operation_runs': runs,
           'session_sqlite_total_changes': await sessionDb.rawQuery(
             'SELECT total_changes() AS changes',
           ),
-          'http_requests': requests.length,
-          'http_bytes': transferred,
           'stage_timing_basis':
               'Monotonic timestamps at production boundaries. Native playing is a deck event; positive position requires a native player position event, never optimistic handler state.',
         },
@@ -900,14 +718,10 @@ void main() {
       await items?.cancel();
       metadata?.dispose();
       await runtime?.dispose();
-      await networkMetadata?.cancelPending();
-      await storage?.dispose();
-      await server?.close(force: true);
       await DownloadedEmbeddedCoverResolver.resetMemoryStateForTesting();
       DownloadedEmbeddedCoverResolver.setPersistentCacheDirectoryForTesting(
         null,
       );
-      if (backendInitialized) await PlatformBridge.cleanupExtensions();
       for (final database in databases.reversed) {
         await database.close();
       }

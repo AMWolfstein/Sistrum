@@ -1,6 +1,5 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sistrum/models/download_history.dart';
 import 'package:sistrum/services/sqlite_helpers.dart' as sqlite;
 import 'package:sistrum/utils/ios_container_paths.dart';
 
@@ -63,51 +62,6 @@ Future<int?> migrateIosHistoryPaths(
   await prefs.setString('ios_last_container_path', containerPath);
   await prefs.setInt(versionKey, version);
   return updated;
-}
-
-/// A delayed probe owns only fields it changed on the file it inspected.
-/// Newer user edits and results for a replacement file remain authoritative.
-class HistoryMaintenanceUpdate {
-  const HistoryMaintenanceUpdate({
-    required this.original,
-    required this.updated,
-  });
-
-  final DownloadHistoryItem original;
-  final DownloadHistoryItem updated;
-
-  DownloadHistoryItem? mergeInto(DownloadHistoryItem current) {
-    if (current.id != original.id ||
-        current.filePath != original.filePath ||
-        !current.downloadedAt.isAtSameMomentAs(original.downloadedAt)) {
-      return null;
-    }
-    final before = original.toJson();
-    final next = current.toJson();
-    final keepLyrics =
-        current.lyricsMetadataScanVersion != original.lyricsMetadataScanVersion;
-    final keepReplayGain =
-        current.replayGainMetadataScanVersion !=
-        original.replayGainMetadataScanVersion;
-    for (final field in updated.toJson().entries) {
-      if (field.value == before[field.key] ||
-          next[field.key] != before[field.key]) {
-        continue;
-      }
-      if (keepLyrics &&
-          (field.key == 'hasLyrics' ||
-              field.key == 'lyricsMetadataScanVersion')) {
-        continue;
-      }
-      if (keepReplayGain &&
-          (field.key == 'hasReplayGain' ||
-              field.key == 'replayGainMetadataScanVersion')) {
-        continue;
-      }
-      next[field.key] = field.value;
-    }
-    return DownloadHistoryItem.fromJson(next);
-  }
 }
 
 /// Called inside a transaction. Delayed metadata/SAF probes must never insert

@@ -31,7 +31,6 @@ class MotionArtworkFolder {
       String path,
     )?
     createDocument,
-    Future<bool> Function(String target, File file)? upload,
     bool? documents,
   }) : _directory = directory ?? MotionArtworkStore.defaultDirectory,
        _sibling = sibling ?? _findSibling,
@@ -41,7 +40,6 @@ class MotionArtworkFolder {
              ? null
              : (treeUri, relativeDir, name, _, path) =>
                    createDocument(treeUri, relativeDir, name, path),
-         upload: upload,
        ),
        _documents = documents ?? Platform.isAndroid;
 

@@ -87,7 +87,6 @@ void main() {
         'song-2',
       ]);
       expect(restored.keptOriginalIndices, [0, 1, 2]);
-      expect(restored.sourceRelocated, isFalse);
     } finally {
       await second.close();
     }

@@ -17,7 +17,6 @@ import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/player_artwork_theme.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
-import 'package:sistrum/widgets/desktop/desktop_downloads_button.dart';
 import 'package:sistrum/widgets/desktop/desktop_player_bar.dart';
 import 'package:sistrum/widgets/expressive_playback_transport.dart';
 import 'package:sistrum/widgets/mini_player.dart';
@@ -75,10 +74,7 @@ void main() {
   tearDown(() => PlayerArtworkTheme.debugPalette = null);
 
   test('palette sources follow the artwork forms the player shows', () {
-    expect(
-      coverImageSource('https://example.test/a.jpg'),
-      'https://example.test/a.jpg',
-    );
+    expect(coverImageSource('https://example.test/a.jpg'), isNull);
     expect(coverImageSource(Uri.file(_coverA).toString()), _coverA);
     expect(coverImageSource(_coverA), _coverA);
     expect(coverImageSource('content://media/cover'), isNull);
@@ -430,13 +426,6 @@ void main() {
       );
       expect(transport.colorScheme, cover);
       expect(transport.dense, isTrue);
-      // Downloads are app chrome hosted in the bar.
-      expect(
-        Theme.of(
-          tester.element(find.byType(DesktopDownloadsButton)),
-        ).colorScheme,
-        AppTheme.light().colorScheme,
-      );
     });
 
     testWidgets('the Material mini player takes the cover scheme', (

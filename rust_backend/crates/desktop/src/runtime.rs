@@ -3,11 +3,9 @@
 
 use crate::backend::Backend;
 use crate::call::{Args, CallError, CallResult, CallState, Reply};
-use crate::cast::Cast;
 use crate::discord::Discord;
 use crate::events::Events;
 use crate::keep_awake::KeepAwake;
-use crate::link::Link;
 use crate::pool::Pool;
 use crate::watcher::LibraryWatcher;
 use crate::{crash_log, dispatch, kind};
@@ -71,8 +69,6 @@ pub(crate) struct Runtime {
     pub(crate) keep_awake: KeepAwake,
     pub(crate) discord: Discord,
     pub(crate) watcher: LibraryWatcher,
-    pub(crate) link: Link,
-    pub(crate) cast: Cast,
     pool: Pool,
     calls: Mutex<HashMap<u64, Arc<CallState>>>,
 }
@@ -99,8 +95,6 @@ pub(crate) fn init(callback: Option<SistrumCallback>, config: &[u8]) {
         keep_awake: KeepAwake::default(),
         discord: Discord::default(),
         watcher: LibraryWatcher::default(),
-        link: Link::default(),
-        cast: Cast::default(),
         pool: Pool::default(),
         calls: Mutex::new(HashMap::new()),
     });

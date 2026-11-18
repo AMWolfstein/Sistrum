@@ -7,7 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
@@ -58,11 +57,6 @@ class _Library extends LocalLibraryNotifier {
   LocalLibraryState build() => LocalLibraryState();
 }
 
-class _History extends DownloadHistoryNotifier {
-  @override
-  DownloadHistoryState build() => DownloadHistoryState();
-}
-
 void main() {
   for (final mornye in [false, true]) {
     testWidgets('Liked Songs reopens with local artwork (Mornye: $mornye)', (
@@ -100,17 +94,6 @@ void main() {
           scannedAt: DateTime.utc(2026),
         ),
       ).toTrack();
-      final downloaded = UnifiedLibraryItem.fromDownloadHistory(
-        DownloadHistoryItem(
-          id: 'downloaded-song',
-          trackName: 'Downloaded song',
-          artistName: 'Downloaded artist',
-          albumName: 'Downloaded album',
-          filePath: '/downloads/song.flac',
-          service: 'example',
-          downloadedAt: DateTime.utc(2026),
-        ),
-      ).toTrack();
       final database = _Database();
       final container = ProviderContainer(
         overrides: [
@@ -119,10 +102,6 @@ void main() {
           ),
           settingsProvider.overrideWith(FixedSettingsNotifier.new),
           localLibraryProvider.overrideWith(_Library.new),
-          downloadHistoryProvider.overrideWith(_History.new),
-          downloadHistoryVisibleBatchExistsProvider.overrideWith(
-            (ref, request) => const {},
-          ),
           localLibraryCoverProvider.overrideWith((ref, request) async => null),
           currentMediaItemProvider.overrideWithBuild(
             (ref, notifier) => Stream.value(null),
@@ -131,7 +110,6 @@ void main() {
       );
       try {
         final collections = container.read(libraryCollectionsProvider.notifier);
-        await collections.toggleLoved(downloaded);
         await tester.pumpWidget(
           UncontrolledProviderScope(
             container: container,
@@ -164,24 +142,18 @@ void main() {
           expect(tester.takeException(), isNull);
         }
 
-        await open();
-        expect(find.text('Downloaded song'), findsOneWidget);
-        await pageBack(tester);
-        await tester.pumpAndSettle();
         await collections.toggleLoved(local);
         // Reload the persisted JSON so the test also covers reopening after
         // collection hydration, rather than only the in-memory addition.
         container.invalidate(libraryCollectionsProvider);
         await open();
-        expect(container.read(libraryCollectionsProvider).loved, hasLength(2));
+        expect(container.read(libraryCollectionsProvider).loved, hasLength(1));
         expect(find.text('Local song'), findsOneWidget);
-        expect(find.text('Downloaded song'), findsOneWidget);
-        expect(find.byType(TrackCard), findsNWidgets(2));
+        expect(find.byType(TrackCard), findsOneWidget);
         await pageBack(tester);
         await tester.pumpAndSettle();
         await open();
         expect(find.text('Local song'), findsOneWidget);
-        expect(find.text('Downloaded song'), findsOneWidget);
       } finally {
         await tester.pumpWidget(const SizedBox());
         container.dispose();

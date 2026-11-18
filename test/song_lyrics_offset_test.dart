@@ -8,11 +8,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/theme_settings.dart';
-import 'package:sistrum/providers/lyrics_translation_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/song_lyrics_offset_provider.dart';
 import 'package:sistrum/providers/theme_provider.dart';
-import 'package:sistrum/services/lyrics_translation.dart';
 import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
@@ -20,7 +18,6 @@ import 'package:sistrum/widgets/app_slider.dart';
 import 'package:sistrum/widgets/lyrics_options_button.dart';
 import 'package:sistrum/widgets/lyrics_size_setting.dart';
 
-import 'lyrics_translation_provider_test.dart' show MemoryLyricsAiKeyStore;
 import 'support/fixed_settings.dart';
 import 'support/tooltip_finder.dart';
 
@@ -37,20 +34,6 @@ final _item = MediaItem(
 );
 
 final _song = songLyricsOffsetKey('Example Song', 'Example Artist');
-
-class _MemoryCache extends LyricsTranslationCache {
-  @override
-  Future<LyricsTranslationResult?> read(String key) async => null;
-
-  @override
-  Future<void> write(String key, LyricsTranslationResult result) async {}
-
-  @override
-  Future<int> count() async => 0;
-
-  @override
-  Future<void> clear() async {}
-}
 
 /// A notifier on its own container, reading and writing [prefs].
 ProviderContainer _container({int Function()? clock}) {
@@ -163,11 +146,7 @@ void main() {
       addTearDown(metadata.dispose);
       await tester.runAsync(() => metadata.load(_item));
       final container = ProviderContainer(
-        overrides: [
-          settingsProvider.overrideWith(FixedSettingsNotifier.new),
-          lyricsAiKeyStoreProvider.overrideWithValue(MemoryLyricsAiKeyStore()),
-          lyricsTranslationCacheProvider.overrideWithValue(_MemoryCache()),
-        ],
+        overrides: [settingsProvider.overrideWith(FixedSettingsNotifier.new)],
       );
       addTearDown(container.dispose);
       await tester.pumpWidget(

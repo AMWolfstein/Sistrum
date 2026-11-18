@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/models/download_history.dart';
+import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/library_directory_provider.dart';
@@ -53,15 +53,14 @@ final _paths = {
   'loose': '$_root/Loose.flac',
 };
 
-UnifiedLibraryItem _item(String id) => UnifiedLibraryItem.fromDownloadHistory(
-  DownloadHistoryItem(
+UnifiedLibraryItem _item(String id) => UnifiedLibraryItem.fromLocalLibrary(
+  LocalLibraryItem(
     id: id,
     trackName: 'Song $id',
     artistName: 'Artist',
     albumName: 'Album',
     filePath: _paths[id]!,
-    service: 'example-provider',
-    downloadedAt: DateTime(2026, 10, 24),
+    scannedAt: DateTime(2026, 10, 24),
   ),
 );
 
@@ -258,21 +257,19 @@ void main() {
       'or a reload rebuilds them', (tester) async {
     SharedPreferences.setMockInitialValues({});
     const count = 3000;
-    UnifiedLibraryItem song(String id) =>
-        UnifiedLibraryItem.fromDownloadHistory(
-          DownloadHistoryItem(
-            id: id,
-            trackName: 'Song $id',
-            artistName: 'Artist',
-            albumName: 'Album',
-            filePath: '$_root/Flat/$id.flac',
-            service: 'example-provider',
-            downloadedAt: DateTime(2026, 10, 24),
-            bitDepth: 24,
-            sampleRate: 96000,
-            format: 'flac',
-          ),
-        );
+    UnifiedLibraryItem song(String id) => UnifiedLibraryItem.fromLocalLibrary(
+      LocalLibraryItem(
+        id: id,
+        trackName: 'Song $id',
+        artistName: 'Artist',
+        albumName: 'Album',
+        filePath: '$_root/Flat/$id.flac',
+        scannedAt: DateTime(2026, 10, 24),
+        bitDepth: 24,
+        sampleRate: 96000,
+        format: 'flac',
+      ),
+    );
     await _pump(
       tester,
       desktop: true,
@@ -299,7 +296,7 @@ void main() {
     final table = tester.widget<SliverTrackTable>(
       find.byType(SliverTrackTable),
     );
-    expect(table.selectedIds, {'dl_0'});
+    expect(table.selectedIds, {'local_0'});
     expect(table.rows, same(loaded));
 
     final container = ProviderScope.containerOf(

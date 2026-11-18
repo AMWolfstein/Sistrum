@@ -371,7 +371,7 @@ class _MiniPlayerLyricsState extends ConsumerState<_MiniPlayerLyrics>
     builder: (context, _) {
       final colorScheme = Theme.of(context).colorScheme;
       final textTheme = Theme.of(context).textTheme;
-      if (metadata.loading || metadata.searchingOnline) {
+      if (metadata.loading) {
         return const Center(child: AppLoadingIndicator(size: 20));
       }
       final lyrics = metadata.lyrics;

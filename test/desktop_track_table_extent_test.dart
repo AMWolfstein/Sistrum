@@ -195,7 +195,6 @@ void main() {
                   explicit: i == 1 || i == 4,
                   audioModes: i == 2 || i == 4 ? 'DOLBY_ATMOS' : null,
                 ),
-                isInHistory: i >= 3,
               ),
               trailing: i.isEven
                   ? const SizedBox.square(

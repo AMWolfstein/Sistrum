@@ -137,57 +137,6 @@ void main() {
       expect(ShellNavigationService.forwardHistoryForTesting, isEmpty);
     });
 
-    test('Destination changes reported by the shell enter the history', () {
-      addTearDown(() {
-        ShellNavigationService.syncState(
-          currentTabIndex: 0,
-          showRepoTab: false,
-        );
-        ShellNavigationService.resetHistory();
-      });
-      final requested = <ShellTab>[];
-      ShellNavigationService.registerTabSelectionHandler(
-        owner: 'test-sync',
-        handler: requested.add,
-      );
-      addTearDown(
-        () => ShellNavigationService.unregisterTabSelectionHandler('test-sync'),
-      );
-      ShellNavigationService.syncState(currentTabIndex: 0, showRepoTab: true);
-      ShellNavigationService.resetHistory();
-
-      // Mornye with the Store: Home, Library, Store, Search, Settings.
-      for (final index in [1, 2, 3]) {
-        ShellNavigationService.syncState(
-          currentTabIndex: index,
-          showRepoTab: true,
-          showSearchTab: true,
-        );
-      }
-      expect(ShellNavigationService.currentTabForTesting, ShellTab.search);
-      expect(ShellNavigationService.backHistoryForTesting, [
-        ShellTab.home,
-        ShellTab.library,
-        ShellTab.repository,
-      ]);
-
-      // Hiding the Store moves Search to index 2; it is the same destination.
-      ShellNavigationService.syncState(
-        currentTabIndex: 2,
-        showRepoTab: false,
-        showSearchTab: true,
-      );
-      expect(ShellNavigationService.backHistoryForTesting, hasLength(3));
-
-      // Back skips the Store, which is no longer shown.
-      expect(ShellNavigationService.navigateBack(), isTrue);
-      expect(requested, [ShellTab.library]);
-      expect(ShellNavigationService.currentTabForTesting, ShellTab.library);
-      expect(ShellNavigationService.forwardHistoryForTesting, [
-        ShellTab.search,
-      ]);
-    });
-
     test('Boundary conditions for empty history', () {
       ShellNavigationService.resetHistory(initialTab: ShellTab.home);
       expect(ShellNavigationService.navigateBack(), isFalse);

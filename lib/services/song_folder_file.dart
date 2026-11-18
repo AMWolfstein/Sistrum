@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:path/path.dart' as p;
-import 'package:sistrum/services/network_storage_service.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/utils/logger.dart';
@@ -26,7 +25,7 @@ String? localSongPath(String song) {
 
 /// Writes one kind of file that belongs to a whole album, such as its cover,
 /// into the folder holding one of the album's songs: a local folder, an
-/// Android document folder or a network folder. A file already there under
+/// Android document folder. A file already there under
 /// the same name stays.
 class SongFolderFile {
   SongFolderFile({
@@ -38,9 +37,7 @@ class SongFolderFile {
       String path,
     )?
     createDocument,
-    Future<bool> Function(String target, File file)? upload,
-  }) : _createDocument = createDocument ?? _createSafDocument,
-       _upload = upload ?? _uploadToNetwork;
+  }) : _createDocument = createDocument ?? _createSafDocument;
 
   final Future<bool> Function(
     String treeUri,
@@ -50,14 +47,13 @@ class SongFolderFile {
     String path,
   )
   _createDocument;
-  final Future<bool> Function(String target, File file) _upload;
   final _saving = <String, Future<bool>>{};
   final _done = <String>{};
   static final _log = AppLogger('SongFolderFile');
 
   /// Saves what [content] gives into the folder holding [song]: a local
-  /// path, an Android document in [treeUri]/[relativeDir], or a network
-  /// song. True when a file was written.
+  /// path or an Android document in [treeUri]/[relativeDir]. True when a
+  /// file was written.
   ///
   /// Songs of one album finish together: [content] is asked for the first
   /// of a folder, the rest wait for it, and later ones in this session do
@@ -70,19 +66,7 @@ class SongFolderFile {
   }) {
     final String folder;
     final Future<bool> Function(SongFolderContent content) write;
-    if (song.startsWith('network://')) {
-      final uri = Uri.tryParse(song);
-      if (uri == null || uri.host.isEmpty) return Future.value(false);
-      final parent = p.posix.dirname(uri.pathSegments.join('/'));
-      folder = '${uri.host}\n$parent';
-      write = (content) => _upload(
-        NetworkStorageService.source(
-          uri.host,
-          parent == '.' ? content.name : '$parent/${content.name}',
-        ),
-        content.file,
-      );
-    } else if (isContentUri(song)) {
+    if (isContentUri(song)) {
       if (treeUri == null || treeUri.isEmpty || relativeDir == null) {
         return Future.value(false);
       }
@@ -156,27 +140,4 @@ class SongFolderFile {
     return uri.isNotEmpty && result['already_exists'] != true;
   }
 
-  static Future<bool> _uploadToNetwork(String target, File file) async {
-    final storage = NetworkStorageService.instance;
-    final uri = Uri.parse(target);
-    final path = networkPath(uri.pathSegments.join('/'));
-    final slash = path.lastIndexOf('/');
-    final parent = slash < 0 ? '' : path.substring(0, slash + 1);
-    final name = path.substring(slash + 1).toLowerCase();
-    // Looking by name first: an upload over an existing file would download
-    // it to compare, and a different one is the user's to keep.
-    final entries = await storage.list(
-      await storage.connection(uri.host),
-      parent,
-    );
-    if (entries.any((e) => e.name.toLowerCase() == name)) return false;
-    await storage.publishUpload(
-      target,
-      file,
-      'folder-file:$target',
-      checkpoint: () {},
-      progress: (_, _) {},
-    );
-    return true;
-  }
 }

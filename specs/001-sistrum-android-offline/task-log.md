@@ -246,3 +246,52 @@ Update check and announcement (`main_shell_startup_prompts.dart:94-140`, `update
 ### Review
 Round 1 (independent, read-only; same reviewer as T001-T003, resumed): NEEDS_FIXES. Blocking: the Kotlin volume guard turned documents of every non-ExternalStorage provider (`audio:`, `msf:`, `document:`, `home:`) into "unknown", which the bool wrapper read as missing (a regression on a supported path); also the planned commit subject was 76 characters. Advisory: log counts and the excluded-file wording. Fixes: authority-scoped `safVolumeUuidToCheck`, JUnit tests, corrected counts and Not-verified list, subject `fix(android): keep unavailable files on offline restart (M001-T004)`.
 Round 2 (independent, read-only): PASS. The reviewer re-grepped every `safExists`/`safExistsState` caller, checked uuid edge cases, recounted `t004e_full.json` (7,961 results: 7,883 pass / 25 skip / 53 fail) and confirmed the desktop-table file was not executed. Unverified by the reviewer: device/SD-removal behavior, the Gradle JUnit run, airplane-mode startup, `desktop_library_table_rows_test.dart`, `android_background_playback` integration test.
+
+## M001-T005 — Remove online product features and dependencies
+
+Baseline `T004` commit. Workers: Haiku 5.5 (Dart/Kotlin/Rust/test workers on disjoint file sets, several rounds); the coordinator fixed a few regressions directly after rate-limit stops. Map refresh first: `python3 workflow/codegraph/code_tools.py update`. Not committed before the independent review.
+
+### What was removed
+- **Dart (`lib/`)**: downloads (queue, history, finalizer, folders, containers), extensions/Store/explore/search/online album and artist screens, Link (devices, sync), Cast, NAS/SMB/WebDAV/Subsonic, Discord, Last.fm/scrobbling, update checker and remote config, online lyrics (providers, translation, AI), metadata auto-fill and re-enrich, online previews, network cover loading/caches, `setNetworkSource` and network playback deck paths, About links/credits/social, desktop Help menu, settings fields and migrations for the removed features, 42+ unused l10n keys.
+- **Kotlin/Android**: Cast, Link, local-network, download/extension channels and arms, mDNS/NSD, share/deep-link intent filters for removed features, permissions for network/nearby devices. Merged release manifest checked (below).
+- **Rust (`rust_backend/`)**: crates `cast`, `link`, `network`, `providers` deleted; `extensions` reduced to a local-only backend (library scan, tags, cover, lyrics read/embed, logging; no JS runtime, no HTTP/TLS/socket code). 27 unused workspace dependencies removed; `Cargo.lock` updated (`--locked` passes). `crates/desktop` left the workspace (T006 deletes it).
+- **Packaging/CI/scripts**: Discord SDK action and `third_party/mornye_discord`, `third_party/discord` removed; CI Discord steps removed.
+- **Tests**: about 330 unit test files and 32 integration tests whose subject was removed were deleted (`git rm`); about 130 unit tests were adapted to local behaviour with their local assertions kept.
+
+### Kept on purpose (local behaviour)
+Local library scan, SAF/MediaStore, tag reading/editing, ReplayGain, local lyrics read (`getLyricsLRCWithSource(file_path)`, embedded and sidecar) and FLAC embed, sidecar export, playlists, loved, listening statistics, backup/restore, Media3/media_kit playback, system audio output picker, Mornye theme.
+
+### Regressions found by the test comparison and fixed
+The post-removal run showed many HEAD-passing tests failing. Real lib regressions fixed: ExpressiveButtonGroup `flexible` index after Download removal (playlist header overflow), a `_cast.active` guard removed leaving an unconditional `_userPaused = false` (Autoplay pause), Edit button before the file check answers, `_canDeleteFile`, `androidPlaybackInfo` init, Mornye track-sheet icon mapping, `library_cleanup` reading the removed download table, `durableCoverReference` (web URLs read as none), local `.lrc` export via the lyrics the screen reads, the legacy-source sentinel probe, Mornye mix banners restored on Home.
+
+### Product decisions the user should know
+- Files settings "reorganize files by rule" removed: its rule engine lived only in the download code.
+- No online lyrics search and no lyrics-provider settings. The lyrics-embed action had no local source at HEAD (its only non-embedded source was the online lookup), so its 6 embed-flow tests were removed; the local embed export call remains.
+- Collection header: Love and Add-to-playlist only; Download removed. Playlist selection bar had only Download and was removed.
+- About page: credits for online services, links and social removed; contributor rows not tappable.
+- 30 s previews, online covers, queue-count snackbar for downloads removed.
+- Cache settings: track-lookup, explore-feed and cover-cache rows removed.
+
+### Verification
+- `flutter analyze --no-pub`: exactly 1 issue, the known baseline info at `workflow/codegraph/fixtures/bridge/lib/api.dart:5`.
+- `flutter test` in 13 chunks of 40 files (490 files; `desktop_library_table_rows_test.dart` excluded, it stalls at baseline): 4,581 passed, 46 failed on the first full run; 45 are in the baseline failure set of `t004e_full.json` (53 environment/load failures, e.g. SQLite/fts5, path_provider, running as root); the one new failure (`listening_statistics_test` older web covers) was fixed with `durableCoverReference` and its tests adapted; the affected files pass when rerun.
+- Rust: `cargo check --workspace --all-targets --locked` rc=0; `cargo clippy --workspace --all-targets --locked -- -D warnings` rc=0; `cargo test --workspace --locked --no-fail-fast`: all pass (118+183+13+... 0 failed).
+- `cargo tree -p sistrum-mobile --target aarch64-linux-android --locked`: 317 lines, 0 matches for hyper, rustls, reqwest, tokio, hickory, mdns, smb, webdav, rquickjs, openssl, native-tls, socket2, h2, http, cookie.
+- Kotlin: `:app:compileReleaseKotlin --offline -Ptarget-platform=android-arm64 -x :app:buildRustBackend` BUILD SUCCESSFUL (JDK 25). UniFFI Kotlin bindings regenerated with `sistrum-bindgen`; removed exports absent, `getLyricsLrcWithSource` and `embedLyricsToFile` present.
+- Merged release manifest (`:app:processReleaseMainManifest`): no `INTERNET`, no Wi-Fi/Nearby/multicast permissions, no network share/deep-link intent filters. `ACCESS_NETWORK_STATE` is contributed by a dependency (Media3) and is accepted: it grants no network access. `FOREGROUND_SERVICE_DATA_SYNC` stays for the local background-work service (library scan).
+- `python3 workflow/work.py quality bridge verify`: FAILED with exactly 3 failed contracts, the same count as baseline (negative fixtures); 114 unresolved (no runtime tests supplied).
+
+### Residuals and not verified
+- Legacy-row guards for `network://` / `http(s)` in library SQL and `PlayableMedia.isNetwork`, Track online JSON fields (`deezerId`, `ServiceAvailability`, `headerVideoUrl`) and library album-artwork provider matching (`library_album_artwork.dart`, `album_artwork_match.dart`) remain; they need a schema/model decision.
+- Settings fields `downloadDirectory*` and `flutter_secure_storage` cleanup of retired secrets remain (privacy-positive).
+- Dead Kotlin plumbing `prepareRuntimeState`/`setRuntimeState`; `initExtensionSystem` still carries its name and a master key the backend now ignores.
+- `.gitignore` mentions `crates/network/src/roots.pem`; `scripts/build_rust_backend.sh` and desktop CI still build `crates/desktop`: T006.
+- Shells for non-Android platforms (iOS/macOS/Windows/Linux) still exist and were not built: T006.
+- Integration tests (`integration_test/`) analyze clean but were not run (no device, no Linux GTK).
+- Device behaviour (airplane mode, removable media, focus) NOT RUN: no device.
+- A stray empty file `/t005_tests_1_progress.md` was created at the filesystem root by a worker; deletion was blocked by the safety check and is left to the user.
+
+### Independent review (task-reviewer, round 1): PASS with advisory findings
+- Fixed before commit: `lib/widgets/motion_header_banner.dart` no longer opens `VideoPlayerController.networkUrl` (only local files play); dead `LocalNetworkPlugin.kt` and its registration deleted (`:app:compileReleaseKotlin` BUILD SUCCESSFUL again); stale `NETWORK_STORAGE.md`, the SMB fixture servers and their README rows removed.
+- Recorded residuals: `lib/utils/file_access.dart` keeps an `http(s)` open-with-OS branch for legacy rows; `lib/services/library_album_artwork.dart` (local SQLite artwork store) lost its test file with the provider-lookup tests (local-only cases such as "a removed cover stays away until the album is looked up" should be restored in a later task); adapted tests lost many assertions that belonged to removed behaviour (counts: `music_player_runtime_test` 118 to 85, `home_shelves_test` 8 to 3, `source_contracts_test` 9 to 1), none skipped.
+- A second stray file `/t005_tests_requests.md` exists at the filesystem root next to `/t005_tests_1_progress.md`; both are outside the repository and left to the user to delete.

@@ -6,52 +6,25 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
-import 'package:sistrum/providers/explore_provider.dart';
-import 'package:sistrum/providers/extension_provider.dart';
 import 'package:sistrum/providers/library_mixes_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/recent_access_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/providers/weekly_releases_provider.dart';
 import 'package:sistrum/screens/home_tab.dart';
-import 'package:sistrum/screens/weekly_releases_screen.dart';
 import 'package:sistrum/services/playable_media.dart';
-import 'package:sistrum/services/weekly_releases.dart';
 import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
-import 'package:sistrum/widgets/player_artwork.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/fixed_settings.dart';
 
-const _cover = 'network://nas/Album/cover.jpg';
-
 /// The Material Home without a feed, resuming a saved song unless
 /// [saved] is false.
-Widget _home({
-  bool saved = true,
-  bool card = true,
-  List<WeeklyRelease> releases = const [],
-}) => ProviderScope(
+Widget _home({bool saved = true, bool card = true}) => ProviderScope(
   overrides: [
-    homeNewReleasesProvider.overrideWith((ref) => Stream.value(releases)),
-    weeklyReleasesProvider.overrideWith(
-      (ref, refresh) async => WeeklyReleaseFeed(releases),
-    ),
     settingsProvider.overrideWith(
-      () => FixedSettingsNotifier(
-        AppSettings(
-          searchProvider: 'example',
-          homeFeedProvider: AppSettings.homeFeedProviderOff,
-          hasSearchedBefore: true,
-          homeContinueListening: card,
-        ),
-      ),
+      () => FixedSettingsNotifier(AppSettings(homeContinueListening: card)),
     ),
-    extensionProvider.overrideWith(_Extensions.new),
-    exploreProvider.overrideWith(_Explore.new),
-    downloadHistoryProvider.overrideWith(_History.new),
     recentAccessProvider.overrideWith(_Recent.new),
     libraryMixesProvider.overrideWith((ref) async => const []),
     playerUiEnabledProvider.overrideWithValue(true),
@@ -62,11 +35,10 @@ Widget _home({
       (ref) async => saved
           ? (
               media: const PlayableMedia(
-                id: 'network://nas/Album/song.flac',
-                source: 'network://nas/Album/song.flac',
+                id: '/music/Album/song.flac',
+                source: '/music/Album/song.flac',
                 title: 'Saved song',
                 artist: 'Artist',
-                networkArtworkSource: _cover,
               ),
               position: const Duration(seconds: 23),
             )
@@ -89,14 +61,13 @@ Future<void> _open(
   double width = 1280,
   bool saved = true,
   bool card = true,
-  List<WeeklyRelease> releases = const [],
 }) async {
   tester.view.physicalSize = Size(width, 1400);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   debugDesktopPlatformOverride = desktop;
   addTearDown(() => debugDesktopPlatformOverride = null);
-  await tester.pumpWidget(_home(saved: saved, card: card, releases: releases));
+  await tester.pumpWidget(_home(saved: saved, card: card));
   await tester.pump();
   await tester.pump();
 }
@@ -110,25 +81,6 @@ Future<void> _settle(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('Continue listening shows a network cover not stored yet', (
-    tester,
-  ) async {
-    const cover = _cover;
-    await tester.pumpWidget(_home());
-    await tester.pump();
-    await tester.pump();
-
-    final card = find.ancestor(
-      of: find.text('Saved song'),
-      matching: find.byType(InkWell),
-    );
-    final artwork = find.descendant(
-      of: card.first,
-      matching: find.byType(PlayerArtwork),
-    );
-    expect(tester.widget<PlayerArtwork>(artwork).artUri, cover);
-  });
-
   testWidgets('desktop Home sets the shortcuts beside Continue listening', (
     tester,
   ) async {
@@ -156,10 +108,7 @@ void main() {
     );
     final last = tester.getRect(
       find
-          .ancestor(
-            of: find.text('Network storage'),
-            matching: find.byType(InkWell),
-          )
+          .ancestor(of: find.text('Loved'), matching: find.byType(InkWell))
           .first,
     );
     expect(first.left, last.left);
@@ -179,7 +128,7 @@ void main() {
     );
     // One row of shortcuts.
     expect(
-      tester.getRect(find.text('Network storage')).top,
+      tester.getRect(find.text('Listening statistics')).top,
       tester.getRect(find.text('Shuffle library')).top,
     );
   });
@@ -196,7 +145,7 @@ void main() {
         'Shuffle library',
         'Equalizer',
         'Listening statistics',
-        'Network storage',
+        'Loved',
       ])
         tester.getRect(
           find
@@ -254,23 +203,23 @@ void main() {
       find.text('A shortcut already on Home swaps places with this one'),
       findsOneWidget,
     );
-    await tester.ensureVisible(find.text('Loved'));
+    await tester.ensureVisible(find.text('Wishlist'));
     await _settle(tester);
-    await tester.tap(find.text('Loved'));
+    await tester.tap(find.text('Wishlist'));
     await _settle(tester);
 
-    // Loved takes the Equalizer's place beside Shuffle.
+    // Wishlist takes the Equalizer's place beside Shuffle.
     expect(find.text('Equalizer'), findsNothing);
     expect(
-      tester.getRect(find.text('Loved')).top,
+      tester.getRect(find.text('Wishlist')).top,
       tester.getRect(find.text('Shuffle library')).top,
     );
 
-    await tester.longPress(find.text('Loved'));
+    await tester.longPress(find.text('Wishlist'));
     await _settle(tester);
     await tester.tap(find.text('Reset shortcuts'));
     await _settle(tester);
-    expect(find.text('Loved'), findsNothing);
+    expect(find.text('Wishlist'), findsNothing);
     expect(find.text('Equalizer'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
@@ -281,7 +230,7 @@ void main() {
     await _open(tester, desktop: true);
     await _settle(tester);
     final click = await tester.startGesture(
-      tester.getCenter(find.text('Network storage')),
+      tester.getCenter(find.text('Loved')),
       kind: PointerDeviceKind.mouse,
       buttons: kSecondaryMouseButton,
     );
@@ -290,59 +239,6 @@ void main() {
     expect(find.text('Change shortcut'), findsOneWidget);
     expect(find.text('Reset shortcuts'), findsOneWidget);
   });
-
-  testWidgets('new releases show as a shelf that opens the full list', (
-    tester,
-  ) async {
-    await _open(
-      tester,
-      desktop: false,
-      width: 400,
-      releases: [
-        WeeklyRelease(
-          id: 'release-1',
-          name: 'Example release',
-          artist: 'Example artist',
-          providerId: 'example',
-          date: DateTime(2026, 10, 2),
-        ),
-      ],
-    );
-    await tester.pump();
-    expect(find.text('Example release'), findsOneWidget);
-    expect(find.text('Example artist'), findsOneWidget);
-
-    await tester.pump(const Duration(seconds: 1));
-    await tester.ensureVisible(find.text('New releases'));
-    await tester.pump(const Duration(seconds: 1));
-    await tester.tap(find.text('New releases'));
-    await tester.pump();
-    await tester.pump(const Duration(seconds: 1));
-    expect(find.byType(WeeklyReleasesScreen), findsOneWidget);
-  });
-
-  testWidgets('no releases leave no heading', (tester) async {
-    await _open(tester, desktop: false, width: 400);
-    expect(find.text('New releases'), findsNothing);
-  });
-}
-
-class _Extensions extends ExtensionNotifier {
-  @override
-  ExtensionState build() => const ExtensionState();
-}
-
-class _Explore extends ExploreNotifier {
-  @override
-  ExploreState build() => const ExploreState();
-
-  @override
-  Future<void> fetchHomeFeed({bool forceRefresh = false}) async {}
-}
-
-class _History extends DownloadHistoryNotifier {
-  @override
-  DownloadHistoryState build() => DownloadHistoryState();
 }
 
 class _Recent extends RecentAccessNotifier {

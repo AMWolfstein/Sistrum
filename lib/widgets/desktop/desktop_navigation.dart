@@ -1368,7 +1368,7 @@ class DesktopSidebar extends ConsumerWidget {
 
     // Search leads the list.
     final topLevel = [
-      for (final tab in [ShellTab.search, ShellTab.home, ShellTab.repository])
+      for (final tab in [ShellTab.search, ShellTab.home])
         ...destinations.where((destination) => destination.tab == tab),
       if (links.isEmpty)
         ...destinations.where(

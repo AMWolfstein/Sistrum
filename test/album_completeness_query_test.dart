@@ -10,7 +10,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
@@ -22,7 +21,6 @@ import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_choice_chip.dart';
 
-import 'support/tooltip_finder.dart';
 
 String _definition(String file, String table) => RegExp(
   'CREATE TABLE $table\\s*\\([\\s\\S]*?\\n\\s*\\)',
@@ -104,11 +102,6 @@ class _Settings extends SettingsNotifier {
   void setHistoryFilterMode(String mode) {
     state = state.copyWith(historyFilterMode: mode);
   }
-}
-
-class _History extends DownloadHistoryNotifier {
-  @override
-  DownloadHistoryState build() => DownloadHistoryState(totalCount: 7);
 }
 
 class _Local extends LocalLibraryNotifier {
@@ -304,12 +297,8 @@ void main() {
         ProviderScope(
           overrides: [
             settingsProvider.overrideWith(_Settings.new),
-            downloadHistoryProvider.overrideWith(_History.new),
             localLibraryProvider.overrideWith(_Local.new),
             libraryCollectionsProvider.overrideWith(_Collections.new),
-            downloadQueueLookupProvider.overrideWithValue(
-              const DownloadQueueLookup.empty(),
-            ),
           ],
           child: MaterialApp(
             theme: AppTheme.light(),
@@ -458,11 +447,8 @@ void main() {
       await _waitFor(tester, find.text('Apply').hitTestable());
       await tester.tap(find.text('Apply'));
       await tester.pump(const Duration(milliseconds: 400));
-      await _waitFor(tester, find.text('1/12'));
-      expect(find.text('2/4'), findsOneWidget);
-      expect(find.text('2/3'), findsOneWidget);
+      await _waitFor(tester, find.text('2/3'));
       expect(find.text('complete'), findsNothing);
-      expect(findByTooltip('2/4 tracks · 2 missing'), findsOneWidget);
       final container = ProviderScope.containerOf(
         tester.element(find.byType(QueueTab)),
       );
@@ -485,13 +471,12 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 400));
       expect(container.read(settingsProvider).historyFilterMode, 'albums');
-      await _waitFor(tester, find.text('1/12'));
+      await _waitFor(tester, find.text('2/3'));
 
-      await tester.enterText(find.byType(TextField), 'one-track');
+      await tester.enterText(find.byType(TextField), 'local-only');
       await tester.pump(const Duration(milliseconds: 400));
       await _waitFor(tester, find.text('1 album'));
-      expect(find.text('1/12'), findsOneWidget);
-      expect(find.text('2/4'), findsNothing);
+      expect(find.text('2/3'), findsOneWidget);
       // Even an empty matching result must retain the filter controls.
       await tester.enterText(find.byType(TextField), 'no-such-album');
       await tester.pump(const Duration(milliseconds: 400));
@@ -499,7 +484,7 @@ void main() {
       expect(find.text('Filters').hitTestable(), findsOneWidget);
       await tester.enterText(find.byType(TextField), '');
       await tester.pump(const Duration(milliseconds: 400));
-      await _waitFor(tester, find.text('1/12'));
+      await _waitFor(tester, find.text('2/3'));
       await tester.tap(find.text('Filters').hitTestable());
       await tester.pump(const Duration(milliseconds: 400));
       await _waitFor(tester, find.text('Reset').hitTestable());
@@ -508,8 +493,8 @@ void main() {
       await _waitFor(tester, find.text('Apply').hitTestable());
       await tester.tap(find.text('Apply'));
       await tester.pump(const Duration(milliseconds: 400));
-      await _waitFor(tester, find.text('complete'));
-      expect(find.text('1/12'), findsNothing);
+      await _waitFor(tester, find.text('local-only'));
+      expect(find.text('2/3'), findsNothing);
       expect(container.read(settingsProvider).historyFilterMode, 'albums');
       // An actual shell-tab switch still applies the configured All default.
       tabActive.value = false;

@@ -74,15 +74,8 @@ void main() {
     testWidgets('selection grid retains conditional actions ($mornye)', (
       tester,
     ) async {
-      var queued = false;
       var converted = false;
-      for (final (selectedCount, eligibleCount, canQueue) in [
-        (0, 0, true),
-        (1, 0, true),
-        (1, 1, false),
-        (1, 1, true),
-        (0, 0, true),
-      ]) {
+      for (final selectedCount in [0, 1, 0]) {
         converted = false;
         await tester.pumpWidget(
           _app(
@@ -93,27 +86,14 @@ void main() {
               onClose: () {},
               onToggleSelectAll: () {},
               bottomPadding: 0,
-              onReEnrich: () {},
               onConvert: () => converted = true,
               onReplayGain: ({required remove}) {},
               onDelete: () {},
-              flacEligibleCount: eligibleCount,
-              onQueueFlac: canQueue ? () => queued = true : null,
             ),
           ),
         );
         await tester.pumpAndSettle();
-        final queue = find.byWidgetPredicate(
-          (widget) =>
-              widget is SelectionActionButton &&
-              widget.icon == Icons.download_for_offline_outlined,
-        );
-        final hasQueue = eligibleCount > 0 && canQueue;
-        expect(queue, hasQueue ? findsOneWidget : findsNothing);
-        expect(
-          find.byType(SelectionActionButton),
-          findsNWidgets(hasQueue ? 5 : 4),
-        );
+        expect(find.byType(SelectionActionButton), findsNWidgets(3));
         await tester.tap(
           find.byWidgetPredicate(
             (widget) =>
@@ -122,10 +102,6 @@ void main() {
           ),
         );
         expect(converted, selectedCount > 0);
-        if (hasQueue) {
-          await tester.tap(queue);
-          expect(queued, isTrue);
-        }
         expect(tester.takeException(), isNull);
       }
     });
@@ -150,7 +126,6 @@ void main() {
               onClose: () {},
               onToggleSelectAll: () {},
               bottomPadding: 0,
-              onReEnrich: () {},
               onConvert: () {},
               onReplayGain: ({required remove}) {},
               onDelete: () => deleted = true,

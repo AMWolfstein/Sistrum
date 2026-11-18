@@ -270,7 +270,6 @@ class TrackListSkeleton extends StatelessWidget {
                 _MornyeTrackSkeleton(
                   numbered: false,
                   index: index,
-                  showPreview: true,
                 ),
             ],
           ),
@@ -408,7 +407,6 @@ class AlbumTrackListSkeleton extends StatelessWidget {
                 _MornyeTrackSkeleton(
                   numbered: true,
                   index: index,
-                  showPreview: true,
                 ),
             ],
           ),
@@ -1051,12 +1049,10 @@ class _MornyeTrackSkeleton extends StatelessWidget {
   const _MornyeTrackSkeleton({
     required this.numbered,
     required this.index,
-    this.showPreview = false,
   });
 
   final bool numbered;
   final int index;
-  final bool showPreview;
 
   @override
   Widget build(BuildContext context) {
@@ -1101,10 +1097,6 @@ class _MornyeTrackSkeleton extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 20),
-              if (showPreview) ...[
-                const SkeletonBox(width: 20, height: 20, borderRadius: 10),
-                const SizedBox(width: 24),
-              ],
               const SkeletonBox(width: 20, height: 6, borderRadius: 3),
             ],
           ),

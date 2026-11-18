@@ -85,7 +85,7 @@ extension _TrackMetadataCards on _TrackMetadataScreenState {
                 items: facts.tags,
                 all: facts.all,
               ),
-              if (facts.release.isNotEmpty || upc != null || _hasServiceLink)
+              if (facts.release.isNotEmpty || upc != null)
                 _buildFactsSection(
                   context,
                   colorScheme,
@@ -99,7 +99,6 @@ extension _TrackMetadataCards on _TrackMetadataScreenState {
                         label: context.l10n.editMetadataFieldUpc,
                         onCopy: () => _copyToClipboard(context, barcodeValue),
                       ),
-                    if (_hasServiceLink) _buildOpenServiceButton(context),
                   ],
                 ),
               if (facts.audio.isNotEmpty)
@@ -169,12 +168,6 @@ extension _TrackMetadataCards on _TrackMetadataScreenState {
     );
   }
 
-  bool get _hasServiceLink => _spotifyId != null && _spotifyId!.isNotEmpty;
-
-  /// The service this song's catalog ID belongs to.
-  String get _linkedService =>
-      _serviceForTrackId(_spotifyId!, fallbackService: _service.toLowerCase());
-
   _MetadataFacts _metadataFacts(BuildContext context) {
     final l10n = context.l10n;
     String? edited(String key) =>
@@ -221,18 +214,6 @@ extension _TrackMetadataCards on _TrackMetadataScreenState {
           'ISRC',
           formatIsrcForDisplay(isrc),
           rawValue: canonicalIsrcForCopy(isrc),
-          copyable: true,
-        ),
-      if (!_isLocalItem && _hasServiceLink)
-        _MetadataItem(
-          switch (_linkedService) {
-            MusicServices.deezer => 'Deezer ID',
-            MusicServices.amazon => 'Amazon ASIN',
-            MusicServices.tidal => 'Tidal ID',
-            MusicServices.qobuz => 'Qobuz ID',
-            _ => 'Spotify ID',
-          },
-          _displayServiceTrackId(_spotifyId!),
           copyable: true,
         ),
     ];
@@ -384,75 +365,6 @@ extension _TrackMetadataCards on _TrackMetadataScreenState {
         ),
       ),
     );
-  }
-
-  /// Opens the song in the service its catalog ID belongs to.
-  Widget _buildOpenServiceButton(BuildContext context) {
-    final l10n = context.l10n;
-    final label = switch (_linkedService) {
-      MusicServices.deezer => l10n.trackOpenInDeezer,
-      MusicServices.amazon => l10n.trackOpenInService('Amazon Music'),
-      MusicServices.tidal => l10n.trackOpenInService('Tidal'),
-      MusicServices.qobuz => l10n.trackOpenInService('Qobuz'),
-      _ => l10n.trackOpenInSpotify,
-    };
-    if (context.isMornye) {
-      return HeaderFilledButton(
-        icon: CupertinoIcons.arrow_up_right_square,
-        label: label,
-        tonal: true,
-        onPressed: () => _openServiceUrl(context),
-      );
-    }
-    return ExpressiveButton(
-      outlined: true,
-      onPressed: () => _openServiceUrl(context),
-      icon: const AppIcon.adaptive(Icons.open_in_new, size: 18),
-      child: Text(label),
-    );
-  }
-
-  Future<void> _openServiceUrl(BuildContext context) async {
-    if (_spotifyId == null) return;
-
-    // Unknown services open as Spotify, as this button always has.
-    final link = ServiceTrackLink(
-      _linkedService,
-      _displayServiceTrackId(_spotifyId!),
-    );
-    final webUrl = link.webUrl;
-    final appUri = link.appUri;
-    final serviceName = link.serviceName;
-
-    try {
-      final launched = await launchUrl(
-        appUri,
-        mode: LaunchMode.externalApplication,
-      );
-
-      if (!launched) {
-        await launchUrl(
-          Uri.parse(webUrl),
-          mode: LaunchMode.externalApplication,
-        );
-      }
-    } catch (e) {
-      try {
-        await launchUrl(
-          Uri.parse(webUrl),
-          mode: LaunchMode.externalApplication,
-        );
-      } catch (_) {
-        if (context.mounted) {
-          _copyToClipboard(context, webUrl);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(context.l10n.snackbarUrlCopied(serviceName)),
-            ),
-          );
-        }
-      }
-    }
   }
 
   Future<void> _showMetadataCopySheet(

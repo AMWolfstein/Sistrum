@@ -529,46 +529,6 @@ void main() {
     });
   }
 
-  testWidgets('a song from a paired device shows where it plays from', (
-    tester,
-  ) async {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(_route, (call) async => null);
-    final metadata = PlayerMetadataController(
-      readMetadata: (_) async => const {'format': 'flac', 'bit_depth': 16},
-    );
-    addTearDown(metadata.dispose);
-    await metadata.load(
-      const MediaItem(
-        id: 'track',
-        title: 'Track',
-        extras: {'source': 'network://desk/Album/Song.flac'},
-      ),
-    );
-
-    await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Builder(
-          builder: (context) => TextButton(
-            onPressed: () => showAudioInfoSheet(
-              context,
-              metadata: metadata,
-              linkSources: const {'desk': 'Studio Mac'},
-            ),
-            child: const Text('open'),
-          ),
-        ),
-      ),
-    );
-    await tester.tap(find.text('open'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Studio Mac via Sistrum Link'), findsOneWidget);
-    expect(find.text('Network storage'), findsNothing);
-  });
-
   for (final mornye in [false, true]) {
     testWidgets(
       'SAF ReplayGain is loaded on opening Audio info (Mornye=$mornye)',

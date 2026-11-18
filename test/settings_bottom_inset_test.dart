@@ -7,7 +7,6 @@ import 'package:sistrum/screens/settings/files_settings_page.dart';
 import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
-import 'package:sistrum/widgets/settings_group.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/fixed_settings.dart';
@@ -62,24 +61,8 @@ void main() {
       );
       scroll.position.jumpTo(scroll.position.maxScrollExtent);
       await tester.pumpAndSettle();
-      final filters = find.byWidgetPredicate(
-        (widget) =>
-            widget is SettingsItem && widget.title == 'Artist Name Filters',
-      );
-      expect(tester.getBottomRight(filters).dy, lessThanOrEqualTo(700 - inset));
-      await tester.tap(filters);
-      await tester.pumpAndSettle();
-      scroll.position.jumpTo(scroll.position.maxScrollExtent);
-      await tester.pumpAndSettle();
-      final contributing = find.byWidgetPredicate(
-        (widget) =>
-            widget is SettingsSwitchItem &&
-            widget.title == 'Filter Contributing Artists',
-      );
-      expect(
-        tester.getBottomRight(contributing).dy,
-        lessThanOrEqualTo(700 - inset),
-      );
+      final lastRow = find.byKey(const ValueKey('remove-empty-folders'));
+      expect(tester.getBottomRight(lastRow).dy, lessThanOrEqualTo(700 - inset));
       expect(tester.takeException(), isNull);
     });
   }

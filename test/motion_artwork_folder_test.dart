@@ -1,252 +1,16 @@
-import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sistrum/models/download_item.dart';
-import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/models/track.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/player_motion_artwork_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/motion_artwork_folder.dart';
 import 'package:sistrum/services/motion_artwork_store.dart';
-import 'package:sistrum/services/network_storage_service.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
 
-const _album = Track(
-  id: 'album',
-  name: 'Song',
-  artistName: 'Artist',
-  albumName: 'Album',
-  duration: 180,
-  albumType: 'album',
-  totalTracks: 10,
-);
-
-const _single = Track(
-  id: 'single',
-  name: 'Song',
-  artistName: 'Artist',
-  albumName: 'Song',
-  duration: 180,
-  albumType: 'single',
-  totalTracks: 1,
-);
-
-DownloadItem _item(Track track, {String? playlist}) => DownloadItem(
-  id: track.id,
-  track: track,
-  service: 'example',
-  playlistName: playlist,
-  createdAt: DateTime(2026),
-);
-
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-
-  group('album folder rule', () {
-    final queue = DownloadQueueNotifier();
-
-    Future<bool> holds(
-      AppSettings settings, {
-      Track track = _album,
-      String? playlist,
-      String? path,
-    }) {
-      final planned = queue.relativeOutputDirFor(
-        track,
-        settings,
-        playlistName: playlist,
-      );
-      return queue.holdsAlbumFilesFor(
-        _item(track, playlist: playlist),
-        settings,
-        filePath: path ?? p.join('/music', planned, 'Song.flac'),
-      );
-    }
-
-    test('album folders hold album files', () async {
-      for (final structure in ['artist_album', 'album_only', 'year_album']) {
-        expect(
-          await holds(
-            AppSettings(
-              folderOrganization: 'album',
-              albumFolderStructure: structure,
-              separateSingles: false,
-            ),
-          ),
-          isTrue,
-          reason: structure,
-        );
-      }
-      expect(
-        await holds(
-          const AppSettings(
-            folderOrganization: 'artist_album',
-            separateSingles: false,
-          ),
-        ),
-        isTrue,
-      );
-      // Albums kept apart from singles still get a folder each.
-      expect(
-        await holds(
-          const AppSettings(
-            folderOrganization: 'none',
-            separateSingles: true,
-            albumFolderStructure: 'artist_album_singles',
-          ),
-        ),
-        isTrue,
-      );
-    });
-
-    test('shared folders never get an album file', () async {
-      for (final organization in ['none', 'artist']) {
-        expect(
-          await holds(
-            AppSettings(
-              folderOrganization: organization,
-              separateSingles: false,
-            ),
-          ),
-          isFalse,
-          reason: organization,
-        );
-      }
-      expect(
-        await holds(
-          const AppSettings(
-            folderOrganization: 'playlist',
-            separateSingles: false,
-          ),
-          playlist: 'Road Trip',
-        ),
-        isFalse,
-      );
-      // Every single shares one Singles folder.
-      expect(
-        await holds(
-          const AppSettings(
-            folderOrganization: 'none',
-            separateSingles: true,
-            albumFolderStructure: 'artist_album_singles',
-          ),
-          track: _single,
-        ),
-        isFalse,
-      );
-      // A release named like the Singles folder is still a single there.
-      expect(
-        await holds(
-          const AppSettings(
-            folderOrganization: 'none',
-            separateSingles: true,
-            albumFolderStructure: 'artist_album_singles',
-          ),
-          track: Track(
-            id: 'named',
-            name: 'Song',
-            artistName: 'Artist',
-            albumName: 'Singles',
-            duration: 180,
-            totalTracks: 2,
-          ),
-        ),
-        isFalse,
-      );
-      expect(
-        await queue.holdsAlbumFilesFor(
-          _item(_album.copyWith(albumName: ' ')),
-          const AppSettings(
-            folderOrganization: 'album',
-            separateSingles: false,
-          ),
-          filePath: '/music/Artist/Song.flac',
-        ),
-        isFalse,
-      );
-    });
-
-    test('the song must be in the planned folder', () async {
-      const settings = AppSettings(
-        folderOrganization: 'album',
-        albumFolderStructure: 'artist_album',
-        separateSingles: false,
-      );
-      final planned = queue.relativeOutputDirFor(_album, settings);
-      // An earlier copy kept in an older flat layout.
-      expect(await holds(settings, path: '/music/Song.flac'), isFalse);
-      expect(
-        await queue.holdsAlbumFilesFor(
-          _item(_album),
-          settings,
-          filePath: 'content://tree/document/song',
-          relativeDir: planned,
-        ),
-        isTrue,
-      );
-      expect(
-        await queue.holdsAlbumFilesFor(
-          _item(_album),
-          settings,
-          filePath: 'content://tree/document/song',
-          relativeDir: 'Other',
-        ),
-        isFalse,
-      );
-      expect(
-        await queue.holdsAlbumFilesFor(
-          _item(_album),
-          settings,
-          filePath: NetworkStorageService.source(
-            'nas',
-            'Music/$planned/Song.flac',
-          ),
-        ),
-        isTrue,
-      );
-    });
-
-    test('custom folders hold an album when its name ends them', () async {
-      const backend = MethodChannel('com.amwolfstein.sistrum/backend');
-      final messenger =
-          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
-      messenger.setMockMethodCallHandler(backend, (call) async {
-        if (call.method != 'buildFilename') return null;
-        final args = call.arguments as Map;
-        final metadata = jsonDecode(args['metadata'] as String) as Map;
-        return (args['template'] as String)
-            .replaceAll('{album}', '${metadata['album']}')
-            .replaceAll('{artist}', '${metadata['artist']}');
-      });
-      addTearDown(() => messenger.setMockMethodCallHandler(backend, null));
-
-      Future<bool> custom(String template) async {
-        final settings = AppSettings(
-          folderOrganization: 'custom',
-          folderPathTemplate: template,
-          separateSingles: false,
-        );
-        final item = _item(_album);
-        final folder = template
-            .replaceAll('{album}', 'Album')
-            .replaceAll('{artist}', 'Artist');
-        return queue.holdsAlbumFilesFor(
-          item,
-          settings,
-          filePath: '/music/$folder/Song.flac',
-        );
-      }
-
-      expect(await custom('{artist}/{album}'), isTrue);
-      expect(await custom('{album}/{artist}'), isFalse);
-      expect(await custom('{artist}'), isFalse);
-    });
-  });
 
   group('MotionArtworkFolder', () {
     late Directory root;
@@ -291,17 +55,12 @@ void main() {
       expect(cover.readAsBytesSync(), [9]);
     });
 
-    test('documents and network songs go through their storage', () async {
+    test('documents go through their storage', () async {
       final created = <String>[];
-      final uploads = <String>[];
       final folder = MotionArtworkFolder(
         directory: () async => root,
         createDocument: (treeUri, relativeDir, name, path) async {
           created.add('$treeUri|$relativeDir|$name|${p.basename(path)}');
-          return true;
-        },
-        upload: (target, file) async {
-          uploads.add(target);
           return true;
         },
       );
@@ -319,11 +78,6 @@ void main() {
         isTrue,
       );
       expect(created, ['content://tree|Artist/Album|cover.mp4|stored.mp4']);
-      final song = NetworkStorageService.source('nas', 'Music/Album/01.flac');
-      expect(await folder.save(video, song: song), isTrue);
-      expect(uploads, [
-        NetworkStorageService.source('nas', 'Music/Album/cover.mp4'),
-      ]);
     });
 
     test('finds cover.mp4 beside a local song', () async {
@@ -337,10 +91,6 @@ void main() {
       expect(
         (await folder.find(Uri.file(song).toString()))?.source,
         cover.uri.toString(),
-      );
-      expect(
-        await folder.find(NetworkStorageService.source('nas', 'a/b.flac')),
-        isNull,
       );
     });
 

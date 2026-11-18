@@ -2,13 +2,10 @@ import 'dart:isolate';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_directory_index.dart';
-import 'package:sistrum/services/network_storage_service.dart';
 
 /// Libraries up to this many songs are arranged on the UI isolate, where a
 /// background isolate would cost more than the work itself.
@@ -18,9 +15,6 @@ const _backgroundIndexThreshold = 3000;
 /// Library change, or the scanned Library is turned on or off.
 final libraryDirectoryIndexProvider =
     FutureProvider.autoDispose<LibraryDirectoryIndex>((ref) async {
-      ref.watch(
-        downloadHistoryProvider.select((state) => state.loadedIndexVersion),
-      );
       final includeLocal = ref.watch(
         settingsProvider.select((s) => s.localLibraryEnabled),
       );
@@ -35,23 +29,10 @@ final libraryDirectoryIndexProvider =
       final entries = rows
           .map(LibraryDirectoryEntry.fromRow)
           .toList(growable: false);
-      final networkNames = <String, String>{};
-      if (entries.any((entry) => entry.path.startsWith('network://'))) {
-        try {
-          for (final connection
-              in await NetworkStorageService.instance.connections()) {
-            networkNames[connection.id] = connection.name;
-          }
-        } catch (_) {
-          // Roots fall back to the connection id.
-        }
-      }
       if (entries.length <= _backgroundIndexThreshold) {
-        return LibraryDirectoryIndex.build(entries, networkNames: networkNames);
+        return LibraryDirectoryIndex.build(entries);
       }
-      return Isolate.run(
-        () => LibraryDirectoryIndex.build(entries, networkNames: networkNames),
-      );
+      return Isolate.run(() => LibraryDirectoryIndex.build(entries));
     });
 
 /// Reads the Library records of folder songs, in the order given.
@@ -60,7 +41,7 @@ typedef LibraryDirectoryItemsLoader =
       Iterable<LibraryDirectoryTrack> tracks,
     );
 
-/// How folder songs are read: from the history and Library databases.
+/// How folder songs are read: from the Library database.
 final libraryDirectoryItemsLoaderProvider =
     Provider<LibraryDirectoryItemsLoader>((ref) => loadLibraryDirectoryItems);
 
@@ -79,10 +60,6 @@ Future<List<UnifiedLibraryItem>> loadLibraryDirectoryItems(
   Iterable<LibraryDirectoryTrack> tracks,
 ) async {
   final list = tracks.toList(growable: false);
-  final downloads = await HistoryDatabase.instance.getByIds([
-    for (final track in list)
-      if (track.source != 'local') track.id,
-  ]);
   final scanned = {
     for (final row in await LibraryDatabase.instance.getByIds([
       for (final track in list)
@@ -91,18 +68,10 @@ Future<List<UnifiedLibraryItem>> loadLibraryDirectoryItems(
       row['id'] as String: row,
   };
   UnifiedLibraryItem? item(LibraryDirectoryTrack track) {
-    if (track.source == 'local') {
-      final row = scanned[track.id];
-      return row == null
-          ? null
-          : UnifiedLibraryItem.fromLocalLibrary(LocalLibraryItem.fromJson(row));
-    }
-    final row = downloads[track.id];
+    final row = track.source == 'local' ? scanned[track.id] : null;
     return row == null
         ? null
-        : UnifiedLibraryItem.fromDownloadHistory(
-            DownloadHistoryItem.fromJson(row),
-          );
+        : UnifiedLibraryItem.fromLocalLibrary(LocalLibraryItem.fromJson(row));
   }
 
   return [for (final track in list) ?item(track)];

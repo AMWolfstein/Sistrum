@@ -6,18 +6,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
-import 'package:sistrum/controllers/library_re_enrich_all.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/library_scan_failure.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
-import 'package:sistrum/providers/library_album_artwork_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/services/library_database.dart';
-import 'package:sistrum/services/link/link_source_names.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
@@ -47,8 +43,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
   int _androidSdkVersion = 0;
   bool _hasStoragePermission = false;
   bool _isCleaningMissingFiles = false;
-  bool _isFindingMovedDownloads = false;
-  bool _isLoadingReEnrich = false;
 
   String _getDisplayPath(String path) {
     if (!path.startsWith('content://')) return path;
@@ -255,24 +249,18 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
   }
 
   Future<void> _cleanupMissingFiles() async {
-    if (_isCleaningMissingFiles ||
-        _isFindingMovedDownloads ||
-        ref.read(localLibraryProvider).isScanning) {
+    if (_isCleaningMissingFiles || ref.read(localLibraryProvider).isScanning) {
       return;
     }
     final library = ref.read(localLibraryProvider.notifier);
-    final downloads = ref.read(downloadHistoryProvider.notifier);
     setState(() => _isCleaningMissingFiles = true);
     try {
       final missingLibraryEntries = await library.cleanupMissingFiles();
-      final orphanedDownloads = await downloads.cleanupOrphanedDownloads();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            context.l10n.libraryRemovedMissingFiles(
-              missingLibraryEntries + orphanedDownloads,
-            ),
+            context.l10n.libraryRemovedMissingFiles(missingLibraryEntries),
           ),
         ),
       );
@@ -287,116 +275,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
       );
     } finally {
       if (mounted) setState(() => _isCleaningMissingFiles = false);
-    }
-  }
-
-  Future<void> _reEnrichAll() async {
-    if (_isLoadingReEnrich) return;
-    setState(() => _isLoadingReEnrich = true);
-    try {
-      await reEnrichWholeLibrary(context, ref, isActive: () => mounted);
-    } finally {
-      if (mounted) setState(() => _isLoadingReEnrich = false);
-    }
-  }
-
-  Future<void> _findArtwork() async {
-    if (ref.read(libraryAlbumArtworkProvider).running) return;
-    final l10n = context.l10n;
-    final messenger = ScaffoldMessenger.of(context);
-    if (!ref.read(libraryAlbumArtworkProvider.notifier).canLookUp()) {
-      messenger.showSnackBar(
-        SnackBar(content: Text(l10n.libraryFindArtworkNoProvider)),
-      );
-      return;
-    }
-    var motion = false;
-    // Animated covers mean a lookup for every album, so they are a choice,
-    // offered only where the players and album pages show them.
-    if (context.isMornye && ref.read(settingsProvider).motionArtworkEnabled) {
-      final choice = await showAppBottomSheet<bool>(
-        context: context,
-        useRootNavigator: true,
-        title: l10n.libraryFindArtwork,
-        builder: (context) => Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AppSheetOption(
-              leading: const AppIcon(Icons.image_outlined),
-              title: Text(context.l10n.libraryFindArtworkCovers),
-              subtitle: Text(context.l10n.libraryFindArtworkCoversSubtitle),
-              onTap: () => Navigator.pop(context, false),
-            ),
-            AppSheetOption(
-              leading: const AppIcon(Icons.motion_photos_on_outlined),
-              title: Text(context.l10n.libraryFindArtworkMotion),
-              subtitle: Text(context.l10n.libraryFindArtworkMotionSubtitle),
-              onTap: () => Navigator.pop(context, true),
-            ),
-            const SizedBox(height: 8),
-          ],
-        ),
-      );
-      if (choice == null || !mounted) return;
-      motion = choice;
-    }
-    try {
-      final summary = await ref
-          .read(libraryAlbumArtworkProvider.notifier)
-          .findMissing(covers: true, motion: motion);
-      if (summary == null) return;
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(
-            summary.albums == 0
-                ? l10n.libraryFindArtworkNothing
-                : l10n.libraryFindArtworkResult(
-                    summary.covers,
-                    summary.motion,
-                    summary.failed,
-                  ),
-          ),
-        ),
-      );
-    } catch (error) {
-      if (!mounted) return;
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(l10n.snackbarError(context.friendlyError(error))),
-        ),
-      );
-    }
-  }
-
-  Future<void> _findMovedDownloads() async {
-    if (_isFindingMovedDownloads || _isCleaningMissingFiles) return;
-    setState(() => _isFindingMovedDownloads = true);
-    try {
-      final result = await ref
-          .read(downloadHistoryProvider.notifier)
-          .findMovedDownloads();
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            context.l10n.libraryFindMovedDownloadsResult(
-              result.relinked,
-              result.missing,
-            ),
-          ),
-        ),
-      );
-    } catch (error) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            context.l10n.snackbarError(context.friendlyError(error)),
-          ),
-        ),
-      );
-    } finally {
-      if (mounted) setState(() => _isFindingMovedDownloads = false);
     }
   }
 
@@ -699,12 +577,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
                       );
                       return _LibrarySourceSettingsItem(
                         source: source,
-                        link:
-                            linkSourceName(
-                              ref.watch(linkSourceNamesProvider),
-                              source.path,
-                            ) !=
-                            null,
                         failures: scan.failures,
                         isScanning: scan.active,
                         isFinalizing: scan.finalizing,
@@ -847,28 +719,11 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
               child: Consumer(
                 builder: (context, ref, _) {
                   final libraryState = ref.watch(localLibraryProvider);
-                  final hasDownloads = ref.watch(
-                    downloadHistoryProvider.select(
-                      (state) => state.totalCount > 0,
-                    ),
-                  );
-                  final canFindMoved =
-                      !_isFindingMovedDownloads &&
-                      !_isCleaningMissingFiles &&
-                      hasDownloads;
                   final canCleanup =
                       !_isCleaningMissingFiles &&
-                      !_isFindingMovedDownloads &&
                       !libraryState.isScanning &&
                       (libraryState.totalCount > 0 ||
-                          hasDownloads ||
                           librarySources.isNotEmpty);
-                  final canReEnrich =
-                      !_isLoadingReEnrich &&
-                      (libraryState.totalCount > 0 || hasDownloads);
-                  final artwork = ref.watch(libraryAlbumArtworkProvider);
-                  final canFindArtwork =
-                      !artwork.running && libraryState.totalCount > 0;
                   return SettingsGroup(
                     connected: true,
                     children: [
@@ -909,67 +764,7 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
                                 : null,
                           ),
                         ),
-                        Opacity(
-                          opacity: canReEnrich || _isLoadingReEnrich
-                              ? 1.0
-                              : 0.5,
-                          child: SettingsItem(
-                            icon: Icons.travel_explore,
-                            title: context.l10n.libraryReEnrichAll,
-                            subtitle: context.l10n.libraryReEnrichAllSubtitle,
-                            trailing: _isLoadingReEnrich
-                                ? const AppLoadingIndicator(
-                                    size: 20,
-                                    strokeWidth: 2,
-                                  )
-                                : null,
-                            onTap: canReEnrich ? _reEnrichAll : null,
-                          ),
-                        ),
-                        if (artwork.running && artwork.albumKey == null)
-                          _ArtworkProgressTile(
-                            done: artwork.done,
-                            total: artwork.total,
-                            stopping: artwork.cancelling,
-                            onStop: ref
-                                .read(libraryAlbumArtworkProvider.notifier)
-                                .cancel,
-                          )
-                        else
-                          Opacity(
-                            opacity: canFindArtwork ? 1.0 : 0.5,
-                            child: SettingsItem(
-                              icon: Icons.image_search_outlined,
-                              title: context.l10n.libraryFindArtwork,
-                              subtitle: context.l10n.libraryFindArtworkSubtitle,
-                              trailing: artwork.running
-                                  ? const AppLoadingIndicator(
-                                      size: 20,
-                                      strokeWidth: 2,
-                                    )
-                                  : null,
-                              onTap: canFindArtwork ? _findArtwork : null,
-                            ),
-                          ),
                       ],
-                      Opacity(
-                        opacity: canFindMoved || _isFindingMovedDownloads
-                            ? 1.0
-                            : 0.5,
-                        child: SettingsItem(
-                          icon: Icons.manage_search,
-                          title: context.l10n.libraryFindMovedDownloads,
-                          subtitle:
-                              context.l10n.libraryFindMovedDownloadsSubtitle,
-                          trailing: _isFindingMovedDownloads
-                              ? const AppLoadingIndicator(
-                                  size: 20,
-                                  strokeWidth: 2,
-                                )
-                              : null,
-                          onTap: canFindMoved ? _findMovedDownloads : null,
-                        ),
-                      ),
                       Opacity(
                         opacity: canCleanup || _isCleaningMissingFiles
                             ? 1.0

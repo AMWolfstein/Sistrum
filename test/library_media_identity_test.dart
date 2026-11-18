@@ -15,13 +15,11 @@ void main() {
       null,
     ).coverUrl;
 
-    for (final durable in [
-      'file:///data/user/0/app/files/covers/a_b.image',
-      'https://example.com/cover.jpg',
-    ]) {
+    for (final durable in ['file:///data/user/0/app/files/covers/a_b.image']) {
       expect(cover(durable), durable);
     }
     for (final temporary in [
+      'https://example.com/cover.jpg',
       'http://127.0.0.1:41234/7f3a',
       'file:///data/user/0/app/cache/network_metadata/a1.jpg',
       Uri.file('${Directory.systemTemp.path}/cover.jpg').toString(),

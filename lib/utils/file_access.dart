@@ -5,7 +5,6 @@ import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:sistrum/services/network_storage_service.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/services/source_deletion_events.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
@@ -297,8 +296,6 @@ String stripCueTrackSuffix(String path) {
 
 Future<bool> fileExists(String? path) async {
   if (path == null || path.isEmpty) return false;
-  // Network identities are resolved by the built-in player, not File.exists.
-  if (path.startsWith('network://')) return true;
   final realPath = isCueVirtualPath(path) ? stripCueTrackSuffix(path) : path;
   if (isContentUri(realPath)) {
     // A phone's content URI can arrive with synced statistics; a computer has
@@ -326,10 +323,7 @@ Future<Map<String, bool?>> fileExistenceByPath(List<String> paths) async {
       // Missing native method on an older build is also inconclusive.
     }
   }
-  // Offline network paths remain inconclusive during destructive cleanup.
-  final local = unique
-      .where((path) => !isContentUri(path) && !path.startsWith('network://'))
-      .toList();
+  final local = unique.where((path) => !isContentUri(path)).toList();
   const concurrency = 16;
   for (var start = 0; start < local.length; start += concurrency) {
     final end = start + concurrency < local.length
@@ -350,8 +344,6 @@ Future<Map<String, bool?>> fileExistenceByPath(List<String> paths) async {
 /// not there right now). CUE tracks are checked against the backing file.
 Future<bool?> storedFileState(String? path) async {
   if (path == null || path.isEmpty) return null;
-  // Offline network paths remain inconclusive, as in [fileExistenceByPath].
-  if (path.startsWith('network://')) return null;
   final realPath = stripCueTrackSuffix(path);
   if (isContentUri(realPath)) {
     // A computer cannot open a phone's content URI; see [fileExists].
@@ -417,7 +409,7 @@ Future<bool> _storageAvailableFor(String path) async {
 /// present is always answered as available, as before. A content URI is
 /// unavailable when the provider cannot tell (null from [PlatformBridge]).
 Future<bool> storageUnavailableFor(String path) async {
-  if (path.isEmpty || path.startsWith('network://')) return false;
+  if (path.isEmpty) return false;
   if (isContentUri(path)) {
     try {
       return (await PlatformBridge.safExistsState(path)) == null;
@@ -487,7 +479,6 @@ String? _homeFolder() =>
 Future<bool> deleteFile(
   String? path, {
   SourceDeletionEvents? deletionEvents,
-  NetworkStorageService? networkStorage,
 }) async {
   if (path == null || path.isEmpty) return false;
   if (path.startsWith('EXISTS:')) {
@@ -500,10 +491,7 @@ Future<bool> deleteFile(
   if (isCueVirtualPath(path)) return false;
   bool confirmedAbsent;
   try {
-    if (path.startsWith('network://')) {
-      confirmedAbsent = await (networkStorage ?? NetworkStorageService.instance)
-          .deleteFile(path);
-    } else if (isContentUri(path)) {
+    if (isContentUri(path)) {
       final deleted = await PlatformBridge.safDelete(path);
       confirmedAbsent =
           deleted || (await PlatformBridge.safExistsState(path)) == false;
@@ -533,7 +521,6 @@ Future<bool> deleteFile(
 
 Future<FileAccessStat?> fileStat(String? path) async {
   if (path == null || path.isEmpty) return null;
-  if (path.startsWith('network://')) return const FileAccessStat();
   final realPath = isCueVirtualPath(path) ? stripCueTrackSuffix(path) : path;
   if (isContentUri(realPath)) {
     final stat = await PlatformBridge.safStat(realPath);
@@ -562,14 +549,12 @@ Future<FileAccessStat?> fileStat(String? path) async {
   return FileAccessStat(size: stat.size, modified: stat.modified);
 }
 
-Future<void> openFile(String path, {NetworkStorageService? storage}) async {
+Future<void> openFile(String path) async {
   if (isCueVirtualPath(path)) {
     throw Exception(cueVirtualTrackRequiresSplitMessage);
   }
 
-  final realPath = path.startsWith('network://')
-      ? await (storage ?? NetworkStorageService.instance).resolve(path)
-      : path;
+  final realPath = path;
   final uri = Uri.tryParse(realPath);
   if (uri != null && (uri.scheme == 'http' || uri.scheme == 'https')) {
     if (!isDesktopPlatform && !Platform.isIOS) {

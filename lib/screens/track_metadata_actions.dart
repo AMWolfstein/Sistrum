@@ -38,7 +38,6 @@ extension _TrackMetadataFileActions on _TrackMetadataScreenState {
         colorScheme: colorScheme,
         initialValues: initialValues,
         filePath: sourcePath,
-        sourceTrackId: _spotifyId,
         durationMs: initialDurationSeconds > 0
             ? initialDurationSeconds * 1000
             : 0,
@@ -63,7 +62,6 @@ extension _TrackMetadataFileActions on _TrackMetadataScreenState {
         final refreshedDisplayLyrics = cleanLyricsForDisplay(refreshedLyrics);
         _setState(() {
           _editedMetadata = refreshed;
-          _lyricsError = null;
           _isInstrumental = refreshedInstrumental;
           _embeddedLyricsChecked = true;
           if (refreshedDisplayLyrics.isNotEmpty) {
@@ -83,15 +81,13 @@ extension _TrackMetadataFileActions on _TrackMetadataScreenState {
             _lyricsEmbedded = false;
           }
         });
-        if (_isNetworkItem) await _syncNetworkLibraryMetadata(refreshed);
       } catch (_) {
         if (mounted && sourcePath == cleanFilePath) _setState(() {});
       }
       if (!mounted || sourcePath != cleanFilePath) return;
-      if (!_isNetworkItem) await _refreshEmbeddedCoverPreview(force: true);
+      await _refreshEmbeddedCoverPreview(force: true);
       if (!mounted || sourcePath != cleanFilePath) return;
       _markMetadataChanged();
-      await _syncDownloadHistoryMetadata();
     }
   }
 
@@ -124,39 +120,6 @@ extension _TrackMetadataFileActions on _TrackMetadataScreenState {
     };
   }
 
-  Future<void> _syncNetworkLibraryMetadata(
-    Map<String, dynamic> metadata,
-  ) async {
-    final item = _localLibraryItem;
-    if (item == null || !_isNetworkItem) return;
-    final name = Uri.parse(item.filePath).pathSegments.last;
-    var coverPath = item.coverPath;
-    final cover = metadata['cover_path'];
-    if (cover is String && cover.isNotEmpty) {
-      try {
-        coverPath = await promoteNetworkLibraryCover(
-          cover,
-          '${(await getApplicationSupportDirectory()).path}/library_covers',
-        );
-      } catch (error) {
-        _log.w('Could not retain the edited network cover: $error');
-      }
-    }
-    final row = {
-      ...item.toJson(),
-      ...networkLibraryRow(item.filePath, NetworkEntry(name, name), metadata),
-      'coverPath': coverPath,
-      // Force the next scan to verify the newly written remote file.
-      'networkFileVersion': null,
-    };
-    await LibraryDatabase.instance.upsertBatchExcludingHistory([
-      row,
-    ], sourceId: item.sourceId);
-    if (!mounted || cleanFilePath != item.filePath) return;
-    _setState(() => _currentLocalLibraryItem = LocalLibraryItem.fromJson(row));
-    await ref.read(localLibraryProvider.notifier).reloadFromStorage();
-  }
-
   Future<void> _confirmDelete(
     BuildContext screenContext,
     WidgetRef ref,
@@ -169,11 +132,7 @@ extension _TrackMetadataFileActions on _TrackMetadataScreenState {
     final confirmed = await showAppConfirmDialog(
       screenContext,
       title: l10n.trackDeleteConfirmTitle,
-      message: _downloadItem?.originFilePath != null
-          ? l10n.offlineRemoveMessage
-          : _isNetworkItem
-          ? l10n.trackDeleteNetworkConfirmMessage
-          : l10n.trackDeleteConfirmMessage,
+      message: l10n.trackDeleteConfirmMessage,
       confirmLabel: l10n.dialogDelete,
       destructive: true,
       filled: false,
@@ -226,7 +185,6 @@ extension _TrackMetadataFileActions on _TrackMetadataScreenState {
       final playbackCover =
           normalizeOptionalString(_localCoverPath) ??
           normalizeOptionalString(_embeddedCoverPreviewPath) ??
-          normalizeOptionalString(_coverUrl) ??
           '';
       final durationSeconds = duration;
       await ref

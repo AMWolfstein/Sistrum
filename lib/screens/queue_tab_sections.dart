@@ -154,16 +154,12 @@ extension _QueueTabSections on _QueueTabState {
     required BuildContext context,
     required List<UnifiedLibraryItem> items,
     required Widget Function(int index) rowBuilder,
-    required int leadCount,
-    required Widget Function(int index) leadBuilder,
   }) {
     final sections = _trackSections(context, items);
     return SliverPadding(
       padding: EdgeInsets.symmetric(horizontal: wideListInset(context)),
       sliver: _LibrarySectionList(
         sections: sections,
-        leadCount: leadCount,
-        leadBuilder: leadBuilder,
         rowBuilder: (index, section) => TrackCardSegment.at(
           key: ValueKey(items[index].id),
           index: index - section.start,
@@ -613,20 +609,16 @@ class _LibrarySectionList extends StatelessWidget {
   const _LibrarySectionList({
     required this.sections,
     required this.rowBuilder,
-    this.leadCount = 0,
-    this.leadBuilder,
   });
 
   final List<_LibrarySection> sections;
   final Widget Function(int index, _LibrarySection section) rowBuilder;
-  final int leadCount;
-  final Widget Function(int index)? leadBuilder;
 
   @override
   Widget build(BuildContext context) {
     final starts = <int>[];
     final headers = <int>[];
-    var count = leadCount;
+    var count = 0;
     for (final section in sections) {
       starts.add(count);
       if (section.label.isNotEmpty) headers.add(count++);
@@ -635,7 +627,6 @@ class _LibrarySectionList extends StatelessWidget {
     return PinnedSectionSliverList(
       headerIndexes: headers,
       delegate: SliverChildBuilderDelegate((context, index) {
-        if (index < leadCount) return leadBuilder!(index);
         var low = 0;
         var high = starts.length;
         while (low < high) {

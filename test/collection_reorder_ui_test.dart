@@ -5,12 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/track.dart';
-import 'package:sistrum/providers/download_queue_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/library_tracks_folder_screen.dart';
-import 'package:sistrum/services/link/desktop/link_desktop_host.dart';
 import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
@@ -95,16 +93,6 @@ class _Library extends LocalLibraryNotifier {
   LocalLibraryState build() => LocalLibraryState();
 }
 
-class _History extends DownloadHistoryNotifier {
-  @override
-  DownloadHistoryState build() => DownloadHistoryState();
-}
-
-class _Host extends LinkDesktopHost {
-  @override
-  LinkDesktopHostState build() => const LinkDesktopHostState();
-}
-
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
   tearDown(() => debugDesktopPlatformOverride = null);
@@ -128,12 +116,7 @@ void main() {
         overrides: [
           settingsProvider.overrideWith(FixedSettingsNotifier.new),
           libraryCollectionsProvider.overrideWith(() => collections),
-          linkDesktopHostProvider.overrideWith(_Host.new),
           localLibraryProvider.overrideWith(_Library.new),
-          downloadHistoryProvider.overrideWith(_History.new),
-          downloadHistoryVisibleBatchExistsProvider.overrideWith(
-            (ref, request) => const {},
-          ),
           localLibraryCoverProvider.overrideWith((ref, request) async => null),
           localLibraryFirstCoverProvider.overrideWith(
             (ref, request) async => null,

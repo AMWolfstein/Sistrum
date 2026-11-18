@@ -5,7 +5,6 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/utils/artist_utils.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
-import 'package:sistrum/screens/settings/metadata_provider_priority_page.dart';
 import 'package:sistrum/screens/settings/metadata_separator_settings_page.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
@@ -87,53 +86,6 @@ class MetadataSettingsPage extends ConsumerWidget {
                     showDivider: false,
                   ),
                 ],
-              ],
-            ),
-
-            ...settingsSectionSlivers(
-              title: context.l10n.sectionMetadataProviders,
-              children: [
-                SettingsItem(
-                  icon: Icons.source_outlined,
-                  title: context.l10n.metadataProvidersTitle,
-                  subtitle: context.l10n.metadataProvidersSubtitle,
-                  onTap: () => pushPage<void>(
-                    context,
-                    (_) => const MetadataProviderPriorityPage(),
-                  ),
-                  showDivider: false,
-                ),
-              ],
-            ),
-
-            ...settingsSectionSlivers(
-              title: context.l10n.sectionDuplicates,
-              children: [
-                SettingsSwitchItem(
-                  icon: Icons.filter_list_outlined,
-                  title: context.l10n.downloadDeduplication,
-                  subtitle: settings.deduplicateDownloads
-                      ? settings.allowQualityVariants
-                            ? context
-                                  .l10n
-                                  .downloadDeduplicationWithQualityVariants
-                            : context.l10n.downloadDeduplicationEnabled
-                      : context.l10n.downloadDeduplicationDisabled,
-                  value: settings.deduplicateDownloads,
-                  onChanged: (value) => ref
-                      .read(settingsProvider.notifier)
-                      .setDeduplicateDownloads(value),
-                ),
-                SettingsSwitchItem(
-                  icon: Icons.library_music_outlined,
-                  title: context.l10n.downloadQualityVariants,
-                  subtitle: context.l10n.downloadQualityVariantsDescription,
-                  value: settings.allowQualityVariants,
-                  onChanged: (value) => ref
-                      .read(settingsProvider.notifier)
-                      .setAllowQualityVariants(value),
-                  showDivider: false,
-                ),
               ],
             ),
 

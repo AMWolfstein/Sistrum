@@ -1,6 +1,5 @@
 //! Process-style diagnostic buffer scoped to the native backend environment.
 
-use crate::host::decode_go_utf8;
 use crate::redact::sanitize_bytes;
 use serde::Serialize;
 use std::collections::VecDeque;
@@ -132,36 +131,6 @@ impl LogBuffer {
         self.add_message(level, &tag, || message.to_vec(), sanitized)
     }
 
-    pub(crate) fn extension(&self, id: &str, level: &str, arguments: Vec<String>, total: usize) {
-        let mut message = Vec::new();
-        for (index, argument) in arguments.into_iter().take(8).enumerate() {
-            if index > 0 {
-                message.push(b' ');
-            }
-            let bytes = argument.as_bytes();
-            message.extend_from_slice(&bytes[..bytes.len().min(512)]);
-            if bytes.len() > 512 {
-                message.extend_from_slice(b"...[truncated]");
-            }
-        }
-        if total > 8 {
-            if !message.is_empty() {
-                message.push(b' ');
-            }
-            message.extend_from_slice(format!("...[{} more args]", total - 8).as_bytes());
-        }
-        let formatted = truncate(sanitize_bytes(message));
-        let mut line = if level.is_empty() {
-            format!("[Extension:{id}] ")
-        } else {
-            format!("[Extension:{id}:{level}] ")
-        }
-        .into_bytes();
-        line.extend(formatted);
-        line.push(b'\n');
-        let _ = self.backend_bytes(&line, true);
-    }
-
     pub fn all(&self) -> Result<String, LogClosed> {
         let state = self.0.lock().expect("log buffer lock");
         state.check()?;
@@ -225,6 +194,59 @@ fn trim_bytes(bytes: &[u8]) -> &[u8] {
     let right = decoded.len() - decoded.trim_end().len();
     let end = bytes.len().saturating_sub(right);
     if left >= end { &[] } else { &bytes[left..end] }
+}
+
+pub(crate) fn decode_go_utf8(mut bytes: &[u8]) -> String {
+    let mut decoded = String::with_capacity(bytes.len());
+    while !bytes.is_empty() {
+        match std::str::from_utf8(bytes) {
+            Ok(valid) => {
+                decoded.push_str(valid);
+                break;
+            }
+            Err(error) => {
+                let prefix = error.valid_up_to();
+                decoded
+                    .push_str(std::str::from_utf8(&bytes[..prefix]).expect("valid UTF-8 prefix"));
+                decoded.push('\u{fffd}');
+                bytes = &bytes[prefix + 1..];
+            }
+        }
+    }
+    decoded
+}
+
+#[cfg(test)]
+impl LogBuffer {
+    pub(crate) fn extension(&self, id: &str, level: &str, arguments: Vec<String>, total: usize) {
+        let mut message = Vec::new();
+        for (index, argument) in arguments.into_iter().take(8).enumerate() {
+            if index > 0 {
+                message.push(b' ');
+            }
+            let bytes = argument.as_bytes();
+            message.extend_from_slice(&bytes[..bytes.len().min(512)]);
+            if bytes.len() > 512 {
+                message.extend_from_slice(b"...[truncated]");
+            }
+        }
+        if total > 8 {
+            if !message.is_empty() {
+                message.push(b' ');
+            }
+            message.extend_from_slice(format!("...[{} more args]", total - 8).as_bytes());
+        }
+        let formatted = truncate(sanitize_bytes(message));
+        let mut line = if level.is_empty() {
+            format!("[Extension:{id}] ")
+        } else {
+            format!("[Extension:{id}:{level}] ")
+        }
+        .into_bytes();
+        line.extend(formatted);
+        line.push(b'\n');
+        let _ = self.backend_bytes(&line, true);
+    }
 }
 
 #[cfg(test)]

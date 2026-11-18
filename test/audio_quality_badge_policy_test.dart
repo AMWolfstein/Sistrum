@@ -1,49 +1,30 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/utils/audio_quality_badge_policy.dart';
 
 void main() {
-  test(
-    'Library history and local cards retain labels for legacy Opus rows',
-    () {
-      final history = UnifiedLibraryItem.fromDownloadHistory(
-        DownloadHistoryItem(
-          id: 'history-song',
-          trackName: 'Song',
-          artistName: 'Artist',
-          albumName: 'Album',
-          filePath: 'content://music/document/42',
-          safFileName: 'Song.opus',
-          quality: '16-bit/44.1kHz',
-          service: 'example',
-          downloadedAt: DateTime(2026),
-        ),
-      );
-      final local = UnifiedLibraryItem.fromLocalLibrary(
-        LocalLibraryItem(
-          id: 'local-song',
-          trackName: 'Song',
-          artistName: 'Artist',
-          albumName: 'Album',
-          filePath: '/music/Song.opus',
-          scannedAt: DateTime(2026),
-        ),
-      );
-      for (final item in [history, local]) {
-        expect(
-          item.qualityForMode(AppSettings.libraryQualityLabelBitDepth),
-          'OPUS',
-        );
-        expect(
-          item.qualityForMode(AppSettings.libraryQualityLabelBitrate),
-          'OPUS',
-        );
-      }
-    },
-  );
+  test('Library local cards retain labels for legacy Opus rows', () {
+    final local = UnifiedLibraryItem.fromLocalLibrary(
+      LocalLibraryItem(
+        id: 'local-song',
+        trackName: 'Song',
+        artistName: 'Artist',
+        albumName: 'Album',
+        filePath: '/music/Song.opus',
+        scannedAt: DateTime(2026),
+      ),
+    );
+    expect(
+      local.qualityForMode(AppSettings.libraryQualityLabelBitDepth),
+      'OPUS',
+    );
+    expect(
+      local.qualityForMode(AppSettings.libraryQualityLabelBitrate),
+      'OPUS',
+    );
+  });
 
   group('Library audio quality badge color', () {
     test('keeps legacy 24-bit labels highlighted', () {

@@ -3,18 +3,12 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sistrum/providers/download_history_provider.dart';
 import 'package:sistrum/providers/library_browse_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 
 import 'support/fixed_settings.dart';
 import 'support/vm_service_probe.dart';
-
-class _History extends DownloadHistoryNotifier {
-  @override
-  DownloadHistoryState build() => DownloadHistoryState();
-}
 
 class _Local extends LocalLibraryNotifier {
   @override
@@ -56,7 +50,6 @@ Future<void> main() async {
       final container = ProviderContainer(
         overrides: [
           settingsProvider.overrideWith(FixedSettingsNotifier.new),
-          downloadHistoryProvider.overrideWith(_History.new),
           localLibraryProvider.overrideWith(_Local.new),
           libraryBrowsePageLoaderProvider.overrideWithValue((page) async {
             final rows = [

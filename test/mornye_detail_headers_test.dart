@@ -1,14 +1,13 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/cover_palette.dart';
-import 'package:sistrum/services/cover_cache_manager.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/collection_scaffold.dart';
 import 'package:sistrum/widgets/mornye_artist_header.dart';
@@ -20,6 +19,10 @@ void main() {
     tester,
   ) async {
     const name = 'An artist with a name spanning several lines';
+    final logoDir = Directory.systemTemp.createTempSync('mornye_logo');
+    addTearDown(() => logoDir.deleteSync(recursive: true));
+    final logo = File('${logoDir.path}/large-logo.png')
+      ..writeAsBytesSync(base64Decode(_onePixelPng));
     tester.view.physicalSize = const Size(780, 1688);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
@@ -33,12 +36,12 @@ void main() {
             ).copyWith(textScaler: const TextScaler.linear(2)),
             child: child!,
           ),
-          home: const Scaffold(
+          home: Scaffold(
             body: CustomScrollView(
               slivers: [
                 MornyeArtistHeader(
                   name: name,
-                  logoUrl: 'https://example.invalid/large-logo.png',
+                  logoUrl: logo.path,
                   artwork: ColoredBox(color: Colors.orange),
                   actions: [],
                   showTitle: false,
@@ -54,8 +57,7 @@ void main() {
     expect(resized.width, 640);
     expect(resized.height, 192);
     expect(resized.policy, ResizeImagePolicy.fit);
-    final source = resized.imageProvider as CachedNetworkImageProvider;
-    expect(source.cacheManager, same(CoverCacheManager.instance));
+    expect((resized.imageProvider as FileImage).file.path, logo.path);
     await tester.pumpAndSettle();
     final fallback = find.descendant(
       of: find.byType(FlexibleSpaceBar),
@@ -811,3 +813,7 @@ void main() {
     },
   );
 }
+
+// A 1x1 PNG for the logo file.
+const _onePixelPng =
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';

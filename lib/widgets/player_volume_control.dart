@@ -4,7 +4,6 @@ import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/system_volume_provider.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
@@ -95,12 +94,7 @@ class _PlayerVolumeControlState extends ConsumerState<PlayerVolumeControl> {
 
   Future<void> _flushVolume() async {
     _writing = true;
-    final remote = ref.read(soundsBesideRemoteProvider)
-        ? null
-        : ref.read(activeRemotePlaybackProvider);
-    final write = remote == null
-        ? ref.read(systemVolumeWriterProvider)
-        : remote.setVolume;
+    final write = ref.read(systemVolumeWriterProvider);
     final usbToken = usbHardwareVolume.value?.token;
     try {
       // Send changes during the gesture. If the platform is still processing
@@ -126,17 +120,8 @@ class _PlayerVolumeControlState extends ConsumerState<PlayerVolumeControl> {
 
   @override
   Widget build(BuildContext context) {
-    // While another device plays in this one's place, the slider sets its
-    // volume. While this one sounds too, it sets this one's.
-    final remote =
-        ref.watch(activeRemotePlaybackProvider) != null &&
-        !ref.watch(soundsBesideRemoteProvider);
-    final usb = remote
-        ? null
-        : ref.watch(usbVolumeProvider).value ?? usbHardwareVolume.value;
-    final volume = remote
-        ? ref.watch(activeRemoteVolumeProvider).value
-        : usb == null
+    final usb = ref.watch(usbVolumeProvider).value ?? usbHardwareVolume.value;
+    final volume = usb == null
         ? ref.watch(systemVolumeProvider).value
         : usb.available
         ? usb.fraction
