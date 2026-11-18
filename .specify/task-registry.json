@@ -5,10 +5,16 @@
       "nonce": "e1b93e35a1084e14acfee4be40eb7a92",
       "path": "specs/001-sistrum-android-offline",
       "title": "Rebrand to Sistrum and ship Android ARM64 offline"
+    },
+    "M002": {
+      "next_task": 8,
+      "nonce": "373c87ad8e904b7ca6b19477546981dc",
+      "path": "specs/002-media3-local-audio",
+      "title": "Consolidate Android offline playback and local audio processing"
     }
   },
   "next_completion": 7,
-  "next_mission": 2,
+  "next_mission": 3,
   "next_tor": 3,
   "tasks": {
     "M001-T001": {
@@ -104,6 +110,76 @@
       "record": "specs/001-sistrum-android-offline/tasks.md",
       "status": "reserved",
       "title": "Verify Sistrum Android offline release"
+    },
+    "M002-T001": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M002",
+      "nonce": "7479d350fcd24f2da90063566f238fe5",
+      "record": "specs/002-media3-local-audio/tasks.md",
+      "status": "reserved",
+      "title": "Integrate and verify Kotlin codecs in the Media3 source factory"
+    },
+    "M002-T002": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M002",
+      "nonce": "a648961ca9334727a6fe5b87c6e2a180",
+      "record": "specs/002-media3-local-audio/tasks.md",
+      "status": "reserved",
+      "title": "Make Media3 the sole playback engine and retire specialized output"
+    },
+    "M002-T003": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M002",
+      "nonce": "20ec0f47e1ee48399dd950a4f930e6ed",
+      "record": "specs/002-media3-local-audio/tasks.md",
+      "status": "reserved",
+      "title": "Replace FFmpeg local metadata and cover operations"
+    },
+    "M002-T004": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M002",
+      "nonce": "da7bb73cf8d64ed982dcf33f91680f5c",
+      "record": "specs/002-media3-local-audio/tasks.md",
+      "status": "reserved",
+      "title": "Replace FFmpeg local audio analysis"
+    },
+    "M002-T005": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M002",
+      "nonce": "77b895c6fadc4ccf872ce4c1814cb7ca",
+      "record": "specs/002-media3-local-audio/tasks.md",
+      "status": "reserved",
+      "title": "Preserve CUE file export without FFmpeg and remove format conversion"
+    },
+    "M002-T006": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M002",
+      "nonce": "caed1be3fe854e1f9b6b2fde60fd90d1",
+      "record": "specs/002-media3-local-audio/tasks.md",
+      "status": "reserved",
+      "title": "Remove Java sources and retire obsolete build dependencies"
+    },
+    "M002-T007": {
+      "completion": null,
+      "final": true,
+      "kind": "T",
+      "mission": "M002",
+      "nonce": "b1269448422a406d8daac881d83b2512",
+      "record": "specs/002-media3-local-audio/tasks.md",
+      "status": "reserved",
+      "title": "Verify cumulative offline playback and local audio processing"
     },
     "TOR001": {
       "completion": 1,
