@@ -38,6 +38,12 @@ Run sequentially after implementation is authorized. Each task starts with `pyth
   - Remove the style setting, dynamic colour/seed/AMOLED options, `AppTheme`, all Material branches and Material-only widgets, Material 3 Expressive, dynamic color and Material Symbols (`material_3_expressive`, `dynamic_color`, `material_symbols_icons`) and the Player home-screen widget. Keep Mornye unchanged, `material_ui` (the framework Material library Mornye is built on), `cupertino_ui`, `material_color_utilities`.
   - Checks: `flutter analyze`, chunked `flutter test` compared with the M001-T005 run, preference-migration test, `:app:compileReleaseKotlin`, grep proofs listed in the plan.
 
+- [ ] M001-TOR004 Full code and test audit with verified fixes
+  - Run after M001-TOR003 and before M001-T007, as one TOR, one reviewed commit. Plan: [tor004-full-audit.md](tor004-full-audit.md).
+  - Paths: the whole checkout that remains after T006 and TOR003: `lib/`, `android/`, `rust_backend/crates/`, `scripts/`, `workflow/` tests, `test/`, `integration_test/`.
+  - Run the `audit` skill (dead code, optimization, simplifier, test quality, coverage gaps) over code and over every test file. Classify each finding CONFIRMED, PROBABLE or UNCERTAIN. Fix the CONFIRMED ones; verify each PROBABLE/UNCERTAIN one first, then fix it only if it becomes confirmed; record the rest as retained with the missing evidence.
+  - Checks: audit reports under `.work/audit/`, `flutter analyze`, chunked `flutter test` compared with the TOR003 run, `cargo clippy/test`, `:app:compileReleaseKotlin`, workflow tests.
+
 - [ ] M001-T007 [FINAL] Verify Sistrum Android offline release
   - Paths: cumulative diff, retained integration tests and task records.
   - Validate clean install, local backup/restore, sustained offline playback with background controls, Bluetooth/headset and focus handling, and representative 4 KB/16 KB ARM64 environments. Check that restored playback state and Mornye theme persist. Verify no release network capability, no obsolete platform artifacts, and required upstream notices.
@@ -45,4 +51,4 @@ Run sequentially after implementation is authorized. Each task starts with `pyth
 
 ## Owner extras
 
-None reserved. M001-TOR003 (owner request) is placed after M001-T006 above.
+None reserved. M001-TOR003 and M001-TOR004 (owner requests) are placed after M001-T006 above.
