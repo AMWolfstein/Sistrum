@@ -15,7 +15,7 @@
   },
   "next_completion": 8,
   "next_mission": 3,
-  "next_tor": 4,
+  "next_tor": 5,
   "tasks": {
     "M001-T001": {
       "completion": 3,
@@ -126,6 +126,16 @@
       "record": "specs/001-sistrum-android-offline/tasks.md",
       "status": "reserved",
       "title": "Make Mornye the only theme and remove the Material design layer"
+    },
+    "M001-TOR004": {
+      "completion": null,
+      "final": false,
+      "kind": "TOR",
+      "mission": "M001",
+      "nonce": "bfa57e118bb946bdb96f137c36f1e17e",
+      "record": "specs/001-sistrum-android-offline/tasks.md",
+      "status": "reserved",
+      "title": "Full code and test audit with verified fixes"
     },
     "M002-T001": {
       "completion": null,
