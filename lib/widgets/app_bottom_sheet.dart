@@ -5,10 +5,10 @@ import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/widgets/mornye_overlay_surface.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
-import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
 
 /// The drag handle shown at the top of every modal sheet.
@@ -425,7 +425,10 @@ Future<T?> showAppModalBottomSheet<T>({
         : null,
     elevation: mornye ? 0 : null,
     builder: (context) => mornye && mornyeGlass
-        ? MornyeGlassPanel.overlay(child: Builder(builder: builder))
+        ? MornyeOverlaySurface(
+            kind: MornyeOverlayKind.sheet,
+            child: Builder(builder: builder),
+          )
         : builder(context),
   );
 }
@@ -531,7 +534,11 @@ class AppSheetDialog extends StatelessWidget {
       ),
     );
     if (mornye && mornyeGlass) {
-      content = MornyeGlassPanel.overlay(radius: radius, child: content);
+      content = MornyeOverlaySurface(
+        kind: MornyeOverlayKind.sheet,
+        radius: radius,
+        child: content,
+      );
     } else if (!mornye) {
       // Desktop scrollbars normally fade out when idle. In a dialog the
       // body's bar stays visible, so a cut-off list reads as scrollable.

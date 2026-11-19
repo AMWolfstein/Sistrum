@@ -5,6 +5,7 @@ import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/mornye_overlay_surface.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 
 /// Bounds of the tapped control or row, in the root overlay's coordinates.
@@ -535,7 +536,10 @@ class _MenuSurface extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      MornyeCoverTheme(child: Builder(builder: _buildSurface));
+
+  Widget _buildSurface(BuildContext context) {
     final theme = Theme.of(context);
     final dark = theme.brightness == Brightness.dark;
     Widget glass(double radius, Widget child) => MornyeGlassPanel.overlay(

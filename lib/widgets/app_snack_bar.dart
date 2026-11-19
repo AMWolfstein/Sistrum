@@ -1,9 +1,9 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/mornye_overlay_surface.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
-import 'package:sistrum/widgets/mornye_chrome.dart';
 
 /// Applies the same transient-message policy to existing snackbar call sites.
 /// A new message replaces the old one instead of building a stale FIFO queue:
@@ -200,7 +200,8 @@ ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showAppSnackBar(
     reduceMotion: reduceMotion,
     content: Theme(
       data: theme,
-      child: MornyeGlassPanel.overlay(
+      child: MornyeOverlaySurface(
+        kind: MornyeOverlayKind.message,
         radius: 24,
         // Messages have no modal scrim; let more of the page show through.
         tintOpacity: 0.48,

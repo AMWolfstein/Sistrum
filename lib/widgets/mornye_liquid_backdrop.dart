@@ -20,6 +20,7 @@ class MornyeLiquidBackdrop extends StatelessWidget {
     this.refractionWidth = 20,
     this.smoothCorners = false,
     this.highlightIntensity = 1,
+    this.opacity = 1,
   });
 
   final BorderRadius borderRadius;
@@ -32,6 +33,9 @@ class MornyeLiquidBackdrop extends StatelessWidget {
   final double refractionWidth;
   final bool smoothCorners;
   final double highlightIntensity;
+
+  /// Fades the whole lens; `0` costs no backdrop read and leaves the child.
+  final double opacity;
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +60,7 @@ class MornyeLiquidBackdrop extends StatelessWidget {
     final uiScale = AdaptiveUiScale.of(context);
     final lens = LegacyThemeBrightness(
       child: LiquidGlassLens(
+        opacity: opacity,
         style: LiquidGlassStyle(
           shape: LiquidGlassShape(
             cornerStyle: smoothCorners

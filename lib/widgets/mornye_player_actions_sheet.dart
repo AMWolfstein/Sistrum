@@ -1,13 +1,11 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
-import 'package:sistrum/theme/cover_palette.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mornye_context_menu.dart';
+import 'package:sistrum/widgets/mornye_overlay_surface.dart';
 
 /// Navigation for the title/artist, separate from playback and file actions.
 class MornyePlayerNavigationMenu extends StatelessWidget {
@@ -201,24 +199,9 @@ class _MornyePlayerMenuSurface extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
-    return CoverSourceColorBuilder(
-      imageSource: mediaItem.artUri?.toString(),
-      builder: (context, sourceColor) {
-        final dominant = HSLColor.fromColor(sourceColor ?? Colors.grey);
-        final surface = dominant
-            .withSaturation(dominant.saturation.clamp(0.0, 0.34))
-            .withLightness(0.28)
-            .toColor();
-        return Theme(
-          data: MornyeTheme.fromContext(
-            context,
-            brightness: Brightness.dark,
-            chromeSurface: surface,
-          ),
-          child: child,
-        );
-      },
-    );
-  }
+  Widget build(BuildContext context) => MornyeCoverTheme(
+    imageSource: mediaItem.artUri?.toString(),
+    forceDark: true,
+    child: child,
+  );
 }

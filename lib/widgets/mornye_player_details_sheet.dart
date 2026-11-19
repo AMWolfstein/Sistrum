@@ -3,9 +3,8 @@ import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
-import 'package:sistrum/widgets/mornye_chrome.dart';
+import 'package:sistrum/widgets/mornye_overlay_surface.dart';
 import 'package:sistrum/widgets/mornye_metadata_row.dart';
 import 'package:sistrum/widgets/player_artwork.dart';
 
@@ -31,8 +30,8 @@ class MornyePlayerDetailsSheet extends ConsumerWidget {
     final item = mediaItem;
     final artworkCacheWidth =
         (_artworkSize * MediaQuery.devicePixelRatioOf(context)).ceil();
-    return MornyeGlass.navigation(
-      blurEnabled: ref.watch(mornyeBlurEnabledProvider),
+    return MornyeOverlaySurface(
+      kind: MornyeOverlayKind.sheet,
       child: SafeArea(
         top: false,
         child: Column(

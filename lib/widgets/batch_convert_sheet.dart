@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/app_tokens.dart';
+import 'package:sistrum/widgets/mornye_overlay_surface.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
 import 'package:sistrum/widgets/app_choice_chip.dart';
 import 'package:sistrum/widgets/app_slider.dart';
@@ -346,7 +347,7 @@ class _BatchConvertSheetState extends State<BatchConvertSheet> {
   Widget _sheetSurface({required Widget child}) {
     final content = SafeArea(child: child);
     return context.isMornye
-        ? MornyeGlassPanel.overlay(child: content)
+        ? MornyeOverlaySurface(kind: MornyeOverlayKind.sheet, child: content)
         : content;
   }
 

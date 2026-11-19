@@ -8,6 +8,7 @@ import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/mornye_glass_press.dart';
 import 'package:sistrum/widgets/mornye_selection_pill.dart';
+import 'package:sistrum/widgets/mornye_glass_lens_fade.dart';
 import 'package:sistrum/widgets/mornye_liquid_backdrop.dart';
 import 'package:sistrum/widgets/mornye_squircle_border.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
@@ -102,6 +103,7 @@ class MornyeGlassPanel extends ConsumerWidget {
     this.smoothCorners = false,
     this.highlightIntensity = 1,
     this.glassProgress = 1,
+    this.elevated = true,
   });
 
   const MornyeGlassPanel.overlay({
@@ -118,6 +120,7 @@ class MornyeGlassPanel extends ConsumerWidget {
     this.smoothCorners = false,
     this.highlightIntensity = 1,
     this.glassProgress = 1,
+    this.elevated = true,
   }) : strongTint = true;
 
   final Widget child;
@@ -135,6 +138,7 @@ class MornyeGlassPanel extends ConsumerWidget {
   final bool smoothCorners;
   final double highlightIntensity;
   final double glassProgress;
+  final bool elevated;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -151,6 +155,7 @@ class MornyeGlassPanel extends ConsumerWidget {
       smoothCorners: smoothCorners,
       highlightIntensity: highlightIntensity,
       glassProgress: glassProgress,
+      elevated: elevated,
       // Tile ink must paint above the glass tint rather than beneath it.
       child: Material(type: MaterialType.transparency, child: child),
     );
@@ -176,6 +181,7 @@ class MornyeGlass extends ConsumerWidget {
     this.smoothCorners = false,
     this.highlightIntensity = 1,
     this.glassProgress = 1,
+    this.elevated = true,
   });
 
   // Quantized and shared across surfaces. Avoid composed color filters and
@@ -210,6 +216,10 @@ class MornyeGlass extends ConsumerWidget {
 
   /// Plain-page surfaces keep their tint without filtering a uniform backdrop.
   final bool samplesBackdrop;
+
+  /// Whether the surface casts its soft contact shadow. Groups that scroll in
+  /// long lists leave it off: a blurred shadow repaints on every scroll frame.
+  final bool elevated;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -279,17 +289,22 @@ class MornyeGlass extends ConsumerWidget {
     // At low clarity the tint obscures almost all detail. In particular, 10%
     // must not suddenly enable backdrop sampling on a mid-range GPU.
     final blurThreshold = level == MornyeGlassLevel.frosted ? 0.5 : 0.2;
-    final sampleBackdrop =
+    // Header buttons fade their lens out as the header collapses into a flat
+    // bar; everything else reads 1.
+    final lensFade = MornyeGlassLensFade.opacityOf(context);
+    final canSample =
         translucent &&
         samplesBackdrop &&
         !insideGlass &&
         clarity > blurThreshold;
-    final useLens =
-        sampleBackdrop &&
+    final sampleBackdrop = canSample && lensFade > 0;
+    final lensEligible =
+        canSample &&
         firstInGroup &&
         lastInGroup &&
         level == MornyeGlassLevel.liquid &&
         (debugShaderFilterSupport ?? ImageFilter.isShaderFilterSupported);
+    final useLens = lensEligible && lensFade > 0;
     // Clear glass softens the backdrop less. Keep the mid-range fallback at
     // its small blur budget, and reuse these filters in the lens renderer too.
     final filterIndex = level == MornyeGlassLevel.frosted
@@ -303,8 +318,14 @@ class MornyeGlass extends ConsumerWidget {
         .withValues(alpha: dark ? 0.17 : 0.46);
     final fill = Color.lerp(
       scheme.surfaceContainerHigh,
-      useLens && !strongTint
-          ? Color.lerp(tint, clearFill, ((clarity - 0.2) / 0.8).clamp(0, 1))
+      // A fading header lens blends its clear fill back to the tint, so the
+      // fill is continuous when the lens is removed.
+      lensEligible && !strongTint
+          ? Color.lerp(
+              tint,
+              Color.lerp(tint, clearFill, ((clarity - 0.2) / 0.8).clamp(0, 1)),
+              lensFade,
+            )
           : tint,
       reveal,
     );
@@ -316,7 +337,7 @@ class MornyeGlass extends ConsumerWidget {
       // Child controls paint on this surface; never re-blur their parent.
       child: _GlassBackdropScope(child: child),
     );
-    final shadows = firstInGroup && lastInGroup
+    final shadows = elevated && firstInGroup && lastInGroup
         ? [
             BoxShadow(
               color: Colors.black.withValues(alpha: dark ? 0.14 : 0.08),
@@ -334,6 +355,7 @@ class MornyeGlass extends ConsumerWidget {
             refractionDepth: refractionDepth * reveal,
             smoothCorners: squircle,
             highlightIntensity: highlightIntensity * reveal,
+            opacity: lensFade,
             child: surface,
           )
         : null;

@@ -1,11 +1,9 @@
 import 'dart:io';
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/cover_palette.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
@@ -485,11 +483,6 @@ class _ArtistCollapsingArtwork extends ConsumerWidget {
       0.88,
       curve: Curves.easeInOut,
     ).transform(collapse);
-    final blur = 18 * Curves.easeOut.transform(collapse);
-    final blurEnabled =
-        !MediaQuery.disableAnimationsOf(context) &&
-        // The collapse blur and masked backdrop re-filter on every scroll frame.
-        ref.watch(mornyeLiquidGlassProvider);
 
     return ClipRect(
       child: Stack(
@@ -497,37 +490,31 @@ class _ArtistCollapsingArtwork extends ConsumerWidget {
         children: [
           TickerMode(
             enabled: fade < 1,
-            child: ImageFiltered(
-              enabled: blurEnabled && blur > 0 && fade < 1,
-              imageFilter: ImageFilter.blur(
-                sigmaX: blur,
-                sigmaY: blur,
-                tileMode: TileMode.clamp,
-              ),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final height = settings?.maxExtent ?? constraints.maxHeight;
-                  final zoom = height > 0
-                      ? (constraints.maxHeight / height).clamp(
-                          1.0,
-                          double.infinity,
-                        )
-                      : 1.0;
-                  // Stretch the photograph uniformly around its top edge.
-                  // Identity and actions remain outside this transform, moving
-                  // down with the sliver without growing along with the image.
-                  return OverflowBox(
+            // No live blur while collapsing: it re-filters on every scroll
+            // frame, and the gradient below already darkens the artwork.
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final height = settings?.maxExtent ?? constraints.maxHeight;
+                final zoom = height > 0
+                    ? (constraints.maxHeight / height).clamp(
+                        1.0,
+                        double.infinity,
+                      )
+                    : 1.0;
+                // Stretch the photograph uniformly around its top edge.
+                // Identity and actions remain outside this transform, moving
+                // down with the sliver without growing along with the image.
+                return OverflowBox(
+                  alignment: Alignment.topCenter,
+                  minHeight: height,
+                  maxHeight: height,
+                  child: Transform.scale(
+                    scale: zoom,
                     alignment: Alignment.topCenter,
-                    minHeight: height,
-                    maxHeight: height,
-                    child: Transform.scale(
-                      scale: zoom,
-                      alignment: Alignment.topCenter,
-                      child: RepaintBoundary(child: child),
-                    ),
-                  );
-                },
-              ),
+                    child: RepaintBoundary(child: child),
+                  ),
+                );
+              },
             ),
           ),
           DecoratedBox(

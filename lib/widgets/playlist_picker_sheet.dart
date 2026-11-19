@@ -16,16 +16,19 @@ import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
-import 'package:sistrum/widgets/mornye_chrome.dart';
+import 'package:sistrum/widgets/mornye_overlay_surface.dart';
 
 final _log = AppLogger('PlaylistPicker');
 
 Future<void> showAddTrackToPlaylistSheet(
   BuildContext context,
   WidgetRef ref,
-  Track track,
-) async {
-  return showAddTracksToPlaylistSheet(context, ref, [track]);
+  Track track, {
+  bool fromPlayer = false,
+}) async {
+  return showAddTracksToPlaylistSheet(context, ref, [
+    track,
+  ], forceDark: fromPlayer);
 }
 
 Future<void> showAddTracksToPlaylistSheet(
@@ -34,6 +37,7 @@ Future<void> showAddTracksToPlaylistSheet(
   List<Track> tracks, {
   String? playlistNamePrefill,
   bool preserveOccurrences = false,
+  bool forceDark = false,
 }) async {
   if (tracks.isEmpty) return;
 
@@ -44,7 +48,7 @@ Future<void> showAddTracksToPlaylistSheet(
     useRootNavigator: true,
     showDragHandle: !context.isMornye,
     isScrollControlled: true,
-    // The picker keeps its lighter glass tint.
+    // The picker draws its own overlay surface below.
     mornyeGlass: false,
     builder: (sheetContext) {
       final content = _PlaylistPickerSheetContent(
@@ -53,7 +57,11 @@ Future<void> showAddTracksToPlaylistSheet(
         preserveOccurrences: preserveOccurrences,
       );
       return sheetContext.isMornye
-          ? MornyeGlassPanel(tintOpacity: 0.78, child: content)
+          ? MornyeOverlaySurface(
+              kind: MornyeOverlayKind.sheet,
+              forceDark: forceDark,
+              child: content,
+            )
           : content;
     },
   );

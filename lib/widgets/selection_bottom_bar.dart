@@ -11,7 +11,7 @@ import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/desktop/detail_header.dart'
     show desktopDetailBottomInset;
-import 'package:sistrum/widgets/mornye_chrome.dart';
+import 'package:sistrum/widgets/mornye_overlay_surface.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/expressive_icon_button.dart';
@@ -373,7 +373,10 @@ class SelectionBottomBar extends StatelessWidget {
     const floatingMargin = 12.0;
     Widget surface(Widget content) {
       if (context.isMornye) {
-        return MornyeGlassPanel.overlay(child: content);
+        return MornyeOverlaySurface(
+          kind: MornyeOverlayKind.bar,
+          child: content,
+        );
       }
       final toolbar = Material(
         color: colorScheme.surfaceContainerHigh,

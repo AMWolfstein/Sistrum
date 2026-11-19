@@ -294,7 +294,9 @@ class SettingsGroup extends StatelessWidget {
     if (glass && context.isMornye) {
       // Groups scroll over the opaque page color, where a backdrop pass
       // filters a flat color; keep the glass tint and rim without it.
-      return inset(MornyeGlassPanel(samplesBackdrop: false, child: child));
+      return inset(
+        MornyeGlassPanel(samplesBackdrop: false, elevated: false, child: child),
+      );
     }
 
     final expressive = materialExpressiveEnabled(context);

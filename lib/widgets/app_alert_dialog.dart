@@ -6,10 +6,10 @@ import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/theme/material_expressive.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/widgets/mornye_overlay_surface.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/expressive_button.dart';
-import 'package:sistrum/widgets/mornye_chrome.dart';
 
 /// Dialog presentation follows the selected design, including on Android.
 Future<T?> showAppDialog<T>({
@@ -135,9 +135,7 @@ class AppDialogSurface extends StatelessWidget {
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth),
         child: mornye
-            ? MornyeGlassPanel.overlay(
-                child: SingleChildScrollView(child: child),
-              )
+            ? MornyeOverlaySurface(child: SingleChildScrollView(child: child))
             : child,
       ),
     );
@@ -319,7 +317,7 @@ class AppAlertDialog extends StatelessWidget {
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 320),
-        child: MornyeGlassPanel.overlay(
+        child: MornyeOverlaySurface(
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(

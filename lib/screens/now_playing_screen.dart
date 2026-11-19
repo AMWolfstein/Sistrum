@@ -1312,7 +1312,12 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
       if (favorite) {
         await ref.read(libraryCollectionsProvider.notifier).toggleLoved(track);
       } else {
-        await showAddTrackToPlaylistSheet(context, ref, track);
+        await showAddTrackToPlaylistSheet(
+          context,
+          ref,
+          track,
+          fromPlayer: true,
+        );
       }
     } catch (error) {
       if (!mounted) return;

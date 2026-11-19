@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart' show RenderProxySliver;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
+import 'package:sistrum/widgets/mornye_glass_lens_fade.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/app_tokens.dart';
@@ -182,7 +183,12 @@ class AlbumDetailHeader extends StatelessWidget {
       context,
       const AppMotionSpec(Duration(milliseconds: 180), Curves.linear),
     );
-    Widget toolbar({bool collapsed = true}) => SliverAppBar(
+    // [fadeExtent] is the scroll offset at which the toolbar is a flat bar: the
+    // glass of its buttons fades out as it approaches it.
+    Widget fading(double? fadeExtent, Widget button) => fadeExtent == null
+        ? button
+        : MornyeGlassLensFade(collapseExtent: fadeExtent, child: button);
+    Widget toolbar({bool collapsed = true, double? fadeExtent}) => SliverAppBar(
       pinned: true,
       backgroundColor: collapsed ? scheme.surface : Colors.transparent,
       surfaceTintColor: Colors.transparent,
@@ -205,9 +211,11 @@ class AlbumDetailHeader extends StatelessWidget {
         ),
       ),
       leadingWidth: kToolbarHeight + edgeInset,
-      leading: back,
+      leading: fading(fadeExtent, back),
       actionsPadding: EdgeInsetsDirectional.only(end: edgeInset),
-      actions: appBarActions,
+      actions: appBarActions == null
+          ? null
+          : [for (final action in appBarActions!) fading(fadeExtent, action)],
     );
     if (immersive) {
       final detailsTop = (artworkSize - 20).clamp(0.0, double.infinity);
@@ -242,8 +250,12 @@ class AlbumDetailHeader extends StatelessWidget {
             return SliverLayoutInfoBuilder(
               select: (constraints) =>
                   constraints.scrollOffset >= collapseOffset,
-              builder: (context, collapsed) =>
-                  _AlbumOverlayToolbar(child: toolbar(collapsed: collapsed)),
+              builder: (context, collapsed) => _AlbumOverlayToolbar(
+                child: toolbar(
+                  collapsed: collapsed,
+                  fadeExtent: collapseOffset,
+                ),
+              ),
             );
           },
         ),

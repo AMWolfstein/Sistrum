@@ -176,8 +176,14 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
   }
 
   static ThemeData _withChromeSurface(ThemeData theme, Color chromeSurface) {
+    // Cards and selected rows on a cover-tinted surface are the cover colour a
+    // little lighter, not near-black.
+    Color lighter(double amount) =>
+        Color.alphaBlend(Colors.white.withValues(alpha: amount), chromeSurface);
     final scheme = theme.colorScheme.copyWith(
+      surfaceContainer: lighter(0.10),
       surfaceContainerHigh: Color.lerp(chromeSurface, Colors.black, 0.16),
+      secondaryContainer: lighter(0.18),
     );
     return theme.copyWith(
       colorScheme: scheme,
