@@ -7,6 +7,8 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart'
     show SystemChrome, SystemUiMode, rootBundle;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:liquid_glass_easy/liquid_glass_easy.dart'
+    show LiquidGlassBlurMethod, LiquidGlassConfiguration;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/app.dart';
 import 'package:sistrum/constants/app_info.dart';
@@ -70,6 +72,14 @@ class _DesktopBinding extends WidgetsFlutterBinding {
 }
 
 void main() {
+  // Glass blurs inside the lens shader: one backdrop read, no separate blur
+  // pass. Shader blur draws no colour fringe unless dispersion is turned on
+  // for it, so the colour fringe is switched on for lenses outside and
+  // inside a batch.
+  LiquidGlassConfiguration.blurMethod = LiquidGlassBlurMethod.shader;
+  LiquidGlassConfiguration.batchBlurMethod = LiquidGlassBlurMethod.shader;
+  LiquidGlassConfiguration.shaderBlurDispersion = true;
+  LiquidGlassConfiguration.batchShaderBlurDispersion = true;
   // Catch uncaught Dart errors so a failing async path is logged, not fatal.
   // Native backend crashes still can't be caught here.
   runZonedGuarded(
