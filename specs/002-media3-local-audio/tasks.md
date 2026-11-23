@@ -1,6 +1,6 @@
 # M002 tasks
 
-Start after M001-T007 is complete. Run tasks sequentially with a fresh repository map per task, targeted checks and independent review. Test commands use the toolchain and Android module retained by M001.
+Superseded by [M003](../003-mpv-audio-kit-playback/tasks.md); do not start these tasks. Start after M001-T007 is complete. Run tasks sequentially with a fresh repository map per task, targeted checks and independent review. Test commands use the toolchain and Android module retained by M001.
 
 - [ ] M002-T001 Integrate and verify Kotlin codecs in the Media3 source factory
   - Paths include `android/app/src/main/kotlin/com/amwolfstein/sistrum/Media3Sources.kt`, `Media3Player.kt` beside it, the retained Gradle files and Media3 tests. Reuse SistrumKotlin providers for WavPack and DSF/DFF. Compare ALAC/APE/Musepack/WMA coverage where needed to preserve supported formats.

@@ -11,10 +11,16 @@
       "nonce": "373c87ad8e904b7ca6b19477546981dc",
       "path": "specs/002-media3-local-audio",
       "title": "Consolidate Android offline playback and local audio processing"
+    },
+    "M003": {
+      "next_task": 12,
+      "nonce": "8b6d9b293bb64bc8b0c186b8fe612fbb",
+      "path": "specs/003-mpv-audio-kit-playback",
+      "title": "Play and process local audio through mpv_audio_kit"
     }
   },
   "next_completion": 8,
-  "next_mission": 3,
+  "next_mission": 4,
   "next_tor": 5,
   "tasks": {
     "M001-T001": {
@@ -206,6 +212,116 @@
       "record": "specs/002-media3-local-audio/tasks.md",
       "status": "reserved",
       "title": "Verify cumulative offline playback and local audio processing"
+    },
+    "M003-T001": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "c3b423132f484a24b0337d91aa08d5c6",
+      "record": "specs/003-mpv-audio-kit-playback/tasks.md",
+      "status": "reserved",
+      "title": "Vendor mpv_audio_kit and move its media session between players"
+    },
+    "M003-T002": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "b9f634297ba041ac86bc2b60c60ce25b",
+      "record": "specs/003-mpv-audio-kit-playback/tasks.md",
+      "status": "reserved",
+      "title": "Add Android Auto browsing and Sistrum controls to the vendored session"
+    },
+    "M003-T003": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "9fd53698d1964601b1540f6a17548a34",
+      "record": "specs/003-mpv-audio-kit-playback/tasks.md",
+      "status": "reserved",
+      "title": "Play all local music through mpv_audio_kit"
+    },
+    "M003-T004": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "cd953aec655c46f9b8ea566b8188f822",
+      "record": "specs/003-mpv-audio-kit-playback/tasks.md",
+      "status": "reserved",
+      "title": "Replace audio_service and audio_session with the vendored session"
+    },
+    "M003-T005": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "09945eaab3c04a3a8fc7bf7ec535fb27",
+      "record": "specs/003-mpv-audio-kit-playback/tasks.md",
+      "status": "reserved",
+      "title": "Retire the other playback engines and specialized output"
+    },
+    "M003-T006": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "bae6feb500004fa0874133851d82107d",
+      "record": "specs/003-mpv-audio-kit-playback/tasks.md",
+      "status": "reserved",
+      "title": "Add a libmpv PCM decoder and replace FFmpeg audio analysis"
+    },
+    "M003-T007": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "b8d863126bf342efa4ac3510bdf1b6ca",
+      "record": "specs/003-mpv-audio-kit-playback/tasks.md",
+      "status": "reserved",
+      "title": "Replace FFmpeg metadata, probe and ReplayGain operations"
+    },
+    "M003-T008": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "0981a90bd7bd4c849663ff72f765247c",
+      "record": "specs/003-mpv-audio-kit-playback/tasks.md",
+      "status": "reserved",
+      "title": "Render AutoMix effects and check motion artwork without FFmpeg"
+    },
+    "M003-T009": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "b2da2b7daf794bafbb509bc6c96f1f1f",
+      "record": "specs/003-mpv-audio-kit-playback/tasks.md",
+      "status": "reserved",
+      "title": "Preserve CUE export without FFmpeg and remove format conversion"
+    },
+    "M003-T010": {
+      "completion": null,
+      "final": false,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "7642038f8325462e96cea1b57a0931d6",
+      "record": "specs/003-mpv-audio-kit-playback/tasks.md",
+      "status": "reserved",
+      "title": "Remove FFmpeg kit and obsolete build inputs"
+    },
+    "M003-T011": {
+      "completion": null,
+      "final": true,
+      "kind": "T",
+      "mission": "M003",
+      "nonce": "fecaa2f946424785908522a824b5c75c",
+      "record": "specs/003-mpv-audio-kit-playback/tasks.md",
+      "status": "reserved",
+      "title": "Verify cumulative mpv playback and local audio processing"
     },
     "TOR001": {
       "completion": 1,

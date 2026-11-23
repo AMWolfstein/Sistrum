@@ -1,5 +1,7 @@
 # M002 — Media3 playback and offline audio processing
 
+> Superseded by [M003](../003-mpv-audio-kit-playback/spec.md): playback moves to mpv_audio_kit instead of Media3. M002 stays reserved and is not implemented.
+
 ## Mission boundary
 
 M001 owns the offline product transition. M001-T005 removes online services and dependencies, explicitly including network streaming, network storage and online previews. M001-T006 owns the Android ARM64 platform cleanup and M001-T007 verifies the offline release. M002 starts from the verified M001 result and changes how retained local features are implemented.
