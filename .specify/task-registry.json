@@ -19,7 +19,7 @@
       "title": "Play and process local audio through mpv_audio_kit"
     }
   },
-  "next_completion": 8,
+  "next_completion": 9,
   "next_mission": 4,
   "next_tor": 5,
   "tasks": {
@@ -104,13 +104,19 @@
       "title": "Remove online product features and dependencies"
     },
     "M001-T006": {
-      "completion": null,
+      "completion": 8,
+      "evidence": {
+        "checks": "Script and workflow unit tests OK; flutter analyze 1 baseline issue; flutter test 4,566 pass and the same 46 failures as the clean baseline export (0 new); cargo check OK; arm64 Rust build staged only arm64-v8a, AArch64, 16 KB aligned; Gradle manifest and Kotlin compile OK; no APK built",
+        "result": "PASS",
+        "reviewer": "task-reviewer (independent)",
+        "round": 1
+      },
       "final": false,
       "kind": "T",
       "mission": "M001",
       "nonce": "89f14c22cda042018c4cbb8399cb42c9",
       "record": "specs/001-sistrum-android-offline/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Remove other platforms and enforce ARM64 packaging"
     },
     "M001-T007": {

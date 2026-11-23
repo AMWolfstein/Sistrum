@@ -27,7 +27,6 @@ The repository is the source of truth for tool versions:
 - Dart: bundled with the pinned Flutter SDK
 - Rust: `rust_backend/rust-toolchain.toml` and `rust_backend/Cargo.lock`
 - Android SDK, NDK, and Java: `.github/workflows/ci.yml`
-- Xcode: required only for iOS builds
 
 [FVM](https://fvm.app/) is recommended. If you do not use FVM, install the
 exact Flutter version declared in `.fvmrc` and replace `fvm flutter` with
@@ -61,9 +60,11 @@ exact Flutter version declared in `.fvmrc` and replace `fvm flutter` with
 
 3. Install Rust with rustup, then run `(cd rust_backend && rustup show)` to
    activate the pinned toolchain. Install Clang/libclang for the native bindings
-   (`libclang-dev` on Ubuntu, Xcode command-line tools on macOS). Android Gradle
-   builds the Rust libraries and bindings automatically. For a manual host build,
-   run `bash scripts/build_rust_backend.sh host`.
+   (`libclang-dev` on Ubuntu). Android Gradle
+   builds the Rust libraries and bindings automatically. For a manual build,
+   set `ANDROID_NDK_HOME` to Android NDK 30.0.16248370 and run
+   `bash scripts/build_rust_backend.sh android`, which stages the arm64-v8a
+   `libsistrum_mobile.so` and the Kotlin UniFFI bindings.
 
 4. Run the app:
 
@@ -72,10 +73,10 @@ exact Flutter version declared in `.fvmrc` and replace `fvm flutter` with
    ```
 
 The About footer shows the short commit supplied through `GIT_COMMIT` at
-compile time. Android Gradle and the iOS Flutter build phase supply it
-automatically, including direct mobile Flutter builds and Xcode builds.
+compile time. Android Gradle supplies it
+automatically, including direct mobile Flutter builds.
 An explicit `--dart-define` takes precedence. Supply it when building from
-a source archive without Git metadata or running desktop Flutter commands
+a source archive without Git metadata or running Flutter commands
 directly; without a revision, the footer shows only the copyright.
 
 ## Building the App
@@ -90,7 +91,7 @@ bash scripts/build_android.sh --production
 ```
 
 Production mode requires the staged SDK and rejects `--lite`. Release CI uses
-this mode and requires Discord on both Android and iOS. Fresh hosted runners
+this mode and requires Discord on Android. Fresh hosted runners
 must prepare the SDK before the release checks can pass. See
 [Discord build setup](third_party/mornye_discord/README.md#build-setup) for
 local staging and the CI decryption secret. Unencrypted SDK files are not
@@ -100,21 +101,9 @@ For development release APKs, use `bash scripts/build_android.sh`. Full builds
 remain the default; add `--lite` to omit the optional Discord SDK while keeping
 playback and downloads. Debug builds can also run without the SDK.
 
-To build only ARM64, set `SISTRUM_RUST_ANDROID_ABIS=arm64-v8a`. The script uses
-the Flutter version in `.fvmrc` and audits the selected split APKs and universal
-APK. Android Gradle builds the Rust native artifacts automatically.
-
-### iOS Builds
-
-On macOS, run `bash scripts/build_ios.sh`, then `(cd ios && pod install)` before
-opening `ios/Runner.xcworkspace`. The application uses the Rust backend.
-
-For iOS Lite, run CocoaPods and the app build with `SISTRUM_DISCORD_SDK=0`.
-An existing Pods installation must be regenerated with that setting. Production
-release CI requires the staged Discord SDK on iOS as well.
-
-For native iOS codec checks, see the
-[FFmpeg capability probe](scripts/README_ios_ffmpeg_capabilities.md).
+The script builds arm64-v8a only. It uses the Flutter version in `.fvmrc` and
+audits the resulting APKs. Android Gradle builds the Rust native artifacts
+automatically.
 
 ### Android Crash Symbols
 
@@ -150,8 +139,7 @@ LASTFM_API_SECRET=your_application_shared_secret
 ```
 
 Pass `--dart-define-from-file=.env.lastfm` to `fvm flutter run`, a Flutter
-build or `scripts/build_android.sh`. Desktop CI and the Android, iOS and
-desktop release jobs read the repository secrets `LASTFM_API_KEY` and
+build or `scripts/build_android.sh`. The Android release jobs read the repository secrets `LASTFM_API_KEY` and
 `LASTFM_API_SECRET`; fork builds omit the integration's credentials. Never
 commit real values. Each listener's session is stored separately in the OS
 secure storage and is not part of the offline queue. On a phone the
@@ -168,7 +156,6 @@ remote session and catalog previews do not submit listening history.
 lib/          Flutter UI, state, models, and platform orchestration
 rust_backend/ Production backend, native bindings, and unit tests
 android/      Android platform bridge and foreground worker
-ios/          iOS platform bridge and application project
 test/         Flutter unit and widget tests
 integration_test/ Device and emulator tests (including performance drivers)
 third_party/  Vendored and patched packages (audio_service, audioplayers forks,
@@ -234,7 +221,7 @@ Workspace dependencies point only downward:
 | `network/` | `sistrum-network` | Shared, cancellable HTTP transport | none |
 | `providers/` | `sistrum-providers` | Built-in clients: Deezer, MusicBrainz, platform resolver, lyrics | core, network |
 | `extensions/` | `sistrum-extensions` | Extension JavaScript runtime (rquickjs), host functions, manager, repository, and backend operations such as downloads, library scan, and tags | core, network, providers |
-| `mobile/` | `sistrum-mobile` | UniFFI API, mostly methods on `ExtensionManager`; built as `cdylib` and `staticlib`; Kotlin package `com.amwolfstein.sistrum.backend`, Swift module `MornyeBackend` | core, network, extensions |
+| `mobile/` | `sistrum-mobile` | UniFFI API, mostly methods on `ExtensionManager`; built as `cdylib` and `staticlib`; Kotlin package `com.amwolfstein.sistrum.backend` | core, network, extensions |
 | `bindgen/` | `sistrum-bindgen` | UniFFI bindgen CLI used by `scripts/build_rust_backend.sh` | none |
 
 ### Native
@@ -254,13 +241,6 @@ and the generated bindings to the same source set.
 | `PlayerWidget*.kt`, `DownloadQueueWidgetProvider.kt` | Home-screen widgets |
 | `CoreBackend.kt`; `SelectedCoreBackend.kt`, `RustCoreBackendApplication.kt`, `NativeDataJobs.kt` | The `CoreBackend` interface and its Rust implementation `RustCoreBackend`, which maps method names to UniFFI calls |
 
-iOS code lives in `ios/Runner/`: `AppDelegate.swift` (backend channel,
-`handleMethodCall` and its `osMethods` set, progress EventChannels, background
-tasks), `CoreBackend.swift` (Rust calls through `MornyeBackend`,
-`invokeApplication`), and smaller bridges such as `PlayerWidgetBridge.swift`
-and `ConcertCalendarBridge.swift`. The WidgetKit extension is in
-`ios/PlayerWidget/`.
-
 ## Where Each Feature Lives
 
 Dart paths are under `lib/`, Rust paths under `rust_backend/crates/`, and
@@ -268,17 +248,17 @@ Kotlin files in the Android folders above.
 
 | Feature | Dart | Rust | Native |
 | --- | --- | --- | --- |
-| Search and URL import | `providers/track_provider.dart` (`TrackNotifier`), `controllers/home_search_logic.dart` | `extensions/src/backend/provider_metadata.rs`, `mobile/src/metadata.rs` | `RustCoreBackendApplication.kt`, `CoreBackend.swift` |
+| Search and URL import | `providers/track_provider.dart` (`TrackNotifier`), `controllers/home_search_logic.dart` | `extensions/src/backend/provider_metadata.rs`, `mobile/src/metadata.rs` | `RustCoreBackendApplication.kt` |
 | Download | `providers/download_queue_provider.dart` and its `download_queue_provider_*.dart` parts, `services/download_request_payload.dart` | `extensions/src/backend/downloads.rs`, `mobile/src/manager.rs` | `DownloadService.kt`, `SafDownloadHandler.kt`, `NativeDownloadFinalizer.kt` |
 | Queue persistence and history | `services/download_queue_persistence.dart`, `providers/download_history_provider.dart`, `services/history_database.dart`, `services/history_schema.dart` | none | `NativeHistoryStore.kt`, `NativeFinalizerHistory.kt`, `DownloadServiceSnapshot.kt` |
 | Local library scan | `providers/local_library_provider.dart` and its `local_library_provider_*.dart` parts, `services/library_database.dart` | `extensions/src/backend/library/scan.rs`, `mobile/src/tags.rs`, `mobile/src/native_library.rs` | `MainActivityLibraryScanCalls.kt`; SAF trees in `MainActivitySafScan.kt` and the `Saf*.kt` files |
-| Playback and queue | `providers/playback_provider.dart`, `providers/music_player_provider.dart`, `services/music_player_service.dart` (automix and autoplay parts), `services/music_player_runtime.dart`, `services/music_playback_deck.dart` | AutoMix analysis: `core/src/native_audio_analysis.rs` via `mobile/src/data_jobs.rs` | `UsbBitPerfectPlugin.kt`; forks in `third_party/audio_service`, `third_party/audioplayers_android`, `third_party/audioplayers_darwin` |
-| Lyrics | `utils/lyrics_parser.dart`, `utils/lyrics_metadata_helper.dart`, `controllers/player_metadata_controller.dart` | `providers/src/lyrics/`, `core/src/lyrics/`, `extensions/src/lyrics.rs`, `mobile/src/lyrics.rs`, `mobile/src/native_lyrics.rs` | `SelectedCoreBackend.kt`, `CoreBackend.swift` |
+| Playback and queue | `providers/playback_provider.dart`, `providers/music_player_provider.dart`, `services/music_player_service.dart` (automix and autoplay parts), `services/music_player_runtime.dart`, `services/music_playback_deck.dart` | AutoMix analysis: `core/src/native_audio_analysis.rs` via `mobile/src/data_jobs.rs` | `UsbBitPerfectPlugin.kt`; forks in `third_party/audio_service`, `third_party/audioplayers_android` |
+| Lyrics | `utils/lyrics_parser.dart`, `utils/lyrics_metadata_helper.dart`, `controllers/player_metadata_controller.dart` | `providers/src/lyrics/`, `core/src/lyrics/`, `extensions/src/lyrics.rs`, `mobile/src/lyrics.rs`, `mobile/src/native_lyrics.rs` | `SelectedCoreBackend.kt` |
 | Metadata editing and conversion | `controllers/metadata_editor_controller.dart`, `screens/track_metadata_edit_sheet.dart`, `screens/track_metadata_convert.dart`, `services/ffmpeg_service.dart` (FFmpeg Kit through `services/ffmpeg_support.dart`) | `core/src/tags/`, `extensions/src/backend/tags.rs`, `mobile/src/tags.rs` | `MainActivityMetadataCalls.kt` |
-| Extensions and repository | `providers/extension_provider.dart`, `providers/repo_provider.dart`, `models/extension.dart`, `screens/settings/extensions_page.dart`, `screens/repo_tab.dart` | `extensions/src/manifest.rs`, `extensions/src/runtime.rs`, `extensions/src/manager/`, `extensions/src/repository/`, `mobile/src/extensions.rs`, `mobile/src/repository.rs` | `RustCoreBackendApplication.kt`, `ExtensionAuthCallbacks.kt`, `MainActivityExtensionIntents.kt`, `ExtensionCallbackParser.swift` |
+| Extensions and repository | `providers/extension_provider.dart`, `providers/repo_provider.dart`, `models/extension.dart`, `screens/settings/extensions_page.dart`, `screens/repo_tab.dart` | `extensions/src/manifest.rs`, `extensions/src/runtime.rs`, `extensions/src/manager/`, `extensions/src/repository/`, `mobile/src/extensions.rs`, `mobile/src/repository.rs` | `RustCoreBackendApplication.kt`, `ExtensionAuthCallbacks.kt`, `MainActivityExtensionIntents.kt` |
 | Settings | `providers/settings_provider.dart`, `models/settings.dart`, `screens/settings/`, `utils/settings_search_catalog.dart` | none; values the backend needs are pushed by the `_sync*ToBackend` methods of `SettingsNotifier` | none |
 | Statistics and Rewind | `providers/listening_statistics_provider.dart`, `services/listening_statistics.dart`, `providers/listening_rewind_provider.dart`, `services/listening_rewind.dart` | none | none |
-| Widgets and notifications | `services/player_widget_service.dart`, `services/notification_service.dart`, `services/playback_notification.dart`, `providers/playback_notification_provider.dart` | none | `PlayerWidgetProvider.kt`, `DownloadQueueWidgetProvider.kt`, notifications in `DownloadService.kt`, `PlayerWidgetBridge.swift`, `ios/PlayerWidget/` |
+| Widgets and notifications | `services/player_widget_service.dart`, `services/notification_service.dart`, `services/playback_notification.dart`, `providers/playback_notification_provider.dart` | none | `PlayerWidgetProvider.kt`, `DownloadQueueWidgetProvider.kt`, notifications in `DownloadService.kt` |
 
 ## Data Flow
 
@@ -319,11 +299,11 @@ Kotlin files in the Android folders above.
    calls `reconcileNativeDownloadHistory` (`lib/services/native_download_history.dart`)
    so `DownloadHistoryNotifier` adopts or reloads the native row.
 
-Without the native worker (iOS, or when the gate fails), items run through
+Without the native worker (when the gate fails), items run through
 `_downloadSingleItem` (`lib/providers/download_queue_provider_single_item.dart`),
 which calls `PlatformBridge.downloadByStrategy`, finalizes in Dart, and records
 history with `DownloadHistoryNotifier.addToHistory`. Android handles that call
-in `handleDownloadByStrategy`; iOS in `CoreBackend.swift`.
+in `handleDownloadByStrategy`.
 
 ### Playback
 
@@ -342,8 +322,8 @@ in `handleDownloadByStrategy`; iOS in `CoreBackend.swift`.
 4. `_startResolvedSource` calls `MusicPlaybackDeck.setSource` or
    `setNetworkSource` and `resume` (`lib/services/music_playback_deck.dart`).
    The deck wraps an audioplayers `AudioPlayer`, served by the
-   `third_party/audioplayers_android` and `third_party/audioplayers_darwin`
-   overrides; with USB bit-perfect enabled on Android it first tries to
+   `third_party/audioplayers_android`
+   override; with USB bit-perfect enabled on Android it first tries to
    prepare the file through `UsbBitPerfectPlugin.kt`.
 5. Player events reach `_broadcastState`, which updates `playbackState`.
    `MusicPlayerRuntime.playbackStateEvents`, `mediaItemEvents`, and
@@ -405,16 +385,12 @@ in `handleDownloadByStrategy`; iOS in `CoreBackend.swift`.
 - Rust-backed methods: on Android a name outside `nativeBackendMethods` goes
   through `dispatchBackendApplication` (`SelectedCoreBackend.kt`) to
   `RustCoreBackend.dispatchApplication` (`RustCoreBackendApplication.kt`); add
-  the case there. On iOS add it to `invokeApplication` in
-  `ios/Runner/CoreBackend.swift`.
+  the case there.
 - Android-only methods: add the name to `nativeBackendMethods` and a case to
   the `when (call.method)` block in `MainActivity.kt`, calling a
   `MainActivity.handleX` function in the matching `MainActivity*Calls.kt` file.
   `MainActivityRoutingTest.kt` fails when the set and the cases differ.
-- iOS-only methods: add the name to `osMethods` in `handleMethodCall`
-  (`ios/Runner/AppDelegate.swift`) and handle it there or in `invokeOsMethod`.
-  `test/source_contracts_test.dart` pins parts of that file.
-- Large JSON: `bridgeJsonResult` in `MainActivity.kt` and `AppDelegate.swift`
+- Large JSON: `bridgeJsonResult` in `MainActivity.kt`
   writes a result of 256 KiB or more to a temporary file and returns
   `{"__json_file": "<path>"}`; Dart reads and deletes it. Use it for any result
   that can grow with the library.
@@ -479,7 +455,6 @@ Commands are in [Validation](#validation).
 | Device and performance | `integration_test/` | [integration_test/README.md](integration_test/README.md) |
 | Kotlin JVM | `android/app/src/test/kotlin/com/amwolfstein/sistrum/` | Case tables in `android/app/src/test/resources/` are also read by Dart tests |
 | Rust | `tests.rs` modules beside the code, `rust_backend/crates/extensions/tests/` | For example `rust_backend/crates/extensions/src/runtime/tests.rs` |
-| iOS | `ios/RunnerTests/` | `RunnerTests.swift` |
 
 ## Conventions
 
@@ -496,7 +471,7 @@ Commands are in [Validation](#validation).
 - After moving a file, leave a one-line `export` of the new path at the old one
   while other files import it, as `lib/services/batch_track_actions.dart` does.
 - Source-text contracts: `test/source_contracts_test.dart` pins literal text in
-  files such as `ios/Runner/AppDelegate.swift`, `NativeDownloadFinalizer.kt`,
+  files such as `NativeDownloadFinalizer.kt`,
   `NativeHistoryStore.kt`, `DownloadServiceSnapshot.kt`, and
   `lib/services/history_schema.dart`; `test/design_system_test.dart` pins file
   names; `MainActivityRoutingTest.kt` reads `MainActivity.kt`. When code moves,
@@ -519,7 +494,7 @@ Commands are in [Validation](#validation).
   Flutter from lib/l10n/arb during pub get/build."). Commit only the ARB files.
 - Run `fvm dart run build_runner build --delete-conflicting-outputs` only when a
   model or generator input changes, then commit the relevant generated source.
-- Do not commit `build/`, `.dart_tool/`, AAR/XCFramework output, IDE state, or
+- Do not commit `build/`, `.dart_tool/`, AAR output, IDE state, or
   local research directories.
 
 ## Validation
@@ -555,8 +530,7 @@ Some Dart tests render audio and need `ffmpeg` and `ffprobe` on `PATH`. Set
 `SISTRUM_TEST_FFMPEG` to an `ffmpeg` binary to override the path used by the
 automix renderer test; the other ffmpeg tests read `PATH` directly.
 
-Performance drive runs need a dedicated emulator, `--profile` on Android and
-`--debug` on iOS simulators. See the header of
+Performance drive runs need a dedicated emulator, `--profile` on Android. See the header of
 `integration_test/performance_driver.dart`.
 
 Rust formatting, Clippy, and unit tests:

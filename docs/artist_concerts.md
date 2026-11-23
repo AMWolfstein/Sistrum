@@ -71,6 +71,5 @@ a detail page with the schedule's date and venue.
 All detail fields are optional. Omit unavailable actions instead of fabricating
 links. Set lists open the existing internal playlist screen using the same
 metadata provider. Calendar actions present a system editor for the user to
-review and save; no event is added automatically. iOS 17+ needs no calendar
-read permission; iOS 16 requests legacy permission. Android uses an insert
+review and save; no event is added automatically. Android uses an insert
 intent. Failed detail requests leave the date and venue visible with Retry.

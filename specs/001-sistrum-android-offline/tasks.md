@@ -27,7 +27,7 @@ Run sequentially after implementation is authorized. Each task starts with `pyth
   - Remove online features and permissions after callers are detached. Verify local codecs, metadata, storage and playback fallback stay wired. Keep Mornye theme and theme-specific assets.
   - Checks: `flutter analyze`, `flutter test`, `cargo tree --manifest-path rust_backend/Cargo.toml -p "$MOBILE_CRATE" --target aarch64-linux-android`, bridge verification and merged release manifest inspection. Set MOBILE_CRATE to the name chosen in T001.
 
-- [ ] M001-T006 Remove other platforms and enforce ARM64 packaging
+- [x] M001-T006 Remove other platforms and enforce ARM64 packaging
   - Paths: Gradle, Android CMake, `scripts/build_android.sh`, `scripts/build_rust_backend.sh`, APK audit, CI/release jobs and retired platform runners and docs.
   - Remove non-phone products together with their remaining Mornye identity, so no app-owned Mornye name remains. Enforce ARM64 as the only ABI at every layer. Verify package name, merged manifest, release signature, ELF architecture/required libraries and 16 KB compatibility.
   - Checks: `bash -n scripts/build_android.sh scripts/build_rust_backend.sh`, `python3 scripts/test_build_android.py`, `python3 scripts/test_check_backend_apk.py`, `apkanalyzer manifest permissions "$APK"`, `zipalign -c -P 16 -v 4 "$APK"`, ELF segment inspection and `apksigner verify --print-certs "$APK"`. Run artifact checks when authorized.

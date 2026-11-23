@@ -10,31 +10,12 @@ FLUTTER_ARGS=()
 for argument in "$@"; do
   case "$argument" in
     --target-platform|--target-platform=*|--split-per-abi|--no-split-per-abi)
-      echo "Error: set SISTRUM_RUST_ANDROID_ABIS to select the release APK architectures." >&2
+      echo "Error: this script always builds arm64-v8a (android-arm64); do not pass $argument." >&2
       exit 1
       ;;
     *) FLUTTER_ARGS+=("$argument") ;;
   esac
 done
-
-ANDROID_ABIS_RAW="${SISTRUM_RUST_ANDROID_ABIS-arm64-v8a,armeabi-v7a}"
-case "$ANDROID_ABIS_RAW" in
-  arm64-v8a|armeabi-v7a|arm64-v8a,armeabi-v7a|armeabi-v7a,arm64-v8a) ;;
-  *)
-    echo "Error: SISTRUM_RUST_ANDROID_ABIS must contain arm64-v8a and/or armeabi-v7a, comma-separated without spaces or duplicates." >&2
-    exit 1
-    ;;
-esac
-export SISTRUM_RUST_ANDROID_ABIS="$ANDROID_ABIS_RAW"
-IFS=',' read -r -a ANDROID_ABIS <<< "$ANDROID_ABIS_RAW"
-TARGET_PLATFORMS=()
-for abi in "${ANDROID_ABIS[@]}"; do
-  case "$abi" in
-    arm64-v8a) TARGET_PLATFORMS+=(android-arm64) ;;
-    armeabi-v7a) TARGET_PLATFORMS+=(android-arm) ;;
-  esac
-done
-TARGET_PLATFORM_LIST="$(IFS=','; echo "${TARGET_PLATFORMS[*]}")"
 
 cd "$PROJECT_DIR"
 if [[ -x "$PROJECT_DIR/.fvm/flutter_sdk/bin/flutter" ]]; then
@@ -63,22 +44,16 @@ BUILD_GIT_COMMIT="$(git rev-parse --short=8 HEAD)"
   --obfuscate \
   --split-debug-info "$PROJECT_DIR/build/symbols/android" \
   --split-per-abi \
-  --target-platform "$TARGET_PLATFORM_LIST" \
+  --target-platform android-arm64 \
   --dart-define="GIT_COMMIT=$BUILD_GIT_COMMIT" \
   ${FLUTTER_ARGS[@]+"${FLUTTER_ARGS[@]}"}
 
-for target in "${ANDROID_ABIS[@]}" universal; do
-  apk="app-$target-release.apk"
-  abis="$target"
-  if [[ "$target" == "universal" ]]; then
-    apk=app-release.apk
-    abis="$ANDROID_ABIS_RAW"
-  fi
+for apk in app-arm64-v8a-release.apk app-release.apk; do
   if [[ ! -f "$OUTPUT_DIR/$apk" ]]; then
     echo "Error: expected APK was not created: $OUTPUT_DIR/$apk" >&2
     exit 1
   fi
-  python3 scripts/check_backend_apk.py "$OUTPUT_DIR/$apk" --backend rust --abis "$abis"
+  python3 scripts/check_backend_apk.py "$OUTPUT_DIR/$apk" --backend rust --abis arm64-v8a
 done
 
 echo "Built Android release APKs in $OUTPUT_DIR"

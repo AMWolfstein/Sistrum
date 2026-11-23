@@ -48,14 +48,7 @@ Desktop.ini
 /third_party/**/android/.gradle/
 /third_party/**/android/build/
 
-# iOS generated state
-/ios/build/
-/ios/Frameworks/
-/ios/Pods/
-/ios/.symlinks/
-/ios/Flutter/ephemeral/
-/ios/Flutter/Flutter.framework/
-/ios/Flutter/Flutter.podspec
+# Apple build outputs
 *.xcarchive
 DerivedData/
 .build/

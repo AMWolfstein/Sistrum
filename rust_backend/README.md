@@ -1,8 +1,8 @@
 # Sistrum Rust Backend
 
-The Rust workspace is the app's only backend on Android and iOS. Flutter
-reaches it through the native channel (see `android/README.md`); Kotlin and
-Swift call it through UniFFI bindings generated from `sistrum-mobile`.
+The Rust workspace is the app's only backend on Android (arm64-v8a). Flutter
+reaches it through the native channel (see `android/README.md`); Kotlin calls
+it through UniFFI bindings generated from `sistrum-mobile`.
 
 The app identifies itself as Sistrum in HTTP requests, exported lyrics and
 new FLAC vendor metadata. Crates, native libraries and generated bindings
@@ -31,7 +31,6 @@ workspace crate.
 | `crates/providers` | `sistrum-providers` | core, network |
 | `crates/extensions` | `sistrum-extensions` | core, network, providers |
 | `crates/mobile` | `sistrum-mobile` | core, network, extensions |
-| `crates/desktop` | `sistrum-desktop` | mobile |
 | `crates/bindgen` | `sistrum-bindgen` | `uniffi` CLI only |
 
 **core.** Shared backend logic, independent of mobile bindings and UI
@@ -59,19 +58,10 @@ download backend. Its main types are `ExtensionRuntime` and
 
 **mobile.** The UniFFI mobile API (`uniffi::setup_scaffolding!`). This crate
 is the only backend and routes the app on both platforms. It is built as
-`lib`, `cdylib` (Android `libsistrum_mobile.so`) and `staticlib` (iOS).
+`lib`, `cdylib` (Android `libsistrum_mobile.so`) and `staticlib`.
 It adds native data jobs, the native library, cache, collections, playlists
 and backup, lyrics, ID3 and network tags, `rusqlite`, and USB audio
 (`libusb1-sys`, Android only).
-
-**desktop.** The C ABI for macOS, Linux and Windows, loaded by Flutter
-through `dart:ffi` (`cdylib` `libsistrum_desktop`). It exports `sistrum_init`,
-`sistrum_call`, `sistrum_cancel`, `sistrum_subscribe`, `sistrum_unsubscribe` and
-`sistrum_free`, dispatches MethodChannel method names as JSON on a worker
-pool (`src/dispatch.rs` is the single method table), pushes download and
-library scan progress, and runs the bundled `ffmpeg` executable for the
-backend's FFmpeg command queue. It is the only crate that allows unsafe
-code, in `src/ffi.rs`.
 
 **bindgen.** The UniFFI bindgen command line (`uniffi_bindgen_main`), used
 only to generate the Kotlin and Swift bindings. It enables the `cli` and
@@ -90,10 +80,7 @@ checks are in `rust_backend/vendor/README.md`. Third-party notices are in
 
 | Command | Result |
 | --- | --- |
-| `bash scripts/build_rust_backend.sh host` | Release host library and Kotlin and Swift bindings |
-| `bash scripts/build_rust_backend.sh android` | Host step, then `libsistrum_mobile.so` for each ABI |
-| `bash scripts/build_rust_backend.sh ios` | Host step, then the XCFramework and CocoaPods staging |
-| `bash scripts/build_rust_backend.sh desktop` | `libsistrum_desktop` in `target/desktop/<os>/` (macOS universal, Linux host); Windows commands are in the script |
+| `bash scripts/build_rust_backend.sh android` | Host library and Kotlin bindings, then the arm64-v8a `libsistrum_mobile.so` |
 | `bash scripts/check_rust_backend.sh` | `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test` |
 
 Every `cargo build`, `cargo run`, `cargo clippy` and `cargo test` call in
@@ -103,12 +90,11 @@ vendored patches.
 
 The host step always runs first. It builds `sistrum-mobile` in release
 mode, then runs `sistrum-bindgen generate` against the host library for
-Kotlin and Swift. Output goes to `rust_backend/target/`:
+Kotlin. Output goes to `rust_backend/target/`:
 
 - `target/release/`: host library (`.dylib` on macOS, `.so` on Linux)
-- `target/bindings/kotlin/`, `target/bindings/swift/`: generated bindings
-- `target/android/jniLibs/<abi>/`: Android libraries
-- `target/ios/`: the XCFramework, Swift binding and podspec for CocoaPods
+- `target/bindings/kotlin/`: generated bindings
+- `target/android/jniLibs/arm64-v8a/`: Android library
 
 ### Android
 
@@ -118,21 +104,11 @@ enough. For a manual build:
 
 - Set `ANDROID_NDK_HOME` to NDK 30.0.16248370 (the version CI installs in
   `.github/workflows/ci.yml` and `android/app/build.gradle.kts` uses).
-- `SISTRUM_RUST_ANDROID_ABIS` selects `arm64-v8a`, `armeabi-v7a` or both
-  (comma-separated; the default is both).
+- Only `arm64-v8a` is built.
 - Libraries link against API 24 with 16 KB page alignment.
 
 `bash scripts/check_android_statx.sh arm64-v8a` checks the vendored Rustix
 fallback on a connected device (see `rust_backend/vendor/README.md`).
-
-### iOS
-
-On macOS, `bash scripts/build_rust_backend.sh ios` builds
-`aarch64-apple-ios`, `aarch64-apple-ios-sim` and `x86_64-apple-ios` (iOS 16.0
-deployment target), merges the two simulator slices, and stages
-`target/ios/` with `rust_backend/MornyeBackend.podspec`. Run
-`(cd ios && pod install)` afterwards; `ios/Podfile` refuses to install
-without the staged files.
 
 ## Where the Bindings Are Used
 
@@ -141,11 +117,10 @@ The binding names come from `rust_backend/crates/mobile/uniffi.toml`.
 | Platform | Generated | Consumed by |
 | --- | --- | --- |
 | Android | Kotlin package `com.amwolfstein.sistrum.backend`, loading `sistrum_mobile` through JNA | `android/app/build.gradle.kts` adds `target/bindings/kotlin` and `target/android/jniLibs` as source dirs; used by `android/app/src/rust/kotlin/com/amwolfstein/sistrum/SelectedCoreBackend.kt` and its neighbors |
-| iOS | Swift module `MornyeBackend` with FFI module `MornyeBackendFFI` | `ios/Podfile` pod `MornyeBackend` at `../rust_backend/target/ios`; imported by `ios/Runner/CoreBackend.swift` |
 
 The generated files are build output under `target/` and are not tracked.
-After changing an exported function, rebuild for the platform you test; the
-Kotlin and Swift call sites must match the new signatures.
+After changing an exported function, rebuild the Android app before testing;
+the Kotlin call sites must match the new signatures.
 
 ## Tests
 
@@ -166,6 +141,6 @@ bash scripts/check_rust_backend.sh
   title casing, kept for parity with the Go backend). It is marked
   `DO NOT EDIT`; the generator is no longer in the repository, and it must not
   be regenerated from newer tables.
-- CI runs `scripts/check_rust_backend.sh` on Linux, the iOS build on macOS,
-  and the Android build with Kotlin unit tests (`gradle -p android
+- CI runs `scripts/check_rust_backend.sh` on Linux and the Android build with
+  Kotlin unit tests (`gradle -p android
   :app:assembleDebug :app:testDebugUnitTest`).

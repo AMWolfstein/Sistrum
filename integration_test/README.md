@@ -1,8 +1,7 @@
 # Integration Tests
 
 Device tests for the native bridges, the Rust backend, real SQLite, real
-FFmpeg and on-device rendering. They need an Android emulator or device, or
-an iOS simulator. CI formats and analyzes this folder but does not run it.
+FFmpeg and on-device rendering. They need an Android emulator or device. CI formats and analyzes this folder but does not run it.
 
 ## Running
 
@@ -12,8 +11,7 @@ Run one suite on a device:
 ```
 
 Add `--dart-define=NAME=value` for the gated suites below. Android Gradle
-builds the Rust backend automatically; for iOS run
-`bash scripts/build_rust_backend.sh ios` and `(cd ios && pod install)` first.
+builds the Rust backend automatically.
 
 Avoid `flutter test integration_test` for the whole folder: the
 aggregate files import other suites, so those suites run twice.
@@ -35,7 +33,7 @@ SISTRUM_PERFORMANCE_REPORT=build/perf/sistrum.json \
 - `SISTRUM_PERFORMANCE_REPORT` (host environment variable) selects the
   JSON output; the default is `/tmp/sistrum-performance.json`.
   Screenshots are written as PNG files beside it.
-- Use `--profile` on Android and `--debug` on iOS simulators.
+- Use `--profile` on Android.
 - Pass `--keep-app-running`; otherwise `flutter drive` uninstalls the app
   when it finishes.
 - Use a dedicated emulator for measurements.
@@ -47,13 +45,6 @@ SISTRUM_PERFORMANCE_REPORT=build/perf/sistrum.json \
   Mornye suites, plus seek playback, dragging and paused idle in both styles.
 - Use `player_performance_test.dart` to compare lyrics, artwork and seek in
   both styles in a single build.
-- Use `pipeline_performance_test.dart` on an isolated macOS profile build
-  for Library, download, playback and both lyrics styles with synthetic files and
-  local HTTP fixtures. Its stage timelines include persistence and idle
-  work; each report states which setup and platform features are excluded.
-  Use a separate bundle identifier while another Sistrum copy is running.
-  Keep the measured window visible and avoid accessibility inspection during
-  the run, which can change semantics work and invalidate the test teardown.
 
 ### Emulators and Fixtures
 
@@ -84,7 +75,7 @@ Aggregates (each runs other suites as groups):
 | `mornye_performance_test.dart` | The rendering, screens, artwork and lyrics Mornye performance suites; driver target |
 | `material_performance_test.dart` | Material lyrics/artwork and shared seek scenarios in both styles; driver target |
 | `player_performance_test.dart` | Shared lyrics, artwork and seek scenarios for Material and Mornye; driver target |
-| `pipeline_performance_test.dart` | Library, foreground download, native playback and both lyrics styles with isolated fixtures; macOS profile driver target |
+| `pipeline_performance_test.dart` | Library, foreground download, native playback and both lyrics styles with isolated fixtures |
 | `remaining_optimization_test.dart` | Collection restore, history staging, library staging, cache maintenance, collection workers, queue workers, backup archive |
 
 Support files (not tests): `performance_driver.dart` (host driver) and
@@ -100,8 +91,6 @@ Suites:
 | `automix_analysis_test.dart` | Native decoding for AutoMix beats; Auto and crossfade playback |
 | `automix_effects_test.dart` | Bundled FFmpeg supports every AutoMix transition effect |
 | `collection_remove_batch_test.dart` | Removing 2000 tracks from a collection; rollback and retry |
-| `desktop_ffmpeg_bundle_test.dart` | macOS only (`-d macos`, after `bash scripts/fetch_desktop_ffmpeg.sh`): the app finds ffmpeg and ffprobe in its bundle, converts a generated tone to FLAC through soxr and to MP3, Opus, AAC and ALAC, and probes the FLAC |
-| `desktop_playback_deck_test.dart` | macOS only (`-d macos`): the default deck plays a generated tone, applies an EQ preset and in-app volume, pauses |
 | `discord_sdk_test.dart` | Native Discord SDK initialize, stop and restart |
 | `download_cancel_dispatch_test.dart` | Native cancel and clear of queued IDs; invalid batches |
 | `download_lossless_container_test.dart` | Foreground queue finalizes lossless M4A without provider hints |

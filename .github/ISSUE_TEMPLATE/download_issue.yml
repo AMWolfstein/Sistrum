@@ -110,7 +110,7 @@ body:
     id: environment
     attributes:
       label: App Version, Device, and OS
-      placeholder: "4.8.1 (139), device model, Android/iOS version"
+      placeholder: "4.8.1 (139), device model, Android version"
     validations:
       required: true
 

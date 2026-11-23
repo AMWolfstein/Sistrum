@@ -11,11 +11,7 @@ analyzer:
     - lib/**/*.g.dart
     - lib/l10n/app_localizations*.dart
     - android/**
-    - ios/**
     - web/**
-    - windows/**
-    - macos/**
-    - linux/**
     - third_party/audio_service/**
     - third_party/audioplayers_android/**
   language:

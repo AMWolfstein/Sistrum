@@ -25,8 +25,7 @@ else:
     assert args[:2] == ['build', 'apk']
     output = Path('build/app/outputs/flutter-apk')
     output.mkdir(parents=True, exist_ok=True)
-    for abi in os.environ['SISTRUM_RUST_ANDROID_ABIS'].split(','):
-        (output / ('app-' + abi + '-release.apk')).write_bytes(b'fixture split')
+    (output / 'app-arm64-v8a-release.apk').write_bytes(b'fixture split')
     (output / 'app-release.apk').write_bytes(b'fixture universal')
 """
 
@@ -51,7 +50,6 @@ class AndroidBuildScriptTest(unittest.TestCase):
         self.tools.mkdir()
         self.log = self.project / "calls.jsonl"
         self.env = os.environ.copy()
-        self.env.pop("SISTRUM_RUST_ANDROID_ABIS", None)
         self.env.update(PATH=str(self.tools) + os.pathsep + os.defpath, BUILD_TEST_LOG=str(self.log))
         self.tool(self.tools / "python3", PYTHON_STUB)
         git = self.tools / "git"
@@ -83,17 +81,17 @@ class AndroidBuildScriptTest(unittest.TestCase):
         preparation = next(call for call in calls if call["args"] == ["scripts/prepare_flutter_sdk.dart"])
         self.assertEqual(preparation["tool"], "dart")
         self.assertLess(calls.index(preparation), calls.index(build))
-        self.assertIn("android-arm64,android-arm", build["args"])
+        self.assertIn("android-arm64", build["args"])
         self.assertIn("--verbose", build["args"])
         audits = [call["args"] for call in calls if call["tool"] == "audit"]
         self.assertEqual([Path(args[0]).name for args in audits], [
-            "app-arm64-v8a-release.apk", "app-armeabi-v7a-release.apk", "app-release.apk",
+            "app-arm64-v8a-release.apk", "app-release.apk",
         ])
         self.assertTrue(all("--discord-sdk" not in args for args in audits))
-        self.assertEqual(audits[-1][audits[-1].index("--abis") + 1], "arm64-v8a,armeabi-v7a")
+        self.assertTrue(all(args[args.index("--abis") + 1] == "arm64-v8a" for args in audits))
 
-    def test_single_abi_build_audits_only_that_abi_and_preserves_previous_artifacts(self):
-        self.env["SISTRUM_RUST_ANDROID_ABIS"] = "arm64-v8a"
+    def test_build_ignores_abi_override_and_preserves_previous_artifacts(self):
+        self.env["SISTRUM_RUST_ANDROID_ABIS"] = "armeabi-v7a"
         output = self.project / "build/app/outputs/flutter-apk"
         output.mkdir(parents=True)
         previous = output / "app-armeabi-v7a-release.apk"
@@ -134,13 +132,14 @@ class AndroidBuildScriptTest(unittest.TestCase):
             ["scripts/prepare_flutter_sdk.dart"],
         ])
 
-    def test_invalid_or_overridden_abis_stop_before_flutter(self):
-        for abis in ("", "x86_64", "arm64-v8a,arm64-v8a", "armeabi-v7a, arm64-v8a"):
-            with self.subTest(abis=abis):
-                self.env["SISTRUM_RUST_ANDROID_ABIS"] = abis
-                self.assertNotEqual(self.run_build().returncode, 0)
-        self.env.pop("SISTRUM_RUST_ANDROID_ABIS")
-        self.assertNotEqual(self.run_build("--target-platform=android-x64").returncode, 0)
+    def test_non_arm64_target_platforms_stop_before_flutter(self):
+        for args in (
+            ("--target-platform=android-arm",),
+            ("--target-platform", "android-arm"),
+            ("--target-platform=android-x64",),
+        ):
+            with self.subTest(args=args):
+                self.assertNotEqual(self.run_build(*args).returncode, 0)
         self.assertFalse(self.log.exists())
 
 

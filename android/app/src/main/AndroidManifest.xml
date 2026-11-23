@@ -3,7 +3,6 @@
     package="com.amwolfstein.sistrum">
 
     <uses-feature android:name="android.hardware.usb.host" android:required="false" />
-    <uses-feature android:name="android.software.leanback" android:required="false" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" tools:node="remove" />
@@ -28,7 +27,6 @@
         android:label="Sistrum"
         android:name=".SistrumApplication"
         android:icon="@mipmap/ic_launcher"
-        android:banner="@drawable/tv_banner"
         android:allowBackup="false"
         android:fullBackupContent="@xml/backup_rules_legacy"
         android:dataExtractionRules="@xml/backup_rules"
@@ -55,7 +53,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
-                <category android:name="android.intent.category.LEANBACK_LAUNCHER"/>
             </intent-filter>
 
             <!-- Local audio grants are imported asynchronously by AudioOpenBridge. -->

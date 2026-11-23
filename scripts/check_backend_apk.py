@@ -13,7 +13,6 @@ from typing import Iterable, Sequence, Tuple
 
 ABI_LAYOUT = {
     "arm64-v8a": (2, 183),
-    "armeabi-v7a": (1, 40),
 }
 CORE_LIBRARIES = ("libapp.so", "libflutter.so")
 REMOVED_LIBRARIES = ("libsistrum_discord.so", "libdiscord_partner_sdk.so")
@@ -63,7 +62,7 @@ def check_abi_directories(names: Iterable[str], expected: Sequence[str]) -> None
             actual.add(parts[1])
     unexpected = sorted(actual - set(expected))
     if unexpected:
-        raise AuditError("unexpected lib ABI directory(s): " + ", ".join(unexpected))
+        raise AuditError("unexpected lib ABI directory(s), only arm64-v8a is allowed: " + ", ".join(unexpected))
 
 
 def check_archive_integrity(

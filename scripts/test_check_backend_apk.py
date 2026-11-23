@@ -24,7 +24,7 @@ class BackendApkAuditTest(unittest.TestCase):
             ):
                 self.entries[f"lib/{abi}/{library}"] = bytes(header)
 
-    def audit(self, abis=("arm64-v8a", "armeabi-v7a")):
+    def audit(self, abis=("arm64-v8a",)):
         with zipfile.ZipFile(self.apk, "w") as zf:
             for name, data in self.entries.items():
                 zf.writestr(name, data)
@@ -91,11 +91,20 @@ class BackendApkAuditTest(unittest.TestCase):
                     self.entries[path] = data
 
     def test_wrong_architecture_fails(self):
-        self.entries["lib/armeabi-v7a/libsistrum_mobile.so"] = self.entries[
-            "lib/arm64-v8a/libsistrum_mobile.so"
-        ]
+        self.entries["lib/arm64-v8a/libsistrum_mobile.so"] = b"\x7fELF" + bytes([1, 1]) + bytes(14)
         with self.assertRaisesRegex(checker.AuditError, "ELF class"):
             self.audit()
+
+    def test_non_arm64_native_libraries_are_rejected(self):
+        for abi in ("armeabi-v7a", "x86", "x86_64"):
+            with self.subTest(abi=abi):
+                path = f"lib/{abi}/libsistrum_mobile.so"
+                self.entries[path] = self.entries["lib/arm64-v8a/libsistrum_mobile.so"]
+                with self.assertRaisesRegex(checker.AuditError, "unexpected lib ABI directory.*" + abi):
+                    self.audit()
+                del self.entries[path]
+        with self.assertRaisesRegex(checker.AuditError, "unsupported ABI"):
+            checker.parse_abis("armeabi-v7a")
 
     def test_removed_discord_libraries_cannot_ship(self):
         for abi in checker.ABI_LAYOUT:
