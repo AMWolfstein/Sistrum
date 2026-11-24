@@ -1,4 +1,3 @@
-
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/screens/settings/about_page.dart';
 import 'package:sistrum/screens/settings/settings_tab.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 
@@ -17,20 +15,14 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  Future<void> pumpSettings(
-    WidgetTester tester, {
-    ThemeData? theme,
-  }) async {
+  Future<void> pumpSettings(WidgetTester tester, {ThemeData? theme}) async {
     await tester.pumpWidget(
       ProviderScope(
         child: MaterialApp(
-          theme: theme ?? AppTheme.light(),
+          theme: theme ?? MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: Scaffold(
-            body: SettingsTab(
-            ),
-          ),
+          home: Scaffold(body: SettingsTab()),
         ),
       ),
     );
@@ -47,33 +39,28 @@ void main() {
     expect(find.text('No settings found for "dark mode"'), findsNothing);
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets('broad search builds only visible grouped results ($mornye)', (
-      tester,
-    ) async {
-      await pumpSettings(
-        tester,
-        theme: mornye ? MornyeTheme.build(Brightness.dark) : AppTheme.light(),
-      );
-      await tester.enterText(find.byType(TextField), 'a');
-      await tester.pump();
-      final group = tester.widget<SliverSettingsGroup>(
-        find.byType(SliverSettingsGroup),
-      );
-      expect(group.itemCount, greaterThan(30));
-      final rows = find.descendant(
-        of: find.byType(SliverSettingsGroup),
-        matching: find.byType(SettingsItem),
-      );
-      expect(rows.evaluate().length, lessThan(group.itemCount ~/ 2));
-      await tester.drag(
-        find.byType(CustomScrollView).first,
-        const Offset(0, -600),
-      );
-      await tester.pumpAndSettle();
-      expect(tester.takeException(), isNull);
-    });
-  }
+  testWidgets('broad search builds only visible grouped results', (
+    tester,
+  ) async {
+    await pumpSettings(tester, theme: MornyeTheme.build(Brightness.dark));
+    await tester.enterText(find.byType(TextField), 'a');
+    await tester.pump();
+    final group = tester.widget<SliverSettingsGroup>(
+      find.byType(SliverSettingsGroup),
+    );
+    expect(group.itemCount, greaterThan(30));
+    final rows = find.descendant(
+      of: find.byType(SliverSettingsGroup),
+      matching: find.byType(SettingsItem),
+    );
+    expect(rows.evaluate().length, lessThan(group.itemCount ~/ 2));
+    await tester.drag(
+      find.byType(CustomScrollView).first,
+      const Offset(0, -600),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets(
     'returning from a search result does not restore keyboard focus',
@@ -111,7 +98,7 @@ void main() {
 
     await tester.pumpWidget(
       MaterialApp(
-        theme: AppTheme.light(),
+        theme: MornyeTheme.build(Brightness.light),
         home: SettingsSearchHighlightScope(
           targetLabel: 'Target setting',
           child: Scaffold(

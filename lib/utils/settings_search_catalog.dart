@@ -69,15 +69,9 @@ class SettingsSearchCatalog {
           ],
         ),
         SettingsSearchEntry(
-          icon: Icons.wallpaper,
-          title: l10n.appearanceDynamicColor,
-          subtitle: l10n.appearanceDynamicColorSubtitle,
-          keywords: const ['material you', 'system color'],
-        ),
-        SettingsSearchEntry(
           icon: Icons.color_lens_outlined,
           title: l10n.sectionColor,
-          keywords: const ['palette', 'seed color', 'accent'],
+          keywords: const ['palette', 'accent'],
         ),
         SettingsSearchEntry(
           icon: Icons.contrast,
@@ -86,12 +80,6 @@ class SettingsSearchCatalog {
               '${l10n.appearanceThemeSystem}, ${l10n.appearanceThemeLight}, '
               '${l10n.appearanceThemeDark}',
           keywords: const ['light mode', 'dark mode'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.brightness_2,
-          title: l10n.appearanceAmoledDark,
-          subtitle: l10n.appearanceAmoledDarkSubtitle,
-          keywords: const ['black theme', 'oled'],
         ),
         SettingsSearchEntry(
           icon: Icons.font_download_outlined,
@@ -409,12 +397,6 @@ class SettingsSearchCatalog {
           subtitle: l10n.playerCoverStyleFullScreenDescription,
           keywords: const ['artwork', 'cover', 'full screen', 'immersive'],
         ),
-        SettingsSearchEntry(
-          icon: Icons.splitscreen_outlined,
-          title: l10n.landscapeLyricsArtwork,
-          subtitle: l10n.landscapeLyricsArtworkDescription,
-          keywords: const ['landscape', 'lyrics', 'album art', 'details'],
-        ),
         if (!isDesktopPlatform)
           SettingsSearchEntry(
             icon: Icons.fullscreen,
@@ -428,12 +410,6 @@ class SettingsSearchCatalog {
               'idle',
             ],
           ),
-        SettingsSearchEntry(
-          icon: Icons.short_text,
-          title: l10n.compactPlayer,
-          subtitle: l10n.compactPlayerDescription,
-          keywords: const ['lyrics', 'compact', 'controls', 'mini', 'larger'],
-        ),
         SettingsSearchEntry(
           icon: Icons.vibration,
           title: l10n.musicHaptics,

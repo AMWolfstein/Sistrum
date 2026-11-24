@@ -2,8 +2,6 @@ import 'dart:ui' show ImageFilter;
 
 import 'package:audio_service/audio_service.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:material_3_expressive/material_3_expressive.dart'
-    show M3EShapeKind;
 import 'package:share_plus/share_plus.dart' show ShareParams, SharePlus, XFile;
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/theme/app_motion.dart';
@@ -16,7 +14,6 @@ import 'package:sistrum/utils/widget_capture.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_shape.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/player_artwork.dart';
 
 /// Story-sized lyric cards stay short, like quoting a song rather than
@@ -362,7 +359,7 @@ class _LyricsShareScreenState extends State<LyricsShareScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  ExpressiveButton(
+                  FilledButton.icon(
                     key: _shareButtonKey,
                     icon: const AppIcon(Icons.ios_share),
                     style: ButtonStyle(
@@ -375,7 +372,7 @@ class _LyricsShareScreenState extends State<LyricsShareScreen> {
                       ),
                     ),
                     onPressed: _selected.isEmpty || _sharing ? null : _share,
-                    child: Text(l10n.lyricsShareAction),
+                    label: Text(l10n.lyricsShareAction),
                   ),
                 ],
               ),
@@ -453,7 +450,7 @@ class _BackgroundPicker extends StatelessWidget {
                       height: 52,
                       child: Center(
                         // The chosen swatch morphs from a circle into a larger
-                        // rounded square, the Expressive selection cue.
+                        // rounded square, the selection cue.
                         child: AnimatedContainer(
                           duration: morph.duration,
                           curve: morph.curve,
@@ -744,7 +741,6 @@ class LyricsShareCard extends StatelessWidget {
                         Row(
                           children: [
                             AppShapeClip(
-                              kind: M3EShapeKind.cookie4Sided,
                               fallbackRadius: BorderRadius.circular(10),
                               child: SizedBox.square(
                                 dimension: 52,

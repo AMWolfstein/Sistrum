@@ -9,7 +9,6 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/screens/now_playing_screen.dart';
 import 'package:sistrum/theme/app_motion.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 
 const _sheet = Key('player-sheet');
@@ -333,7 +332,7 @@ void main() {
     });
   }
 
-  group('Material morph', () {
+  group('morph', () {
     const mini = Rect.fromLTWH(0, 700, 400, 72);
     const morph = AppMotionSpec(Duration(milliseconds: 500), Curves.linear);
     const surface = ValueKey('player-expand-surface');
@@ -347,7 +346,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           navigatorKey: navigator,
-          theme: AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.light),
           home: const SizedBox(),
         ),
       );
@@ -444,7 +443,11 @@ void main() {
       }
       expect(previousTop, greaterThan(mini.top - 20));
       expect(elapsed, greaterThan(const Duration(milliseconds: 450)));
-      expect(elapsed, lessThan(const Duration(milliseconds: 650)));
+      // The shrink ends within one frame of the slow spring's settle time.
+      expect(
+        elapsed,
+        lessThan(MornyeMotion.slow.duration + const Duration(milliseconds: 32)),
+      );
       expect(find.byKey(_sheet), findsNothing);
       expect(tester.takeException(), isNull);
     });
@@ -464,8 +467,11 @@ void main() {
           .opacity;
       await tester.pump(const Duration(milliseconds: 100));
       final early = opacity();
-      // The surface is fully opaque well before it stops growing.
-      await tester.pump(const Duration(milliseconds: 220));
+      // The surface is fully opaque once the effects spring settles, which is
+      // still before it stops growing.
+      await tester.pump(
+        MornyeMotion.effects.duration - const Duration(milliseconds: 100),
+      );
       expect(early, inExclusiveRange(0, 1));
       expect(opacity(), 1);
       expect(find.byKey(surface), findsOneWidget);
@@ -671,19 +677,19 @@ void main() {
       return travel;
     }
 
-    testWidgets('a Material page flung down closes faster than one let go', (
+    testWidgets('a page flung down closes faster than one let go', (
       tester,
     ) async {
       final still = await firstFrameTravel(
         tester,
-        theme: AppTheme.light(),
+        theme: MornyeTheme.build(Brightness.light),
         drag: 0.4,
         velocity: 0,
         surface: _sheet,
       );
       final flung = await firstFrameTravel(
         tester,
-        theme: AppTheme.light(),
+        theme: MornyeTheme.build(Brightness.light),
         drag: 0.4,
         velocity: 1500,
         surface: _sheet,
@@ -697,7 +703,7 @@ void main() {
       tester,
     ) async {
       for (final theme in [
-        AppTheme.light(),
+        MornyeTheme.build(Brightness.light),
         MornyeTheme.build(Brightness.dark),
       ]) {
         final still = await firstFrameTravel(

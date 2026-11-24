@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/android_tv.dart';
 import 'package:sistrum/widgets/android_keyboard_lifecycle.dart';
@@ -33,65 +32,58 @@ void main() {
     debugAndroidTvOverride = null;
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets(
-      'background ends editing without losing text, Mornye: $mornye',
-      (tester) async {
-        debugDefaultTargetPlatformOverride = TargetPlatform.android;
-        final focus = FocusNode();
-        final controller = TextEditingController();
-        addTearDown(focus.dispose);
-        addTearDown(controller.dispose);
-        _setLifecycle(AppLifecycleState.resumed);
-        await tester.pumpWidget(
-          MaterialApp(
-            theme: mornye
-                ? MornyeTheme.build(Brightness.light)
-                : AppTheme.light(),
-            builder: (_, child) => AndroidKeyboardLifecycle(child: child!),
-            home: Scaffold(
-              body: TextField(focusNode: focus, controller: controller),
-            ),
-          ),
-        );
-        await tester.enterText(find.byType(TextField), 'Unfinished search');
-        expect(focus.hasFocus, isTrue);
-        expect(tester.testTextInput.isVisible, isTrue);
-
-        _setLifecycle(AppLifecycleState.inactive);
-        await tester.pump();
-        expect(focus.hasFocus, isTrue);
-        expect(tester.testTextInput.isVisible, isTrue);
-
-        tester.testTextInput.log.clear();
-        _setLifecycle(AppLifecycleState.hidden);
-        await tester.idle();
-        expect(tester.testTextInput.isVisible, isFalse);
-        _setLifecycle(AppLifecycleState.paused);
-        // No background frame is needed to send the native hide request.
-        expect(tester.testTextInput.isVisible, isFalse);
-        _setLifecycle(AppLifecycleState.resumed);
-        await tester.pump();
-        expect(focus.hasFocus, isFalse);
-        expect(controller.text, 'Unfinished search');
-        expect(tester.testTextInput.isVisible, isFalse);
-
-        await tester.tap(find.byType(TextField));
-        await tester.pump();
-        expect(focus.hasFocus, isTrue);
-        expect(tester.testTextInput.isVisible, isTrue);
-        await tester.enterText(find.byType(TextField), 'Continued search');
-        _setLifecycle(AppLifecycleState.paused);
-        _setLifecycle(AppLifecycleState.resumed);
-        await tester.pump();
-        expect(focus.hasFocus, isFalse);
-        expect(controller.text, 'Continued search');
-        expect(tester.testTextInput.isVisible, isFalse);
-        await tester.pumpWidget(const SizedBox.shrink());
-        debugDefaultTargetPlatformOverride = null;
-      },
+  testWidgets('background ends editing without losing text', (tester) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    final focus = FocusNode();
+    final controller = TextEditingController();
+    addTearDown(focus.dispose);
+    addTearDown(controller.dispose);
+    _setLifecycle(AppLifecycleState.resumed);
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: MornyeTheme.build(Brightness.light),
+        builder: (_, child) => AndroidKeyboardLifecycle(child: child!),
+        home: Scaffold(
+          body: TextField(focusNode: focus, controller: controller),
+        ),
+      ),
     );
-  }
+    await tester.enterText(find.byType(TextField), 'Unfinished search');
+    expect(focus.hasFocus, isTrue);
+    expect(tester.testTextInput.isVisible, isTrue);
+
+    _setLifecycle(AppLifecycleState.inactive);
+    await tester.pump();
+    expect(focus.hasFocus, isTrue);
+    expect(tester.testTextInput.isVisible, isTrue);
+
+    tester.testTextInput.log.clear();
+    _setLifecycle(AppLifecycleState.hidden);
+    await tester.idle();
+    expect(tester.testTextInput.isVisible, isFalse);
+    _setLifecycle(AppLifecycleState.paused);
+    // No background frame is needed to send the native hide request.
+    expect(tester.testTextInput.isVisible, isFalse);
+    _setLifecycle(AppLifecycleState.resumed);
+    await tester.pump();
+    expect(focus.hasFocus, isFalse);
+    expect(controller.text, 'Unfinished search');
+    expect(tester.testTextInput.isVisible, isFalse);
+
+    await tester.tap(find.byType(TextField));
+    await tester.pump();
+    expect(focus.hasFocus, isTrue);
+    expect(tester.testTextInput.isVisible, isTrue);
+    await tester.enterText(find.byType(TextField), 'Continued search');
+    _setLifecycle(AppLifecycleState.paused);
+    _setLifecycle(AppLifecycleState.resumed);
+    await tester.pump();
+    expect(focus.hasFocus, isFalse);
+    expect(controller.text, 'Continued search');
+    expect(tester.testTextInput.isVisible, isFalse);
+    await tester.pumpWidget(const SizedBox.shrink());
+    debugDefaultTargetPlatformOverride = null;
+  });
 
   for (final tv in [false, true]) {
     testWidgets('does not close desktop or TV input, TV: $tv', (tester) async {

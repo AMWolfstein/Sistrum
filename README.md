@@ -71,8 +71,7 @@
       <p>
         Full-screen cover art, a detailed audio quality label, queue
         controls and a sleep timer. AutoMix blends tracks with its own beat
-        detection, and home screen widgets on Android follow your
-        wallpaper colors.
+        detection.
       </p>
       <p></p>
     </td>
@@ -181,8 +180,7 @@
         <br><b>Your look</b>
       </p>
       <p>
-        Material 3 Expressive or the Mornye theme, Dynamic Color, an AMOLED
-        mode, Material Symbols and layouts for tablets and large screens.
+        The Mornye theme, with layouts for tablets and large screens.
       </p>
       <p></p>
     </td>

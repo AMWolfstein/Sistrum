@@ -17,7 +17,6 @@ import 'package:sistrum/services/batch_track_actions.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_search.dart';
 import 'package:sistrum/services/playable_media.dart' show PlayableMedia;
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/file_access.dart';
@@ -36,9 +35,8 @@ import 'package:sistrum/widgets/song_row_tap.dart';
 import 'package:sistrum/widgets/track_card.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 
-/// Slivers shared by Material's Library and Mornye's Library/Songs screens.
+/// Slivers shared by the Library and Songs screens.
 /// Only the current query's provider families are watched; late results from
 /// an earlier query cannot replace what the user is currently searching for.
 class LibrarySearchResults extends ConsumerStatefulWidget {
@@ -427,9 +425,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
         : () => _open(hit, play: true);
     Widget card({MediaPlaybackUi? playback}) => TrackCard(
       key: playback == null ? key : null,
-      style: hit.kind == LibrarySearchKind.songs && !context.isMornye
-          ? TrackCardStyle.filled
-          : TrackCardStyle.flat,
+      style: TrackCardStyle.flat,
       leading: ClipRRect(
         borderRadius: BorderRadius.circular(
           hit.kind == LibrarySearchKind.artists ? 28 : 8,
@@ -795,13 +791,11 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
                           : _label(kind),
                     ),
                     selected: !_lyricsSearch && _kind == kind,
-                    singleChoice: true,
                     onSelected: (_) => _select(kind),
                   ),
               AppChoiceChip(
                 label: Text(context.l10n.trackLyrics),
                 selected: _lyricsSearch,
-                singleChoice: true,
                 onSelected: (_) => _selectLyrics(),
               ),
             ],
@@ -847,8 +841,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
                   ),
                 if (failed) Text(context.l10n.libraryLyricsSearchIncomplete),
                 if (!loading)
-                  ExpressiveButton(
-                    text: true,
+                  TextButton.icon(
                     icon: const Icon(Icons.refresh),
                     onPressed: () async {
                       try {
@@ -863,7 +856,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
                         }
                       }
                     },
-                    child: Text(context.l10n.libraryLyricsRefresh),
+                    label: Text(context.l10n.libraryLyricsRefresh),
                   ),
               ],
             ),
@@ -968,8 +961,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
           slivers.add(
             SliverToBoxAdapter(
               child: Center(
-                child: ExpressiveButton(
-                  text: true,
+                child: TextButton.icon(
                   icon: const Icon(Icons.refresh),
                   onPressed: () {
                     if (_lyricsSearch) {
@@ -979,7 +971,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
                       ref.invalidate(librarySearchProvider(request));
                     }
                   },
-                  child: Text('${_label(kind)} · ${context.l10n.dialogRetry}'),
+                  label: Text('${_label(kind)} · ${context.l10n.dialogRetry}'),
                 ),
               ),
             ),

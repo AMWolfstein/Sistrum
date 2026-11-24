@@ -1,7 +1,5 @@
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:material_3_expressive/material_3_expressive.dart';
-import 'package:sistrum/theme/app_motion.dart';
 
 // Every map avoids Flutter's Android default,
 // PredictiveBackPageTransitionsBuilder: its gesture detector mis-routes the
@@ -9,28 +7,6 @@ import 'package:sistrum/theme/app_motion.dart';
 // (flutter#152323), which pops the page behind a root modal, sheet or dialog
 // instead of closing the modal first. The builders used here register no back
 // gesture observer, so system back keeps closing the topmost route first.
-
-/// Material page transitions: phones keep the Android fade forwards, and the
-/// desktops share one light builder.
-const PageTransitionsTheme materialPageTransitionsTheme = PageTransitionsTheme(
-  builders: <TargetPlatform, PageTransitionsBuilder>{
-    TargetPlatform.android: ReducedMotionPageTransitionsBuilder(
-      FadeForwardsPageTransitionsBuilder(),
-    ),
-    TargetPlatform.iOS: ReducedMotionPageTransitionsBuilder(
-      CupertinoPageTransitionsBuilder(),
-    ),
-    TargetPlatform.macOS: ReducedMotionPageTransitionsBuilder(
-      DesktopPageTransitionsBuilder(),
-    ),
-    TargetPlatform.windows: ReducedMotionPageTransitionsBuilder(
-      DesktopPageTransitionsBuilder(),
-    ),
-    TargetPlatform.linux: ReducedMotionPageTransitionsBuilder(
-      DesktopPageTransitionsBuilder(),
-    ),
-  },
-);
 
 /// Mornye pushes the iOS way on every platform. Desktops drop the edge
 /// back-drag, which would otherwise start under a mouse.
@@ -152,108 +128,6 @@ class DesktopCupertinoPageTransitionsBuilder extends PageTransitionsBuilder {
       primaryRouteAnimation: animation,
       secondaryRouteAnimation: secondaryAnimation,
       linearTransition: linear,
-      child: child,
-    );
-  }
-}
-
-/// The Material desktop push: the new page slides 32dp in from the trailing
-/// side on the fast spatial spring and fades in on the fast effects spring,
-/// over the page it covers, which stays still. A pop slides and fades the
-/// page out in a shorter eased exit.
-///
-/// It uses only a [FadeTransition] and a translation: no snapshot (the Zoom
-/// builder's cost), and the one opacity layer lasts as long as the fade, not
-/// the whole push. The covered page keeps no layer at all, unlike fade
-/// forwards, which also fades and slides it by a quarter of the pane.
-class DesktopPageTransitionsBuilder extends PageTransitionsBuilder {
-  const DesktopPageTransitionsBuilder();
-
-  static const double _distance = 32;
-
-  static final SpringCurve _slide = SpringCurve(
-    M3EMotion.expressiveSpatialFast,
-  );
-  static final SpringCurve _fade = SpringCurve(M3EMotion.effectsFast);
-
-  static final Duration _duration = _slide.duration > _fade.duration
-      ? _slide.duration
-      : _fade.duration;
-
-  static const Duration _reverseDuration = Duration(milliseconds: 200);
-
-  static double _fraction(Duration part) =>
-      part.inMicroseconds / _duration.inMicroseconds;
-
-  static final Animatable<double> _slideIn = Tween<double>(begin: 1, end: 0)
-      .chain(
-        CurveTween(
-          curve: Interval(0, _fraction(_slide.duration), curve: _slide),
-        ),
-      );
-
-  static final Animatable<double> _fadeIn = CurveTween(
-    curve: Interval(0, _fraction(_fade.duration), curve: _fade),
-  );
-
-  static final Animatable<double> _slideOut = CurveTween(
-    curve: Curves.easeInCubic,
-  );
-
-  static final Animatable<double> _fadeOut = Tween<double>(
-    begin: 1,
-    end: 0,
-  ).chain(CurveTween(curve: const Interval(0, 0.75, curve: Curves.easeIn)));
-
-  @override
-  Duration get transitionDuration => _duration;
-
-  @override
-  Duration get reverseTransitionDuration => _reverseDuration;
-
-  @override
-  Widget buildTransitions<T>(
-    PageRoute<T> route,
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    Widget child,
-  ) {
-    return DualTransitionBuilder(
-      animation: animation,
-      forwardBuilder: (context, animation, child) => FadeTransition(
-        opacity: _fadeIn.animate(animation),
-        child: _PageShift(offset: _slideIn.animate(animation), child: child),
-      ),
-      reverseBuilder: (context, animation, child) => IgnorePointer(
-        ignoring: animation.status == AnimationStatus.forward,
-        child: FadeTransition(
-          opacity: _fadeOut.animate(animation),
-          child: _PageShift(offset: _slideOut.animate(animation), child: child),
-        ),
-      ),
-      child: child,
-    );
-  }
-}
-
-/// Moves [child] toward the trailing side by [offset] times
-/// [DesktopPageTransitionsBuilder._distance].
-class _PageShift extends AnimatedWidget {
-  const _PageShift({required Animation<double> offset, required this.child})
-    : super(listenable: offset);
-
-  final Widget? child;
-
-  @override
-  Widget build(BuildContext context) {
-    final value = (listenable as Animation<double>).value;
-    final direction = Directionality.of(context) == TextDirection.rtl ? -1 : 1;
-    return Transform.translate(
-      offset: Offset(
-        value * direction * DesktopPageTransitionsBuilder._distance,
-        0,
-      ),
       child: child,
     );
   }

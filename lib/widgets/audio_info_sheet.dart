@@ -21,11 +21,9 @@ import 'package:sistrum/utils/int_utils.dart';
 import 'package:sistrum/utils/string_utils.dart';
 import 'package:sistrum/utils/usb_output_status_label.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
-import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/audio_analysis_widget.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
-import 'package:sistrum/widgets/hires_check_card.dart';
 import 'package:sistrum/widgets/settings_group.dart';
+import 'package:sistrum/widgets/hires_check_card.dart';
 
 /// Technical details of the playing track, from the file through the
 /// processing chain to the output device.
@@ -229,31 +227,21 @@ class _AudioInfoSheetState extends State<_AudioInfoSheet>
               ),
             ],
             SizedBox(height: context.tokens.gapLg),
-            if (context.isMornye)
-              _FactGroup(
-                children: [
-                  CupertinoButton(
-                    minimumSize: Size.square(context.tokens.minTouchTarget),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    onPressed: () => _copy(context, sections),
-                    child: Text(
-                      context.l10n.audioInfoCopy,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+            _FactGroup(
+              children: [
+                CupertinoButton(
+                  minimumSize: Size.square(context.tokens.minTouchTarget),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  onPressed: () => _copy(context, sections),
+                  child: Text(
+                    context.l10n.audioInfoCopy,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
-                ],
-              )
-            else
-              Center(
-                child: ExpressiveButton(
-                  tonal: true,
-                  icon: const AppIcon(Icons.copy_rounded),
-                  onPressed: () => _copy(context, sections),
-                  child: Text(context.l10n.audioInfoCopy),
                 ),
-              ),
+              ],
+            ),
           ],
         ),
       );
@@ -288,9 +276,6 @@ class _FactGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!context.isMornye) {
-      return SettingsGroup(connected: true, children: children);
-    }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Material(
@@ -314,16 +299,13 @@ class _FactRow extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final tokens = context.tokens;
-    final mornye = context.isMornye;
-    // Mornye rows line up with the section header, as in iOS inset lists.
-    final inset = mornye ? 16.0 : tokens.rowPaddingH;
-    final valueStyle =
-        (mornye ? theme.textTheme.bodyLarge : theme.textTheme.bodyMedium)
-            ?.copyWith(
-              color: fact.emphasis ? colors.primary : colors.onSurfaceVariant,
-              fontWeight: fact.emphasis ? FontWeight.w600 : null,
-              fontFeatures: const [FontFeature.tabularFigures()],
-            );
+    // Rows line up with the section header, as in iOS inset lists.
+    const inset = 16.0;
+    final valueStyle = theme.textTheme.bodyLarge?.copyWith(
+      color: fact.emphasis ? colors.primary : colors.onSurfaceVariant,
+      fontWeight: fact.emphasis ? FontWeight.w600 : null,
+      fontFeatures: const [FontFeature.tabularFigures()],
+    );
     return MergeSemantics(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -375,10 +357,8 @@ class _FactRow extends StatelessWidget {
             Divider(
               height: 1,
               indent: inset,
-              endIndent: mornye ? 0 : inset,
-              color: mornye
-                  ? MornyeTheme.metadataDividerColor(context)
-                  : colors.outlineVariant.withValues(alpha: 0.3),
+              endIndent: 0,
+              color: MornyeTheme.metadataDividerColor(context),
             ),
         ],
       ),

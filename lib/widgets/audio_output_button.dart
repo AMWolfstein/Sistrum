@@ -4,7 +4,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/utils/logger.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
-import 'package:sistrum/widgets/expressive_icon_button.dart';
 
 /// Opens the system's audio output switcher: Android's output switcher, or
 /// AirPlay and Bluetooth routes on iOS.
@@ -56,9 +55,7 @@ class _AudioOutputButtonState extends State<AudioOutputButton> {
     }
     if (mounted && !opened) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(context.l10n.nowPlayingAudioOutputUnavailable),
-        ),
+        SnackBar(content: Text(context.l10n.nowPlayingAudioOutputUnavailable)),
       );
     }
   }
@@ -75,13 +72,19 @@ class _AudioOutputButtonState extends State<AudioOutputButton> {
   Widget _button(BuildContext context) {
     final icon = _ios ? Icons.airplay : Icons.speaker_group_outlined;
     if (widget.backgroundColor case final background?) {
-      return ExpressiveIconButton(
+      final scheme = Theme.of(context).colorScheme;
+      return IconButton(
         tooltip: context.l10n.nowPlayingAudioOutput,
-        width: widget.width,
-        foregroundColor: widget.color,
-        backgroundColor: background,
         icon: Icon(icon),
         onPressed: _showPicker,
+        style: ButtonStyle(
+          minimumSize: WidgetStatePropertyAll(Size(widget.width, 48)),
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.disabled)
+                ? scheme.onSurface.withValues(alpha: 0.12)
+                : background,
+          ),
+        ),
       );
     }
     return AppIconButton(

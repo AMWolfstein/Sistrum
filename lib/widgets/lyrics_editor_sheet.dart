@@ -20,12 +20,9 @@ import 'package:sistrum/widgets/app_action_button.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
-import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/desktop/context_menu.dart';
 import 'package:sistrum/widgets/discard_changes_dialog.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
-import 'package:sistrum/widgets/expressive_button_group.dart';
 import 'package:sistrum/widgets/playback_seek_slider.dart';
 
 final _log = AppLogger('LyricsEditor');
@@ -189,8 +186,7 @@ class _LyricsEditorSheetState extends ConsumerState<LyricsEditorSheet> {
       final context = _lines[index].key.currentContext;
       if (context == null || !context.mounted) return;
       // The list moves as content, on a spring that stops at its place
-      // instead of scrolling past it: Material's slow spatial spring is
-      // critically damped, and Mornye's standard one has no bounce.
+      // instead of scrolling past it: Mornye's standard one has no bounce.
       final motion = AppMotion.spatialSlow(
         context,
         const AppMotionSpec(Duration.zero, Curves.linear),
@@ -431,7 +427,6 @@ class _LyricsEditorSheetState extends ConsumerState<LyricsEditorSheet> {
             child: Align(
               alignment: AlignmentDirectional.centerStart,
               child: _textAction(
-                context,
                 icon: Icons.add,
                 label: context.l10n.lyricsEditAddLine,
                 onPressed: () => _insertBelow(_lines.length - 1),
@@ -467,7 +462,6 @@ class _LyricsEditorSheetState extends ConsumerState<LyricsEditorSheet> {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final mornye = context.isMornye;
     final controller = ref.read(musicPlayerControllerProvider);
     final active = _editingCurrentTrack;
     final playing = ref.watch(playbackPlayingProvider) && active;
@@ -490,19 +484,15 @@ class _LyricsEditorSheetState extends ConsumerState<LyricsEditorSheet> {
       tooltip: playing ? l10n.actionPause : l10n.tooltipPlay,
       isSelected: playing,
       onPressed: active ? () => controller.togglePlayPause(playing) : null,
-      icon: AppIcon.adaptive(
-        mornye ? CupertinoIcons.play_fill : Icons.play_arrow,
-      ),
-      selectedIcon: AppIcon.adaptive(
-        mornye ? CupertinoIcons.pause_fill : Icons.pause,
-      ),
+      icon: AppIcon.adaptive(CupertinoIcons.play_fill),
+      selectedIcon: AppIcon.adaptive(CupertinoIcons.pause_fill),
     );
     final setTime = Tooltip(
       message: l10n.lyricsEditSetTimeTooltip,
       child: AppActionButton(
         key: const ValueKey('lyrics-editor-set-time'),
         tonal: true,
-        outlined: mornye,
+        outlined: true,
         onPressed: _saving || !active ? null : _setTime,
         icon: const AppIcon(Icons.timer_outlined),
         label: Text(l10n.lyricsEditSetTime),
@@ -543,38 +533,25 @@ class _LyricsEditorSheetState extends ConsumerState<LyricsEditorSheet> {
               ],
             ),
             const SizedBox(height: 4),
-            if (mornye)
-              Row(
-                children: [
-                  for (final (index, tool) in tools.indexed) ...[
-                    if (index > 0) const SizedBox(width: 8),
-                    index == 2 ? Expanded(child: tool) : tool,
-                  ],
+            Row(
+              children: [
+                for (final (index, tool) in tools.indexed) ...[
+                  if (index > 0) const SizedBox(width: 8),
+                  index == 2 ? Expanded(child: tool) : tool,
                 ],
-              )
-            else
-              ExpressiveButtonGroup(
-                flexible: const {2},
-                spacing: 8,
-                children: tools,
-              ),
+              ],
+            ),
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                mornye
-                    ? AppActionButton(
-                        outlined: true,
-                        glass: false,
-                        onPressed: _saving ? null : _close,
-                        icon: const SizedBox.shrink(),
-                        label: Text(l10n.dialogCancel),
-                      )
-                    : ExpressiveButton(
-                        text: true,
-                        onPressed: _saving ? null : _close,
-                        child: Text(l10n.dialogCancel),
-                      ),
+                AppActionButton(
+                  outlined: true,
+                  glass: false,
+                  onPressed: _saving ? null : _close,
+                  icon: const SizedBox.shrink(),
+                  label: Text(l10n.dialogCancel),
+                ),
                 const SizedBox(width: 8),
                 AppActionButton(
                   key: const ValueKey('lyrics-editor-save'),
@@ -582,12 +559,7 @@ class _LyricsEditorSheetState extends ConsumerState<LyricsEditorSheet> {
                   icon: _saving
                       ? SizedBox.square(
                           dimension: 18,
-                          child: mornye
-                              ? const CupertinoActivityIndicator()
-                              : AppLoadingIndicator(
-                                  size: 18,
-                                  color: scheme.onPrimary,
-                                ),
+                          child: const CupertinoActivityIndicator(),
                         )
                       : const AppIcon(Icons.check),
                   label: Text(l10n.dialogSave),
@@ -600,25 +572,17 @@ class _LyricsEditorSheetState extends ConsumerState<LyricsEditorSheet> {
     );
   }
 
-  Widget _textAction(
-    BuildContext context, {
+  Widget _textAction({
     required IconData icon,
     required String label,
     required VoidCallback onPressed,
-  }) => context.isMornye
-      ? AppActionButton(
-          outlined: true,
-          glass: false,
-          onPressed: onPressed,
-          icon: AppIcon(icon),
-          label: Text(label),
-        )
-      : ExpressiveButton(
-          text: true,
-          onPressed: onPressed,
-          icon: AppIcon(icon),
-          child: Text(label),
-        );
+  }) => AppActionButton(
+    outlined: true,
+    glass: false,
+    onPressed: onPressed,
+    icon: AppIcon(icon),
+    label: Text(label),
+  );
 }
 
 /// One line: its time, which plays from there, the text field, and the
@@ -653,7 +617,6 @@ class _LyricsEditorRow extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final tokens = context.tokens;
-    final mornye = context.isMornye;
     final outer = Radius.circular(tokens.radiusCard);
     final inner = Radius.circular(tokens.radiusThumb);
     final radius = selected
@@ -664,9 +627,7 @@ class _LyricsEditorRow extends StatelessWidget {
           );
     final fill = selected
         ? scheme.secondaryContainer
-        : mornye
-        ? MornyeTheme.controlFill(context)
-        : scheme.surfaceContainerHighest;
+        : MornyeTheme.controlFill(context);
     final onFill = selected ? scheme.onSecondaryContainer : scheme.onSurface;
     final time = line.time;
     final timeLabel = time == null ? '--:--' : formatLyricsTime(time);
@@ -773,9 +734,7 @@ class _LyricsEditorRow extends StatelessWidget {
                     onPressed: () => onMenu(
                       contextMenuPositionBelow(buttonContext) ?? Offset.zero,
                     ),
-                    icon: AppIcon.adaptive(
-                      mornye ? CupertinoIcons.ellipsis : Icons.more_vert,
-                    ),
+                    icon: AppIcon.adaptive(CupertinoIcons.ellipsis),
                   ),
                 ),
               ],

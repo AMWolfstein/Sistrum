@@ -5,12 +5,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/android_tv.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/widgets/app_content_card.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
+import 'package:sistrum/widgets/app_action_button.dart';
+
 import 'package:sistrum/widgets/mornye_level_slider.dart';
 import 'package:sistrum/widgets/playback_seek_slider.dart';
 import 'package:sistrum/widgets/settings_group.dart';
@@ -56,7 +56,6 @@ void main() {
   Future<void> pumpTv(
     WidgetTester tester,
     Widget child, {
-    bool mornye = false,
     bool productionMetrics = false,
   }) async {
     tester.view.physicalSize = const Size(960, 540);
@@ -74,7 +73,7 @@ void main() {
           ),
         ],
         child: MaterialApp(
-          theme: mornye ? MornyeTheme.build(Brightness.dark) : AppTheme.dark(),
+          theme: MornyeTheme.build(Brightness.dark),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           builder: (context, child) => MediaQuery(
@@ -283,103 +282,86 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets('TV shell keeps destinations reachable, Mornye: $mornye', (
+  testWidgets('TV shell keeps destinations reachable', (tester) async {
+    int? selected;
+    await pumpTv(
       tester,
-    ) async {
-      int? selected;
-      await pumpTv(
-        tester,
-        TvShell(
-          destinations: const [
-            NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
-            NavigationDestination(
-              icon: Icon(Icons.library_music),
-              label: 'Library',
-            ),
-            NavigationDestination(icon: Icon(Icons.extension), label: 'Repo'),
-            NavigationDestination(
-              icon: Icon(Icons.settings),
-              label: 'Settings',
-            ),
-          ],
-          selectedIndex: 0,
-          onSelected: (value) => selected = value,
-          child: const Center(child: Text('Content')),
-        ),
-        mornye: mornye,
-        productionMetrics: true,
-      );
-      await key(tester, LogicalKeyboardKey.arrowDown);
-      await key(tester, LogicalKeyboardKey.select);
-      expect(selected, 1);
-      expect(find.text('Settings'), findsOneWidget);
-      expect(find.byType(NavigationBar), findsNothing);
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets(
-      'shared cards, settings and actions accept OK, Mornye: $mornye',
-      (tester) async {
-        final calls = <String>[];
-        await pumpTv(
-          tester,
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              AppContentCard(
-                onTap: () => calls.add('song'),
-                child: const SizedBox(height: 64, child: Text('Song')),
-              ),
-              SettingsItem(
-                title: 'Library',
-                onTap: () => calls.add('settings'),
-              ),
-              ExpressiveButton(
-                onPressed: () => calls.add('action'),
-                child: const Text('Open'),
-              ),
-            ],
+      TvShell(
+        destinations: const [
+          NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
+          NavigationDestination(
+            icon: Icon(Icons.library_music),
+            label: 'Library',
           ),
-          mornye: mornye,
-        );
-        for (var i = 0; i < 3; i++) {
-          if (i != 0) await key(tester, LogicalKeyboardKey.arrowDown);
-          await key(tester, LogicalKeyboardKey.select);
-        }
-        expect(calls, ['song', 'settings', 'action']);
-        expect(tester.takeException(), isNull);
-        await tester.pump(const Duration(seconds: 1));
-      },
+          NavigationDestination(icon: Icon(Icons.extension), label: 'Repo'),
+          NavigationDestination(icon: Icon(Icons.settings), label: 'Settings'),
+        ],
+        selectedIndex: 0,
+        onSelected: (value) => selected = value,
+        child: const Center(child: Text('Content')),
+      ),
+      productionMetrics: true,
     );
+    await key(tester, LogicalKeyboardKey.arrowDown);
+    await key(tester, LogicalKeyboardKey.select);
+    expect(selected, 1);
+    expect(find.text('Settings'), findsOneWidget);
+    expect(find.byType(NavigationBar), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
 
-    testWidgets('seek can be adjusted and left with Down, Mornye: $mornye', (
+  testWidgets('shared cards, settings and actions accept OK', (tester) async {
+    final calls = <String>[];
+    await pumpTv(
       tester,
-    ) async {
-      Duration? seek;
-      var below = 0;
-      await pumpTv(
-        tester,
-        Column(
-          children: [
-            PlaybackSeekSlider(
-              position: const Duration(seconds: 10),
-              duration: const Duration(minutes: 3),
-              onSeek: (value) async => seek = value,
-            ),
-            TextButton(onPressed: () => below++, child: const Text('Next')),
-          ],
-        ),
-        mornye: mornye,
-      );
-      await key(tester, LogicalKeyboardKey.arrowRight);
-      expect(seek, greaterThan(const Duration(seconds: 10)));
-      await key(tester, LogicalKeyboardKey.arrowDown);
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AppContentCard(
+            onTap: () => calls.add('song'),
+            child: const SizedBox(height: 64, child: Text('Song')),
+          ),
+          SettingsItem(title: 'Library', onTap: () => calls.add('settings')),
+          AppActionButton(
+            onPressed: () => calls.add('action'),
+            icon: const Icon(Icons.open_in_new),
+            label: const Text('Open'),
+          ),
+        ],
+      ),
+    );
+    for (var i = 0; i < 3; i++) {
+      if (i != 0) await key(tester, LogicalKeyboardKey.arrowDown);
       await key(tester, LogicalKeyboardKey.select);
-      expect(below, 1);
-      expect(tester.takeException(), isNull);
-    });
-  }
+    }
+    expect(calls, ['song', 'settings', 'action']);
+    expect(tester.takeException(), isNull);
+    await tester.pump(const Duration(seconds: 1));
+  });
+
+  testWidgets('seek can be adjusted and left with Down', (tester) async {
+    Duration? seek;
+    var below = 0;
+    await pumpTv(
+      tester,
+      Column(
+        children: [
+          PlaybackSeekSlider(
+            position: const Duration(seconds: 10),
+            duration: const Duration(minutes: 3),
+            onSeek: (value) async => seek = value,
+          ),
+          TextButton(onPressed: () => below++, child: const Text('Next')),
+        ],
+      ),
+    );
+    await key(tester, LogicalKeyboardKey.arrowRight);
+    expect(seek, greaterThan(const Duration(seconds: 10)));
+    await key(tester, LogicalKeyboardKey.arrowDown);
+    await key(tester, LogicalKeyboardKey.select);
+    expect(below, 1);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('Mornye level slider adjusts by remote and releases focus', (
     tester,
@@ -394,7 +376,6 @@ void main() {
           TextButton(onPressed: () => below++, child: const Text('Next')),
         ],
       ),
-      mornye: true,
     );
     await key(tester, LogicalKeyboardKey.arrowRight);
     expect(value, 0.51);

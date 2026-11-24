@@ -12,7 +12,6 @@ import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/library_artist_screen.dart';
 import 'package:sistrum/services/playable_media.dart' show PlayableMedia;
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/track_card.dart';
 
@@ -33,15 +32,15 @@ UnifiedLibraryItem _song(String id) {
   final path = '${_musicDir.path}/$id.flac';
   File(path).createSync();
   return UnifiedLibraryItem.fromLocalLibrary(
-  LocalLibraryItem(
-    id: id,
-    trackName: 'Song $id',
-    artistName: 'Ana',
-    albumName: 'Album $id',
-    filePath: path,
-    scannedAt: DateTime(2026, 11, 17),
-    duration: 200,
-  ),
+    LocalLibraryItem(
+      id: id,
+      trackName: 'Song $id',
+      artistName: 'Ana',
+      albumName: 'Album $id',
+      filePath: path,
+      scannedAt: DateTime(2026, 11, 17),
+      duration: 200,
+    ),
   );
 }
 
@@ -72,7 +71,6 @@ class _Player implements MusicPlayerController {
 
 Future<(_Player, ProviderContainer)> _pump(
   WidgetTester tester, {
-  required bool mornye,
   bool songs = false,
 }) async {
   tester.view.physicalSize = const Size(390, 844);
@@ -102,7 +100,7 @@ Future<(_Player, ProviderContainer)> _pump(
         musicPlayerControllerProvider.overrideWithValue(player),
       ],
       child: MaterialApp(
-        theme: mornye ? MornyeTheme.build(Brightness.dark) : AppTheme.dark(),
+        theme: MornyeTheme.build(Brightness.dark),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: const LibraryArtistScreen(artist: 'Ana'),
@@ -124,52 +122,52 @@ Future<void> _settle(WidgetTester tester) async {
 }
 
 void main() {
-  for (final mornye in [false, true]) {
-    testWidgets('an artist opens on their albums and switches to all their '
-        'songs (Mornye: $mornye)', (tester) async {
-      final (player, container) = await _pump(tester, mornye: mornye);
+  testWidgets('an artist opens on their albums and switches to all their '
+      'songs', (tester) async {
+    final (player, container) = await _pump(tester);
 
-      expect(find.text('Ana'), findsWidgets);
-      expect(find.text('First Album'), findsOneWidget);
-      expect(find.byType(TrackCard), findsNothing);
-      expect(find.text('Artist Page'), findsOneWidget);
+    expect(find.text('Ana'), findsWidgets);
+    expect(find.text('First Album'), findsOneWidget);
+    expect(find.byType(TrackCard), findsNothing);
+    expect(find.text('Artist Page'), findsOneWidget);
 
-      // A connected group lays out each label twice.
-      await tester.tap(find.text('Songs').hitTestable().first);
-      await _settle(tester);
+    // A connected group lays out each label twice.
+    await tester.tap(find.text('Songs').hitTestable().first);
+    await _settle(tester);
 
-      expect(container.read(settingsProvider).libraryArtistShowsSongs, isTrue);
-      expect(find.text('First Album'), findsNothing);
-      expect(find.byType(TrackCard), findsNWidgets(2));
-      expect(find.text('Song a1'), findsOneWidget);
-      expect(find.text('2 tracks'), findsOneWidget);
-      // The switch and the artist link stay on the songs view.
-      expect(find.text('Artist Page'), findsOneWidget);
+    expect(container.read(settingsProvider).libraryArtistShowsSongs, isTrue);
+    expect(find.text('First Album'), findsNothing);
+    expect(find.byType(TrackCard), findsNWidgets(2));
+    expect(find.text('Song a1'), findsOneWidget);
+    expect(find.text('2 tracks'), findsOneWidget);
+    // The switch and the artist link stay on the songs view.
+    expect(find.text('Artist Page'), findsOneWidget);
 
-      await tester.tap(find.text('Play'));
-      // Checking the files is real I/O, so let it finish outside the fake clock.
-      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 200)));
-      await _settle(tester);
-      expect(player.queues.single, [
-        '${_musicDir.path}/a1.flac',
-        '${_musicDir.path}/a2.flac',
-      ]);
+    await tester.tap(find.text('Play'));
+    // Checking the files is real I/O, so let it finish outside the fake clock.
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 200)),
+    );
+    await _settle(tester);
+    expect(player.queues.single, [
+      '${_musicDir.path}/a1.flac',
+      '${_musicDir.path}/a2.flac',
+    ]);
 
-      await tester.tap(find.text('Albums').hitTestable().first);
-      await _settle(tester);
-      expect(container.read(settingsProvider).libraryArtistShowsSongs, isFalse);
-      expect(find.text('First Album'), findsOneWidget);
-      expect(find.byType(TrackCard), findsNothing);
-      expect(tester.takeException(), isNull);
-    });
+    await tester.tap(find.text('Albums').hitTestable().first);
+    await _settle(tester);
+    expect(container.read(settingsProvider).libraryArtistShowsSongs, isFalse);
+    expect(find.text('First Album'), findsOneWidget);
+    expect(find.byType(TrackCard), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
 
-    testWidgets('an artist opens on their songs when that view was chosen '
-        'last (Mornye: $mornye)', (tester) async {
-      await _pump(tester, mornye: mornye, songs: true);
+  testWidgets('an artist opens on their songs when that view was chosen '
+      'last', (tester) async {
+    await _pump(tester, songs: true);
 
-      expect(find.byType(TrackCard), findsNWidgets(2));
-      expect(find.text('First Album'), findsNothing);
-      expect(tester.takeException(), isNull);
-    });
-  }
+    expect(find.byType(TrackCard), findsNWidgets(2));
+    expect(find.text('First Album'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
 }

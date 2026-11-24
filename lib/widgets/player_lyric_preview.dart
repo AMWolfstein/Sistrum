@@ -14,7 +14,6 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/song_lyrics_offset_provider.dart';
 import 'package:sistrum/providers/theme_provider.dart';
 import 'package:sistrum/theme/app_motion.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:sistrum/utils/lyrics_timeline.dart';
 import 'package:sistrum/utils/synced_lyrics_scroll.dart';
@@ -332,11 +331,8 @@ class _LyricPreviewLineState extends ConsumerState<_LyricPreviewLine> {
     );
     final enter = AppMotion.effects(context, eased(180, Curves.easeOutQuad));
     final exit = AppMotion.effectsFast(context, eased(120, Curves.easeInQuad));
-    final mornye = context.isMornye;
     final colorScheme = widget.colorScheme;
-    final textColor = mornye
-        ? colorScheme.onSurface.withValues(alpha: 0.88)
-        : colorScheme.onSurfaceVariant;
+    final textColor = colorScheme.onSurface.withValues(alpha: 0.88);
     final style = Theme.of(context).textTheme.bodyLarge!.copyWith(
       fontWeight: FontWeight.w500,
       color: textColor,
@@ -474,11 +470,9 @@ class _LyricPreviewLineState extends ConsumerState<_LyricPreviewLine> {
                     duration: blank ? exit.duration : enter.duration,
                     curve: blank ? exit.curve : enter.curve,
                     child: Icon(
-                      mornye ? CupertinoIcons.forward : Icons.chevron_right,
-                      size: mornye ? 14 : 16,
-                      color: mornye
-                          ? colorScheme.onSurface.withValues(alpha: 0.55)
-                          : colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                      CupertinoIcons.forward,
+                      size: 14,
+                      color: colorScheme.onSurface.withValues(alpha: 0.55),
                     ),
                   ),
                 ],

@@ -287,45 +287,43 @@ void main() {
     },
   );
 
-  for (final mornye in [false, true]) {
-    testWidgets('Home crash card copies full report and dismisses ($mornye)', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
-            locale: const Locale('id'),
-            localizationsDelegates: appLocalizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: const Scaffold(
-              body: SingleChildScrollView(child: AppCrashBanner()),
-            ),
+  testWidgets('Home crash card copies full report and dismisses', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          locale: const Locale('id'),
+          localizationsDelegates: appLocalizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const Scaffold(
+            body: SingleChildScrollView(child: AppCrashBanner()),
           ),
         ),
-      );
-      await tester.pumpAndSettle();
-      expect(find.text('Aplikasi sebelumnya mengalami crash'), findsOneWidget);
-      expect(find.text('Fatal signal 6 (SIGABRT)'), findsOneWidget);
-      await tester.tap(find.text('Salin laporan untuk developer'));
-      await tester.pumpAndSettle();
-      expect(clipboard, contains('Abort message: invalid pointer'));
-      expect(clipboard, contains('Example Phone'));
-      expect(clipboard, isNot(contains('secret-value')));
-      expect(find.text('Aplikasi sebelumnya mengalami crash'), findsOneWidget);
-      // The full report opens in a sheet rather than expanding on Home.
-      expect(find.textContaining('Abort message'), findsNothing);
-      await tester.tap(find.text('Lihat error dan log'));
-      await tester.pumpAndSettle();
-      expect(find.textContaining('Abort message: invalid pointer'), findsOne);
-      Navigator.of(tester.element(find.byType(AppCrashBanner))).pop();
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Tutup'));
-      await tester.pumpAndSettle();
-      expect(find.text('Aplikasi sebelumnya mengalami crash'), findsNothing);
-      expect(tester.takeException(), isNull);
-    });
-  }
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Aplikasi sebelumnya mengalami crash'), findsOneWidget);
+    expect(find.text('Fatal signal 6 (SIGABRT)'), findsOneWidget);
+    await tester.tap(find.text('Salin laporan untuk developer'));
+    await tester.pumpAndSettle();
+    expect(clipboard, contains('Abort message: invalid pointer'));
+    expect(clipboard, contains('Example Phone'));
+    expect(clipboard, isNot(contains('secret-value')));
+    expect(find.text('Aplikasi sebelumnya mengalami crash'), findsOneWidget);
+    // The full report opens in a sheet rather than expanding on Home.
+    expect(find.textContaining('Abort message'), findsNothing);
+    await tester.tap(find.text('Lihat error dan log'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Abort message: invalid pointer'), findsOne);
+    Navigator.of(tester.element(find.byType(AppCrashBanner))).pop();
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Tutup'));
+    await tester.pumpAndSettle();
+    expect(find.text('Aplikasi sebelumnya mengalami crash'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('no crash means no Home card', (tester) async {
     stored = null;

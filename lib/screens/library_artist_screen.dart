@@ -7,7 +7,6 @@ import 'package:sistrum/screens/library_mix_screen.dart';
 import 'package:sistrum/screens/mornye_library_screen.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/library_view_toggle.dart';
 
 /// A Library artist: their albums, or every song of theirs, whichever view
@@ -76,8 +75,7 @@ class _ArtistToolbar extends ConsumerWidget {
           Expanded(
             child: Align(
               alignment: AlignmentDirectional.centerEnd,
-              child: ExpressiveButton(
-                text: true,
+              child: TextButton(
                 onPressed: () => navigateToArtist(context, artistName: artist),
                 child: Text(
                   l10n.libraryArtistPage,

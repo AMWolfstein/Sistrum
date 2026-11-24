@@ -6,7 +6,6 @@ import 'package:sistrum/providers/playback_provider.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 
 /// A play button that appears over artwork while the pointer is on it, on
@@ -31,8 +30,7 @@ class DesktopHoverPlayButton extends StatelessWidget {
 }
 
 /// Hover feedback for a clickable cover on desktop: the click cursor, an 8%
-/// state layer on Material (10% while pressed) or a dimming scrim on Mornye,
-/// and a Play button in the bottom-leading corner when [onPlay] is set.
+/// dimming scrim (a little darker while pressed), and a Play button in the bottom-leading corner when [onPlay] is set.
 /// Place it in the cover's [Stack], after the artwork; it fills the stack and
 /// lets clicks through to the tile. [borderRadius] matches the cover's
 /// corners, by default those of the Library grid tiles. Phones and tablets
@@ -50,7 +48,6 @@ class DesktopCoverHover extends StatefulWidget {
   final VoidCallback? onPlay;
 
   /// Visible circle; the pointer target is [_target].
-  static const double _diameter = 36;
   static const double _mornyeDiameter = 30;
   static const double _target = 40;
 
@@ -58,9 +55,8 @@ class DesktopCoverHover extends StatefulWidget {
   static const Color _mornyeScrim = Color(0x4D333333);
   static const Color _mornyePressedScrim = Color(0x66333333);
 
-  /// Corner radius of the Library grid tiles in each style.
+  /// Corner radius of the Library grid tiles.
   static const double _mornyeRadius = 8;
-  static const double _materialRadius = 12;
 
   @override
   State<DesktopCoverHover> createState() => _DesktopCoverHoverState();
@@ -98,54 +94,32 @@ class _DesktopCoverHoverState extends State<DesktopCoverHover> {
   @override
   Widget build(BuildContext context) {
     if (!isDesktopPlatform) return const SizedBox.shrink();
-    final colorScheme = Theme.of(context).colorScheme;
-    final mornye = context.isMornye;
     final visible = _hovered || _focused;
     final pressed = _pressed && _hovered;
     final radius =
         widget.borderRadius ??
-        BorderRadius.circular(
-          mornye
-              ? DesktopCoverHover._mornyeRadius
-              : DesktopCoverHover._materialRadius,
-        );
+        BorderRadius.circular(DesktopCoverHover._mornyeRadius);
     // Hover feedback stays quick: the fast effects spring of the style.
     final fade = AppMotion.effectsFast(
       context,
       const AppMotionSpec(Duration(milliseconds: 100), Curves.easeOut),
     );
-    final Widget layer = mornye
-        ? AnimatedOpacity(
-            key: const ValueKey('desktop-hover-scrim'),
-            opacity: visible ? 1 : 0,
-            duration: fade.duration,
-            curve: fade.curve,
-            child: AnimatedContainer(
-              duration: fade.duration,
-              curve: fade.curve,
-              decoration: BoxDecoration(
-                color: pressed
-                    ? DesktopCoverHover._mornyePressedScrim
-                    : DesktopCoverHover._mornyeScrim,
-                borderRadius: radius,
-              ),
-            ),
-          )
-        : AnimatedContainer(
-            key: const ValueKey('desktop-hover-layer'),
-            duration: fade.duration,
-            curve: fade.curve,
-            decoration: BoxDecoration(
-              color: colorScheme.onSurface.withValues(
-                alpha: pressed
-                    ? 0.10
-                    : visible
-                    ? 0.08
-                    : 0,
-              ),
-              borderRadius: radius,
-            ),
-          );
+    final Widget layer = AnimatedOpacity(
+      key: const ValueKey('desktop-hover-scrim'),
+      opacity: visible ? 1 : 0,
+      duration: fade.duration,
+      curve: fade.curve,
+      child: AnimatedContainer(
+        duration: fade.duration,
+        curve: fade.curve,
+        decoration: BoxDecoration(
+          color: pressed
+              ? DesktopCoverHover._mornyePressedScrim
+              : DesktopCoverHover._mornyeScrim,
+          borderRadius: radius,
+        ),
+      ),
+    );
     return Positioned.fill(
       child: MouseRegion(
         opaque: false,
@@ -180,16 +154,6 @@ class _DesktopCoverHoverState extends State<DesktopCoverHover> {
   }
 
   Widget _playButton(BuildContext context, bool visible) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final mornye = context.isMornye;
-    // Mornye uses a light disc; Material uses its primary FAB colors.
-    final background = mornye
-        ? Colors.white.withValues(alpha: 0.92)
-        : colorScheme.primaryContainer;
-    final foreground = mornye ? Colors.black : colorScheme.onPrimaryContainer;
-    final diameter = mornye
-        ? DesktopCoverHover._mornyeDiameter
-        : DesktopCoverHover._diameter;
     final fade = AppMotion.effectsFast(
       context,
       const AppMotionSpec(Duration(milliseconds: 120), Curves.linear),
@@ -199,7 +163,7 @@ class _DesktopCoverHoverState extends State<DesktopCoverHover> {
       child: Padding(
         // The visible circle sits 10 from the Mornye artwork's corner; the
         // target around it is larger.
-        padding: EdgeInsets.all(mornye ? 5 : 6),
+        padding: const EdgeInsets.all(5),
         child: AnimatedOpacity(
           opacity: visible ? 1 : 0,
           duration: fade.duration,
@@ -230,21 +194,19 @@ class _DesktopCoverHoverState extends State<DesktopCoverHover> {
                         backgroundColor: Colors.transparent,
                       ),
                       icon: Container(
-                        width: diameter,
-                        height: diameter,
+                        width: DesktopCoverHover._mornyeDiameter,
+                        height: DesktopCoverHover._mornyeDiameter,
                         decoration: BoxDecoration(
-                          color: background,
+                          color: Colors.white.withValues(alpha: 0.92),
                           shape: BoxShape.circle,
                           boxShadow: const [
                             BoxShadow(blurRadius: 6, color: Color(0x33000000)),
                           ],
                         ),
                         child: Icon(
-                          mornye
-                              ? mornyeIconFor(Icons.play_arrow)
-                              : Icons.play_arrow_rounded,
-                          size: mornye ? 16 : 22,
-                          color: foreground,
+                          mornyeIconFor(Icons.play_arrow),
+                          size: 16,
+                          color: Colors.black,
                         ),
                       ),
                     ),

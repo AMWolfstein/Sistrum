@@ -120,8 +120,6 @@ class _BatchProgressDialogState extends State<BatchProgressDialog> {
     final progress = widget.total > 0 ? current / widget.total : 0.0;
 
     return AppAlertDialog(
-      backgroundColor: colorScheme.surfaceContainerHigh,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

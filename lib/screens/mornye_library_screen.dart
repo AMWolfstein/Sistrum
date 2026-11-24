@@ -26,7 +26,6 @@ import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/desktop/context_menu.dart';
 import 'package:sistrum/widgets/desktop/hover_play_button.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/local_library_artwork_builder.dart';
 import 'package:sistrum/widgets/library_search_results.dart';
@@ -574,8 +573,7 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
                   padding: EdgeInsetsDirectional.only(start: 16 + listInset),
                   child: Align(
                     alignment: AlignmentDirectional.centerStart,
-                    child: ExpressiveButton(
-                      text: true,
+                    child: TextButton(
                       onPressed: () =>
                           navigateToArtist(context, artistName: widget.artist!),
                       child: Text(context.l10n.libraryArtistPage),

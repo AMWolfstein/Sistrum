@@ -32,7 +32,7 @@ Run sequentially after implementation is authorized. Each task starts with `pyth
   - Remove non-phone products together with their remaining Mornye identity, so no app-owned Mornye name remains. Enforce ARM64 as the only ABI at every layer. Verify package name, merged manifest, release signature, ELF architecture/required libraries and 16 KB compatibility.
   - Checks: `bash -n scripts/build_android.sh scripts/build_rust_backend.sh`, `python3 scripts/test_build_android.py`, `python3 scripts/test_check_backend_apk.py`, `apkanalyzer manifest permissions "$APK"`, `zipalign -c -P 16 -v 4 "$APK"`, ELF segment inspection and `apksigner verify --print-certs "$APK"`. Run artifact checks when authorized.
 
-- [ ] M001-TOR003 Make Mornye the only theme and remove the Material design layer
+- [x] M001-TOR003 Make Mornye the only theme and remove the Material design layer
   - Run after M001-T006 and before M001-T007, as one TOR, one reviewed commit. Plan, scope, findings and the `material_ui` decision: [tor003-mornye-only.md](tor003-mornye-only.md).
   - Paths: `lib/models/theme_settings.dart`, `lib/providers/theme_provider.dart`, `lib/theme/`, `lib/widgets/`, `lib/screens/`, `lib/routes/`, `lib/utils/`, `lib/controllers/`, `lib/l10n/arb/`, `test/`, `pubspec.yaml`, `pubspec.lock`, Android Player widget and notification resources, theme docs.
   - Remove the style setting, dynamic colour/seed/AMOLED options, `AppTheme`, all Material branches and Material-only widgets, Material 3 Expressive, dynamic color and Material Symbols (`material_3_expressive`, `dynamic_color`, `material_symbols_icons`) and the Player home-screen widget. Keep Mornye unchanged, `material_ui` (the framework Material library Mornye is built on), `cupertino_ui`, `material_color_utilities`.

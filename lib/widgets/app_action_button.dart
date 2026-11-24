@@ -4,7 +4,6 @@ import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 
 /// Shared sheet actions follow the selected design on every platform.
 class AppActionButton extends StatelessWidget {
@@ -13,7 +12,6 @@ class AppActionButton extends StatelessWidget {
     required this.onPressed,
     required this.icon,
     required this.label,
-    this.style,
     this.outlined = false,
     this.glass = true,
     this.tonal = false,
@@ -24,7 +22,6 @@ class AppActionButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final Widget icon;
   final Widget label;
-  final ButtonStyle? style;
   final bool outlined;
   final bool glass;
   final bool tonal;
@@ -33,16 +30,6 @@ class AppActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!context.isMornye) {
-      return ExpressiveButton(
-        onPressed: onPressed,
-        icon: icon,
-        style: style,
-        outlined: outlined,
-        tonal: tonal,
-        child: label,
-      );
-    }
     final scheme = Theme.of(context).colorScheme;
     final prominent = isDestructive || !outlined;
     final foreground = onPressed == null

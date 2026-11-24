@@ -3168,59 +3168,56 @@ void main() {
     },
   );
 
-  test(
-    'Library shuffle queues every scanned song in Library order',
-    () async {
-      const added = '2026-01-01T00:00:00.000Z';
-      Map<String, dynamic> row(int i) => {
-        'source': 'local',
-        'item': {
-          'id': 'song-$i',
-          'trackName': 'Song $i',
-          'artistName': 'Artist',
-          'albumName': 'Album',
-          // One scanned row has no file to play.
-          'filePath': i == 1 ? '' : '/song-$i.flac',
-          'scannedAt': added,
-        },
-      };
-      // More than one page of 1,000 songs.
-      final library = _QueueLibrary([for (var i = 0; i < 1001; i++) row(i)]);
-      final runtime = _runtime(
-        settings: const AppSettings(
-          pauseOnMute: false,
-          localLibraryEnabled: true,
-        ),
-        libraryDatabase: library,
-      );
-      final container = ProviderContainer(
-        overrides: [musicPlayerRuntimeProvider.overrideWithValue(runtime)],
-      );
-      addTearDown(container.dispose);
-      final controller = container.read(musicPlayerControllerProvider);
+  test('Library shuffle queues every scanned song in Library order', () async {
+    const added = '2026-01-01T00:00:00.000Z';
+    Map<String, dynamic> row(int i) => {
+      'source': 'local',
+      'item': {
+        'id': 'song-$i',
+        'trackName': 'Song $i',
+        'artistName': 'Artist',
+        'albumName': 'Album',
+        // One scanned row has no file to play.
+        'filePath': i == 1 ? '' : '/song-$i.flac',
+        'scannedAt': added,
+      },
+    };
+    // More than one page of 1,000 songs.
+    final library = _QueueLibrary([for (var i = 0; i < 1001; i++) row(i)]);
+    final runtime = _runtime(
+      settings: const AppSettings(
+        pauseOnMute: false,
+        localLibraryEnabled: true,
+      ),
+      libraryDatabase: library,
+    );
+    final container = ProviderContainer(
+      overrides: [musicPlayerRuntimeProvider.overrideWithValue(runtime)],
+    );
+    addTearDown(container.dispose);
+    final controller = container.read(musicPlayerControllerProvider);
 
-      expect(await controller.shuffleLibrary(), isTrue);
-      expect(library.requests.map((request) => request.offset), [0, 1000]);
-      expect(library.requests.every((request) => request.includeLocal), true);
-      final handler = runtime.handler!;
-      final libraryOrder = [
-        for (var i = 0; i < 1001; i++)
-          if (i != 1) 'song-$i',
-      ];
-      expect(
-        handler.playbackState.value.shuffleMode,
-        AudioServiceShuffleMode.all,
-      );
-      expect(handler.queue.value.first.id, handler.mediaItem.value?.id);
-      expect(
-        handler.queue.value.map((item) => item.id).toSet(),
-        libraryOrder.toSet(),
-      );
+    expect(await controller.shuffleLibrary(), isTrue);
+    expect(library.requests.map((request) => request.offset), [0, 1000]);
+    expect(library.requests.every((request) => request.includeLocal), true);
+    final handler = runtime.handler!;
+    final libraryOrder = [
+      for (var i = 0; i < 1001; i++)
+        if (i != 1) 'song-$i',
+    ];
+    expect(
+      handler.playbackState.value.shuffleMode,
+      AudioServiceShuffleMode.all,
+    );
+    expect(handler.queue.value.first.id, handler.mediaItem.value?.id);
+    expect(
+      handler.queue.value.map((item) => item.id).toSet(),
+      libraryOrder.toSet(),
+    );
 
-      await controller.setShuffle(false);
-      expect(handler.queue.value.map((item) => item.id), libraryOrder);
-    },
-  );
+    await controller.setShuffle(false);
+    expect(handler.queue.value.map((item) => item.id), libraryOrder);
+  });
 
   test('shuffling an artist plays only the songs that credit them', () async {
     final added = DateTime(2026).toIso8601String();
@@ -3683,14 +3680,14 @@ void main() {
       expect(secondDecks.single.outputOptions!.values, everyElement(isTrue));
       final toggled = <String>[];
       first.configureNotification(
-        presentation: const PlaybackNotification(mornye: true),
+        presentation: const PlaybackNotification(),
         toggleFavorite: (item) async {
           toggled.add('first:${item.id}');
           return true;
         },
       );
       second.configureNotification(
-        presentation: const PlaybackNotification(mornye: true),
+        presentation: const PlaybackNotification(),
         toggleFavorite: (item) async {
           toggled.add('second:${item.id}');
           return false;
@@ -3720,5 +3717,4 @@ void main() {
       expect(secondDecks.single.volumes, [1]);
     },
   );
-
 }

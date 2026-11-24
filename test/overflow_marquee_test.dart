@@ -33,6 +33,7 @@ void main() {
   }) async {
     await tester.pumpWidget(
       MaterialApp(
+        theme: MornyeTheme.build(Brightness.light),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: MediaQuery(
@@ -325,6 +326,7 @@ void main() {
     Future<void> pumpBounded(String title, {int? maxCycles = 2}) async {
       await tester.pumpWidget(
         MaterialApp(
+          theme: MornyeTheme.build(Brightness.light),
           home: Center(
             child: SizedBox(
               width: 160,
@@ -513,162 +515,63 @@ void main() {
     });
   }
 
-  for (final mornye in [false, true]) {
-    for (final compact in [false, true]) {
-      testWidgets(
-        'mini player scrolls title and artist (Mornye: $mornye, compact: $compact)',
-        (tester) async {
-          await tester.pumpWidget(
-            ProviderScope(
-              overrides: [
-                currentMediaItemProvider.overrideWithBuild(
-                  (ref, notifier) => Stream.value(
-                    const MediaItem(
-                      id: 'long-track',
-                      title: longTitle,
-                      artist: 'First artist, second artist and another artist',
-                      extras: {'explicit': true},
-                    ),
-                  ),
-                ),
-                playbackStateProvider.overrideWith(
-                  (ref) => const Stream.empty(),
-                ),
-                playbackPlayingProvider.overrideWithValue(true),
-                lowEndDeviceProvider.overrideWithValue(true),
-                backdropBlurEnabledProvider.overrideWithValue(false),
-              ],
-              child: MaterialApp(
-                theme: mornye
-                    ? MornyeTheme.build(Brightness.light)
-                    : ThemeData(),
-                localizationsDelegates: AppLocalizations.localizationsDelegates,
-                supportedLocales: AppLocalizations.supportedLocales,
-                home: Scaffold(
-                  body: Center(
-                    child: SizedBox(
-                      width: 320,
-                      child: MiniPlayer(compact: compact),
-                    ),
-                  ),
+  for (final compact in [false, true]) {
+    testWidgets('mini player scrolls title and artist (compact: $compact)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            currentMediaItemProvider.overrideWithBuild(
+              (ref, notifier) => Stream.value(
+                const MediaItem(
+                  id: 'long-track',
+                  title: longTitle,
+                  artist: 'First artist, second artist and another artist',
+                  extras: {'explicit': true},
                 ),
               ),
             ),
-          );
-          await tester.pump();
-          await tester.pump();
-          await tester.pump();
-          await tester.pump();
-          await startScrolling(tester);
-          final scrollViews = tester.widgetList<SingleChildScrollView>(
-            find.descendant(
-              of: find.byType(MiniPlayer),
-              matching: find.byType(SingleChildScrollView),
-            ),
-          );
-          expect(scrollViews, hasLength(2));
-          for (final view in scrollViews) {
-            expect(view.controller!.offset, greaterThan(0));
-          }
-          expect(find.byType(ExplicitBadge), findsNWidgets(2));
-          expect(tester.takeException(), isNull);
-          await tester.pumpWidget(const SizedBox.shrink());
-        },
-      );
-    }
-  }
-
-  testWidgets('Material mini player marquees rest while paused and loop '
-      'while playing', (tester) async {
-    final playing = ValueNotifier(true);
-    addTearDown(playing.dispose);
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          currentMediaItemProvider.overrideWithBuild(
-            (ref, notifier) => Stream.value(
-              const MediaItem(
-                id: 'long-track',
-                title: 'A title that overflows',
-                artist: 'First artist and second',
+            playbackStateProvider.overrideWith((ref) => const Stream.empty()),
+            playbackPlayingProvider.overrideWithValue(true),
+            lowEndDeviceProvider.overrideWithValue(true),
+            backdropBlurEnabledProvider.overrideWithValue(false),
+          ],
+          child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.light),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Scaffold(
+              body: Center(
+                child: SizedBox(
+                  width: 320,
+                  child: MiniPlayer(compact: compact),
+                ),
               ),
             ),
-          ),
-          playbackStateProvider.overrideWith((ref) => const Stream.empty()),
-          playbackPlayingProvider.overrideWith((ref) {
-            void changed() => ref.invalidateSelf();
-            playing.addListener(changed);
-            ref.onDispose(() => playing.removeListener(changed));
-            return playing.value;
-          }),
-          lowEndDeviceProvider.overrideWithValue(true),
-          backdropBlurEnabledProvider.overrideWithValue(false),
-        ],
-        child: MaterialApp(
-          theme: ThemeData(),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: const Scaffold(
-            body: Center(child: SizedBox(width: 320, child: MiniPlayer())),
           ),
         ),
-      ),
-    );
-    for (var i = 0; i < 4; i++) {
+      );
       await tester.pump();
-    }
-    final scrolls = tester
-        .widgetList<SingleChildScrollView>(
-          find.descendant(
-            of: find.byType(MiniPlayer),
-            matching: find.byType(SingleChildScrollView),
-          ),
-        )
-        .map((view) => view.controller!)
-        .toList();
-    expect(scrolls, hasLength(2));
-
-    // No cap while playing: a third pass starts like the first.
-    Future<List<int>> watchPasses(int steps) async {
-      final passes = [0, 0];
-      final moving = [false, false];
-      for (var i = 0; i < steps; i++) {
-        await tester.pump(const Duration(milliseconds: 250));
-        for (var j = 0; j < scrolls.length; j++) {
-          if (scrolls[j].offset > 0) {
-            moving[j] = true;
-          } else if (moving[j]) {
-            moving[j] = false;
-            passes[j]++;
-          }
-        }
+      await tester.pump();
+      await tester.pump();
+      await tester.pump();
+      await startScrolling(tester);
+      final scrollViews = tester.widgetList<SingleChildScrollView>(
+        find.descendant(
+          of: find.byType(MiniPlayer),
+          matching: find.byType(SingleChildScrollView),
+        ),
+      );
+      expect(scrollViews, hasLength(2));
+      for (final view in scrollViews) {
+        expect(view.controller!.offset, greaterThan(0));
       }
-      return passes;
-    }
-
-    final playingPasses = await watchPasses(600);
-    expect(playingPasses[0], greaterThanOrEqualTo(3));
-    expect(playingPasses[1], greaterThanOrEqualTo(3));
-
-    playing.value = false;
-    await tester.pump();
-    final pausedPasses = await watchPasses(240);
-    // At most the pass that was in flight finishes.
-    expect(pausedPasses[0], lessThanOrEqualTo(1));
-    expect(pausedPasses[1], lessThanOrEqualTo(1));
-    for (final scroll in scrolls) {
-      expect(scroll.offset, 0);
-    }
-
-    playing.value = true;
-    await tester.pump();
-    await tester.pump(const Duration(seconds: 3));
-    await tester.pump(const Duration(seconds: 1));
-    for (final scroll in scrolls) {
-      expect(scroll.offset, closeTo(28, 1));
-    }
-    await tester.pumpWidget(const SizedBox.shrink());
-  });
+      expect(find.byType(ExplicitBadge), findsNWidgets(2));
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+  }
 }
 
 class _PaintCounter extends CustomPainter {

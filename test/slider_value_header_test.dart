@@ -5,7 +5,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_slider.dart';
 import 'package:sistrum/widgets/automix_settings.dart';
@@ -16,11 +15,7 @@ import 'package:sistrum/widgets/slider_value_header.dart';
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  Future<ProviderContainer> pump(
-    WidgetTester tester,
-    Widget child, {
-    bool mornye = false,
-  }) async {
+  Future<ProviderContainer> pump(WidgetTester tester, Widget child) async {
     final container = ProviderContainer(
       overrides: [
         initialSettingsProvider.overrideWithValue(
@@ -38,9 +33,7 @@ void main() {
       UncontrolledProviderScope(
         container: container,
         child: MaterialApp(
-          theme: mornye
-              ? MornyeTheme.build(Brightness.light)
-              : AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(body: SingleChildScrollView(child: child)),
@@ -65,38 +58,10 @@ void main() {
         as ShapeDecoration;
   }
 
-  testWidgets('Material shows the value in a tonal pill', (tester) async {
-    await pump(
-      tester,
-      const Column(
-        children: [
-          SliderValueHeader(title: 'Strength', value: '40%'),
-          SliderValueHeader(title: 'Gain', value: '+2 dB', enabled: false),
-        ],
-      ),
-    );
-    final context = tester.element(find.text('Strength'));
-    final scheme = Theme.of(context).colorScheme;
-    final enabled = pill(tester, '40%')!;
-    expect(enabled.color, scheme.secondaryContainer);
-    expect(enabled.shape, isA<StadiumBorder>());
-    final text = tester.widget<Text>(find.text('40%'));
-    expect(text.style?.color, scheme.onSecondaryContainer);
-    expect(
-      text.style?.fontSize,
-      Theme.of(context).textTheme.labelLarge?.fontSize,
-    );
-    expect(
-      pill(tester, '+2 dB')!.color,
-      scheme.onSurface.withValues(alpha: 0.12),
-    );
-  });
-
   testWidgets('Mornye shows the value as detail text', (tester) async {
     await pump(
       tester,
       const SliderValueHeader(title: 'Strength', value: '40%'),
-      mornye: true,
     );
     expect(find.text('40%'), findsOneWidget);
     expect(pill(tester, '40%'), isNull);
@@ -109,19 +74,19 @@ void main() {
         tester,
         const MusicHapticsSettings(enabled: true),
       );
-      expect(find.text('Sensitivity'), findsOneWidget);
-      expect(pill(tester, '50%'), isNotNull);
+      expect(find.textContaining('Sensitivity'), findsOneWidget);
+      expect(find.textContaining('50%'), findsWidgets);
 
       final slider = tester.widget<AppSlider>(find.byType(AppSlider).first);
       slider.onChanged!(0.8);
       await tester.pump();
-      expect(find.text('80%'), findsOneWidget);
+      expect(find.textContaining('80%'), findsWidgets);
       expect(container.read(settingsProvider).musicHapticsSensitivity, 0.5);
 
       slider.onChangeEnd!(0.8);
       await tester.pump();
       expect(container.read(settingsProvider).musicHapticsSensitivity, 0.8);
-      expect(pill(tester, '80%'), isNotNull);
+      expect(find.textContaining('80%'), findsWidgets);
     },
   );
 
@@ -137,7 +102,6 @@ void main() {
           AutoMixSettings(),
         ],
       ),
-      mornye: true,
     );
     expect(find.text('Sensitivity: 50%'), findsOneWidget);
     expect(find.text('Pre-amp: 0 dB (target -18 LUFS)'), findsOneWidget);

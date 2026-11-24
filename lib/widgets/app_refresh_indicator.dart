@@ -1,17 +1,11 @@
 import 'dart:async';
-import 'dart:math' as math;
 
 import 'package:cupertino_ui/cupertino_ui.dart'
     show CupertinoSliverRefreshControl;
-import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:material_3_expressive/material_3_expressive.dart';
-import 'package:sistrum/theme/material_expressive.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 
-/// Pull-to-refresh with the expressive shape-morphing indicator on Material.
-/// Reduced motion keeps Flutter's [RefreshIndicator].
+/// Pull-to-refresh with the standard [RefreshIndicator].
 ///
 /// Mornye phones, whose lists bounce, use the iOS refresh control instead.
 /// It is a sliver, so a [CustomScrollView] under this widget places
@@ -58,23 +52,11 @@ class AppRefreshIndicator extends StatefulWidget {
 
 class _AppRefreshIndicatorState extends State<AppRefreshIndicator> {
   final _materialKey = GlobalKey<RefreshIndicatorState>();
-  final _expressive = M3ERefreshIndicatorController();
-  bool _usesExpressive = false;
-
-  /// While a pull is under way: its status and how far it has pulled.
-  M3ERefreshStatus? _status;
-  double _pull = 0;
 
   bool get _onScreen =>
       mounted &&
       TickerMode.valuesOf(context).enabled &&
       (ModalRoute.of(context)?.isCurrent ?? true);
-
-  /// A pull being pushed back shrinks the indicator first; the list only
-  /// scrolls once the pull is gone.
-  bool _holdsPull() =>
-      (_status == M3ERefreshStatus.drag || _status == M3ERefreshStatus.armed) &&
-      _pull > 0;
 
   @override
   void initState() {
@@ -90,9 +72,8 @@ class _AppRefreshIndicatorState extends State<AppRefreshIndicator> {
 
   // The iOS control has no programmatic show; it only runs on phones, which
   // have no Refresh command.
-  Future<void> _show() => _usesExpressive
-      ? _expressive.show()
-      : _materialKey.currentState?.show() ?? widget.onRefresh();
+  Future<void> _show() =>
+      _materialKey.currentState?.show() ?? widget.onRefresh();
 
   static bool _bounces(BuildContext context) {
     ScrollPhysics? physics = ScrollConfiguration.of(
@@ -105,91 +86,17 @@ class _AppRefreshIndicatorState extends State<AppRefreshIndicator> {
     return false;
   }
 
-  bool _trackPull(OverscrollNotification notification) {
-    final delta = notification.dragDetails?.delta.dy;
-    if (_holdsPull() || _status == M3ERefreshStatus.drag) {
-      if (delta != null) _pull = math.max(0, _pull + delta);
-    }
-    return false;
-  }
-
-  void _statusChanged(M3ERefreshStatus? status) {
-    // A new pull starts from nothing; falling back from armed keeps it.
-    if (status == M3ERefreshStatus.drag && _status != M3ERefreshStatus.armed) {
-      _pull = 0;
-    }
-    _status = status;
-  }
-
   @override
   Widget build(BuildContext context) {
-    _usesExpressive = materialExpressiveEnabled(context);
-    if (context.isMornye && !isDesktopPlatform && _bounces(context)) {
+    if (!isDesktopPlatform && _bounces(context)) {
       return _RefreshScope(onRefresh: widget.onRefresh, child: widget.child);
     }
-    if (!_usesExpressive) {
-      return RefreshIndicator(
-        key: _materialKey,
-        onRefresh: widget.onRefresh,
-        notificationPredicate: widget.notificationPredicate,
-        child: widget.child,
-      );
-    }
-    Widget indicator = M3ERefreshIndicator.contained(
-      controller: _expressive,
+    return RefreshIndicator(
+      key: _materialKey,
       onRefresh: widget.onRefresh,
       notificationPredicate: widget.notificationPredicate,
-      onStatusChange: _statusChanged,
-      child: NotificationListener<OverscrollNotification>(
-        onNotification: _trackPull,
-        child: widget.child,
-      ),
+      child: widget.child,
     );
-    // macOS lists bounce past their top edge. Under a pinned header that
-    // bounce opens a gap below the title, and the indicator ignores a pull
-    // that starts while it is still closing, so the top edge stays put.
-    if (defaultTargetPlatform == TargetPlatform.macOS) {
-      final behavior = ScrollConfiguration.of(context);
-      indicator = ScrollConfiguration(
-        behavior: behavior.copyWith(
-          physics: _PullEdgeScrollPhysics(
-            holdsPull: _holdsPull,
-            parent: behavior.getScrollPhysics(context),
-          ),
-        ),
-        child: indicator,
-      );
-    }
-    return MaterialExpressiveScope(child: indicator);
-  }
-}
-
-/// Stops the leading edge instead of bouncing past it, and keeps the list
-/// at that edge while [holdsPull]. A refused move is reported as overscroll,
-/// so the indicator still follows the pointer.
-class _PullEdgeScrollPhysics extends ScrollPhysics {
-  const _PullEdgeScrollPhysics({required this.holdsPull, super.parent});
-
-  final bool Function() holdsPull;
-
-  @override
-  _PullEdgeScrollPhysics applyTo(ScrollPhysics? ancestor) =>
-      _PullEdgeScrollPhysics(
-        holdsPull: holdsPull,
-        parent: buildParent(ancestor),
-      );
-
-  @override
-  double applyBoundaryConditions(ScrollMetrics position, double value) {
-    final min = position.minScrollExtent;
-    if (value < position.pixels && position.pixels <= min) {
-      return value - position.pixels;
-    }
-    if (value < min && min < position.pixels) return value - min;
-    if (value > position.pixels && position.pixels <= min && holdsPull()) {
-      return value - position.pixels;
-    }
-    return super.applyBoundaryConditions(position, value);
   }
 }
 

@@ -16,13 +16,9 @@ import 'package:sistrum/screens/queue_tab.dart';
 import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/playable_media.dart' show PlayableMedia;
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
-import 'package:material_3_expressive/material_3_expressive.dart'
-    show M3EButton;
 import 'package:sistrum/widgets/app_search_field.dart';
-import 'package:sistrum/widgets/tool_button_group.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -133,7 +129,6 @@ void main() {
   Future<void> pumpLibrary(
     WidgetTester tester, {
     bool desktop = false,
-    bool mornye = false,
     bool reduceMotion = false,
     String viewMode = 'list',
     int songCount = 3,
@@ -182,9 +177,7 @@ void main() {
           ...overrides,
         ],
         child: MaterialApp(
-          theme: mornye
-              ? MornyeTheme.build(Brightness.light)
-              : AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           builder: (context, child) => MediaQuery(
@@ -193,11 +186,9 @@ void main() {
             ).copyWith(disableAnimations: reduceMotion),
             child: child!,
           ),
-          // Mornye opens Songs as a section page from its Library root.
+          // Songs opens as a section page from the Library root.
           home: Scaffold(
-            body: QueueTab(
-              librarySection: librarySection ?? (mornye ? 'all' : null),
-            ),
+            body: QueueTab(librarySection: librarySection ?? 'all'),
           ),
         ),
       ),
@@ -208,188 +199,105 @@ void main() {
   AppLocalizations l10nOf(WidgetTester tester) =>
       AppLocalizations.of(tester.element(find.byType(QueueTab)));
 
-  Finder shuffleButton(WidgetTester tester, {required bool mornye}) {
-    final l10n = l10nOf(tester);
-    // Material's Shuffle is a segment of the tool group.
-    return (mornye
-            ? find.text(l10n.actionShuffle)
-            : find.byWidgetPredicate(
-                (widget) =>
-                    widget is M3EButton && widget.tooltip == l10n.actionShuffle,
-              ))
-        .hitTestable();
-  }
-
-  Future<void> openTab(WidgetTester tester, String label) async {
-    await tester.tap(
-      find.descendant(of: find.byType(TabBar), matching: find.text(label)),
-    );
-    await settle(tester, 40);
-  }
+  Finder shuffleButton(WidgetTester tester) =>
+      find.text(l10nOf(tester).actionShuffle).hitTestable();
 
   for (final desktop in [false, true]) {
-    for (final mornye in [false, true]) {
-      final views = mornye ? ['list'] : ['list', 'grid'];
-      for (final viewMode in views) {
-        testWidgets('Songs offers Shuffle (desktop: $desktop, '
-            'Mornye: $mornye, view: $viewMode)', (tester) async {
-          await pumpLibrary(
-            tester,
-            desktop: desktop,
-            mornye: mornye,
-            viewMode: viewMode,
-          );
-          final shuffle = shuffleButton(tester, mornye: mornye);
-          expect(shuffle, findsOneWidget);
-          if (!mornye) {
-            // The first of the page's tools, in their group and its colours,
-            // with the group's 48dp target.
-            final group = find.ancestor(
-              of: shuffle,
-              matching: find.byType(ToolButtonGroup),
-            );
-            expect(group, findsOneWidget);
-            expect(tester.getSize(group).height, greaterThanOrEqualTo(48));
-            final filter = find.descendant(
-              of: group,
-              matching: find.text(l10nOf(tester).libraryFilterTitle),
-            );
-            expect(
-              tester.getTopLeft(shuffle).dx,
-              lessThan(tester.getTopLeft(filter.first).dx),
-            );
-          }
-          expect(tester.takeException(), isNull);
-        });
-      }
+    testWidgets('Songs offers Shuffle (desktop: $desktop)', (tester) async {
+      await pumpLibrary(tester, desktop: desktop);
+      expect(shuffleButton(tester), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
 
-      testWidgets('Shuffle queues the listed songs with shuffle on '
-          '(desktop: $desktop, Mornye: $mornye)', (tester) async {
-        final lists = <LibrarySongListRequest>[];
-        final playback = _Playback();
-        final player = _Player();
-        await pumpLibrary(
-          tester,
-          desktop: desktop,
-          mornye: mornye,
-          overrides: [
-            playbackProvider.overrideWith(() => playback),
-            musicPlayerControllerProvider.overrideWithValue(player),
-            librarySongListProvider.overrideWith((ref, request) async {
-              lists.add(request);
-              return const [];
-            }),
-          ],
-        );
-        await tester.tap(shuffleButton(tester, mornye: mornye));
-        await settle(tester, 10);
+    testWidgets('Shuffle queues the listed songs with shuffle on '
+        '(desktop: $desktop)', (tester) async {
+      final lists = <LibrarySongListRequest>[];
+      final playback = _Playback();
+      final player = _Player();
+      await pumpLibrary(
+        tester,
+        desktop: desktop,
+        overrides: [
+          playbackProvider.overrideWith(() => playback),
+          musicPlayerControllerProvider.overrideWithValue(player),
+          librarySongListProvider.overrideWith((ref, request) async {
+            lists.add(request);
+            return const [];
+          }),
+        ],
+      );
+      await tester.tap(shuffleButton(tester));
+      await settle(tester, 10);
 
-        // The page loaded every song, so nothing is read again.
-        expect(lists, isEmpty);
-        expect(player.shuffles, [true]);
-        expect(playback.queues, [
-          ['/music/song-0.flac', '/music/song-1.flac', '/music/song-2.flac'],
-        ]);
-        expect(playback.starts.single, inInclusiveRange(0, 2));
-        expect(tester.takeException(), isNull);
-      });
-    }
+      // The page loaded every song, so nothing is read again.
+      expect(lists, isEmpty);
+      expect(player.shuffles, [true]);
+      expect(playback.queues, [
+        ['/music/song-0.flac', '/music/song-1.flac', '/music/song-2.flac'],
+      ]);
+      expect(playback.starts.single, inInclusiveRange(0, 2));
+      expect(tester.takeException(), isNull);
+    });
   }
 
-  testWidgets('Material shows Shuffle on Songs only', (tester) async {
+  testWidgets('selecting songs hides Shuffle with the tools', (tester) async {
     await pumpLibrary(tester);
-    final l10n = l10nOf(tester);
-    expect(shuffleButton(tester, mornye: false), findsOneWidget);
+    expect(shuffleButton(tester), findsOneWidget);
 
-    for (final tab in [
-      l10n.historyFilterAlbums,
-      l10n.searchArtists,
-      l10n.searchPlaylists,
-      l10n.libraryFolders,
-    ]) {
-      await openTab(tester, tab);
-      expect(shuffleButton(tester, mornye: false), findsNothing, reason: tab);
-    }
-    await openTab(tester, l10n.searchSongs);
-    expect(shuffleButton(tester, mornye: false), findsOneWidget);
+    await tester.longPress(find.text('Song 1').hitTestable());
+    await settle(tester, 10);
+    expect(shuffleButton(tester), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets('selecting songs hides Shuffle with the tools '
-        '(Mornye: $mornye)', (tester) async {
-      await pumpLibrary(tester, mornye: mornye);
-      expect(shuffleButton(tester, mornye: mornye), findsOneWidget);
-
-      await tester.longPress(find.text('Song 1').hitTestable());
-      await settle(tester, 10);
-      expect(shuffleButton(tester, mornye: mornye), findsNothing);
-      expect(tester.takeException(), isNull);
-    });
-  }
-
   for (final section in ['albums', 'playlists']) {
-    testWidgets('Mornye shows no Shuffle on the $section section', (
-      tester,
-    ) async {
-      await pumpLibrary(tester, mornye: true, librarySection: section);
-      expect(shuffleButton(tester, mornye: true), findsNothing);
+    testWidgets('Shuffle is absent on the $section section', (tester) async {
+      await pumpLibrary(tester, librarySection: section);
+      expect(shuffleButton(tester), findsNothing);
       expect(tester.takeException(), isNull);
     });
   }
 
-  for (final mornye in [false, true]) {
-    testWidgets('an empty Library shows no Shuffle (Mornye: $mornye)', (
-      tester,
-    ) async {
-      await pumpLibrary(tester, mornye: mornye, songCount: 0);
-      expect(shuffleButton(tester, mornye: mornye), findsNothing);
-      expect(tester.takeException(), isNull);
-    });
-  }
+  testWidgets('an empty Library shows no Shuffle', (tester) async {
+    await pumpLibrary(tester, songCount: 0);
+    expect(shuffleButton(tester), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
 
   for (final desktop in [false, true]) {
-    for (final mornye in [false, true]) {
-      for (final reduceMotion in [false, true]) {
-        testWidgets('a hidden search field comes back from the header '
-            '(desktop: $desktop, Mornye: $mornye, '
-            'reduced motion: $reduceMotion)', (tester) async {
-          await pumpLibrary(
-            tester,
-            desktop: desktop,
-            mornye: mornye,
-            reduceMotion: reduceMotion,
-          );
-          final l10n = l10nOf(tester);
-          final action = findByTooltip(l10n.mornyeSearch).hitTestable();
-          final outer = tester
-              .widget<NestedScrollView>(find.byType(NestedScrollView))
-              .controller!;
-          final focus = tester
-              .widget<EditableText>(
-                find.descendant(
-                  of: find.byType(AppSearchField),
-                  matching: find.byType(EditableText),
-                ),
-              )
-              .focusNode;
+    for (final reduceMotion in [false, true]) {
+      testWidgets('a hidden search field comes back from the header '
+          '(desktop: $desktop, reduced motion: $reduceMotion)', (tester) async {
+        await pumpLibrary(tester, desktop: desktop, reduceMotion: reduceMotion);
+        final l10n = l10nOf(tester);
+        final action = findByTooltip(l10n.mornyeSearch).hitTestable();
+        final outer = tester
+            .widget<NestedScrollView>(find.byType(NestedScrollView))
+            .controller!;
+        final focus = tester
+            .widget<EditableText>(
+              find.descendant(
+                of: find.byType(AppSearchField),
+                matching: find.byType(EditableText),
+              ),
+            )
+            .focusNode;
 
-          // The field shows at the top, so the header repeats nothing.
-          expect(action, findsNothing);
+        // The field shows at the top, so the header repeats nothing.
+        expect(action, findsNothing);
 
-          outer.jumpTo(outer.position.maxScrollExtent);
-          await settle(tester, 10);
-          expect(action, findsOneWidget);
-          expect(focus.hasFocus, isFalse);
+        outer.jumpTo(outer.position.maxScrollExtent);
+        await settle(tester, 10);
+        expect(action, findsOneWidget);
+        expect(focus.hasFocus, isFalse);
 
-          await tester.tap(action);
-          await settle(tester, 30);
-          expect(outer.offset, 0);
-          expect(focus.hasFocus, isTrue);
-          expect(action, findsNothing);
-          expect(tester.takeException(), isNull);
-        });
-      }
+        await tester.tap(action);
+        await settle(tester, 30);
+        expect(outer.offset, 0);
+        expect(focus.hasFocus, isTrue);
+        expect(action, findsNothing);
+        expect(tester.takeException(), isNull);
+      });
     }
   }
 }

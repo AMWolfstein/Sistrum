@@ -1,8 +1,5 @@
 import 'package:flutter/physics.dart';
 import 'package:flutter/widgets.dart';
-import 'package:material_3_expressive/material_3_expressive.dart';
-import 'package:sistrum/theme/material_expressive.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 
 /// A duration and curve pair for implicit animations.
 @immutable
@@ -19,14 +16,12 @@ class AppMotionSpec {
   Curve get leaving => curve.flipped;
 }
 
-/// A [Curve] that follows an [M3ESpring] released from rest at 0 toward 1.
+/// A [Curve] that follows a [SpringDescription] released from rest at 0 toward
+/// 1.
 ///
 /// [duration] is the spring's settling time, so implicit animations driven by
 /// this curve end exactly when the physical motion does.
 class SpringCurve extends Curve {
-  SpringCurve(M3ESpring spring) : this.of(spring.toDescription());
-
-  /// The curve of [spring] itself, for a spring that is not an M3E token.
   SpringCurve.of(SpringDescription spring)
     : this._(SpringSimulation(spring, 0, 1, 0));
 
@@ -102,55 +97,28 @@ abstract final class MornyeMotion {
   static final AppMotionSpec effects = _spec(effectsSpring);
 }
 
-/// The app's motion presets, by theme.
-///
-/// Material follows Material 3 Expressive: spatial springs (position, size,
-/// scale) overshoot slightly; effects springs (opacity, color) settle
-/// without overshoot. Mornye follows the Apple guidelines with the
-/// [MornyeMotion] spring of the same role, which does not overshoot.
-///
-/// Reduced motion keeps each call site's `fallback`, and so does Mornye
-/// where the fallback has no length: such a site does not animate outside
-/// Material. A site that needs its own Mornye motion passes `mornye`.
+/// The app's motion presets. Each call site passes its `fallback`, used when
+/// reduced motion is on or the fallback has no length. A site that needs its
+/// own Mornye motion passes `mornye`.
 abstract final class AppMotion {
-  static final _spatialFast = SpringCurve(M3EMotion.expressiveSpatialFast);
-  static final _spatialDefault = SpringCurve(
-    M3EMotion.expressiveSpatialDefault,
-  );
-  static final _spatialSlow = SpringCurve(M3EMotion.expressiveSpatialSlow);
-  static final _effectsFast = SpringCurve(M3EMotion.effectsFast);
-  static final _effectsDefault = SpringCurve(M3EMotion.effectsDefault);
-
-  static AppMotionSpec _spec(SpringCurve curve) =>
-      AppMotionSpec(curve.duration, curve);
-
-  /// Material's standard spatial spring, for a surface as large as a page:
-  /// its overshoot is a thousandth of the travel, where the expressive
-  /// springs would push a page past its own bounds.
-  static final AppMotionSpec materialPage = _spec(
-    SpringCurve(M3EMotion.spatialDefault),
-  );
-
   static const _still = AppMotionSpec(Duration.zero, Curves.linear);
 
   /// A move that must stop at its end: a section that opens above other
-  /// content, a card that unfolds, a scroll most of a page long. Material's
-  /// standard spatial spring and Mornye's standard spring, neither of which
-  /// passes its target; nothing with reduced motion.
+  /// content, a card that unfolds, a scroll most of a page long. Mornye's
+  /// standard spring, which does not pass its target; nothing with reduced
+  /// motion.
   static AppMotionSpec surface(BuildContext context) {
     if (MediaQuery.disableAnimationsOf(context)) return _still;
-    return context.isMornye ? MornyeMotion.standard : materialPage;
+    return MornyeMotion.standard;
   }
 
   static AppMotionSpec _resolve(
     BuildContext context,
     AppMotionSpec fallback,
-    SpringCurve material,
     AppMotionSpec apple,
     AppMotionSpec? mornye,
   ) {
     if (MediaQuery.disableAnimationsOf(context)) return fallback;
-    if (!context.isMornye) return _spec(material);
     if (mornye != null) return mornye;
     return fallback.duration == Duration.zero ? fallback : apple;
   }
@@ -160,63 +128,33 @@ abstract final class AppMotion {
     BuildContext context,
     AppMotionSpec fallback, {
     AppMotionSpec? mornye,
-  }) => _resolve(context, fallback, _spatialFast, MornyeMotion.fast, mornye);
+  }) => _resolve(context, fallback, MornyeMotion.fast, mornye);
 
   /// Default spatial spring for list items, panels and content changes.
   static AppMotionSpec spatial(
     BuildContext context,
     AppMotionSpec fallback, {
     AppMotionSpec? mornye,
-  }) => _resolve(
-    context,
-    fallback,
-    _spatialDefault,
-    MornyeMotion.standard,
-    mornye,
-  );
+  }) => _resolve(context, fallback, MornyeMotion.standard, mornye);
 
   /// Slow spatial spring for full-screen surfaces such as the player.
   static AppMotionSpec spatialSlow(
     BuildContext context,
     AppMotionSpec fallback, {
     AppMotionSpec? mornye,
-  }) => _resolve(context, fallback, _spatialSlow, MornyeMotion.slow, mornye);
+  }) => _resolve(context, fallback, MornyeMotion.slow, mornye);
 
   /// Fast effects spring for opacity and color.
   static AppMotionSpec effectsFast(
     BuildContext context,
     AppMotionSpec fallback, {
     AppMotionSpec? mornye,
-  }) => _resolve(
-    context,
-    fallback,
-    _effectsFast,
-    MornyeMotion.effectsFast,
-    mornye,
-  );
+  }) => _resolve(context, fallback, MornyeMotion.effectsFast, mornye);
 
   /// Default effects spring for opacity and color.
   static AppMotionSpec effects(
     BuildContext context,
     AppMotionSpec fallback, {
     AppMotionSpec? mornye,
-  }) => _resolve(
-    context,
-    fallback,
-    _effectsDefault,
-    MornyeMotion.effects,
-    mornye,
-  );
-
-  /// Entrance for sheets and menus. The slow spatial spring is critically
-  /// damped, so a surface never overshoots its own size and reveals what is
-  /// behind it. Null keeps the platform transition.
-  static AnimationStyle? surfaceEntrance(BuildContext context) =>
-      materialExpressiveEnabled(context)
-      ? AnimationStyle(
-          duration: _spatialSlow.duration,
-          curve: _spatialSlow,
-          reverseDuration: const Duration(milliseconds: 200),
-        )
-      : null;
+  }) => _resolve(context, fallback, MornyeMotion.effects, mornye);
 }

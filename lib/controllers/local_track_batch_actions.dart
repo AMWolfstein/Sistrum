@@ -23,9 +23,6 @@ Future<void> deleteLibraryTracks(
     confirmLabel: context.l10n.dialogDelete,
     destructive: true,
     cancelIsDefault: true,
-    confirmStyle: FilledButton.styleFrom(
-      backgroundColor: Theme.of(context).colorScheme.error,
-    ),
   );
   if (!confirmed || !isActive() || !context.mounted) return;
 

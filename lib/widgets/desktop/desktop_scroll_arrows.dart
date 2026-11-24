@@ -4,7 +4,6 @@ import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
 import 'package:material_ui/material_ui.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/theme/app_motion.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/desktop/desktop_inspector.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
@@ -77,29 +76,11 @@ class _DesktopScrollArrowsState extends State<DesktopScrollArrows> {
           ValueListenableBuilder<bool>(
             valueListenable: _hovered,
             builder: (context, hovered, _) {
-              // Mornye fades on its effects springs and leaves faster.
-              if (context.isMornye) {
-                return _ArrowsFade(
-                  hovered: hovered,
-                  enter: MornyeMotion.effects,
-                  exit: MornyeMotion.effectsFast,
-                  child: _arrows(context),
-                );
-              }
-              // Material fades on the effects spring and leaves faster.
+              // Fades on its effects springs and leaves faster.
               return _ArrowsFade(
                 hovered: hovered,
-                enter: AppMotion.effectsFast(
-                  context,
-                  const AppMotionSpec(
-                    Duration(milliseconds: 150),
-                    Curves.easeOut,
-                  ),
-                ),
-                exit: const AppMotionSpec(
-                  Duration(milliseconds: 100),
-                  Curves.easeOut,
-                ),
+                enter: MornyeMotion.effects,
+                exit: MornyeMotion.effectsFast,
                 child: _arrows(context),
               );
             },
@@ -131,84 +112,44 @@ class _DesktopScrollArrowsState extends State<DesktopScrollArrows> {
     final box = context.findRenderObject();
     if (box is! RenderBox || !box.hasSize) return 0;
     final windowWidth = MediaQuery.sizeOf(context).width;
-    if (!desktopInspectorOverlays(windowWidth, mornye: true)) return 0;
+    if (!desktopInspectorOverlays(windowWidth)) return 0;
     final shelfEnd = box.localToGlobal(Offset(box.size.width, 0)).dx;
     return math.max(0, shelfEnd - (windowWidth - mornyeGlassInspectorWidth));
   }
 
   Widget _arrow(BuildContext context, {required bool forward}) {
     final l10n = context.l10n;
-    final mornye = context.isMornye;
     final colorScheme = Theme.of(context).colorScheme;
-    final icon = forward
-        ? (mornye ? CupertinoIcons.forward : Icons.chevron_right)
-        : (mornye ? CupertinoIcons.back : Icons.chevron_left);
-    if (mornye) {
-      // A tall glass paddle stays close to the edge of the shelf.
-      return PositionedDirectional(
-        start: forward ? null : 6,
-        end: forward ? 6 + _glassCover(context) : null,
-        top: 0,
-        bottom: 0,
-        child: Center(
-          child: Tooltip(
-            message: forward
-                ? l10n.desktopScrollForward
-                : l10n.desktopScrollBack,
-            child: SizedBox(
-              width: 28,
-              height: 52,
-              child: MornyeGlassPress(
-                radius: 14,
-                child: MornyeGlassPanel(
-                  radius: 14,
-                  child: Material(
-                    type: MaterialType.transparency,
-                    child: InkWell(
-                      onTap: () => _page(forward ? 1 : -1),
-                      splashFactory: NoSplash.splashFactory,
-                      hoverColor: colorScheme.onSurface.withValues(alpha: 0.06),
-                      highlightColor: colorScheme.onSurface.withValues(
-                        alpha: 0.12,
-                      ),
-                      child: Center(
-                        child: Icon(
-                          icon,
-                          size: 16,
-                          color: colorScheme.onSurface,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
+    final icon = forward ? CupertinoIcons.forward : CupertinoIcons.back;
+    // A tall glass paddle stays close to the edge of the shelf.
     return PositionedDirectional(
-      start: forward ? null : 8,
-      end: forward ? 8 : null,
+      start: forward ? null : 6,
+      end: forward ? 6 + _glassCover(context) : null,
       top: 0,
       bottom: 0,
       child: Center(
         child: Tooltip(
           message: forward ? l10n.desktopScrollForward : l10n.desktopScrollBack,
-          child: Material(
-            color: colorScheme.secondaryContainer,
-            shape: const CircleBorder(),
-            elevation: 2,
-            shadowColor: Colors.black38,
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              onTap: () => _page(forward ? 1 : -1),
-              child: SizedBox.square(
-                dimension: 40,
-                child: Icon(
-                  icon,
-                  size: 24,
-                  color: colorScheme.onSecondaryContainer,
+          child: SizedBox(
+            width: 28,
+            height: 52,
+            child: MornyeGlassPress(
+              radius: 14,
+              child: MornyeGlassPanel(
+                radius: 14,
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: InkWell(
+                    onTap: () => _page(forward ? 1 : -1),
+                    splashFactory: NoSplash.splashFactory,
+                    hoverColor: colorScheme.onSurface.withValues(alpha: 0.06),
+                    highlightColor: colorScheme.onSurface.withValues(
+                      alpha: 0.12,
+                    ),
+                    child: Center(
+                      child: Icon(icon, size: 16, color: colorScheme.onSurface),
+                    ),
+                  ),
                 ),
               ),
             ),

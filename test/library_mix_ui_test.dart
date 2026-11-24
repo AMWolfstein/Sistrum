@@ -11,11 +11,9 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/home_tab.dart';
 import 'package:sistrum/screens/library_mix_screen.dart';
 import 'package:sistrum/services/library_mixes.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/desktop/track_table.dart';
-import 'package:sistrum/widgets/library_mix_cover.dart';
 import 'package:sistrum/widgets/library_track_selection_bar.dart';
 import 'package:sistrum/widgets/mornye_mix_banner.dart';
 import 'package:sistrum/widgets/track_card.dart';
@@ -51,133 +49,85 @@ final _mix = LibraryMixView(
 
 void main() {
   for (final desktop in [false, true]) {
-    for (final mornye in [false, true]) {
-      testWidgets('Home lists the mixes and opens one '
-          '(desktop: $desktop, Mornye: $mornye)', (tester) async {
-        debugDesktopPlatformOverride = desktop;
-        addTearDown(() => debugDesktopPlatformOverride = null);
-        tester.view.physicalSize = desktop
-            ? const Size(1280, 800)
-            : const Size(430, 932);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.reset);
-        await _pumpHome(tester, mornye: mornye, mixes: [_mix]);
-
-        final title = find.text('Hip-Hop Mix');
-        await tester.scrollUntilVisible(
-          title,
-          200,
-          scrollable: find.byType(Scrollable).first,
-        );
-        // Rows take taps again once the scroll comes to rest.
-        await tester.pump(const Duration(seconds: 1));
-        expect(find.text('Tyler, The Creator and Frank Ocean'), findsOneWidget);
-        if (mornye) {
-          expect(find.byType(MornyeMixBanner), findsOneWidget);
-          expect(find.text('Mixes for you'), findsNothing);
-          // Music's Home has no tools.
-          expect(find.text('Shortcuts', skipOffstage: false), findsNothing);
-        } else {
-          expect(find.text('Mixes for you'), findsOneWidget);
-          expect(find.byType(LibraryMixCover), findsOneWidget);
-          expect(find.byType(MornyeMixBanner), findsNothing);
-        }
-
-        await tester.tap(title);
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 600));
-        expect(find.byType(LibraryMixScreen), findsOneWidget);
-        expect(find.text('Hip-Hop Mix'), findsWidgets);
-        expect(find.textContaining('Made from your Library'), findsOneWidget);
-        expect(find.text('Song 0'), findsOneWidget);
-        if (desktop) {
-          expect(find.byType(SliverTrackTable), findsOneWidget);
-        } else {
-          expect(find.byType(TrackCard), findsWidgets);
-          expect(findByTooltip('Save as playlist'), findsOneWidget);
-        }
-        expect(tester.takeException(), isNull);
-      });
-    }
-  }
-
-  for (final mornye in [false, true]) {
-    testWidgets('a long press on a phone row selects songs for the Library '
-        'actions (Mornye: $mornye)', (tester) async {
-      debugDesktopPlatformOverride = false;
+    testWidgets('Home lists the mixes and opens one (desktop: $desktop)', (
+      tester,
+    ) async {
+      debugDesktopPlatformOverride = desktop;
       addTearDown(() => debugDesktopPlatformOverride = null);
-      tester.view.physicalSize = const Size(430, 932);
+      tester.view.physicalSize = desktop
+          ? const Size(1280, 800)
+          : const Size(430, 932);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
-      await _pumpMix(tester, mornye: mornye);
-      expect(find.byType(LibraryTrackSelectionBar), findsNothing);
+      await _pumpHome(tester, mixes: [_mix]);
 
-      final first = find.text('Song 0');
+      final title = find.text('Hip-Hop Mix');
       await tester.scrollUntilVisible(
-        first,
+        title,
         200,
         scrollable: find.byType(Scrollable).first,
       );
+      // Rows take taps again once the scroll comes to rest.
       await tester.pump(const Duration(seconds: 1));
-      await tester.longPress(first);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 400));
-      expect(find.byType(LibraryTrackSelectionBar), findsOneWidget);
-      expect(find.text('1 selected'), findsOneWidget);
-      final cards = tester
-          .widgetList<TrackCard>(find.byType(TrackCard))
-          .toList();
-      expect(cards.first.isSelectionMode, isTrue);
-      expect(cards.first.isSelected, isTrue);
+      expect(find.text('Tyler, The Creator and Frank Ocean'), findsOneWidget);
+      expect(find.byType(MornyeMixBanner), findsOneWidget);
+      expect(find.text('Mixes for you'), findsNothing);
+      // Music's Home has no tools.
+      expect(find.text('Shortcuts', skipOffstage: false), findsNothing);
 
-      // In selection mode a tap adds the song instead of playing it. The
-      // bar follows a frame later, from its overlay.
-      await tester.tap(find.text('Song 1'));
+      await tester.tap(title);
       await tester.pump();
-      await tester.pump();
-      expect(find.text('2 selected'), findsOneWidget);
-      await tester.tap(find.text('Song 1'));
-      await tester.pump();
-      await tester.pump();
-      expect(find.text('1 selected'), findsOneWidget);
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(find.byType(LibraryMixScreen), findsOneWidget);
+      expect(find.text('Hip-Hop Mix'), findsWidgets);
+      expect(find.textContaining('Made from your Library'), findsOneWidget);
+      expect(find.text('Song 0'), findsOneWidget);
+      if (desktop) {
+        expect(find.byType(SliverTrackTable), findsOneWidget);
+      } else {
+        expect(find.byType(TrackCard), findsWidgets);
+        expect(findByTooltip('Save as playlist'), findsOneWidget);
+      }
       expect(tester.takeException(), isNull);
     });
   }
 
-  testWidgets('Home leaves the section out without mixes', (tester) async {
-    await _pumpHome(tester, mornye: false, mixes: const []);
-    expect(find.text('Shortcuts'), findsOneWidget);
-    expect(find.text('Mixes for you'), findsNothing);
-    expect(tester.takeException(), isNull);
-  });
+  testWidgets('a long press on a phone row selects songs for the Library '
+      'actions', (tester) async {
+    debugDesktopPlatformOverride = false;
+    addTearDown(() => debugDesktopPlatformOverride = null);
+    tester.view.physicalSize = const Size(430, 932);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await _pumpMix(tester);
+    expect(find.byType(LibraryTrackSelectionBar), findsNothing);
 
-  testWidgets('mixes arriving later open below Shortcuts', (tester) async {
-    late ProviderContainer container;
-    await _pumpHome(
-      tester,
-      mornye: false,
-      mixesProvider: (ref) async => ref.watch(_arrivingMixes),
-      onContainer: (value) => container = value,
+    final first = find.text('Song 0');
+    await tester.scrollUntilVisible(
+      first,
+      200,
+      scrollable: find.byType(Scrollable).first,
     );
-    expect(find.text('Mixes for you'), findsNothing);
-    final shortcutsBottom = tester.getBottomLeft(find.text('Shortcuts')).dy;
+    await tester.pump(const Duration(seconds: 1));
+    await tester.longPress(first);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.byType(LibraryTrackSelectionBar), findsOneWidget);
+    expect(find.text('1 selected'), findsOneWidget);
+    final cards = tester.widgetList<TrackCard>(find.byType(TrackCard)).toList();
+    expect(cards.first.isSelectionMode, isTrue);
+    expect(cards.first.isSelected, isTrue);
 
-    container.read(_arrivingMixes.notifier).arrive([_mix]);
+    // In selection mode a tap adds the song instead of playing it. The
+    // bar follows a frame later, from its overlay.
+    await tester.tap(find.text('Song 1'));
     await tester.pump();
     await tester.pump();
-    final title = find.text('Mixes for you', skipOffstage: false);
-    expect(title, findsOneWidget);
-    final section = find.ancestor(
-      of: title,
-      matching: find.byType(AnimatedSize),
-    );
-    final opening = tester.getSize(section.first).height;
-    await tester.pump(const Duration(seconds: 1));
-    await tester.pump(const Duration(seconds: 1));
-    final open = tester.getSize(section.first).height;
-    // Home's sections open the space rather than letting it jump in.
-    expect(opening, lessThan(open));
-    expect(tester.getTopLeft(title).dy, greaterThan(shortcutsBottom));
+    expect(find.text('2 selected'), findsOneWidget);
+    await tester.tap(find.text('Song 1'));
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('1 selected'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -313,7 +263,7 @@ void main() {
   });
 }
 
-Future<void> _pumpMix(WidgetTester tester, {required bool mornye}) async {
+Future<void> _pumpMix(WidgetTester tester) async {
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
@@ -322,7 +272,7 @@ Future<void> _pumpMix(WidgetTester tester, {required bool mornye}) async {
         ),
       ],
       child: MaterialApp(
-        theme: mornye ? MornyeTheme.build(Brightness.dark) : AppTheme.dark(),
+        theme: MornyeTheme.build(Brightness.dark),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: LibraryMixScreen(view: _mix),
@@ -335,55 +285,27 @@ Future<void> _pumpMix(WidgetTester tester, {required bool mornye}) async {
 
 Future<void> _pumpHome(
   WidgetTester tester, {
-  required bool mornye,
   List<LibraryMixView> mixes = const [],
-  Future<List<LibraryMixView>> Function(Ref ref)? mixesProvider,
-  void Function(ProviderContainer container)? onContainer,
 }) async {
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
         settingsProvider.overrideWith(
-          () => FixedSettingsNotifier(
-            const AppSettings(
-            ),
-          ),
+          () => FixedSettingsNotifier(const AppSettings()),
         ),
         recentAccessProvider.overrideWith(_Recent.new),
-        libraryMixesProvider.overrideWith(
-          mixesProvider ?? (ref) async => mixes,
-        ),
+        libraryMixesProvider.overrideWith((ref) async => mixes),
       ],
-      child: Consumer(
-        builder: (context, ref, child) {
-          onContainer?.call(ProviderScope.containerOf(context));
-          return child!;
-        },
-        child: MaterialApp(
-          theme: mornye ? MornyeTheme.build(Brightness.dark) : AppTheme.dark(),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: HomeTab(
-            mode: mornye ? HomeTabMode.browse : HomeTabMode.combined,
-          ),
-        ),
+      child: MaterialApp(
+        theme: MornyeTheme.build(Brightness.dark),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const HomeTab(mode: HomeTabMode.browse),
       ),
     ),
   );
   await tester.pump();
   await tester.pump();
-}
-
-/// Mixes that are built after Home is shown.
-final _arrivingMixes = NotifierProvider<_ArrivingMixes, List<LibraryMixView>>(
-  _ArrivingMixes.new,
-);
-
-class _ArrivingMixes extends Notifier<List<LibraryMixView>> {
-  @override
-  List<LibraryMixView> build() => const [];
-
-  void arrive(List<LibraryMixView> mixes) => state = mixes;
 }
 
 class _Recent extends RecentAccessNotifier {

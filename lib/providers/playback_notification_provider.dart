@@ -1,10 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sistrum/models/theme_settings.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
-import 'package:sistrum/providers/theme_provider.dart';
 import 'package:sistrum/services/playback_notification.dart';
 
 /// Kept alive by the app shell so notification favorites share the exact
@@ -19,9 +17,6 @@ final playbackNotificationProvider = Provider.autoDispose
         String shuffleOff,
       })
     >((ref, labels) {
-      final mornye = ref.watch(
-        themeProvider.select((theme) => theme.style == AppThemeStyle.mornye),
-      );
       final item = ref.watch(localMediaItemProvider).value;
       final track = item == null
           ? null
@@ -40,7 +35,6 @@ final playbackNotificationProvider = Provider.autoDispose
         final runtime = ref.read(musicPlayerRuntimeProvider);
         runtime.configureNotification(
           presentation: PlaybackNotification(
-            mornye: mornye,
             mediaId: item?.id,
             source: item?.extras?['source']?.toString(),
             loved: loved,

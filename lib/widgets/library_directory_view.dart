@@ -17,7 +17,6 @@ import 'package:sistrum/services/batch_track_actions.dart';
 import 'package:sistrum/services/library_directory_index.dart';
 import 'package:sistrum/services/playable_media.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/file_access.dart';
@@ -38,7 +37,6 @@ import 'package:sistrum/widgets/desktop/hover_play_button.dart';
 import 'package:sistrum/widgets/desktop/library_track_menu.dart';
 import 'package:sistrum/widgets/desktop/track_table.dart';
 import 'package:sistrum/widgets/error_card.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/library_selection_playback_actions.dart';
 import 'package:sistrum/widgets/library_track_selection_bar.dart';
 import 'package:sistrum/widgets/local_library_artwork_builder.dart';
@@ -66,7 +64,7 @@ class LibraryDirectoryView extends ConsumerStatefulWidget {
 
   final String? folderKey;
 
-  /// False inside the Material Library pager, which has its own header.
+  /// False where the enclosing page already shows a header.
   final bool showHeader;
 
   @override
@@ -395,11 +393,10 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
           child: EmptyState(
             icon: Icons.error_outline,
             title: context.l10n.libraryFoldersLoadFailed,
-            action: ExpressiveButton(
-              text: true,
+            action: TextButton.icon(
               icon: const Icon(Icons.refresh),
               onPressed: () => ref.invalidate(libraryDirectoryIndexProvider),
-              child: Text(context.l10n.dialogRetry),
+              label: Text(context.l10n.dialogRetry),
             ),
           ),
         ),
@@ -504,7 +501,6 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
         // A volume's top folder is already named by its path.
         subtitle: folder.name == folder.path
             ? null
-            // Built inside the header, so Material reads its artwork scheme.
             : Builder(
                 builder: (header) => Text(
                   folder.path,
@@ -533,11 +529,10 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
     required bool summary,
   }) {
     final tokens = context.tokens;
-    final mornye = context.isMornye;
     final desktop = isDesktopPlatform;
     final inset = wideListInset(context);
     // Desktop lines up with the detail header's artwork.
-    final gutter = (mornye || desktop ? 20.0 : tokens.gapLg) + inset;
+    final gutter = 20.0 + inset;
     final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     final songsValue = folder.tracks.isEmpty
@@ -645,12 +640,11 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
       else if (!songsValue.hasValue && songsValue.hasError)
         SliverToBoxAdapter(
           child: Center(
-            child: ExpressiveButton(
-              text: true,
+            child: TextButton.icon(
               icon: const Icon(Icons.refresh),
               onPressed: () =>
                   ref.invalidate(libraryDirectoryTracksProvider(folder.key)),
-              child: Text(context.l10n.dialogRetry),
+              label: Text(context.l10n.dialogRetry),
             ),
           ),
         )
@@ -679,7 +673,7 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
   /// Desktop shows folders as a grid of covers like the album grids: Play
   /// on hover, the folder menu on right click.
   Widget _folderGrid(LibraryDirectory parent, double gutter) {
-    final spacing = context.isMornye ? 20.0 : 12.0;
+    const spacing = 20.0;
     return SliverPadding(
       padding: EdgeInsets.symmetric(horizontal: gutter),
       sliver: SliverLayoutInfoBuilder(
@@ -709,8 +703,6 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
   }
 
   Widget _folderTile(LibraryDirectory folder, double size) {
-    final mornye = context.isMornye;
-    final textTheme = Theme.of(context).textTheme;
     final colorScheme = Theme.of(context).colorScheme;
     return Semantics(
       button: true,
@@ -727,11 +719,7 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    _FolderArtwork(
-                      folder: folder,
-                      size: size,
-                      radius: mornye ? 8 : 12,
-                    ),
+                    _FolderArtwork(folder: folder, size: size, radius: 8),
                     DesktopHoverPlayButton(
                       tooltip: context.l10n.tooltipPlay,
                       onPlay: () => _playFolder(folder),
@@ -744,24 +732,16 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
                 folder.name,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: mornye
-                    ? const TextStyle(fontSize: 16)
-                    : textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                style: const TextStyle(fontSize: 16),
               ),
               Text(
                 _summary(folder),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: mornye
-                    ? TextStyle(
-                        fontSize: 14,
-                        color: colorScheme.onSurfaceVariant,
-                      )
-                    : textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
             ],
           ),
@@ -772,7 +752,7 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
 
   Widget _folderRow(LibraryDirectory parent, LibraryDirectory folder) {
     return TrackCard(
-      style: context.isMornye ? TrackCardStyle.flat : TrackCardStyle.filled,
+      style: TrackCardStyle.flat,
       leading: _FolderArtwork(folder: folder),
       leadingArtwork: folder.cover != null,
       // Top-level entries of several volumes read as their paths.
@@ -809,7 +789,7 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
             : () => _play(items, start: item);
         void openDetails() => _openDetails(item);
         return TrackCard(
-          style: context.isMornye ? TrackCardStyle.flat : TrackCardStyle.filled,
+          style: TrackCardStyle.flat,
           leading: _SongArtwork(item: item, size: context.tokens.coverList),
           leadingArtwork: true,
           title: item.trackName,

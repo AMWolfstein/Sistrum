@@ -63,15 +63,12 @@ class _TvShellState extends State<TvShell> {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     return Row(
       children: [
         SizedBox(
           width: 112,
           child: ColoredBox(
-            color: context.isMornye
-                ? MornyeTheme.controlFill(context)
-                : scheme.surfaceContainer,
+            color: MornyeTheme.controlFill(context),
             child: ListView(
               padding: const EdgeInsets.all(8),
               children: [
@@ -113,38 +110,23 @@ class _TvShellState extends State<TvShell> {
         ],
       ),
     );
-    if (context.isMornye) {
-      return CupertinoButton(
-        focusNode: _node(index),
-        autofocus: selected,
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
-        color: selected ? scheme.primary.withValues(alpha: 0.16) : null,
-        onPressed: () => _select(index),
-        child: DefaultTextStyle.merge(
-          style: Theme.of(context).textTheme.labelLarge!.copyWith(
-            color: selected ? scheme.primary : scheme.onSurface,
-          ),
-          child: IconTheme.merge(
-            data: IconThemeData(
-              color: selected ? scheme.primary : scheme.onSurface,
-            ),
-            child: content,
-          ),
-        ),
-      );
-    }
-    return TextButton(
+    return CupertinoButton(
       focusNode: _node(index),
       autofocus: selected,
-      style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
-        backgroundColor: selected ? scheme.primaryContainer : null,
-        foregroundColor: selected
-            ? scheme.onPrimaryContainer
-            : scheme.onSurface,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 12),
+      color: selected ? scheme.primary.withValues(alpha: 0.16) : null,
       onPressed: () => _select(index),
-      child: content,
+      child: DefaultTextStyle.merge(
+        style: Theme.of(context).textTheme.labelLarge!.copyWith(
+          color: selected ? scheme.primary : scheme.onSurface,
+        ),
+        child: IconTheme.merge(
+          data: IconThemeData(
+            color: selected ? scheme.primary : scheme.onSurface,
+          ),
+          child: content,
+        ),
+      ),
     );
   }
 }

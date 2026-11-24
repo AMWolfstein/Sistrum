@@ -101,7 +101,6 @@ class LibraryTrackSelectionBar extends StatelessWidget {
           const SizedBox(height: 8),
           DestructiveSelectionButton(
             count: selectedCount,
-            colorScheme: colorScheme,
             onPressed: onDelete,
             label: albumDelete ? null : deleteLabel,
           ),

@@ -3,10 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
-import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 
 import 'support/tooltip_finder.dart';
@@ -23,7 +21,6 @@ void main() {
   Future<void> open(
     WidgetTester tester,
     void Function(BuildContext context) show, {
-    bool mornye = false,
     double width = 1200,
   }) async {
     tester.view.physicalSize = Size(width, 900);
@@ -32,9 +29,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         child: MaterialApp(
-          theme: mornye
-              ? MornyeTheme.build(Brightness.light)
-              : AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
@@ -56,15 +51,6 @@ void main() {
 
   Rect surface(WidgetTester tester, Finder dialog) => tester.getRect(
     find.descendant(of: dialog, matching: find.byType(Material)).first,
-  );
-
-  Widget rows(BuildContext context) => SingleChildScrollView(
-    child: Column(
-      children: [
-        for (var i = 0; i < 60; i++)
-          SizedBox(height: 40, child: Text('Row $i')),
-      ],
-    ),
   );
 
   for (final size in AppDialogSize.values) {
@@ -104,99 +90,19 @@ void main() {
     expect(surface(tester, find.byKey(_dialogKey)).width, 600 - 48);
   });
 
-  testWidgets(
-    'Material keeps the header fixed over a scrolling body with a visible bar',
-    (tester) async {
-      await open(
-        tester,
-        (context) => showAppBottomSheet<void>(
-          context: context,
-          title: 'Title',
-          builder: rows,
-        ),
-      );
-      final dialog = find.byKey(_dialogKey);
-      final title = tester.getRect(find.text('Title'));
-      expect(
-        find.descendant(of: dialog, matching: find.byType(Scrollbar)),
-        findsOneWidget,
-      );
-      final scrollbars = ScrollbarTheme.of(tester.element(find.text('Row 0')));
-      expect(scrollbars.thumbVisibility?.resolve({}), isTrue);
-
-      await tester.drag(find.text('Row 2'), const Offset(0, -400));
-      await tester.pumpAndSettle();
-      expect(tester.getRect(find.text('Title')), title);
-      expect(find.text('Row 0').hitTestable(), findsNothing);
-      expect(tester.takeException(), isNull);
-
-      await tester.tap(findByTooltip('Close'));
-      await tester.pumpAndSettle();
-      expect(dialog, findsNothing);
-    },
-    variant: TargetPlatformVariant.only(TargetPlatform.macOS),
-  );
-
-  testWidgets('dialog corners follow the sheet radius of each style', (
-    tester,
-  ) async {
-    for (final mornye in [false, true]) {
-      await open(
-        tester,
-        mornye: mornye,
-        (context) => showAppBottomSheet<void>(
-          context: context,
-          title: 'Title',
-          builder: (_) => const Text('Body'),
-        ),
-      );
-      final shape =
-          tester.widget<Dialog>(find.byKey(_dialogKey)).shape!
-              as RoundedRectangleBorder;
-      expect(shape.borderRadius, BorderRadius.circular(28));
-      expect(findByTooltip('Close'), mornye ? findsNothing : findsOneWidget);
-      await tester.pumpWidget(const SizedBox.shrink());
-    }
-  });
-
-  group('Material alert dialogs stay within M3 widths', () {
-    Future<Rect> alert(WidgetTester tester, String message) async {
-      await open(
-        tester,
-        (context) => showAppDialog<void>(
-          context: context,
-          builder: (context) => AppAlertDialog(
-            title: const Text('Remove?'),
-            content: Text(message),
-            actions: [
-              AppDialogAction(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
-              ),
-            ],
-          ),
-        ),
-      );
-      return surface(tester, find.byType(AlertDialog));
-    }
-
-    testWidgets('a long message wraps at 560dp', (tester) async {
-      final rect = await alert(tester, 'This removes the files. ' * 20);
-      expect(rect.width, 560);
-    });
-
-    testWidgets('a short question starts at the compact width on desktop', (
+  testWidgets('dialog corners follow the sheet radius', (tester) async {
+    await open(
       tester,
-    ) async {
-      final rect = await alert(tester, 'Remove it?');
-      expect(rect.width, 440);
-    });
-
-    testWidgets('phones keep the 280dp minimum', (tester) async {
-      debugDesktopPlatformOverride = false;
-      final rect = await alert(tester, 'Remove it?');
-      expect(rect.width, lessThan(440));
-      expect(rect.width, greaterThanOrEqualTo(280));
-    });
+      (context) => showAppBottomSheet<void>(
+        context: context,
+        title: 'Title',
+        builder: (_) => const Text('Body'),
+      ),
+    );
+    final shape =
+        tester.widget<Dialog>(find.byKey(_dialogKey)).shape!
+            as RoundedRectangleBorder;
+    expect(shape.borderRadius, BorderRadius.circular(28));
+    expect(findByTooltip('Close'), findsNothing);
   });
 }

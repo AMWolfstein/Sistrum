@@ -1,12 +1,10 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 
 /// The title row above a settings slider, with the slider's current value.
 ///
-/// Material shows the value with its unit in a tonal pill at the trailing
-/// end, so it reads without touching the slider. Mornye shows it as iOS
-/// detail text in the secondary label color.
+/// The value with its unit reads as iOS detail text at the trailing end, in
+/// the secondary label color.
 class SliderValueHeader extends StatelessWidget {
   const SliderValueHeader({
     super.key,
@@ -67,36 +65,13 @@ class SliderValueHeader extends StatelessWidget {
           ),
         ),
         SizedBox(width: tokens.gapSm),
-        if (context.isMornye)
-          Text(
-            value,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: enabled ? colors.onSurfaceVariant : disabled,
-              fontFeatures: _tabular,
-            ),
-          )
-        else
-          DecoratedBox(
-            decoration: ShapeDecoration(
-              color: enabled
-                  ? colors.secondaryContainer
-                  : colors.onSurface.withValues(alpha: 0.12),
-              shape: const StadiumBorder(),
-            ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: tokens.gapMd,
-                vertical: tokens.gapXs,
-              ),
-              child: Text(
-                value,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  color: enabled ? colors.onSecondaryContainer : disabled,
-                  fontFeatures: _tabular,
-                ),
-              ),
-            ),
+        Text(
+          value,
+          style: theme.textTheme.bodyLarge?.copyWith(
+            color: enabled ? colors.onSurfaceVariant : disabled,
+            fontFeatures: _tabular,
           ),
+        ),
         if (trailing != null) ...[SizedBox(width: tokens.gapXs), trailing!],
       ],
     );

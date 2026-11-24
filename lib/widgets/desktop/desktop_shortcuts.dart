@@ -14,7 +14,6 @@ import 'package:sistrum/services/app_navigation_service.dart';
 import 'package:sistrum/services/music_playback_deck.dart'
     show usbHardwareVolume;
 import 'package:sistrum/services/shell_navigation_service.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_refresh_indicator.dart';
 import 'package:sistrum/widgets/open_audio_button.dart';
 import 'package:sistrum/widgets/desktop/desktop_commands.dart';
@@ -187,8 +186,7 @@ class _DesktopShortcutsState extends ConsumerState<DesktopShortcuts> {
   }
 
   void _selectDestination(int position) {
-    final context = _rootNavigator?.context ?? this.context;
-    final tabs = desktopDestinationTabs(mornye: context.isMornye);
+    final tabs = desktopDestinationTabs();
     if (position < 1 || position > tabs.length) return;
     final tab = tabs[position - 1];
     _closePages();
@@ -214,7 +212,7 @@ class _DesktopShortcutsState extends ConsumerState<DesktopShortcuts> {
 
   bool get _canCloseTopLayer =>
       _rootNavigator?.canPop() == true ||
-      canDismissDesktopPlayerLayer(_windowWidth, mornye: context.isMornye) ||
+      canDismissDesktopPlayerLayer(_windowWidth) ||
       ShellNavigationService.activeBackNavigator()?.canPop() == true;
 
   /// Closes what Escape closes: a dialog or page over the shell first, then
@@ -226,7 +224,7 @@ class _DesktopShortcutsState extends ConsumerState<DesktopShortcuts> {
       unawaited(root.maybePop());
       return;
     }
-    if (dismissDesktopPlayerLayer(_windowWidth, mornye: context.isMornye)) {
+    if (dismissDesktopPlayerLayer(_windowWidth)) {
       return;
     }
     final tab = ShellNavigationService.activeBackNavigator();
@@ -398,7 +396,6 @@ class _DesktopMenuBarState extends ConsumerState<_DesktopMenuBar> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final material = MaterialLocalizations.of(context);
-    final mornye = context.isMornye;
     final showPlayer = ref.watch(playerUiEnabledProvider);
     final fullScreen = desktopWindowFullScreen.value;
     final mode = desktopWindowMode.value;
@@ -406,7 +403,6 @@ class _DesktopMenuBarState extends ConsumerState<_DesktopMenuBar> {
       widget.state,
       l10n,
       material,
-      mornye,
       showPlayer,
       fullScreen,
       mode,
@@ -417,7 +413,7 @@ class _DesktopMenuBarState extends ConsumerState<_DesktopMenuBar> {
       _menus = _buildMenus(
         l10n: l10n,
         material: material,
-        tabs: desktopDestinationTabs(mornye: mornye),
+        tabs: desktopDestinationTabs(),
         showPlayer: showPlayer,
         fullScreen: fullScreen,
         mode: mode,

@@ -11,7 +11,6 @@ import 'package:sistrum/models/theme_settings.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/song_lyrics_offset_provider.dart';
 import 'package:sistrum/providers/theme_provider.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:sistrum/widgets/app_slider.dart';
@@ -129,106 +128,100 @@ void main() {
     });
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets('the player sets this song\'s timing apart from all songs '
-        '(mornye=$mornye)', (tester) async {
-      tester.view.physicalSize = const Size(420, 900);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      final metadata = PlayerMetadataController(
-        parseLyrics: (raw) async => LyricsParser.parse(raw),
-        readMetadata: (_) async => {
-          'title': 'Example Song',
-          'artist': 'Example Artist',
-          'lyrics': _lrc,
-        },
-      );
-      addTearDown(metadata.dispose);
-      await tester.runAsync(() => metadata.load(_item));
-      final container = ProviderContainer(
-        overrides: [settingsProvider.overrideWith(FixedSettingsNotifier.new)],
-      );
-      addTearDown(container.dispose);
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: MaterialApp(
-            theme: mornye
-                ? MornyeTheme.build(Brightness.dark, accent: MornyeAccent.blue)
-                : AppTheme.dark(),
-            locale: const Locale('en'),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: Scaffold(
-              body: Align(
-                alignment: Alignment.bottomRight,
-                child: LyricsOptionsButton(
-                  metadata: metadata,
-                  colorScheme: const ColorScheme.dark(),
-                ),
+  testWidgets('the player sets this song\'s timing apart from all songs', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(420, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final metadata = PlayerMetadataController(
+      parseLyrics: (raw) async => LyricsParser.parse(raw),
+      readMetadata: (_) async => {
+        'title': 'Example Song',
+        'artist': 'Example Artist',
+        'lyrics': _lrc,
+      },
+    );
+    addTearDown(metadata.dispose);
+    await tester.runAsync(() => metadata.load(_item));
+    final container = ProviderContainer(
+      overrides: [settingsProvider.overrideWith(FixedSettingsNotifier.new)],
+    );
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark, accent: MornyeAccent.blue),
+          locale: const Locale('en'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.bottomRight,
+              child: LyricsOptionsButton(
+                metadata: metadata,
+                colorScheme: const ColorScheme.dark(),
               ),
             ),
           ),
         ),
-      );
-      await tester.pumpAndSettle();
+      ),
+    );
+    await tester.pumpAndSettle();
 
-      // Without language choices the menu is not a language menu.
-      expect(
-        find.byKey(const ValueKey('lyrics-language-options')),
-        findsNothing,
-      );
-      expect(findByTooltip('Lyrics options'), findsOneWidget);
-      await tester.tap(find.byKey(const ValueKey('lyrics-options')));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Lyrics timing'));
-      await tester.pumpAndSettle();
+    // Without language choices the menu is not a language menu.
+    expect(find.byKey(const ValueKey('lyrics-language-options')), findsNothing);
+    expect(findByTooltip('Lyrics options'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('lyrics-options')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Lyrics timing'));
+    await tester.pumpAndSettle();
 
-      final thisSong = find.byKey(const ValueKey('lyrics-offset-this-song'));
-      final allSongs = find.byKey(const ValueKey('lyrics-offset-all-songs'));
-      expect(find.text('This song'), findsOneWidget);
-      expect(find.text('Example Song'), findsOneWidget);
-      expect(find.text('All songs'), findsOneWidget);
-      expect(find.text('In sync'), findsNWidgets(2));
+    final thisSong = find.byKey(const ValueKey('lyrics-offset-this-song'));
+    final allSongs = find.byKey(const ValueKey('lyrics-offset-all-songs'));
+    expect(find.text('This song'), findsOneWidget);
+    expect(find.text('Example Song'), findsOneWidget);
+    expect(find.text('All songs'), findsOneWidget);
+    expect(find.text('In sync'), findsNWidgets(2));
 
-      AppSlider slider(Finder row) => tester.widget<AppSlider>(
-        find.descendant(of: row, matching: find.byType(AppSlider)),
-      );
-      expect(slider(thisSong).divisions, slider(allSongs).divisions);
-      expect(slider(thisSong).min, slider(allSongs).min);
-      expect(slider(thisSong).max, slider(allSongs).max);
+    AppSlider slider(Finder row) => tester.widget<AppSlider>(
+      find.descendant(of: row, matching: find.byType(AppSlider)),
+    );
+    expect(slider(thisSong).divisions, slider(allSongs).divisions);
+    expect(slider(thisSong).min, slider(allSongs).min);
+    expect(slider(thisSong).max, slider(allSongs).max);
 
-      slider(thisSong).onChanged!(500);
-      await tester.pump();
-      expect(
-        find.descendant(of: thisSong, matching: find.text('0.5 s later')),
-        findsOneWidget,
-      );
-      slider(thisSong).onChangeEnd!(500);
-      await tester.pumpAndSettle();
-      expect(container.read(songLyricsOffsetMsProvider(_song)), 500);
-      expect(container.read(themeProvider).lyricsOffsetMs, 0);
-      expect(container.read(lyricsOffsetMsForSongProvider(_song)), 500);
+    slider(thisSong).onChanged!(500);
+    await tester.pump();
+    expect(
+      find.descendant(of: thisSong, matching: find.text('0.5 s later')),
+      findsOneWidget,
+    );
+    slider(thisSong).onChangeEnd!(500);
+    await tester.pumpAndSettle();
+    expect(container.read(songLyricsOffsetMsProvider(_song)), 500);
+    expect(container.read(themeProvider).lyricsOffsetMs, 0);
+    expect(container.read(lyricsOffsetMsForSongProvider(_song)), 500);
 
-      slider(allSongs).onChangeEnd!(-300);
-      await tester.pumpAndSettle();
-      expect(
-        find.descendant(of: allSongs, matching: find.text('0.3 s earlier')),
-        findsOneWidget,
-      );
-      expect(container.read(lyricsOffsetMsForSongProvider(_song)), 200);
+    slider(allSongs).onChangeEnd!(-300);
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(of: allSongs, matching: find.text('0.3 s earlier')),
+      findsOneWidget,
+    );
+    expect(container.read(lyricsOffsetMsForSongProvider(_song)), 200);
 
-      // Each row resets only its own offset.
-      await tester.tap(
-        find.descendant(of: thisSong, matching: findByTooltip('Reset')),
-      );
-      await tester.pumpAndSettle();
-      expect(container.read(songLyricsOffsetsProvider), isEmpty);
-      expect(container.read(themeProvider).lyricsOffsetMs, -300);
-      expect(tester.takeException(), isNull);
-      await tester.pumpWidget(const SizedBox.shrink());
-    });
-  }
+    // Each row resets only its own offset.
+    await tester.tap(
+      find.descendant(of: thisSong, matching: findByTooltip('Reset')),
+    );
+    await tester.pumpAndSettle();
+    expect(container.read(songLyricsOffsetsProvider), isEmpty);
+    expect(container.read(themeProvider).lyricsOffsetMs, -300);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 
   testWidgets('the settings page keeps only the app-wide timing', (
     tester,

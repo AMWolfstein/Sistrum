@@ -10,7 +10,6 @@ import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/desktop/track_table.dart';
@@ -54,7 +53,6 @@ class _FocusActionState extends State<_FocusAction> {
 
 Widget _app(
   List<TrackTableRow> rows, {
-  required bool mornye,
   required double scale,
   required bool uniform,
   ScrollController? controller,
@@ -68,7 +66,7 @@ Widget _app(
     ),
   ],
   child: MaterialApp(
-    theme: mornye ? MornyeTheme.build(Brightness.light) : AppTheme.light(),
+    theme: MornyeTheme.build(Brightness.light),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     builder: (context, child) => MediaQuery(
@@ -124,118 +122,94 @@ void main() {
     addTearDown(tester.view.reset);
   }
 
-  for (final mornye in [false, true]) {
-    testWidgets('large column jumps build only visible rows ($mornye)', (
-      tester,
-    ) async {
+  testWidgets('large column jumps build only visible rows', (tester) async {
+    configure(tester);
+    var builds = 0;
+    final controller = ScrollController();
+    addTearDown(controller.dispose);
+    final rows = [
+      for (var i = 0; i < 5000; i++)
+        TrackTableRow(
+          id: '$i',
+          title: 'Track $i',
+          leading: Builder(
+            builder: (context) {
+              builds++;
+              return const SizedBox.square(dimension: 32);
+            },
+          ),
+        ),
+    ];
+    await tester.pumpWidget(
+      _app(rows, scale: 1, uniform: true, controller: controller),
+    );
+    await tester.pump();
+    builds = 0;
+    controller.jumpTo(controller.position.maxScrollExtent);
+    await tester.pump();
+    expect(find.text('Track 4999'), findsOneWidget);
+    expect(builds, lessThan(40));
+    expect(tester.takeException(), isNull);
+  });
+
+  for (final scale in [1.0, 2.0]) {
+    testWidgets('column extent preserves row pixels ($scale)', (tester) async {
       configure(tester);
-      var builds = 0;
-      final controller = ScrollController();
-      addTearDown(controller.dispose);
+      final capture = GlobalKey();
       final rows = [
-        for (var i = 0; i < 5000; i++)
+        for (var i = 0; i < 5; i++)
           TrackTableRow(
             id: '$i',
-            title: 'Track $i',
-            leading: Builder(
-              builder: (context) {
-                builds++;
-                return const SizedBox.square(dimension: 32);
-              },
+            title: i == 2 ? '日本語 العربية' : 'Track $i',
+            number: i + 1,
+            artist: 'Artist',
+            album: 'Album',
+            quality: 'FLAC 24-bit',
+            duration: const Duration(minutes: 3),
+            leading: i.isEven
+                ? const SizedBox.square(
+                    dimension: 32,
+                    child: ColoredBox(color: Colors.blue),
+                  )
+                : null,
+            titleTrailing: TrackListTileBadges(
+              track: Track(
+                id: '$i',
+                name: 'Track $i',
+                artistName: 'Artist',
+                albumName: 'Album',
+                duration: 180,
+                explicit: i == 1 || i == 4,
+                audioModes: i == 2 || i == 4 ? 'DOLBY_ATMOS' : null,
+              ),
             ),
+            trailing: i.isEven
+                ? const SizedBox.square(
+                    dimension: 32,
+                    child: Icon(Icons.more_horiz),
+                  )
+                : null,
+            playback: i == 2 ? _current : null,
           ),
       ];
       await tester.pumpWidget(
-        _app(
-          rows,
-          mornye: mornye,
-          scale: 1,
-          uniform: true,
-          controller: controller,
-        ),
+        _app(rows, scale: scale, uniform: false, capture: capture),
       );
-      await tester.pump();
-      builds = 0;
-      controller.jumpTo(controller.position.maxScrollExtent);
-      await tester.pump();
-      expect(find.text('Track 4999'), findsOneWidget);
-      expect(builds, lessThan(40));
+      await tester.pumpAndSettle();
+      final before = await _pixels(tester, capture);
+      final heights = [
+        for (var i = 0; i < rows.length; i++)
+          tester.getSize(find.byKey(ValueKey('$i'))).height,
+      ];
+      expect(heights.toSet(), hasLength(1));
+      await tester.pumpWidget(
+        _app(rows, scale: scale, uniform: true, capture: capture),
+      );
+      await tester.pumpAndSettle();
+      expect(await _pixels(tester, capture), before);
+      expect(find.byType(SliverPrototypeExtentList), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
-
-    for (final scale in [1.0, 2.0]) {
-      testWidgets('column extent preserves row pixels ($mornye, $scale)', (
-        tester,
-      ) async {
-        configure(tester);
-        final capture = GlobalKey();
-        final rows = [
-          for (var i = 0; i < 5; i++)
-            TrackTableRow(
-              id: '$i',
-              title: i == 2 ? '日本語 العربية' : 'Track $i',
-              number: i + 1,
-              artist: 'Artist',
-              album: 'Album',
-              quality: 'FLAC 24-bit',
-              duration: const Duration(minutes: 3),
-              leading: i.isEven
-                  ? const SizedBox.square(
-                      dimension: 32,
-                      child: ColoredBox(color: Colors.blue),
-                    )
-                  : null,
-              titleTrailing: TrackListTileBadges(
-                track: Track(
-                  id: '$i',
-                  name: 'Track $i',
-                  artistName: 'Artist',
-                  albumName: 'Album',
-                  duration: 180,
-                  explicit: i == 1 || i == 4,
-                  audioModes: i == 2 || i == 4 ? 'DOLBY_ATMOS' : null,
-                ),
-              ),
-              trailing: i.isEven
-                  ? const SizedBox.square(
-                      dimension: 32,
-                      child: Icon(Icons.more_horiz),
-                    )
-                  : null,
-              playback: i == 2 ? _current : null,
-            ),
-        ];
-        await tester.pumpWidget(
-          _app(
-            rows,
-            mornye: mornye,
-            scale: scale,
-            uniform: false,
-            capture: capture,
-          ),
-        );
-        await tester.pumpAndSettle();
-        final before = await _pixels(tester, capture);
-        final heights = [
-          for (var i = 0; i < rows.length; i++)
-            tester.getSize(find.byKey(ValueKey('$i'))).height,
-        ];
-        expect(heights.toSet(), hasLength(1));
-        await tester.pumpWidget(
-          _app(
-            rows,
-            mornye: mornye,
-            scale: scale,
-            uniform: true,
-            capture: capture,
-          ),
-        );
-        await tester.pumpAndSettle();
-        expect(await _pixels(tester, capture), before);
-        expect(find.byType(SliverPrototypeExtentList), findsOneWidget);
-        expect(tester.takeException(), isNull);
-      });
-    }
   }
 
   testWidgets('the measurement row adds no keyboard focus target', (
@@ -253,7 +227,6 @@ void main() {
               trailing: _FocusAction(nodes),
             ),
         ],
-        mornye: false,
         scale: 1,
         uniform: true,
       ),
@@ -281,7 +254,6 @@ void main() {
       await tester.pumpWidget(
         _app(
           rows,
-          mornye: true,
           scale: scenario == 'large text' ? 3 : 1,
           uniform: scenario != 'custom',
           album: scenario == 'album',

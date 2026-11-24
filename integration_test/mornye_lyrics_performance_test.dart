@@ -7,7 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:sistrum/widgets/player_lyrics.dart';
@@ -50,16 +49,15 @@ class _Settings extends SettingsNotifier {
   AppSettings build() => const AppSettings();
 }
 
-void main() => runLyricsPerformanceTests(mornye: true);
+void main() => runLyricsPerformanceTests();
 
-/// Identical playback, lyrics and gestures for both visual styles.
-void runLyricsPerformanceTests({required bool mornye}) {
+/// Production lyrics playback and gestures under the Mornye theme.
+void runLyricsPerformanceTests() {
   final binding = PerformanceTestBinding.ensureInitialized();
-  final style = mornye ? 'mornye' : 'material';
-  testWidgets('$style production word-synced lyrics and manual scrolling', (
+  testWidgets('mornye production word-synced lyrics and manual scrolling', (
     tester,
   ) async {
-    final probe = PerformanceProbe(binding, tester, suite: '${style}_lyrics');
+    final probe = PerformanceProbe(binding, tester, suite: 'mornye_lyrics');
     final playback = StreamController<PlaybackState>.broadcast();
     final seek = ValueNotifier<Duration?>(null);
     final active = ValueNotifier(true);
@@ -96,7 +94,7 @@ void runLyricsPerformanceTests({required bool mornye}) {
       active.dispose();
       fastPhrases.dispose();
     });
-    final theme = mornye ? MornyeTheme.build(Brightness.dark) : AppTheme.dark();
+    final theme = MornyeTheme.build(Brightness.dark);
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -238,7 +236,7 @@ void runLyricsPerformanceTests({required bool mornye}) {
             'preferences or network. Active samples include a 650ms paused '
             'seek reset to 40s. Idle is inactive and paused.',
         'lineCount': _lyrics.lines.length,
-        'style': style,
+        'style': 'mornye',
         'wordsPerLine': 5,
         'manualScrollTolerancePixels': 1,
         'progressionTimeoutMs': 6000,

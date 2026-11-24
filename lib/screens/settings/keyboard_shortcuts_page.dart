@@ -2,7 +2,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/services/shell_navigation_service.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:sistrum/widgets/desktop/desktop_commands.dart';
 import 'package:sistrum/widgets/settings_group.dart';
@@ -18,7 +17,7 @@ class KeyboardShortcutsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final tabs = desktopDestinationTabs(mornye: context.isMornye);
+    final tabs = desktopDestinationTabs();
 
     List<SingleActivator> keys(DesktopCommand command) =>
         desktopCommandShortcuts(command, platform);

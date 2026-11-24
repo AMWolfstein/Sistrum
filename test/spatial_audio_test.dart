@@ -11,7 +11,6 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/settings/playback_settings_page.dart';
 import 'package:sistrum/services/music_playback_deck.dart';
 import 'package:sistrum/services/spatial_audio.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/android_tv.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
@@ -55,7 +54,6 @@ Map<String, Object?> _android({
 
 Future<ProviderContainer> _pumpPage(
   WidgetTester tester, {
-  required bool mornye,
   AppSettings settings = const AppSettings(),
 }) async {
   SharedPreferences.setMockInitialValues({});
@@ -70,9 +68,7 @@ Future<ProviderContainer> _pumpPage(
     UncontrolledProviderScope(
       container: container,
       child: MaterialApp(
-        theme: mornye
-            ? MornyeTheme.build(Brightness.dark, accent: MornyeAccent.blue)
-            : AppTheme.light(),
+        theme: MornyeTheme.build(Brightness.dark, accent: MornyeAccent.blue),
         locale: const Locale('en'),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
@@ -330,55 +326,46 @@ void main() {
     });
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets('Android shows the live status and turns it off ($mornye)', (
+  testWidgets('Android shows the live status and turns it off', (tester) async {
+    debugAndroidAudioSettingsOverride = true;
+    _mockState(_android(stereo: true, headTracking: true));
+    // The media3 engine applies the switch live, so no next-song note.
+    final container = await _pumpPage(
       tester,
-    ) async {
-      debugAndroidAudioSettingsOverride = true;
-      _mockState(_android(stereo: true, headTracking: true));
-      // The media3 engine applies the switch live, so no next-song note.
-      final container = await _pumpPage(
-        tester,
-        mornye: mornye,
-        settings: const AppSettings(media3Engine: true),
-      );
-      var item = await _scrollToRow(tester);
-      expect(item.value, isTrue);
-      expect(item.subtitle, startsWith(_l10n.spatialAudioDescription));
-      expect(
-        item.subtitle,
-        endsWith('Stereo music is spatialized, with head tracking available.'),
-      );
-      expect(item.subtitle, isNot(contains(_l10n.spatialAudioNextSong)));
+      settings: const AppSettings(media3Engine: true),
+    );
+    var item = await _scrollToRow(tester);
+    expect(item.value, isTrue);
+    expect(item.subtitle, startsWith(_l10n.spatialAudioDescription));
+    expect(
+      item.subtitle,
+      endsWith('Stereo music is spatialized, with head tracking available.'),
+    );
+    expect(item.subtitle, isNot(contains(_l10n.spatialAudioNextSong)));
 
-      usbAudioStatus.value = const UsbAudioStatus(
-        reason: 'active',
-        driver: 'usb_direct',
-      );
-      await tester.pump();
-      item = tester.widget<SettingsSwitchItem>(_row);
-      expect(item.subtitle, endsWith('Not used with direct USB output.'));
+    usbAudioStatus.value = const UsbAudioStatus(
+      reason: 'active',
+      driver: 'usb_direct',
+    );
+    await tester.pump();
+    item = tester.widget<SettingsSwitchItem>(_row);
+    expect(item.subtitle, endsWith('Not used with direct USB output.'));
 
-      await tester.tap(find.text(_title));
-      await tester.pumpAndSettle();
-      expect(container.read(settingsProvider).spatialAudio, isFalse);
-      item = tester.widget<SettingsSwitchItem>(_row);
-      expect(item.value, isFalse);
-      expect(item.subtitle, _l10n.spatialAudioDescription);
-      expect(tester.takeException(), isNull);
-    });
-  }
+    await tester.tap(find.text(_title));
+    await tester.pumpAndSettle();
+    expect(container.read(settingsProvider).spatialAudio, isFalse);
+    item = tester.widget<SettingsSwitchItem>(_row);
+    expect(item.value, isFalse);
+    expect(item.subtitle, _l10n.spatialAudioDescription);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('the old Android engine applies it from the next song', (
     tester,
   ) async {
     debugAndroidAudioSettingsOverride = true;
     _mockState(_android(enabled: false, stereo: true));
-    await _pumpPage(
-      tester,
-      mornye: false,
-      settings: const AppSettings(media3Engine: false),
-    );
+    await _pumpPage(tester, settings: const AppSettings(media3Engine: false));
     final item = await _scrollToRow(tester);
     expect(item.enabled, isTrue);
     expect(
@@ -395,7 +382,7 @@ void main() {
     debugAndroidAudioSettingsOverride = true;
     debugAndroidTvOverride = true;
     _mockState(_android(stereo: true));
-    await _pumpPage(tester, mornye: false);
+    await _pumpPage(tester);
     // The direct USB row follows it in the Audio output group.
     await tester.scrollUntilVisible(
       find.text(_l10n.usbBitPerfect),
@@ -419,7 +406,7 @@ void main() {
       ),
     );
     addTearDown(() => _messenger.setMockStreamHandler(_events, null));
-    await _pumpPage(tester, mornye: false);
+    await _pumpPage(tester);
     var item = await _scrollToRow(tester);
     expect(item.subtitle, endsWith(_l10n.spatialAudioMultichannelOnly));
     sink!.success(_android(available: false));
@@ -428,18 +415,16 @@ void main() {
     expect(item.subtitle, endsWith(_l10n.spatialAudioUnavailable));
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets('iOS has its own Audio output group ($mornye)', (tester) async {
-      debugSpatialAudioPlatformOverride = SpatialAudioPlatform.ios;
-      _mockState(const {'platform': 'ios', 'enabled': false});
-      await _pumpPage(tester, mornye: mornye);
-      final item = await _scrollToRow(tester);
-      expect(item.value, isTrue);
-      expect(item.subtitle, endsWith(_l10n.spatialAudioOutputOff));
-      expect(find.text(_l10n.newPlaybackEngine), findsNothing);
-      expect(tester.takeException(), isNull);
-    });
-  }
+  testWidgets('iOS has its own Audio output group', (tester) async {
+    debugSpatialAudioPlatformOverride = SpatialAudioPlatform.ios;
+    _mockState(const {'platform': 'ios', 'enabled': false});
+    await _pumpPage(tester);
+    final item = await _scrollToRow(tester);
+    expect(item.value, isTrue);
+    expect(item.subtitle, endsWith(_l10n.spatialAudioOutputOff));
+    expect(find.text(_l10n.newPlaybackEngine), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets(
     'macOS names exclusive output in the desktop group',
@@ -448,7 +433,6 @@ void main() {
       debugDesktopPlatformOverride = true;
       await _pumpPage(
         tester,
-        mornye: false,
         settings: const AppSettings(exclusiveOutput: true),
       );
       final item = await _scrollToRow(tester);
@@ -465,7 +449,7 @@ void main() {
     }),
     (tester) async {
       debugDesktopPlatformOverride = true;
-      await _pumpPage(tester, mornye: false);
+      await _pumpPage(tester);
       for (var i = 0; i < 10; i++) {
         await tester.drag(find.byType(Scrollable).first, const Offset(0, -600));
         await tester.pumpAndSettle();

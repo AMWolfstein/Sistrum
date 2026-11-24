@@ -7,7 +7,6 @@ import 'package:integration_test/integration_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/android_keyboard_lifecycle.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
@@ -45,7 +44,6 @@ void main() {
     );
 
     for (var cycle = 0; cycle < 4; cycle++) {
-      final mornye = cycle >= 2;
       final sheet = cycle.isOdd;
       var tapped = false;
       final lifecycle = _BackgroundRoundTrip();
@@ -65,9 +63,7 @@ void main() {
         ProviderScope(
           overrides: [settingsProvider.overrideWith(_Settings.new)],
           child: MaterialApp(
-            theme: mornye
-                ? MornyeTheme.build(Brightness.light)
-                : AppTheme.light(),
+            theme: MornyeTheme.build(Brightness.light),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             builder: (_, child) => AndroidKeyboardLifecycle(child: child!),

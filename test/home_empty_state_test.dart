@@ -11,7 +11,6 @@ import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/recent_access_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/home_tab.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/error_card.dart';
 
@@ -20,10 +19,7 @@ import 'support/fixed_settings.dart';
 const _title = 'Nothing here yet';
 
 /// Home with nothing playing, with [added] as its Recently added shelf.
-Widget _home({
-  required bool mornye,
-  List<UnifiedLibraryItem> added = const [],
-}) => ProviderScope(
+Widget _home({List<UnifiedLibraryItem> added = const []}) => ProviderScope(
   overrides: [
     settingsProvider.overrideWith(
       () => FixedSettingsNotifier(const AppSettings()),
@@ -42,7 +38,7 @@ Widget _home({
     playbackResumeProvider.overrideWith((ref) async => null),
   ],
   child: MaterialApp(
-    theme: mornye ? MornyeTheme.build(Brightness.dark) : AppTheme.dark(),
+    theme: MornyeTheme.build(Brightness.dark),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     home: const HomeTab(mode: HomeTabMode.browse),
@@ -61,7 +57,7 @@ Future<void> _open(WidgetTester tester, Widget home) async {
 
 void main() {
   testWidgets('the Sistrum Home with nothing to show says so', (tester) async {
-    await _open(tester, _home(mornye: true));
+    await _open(tester, _home());
     expect(tester.takeException(), isNull);
 
     expect(find.byType(EmptyState), findsOneWidget);
@@ -76,7 +72,6 @@ void main() {
     await _open(
       tester,
       _home(
-        mornye: true,
         added: [
           UnifiedLibraryItem.fromLocalLibrary(
             LocalLibraryItem(
@@ -94,14 +89,6 @@ void main() {
     expect(tester.takeException(), isNull);
 
     expect(find.text('Recently added'), findsOneWidget);
-    expect(find.text(_title), findsNothing);
-  });
-
-  testWidgets('the Material Home keeps its Shortcuts instead', (tester) async {
-    await _open(tester, _home(mornye: false));
-    expect(tester.takeException(), isNull);
-
-    expect(find.text('Shortcuts'), findsOneWidget);
     expect(find.text(_title), findsNothing);
   });
 }

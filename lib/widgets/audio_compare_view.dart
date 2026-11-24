@@ -697,19 +697,12 @@ class _CompareProgress extends StatelessWidget {
           SizedBox(height: tokens.gapMd),
           Align(
             alignment: AlignmentDirectional.centerEnd,
-            child: context.isMornye
-                ? CupertinoButton(
-                    key: const ValueKey('audio-compare-cancel'),
-                    minimumSize: Size.square(tokens.minTouchTarget),
-                    onPressed: onCancel,
-                    child: cancel,
-                  )
-                : ExpressiveButton(
-                    key: const ValueKey('audio-compare-cancel'),
-                    text: true,
-                    onPressed: onCancel,
-                    child: cancel,
-                  ),
+            child: CupertinoButton(
+              key: const ValueKey('audio-compare-cancel'),
+              minimumSize: Size.square(tokens.minTouchTarget),
+              onPressed: onCancel,
+              child: cancel,
+            ),
           ),
         ],
       ),
@@ -776,23 +769,15 @@ class _CompareNotice extends StatelessWidget {
                   ],
                   if (action != null) ...[
                     SizedBox(height: tokens.gapMd),
-                    context.isMornye
-                        ? CupertinoButton(
-                            padding: EdgeInsets.zero,
-                            minimumSize: Size.square(tokens.minTouchTarget),
-                            onPressed: action,
-                            child: Text(
-                              context.l10n.dialogRetry,
-                              style: body?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          )
-                        : ExpressiveButton(
-                            tonal: true,
-                            onPressed: action,
-                            child: Text(context.l10n.dialogRetry),
-                          ),
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.square(tokens.minTouchTarget),
+                      onPressed: action,
+                      child: Text(
+                        context.l10n.dialogRetry,
+                        style: body?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                    ),
                   ],
                 ],
               ),
@@ -813,9 +798,6 @@ class _CompareGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!context.isMornye) {
-      return SettingsGroup(connected: true, children: children);
-    }
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Material(
@@ -846,8 +828,7 @@ class _CompareRow extends StatelessWidget {
     final theme = Theme.of(context);
     final cs = theme.colorScheme;
     final tokens = context.tokens;
-    final mornye = context.isMornye;
-    final inset = mornye ? 16.0 : tokens.rowPaddingH;
+    const inset = 16.0;
     return MergeSemantics(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -877,16 +858,12 @@ class _CompareRow extends StatelessWidget {
                           child: Text(
                             value,
                             textAlign: TextAlign.end,
-                            style:
-                                (mornye
-                                        ? theme.textTheme.bodyLarge
-                                        : theme.textTheme.bodyMedium)
-                                    ?.copyWith(
-                                      color: cs.onSurfaceVariant,
-                                      fontFeatures: const [
-                                        FontFeature.tabularFigures(),
-                                      ],
-                                    ),
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              color: cs.onSurfaceVariant,
+                              fontFeatures: const [
+                                FontFeature.tabularFigures(),
+                              ],
+                            ),
                           ),
                         ),
                       ],
@@ -909,10 +886,8 @@ class _CompareRow extends StatelessWidget {
             Divider(
               height: 1,
               indent: inset,
-              endIndent: mornye ? 0 : inset,
-              color: mornye
-                  ? MornyeTheme.metadataDividerColor(context)
-                  : cs.outlineVariant.withValues(alpha: 0.3),
+              endIndent: 0,
+              color: MornyeTheme.metadataDividerColor(context),
             ),
         ],
       ),
@@ -972,26 +947,13 @@ class _ResidualTimelineState extends State<_ResidualTimeline> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         if (stereo) ...[
-          if (context.isMornye)
-            MornyeSegmentedControl(
-              labels: labels,
-              selectedIndex: _channel.index,
-              samplesBackdrop: false,
-              onChanged: (index) =>
-                  setState(() => _channel = AudioCompareChannel.values[index]),
-            )
-          else
-            SettingsSegmentedChoice<AudioCompareChannel>(
-              options: [
-                for (final channel in AudioCompareChannel.values)
-                  SettingsSegmentOption(
-                    value: channel,
-                    label: labels[channel.index],
-                  ),
-              ],
-              selected: _channel,
-              onChanged: (channel) => setState(() => _channel = channel),
-            ),
+          MornyeSegmentedControl(
+            labels: labels,
+            selectedIndex: _channel.index,
+            samplesBackdrop: false,
+            onChanged: (index) =>
+                setState(() => _channel = AudioCompareChannel.values[index]),
+          ),
           SizedBox(height: tokens.gapMd),
         ],
         LayoutBuilder(
@@ -1060,25 +1022,14 @@ class _ResidualTimelineState extends State<_ResidualTimeline> {
                 ),
               ),
               if (selected != null && widget.onSeek != null)
-                context.isMornye
-                    ? CupertinoButton(
-                        key: const ValueKey('audio-compare-seek'),
-                        minimumSize: Size.square(tokens.minTouchTarget),
-                        padding: EdgeInsets.symmetric(horizontal: tokens.gapSm),
-                        onPressed: () => widget.onSeek!(
-                          result.windows[selected].startSeconds,
-                        ),
-                        child: Text(l10n.audioComparePlayFromHere),
-                      )
-                    : ExpressiveButton(
-                        key: const ValueKey('audio-compare-seek'),
-                        tonal: true,
-                        icon: const Icon(Icons.play_arrow_rounded, size: 20),
-                        onPressed: () => widget.onSeek!(
-                          result.windows[selected].startSeconds,
-                        ),
-                        child: Text(l10n.audioComparePlayFromHere),
-                      ),
+                CupertinoButton(
+                  key: const ValueKey('audio-compare-seek'),
+                  minimumSize: Size.square(tokens.minTouchTarget),
+                  padding: EdgeInsets.symmetric(horizontal: tokens.gapSm),
+                  onPressed: () =>
+                      widget.onSeek!(result.windows[selected].startSeconds),
+                  child: Text(l10n.audioComparePlayFromHere),
+                ),
             ],
           ),
         ),

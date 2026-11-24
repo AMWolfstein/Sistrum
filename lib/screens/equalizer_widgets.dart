@@ -117,11 +117,7 @@ class _ActionRow extends StatelessWidget {
 }
 
 class _EqualizerOverview extends ConsumerWidget {
-  const _EqualizerOverview({this.onEnabledChanged});
-
-  /// Shows the master switch beside the title; Mornye keeps it in its own
-  /// row above.
-  final ValueChanged<bool>? onEnabledChanged;
+  const _EqualizerOverview();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -197,14 +193,6 @@ class _EqualizerOverview extends ConsumerWidget {
                   ],
                 ),
               ),
-              if (onEnabledChanged != null) ...[
-                SizedBox(width: tokens.gapMd),
-                AppSwitch(
-                  value: enabled,
-                  semanticLabel: l10n.equalizerEnable,
-                  onChanged: onEnabledChanged,
-                ),
-              ],
             ],
           ),
           SizedBox(height: tokens.gapLg),
@@ -243,118 +231,6 @@ class _EqualizerOverview extends ConsumerWidget {
   }
 }
 
-class _PresetBar extends ConsumerWidget {
-  const _PresetBar({
-    required this.busy,
-    required this.onApply,
-    required this.onSave,
-    required this.onReset,
-    required this.onAction,
-  });
-
-  final bool busy;
-  final ValueChanged<EqualizerPreset> onApply;
-  final VoidCallback onSave;
-  final VoidCallback onReset;
-  final ValueChanged<_PresetAction> onAction;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final custom = ref.watch(
-      equalizerProvider.select((state) => state.presets),
-    );
-    final presets = [...EqualizerPreset.builtIn, ...custom];
-    final selected = ref.watch(_selectedEqualizerPresetProvider);
-    final l10n = context.l10n;
-    final tokens = context.tokens;
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final inset = settingsHorizontalInset(context, constraints.maxWidth);
-        final chips = [
-          for (final preset in presets)
-            AppChoiceChip(
-              label: Text(preset.name),
-              selected: preset == selected,
-              singleChoice: true,
-              onSelected: (_) => onApply(preset),
-            ),
-        ];
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // A mouse cannot swipe a clipped row, so desktop windows wrap
-            // every preset onto view.
-            if (isDesktopPlatform)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: inset),
-                child: Wrap(
-                  spacing: tokens.gapSm,
-                  runSpacing: tokens.gapSm,
-                  children: chips,
-                ),
-              )
-            else
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: EdgeInsets.symmetric(horizontal: inset),
-                child: Row(spacing: tokens.gapSm, children: chips),
-              ),
-            SizedBox(height: tokens.gapMd),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: inset),
-              child: Row(
-                children: [
-                  Flexible(
-                    child: ExpressiveButton(
-                      onPressed: onSave,
-                      tonal: true,
-                      icon: const AppIcon(Icons.bookmark_add_outlined),
-                      child: Text(
-                        l10n.equalizerSavePreset,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                  ExpressiveIconButton(
-                    tooltip: l10n.libraryFilterReset,
-                    icon: const AppIcon(Icons.restart_alt),
-                    onPressed: onReset,
-                  ),
-                  AppMenuButton<_PresetAction>(
-                    icon: const AppIcon(Icons.more_vert),
-                    tooltip: l10n.equalizerPresets,
-                    onSelected: onAction,
-                    items: [
-                      AppMenuItem(
-                        value: _PresetAction.manage,
-                        label: l10n.equalizerManagePresets,
-                        leading: const AppIcon(Icons.tune),
-                      ),
-                      if (!busy)
-                        AppMenuItem(
-                          value: _PresetAction.import,
-                          label: l10n.equalizerImport,
-                          leading: const AppIcon(Icons.file_open_outlined),
-                        ),
-                      AppMenuItem(
-                        value: _PresetAction.export,
-                        label: l10n.equalizerExport,
-                        leading: const AppIcon(Icons.ios_share),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
 class _BandEditor extends ConsumerWidget {
   const _BandEditor();
 
@@ -378,47 +254,14 @@ class _BandEditor extends ConsumerWidget {
         .update(
           ref.read(equalizerProvider).settings.withBandCount(counts[index]),
         );
-    if (context.isMornye) {
-      return Semantics(
-        label: context.l10n.equalizerBands,
-        child: MornyeSegmentedControl(
-          labels: [for (final value in counts) '$value'],
-          selectedIndex: counts.indexOf(count),
-          onChanged: select,
-          samplesBackdrop: false,
-        ),
-      );
-    }
-    if (materialExpressiveEnabled(context)) {
-      return MaterialExpressiveScope(
-        skipAutofocus: true,
-        child: M3EButtonGroup(
-          type: M3EButtonGroupType.connected,
-          style: M3EButtonStyle.filled,
-          // Connected segments fill the row, so the 40 dp small button gets
-          // no inflated target; 48 keeps each segment a full touch target.
-          size: M3EButtonSize.sm.copyWith(height: 48),
-          selectedIndex: counts.indexOf(count),
-          selectionRequired: true,
-          onSelectedIndexChanged: (index) {
-            if (index != null) select(index);
-          },
-          semanticLabel: context.l10n.equalizerBands,
-          actions: [
-            for (final value in counts)
-              M3EButtonGroupAction(label: Text('$value')),
-          ],
-        ),
-      );
-    }
-    return SegmentedButton<int>(
-      showSelectedIcon: false,
-      segments: [
-        for (final value in counts)
-          ButtonSegment(value: value, label: Text('$value')),
-      ],
-      selected: {count},
-      onSelectionChanged: (value) => select(counts.indexOf(value.first)),
+    return Semantics(
+      label: context.l10n.equalizerBands,
+      child: MornyeSegmentedControl(
+        labels: [for (final value in counts) '$value'],
+        selectedIndex: counts.indexOf(count),
+        onChanged: select,
+        samplesBackdrop: false,
+      ),
     );
   }
 
@@ -541,16 +384,11 @@ class _BandFader extends StatelessWidget {
     final colors = theme.colorScheme;
     final tokens = context.tokens;
     final active = gain != 0;
-    final mornye = context.isMornye;
     final hz = _frequency(frequency);
     final valueStyle = theme.textTheme.labelMedium?.copyWith(
       fontWeight: FontWeight.w600,
       fontFeatures: const [FontFeature.tabularFigures()],
-      color: !active
-          ? colors.onSurfaceVariant
-          : mornye
-          ? colors.primary
-          : colors.onSecondaryContainer,
+      color: !active ? colors.onSurfaceVariant : colors.primary,
     );
     final semanticLabel = '$hz Hz';
     String semantics(double v) => '${v.toStringAsFixed(1)} dB';
@@ -562,10 +400,7 @@ class _BandFader extends StatelessWidget {
             height: 32,
             child: Center(
               child: Material(
-                // iOS shows the gain as plain tinted text, Material as a badge.
-                color: active && !mornye
-                    ? colors.secondaryContainer
-                    : Colors.transparent,
+                color: Colors.transparent,
                 shape: const StadiumBorder(),
                 clipBehavior: Clip.antiAlias,
                 animationDuration: tokens.motionFast,
@@ -589,31 +424,18 @@ class _BandFader extends StatelessWidget {
         const SizedBox(height: 4),
         SizedBox(
           height: height,
-          child: mornye
-              ? MornyeLevelSlider(
-                  vertical: true,
-                  value: gain,
-                  min: -15,
-                  max: 15,
-                  origin: 0,
-                  step: 0.5,
-                  knobRadius: ((width - 8) / 2).clamp(9.0, 14.0),
-                  semanticLabel: semanticLabel,
-                  semanticFormatterCallback: semantics,
-                  onChanged: (v) => onChanged(_snap(v, 0.5)),
-                )
-              : AppSlider(
-                  vertical: true,
-                  centered: true,
-                  value: gain,
-                  min: -15,
-                  max: 15,
-                  trackThickness: (width * 0.4).clamp(12.0, 24.0),
-                  thumbLength: (width * 0.75).clamp(24.0, 44.0),
-                  semanticLabel: semanticLabel,
-                  semanticFormatterCallback: semantics,
-                  onChanged: (v) => onChanged(_snap(v, 0.5)),
-                ),
+          child: MornyeLevelSlider(
+            vertical: true,
+            value: gain,
+            min: -15,
+            max: 15,
+            origin: 0,
+            step: 0.5,
+            knobRadius: ((width - 8) / 2).clamp(9.0, 14.0),
+            semanticLabel: semanticLabel,
+            semanticFormatterCallback: semantics,
+            onChanged: (v) => onChanged(_snap(v, 0.5)),
+          ),
         ),
         SizedBox(height: tokens.gapSm),
         SizedBox(
@@ -676,22 +498,16 @@ class _SliderTile extends ConsumerWidget {
     required this.max,
     required this.step,
     required this.unit,
-    this.icon,
     this.centered = false,
     this.signed = true,
-    this.indented = false,
     this.last = false,
   });
 
-  final IconData? icon;
   final String title;
   final _ToneControl control;
   final double min, max, step;
   final String unit;
   final bool centered, signed;
-
-  /// Aligns an icon-less sub-setting with the text of the rows above it.
-  final bool indented;
 
   /// Ends a Mornye group, which separates rows with hairlines.
   final bool last;
@@ -724,13 +540,12 @@ class _SliderTile extends ConsumerWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final tokens = context.tokens;
-    final mornye = context.isMornye;
     final content = Padding(
       padding: EdgeInsetsDirectional.fromSTEB(
-        tokens.rowPaddingH + (indented && !mornye ? 24 + tokens.rowIconGap : 0),
+        tokens.rowPaddingH,
         tokens.rowPaddingVCompact,
         tokens.rowPaddingH,
-        mornye ? 0 : tokens.gapXs,
+        0,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -739,42 +554,23 @@ class _SliderTile extends ConsumerWidget {
             title: title,
             subtitle: subtitle,
             value: _format(value),
-            // Mornye rows, like iOS Settings, carry no leading glyphs.
-            leading: icon == null || mornye
-                ? null
-                : AppIcon.adaptive(
-                    icon!,
-                    color: colors.onSurfaceVariant,
-                    size: 24,
-                  ),
           ),
-          if (mornye)
-            MornyeLevelSlider(
-              value: value.clamp(min, max),
-              min: min,
-              max: max,
-              origin: centered ? (min + max) / 2 : null,
-              step: step,
-              semanticLabel: title,
-              semanticFormatterCallback: _format,
-              onChanged: (v) => onChanged(_snap(v, step).clamp(min, max)),
-            )
-          else
-            AppSlider(
-              value: value.clamp(min, max),
-              min: min,
-              max: max,
-              centered: centered,
-              semanticLabel: title,
-              semanticFormatterCallback: _format,
-              onChanged: (v) => onChanged(_snap(v, step).clamp(min, max)),
-            ),
+          MornyeLevelSlider(
+            value: value.clamp(min, max),
+            min: min,
+            max: max,
+            origin: centered ? (min + max) / 2 : null,
+            step: step,
+            semanticLabel: title,
+            semanticFormatterCallback: _format,
+            onChanged: (v) => onChanged(_snap(v, step).clamp(min, max)),
+          ),
         ],
       ),
     );
     return SettingsSearchTarget(
       label: title,
-      child: mornye && !last
+      child: !last
           ? Column(
               mainAxisSize: MainAxisSize.min,
               children: [

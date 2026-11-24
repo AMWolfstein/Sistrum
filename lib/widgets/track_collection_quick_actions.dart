@@ -1,7 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:cupertino_ui/cupertino_ui.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/controllers/clickable_metadata.dart';
 import 'package:sistrum/l10n/l10n.dart';
@@ -9,7 +8,6 @@ import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/controllers/local_playback.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
-import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/desktop/context_menu.dart';
@@ -31,9 +29,8 @@ class TrackCollectionQuickActions extends ConsumerWidget {
     this.dense = false,
   });
 
-  /// Track options: a bottom sheet (Material) or popover (Mornye) on phones
-  /// and tablets, a context menu at [position] or under [context] on
-  /// desktop.
+  /// Track options: a popover on phones and tablets, a context menu at
+  /// [position] or under [context] on desktop.
   static void showTrackOptionsSheet(
     BuildContext context,
     WidgetRef ref,
@@ -58,20 +55,8 @@ class TrackCollectionQuickActions extends ConsumerWidget {
       );
       return;
     }
-    if (context.isMornye) {
-      showMornyeContextMenu<void>(
-        context: context,
-        builder: (_) => _TrackOptionsSheet(
-          track: track,
-          hasLocalPlaybackCandidate: hasLocalPlaybackCandidate,
-        ),
-      );
-      return;
-    }
-    showAppModalBottomSheet<void>(
+    showMornyeContextMenu<void>(
       context: context,
-      useRootNavigator: true,
-      isScrollControlled: true,
       builder: (_) => _TrackOptionsSheet(
         track: track,
         hasLocalPlaybackCandidate: hasLocalPlaybackCandidate,
@@ -86,7 +71,7 @@ class TrackCollectionQuickActions extends ConsumerWidget {
     return AppIconButton(
       tooltip: MaterialLocalizations.of(context).showMenuTooltip,
       icon: AppIcon(
-        context.isMornye ? CupertinoIcons.ellipsis : Icons.more_vert,
+        CupertinoIcons.ellipsis,
         color: colorScheme.onSurfaceVariant,
         size: 20,
       ),
@@ -220,7 +205,7 @@ List<List<ContextMenuAction>> trackOptionMenuGroups(
   ];
 }
 
-/// The track options on phones and tablets, in the shell's sheet style.
+/// The track options on phones and tablets, as a Mornye popover.
 class _TrackOptionsSheet extends ConsumerWidget {
   const _TrackOptionsSheet({
     required this.track,
@@ -238,90 +223,21 @@ class _TrackOptionsSheet extends ConsumerWidget {
       track,
       hasLocalPlaybackCandidate: hasLocalPlaybackCandidate,
     );
-    if (context.isMornye) {
-      return MornyeContextMenu(
-        groups: [
-          for (final group in groups)
-            [
-              for (final action in group)
-                MornyeMenuAction(
-                  icon: mornyeIconFor(action.icon),
-                  label: action.label,
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    action.onSelected?.call();
-                  },
-                ),
-            ],
-        ],
-      );
-    }
-    final colorScheme = Theme.of(context).colorScheme;
-    return SafeArea(
-      top: false,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.sizeOf(context).height * 0.82,
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const AppSheetHandle(),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: AppIcon(
-                        Icons.music_note,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            track.name,
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.w600),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 2),
-                          ClickableArtistName(artistName: track.artistName),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+    return MornyeContextMenu(
+      groups: [
+        for (final group in groups)
+          [
+            for (final action in group)
+              MornyeMenuAction(
+                icon: mornyeIconFor(action.icon),
+                label: action.label,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  action.onSelected?.call();
+                },
               ),
-              for (final group in groups) ...[
-                const Divider(height: 1),
-                for (final action in group)
-                  ListTile(
-                    leading: AppIcon(action.icon),
-                    title: Text(action.label),
-                    onTap: action.onSelected == null
-                        ? null
-                        : () {
-                            Navigator.of(context).pop();
-                            action.onSelected!();
-                          },
-                  ),
-              ],
-            ],
-          ),
-        ),
-      ),
+          ],
+      ],
     );
   }
 }

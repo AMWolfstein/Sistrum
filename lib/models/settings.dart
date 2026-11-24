@@ -5,8 +5,8 @@ import 'package:sistrum/utils/artist_utils.dart';
 
 part 'settings.g.dart';
 
-/// 'default' (a card) or 'fullscreen' once chosen, else empty for the app
-/// style's own ([AppSettings.playerCoverStyleFor]).
+/// 'default' (a card) or 'fullscreen' once chosen, else empty for the default
+/// card ([AppSettings.playerCoverStyleFor]).
 String playerCoverStyleFromJson(Object? value) =>
     value == 'default' || value == 'fullscreen' ? value as String : '';
 
@@ -252,14 +252,11 @@ class AppSettings {
   final double musicHapticsStrength;
   @JsonKey(fromJson: playerCoverStyleFromJson)
   final String playerCoverStyle; // 'default' (card), 'fullscreen' or ''
-  final bool landscapeLyricsArtwork;
   final bool autoHideLyricsControls;
 
   /// An explicit auto-hide choice also applies if accessibility changes later.
   /// The default keeps playback controls available to assistive navigation.
   final bool autoHideLyricsControlsWithAccessibility;
-  // Material: idle lyrics shrink the player to a slim bar, not hide it.
-  final bool compactPlayer;
   final bool isFirstLaunch;
   final String historyViewMode;
   final String historyFilterMode;
@@ -413,10 +410,8 @@ class AppSettings {
     this.musicHapticsSensitivity = 0.5,
     this.musicHapticsStrength = 0.5,
     this.playerCoverStyle = '',
-    this.landscapeLyricsArtwork = false,
     this.autoHideLyricsControls = true,
     this.autoHideLyricsControlsWithAccessibility = false,
-    this.compactPlayer = false,
     this.isFirstLaunch = true,
     this.historyViewMode = 'grid',
     this.historyFilterMode = 'all',
@@ -463,14 +458,9 @@ class AppSettings {
     this.playerShowLyricSnippet = false,
   });
 
-  /// The cover art style the player shows: the one chosen, else the app
-  /// style's own, full screen in Material and a card in Sistrum.
-  String playerCoverStyleFor({required bool mornye}) =>
-      playerCoverStyle.isNotEmpty
-      ? playerCoverStyle
-      : mornye
-      ? 'default'
-      : 'fullscreen';
+  /// The cover art style the player shows: the one chosen, else a card.
+  String playerCoverStyleFor() =>
+      playerCoverStyle.isNotEmpty ? playerCoverStyle : 'default';
 
   bool shouldAutoHideLyricsControls({required bool accessibleNavigation}) =>
       autoHideLyricsControls &&
@@ -527,10 +517,8 @@ class AppSettings {
     double? musicHapticsSensitivity,
     double? musicHapticsStrength,
     String? playerCoverStyle,
-    bool? landscapeLyricsArtwork,
     bool? autoHideLyricsControls,
     bool? autoHideLyricsControlsWithAccessibility,
-    bool? compactPlayer,
     bool? isFirstLaunch,
     String? historyViewMode,
     String? historyFilterMode,
@@ -631,14 +619,11 @@ class AppSettings {
           musicHapticsSensitivity ?? this.musicHapticsSensitivity,
       musicHapticsStrength: musicHapticsStrength ?? this.musicHapticsStrength,
       playerCoverStyle: playerCoverStyle ?? this.playerCoverStyle,
-      landscapeLyricsArtwork:
-          landscapeLyricsArtwork ?? this.landscapeLyricsArtwork,
       autoHideLyricsControls:
           autoHideLyricsControls ?? this.autoHideLyricsControls,
       autoHideLyricsControlsWithAccessibility:
           autoHideLyricsControlsWithAccessibility ??
           this.autoHideLyricsControlsWithAccessibility,
-      compactPlayer: compactPlayer ?? this.compactPlayer,
       isFirstLaunch: isFirstLaunch ?? this.isFirstLaunch,
       historyViewMode: historyViewMode ?? this.historyViewMode,
       historyFilterMode: historyFilterMode ?? this.historyFilterMode,

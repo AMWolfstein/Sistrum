@@ -1,11 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/physics.dart' show SpringSimulation, Tolerance;
 import 'package:flutter/services.dart' show PredictiveBackEvent;
-import 'package:material_3_expressive/material_3_expressive.dart'
-    show M3EMotion;
 import 'package:sistrum/services/app_orientation.dart';
 import 'package:sistrum/theme/app_motion.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 
 /// Hero tag shared by the mini player artwork and the full player artwork so
 /// the cover visually expands when the player opens.
@@ -150,16 +147,9 @@ class NowPlayingRoute extends PageRoute<void> {
       ? Duration.zero
       : const Duration(milliseconds: 300);
 
-  /// Moves the Material shrink on the spring of the entrance, the slow
-  /// spatial one for full-screen surfaces, kept critically damped so the
-  /// surface never passes the mini player. It settles in about 520ms. A
-  /// spring more than twice as stiff had the player gone in an eighth of a
-  /// second, in a handful of frames.
-  static final _exitSpring = SpringDescription.withDampingRatio(
-    mass: 1,
-    stiffness: M3EMotion.expressiveSpatialSlow.stiffness,
-    ratio: 1,
-  );
+  /// The shrink on close runs on the full-screen spring of the entrance, which
+  /// is critically damped, so the surface never passes the mini player.
+  static final _exitSpring = MornyeMotion.slowSpring;
 
   /// Settled once within a fraction of a pixel per screen, as [SpringCurve]
   /// judges the app's other springs.
@@ -167,9 +157,9 @@ class NowPlayingRoute extends PageRoute<void> {
 
   /// Mornye moves the page on its own springs, which shape the motion
   /// themselves: the controller's value is then the page's position, as it
-  /// is while a finger moves the page. Material's slide keeps its curve.
+  /// is while a finger moves the page. A morph route keeps its curve.
   bool _mornyeSprings(BuildContext? context) =>
-      morph == null && context != null && context.isMornye;
+      morph == null && context != null;
 
   /// Where the page sits for a controller [value].
   double _slideAt(double value) =>
@@ -191,8 +181,8 @@ class NowPlayingRoute extends PageRoute<void> {
   );
 
   /// Mornye opens and closes on its full-screen spring, as a system sheet
-  /// does. The Material shrink runs on [_exitSpring], and so does a
-  /// Material slide a finger let go. Each starts from wherever the page is
+  /// does. A morph route's shrink runs on [_exitSpring], and so does a
+  /// slide a finger let go. Each starts from wherever the page is
   /// and from the finger's velocity, so a released drag or back gesture
   /// carries on without a seam.
   @override
@@ -257,9 +247,8 @@ class NowPlayingRoute extends PageRoute<void> {
     _settleOpen();
   }
 
-  /// Returns the page to open on the style's page spring, from the finger's
-  /// velocity: Material's standard spatial spring, which stops at the top,
-  /// or Mornye's standard spring. Reduced motion puts it back at once.
+  /// Returns the page to open on Mornye's standard spring, from the finger's
+  /// velocity. Reduced motion puts it back at once.
   void _settleOpen() {
     final generation = _dragGeneration;
     final velocity = _takeReleaseVelocity();
@@ -278,11 +267,8 @@ class NowPlayingRoute extends PageRoute<void> {
     }
     // Keep the same linear position mapping until settling finishes. Switching
     // to the entrance curve on release jumps away from the finger's position.
-    final spring = (navigator?.context.isMornye ?? false)
-        ? MornyeMotion.standardSpring
-        : M3EMotion.spatialDefault.toDescription();
     controller
-        .animateWith(_spring(spring, 1, velocity))
+        .animateWith(_spring(MornyeMotion.standardSpring, 1, velocity))
         .whenCompleteOrCancel(settled);
   }
 
@@ -315,7 +301,6 @@ class NowPlayingRoute extends PageRoute<void> {
   bool _captureDismiss() {
     final context = subtreeContext;
     if (context == null ||
-        !(context.isMornye || morph != null) ||
         MediaQuery.disableAnimationsOf(context) ||
         (controller?.value ?? 0) <= 0) {
       return false;
@@ -435,11 +420,8 @@ class NowPlayingRoute extends PageRoute<void> {
   ) {
     final target = _dismissTarget;
     final size = MediaQuery.sizeOf(context);
-    // The Mornye mini player is a rounded capsule; the Material one is a
-    // square bar, which the shrinking surface keeps square. Material dims
-    // the page behind while the player covers it.
-    final radius = context.isMornye ? 28.0 : 0.0;
-    final scrim = context.isMornye ? 0.0 : 0.32;
+    // The mini player is a rounded capsule, which the shrinking surface keeps.
+    const radius = 28.0;
     // Restoring portrait can resize the window during dismissal. Geometry
     // captured in landscape no longer points at the mini player in that case.
     if (target != null && _dismissSize == size) {
@@ -452,7 +434,6 @@ class NowPlayingRoute extends PageRoute<void> {
       return Stack(
         fit: StackFit.expand,
         children: [
-          if (scrim > 0) _scrim(scrim * (1 - progress)),
           _surface(
             key: const ValueKey('player-minimize-surface'),
             bounds: Rect.lerp(_dismissStart, target.surface, progress)!,
@@ -511,7 +492,6 @@ class NowPlayingRoute extends PageRoute<void> {
       return Stack(
         fit: StackFit.expand,
         children: [
-          _scrim(scrim * progress),
           _surface(
             key: const ValueKey('player-expand-surface'),
             bounds: _openRect(size, animation.value),
@@ -528,27 +508,18 @@ class NowPlayingRoute extends PageRoute<void> {
         ],
       );
     }
-    final reversing = animation.status == AnimationStatus.reverse;
-    // Mornye's full-bleed artwork travels with its panel. Material keeps the
-    // independent cover flight back to the mini-player on button/back pop.
-    final inPlacePop =
-        reversing && !_interactiveTransition && !context.isMornye;
+    // The artwork travels with its panel, so a pop never flies it back alone.
     final slide = _interactiveTransition || _mornyeSprings(context)
         ? animation
         : animation.drive(CurveTween(curve: Easing.emphasizedDecelerate));
-    final position = inPlacePop
-        ? const AlwaysStoppedAnimation(Offset.zero)
-        : slide.drive(Tween(begin: const Offset(0, 1), end: Offset.zero));
-    final opacity = inPlacePop ? animation : kAlwaysCompleteAnimation;
+    final position = slide.drive(
+      Tween(begin: const Offset(0, 1), end: Offset.zero),
+    );
     return SlideTransition(
       position: position,
-      child: FadeTransition(opacity: opacity, child: child),
+      child: FadeTransition(opacity: kAlwaysCompleteAnimation, child: child),
     );
   }
-
-  Widget _scrim(double opacity) => IgnorePointer(
-    child: ColoredBox(color: Colors.black.withValues(alpha: opacity)),
-  );
 
   /// The full-size page at [bounds], scaled to their width and clipped to
   /// their height, so its layout never changes while the surface moves.

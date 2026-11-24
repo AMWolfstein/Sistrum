@@ -320,11 +320,10 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
     });
   }
 
-  Color _iconColorFor(_Destination destination) => context.isMornye
-      ? destination.iconColor[Theme.of(context).brightness == Brightness.dark
-            ? 300
-            : 800]!
-      : Theme.of(context).colorScheme.onSurfaceVariant;
+  Color _iconColorFor(_Destination destination) =>
+      destination.iconColor[Theme.of(context).brightness == Brightness.dark
+          ? 300
+          : 800]!;
 
   Widget _itemFor(_Destination destination, {required bool showDivider}) {
     return SettingsItem(
@@ -332,7 +331,6 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
       iconColor: _iconColorFor(destination),
       showIconInMornye: true,
       title: destination.title,
-      subtitle: context.isMornye ? null : destination.subtitle,
       showDivider: showDivider,
       onTap: () => _navigateTo(context, destination.pageBuilder()),
     );
@@ -446,11 +444,9 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
   }
 
   /// Desktop Settings: categories on the leading side and the selected page
-  /// beside them, whose own links open inside the detail pane. Material
-  /// follows the M3 list-detail layout; Mornye follows the System Settings
-  /// sidebar.
+  /// beside them, whose own links open inside the detail pane. The category
+  /// list follows the System Settings sidebar.
   Widget _buildListDetail(BuildContext context) {
-    final mornye = context.isMornye;
     return MornyeSettingsTheme(
       child: Builder(
         builder: (context) {
@@ -460,20 +456,17 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
             children: [
               SizedBox(
                 key: const ValueKey('settings-category-list'),
-                width: mornye ? 260 : 320,
+                width: 260,
                 child: Material(
-                  color: mornye
-                      ? theme.scaffoldBackgroundColor
-                      : theme.colorScheme.surfaceContainerLow,
+                  color: theme.scaffoldBackgroundColor,
                   child: _buildCategoryList(context),
                 ),
               ),
-              if (mornye)
-                VerticalDivider(
-                  width: 1,
-                  thickness: 1,
-                  color: MornyeTheme.metadataDividerColor(context),
-                ),
+              VerticalDivider(
+                width: 1,
+                thickness: 1,
+                color: MornyeTheme.metadataDividerColor(context),
+              ),
               Expanded(
                 child: ClipRect(
                   child: LayoutBuilder(
@@ -520,22 +513,15 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
   }
 
   Widget _buildCategoryList(BuildContext context) {
-    final mornye = context.isMornye;
     final theme = Theme.of(context);
     final query = SettingsSearchQuery(_query);
     final groups = _groups(context);
     final destinations = [for (final group in groups) ...group.destinations];
 
-    Widget categoryRow(
-      _Destination destination, {
-      bool first = true,
-      bool last = true,
-    }) {
+    Widget categoryRow(_Destination destination) {
       final index = destinations.indexOf(destination);
       return _CategoryRow(
         key: ValueKey('settings-category:${destination.title}'),
-        first: first,
-        last: last,
         leading: _CategoryIcon(
           icon: destination.icon,
           color: destination.iconColor,
@@ -548,19 +534,8 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
     }
 
     final children = <Widget>[
-      if (!mornye)
-        Padding(
-          padding: const EdgeInsets.fromLTRB(12, 20, 12, 12),
-          child: Semantics(
-            header: true,
-            child: Text(
-              context.l10n.settingsTitle,
-              style: theme.textTheme.headlineSmall,
-            ),
-          ),
-        ),
       Padding(
-        padding: EdgeInsets.only(top: mornye ? 12 : 0, bottom: 12),
+        padding: const EdgeInsets.only(top: 12, bottom: 12),
         child: AppSearchField(
           controller: _searchController,
           focusNode: _searchFocusNode,
@@ -580,7 +555,7 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
             leading: ProfileAvatar(
               name: profile?.name ?? '',
               photoPath: profile?.photoPath,
-              size: mornye ? 36 : 40,
+              size: 36,
             ),
             title: named ? profile!.name : context.l10n.profileSetUp,
             subtitle: context.l10n.profileEdit,
@@ -593,12 +568,9 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
 
     if (query.isEmpty) {
       for (final group in groups) {
-        children.add(SizedBox(height: mornye ? 16 : 12));
-        final last = group.destinations.length - 1;
-        for (final (index, destination) in group.destinations.indexed) {
-          children.add(
-            categoryRow(destination, first: index == 0, last: index == last),
-          );
+        children.add(const SizedBox(height: 16));
+        for (final destination in group.destinations) {
+          children.add(categoryRow(destination));
         }
       }
     } else {
@@ -623,14 +595,10 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
           ),
         );
       }
-      for (final (position, result) in matches.indexed) {
-        final first = position == 0;
-        final last = position == matches.length - 1;
+      for (final result in matches) {
         final entry = result.entry;
         if (entry == null) {
-          children.add(
-            categoryRow(result.destination, first: first, last: last),
-          );
+          children.add(categoryRow(result.destination));
           continue;
         }
         final index = destinations.indexOf(result.destination);
@@ -639,8 +607,6 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
             key: ValueKey(
               'settings-search:${result.destination.title}:${entry.title}',
             ),
-            first: first,
-            last: last,
             leading: _CategoryIcon(
               icon: entry.icon,
               color: result.destination.iconColor,
@@ -669,9 +635,9 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
 
     final margin = EdgeInsets.fromLTRB(
       tokens.gapLg + wideInset,
-      context.isMornye ? 12 : tokens.gapSm,
+      12,
       tokens.gapLg + wideInset,
-      context.isMornye ? 12 : tokens.gapSm,
+      12,
     );
 
     final List<Widget> body;
@@ -807,10 +773,8 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
   }
 }
 
-/// A category in the desktop settings list. Material lays each group out as
-/// an expressive connected list, like the settings pages beside it, and
-/// marks the selected row with a fully rounded `secondaryContainer` tile;
-/// Mornye fills it with a quiet gray like the System Settings sidebar.
+/// A category in the desktop settings list. The selected row fills with a
+/// quiet gray, like the System Settings sidebar.
 class _CategoryRow extends StatelessWidget {
   const _CategoryRow({
     super.key,
@@ -819,8 +783,6 @@ class _CategoryRow extends StatelessWidget {
     required this.selected,
     required this.onTap,
     this.subtitle,
-    this.first = true,
-    this.last = true,
   });
 
   final Widget leading;
@@ -829,62 +791,44 @@ class _CategoryRow extends StatelessWidget {
   final bool selected;
   final VoidCallback? onTap;
 
-  /// The row's place in its Material connected group.
-  final bool first;
-  final bool last;
-
   @override
   Widget build(BuildContext context) {
-    final mornye = context.isMornye;
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final radius = mornye
-        ? BorderRadius.circular(8)
-        : selected
-        ? BorderRadius.circular(context.tokens.radiusCard)
-        : connectedRowRadius(context, first: first, last: last);
+    final radius = BorderRadius.circular(8);
     // Mornye selects with the app sidebar's quiet gray fill, so the colored
     // category tiles keep their own color.
     final dark = colorScheme.brightness == Brightness.dark;
     final mornyeFill = colorScheme.onSurface.withValues(
       alpha: dark ? 0.12 : 0.08,
     );
-    final foreground = selected && !mornye
-        ? colorScheme.onSecondaryContainer
-        : colorScheme.onSurface;
+    final foreground = colorScheme.onSurface;
     final secondary = selected
         ? foreground.withValues(alpha: 0.8)
         : colorScheme.onSurfaceVariant;
     return Padding(
-      padding: EdgeInsets.only(bottom: mornye || !last ? 2 : 0),
+      padding: const EdgeInsets.only(bottom: 2),
       child: Semantics(
         button: true,
         selected: selected,
         child: Material(
-          color: selected
-              ? (mornye ? mornyeFill : colorScheme.secondaryContainer)
-              : (mornye ? Colors.transparent : settingsGroupColor(context)),
+          color: selected ? mornyeFill : Colors.transparent,
           borderRadius: radius,
           child: InkWell(
             borderRadius: radius,
-            hoverColor: mornye
-                ? colorScheme.onSurface.withValues(alpha: 0.05)
-                : null,
+            hoverColor: colorScheme.onSurface.withValues(alpha: 0.05),
             onTap: onTap,
             child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: mornye ? 36 : 56),
+              constraints: const BoxConstraints(minHeight: 36),
               child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: mornye ? 8 : 16,
-                  vertical: 4,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: Row(
                   children: [
                     IconTheme.merge(
                       data: IconThemeData(color: foreground),
                       child: leading,
                     ),
-                    SizedBox(width: mornye ? 10 : 12),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -892,18 +836,10 @@ class _CategoryRow extends StatelessWidget {
                         children: [
                           Text(
                             title,
-                            style:
-                                (mornye
-                                        ? textTheme.bodyMedium
-                                        : textTheme.labelLarge)
-                                    ?.copyWith(
-                                      color: foreground,
-                                      fontWeight: selected
-                                          ? (mornye
-                                                ? FontWeight.w600
-                                                : FontWeight.w700)
-                                          : null,
-                                    ),
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: foreground,
+                              fontWeight: selected ? FontWeight.w600 : null,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -930,8 +866,8 @@ class _CategoryRow extends StatelessWidget {
   }
 }
 
-/// A category glyph: Material's plain icon, or Mornye's white symbol on a
-/// tile in the category's color, as in System Settings.
+/// A category glyph: a white symbol on a tile in the category's color, as in
+/// System Settings.
 class _CategoryIcon extends StatelessWidget {
   const _CategoryIcon({
     required this.icon,
@@ -945,16 +881,6 @@ class _CategoryIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    if (!context.isMornye) {
-      return AppIcon.adaptive(
-        icon,
-        size: 24,
-        color: selected
-            ? colorScheme.onSecondaryContainer
-            : colorScheme.onSurfaceVariant,
-      );
-    }
     return Container(
       width: 24,
       height: 24,

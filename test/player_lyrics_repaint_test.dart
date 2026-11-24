@@ -68,89 +68,16 @@ Future<List<int>> _pixels(WidgetTester tester) async {
 }
 
 void main() {
-  for (final mornye in [false, true]) {
-    for (final reducedMotion in [false, true]) {
-      for (final milliseconds in [200, 650]) {
-        testWidgets('short final word completes its lift clock '
-            '(Mornye: $mornye, reduced: $reducedMotion, ms: $milliseconds)', (
-          tester,
-        ) async {
-          final playback = StreamController<PlaybackState>.broadcast();
-          final preview = ValueNotifier<Duration?>(null);
-          addTearDown(playback.close);
-          addTearDown(preview.dispose);
-          final theme = mornye
-              ? MornyeTheme.build(Brightness.dark)
-              : ThemeData.dark();
-          final position = Duration(milliseconds: milliseconds);
-          await tester.pumpWidget(
-            ProviderScope(
-              overrides: [
-                playbackStateProvider.overrideWith((ref) => playback.stream),
-              ],
-              child: MaterialApp(
-                theme: theme,
-                builder: (context, child) => MediaQuery(
-                  data: MediaQuery.of(
-                    context,
-                  ).copyWith(disableAnimations: reducedMotion),
-                  child: child!,
-                ),
-                home: Scaffold(
-                  body: WordTimedLyricLine(
-                    line: const LyricLine(
-                      time: Duration.zero,
-                      end: Duration(milliseconds: 100),
-                      text: _text,
-                      words: [
-                        LyricWord(
-                          time: Duration.zero,
-                          end: Duration(milliseconds: 100),
-                          text: _text,
-                        ),
-                      ],
-                    ),
-                    initialPosition: position,
-                    seekPreview: preview,
-                    style: theme.textTheme.titleLarge!,
-                  ),
-                ),
-              ),
-            ),
-          );
-          playback.add(
-            PlaybackState(
-              playing: true,
-              processingState: AudioProcessingState.ready,
-              updatePosition: position,
-            ),
-          );
-          await tester.pump();
-          final painter = tester.widget<CustomPaint>(_paint).painter!;
-          var paints = 0;
-          void onPaint() => paints++;
-          painter.addListener(onPaint);
-          await tester.pump(const Duration(milliseconds: 16));
-          expect(paints > 0, !reducedMotion && milliseconds == 200);
-          painter.removeListener(onPaint);
-          expect(tester.takeException(), isNull);
-          await tester.pumpWidget(const SizedBox.shrink());
-        });
-      }
-    }
-  }
-
-  for (final mornye in [false, true]) {
-    testWidgets(
-      'playing lyrics retain their painter and refresh stopped highlights ($mornye)',
-      (tester) async {
+  for (final reducedMotion in [false, true]) {
+    for (final milliseconds in [200, 650]) {
+      testWidgets('short final word completes its lift clock '
+          '(reduced: $reducedMotion, ms: $milliseconds)', (tester) async {
         final playback = StreamController<PlaybackState>.broadcast();
         final preview = ValueNotifier<Duration?>(null);
         addTearDown(playback.close);
         addTearDown(preview.dispose);
-        final theme = mornye
-            ? MornyeTheme.build(Brightness.dark)
-            : ThemeData.dark();
+        final theme = MornyeTheme.build(Brightness.dark);
+        final position = Duration(milliseconds: milliseconds);
         await tester.pumpWidget(
           ProviderScope(
             overrides: [
@@ -158,192 +85,63 @@ void main() {
             ],
             child: MaterialApp(
               theme: theme,
+              builder: (context, child) => MediaQuery(
+                data: MediaQuery.of(
+                  context,
+                ).copyWith(disableAnimations: reducedMotion),
+                child: child!,
+              ),
               home: Scaffold(
-                body: SyncedLyricsView(
-                  lyrics: _lyrics,
+                body: WordTimedLyricLine(
+                  line: const LyricLine(
+                    time: Duration.zero,
+                    end: Duration(milliseconds: 100),
+                    text: _text,
+                    words: [
+                      LyricWord(
+                        time: Duration.zero,
+                        end: Duration(milliseconds: 100),
+                        text: _text,
+                      ),
+                    ],
+                  ),
+                  initialPosition: position,
                   seekPreview: preview,
-                  colorScheme: theme.colorScheme,
-                  isActive: true,
-                  showPronunciation: false,
-                  showTranslation: false,
+                  style: theme.textTheme.titleLarge!,
                 ),
               ),
             ),
           ),
         );
-        Future<void> report(
-          int seconds, {
-          bool playing = false,
-          AudioProcessingState state = AudioProcessingState.ready,
-        }) async {
-          playback.add(
-            PlaybackState(
-              playing: playing,
-              processingState: state,
-              updatePosition: Duration(seconds: seconds),
-            ),
-          );
-          await tester.pump();
-          await tester.pump();
-        }
-
-        await report(2);
-        await tester.pumpAndSettle();
-        await report(2, playing: true);
-        await tester.pump(const Duration(milliseconds: 500));
-        final retained = tester.widget<CustomPaint>(_paint).painter!;
-        final retainedBoxes = _segmentBoxes(tester);
-        final early = await _pixels(tester);
-        var repaintNotifications = 0;
-        void repaint() => repaintNotifications++;
-        retained.addListener(repaint);
-        await report(6, playing: true);
-        await tester.pump(const Duration(milliseconds: 16));
-        expect(tester.widget<CustomPaint>(_paint).painter, same(retained));
-        expect(repaintNotifications, greaterThan(0));
-        expect(await _pixels(tester), isNot(orderedEquals(early)));
-        retained.removeListener(repaint);
-
-        await report(8);
-        await tester.pumpAndSettle();
-        expect(_segmentBoxes(tester), same(retainedBoxes));
-        final paused = await _pixels(tester);
-        await tester.pump(const Duration(seconds: 1));
-        expect(await _pixels(tester), orderedEquals(paused));
-        await report(3);
-        await tester.pumpAndSettle();
-        expect(await _pixels(tester), isNot(orderedEquals(paused)));
-
-        await report(4, playing: true, state: AudioProcessingState.buffering);
-        await tester.pumpAndSettle();
-        if (mornye) {
-          expect(_paint, findsNothing);
-        } else {
-          final buffered = await _pixels(tester);
-          await tester.pump(const Duration(seconds: 1));
-          expect(await _pixels(tester), orderedEquals(buffered));
-          await report(7, playing: true, state: AudioProcessingState.buffering);
-          await tester.pumpAndSettle();
-          expect(await _pixels(tester), isNot(orderedEquals(buffered)));
-        }
-
-        preview.value = const Duration(seconds: 2);
-        await tester.pumpAndSettle();
-        final sought = await _pixels(tester);
-        final soughtBoxes = _segmentBoxes(tester);
-        preview.value = const Duration(seconds: 8);
-        await tester.pumpAndSettle();
-        expect(_segmentBoxes(tester), same(soughtBoxes));
-        expect(await _pixels(tester), isNot(orderedEquals(sought)));
-        preview.value = const Duration(seconds: 2);
-        await tester.pumpAndSettle();
-        expect(await _pixels(tester), orderedEquals(sought));
-        await report(12, playing: true, state: AudioProcessingState.buffering);
-        await tester.pumpAndSettle();
-        expect(await _pixels(tester), orderedEquals(sought));
-        preview.value = null;
-        await report(2);
-        await tester.pumpAndSettle();
-        expect(await _pixels(tester), orderedEquals(sought));
-
-        // The last lead remains visible during an outro, but its completed
-        // highlight must stop scheduling frames after the glow has faded.
-        await report(22, playing: true);
-        await tester.pumpAndSettle();
-        final completedPainter = tester.widget<CustomPaint>(_paint).painter!;
-        var completedRepaints = 0;
-        void completedRepaint() => completedRepaints++;
-        completedPainter.addListener(completedRepaint);
-        await tester.pump(const Duration(milliseconds: 500));
-        expect(completedRepaints, 0);
-        await report(25, playing: true);
-        await tester.pump(const Duration(milliseconds: 16));
-        expect(completedRepaints, 0);
-        expect(
-          tester.widget<CustomPaint>(_paint).painter,
-          same(completedPainter),
-        );
-        await report(4, playing: true);
-        await tester.pump(const Duration(milliseconds: 16));
-        expect(completedRepaints, greaterThan(0));
-        completedPainter.removeListener(completedRepaint);
-        expect(tester.takeException(), isNull);
-        await tester.pumpWidget(const SizedBox.shrink());
-      },
-    );
-
-    testWidgets('word sweep follows the AutoMix playback rate ($mornye)', (
-      tester,
-    ) async {
-      final playback = StreamController<PlaybackState>.broadcast();
-      final preview = ValueNotifier<Duration?>(null);
-      addTearDown(playback.close);
-      addTearDown(preview.dispose);
-      final theme = mornye
-          ? MornyeTheme.build(Brightness.dark)
-          : ThemeData.dark();
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            playbackStateProvider.overrideWith((ref) => playback.stream),
-          ],
-          child: MaterialApp(
-            theme: theme,
-            home: Scaffold(
-              body: WordTimedLyricLine(
-                line: _lyrics.lines.single,
-                initialPosition: const Duration(seconds: 2),
-                seekPreview: preview,
-                style: theme.textTheme.titleLarge!,
-              ),
-            ),
-          ),
-        ),
-      );
-      addTearDown(() => tester.pumpWidget(const SizedBox.shrink()));
-      Duration position() {
-        final painter = tester.widget<CustomPaint>(_paint).painter!;
-        // Inspect the clock already supplied to the painter.
-        // ignore: avoid_dynamic_calls
-        return (painter as dynamic).currentPosition() as Duration;
-      }
-
-      // AutoMix changes rate while playing. No further report arrives between
-      // these samples, so the word sweep must extrapolate at that rate itself.
-      for (final speed in [2.0, 0.5]) {
         playback.add(
           PlaybackState(
             playing: true,
             processingState: AudioProcessingState.ready,
-            updatePosition: const Duration(seconds: 2),
-            speed: speed,
+            updatePosition: position,
           ),
         );
         await tester.pump();
-        final before = position();
-        final elapsed = Stopwatch()..start();
-        await tester.runAsync(
-          () => Future<void>.delayed(const Duration(milliseconds: 160)),
-        );
-        final advanced = (position() - before).inMicroseconds;
-        elapsed.stop();
-        expect(advanced, closeTo(elapsed.elapsedMicroseconds * speed, 40000));
-      }
-      expect(tester.takeException(), isNull);
-      await tester.pumpWidget(const SizedBox.shrink());
-    });
+        final painter = tester.widget<CustomPaint>(_paint).painter!;
+        var paints = 0;
+        void onPaint() => paints++;
+        painter.addListener(onPaint);
+        await tester.pump(const Duration(milliseconds: 16));
+        expect(paints > 0, !reducedMotion && milliseconds == 200);
+        painter.removeListener(onPaint);
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+      });
+    }
+  }
 
-    testWidgets('a playing word sweep is drawn a display delay ahead '
-        '($mornye)', (tester) async {
-      tester.view.display.refreshRate = 60;
-      addTearDown(tester.view.display.reset);
+  testWidgets(
+    'playing lyrics retain their painter and refresh stopped highlights',
+    (tester) async {
       final playback = StreamController<PlaybackState>.broadcast();
       final preview = ValueNotifier<Duration?>(null);
       addTearDown(playback.close);
       addTearDown(preview.dispose);
-      final theme = mornye
-          ? MornyeTheme.build(Brightness.dark)
-          : ThemeData.dark();
+      final theme = MornyeTheme.build(Brightness.dark);
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -352,54 +150,232 @@ void main() {
           child: MaterialApp(
             theme: theme,
             home: Scaffold(
-              body: WordTimedLyricLine(
-                line: _lyrics.lines.single,
-                initialPosition: const Duration(seconds: 2),
+              body: SyncedLyricsView(
+                lyrics: _lyrics,
                 seekPreview: preview,
-                style: theme.textTheme.titleLarge!,
+                colorScheme: theme.colorScheme,
+                isActive: true,
+                showPronunciation: false,
+                showTranslation: false,
               ),
             ),
           ),
         ),
       );
-      addTearDown(() => tester.pumpWidget(const SizedBox.shrink()));
-      int position() {
-        final painter = tester.widget<CustomPaint>(_paint).painter!;
-        // Inspect the clock already supplied to the painter.
-        // ignore: avoid_dynamic_calls
-        return ((painter as dynamic).currentPosition() as Duration)
-            .inMicroseconds;
-      }
-
-      Future<void> report({required bool playing, double speed = 1}) async {
+      Future<void> report(
+        int seconds, {
+        bool playing = false,
+        AudioProcessingState state = AudioProcessingState.ready,
+      }) async {
         playback.add(
           PlaybackState(
             playing: playing,
-            processingState: AudioProcessingState.ready,
-            updatePosition: const Duration(seconds: 2),
-            speed: speed,
+            processingState: state,
+            updatePosition: Duration(seconds: seconds),
           ),
         );
         await tester.pump();
         await tester.pump();
       }
 
-      await report(playing: false);
-      expect(position(), 2000000, reason: 'A paused sweep is exact');
-      // Two 60 Hz frames, in track time. The few milliseconds above are the
-      // real time this test takes to read the clock.
-      await report(playing: true);
-      expect(position() - 2000000, inInclusiveRange(33333, 60000));
-      await report(playing: true, speed: 2);
-      expect(position() - 2000000, inInclusiveRange(66666, 120000));
-      // Scrubbing previews the exact position under the finger.
-      preview.value = const Duration(seconds: 7);
-      await tester.pump();
-      expect(position(), 7000000);
+      await report(2);
+      await tester.pumpAndSettle();
+      await report(2, playing: true);
+      await tester.pump(const Duration(milliseconds: 500));
+      final retained = tester.widget<CustomPaint>(_paint).painter!;
+      final retainedBoxes = _segmentBoxes(tester);
+      final early = await _pixels(tester);
+      var repaintNotifications = 0;
+      void repaint() => repaintNotifications++;
+      retained.addListener(repaint);
+      await report(6, playing: true);
+      await tester.pump(const Duration(milliseconds: 16));
+      expect(tester.widget<CustomPaint>(_paint).painter, same(retained));
+      expect(repaintNotifications, greaterThan(0));
+      expect(await _pixels(tester), isNot(orderedEquals(early)));
+      retained.removeListener(repaint);
+
+      await report(8);
+      await tester.pumpAndSettle();
+      expect(_segmentBoxes(tester), same(retainedBoxes));
+      final paused = await _pixels(tester);
+      await tester.pump(const Duration(seconds: 1));
+      expect(await _pixels(tester), orderedEquals(paused));
+      await report(3);
+      await tester.pumpAndSettle();
+      expect(await _pixels(tester), isNot(orderedEquals(paused)));
+
+      await report(4, playing: true, state: AudioProcessingState.buffering);
+      await tester.pumpAndSettle();
+      expect(_paint, findsNothing);
+
+      preview.value = const Duration(seconds: 2);
+      await tester.pumpAndSettle();
+      final sought = await _pixels(tester);
+      final soughtBoxes = _segmentBoxes(tester);
+      preview.value = const Duration(seconds: 8);
+      await tester.pumpAndSettle();
+      expect(_segmentBoxes(tester), same(soughtBoxes));
+      expect(await _pixels(tester), isNot(orderedEquals(sought)));
+      preview.value = const Duration(seconds: 2);
+      await tester.pumpAndSettle();
+      expect(await _pixels(tester), orderedEquals(sought));
+      await report(12, playing: true, state: AudioProcessingState.buffering);
+      await tester.pumpAndSettle();
+      expect(await _pixels(tester), orderedEquals(sought));
+      preview.value = null;
+      await report(2);
+      await tester.pumpAndSettle();
+      expect(await _pixels(tester), orderedEquals(sought));
+
+      // The last lead remains visible during an outro, but its completed
+      // highlight must stop scheduling frames after the glow has faded.
+      await report(22, playing: true);
+      await tester.pumpAndSettle();
+      final completedPainter = tester.widget<CustomPaint>(_paint).painter!;
+      var completedRepaints = 0;
+      void completedRepaint() => completedRepaints++;
+      completedPainter.addListener(completedRepaint);
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(completedRepaints, 0);
+      await report(25, playing: true);
+      await tester.pump(const Duration(milliseconds: 16));
+      expect(completedRepaints, 0);
+      expect(
+        tester.widget<CustomPaint>(_paint).painter,
+        same(completedPainter),
+      );
+      await report(4, playing: true);
+      await tester.pump(const Duration(milliseconds: 16));
+      expect(completedRepaints, greaterThan(0));
+      completedPainter.removeListener(completedRepaint);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox.shrink());
-    });
-  }
+    },
+  );
+
+  testWidgets('word sweep follows the AutoMix playback rate', (tester) async {
+    final playback = StreamController<PlaybackState>.broadcast();
+    final preview = ValueNotifier<Duration?>(null);
+    addTearDown(playback.close);
+    addTearDown(preview.dispose);
+    final theme = MornyeTheme.build(Brightness.dark);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          playbackStateProvider.overrideWith((ref) => playback.stream),
+        ],
+        child: MaterialApp(
+          theme: theme,
+          home: Scaffold(
+            body: WordTimedLyricLine(
+              line: _lyrics.lines.single,
+              initialPosition: const Duration(seconds: 2),
+              seekPreview: preview,
+              style: theme.textTheme.titleLarge!,
+            ),
+          ),
+        ),
+      ),
+    );
+    addTearDown(() => tester.pumpWidget(const SizedBox.shrink()));
+    Duration position() {
+      final painter = tester.widget<CustomPaint>(_paint).painter!;
+      // Inspect the clock already supplied to the painter.
+      // ignore: avoid_dynamic_calls
+      return (painter as dynamic).currentPosition() as Duration;
+    }
+
+    // AutoMix changes rate while playing. No further report arrives between
+    // these samples, so the word sweep must extrapolate at that rate itself.
+    for (final speed in [2.0, 0.5]) {
+      playback.add(
+        PlaybackState(
+          playing: true,
+          processingState: AudioProcessingState.ready,
+          updatePosition: const Duration(seconds: 2),
+          speed: speed,
+        ),
+      );
+      await tester.pump();
+      final before = position();
+      final elapsed = Stopwatch()..start();
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 160)),
+      );
+      final advanced = (position() - before).inMicroseconds;
+      elapsed.stop();
+      expect(advanced, closeTo(elapsed.elapsedMicroseconds * speed, 40000));
+    }
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('a playing word sweep is drawn a display delay ahead', (
+    tester,
+  ) async {
+    tester.view.display.refreshRate = 60;
+    addTearDown(tester.view.display.reset);
+    final playback = StreamController<PlaybackState>.broadcast();
+    final preview = ValueNotifier<Duration?>(null);
+    addTearDown(playback.close);
+    addTearDown(preview.dispose);
+    final theme = MornyeTheme.build(Brightness.dark);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          playbackStateProvider.overrideWith((ref) => playback.stream),
+        ],
+        child: MaterialApp(
+          theme: theme,
+          home: Scaffold(
+            body: WordTimedLyricLine(
+              line: _lyrics.lines.single,
+              initialPosition: const Duration(seconds: 2),
+              seekPreview: preview,
+              style: theme.textTheme.titleLarge!,
+            ),
+          ),
+        ),
+      ),
+    );
+    addTearDown(() => tester.pumpWidget(const SizedBox.shrink()));
+    int position() {
+      final painter = tester.widget<CustomPaint>(_paint).painter!;
+      // Inspect the clock already supplied to the painter.
+      // ignore: avoid_dynamic_calls
+      return ((painter as dynamic).currentPosition() as Duration)
+          .inMicroseconds;
+    }
+
+    Future<void> report({required bool playing, double speed = 1}) async {
+      playback.add(
+        PlaybackState(
+          playing: playing,
+          processingState: AudioProcessingState.ready,
+          updatePosition: const Duration(seconds: 2),
+          speed: speed,
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+    }
+
+    await report(playing: false);
+    expect(position(), 2000000, reason: 'A paused sweep is exact');
+    // Two 60 Hz frames, in track time. The few milliseconds above are the
+    // real time this test takes to read the clock.
+    await report(playing: true);
+    expect(position() - 2000000, inInclusiveRange(33333, 60000));
+    await report(playing: true, speed: 2);
+    expect(position() - 2000000, inInclusiveRange(66666, 120000));
+    // Scrubbing previews the exact position under the finger.
+    preview.value = const Duration(seconds: 7);
+    await tester.pump();
+    expect(position(), 7000000);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 
   testWidgets('a late position report slows the word sweep, never steps it '
       'back', (tester) async {
@@ -407,7 +383,7 @@ void main() {
     final preview = ValueNotifier<Duration?>(null);
     addTearDown(playback.close);
     addTearDown(preview.dispose);
-    final theme = ThemeData.dark();
+    final theme = MornyeTheme.build(Brightness.dark);
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -527,79 +503,72 @@ void main() {
     });
   }
 
-  for (final mornye in [false, true]) {
-    testWidgets(
-      'sung words rise in both styles, glow only in Mornye ($mornye)',
-      (tester) async {
-        final playback = StreamController<PlaybackState>.broadcast();
-        final preview = ValueNotifier<Duration?>(null);
-        addTearDown(playback.close);
-        addTearDown(preview.dispose);
-        final theme = mornye
-            ? MornyeTheme.build(Brightness.dark)
-            : ThemeData.dark();
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              playbackStateProvider.overrideWith((ref) => playback.stream),
-            ],
-            child: MaterialApp(
-              theme: theme,
-              home: Scaffold(
-                body: SyncedLyricsView(
-                  lyrics: _lyrics,
-                  seekPreview: preview,
-                  colorScheme: theme.colorScheme,
-                  isActive: true,
-                  showPronunciation: false,
-                  showTranslation: false,
-                ),
-              ),
+  testWidgets('sung words rise and glow', (tester) async {
+    final playback = StreamController<PlaybackState>.broadcast();
+    final preview = ValueNotifier<Duration?>(null);
+    addTearDown(playback.close);
+    addTearDown(preview.dispose);
+    final theme = MornyeTheme.build(Brightness.dark);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          playbackStateProvider.overrideWith((ref) => playback.stream),
+        ],
+        child: MaterialApp(
+          theme: theme,
+          home: Scaffold(
+            body: SyncedLyricsView(
+              lyrics: _lyrics,
+              seekPreview: preview,
+              colorScheme: theme.colorScheme,
+              isActive: true,
+              showPronunciation: false,
+              showTranslation: false,
             ),
           ),
-        );
-        // The first word is held, the second still waits.
-        playback.add(
-          PlaybackState(
-            processingState: AudioProcessingState.ready,
-            updatePosition: const Duration(seconds: 2),
-          ),
-        );
-        await tester.pumpAndSettle();
-        // Inspect the painter payload without adding production test hooks.
-        // ignore: avoid_dynamic_calls
-        final painter = tester.widget<CustomPaint>(_paint).painter! as dynamic;
-        // ignore: avoid_dynamic_calls
-        expect(painter.highlightLift as double, greaterThan(0));
-        // ignore: avoid_dynamic_calls
-        final glow = painter.glowSigma as double;
-        expect(glow, mornye ? greaterThan(0) : 0);
-
-        // The sung word stands above the waiting one.
-        final size = tester.getSize(_paint);
-        final pixels = await _pixels(tester);
-        final width = size.width.ceil();
-        double inkTop(int from, int to) {
-          for (var y = 0; y < size.height.ceil(); y++) {
-            for (var x = from; x < to; x++) {
-              if (pixels[(y * width + x) * 4 + 3] >= 16) return y.toDouble();
-            }
-          }
-          return double.infinity;
-        }
-
-        final boxes = _segmentBoxes(tester);
-        final first = boxes.first.first;
-        final second = boxes.last.first;
-        expect(
-          inkTop(first.left.ceil(), first.right.floor()),
-          lessThan(inkTop(second.left.ceil(), second.right.floor())),
-        );
-        expect(tester.takeException(), isNull);
-        await tester.pumpWidget(const SizedBox.shrink());
-      },
+        ),
+      ),
     );
-  }
+    // The first word is held, the second still waits.
+    playback.add(
+      PlaybackState(
+        processingState: AudioProcessingState.ready,
+        updatePosition: const Duration(seconds: 2),
+      ),
+    );
+    await tester.pumpAndSettle();
+    // Inspect the painter payload without adding production test hooks.
+    // ignore: avoid_dynamic_calls
+    final painter = tester.widget<CustomPaint>(_paint).painter! as dynamic;
+    // ignore: avoid_dynamic_calls
+    expect(painter.highlightLift as double, greaterThan(0));
+    // ignore: avoid_dynamic_calls
+    final glow = painter.glowSigma as double;
+    expect(glow, greaterThan(0));
+
+    // The sung word stands above the waiting one.
+    final size = tester.getSize(_paint);
+    final pixels = await _pixels(tester);
+    final width = size.width.ceil();
+    double inkTop(int from, int to) {
+      for (var y = 0; y < size.height.ceil(); y++) {
+        for (var x = from; x < to; x++) {
+          if (pixels[(y * width + x) * 4 + 3] >= 16) return y.toDouble();
+        }
+      }
+      return double.infinity;
+    }
+
+    final boxes = _segmentBoxes(tester);
+    final first = boxes.first.first;
+    final second = boxes.last.first;
+    expect(
+      inkTop(first.left.ceil(), first.right.floor()),
+      lessThan(inkTop(second.left.ceil(), second.right.floor())),
+    );
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 
   testWidgets('the word sweep keeps moving behind another app window', (
     tester,
@@ -867,7 +836,6 @@ void main() {
         ],
       );
       var width = 620.0;
-      var fontSize = 28.0;
       var scale = 1.0;
       var direction = TextDirection.ltr;
       var locale = const Locale('en');
@@ -878,11 +846,7 @@ void main() {
       // so the rows read it while the line keeps its state.
       var edits = 0;
       Future<void> pump() async {
-        final theme = ThemeData.dark().copyWith(
-          textTheme: ThemeData.dark().textTheme.copyWith(
-            headlineSmall: TextStyle(fontSize: fontSize),
-          ),
-        );
+        final theme = MornyeTheme.build(Brightness.dark);
         await tester.pumpWidget(
           ProviderScope(
             child: MaterialApp(
@@ -977,7 +941,6 @@ void main() {
       for (final change in <VoidCallback>[
         () => width = 180,
         () => scale = 1.4,
-        () => fontSize = 32,
         () => locale = const Locale('en', 'US'),
         () => width = 620,
       ]) {

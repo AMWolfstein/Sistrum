@@ -49,7 +49,6 @@
   "@nowPlayingVolume": {
     "description": "System volume control label in the Sistrum player"
   },
-  "appearanceStyle": "应用样式",
   "appearanceAccentRed": "红色（默认）",
   "appearanceAccentOrange": "橙色",
   "appearanceAccentGreen": "绿色",
@@ -84,9 +83,6 @@
   },
   "appearanceUseSystemFont": "使用系统字体",
   "appearanceUseSystemFontSubtitle": "应用文本使用设备默认字体。",
-  "@appearanceStyle": {
-    "description": "Appearance section for choosing the app visual style"
-  },
   "@@locale": "zh_CN",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
@@ -208,14 +204,6 @@
   "appearanceThemeDark": "深色",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceDynamicColor": "动态色彩",
-  "@appearanceDynamicColor": {
-    "description": "Material You dynamic colors"
-  },
-  "appearanceDynamicColorSubtitle": "使用壁纸的颜色",
-  "@appearanceDynamicColorSubtitle": {
-    "description": "Subtitle for dynamic color"
   },
   "appearanceHistoryView": "历史记录",
   "@appearanceHistoryView": {
@@ -1284,14 +1272,6 @@
   "downloadUsePrimaryArtistOnly": "文件夹仅使用主要艺术家",
   "@downloadUsePrimaryArtistOnly": {
     "description": "Setting - strip featured artists from folder name"
-  },
-  "appearanceAmoledDark": "AMOLED深色",
-  "@appearanceAmoledDark": {
-    "description": "Theme option - pure black"
-  },
-  "appearanceAmoledDarkSubtitle": "纯黑背景，OLED 屏更省电，黑得深邃。",
-  "@appearanceAmoledDarkSubtitle": {
-    "description": "Subtitle for AMOLED dark"
   },
   "appearanceHeroAnimations": "Hero动画",
   "@appearanceHeroAnimations": {
@@ -3523,15 +3503,6 @@
   "@queueDownloadedFileMissing": {
     "description": "Accessibility label when a downloaded file is missing from disk"
   },
-  "appearanceSelectAccentColor": "选择强调色 {hex}",
-  "@appearanceSelectAccentColor": {
-    "description": "Accessibility label for picking an accent color",
-    "placeholders": {
-      "hex": {
-        "type": "String"
-      }
-    }
-  },
   "logAutoScrollOn": "自动滚动 开",
   "@logAutoScrollOn": {
     "description": "Tooltip when auto-scroll is enabled on the log screen"
@@ -4409,22 +4380,6 @@
   "playerCoverStyle": "封面艺术",
   "@playerCoverStyle": {
     "description": "Settings section choosing how the player shows cover art"
-  },
-  "landscapeLyricsArtwork": "Album art beside lyrics",
-  "@landscapeLyricsArtwork": {
-    "description": "Switch choosing album artwork instead of track details alongside lyrics in landscape"
-  },
-  "landscapeLyricsArtworkDescription": "Show album art instead of track details in the Material landscape player",
-  "@landscapeLyricsArtworkDescription": {
-    "description": "Subtitle explaining the Material landscape lyrics layout setting"
-  },
-  "compactPlayer": "Compact player",
-  "@compactPlayer": {
-    "description": "Material player setting: idle lyrics shrink the player to a slim bar instead of hiding it"
-  },
-  "compactPlayerDescription": "When lyrics are left alone, shrink the player to a slim bar so the lyrics get more room. A tap brings the full player back",
-  "@compactPlayerDescription": {
-    "description": "Subtitle of the compact player setting"
   },
   "playerCoverStyleCard": "Card",
   "@playerCoverStyleCard": {

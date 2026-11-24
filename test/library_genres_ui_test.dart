@@ -14,7 +14,6 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/library_mix_screen.dart';
 import 'package:sistrum/screens/mornye_library_screen.dart';
 import 'package:sistrum/services/playable_media.dart' show PlayableMedia;
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/desktop/track_table.dart';
@@ -85,7 +84,6 @@ class _Player implements MusicPlayerController {
 Future<_Player> _pump(
   WidgetTester tester,
   Widget home, {
-  required bool mornye,
   bool desktop = false,
   List<LibraryBrowseEntry> genres = const [_rock, _jazz],
 }) async {
@@ -115,7 +113,7 @@ Future<_Player> _pump(
         musicPlayerControllerProvider.overrideWithValue(player),
       ],
       child: MaterialApp(
-        theme: mornye ? MornyeTheme.build(Brightness.dark) : AppTheme.dark(),
+        theme: MornyeTheme.build(Brightness.dark),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: home,
@@ -148,7 +146,6 @@ void main() {
       await _pump(
         tester,
         Scaffold(body: MornyeLibraryScreen(onOpenSection: (_) {})),
-        mornye: true,
         desktop: desktop,
       );
       final row = find.widgetWithText(ListTile, 'Genres');
@@ -185,7 +182,6 @@ void main() {
           onOpenSection: (_) {},
         ),
       ),
-      mornye: true,
       genres: const [],
     );
     await _settle(tester);
@@ -194,58 +190,55 @@ void main() {
   });
 
   for (final desktop in [false, true]) {
-    for (final mornye in [false, true]) {
-      testWidgets('a genre lists exactly its songs, and Play and Shuffle '
-          'queue them (desktop: $desktop, Mornye: $mornye)', (tester) async {
-        final player = await _pump(
-          tester,
-          const LibraryMixScreen.genre(genre: _rock),
-          mornye: mornye,
-          desktop: desktop,
-        );
-        await _settle(tester);
+    testWidgets('a genre lists exactly its songs, and Play and Shuffle '
+        'queue them (desktop: $desktop)', (tester) async {
+      final player = await _pump(
+        tester,
+        const LibraryMixScreen.genre(genre: _rock),
+        desktop: desktop,
+      );
+      await _settle(tester);
 
-        expect(find.text('Rock'), findsWidgets);
-        expect(find.text('3 tracks'), findsOneWidget);
-        // A genre is not a mix: no artists line or daily refresh.
-        expect(find.text('Updated daily'), findsNothing);
-        for (final id in ['r1', 'r2', 'r3']) {
-          expect(find.text('Song $id'), findsOneWidget);
-        }
-        expect(find.text('Song j1'), findsNothing);
-        if (desktop) {
-          expect(find.byType(SliverTrackTable), findsOneWidget);
-        } else {
-          expect(find.byType(TrackCard), findsNWidgets(3));
-        }
+      expect(find.text('Rock'), findsWidgets);
+      expect(find.text('3 tracks'), findsOneWidget);
+      // A genre is not a mix: no artists line or daily refresh.
+      expect(find.text('Updated daily'), findsNothing);
+      for (final id in ['r1', 'r2', 'r3']) {
+        expect(find.text('Song $id'), findsOneWidget);
+      }
+      expect(find.text('Song j1'), findsNothing);
+      if (desktop) {
+        expect(find.byType(SliverTrackTable), findsOneWidget);
+      } else {
+        expect(find.byType(TrackCard), findsNWidgets(3));
+      }
 
-        await tester.tap(find.text('Play'));
-        // Playing checks the song files on disk, which needs real I/O.
-        await tester.runAsync(
-          () => Future<void>.delayed(const Duration(milliseconds: 50)),
-        );
-        await _settle(tester);
-        final queue = [
-          for (final id in ['r1', 'r2', 'r3']) '${_songDir.path}/$id.flac',
-        ];
-        expect(player.queues.single, queue);
-        expect(player.starts.single, 0);
-        expect(player.shuffles, [false]);
+      await tester.tap(find.text('Play'));
+      // Playing checks the song files on disk, which needs real I/O.
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+      await _settle(tester);
+      final queue = [
+        for (final id in ['r1', 'r2', 'r3']) '${_songDir.path}/$id.flac',
+      ];
+      expect(player.queues.single, queue);
+      expect(player.starts.single, 0);
+      expect(player.shuffles, [false]);
 
-        // The Mornye phone header labels its Shuffle button.
-        await tester.tap(
-          mornye && !desktop
-              ? find.text('Shuffle')
-              : findByTooltip('Shuffle').hitTestable().first,
-        );
-        await tester.runAsync(
-          () => Future<void>.delayed(const Duration(milliseconds: 50)),
-        );
-        await _settle(tester);
-        expect(player.queues.last, queue);
-        expect(player.shuffles.last, isTrue);
-        expect(tester.takeException(), isNull);
-      });
-    }
+      // The Mornye phone header labels its Shuffle button.
+      await tester.tap(
+        !desktop
+            ? find.text('Shuffle')
+            : findByTooltip('Shuffle').hitTestable().first,
+      );
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+      await _settle(tester);
+      expect(player.queues.last, queue);
+      expect(player.shuffles.last, isTrue);
+      expect(tester.takeException(), isNull);
+    });
   }
 }

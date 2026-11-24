@@ -7,7 +7,6 @@ import 'package:sistrum/screens/equalizer_screen.dart';
 import 'package:sistrum/screens/settings/appearance_settings_page.dart';
 import 'package:sistrum/screens/settings/lyrics_settings_page.dart';
 import 'package:sistrum/screens/settings/playback_settings_page.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 
 void main() {
@@ -18,8 +17,6 @@ void main() {
     'equalizer': () => const EqualizerScreen(),
   };
   final themes = <String, ThemeData Function()>{
-    'Material light': AppTheme.light,
-    'Material dark': AppTheme.dark,
     'Mornye light': () => MornyeTheme.build(Brightness.light),
     'Mornye dark': () => MornyeTheme.build(Brightness.dark),
   };
@@ -34,16 +31,13 @@ void main() {
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
         final handle = tester.ensureSemantics();
-        final mornye = theme.key.startsWith('Mornye');
         await tester.pumpWidget(
           ProviderScope(
             child: MaterialApp(
               theme: theme.value(),
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
-              home: mornye
-                  ? MornyeSettingsTheme(child: page.value())
-                  : page.value(),
+              home: MornyeSettingsTheme(child: page.value()),
             ),
           ),
         );

@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_slider.dart';
 import 'package:sistrum/widgets/playback_normalization_settings.dart';
 
@@ -26,6 +27,7 @@ void main() {
       UncontrolledProviderScope(
         container: container,
         child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
@@ -43,13 +45,12 @@ void main() {
     tester,
   ) async {
     final container = await pump(tester);
-    expect(find.text('Pre-amp'), findsOneWidget);
-    expect(find.text('0 dB (target -18 LUFS)'), findsOneWidget);
+    expect(find.text('Pre-amp: 0 dB (target -18 LUFS)'), findsOneWidget);
 
     final slider = tester.widget<AppSlider>(find.byType(AppSlider));
     slider.onChanged!(-7);
     await tester.pump();
-    expect(find.text('-7 dB (target -25 LUFS)'), findsOneWidget);
+    expect(find.text('Pre-amp: -7 dB (target -25 LUFS)'), findsOneWidget);
     expect(container.read(settingsProvider).playbackNormalizationPreamp, 0);
 
     slider.onChangeEnd!(-7);

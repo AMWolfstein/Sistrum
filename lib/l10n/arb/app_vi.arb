@@ -49,7 +49,6 @@
   "@nowPlayingVolume": {
     "description": "System volume control label in the Sistrum player"
   },
-  "appearanceStyle": "Phong cách giao diện",
   "appearanceAccentRed": "Đỏ (mặc định)",
   "appearanceAccentOrange": "Cam",
   "appearanceAccentGreen": "Xanh lá",
@@ -84,9 +83,6 @@
   },
   "appearanceUseSystemFont": "Dùng phông chữ hệ thống",
   "appearanceUseSystemFontSubtitle": "Sử dụng kiểu chữ mặc định của thiết bị cho toàn bộ văn bản trong ứng dụng.",
-  "@appearanceStyle": {
-    "description": "Appearance section for choosing the app visual style"
-  },
   "@@locale": "vi",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
@@ -208,14 +204,6 @@
   "appearanceThemeDark": "Tối",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceDynamicColor": "Màu sắc động (Material You)",
-  "@appearanceDynamicColor": {
-    "description": "Material You dynamic colors"
-  },
-  "appearanceDynamicColorSubtitle": "Lấy tông màu tự động từ hình nền thiết bị",
-  "@appearanceDynamicColorSubtitle": {
-    "description": "Subtitle for dynamic color"
   },
   "appearanceHistoryView": "Kiểu xem lịch sử",
   "@appearanceHistoryView": {
@@ -1284,14 +1272,6 @@
   "downloadUsePrimaryArtistOnly": "Chỉ lấy tên nghệ sĩ chính để đặt tên thư mục",
   "@downloadUsePrimaryArtistOnly": {
     "description": "Setting - strip featured artists from folder name"
-  },
-  "appearanceAmoledDark": " Đen tuyền AMOLED",
-  "@appearanceAmoledDark": {
-    "description": "Theme option - pure black"
-  },
-  "appearanceAmoledDarkSubtitle": "Nền đen tuyệt đối",
-  "@appearanceAmoledDarkSubtitle": {
-    "description": "Subtitle for AMOLED dark"
   },
   "appearanceHeroAnimations": "Hiệu ứng chuyển cảnh Hero",
   "@appearanceHeroAnimations": {
@@ -3523,15 +3503,6 @@
   "@queueDownloadedFileMissing": {
     "description": "Accessibility label when a downloaded file is missing from disk"
   },
-  "appearanceSelectAccentColor": "Chọn màu nhấn {hex}",
-  "@appearanceSelectAccentColor": {
-    "description": "Accessibility label for picking an accent color",
-    "placeholders": {
-      "hex": {
-        "type": "String"
-      }
-    }
-  },
   "logAutoScrollOn": "Tự cuộn lời: BẬT",
   "@logAutoScrollOn": {
     "description": "Tooltip when auto-scroll is enabled on the log screen"
@@ -4409,22 +4380,6 @@
   "playerCoverStyle": "Ảnh bìa",
   "@playerCoverStyle": {
     "description": "Settings section choosing how the player shows cover art"
-  },
-  "landscapeLyricsArtwork": "Album art beside lyrics",
-  "@landscapeLyricsArtwork": {
-    "description": "Switch choosing album artwork instead of track details alongside lyrics in landscape"
-  },
-  "landscapeLyricsArtworkDescription": "Show album art instead of track details in the Material landscape player",
-  "@landscapeLyricsArtworkDescription": {
-    "description": "Subtitle explaining the Material landscape lyrics layout setting"
-  },
-  "compactPlayer": "Compact player",
-  "@compactPlayer": {
-    "description": "Material player setting: idle lyrics shrink the player to a slim bar instead of hiding it"
-  },
-  "compactPlayerDescription": "When lyrics are left alone, shrink the player to a slim bar so the lyrics get more room. A tap brings the full player back",
-  "@compactPlayerDescription": {
-    "description": "Subtitle of the compact player setting"
   },
   "playerCoverStyleCard": "Card",
   "@playerCoverStyleCard": {

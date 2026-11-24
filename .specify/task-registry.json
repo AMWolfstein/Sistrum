@@ -19,7 +19,7 @@
       "title": "Play and process local audio through mpv_audio_kit"
     }
   },
-  "next_completion": 9,
+  "next_completion": 10,
   "next_mission": 4,
   "next_tor": 5,
   "tasks": {
@@ -130,13 +130,19 @@
       "title": "Verify Sistrum Android offline release"
     },
     "M001-TOR003": {
-      "completion": null,
+      "completion": 9,
+      "evidence": {
+        "checks": "flutter analyze --no-pub: baseline info only; full flutter test (T006 chunk method): 3,913 results, 34 failing, all in the 46-name T006 baseline set, 0 new; theme_retired_prefs and provider persistence tests pass; :app:compileReleaseKotlin BUILD SUCCESSFUL; grep proofs 0 hits; build_runner settings.g.dart identical. No APK, no device run.",
+        "result": "PASS",
+        "reviewer": "task-reviewer",
+        "round": 2
+      },
       "final": false,
       "kind": "TOR",
       "mission": "M001",
       "nonce": "b00e670a16f54ae8a395e6d114e6b89b",
       "record": "specs/001-sistrum-android-offline/tasks.md",
-      "status": "reserved",
+      "status": "complete",
       "title": "Make Mornye the only theme and remove the Material design layer"
     },
     "M001-TOR004": {

@@ -21,7 +21,6 @@ import 'package:sistrum/services/spatial_audio.dart';
 import 'package:sistrum/screens/listening_statistics_screen.dart';
 import 'package:sistrum/screens/equalizer_screen.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/android_tv.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/exclusive_output_labels.dart';
@@ -167,7 +166,7 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
         defaultTargetPlatform == TargetPlatform.linux;
     final macSpatialAudio = spatialAudioPlatform == SpatialAudioPlatform.macos;
     final colorScheme = Theme.of(context).colorScheme;
-    final coverStyle = settings.playerCoverStyleFor(mornye: context.isMornye);
+    final coverStyle = settings.playerCoverStyleFor();
     // The charging rule applies to Android's background sweep only.
     final chargingOption = settings.songAnalysis && Platform.isAndroid;
     final androidAudio =
@@ -384,7 +383,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                       ? AppProgressIndicator.linear(
                           value: analysis.completed / analysis.total,
                           trackColor: colorScheme.surfaceContainerHighest,
-                          wavy: false,
                         )
                       : null,
                   onTap: analysis.completed > 0 ? _confirmClearAnalysis : null,
@@ -471,16 +469,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                       .setPlayerCoverStyle(style),
                   showDivider: true,
                 ),
-              SettingsSwitchItem(
-                icon: Icons.splitscreen_outlined,
-                title: context.l10n.landscapeLyricsArtwork,
-                subtitle: context.l10n.landscapeLyricsArtworkDescription,
-                value: settings.landscapeLyricsArtwork,
-                enabled: !context.isMornye,
-                onChanged: (value) => ref
-                    .read(settingsProvider.notifier)
-                    .setLandscapeLyricsArtwork(value),
-              ),
               if (!isDesktopPlatform)
                 SettingsSwitchItem(
                   key: const ValueKey('auto-hide-lyrics-controls'),
@@ -497,17 +485,8 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                   onChanged: ref
                       .read(settingsProvider.notifier)
                       .setAutoHideLyricsControls,
+                  showDivider: false,
                 ),
-              SettingsSwitchItem(
-                icon: Icons.short_text,
-                title: context.l10n.compactPlayer,
-                subtitle: context.l10n.compactPlayerDescription,
-                value: settings.compactPlayer,
-                enabled: !context.isMornye,
-                onChanged: (value) =>
-                    ref.read(settingsProvider.notifier).setCompactPlayer(value),
-                showDivider: false,
-              ),
             ],
           ),
           ...settingsSectionSlivers(
@@ -777,23 +756,12 @@ class _LoudVolumeLevelChoice extends StatelessWidget {
         children: [
           Text(title, style: Theme.of(context).textTheme.bodyLarge),
           const SizedBox(height: 12),
-          if (context.isMornye)
-            MornyeSegmentedControl(
-              labels: [for (final level in loudVolumeLevels) '$level%'],
-              selectedIndex: loudVolumeLevels.indexOf(level),
-              onChanged: (index) => onChanged(loudVolumeLevels[index]),
-              samplesBackdrop: false,
-            )
-          else
-            SettingsSegmentedChoice<int>(
-              selected: level,
-              onChanged: onChanged,
-              semanticLabel: title,
-              options: [
-                for (final level in loudVolumeLevels)
-                  SettingsSegmentOption(value: level, label: '$level%'),
-              ],
-            ),
+          MornyeSegmentedControl(
+            labels: [for (final level in loudVolumeLevels) '$level%'],
+            selectedIndex: loudVolumeLevels.indexOf(level),
+            onChanged: (index) => onChanged(loudVolumeLevels[index]),
+            samplesBackdrop: false,
+          ),
         ],
       ),
     );
@@ -829,23 +797,12 @@ class _HeadphoneResumeChoice extends StatelessWidget {
       'always' => l10n.playbackOnHeadphonesConnectedDescription,
       _ => l10n.playbackHeadphonesOffDescription,
     };
-    final showIcon = !context.isMornye;
-    final choice = context.isMornye
-        ? MornyeSegmentedControl(
-            labels: labels.values.toList(),
-            selectedIndex: labels.keys.toList().indexOf(mode),
-            onChanged: (index) => onChanged(labels.keys.elementAt(index)),
-            samplesBackdrop: false,
-          )
-        : SettingsSegmentedChoice<String>(
-            selected: mode,
-            onChanged: onChanged,
-            semanticLabel: title,
-            options: [
-              for (final MapEntry(:key, :value) in labels.entries)
-                SettingsSegmentOption(value: key, label: value),
-            ],
-          );
+    final choice = MornyeSegmentedControl(
+      labels: labels.values.toList(),
+      selectedIndex: labels.keys.toList().indexOf(mode),
+      onChanged: (index) => onChanged(labels.keys.elementAt(index)),
+      samplesBackdrop: false,
+    );
     final content = Opacity(
       opacity: enabled ? 1 : 0.5,
       child: Padding(
@@ -858,16 +815,6 @@ class _HeadphoneResumeChoice extends StatelessWidget {
           children: [
             Row(
               children: [
-                if (showIcon) ...[
-                  AppIcon(
-                    Icons.headphones_outlined,
-                    color: enabled
-                        ? colorScheme.onSurfaceVariant
-                        : colorScheme.outline,
-                    size: 24,
-                  ),
-                  SizedBox(width: context.tokens.rowIconGap),
-                ],
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

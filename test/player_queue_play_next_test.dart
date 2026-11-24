@@ -8,10 +8,8 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mornye_player_queue.dart';
-import 'package:sistrum/widgets/player_queue_sheet.dart';
 import 'package:sistrum/widgets/swipe_progress_haptic.dart';
 
 class _Player extends MusicPlayerController {
@@ -64,16 +62,12 @@ void main() {
 
   Future<_Player> pump(
     WidgetTester tester, {
-    required bool mornye,
     TextDirection direction = TextDirection.ltr,
     bool locked = false,
     bool swipeToQueue = true,
-    bool asSheet = false,
   }) async {
     final player = _Player();
-    final theme = mornye
-        ? MornyeTheme.build(Brightness.dark)
-        : AppTheme.light();
+    final theme = MornyeTheme.build(Brightness.dark);
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -100,30 +94,13 @@ void main() {
           home: Directionality(
             textDirection: direction,
             child: Scaffold(
-              body: asSheet
-                  ? Builder(
-                      builder: (context) => TextButton(
-                        onPressed: () =>
-                            showPlayerQueueSheet(context, theme.colorScheme),
-                        child: const Text('Open'),
-                      ),
-                    )
-                  : mornye
-                  ? MornyePlayerQueue(colorScheme: theme.colorScheme)
-                  : PlayerQueueSheet(
-                      colorScheme: theme.colorScheme,
-                      scrollController: ScrollController(),
-                    ),
+              body: MornyePlayerQueue(colorScheme: theme.colorScheme),
             ),
           ),
         ),
       ),
     );
     await tester.pumpAndSettle();
-    if (asSheet) {
-      await tester.tap(find.text('Open'));
-      await tester.pumpAndSettle();
-    }
     return player;
   }
 
@@ -137,108 +114,91 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  for (final mornye in [false, true]) {
-    final style = mornye ? 'Mornye' : 'Material';
-    for (final direction in TextDirection.values) {
-      // Toward the row's end: rightward left to right, leftward right to
-      // left.
-      final towardEnd = direction == TextDirection.ltr ? 260.0 : -260.0;
+  for (final direction in TextDirection.values) {
+    // Toward the row's end: rightward left to right, leftward right to
+    // left.
+    final towardEnd = direction == TextDirection.ltr ? 260.0 : -260.0;
 
-      testWidgets('$style ${direction.name}: toward the end plays a copy '
-          'next, toward the start still removes', (tester) async {
-        final player = await pump(tester, mornye: mornye, direction: direction);
-        final rest = tester.getTopLeft(find.text('Last'));
+    testWidgets('${direction.name}: toward the end plays a copy '
+        'next, toward the start still removes', (tester) async {
+      final player = await pump(tester, direction: direction);
+      final rest = tester.getTopLeft(find.text('Last'));
 
-        final gesture = await tester.startGesture(
-          tester.getCenter(find.text('Last')),
-        );
-        for (var i = 0; i < 26; i++) {
-          await gesture.moveBy(Offset(towardEnd / 26, 0));
-          await tester.pump(const Duration(milliseconds: 16));
-        }
-        // The song rows' strip and commit pulse.
-        expect(find.text('Play next'), findsOneWidget);
-        expect(
-          haptics.where(
-            (value) => value >= SwipeProgressHaptic.commitIntensity,
-          ),
-          hasLength(1),
-        );
-        await gesture.up();
-        await tester.pumpAndSettle();
-
-        expect(player.playedNext.map((item) => item.id), ['Last']);
-        expect(player.playedNext.single, same(_queue[2]));
-        expect(player.removed, isEmpty);
-        expect(find.text('Playing next'), findsOneWidget);
-        // The entry springs back in place.
-        expect(tester.getTopLeft(find.text('Last')), rest);
-
-        await slowDrag(tester, 'Next', -towardEnd * 2.4);
-        expect(player.removed, ['Next']);
-        expect(player.playedNext, hasLength(1));
-        expect(tester.takeException(), isNull);
-      });
-    }
-
-    testWidgets('$style: a locked queue refuses the swipe', (tester) async {
-      final player = await pump(tester, mornye: mornye, locked: true);
-      await slowDrag(tester, 'Last', 260);
-      await slowDrag(tester, 'Next', -600);
-      expect(player.playedNext, isEmpty);
-      expect(player.removed, isEmpty);
-      expect(find.text('Playing next'), findsNothing);
-    });
-
-    testWidgets('$style: screen readers get Play next on the row', (
-      tester,
-    ) async {
-      final semantics = tester.ensureSemantics();
-      final player = await pump(tester, mornye: mornye);
-      final node = tester.getSemantics(find.text('Last'));
-      final labels = [
-        for (final id in node.getSemanticsData().customSemanticsActionIds!)
-          CustomSemanticsAction.getAction(id)!.label,
-      ];
-      expect(labels, contains('Play next'));
-      expect(labels, isNot(contains('Add to queue')));
-      final id = node.getSemanticsData().customSemanticsActionIds!.firstWhere(
-        (id) => CustomSemanticsAction.getAction(id)!.label == 'Play next',
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.text('Last')),
       );
-      node.owner!.performAction(node.id, SemanticsAction.customAction, id);
+      for (var i = 0; i < 26; i++) {
+        await gesture.moveBy(Offset(towardEnd / 26, 0));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      // The song rows' strip and commit pulse.
+      expect(find.text('Play next'), findsOneWidget);
+      expect(
+        haptics.where((value) => value >= SwipeProgressHaptic.commitIntensity),
+        hasLength(1),
+      );
+      await gesture.up();
       await tester.pumpAndSettle();
+
       expect(player.playedNext.map((item) => item.id), ['Last']);
-      semantics.dispose();
+      expect(player.playedNext.single, same(_queue[2]));
+      expect(player.removed, isEmpty);
+      expect(find.text('Playing next'), findsOneWidget);
+      // The entry springs back in place.
+      expect(tester.getTopLeft(find.text('Last')), rest);
+
+      await slowDrag(tester, 'Next', -towardEnd * 2.4);
+      expect(player.removed, ['Next']);
+      expect(player.playedNext, hasLength(1));
+      expect(tester.takeException(), isNull);
     });
   }
 
-  testWidgets('the Up Next sheet shows the confirmation over itself', (
-    tester,
-  ) async {
-    final player = await pump(tester, mornye: false, asSheet: true);
+  testWidgets('a locked queue refuses the swipe', (tester) async {
+    final player = await pump(tester, locked: true);
     await slowDrag(tester, 'Last', 260);
-    expect(player.playedNext.map((item) => item.id), ['Last']);
-    final sheet = tester.getRect(find.byType(DraggableScrollableSheet));
-    final message = tester.getRect(find.text('Playing next'));
-    expect(sheet.contains(message.center), isTrue);
-    // Hit-testable: drawn above the sheet, not under it.
-    expect(find.text('Playing next').hitTestable(), findsOneWidget);
+    await slowDrag(tester, 'Next', -600);
+    expect(player.playedNext, isEmpty);
+    expect(player.removed, isEmpty);
+    expect(find.text('Playing next'), findsNothing);
   });
 
-  testWidgets('the playing song does not swipe to play next', (tester) async {
-    final player = await pump(tester, mornye: false);
-    await slowDrag(tester, 'Current', 260);
+  testWidgets('screen readers get Play next on the row', (tester) async {
+    final semantics = tester.ensureSemantics();
+    final player = await pump(tester);
+    final node = tester.getSemantics(find.text('Last'));
+    final labels = [
+      for (final id in node.getSemanticsData().customSemanticsActionIds!)
+        CustomSemanticsAction.getAction(id)!.label,
+    ];
+    expect(labels, contains('Play next'));
+    expect(labels, isNot(contains('Add to queue')));
+    final id = node.getSemanticsData().customSemanticsActionIds!.firstWhere(
+      (id) => CustomSemanticsAction.getAction(id)!.label == 'Play next',
+    );
+    node.owner!.performAction(node.id, SemanticsAction.customAction, id);
+    await tester.pumpAndSettle();
+    expect(player.playedNext.map((item) => item.id), ['Last']);
+    semantics.dispose();
+  });
+
+  testWidgets('the playing song has no row to swipe to play next', (
+    tester,
+  ) async {
+    final player = await pump(tester);
+    // Mornye's queue lists the songs after the playing one only.
+    expect(find.text('Current'), findsNothing);
+    expect(find.text('Next'), findsOneWidget);
     expect(player.playedNext, isEmpty);
   });
 
   testWidgets('with Swipe songs to queue off, only removal swipes', (
     tester,
   ) async {
-    final player = await pump(tester, mornye: false, swipeToQueue: false);
+    final player = await pump(tester, swipeToQueue: false);
     await slowDrag(tester, 'Last', 260);
     expect(player.playedNext, isEmpty);
     await slowDrag(tester, 'Next', -600);
     expect(player.removed, ['Next']);
   });
-
 }

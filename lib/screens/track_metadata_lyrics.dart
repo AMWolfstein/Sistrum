@@ -8,7 +8,6 @@ extension _TrackMetadataLyricsAndSaving on _TrackMetadataScreenState {
         _lyricsSource?.trim().isNotEmpty == true;
     return _metadataSectionSurface(
       context,
-      colorScheme,
       child: Padding(
         padding: const EdgeInsets.all(_trackMetadataSectionPadding),
         child: Column(
@@ -21,10 +20,7 @@ extension _TrackMetadataLyricsAndSaving on _TrackMetadataScreenState {
                 ),
                 if (hasDisplayLyrics)
                   AppIconButton(
-                    icon: Icon(
-                      context.isMornye ? CupertinoIcons.doc_on_doc : Icons.copy,
-                      size: 20,
-                    ),
+                    icon: Icon(CupertinoIcons.doc_on_doc, size: 20),
                     onPressed: () => _copyToClipboard(context, _lyrics!),
                     tooltip: context.l10n.trackCopyLyrics,
                   ),
@@ -106,8 +102,7 @@ extension _TrackMetadataLyricsAndSaving on _TrackMetadataScreenState {
                   if (!_lyricsEmbedded && _canEditMetadataFile) ...[
                     const SizedBox(height: 16),
                     Center(
-                      child: ExpressiveButton(
-                        tonal: true,
+                      child: FilledButton.tonalIcon(
                         onPressed: _isEmbedding ? null : _embedLyrics,
                         icon: _isEmbedding
                             ? const AppLoadingIndicator(
@@ -115,7 +110,7 @@ extension _TrackMetadataLyricsAndSaving on _TrackMetadataScreenState {
                                 strokeWidth: 2,
                               )
                             : const Icon(Icons.save_alt),
-                        child: Text(context.l10n.trackEmbedLyrics),
+                        label: Text(context.l10n.trackEmbedLyrics),
                       ),
                     ),
                   ],

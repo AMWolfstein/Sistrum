@@ -40,11 +40,11 @@ SISTRUM_PERFORMANCE_REPORT=build/perf/sistrum.json \
 - Reports retain the 60 Hz fields and add `frame_budgets` for 60, 90, 120 Hz
   and the display's reported refresh rate. These compare engine phase times
   to each budget; they do not claim the display actually ran at all those rates.
-- Run `material_performance_test.dart` through the same driver for Material
-  lyrics and artwork transitions with the same fixtures and gestures as the
-  Mornye suites, plus seek playback, dragging and paused idle in both styles.
-- Use `player_performance_test.dart` to compare lyrics, artwork and seek in
-  both styles in a single build.
+- Run `material_performance_test.dart` through the same driver for lyrics and
+  artwork transitions with the same fixtures and gestures as the Mornye suites,
+  plus seek playback, dragging and paused idle.
+- Use `player_performance_test.dart` to measure lyrics, artwork and seek in a
+  single build.
 
 ### Emulators and Fixtures
 
@@ -73,9 +73,9 @@ Aggregates (each runs other suites as groups):
 | --- | --- |
 | `collection_batch_write_test.dart` | `playlist_batch_write_test.dart`, `loved_batch_write_test.dart` |
 | `mornye_performance_test.dart` | The rendering, screens, artwork and lyrics Mornye performance suites; driver target |
-| `material_performance_test.dart` | Material lyrics/artwork and shared seek scenarios in both styles; driver target |
-| `player_performance_test.dart` | Shared lyrics, artwork and seek scenarios for Material and Mornye; driver target |
-| `pipeline_performance_test.dart` | Library, foreground download, native playback and both lyrics styles with isolated fixtures |
+| `material_performance_test.dart` | Mornye lyrics/artwork and shared seek scenarios; driver target |
+| `player_performance_test.dart` | Shared lyrics, artwork and seek scenarios; driver target |
+| `pipeline_performance_test.dart` | Library, foreground download, native playback and lyrics with isolated fixtures |
 | `remaining_optimization_test.dart` | Collection restore, history staging, library staging, cache maintenance, collection workers, queue workers, backup archive |
 
 Support files (not tests): `performance_driver.dart` (host driver) and
@@ -105,7 +105,7 @@ Suites:
 | `library_collections_workers_test.dart` | Large playlist search pages and metadata-only playlist copies |
 | `library_paging_performance_test.dart` | Long-scroll Library paging on real SQLite (performance) |
 | `library_pipeline_performance_test.dart` | Native SQLite startup, retained Library pages, artwork scrolling, scan ingestion and large collections with isolated fixtures |
-| `logs_performance_test.dart` | Production logs scrolling, log bursts and idle in both styles with 500 synthetic entries (performance) |
+| `logs_performance_test.dart` | Production logs scrolling, log bursts and idle with 500 synthetic entries (performance) |
 | `playback_pipeline_performance_test.dart` | Native local and HTTP playback, metadata, seek, rapid source replacement, cancellation and paused idle with private storage |
 | `loved_batch_write_test.dart` | Love All add and remove on real SQLite |
 | `lyrics_file_access_test.dart` | Embedding, sidecar and export of lyrics outside Downloads |

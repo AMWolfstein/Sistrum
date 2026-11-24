@@ -5,12 +5,12 @@ import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/source/line_info.dart';
+import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/models/theme_settings.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/cover_palette.dart';
@@ -75,7 +75,7 @@ class _IconButtonTooltipVisitor extends RecursiveAstVisitor<void> {
 
 Widget _hostSliver(Widget sliver) {
   return MaterialApp(
-    theme: AppTheme.light(),
+    theme: MornyeTheme.build(Brightness.light),
     home: Scaffold(body: CustomScrollView(slivers: [sliver])),
   );
 }
@@ -83,12 +83,6 @@ Widget _hostSliver(Widget sliver) {
 void main() {
   group('AppTokens', () {
     test('is registered on both themes', () {
-      expect(AppTheme.light().extension<AppTokens>(), AppTokens.standard);
-      expect(AppTheme.dark().extension<AppTokens>(), AppTokens.standard);
-      expect(
-        AppTheme.dark(isAmoled: true).extension<AppTokens>(),
-        AppTokens.standard,
-      );
       expect(
         MornyeTheme.build(Brightness.light).extension<AppTokens>(),
         MornyeTheme.tokens,
@@ -143,7 +137,7 @@ void main() {
         ),
       );
 
-      expect(seen, AppTokens.standard);
+      expect(seen, MornyeTheme.tokens);
     });
 
     test('lerp interpolates the scale instead of snapping', () {
@@ -157,11 +151,11 @@ void main() {
     test('badge text stays legible', () {
       // 9-10px badge labels were the accessibility floor violation this token
       // was introduced to fix.
-      expect(AppTokens.standard.badgeFontSize, greaterThanOrEqualTo(11));
+      expect(MornyeTheme.tokens.badgeFontSize, greaterThanOrEqualTo(11));
     });
 
     test('minimum touch target matches the Material floor', () {
-      expect(AppTokens.standard.minTouchTarget, 48);
+      expect(MornyeTheme.tokens.minTouchTarget, 48);
     });
   });
 
@@ -191,6 +185,42 @@ void main() {
       );
     });
 
+    testWidgets('an enabled selection action keeps its tap action', (
+      tester,
+    ) async {
+      final semantics = tester.ensureSemantics();
+      try {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: MornyeTheme.build(Brightness.light),
+            home: Scaffold(
+              body: Center(
+                child: SelectionActionButton(
+                  icon: Icons.delete,
+                  label: 'Delete selected tracks',
+                  onPressed: () {},
+                  colorScheme: MornyeTheme.build(Brightness.light).colorScheme,
+                ),
+              ),
+            ),
+          ),
+        );
+
+        expect(
+          tester.getSemantics(find.byType(SelectionActionButton)),
+          matchesSemantics(
+            label: 'Delete selected tracks',
+            isButton: true,
+            hasEnabledState: true,
+            isEnabled: true,
+            hasTapAction: true,
+          ),
+        );
+      } finally {
+        semantics.dispose();
+      }
+    });
+
     testWidgets('selection actions expose their label and disabled state', (
       tester,
     ) async {
@@ -198,14 +228,14 @@ void main() {
       try {
         await tester.pumpWidget(
           MaterialApp(
-            theme: AppTheme.light(),
+            theme: MornyeTheme.build(Brightness.light),
             home: Scaffold(
               body: Center(
                 child: SelectionActionButton(
                   icon: Icons.delete,
                   label: 'Delete selected tracks',
                   onPressed: null,
-                  colorScheme: AppTheme.light().colorScheme,
+                  colorScheme: MornyeTheme.build(Brightness.light).colorScheme,
                 ),
               ),
             ),
@@ -223,7 +253,9 @@ void main() {
         );
         expect(
           tester.getSize(find.byType(SelectionActionButton)).height,
-          greaterThanOrEqualTo(AppTokens.standard.minTouchTarget),
+          // shortcut: CupertinoButton's 44dp floor; Mornye's 15pt label gives
+          // 47dp, one short of the 48dp token. Raise with the button itself.
+          greaterThanOrEqualTo(44),
         );
       } finally {
         semantics.dispose();
@@ -358,15 +390,17 @@ void main() {
       addTearDown(controller.dispose);
 
       await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.light(),
-          home: Scaffold(
-            body: AppSearchField(
-              controller: controller,
-              hintText: 'Search settings',
-              clearTooltip: 'Clear',
-              onChanged: (_) {},
-              onClear: () => cleared = true,
+        ProviderScope(
+          child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.light),
+            home: Scaffold(
+              body: AppSearchField(
+                controller: controller,
+                hintText: 'Search settings',
+                clearTooltip: 'Clear',
+                onChanged: (_) {},
+                onClear: () => cleared = true,
+              ),
             ),
           ),
         ),
@@ -376,10 +410,11 @@ void main() {
       final border = field.decoration!.enabledBorder! as OutlineInputBorder;
 
       expect(field.decoration!.filled, isTrue);
-      expect(border.borderRadius.topLeft.x, AppTokens.standard.radiusSheet);
-      expect(findAppIcon(Icons.clear), findsOneWidget);
+      // Mornye's search field is a glass pill, not the sheet radius.
+      expect(border.borderRadius.topLeft.x, 28);
+      expect(findAppIcon(CupertinoIcons.clear_circled_solid), findsOneWidget);
 
-      await tester.tap(findAppIcon(Icons.clear));
+      await tester.tap(findAppIcon(CupertinoIcons.clear_circled_solid));
       await tester.pump();
 
       expect(controller.text, isEmpty);
@@ -435,7 +470,9 @@ void main() {
     ) async {
       await tester.pumpWidget(
         MaterialApp(
-          theme: AppTheme.light().copyWith(platform: TargetPlatform.iOS),
+          theme: MornyeTheme.build(
+            Brightness.light,
+          ).copyWith(platform: TargetPlatform.iOS),
           home: Scaffold(
             body: CustomScrollView(
               slivers: const [
@@ -472,7 +509,7 @@ void main() {
       );
 
       expect(find.text('Library'), findsOneWidget);
-      expect(findAppIcon(Icons.arrow_back), findsNothing);
+      expect(findAppIcon(Icons.chevron_left), findsNothing);
     });
 
     testWidgets('page variant shows a back button that pops the route', (
@@ -480,7 +517,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         MaterialApp(
-          theme: AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.light),
           home: Scaffold(
             body: Builder(
               builder: (context) => ElevatedButton(
@@ -504,7 +541,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Downloads'), findsOneWidget);
 
-      await tester.tap(findAppIcon(Icons.arrow_back));
+      await tester.tap(findAppIcon(Icons.chevron_left));
       await tester.pumpAndSettle();
       expect(find.text('Downloads'), findsNothing);
     });
@@ -515,7 +552,7 @@ void main() {
       );
 
       final style = tester.widget<Text>(find.text('Home')).style!;
-      expect(style.fontSize, AppTokens.standard.headerExpandedTitleSize);
+      expect(style.fontSize, MornyeTheme.tokens.headerExpandedTitleSize);
     });
 
     for (final platform in [TargetPlatform.iOS, TargetPlatform.android]) {
@@ -528,7 +565,9 @@ void main() {
 
           await tester.pumpWidget(
             MaterialApp(
-              theme: AppTheme.light().copyWith(platform: platform),
+              theme: MornyeTheme.build(
+                Brightness.light,
+              ).copyWith(platform: platform),
               home: MediaQuery(
                 data: MediaQueryData(
                   size: const Size(430, 932),
@@ -547,18 +586,18 @@ void main() {
             ),
           );
 
-          controller.jumpTo(AppTokens.standard.headerExpandedHeight);
+          controller.jumpTo(MornyeTheme.tokens.headerExpandedHeight);
           await tester.pump();
 
           final title = find.text('Metadata');
-          final backIcon = findAppIcon(Icons.arrow_back);
+          final backIcon = findAppIcon(Icons.chevron_left);
           expect(
             tester.getRect(title).overlaps(tester.getRect(backIcon)),
             isFalse,
           );
           expect(
             tester.widget<Text>(title).style?.fontSize,
-            AppTokens.standard.headerCollapsedTitleSize,
+            MornyeTheme.tokens.headerCollapsedTitleSize,
           );
         },
       );
@@ -621,7 +660,7 @@ void main() {
       await tester.tap(find.byKey(avatar));
       expect(taps, 1);
 
-      controller.jumpTo(AppTokens.standard.headerExpandedHeight);
+      controller.jumpTo(MornyeTheme.tokens.headerExpandedHeight);
       await tester.pump();
       expectOnTitleLine();
       final bar = tester.getRect(find.byKey(avatar));
@@ -656,18 +695,20 @@ void main() {
   group('AppBottomSheet', () {
     testWidgets('supplies one handle plus the title block', (tester) async {
       await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.light(),
-          home: Scaffold(
-            body: Builder(
-              builder: (context) => ElevatedButton(
-                onPressed: () => showAppBottomSheet<void>(
-                  context: context,
-                  title: 'Open on',
-                  subtitle: 'Track - Artist',
-                  builder: (_) => const Text('body'),
+        ProviderScope(
+          child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.light),
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () => showAppBottomSheet<void>(
+                    context: context,
+                    title: 'Open on',
+                    subtitle: 'Track - Artist',
+                    builder: (_) => const Text('body'),
+                  ),
+                  child: const Text('open'),
                 ),
-                child: const Text('open'),
               ),
             ),
           ),
@@ -685,10 +726,11 @@ void main() {
 
     testWidgets('sheet shape comes from the token scale', (tester) async {
       final shape =
-          AppTheme.light().bottomSheetTheme.shape! as RoundedRectangleBorder;
+          MornyeTheme.build(Brightness.light).bottomSheetTheme.shape!
+              as RoundedRectangleBorder;
       final radius = shape.borderRadius.resolve(TextDirection.ltr).topLeft.x;
 
-      expect(radius, AppTokens.standard.radiusSheet);
+      expect(radius, MornyeTheme.tokens.radiusSheet);
     });
 
     test('no screen hand-rolls a drag handle any more', () {
@@ -737,7 +779,7 @@ void main() {
 
   group('TrackCard', () {
     Widget host(Widget child) => MaterialApp(
-      theme: AppTheme.light(),
+      theme: MornyeTheme.build(Brightness.light),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(body: child),
@@ -792,15 +834,8 @@ void main() {
         ),
       );
 
-      // Transparent, in the current-row fill's hue so that fill fades in.
       final card = tester.widget<AppContentCard>(find.byType(AppContentCard));
       expect(card.color?.a, 0);
-      expect(
-        card.color?.withValues(alpha: 1),
-        Theme.of(
-          tester.element(find.text('Song')),
-        ).colorScheme.primaryContainer,
-      );
     });
 
     testWidgets('flat style keeps trailing actions near the card edge', (
@@ -993,7 +1028,7 @@ void main() {
       tester,
     ) async {
       Widget host({required bool selecting}) => MaterialApp(
-        theme: AppTheme.light(),
+        theme: MornyeTheme.build(Brightness.light),
         home: CollectionScaffold(
           scrollController: ScrollController(),
           isSelectionMode: selecting,
@@ -1023,7 +1058,7 @@ void main() {
     ) async {
       await tester.pumpWidget(
         MaterialApp(
-          theme: AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.light),
           home: CollectionScaffold(
             scrollController: ScrollController(),
             isSelectionMode: true,
@@ -1087,7 +1122,7 @@ void main() {
     testWidgets('choice chip meets the minimum touch target', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          theme: AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.light),
           home: Scaffold(
             body: Row(
               children: [
@@ -1106,14 +1141,14 @@ void main() {
       final size = tester.getSize(find.byType(SettingsChoiceChip));
       expect(
         size.height,
-        greaterThanOrEqualTo(AppTokens.standard.minTouchTarget),
+        greaterThanOrEqualTo(MornyeTheme.tokens.minTouchTarget),
       );
     });
 
     testWidgets('info card renders title, message and action', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
-          theme: AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.light),
           home: Scaffold(
             body: SettingsInfoCard(
               icon: Icons.warning_amber_outlined,

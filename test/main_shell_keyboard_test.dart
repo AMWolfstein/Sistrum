@@ -16,12 +16,10 @@ import 'package:sistrum/screens/home_tab.dart';
 import 'package:sistrum/screens/main_shell.dart';
 import 'package:sistrum/services/playable_media.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/utils/android_tv.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/widgets/tv_navigation.dart';
 import 'package:sistrum/widgets/tv_shell.dart';
-import 'package:sistrum/widgets/expressive_navigation_bar.dart';
 import 'package:sistrum/widgets/mornye_bottom_bar.dart';
 import 'package:sistrum/widgets/mini_player.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -41,7 +39,6 @@ void main() {
   Future<ValueNotifier<Locale>> pumpShell(
     WidgetTester tester, {
     bool tv = false,
-    bool mornye = true,
     bool externalPlayer = false,
     Stream<MediaItem?>? media,
   }) async {
@@ -85,13 +82,14 @@ void main() {
             ),
           ],
           recentAccessProvider.overrideWith(_Recent.new),
+          // Home's replay shelves read statistics storage; stub them empty.
+          homeRecentlyPlayedProvider.overrideWith((ref) async => const []),
+          homeOnRepeatProvider.overrideWith((ref) async => const []),
         ],
         child: ValueListenableBuilder(
           valueListenable: locale,
           builder: (context, value, _) => MaterialApp.router(
-            theme: mornye
-                ? MornyeTheme.build(Brightness.dark)
-                : AppTheme.dark(),
+            theme: MornyeTheme.build(Brightness.dark),
             builder: tv
                 ? (context, child) => MediaQuery(
                     data: MediaQuery.of(
@@ -124,89 +122,97 @@ void main() {
   bool collapsed(WidgetTester tester) =>
       tester.widget<MornyeBottomBar>(find.byType(MornyeBottomBar)).collapsed;
 
-  testWidgets(
-    'Material Home restores its viewport and navigation after the player',
-    (tester) async {
-      Future<void> settleFrames() async {
-        for (var i = 0; i < 30; i++) {
-          await tester.pump(const Duration(milliseconds: 20));
-        }
+  testWidgets('Home restores its viewport and navigation after the player', (
+    tester,
+  ) async {
+    Future<void> settleFrames() async {
+      for (var i = 0; i < 30; i++) {
+        await tester.pump(const Duration(milliseconds: 20));
       }
+    }
 
-      final media = StreamController<MediaItem?>();
-      addTearDown(media.close);
-      await pumpShell(tester, mornye: false, media: media.stream);
-      tester.view.padding = const FakeViewPadding(top: 24, bottom: 24);
-      tester.view.viewPadding = const FakeViewPadding(top: 24, bottom: 24);
-      media.add(
-        const MediaItem(id: 'song', title: 'Current song', artist: 'Artist'),
-      );
-      await settleFrames();
-      final scroll = find.descendant(
-        of: find.byType(HomeTab),
-        matching: find.byType(CustomScrollView),
-      );
-      expect(find.text('Continue listening'), findsOneWidget);
-      expect(find.text('Shortcuts'), findsOneWidget);
-      expect(tester.getRect(scroll).bottom, 932);
-      await tester.tap(find.byType(TextField));
-      await tester.pump();
-      expect(tester.testTextInput.isVisible, isTrue);
-      tester.view.viewInsets = const FakeViewPadding(bottom: 300);
-      await tester.pump();
-      expect(tester.getRect(scroll).bottom, 632);
-      final home = tester.element(find.byType(HomeTab));
-      final navigator = Navigator.of(home, rootNavigator: true);
-      unawaited(navigator.push(NowPlayingRoute(child: const Scaffold())));
-      await settleFrames();
-      tester.view.viewInsets = FakeViewPadding.zero;
-      await tester.pump();
-      navigator.pop();
-      await settleFrames();
-      expect(tester.testTextInput.isVisible, isFalse);
-      final bar = find.byType(ExpressiveNavigationBar);
-      Finder destination(String label) =>
-          find.descendant(of: bar, matching: find.text(label));
-      await tester.tap(destination('Home'));
-      await settleFrames();
-      expect(find.text('Shortcuts'), findsOneWidget);
-      expect(tester.getRect(scroll).bottom, 932);
-      final player = tester.getRect(find.byType(MiniPlayer));
-      final viewport = tester.state<ScrollableState>(
-        find.descendant(of: scroll, matching: find.byType(Scrollable)).first,
-      );
-      await tester.dragFrom(
-        Offset(player.center.dx, player.top - 20),
-        const Offset(0, -120),
-      );
-      await tester.pump(const Duration(milliseconds: 400));
-      expect(viewport.position.pixels, greaterThan(0));
-      await tester.tap(destination('Settings'));
-      await settleFrames();
-      expect(tester.widget<ExpressiveNavigationBar>(bar).selectedIndex, 2);
-      await tester.tap(destination('Home'));
-      await settleFrames();
-      expect(tester.widget<ExpressiveNavigationBar>(bar).selectedIndex, 0);
-      expect(tester.getRect(scroll).bottom, 932);
-      expect(tester.takeException(), isNull);
-    },
-  );
+    final media = StreamController<MediaItem?>();
+    addTearDown(media.close);
+    await pumpShell(tester, media: media.stream);
+    tester.view.padding = const FakeViewPadding(top: 24, bottom: 24);
+    tester.view.viewPadding = const FakeViewPadding(top: 24, bottom: 24);
+    media.add(
+      const MediaItem(id: 'song', title: 'Current song', artist: 'Artist'),
+    );
+    await settleFrames();
+    // The shell keeps a Search tab's HomeTab beside the Home one.
+    final homeTab = find.byWidgetPredicate(
+      (w) => w is HomeTab && w.mode == HomeTabMode.browse,
+    );
+    final scroll = find.descendant(
+      of: homeTab,
+      matching: find.byType(CustomScrollView),
+    );
+    expect(find.text('Continue listening'), findsOneWidget);
+    expect(tester.getRect(scroll).bottom, 932);
+    // Mornye's Home has no field of its own; the Search tab's does.
+    final searchTab = find.byWidgetPredicate(
+      (w) => w is HomeTab && w.mode == HomeTabMode.search,
+    );
+    final searchScroll = find.descendant(
+      of: searchTab,
+      matching: find.byType(CustomScrollView),
+    );
+    await tester.tap(
+      find.descendant(
+        of: find.byType(MornyeBottomBar),
+        matching: find.text('Search'),
+      ),
+    );
+    await settleFrames();
+    await tester.tap(
+      find.descendant(of: searchTab, matching: find.byType(TextField)),
+    );
+    await tester.pump();
+    expect(tester.testTextInput.isVisible, isTrue);
+    tester.view.viewInsets = const FakeViewPadding(bottom: 300);
+    await tester.pump();
+    expect(tester.getRect(searchScroll).bottom, 632);
+    final home = tester.element(homeTab);
+    final navigator = Navigator.of(home, rootNavigator: true);
+    unawaited(navigator.push(NowPlayingRoute(child: const Scaffold())));
+    await settleFrames();
+    tester.view.viewInsets = FakeViewPadding.zero;
+    await tester.pump();
+    navigator.pop();
+    await settleFrames();
+    expect(tester.testTextInput.isVisible, isFalse);
+    final bar = find.byType(MornyeBottomBar);
+    Finder destination(String label) =>
+        find.descendant(of: bar, matching: find.text(label));
+    await tester.tap(destination('Home'));
+    await settleFrames();
+    expect(find.text('Continue listening'), findsOneWidget);
+    expect(tester.getRect(scroll).bottom, 932);
+    // Phones reach Settings as a page, so the bar only holds the Library tab.
+    await tester.tap(destination('Search'));
+    await settleFrames();
+    expect(tester.widget<MornyeBottomBar>(bar).selectedIndex, 2);
+    await tester.tap(destination('Home'));
+    await settleFrames();
+    expect(tester.widget<MornyeBottomBar>(bar).selectedIndex, 0);
+    expect(tester.getRect(scroll).bottom, 932);
+    expect(tester.takeException(), isNull);
+  });
 
-  for (final mornye in [false, true]) {
-    testWidgets('external mode hides Home playback and mini player ($mornye)', (
-      tester,
-    ) async {
-      await pumpShell(tester, mornye: mornye, externalPlayer: true);
-      await tester.pump(const Duration(milliseconds: 400));
-      expect(find.text('Continue Listening'), findsNothing);
-      expect(find.text('Old internal song'), findsNothing);
-      expect(find.text('Saved song'), findsNothing);
-      for (final player in find.byType(MiniPlayer).evaluate()) {
-        expect(tester.getSize(find.byWidget(player.widget)).height, 0);
-      }
-      expect(tester.takeException(), isNull);
-    });
-  }
+  testWidgets('external mode hides Home playback and mini player', (
+    tester,
+  ) async {
+    await pumpShell(tester, externalPlayer: true);
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('Continue Listening'), findsNothing);
+    expect(find.text('Old internal song'), findsNothing);
+    expect(find.text('Saved song'), findsNothing);
+    for (final player in find.byType(MiniPlayer).evaluate()) {
+      expect(tester.getSize(find.byWidget(player.widget)).height, 0);
+    }
+    expect(tester.takeException(), isNull);
+  });
 
   void scrollHome(WidgetTester tester, {required double pixels}) {
     ScrollUpdateNotification(
@@ -282,35 +288,30 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets(
-      'TV remote opens Settings and Back returns Home, Mornye: $mornye',
-      (tester) async {
-        await pumpShell(tester, tv: true, mornye: mornye);
-        await tester.pump(const Duration(milliseconds: 200));
-        expect(find.byType(MornyeBottomBar), findsNothing);
-        final tvShell = tester.widget<TvShell>(find.byType(TvShell));
-        for (var i = 1; i < tvShell.destinations.length; i++) {
-          await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
-          await tester.pump();
-        }
-        await tester.sendKeyEvent(LogicalKeyboardKey.select);
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 300));
-        expect(
-          tester.widget<TvShell>(find.byType(TvShell)).selectedIndex,
-          tvShell.destinations.length - 1,
-        );
-        final back = tester.binding.handlePopRoute();
-        await tester.pump();
-        await back;
-        await tester.pump();
-        expect(tester.widget<TvShell>(find.byType(TvShell)).selectedIndex, 0);
-        expect(tester.takeException(), isNull);
-        await tester.pump(const Duration(seconds: 1));
-      },
+  testWidgets('TV remote opens Settings and Back returns Home', (tester) async {
+    await pumpShell(tester, tv: true);
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(find.byType(MornyeBottomBar), findsNothing);
+    final tvShell = tester.widget<TvShell>(find.byType(TvShell));
+    for (var i = 1; i < tvShell.destinations.length; i++) {
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+    }
+    await tester.sendKeyEvent(LogicalKeyboardKey.select);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(
+      tester.widget<TvShell>(find.byType(TvShell)).selectedIndex,
+      tvShell.destinations.length - 1,
     );
-  }
+    final back = tester.binding.handlePopRoute();
+    await tester.pump();
+    await back;
+    await tester.pump();
+    expect(tester.widget<TvShell>(find.byType(TvShell)).selectedIndex, 0);
+    expect(tester.takeException(), isNull);
+    await tester.pump(const Duration(seconds: 1));
+  });
 }
 
 class _Settings extends SettingsNotifier {
@@ -319,9 +320,8 @@ class _Settings extends SettingsNotifier {
   final bool externalPlayer;
 
   @override
-  AppSettings build() => AppSettings(
-    playerMode: externalPlayer ? 'external' : 'internal',
-  );
+  AppSettings build() =>
+      AppSettings(playerMode: externalPlayer ? 'external' : 'internal');
 }
 
 class _Recent extends RecentAccessNotifier {

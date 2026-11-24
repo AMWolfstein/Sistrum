@@ -4,8 +4,6 @@ import 'package:audio_service/audio_service.dart' show MediaItem;
 import 'package:flutter/foundation.dart' show mapEquals;
 import 'package:material_ui/material_ui.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/theme/cover_palette.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/album_track_sort_provider.dart';
@@ -40,7 +38,6 @@ import 'package:sistrum/widgets/desktop/detail_header.dart';
 import 'package:sistrum/widgets/desktop/library_track_menu.dart';
 import 'package:sistrum/widgets/playlist_picker_sheet.dart';
 import 'package:sistrum/widgets/desktop/track_table.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/album_track_tile.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/loaded_sliver_fade_in.dart';
@@ -253,15 +250,11 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
           ? albumCover
           : artworkTrack?.coverPath ?? foundCover,
       filePath: artworkTrack?.filePath,
-      builder: (context, coverPath) => context.isMornye
-          ? MornyeArtistSurface(
-              imageSource: coverPath,
-              neutralActions: true,
-              child: Builder(
-                builder: (context) => _buildPage(context, coverPath),
-              ),
-            )
-          : _buildPage(context, coverPath),
+      builder: (context, coverPath) => MornyeArtistSurface(
+        imageSource: coverPath,
+        neutralActions: true,
+        child: Builder(builder: (context) => _buildPage(context, coverPath)),
+      ),
     );
   }
 
@@ -298,13 +291,12 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
         if (_loadError != null)
           SliverToBoxAdapter(
             child: Center(
-              child: ExpressiveButton(
-                text: true,
+              child: TextButton.icon(
                 onPressed: () => setState(() {
                   _loadTracks();
                 }),
                 icon: const Icon(Icons.refresh),
-                child: Text(context.l10n.dialogRetry),
+                label: Text(context.l10n.dialogRetry),
               ),
             ),
           )
@@ -354,7 +346,7 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
     String? coverPath,
   ) {
     final expandedHeight = calculateExpandedHeight(context);
-    final motion = context.isMornye && !MediaQuery.disableAnimationsOf(context)
+    final motion = !MediaQuery.disableAnimationsOf(context)
         ? ref
               .watch(
                 songMotionArtworkProvider((
@@ -386,7 +378,7 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
 
     return AlbumDetailHeader(
       title: widget.albumName,
-      immersive: context.isMornye,
+      immersive: true,
       squareArtwork: motion == null,
       expandedHeight: expandedHeight,
       showTitleInAppBar: false,
@@ -428,13 +420,9 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
           style: isDesktopPlatform
               ? desktopDetailSubtitleStyle(header)
               : TextStyle(
-                  color: context.isMornye
-                      ? colorScheme.primary
-                      : HeaderPalette.of(context).onSurfaceVariant,
+                  color: colorScheme.primary,
                   fontSize: context.tokens.headerSubtitleSize,
-                  fontWeight: context.isMornye
-                      ? FontWeight.w400
-                      : FontWeight.w600,
+                  fontWeight: FontWeight.w400,
                 ),
           textAlign: TextAlign.center,
           maxLines: 1,
@@ -710,7 +698,7 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
           TrackTableColumn.duration,
         ],
         selectedIds: selectedIds,
-        albumLayout: context.isMornye,
+        albumLayout: true,
         albumArtist: widget.artistName,
         onSelect: applyDesktopClick,
         onActivate: (id) {

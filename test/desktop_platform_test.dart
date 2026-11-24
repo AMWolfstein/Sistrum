@@ -2,11 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/app.dart';
-import 'package:sistrum/models/theme_settings.dart';
-import 'package:sistrum/providers/theme_provider.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   tearDown(() {
@@ -23,36 +20,6 @@ void main() {
     expect(isDesktopPlatform, isFalse);
     debugDesktopPlatformOverride = true;
     expect(isDesktopPlatform, isTrue);
-  });
-
-  group('default theme style', () {
-    test('stays Material on mobile', () {
-      for (final platform in [TargetPlatform.android, TargetPlatform.iOS]) {
-        debugDefaultTargetPlatformOverride = platform;
-        expect(defaultAppThemeStyle(), AppThemeStyle.material);
-        expect(themeStyleFromString(null), AppThemeStyle.material);
-      }
-    });
-
-    test('is Mornye on macOS and Material on Windows and Linux', () {
-      simulateDesktop(TargetPlatform.macOS);
-      expect(themeStyleFromString(null), AppThemeStyle.mornye);
-      simulateDesktop(TargetPlatform.windows);
-      expect(themeStyleFromString(null), AppThemeStyle.material);
-      simulateDesktop(TargetPlatform.linux);
-      expect(themeStyleFromString(null), AppThemeStyle.material);
-    });
-
-    test('applies only when no style is stored', () async {
-      simulateDesktop(TargetPlatform.macOS);
-      SharedPreferences.setMockInitialValues({});
-      var prefs = await SharedPreferences.getInstance();
-      expect(loadBootstrapThemeSettings(prefs).style, AppThemeStyle.mornye);
-
-      SharedPreferences.setMockInitialValues({kThemeStyleKey: 'material'});
-      prefs = await SharedPreferences.getInstance();
-      expect(loadBootstrapThemeSettings(prefs).style, AppThemeStyle.material);
-    });
   });
 
   test('desktop windows keep native density at tablet sizes', () {

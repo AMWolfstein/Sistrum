@@ -7,7 +7,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/services/audio_compare_dsp.dart';
 import 'package:sistrum/services/audio_compare_engine.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_content_card.dart';
 import 'package:sistrum/widgets/audio_analysis_widget.dart';
@@ -72,9 +71,9 @@ AudioCompareResult _result({
   );
 }
 
-Widget _host(Widget child, {required bool mornye}) => ProviderScope(
+Widget _host(Widget child) => ProviderScope(
   child: MaterialApp(
-    theme: mornye ? MornyeTheme.build(Brightness.light) : AppTheme.light(),
+    theme: MornyeTheme.build(Brightness.light),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     home: Scaffold(body: child),
@@ -96,204 +95,175 @@ Color? _noticeColor(WidgetTester tester, String key) => tester
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  for (final mornye in [false, true]) {
-    final style = mornye ? 'Mornye' : 'Material';
-
-    testWidgets('$style: progress offers cancel', (tester) async {
-      var cancelled = false;
-      await tester.pumpWidget(
-        _host(
-          AudioCompareView(
-            stage: AudioCompareStage.measuring,
-            onCancel: () => cancelled = true,
-          ),
-          mornye: mornye,
+  testWidgets('progress offers cancel', (tester) async {
+    var cancelled = false;
+    await tester.pumpWidget(
+      _host(
+        AudioCompareView(
+          stage: AudioCompareStage.measuring,
+          onCancel: () => cancelled = true,
         ),
-      );
-      expect(find.text('Measuring the difference'), findsOneWidget);
-      expect(find.text('Step 3 of 4'), findsOneWidget);
-      await tester.tap(find.byKey(const ValueKey('audio-compare-cancel')));
-      expect(cancelled, isTrue);
-    });
+      ),
+    );
+    expect(find.text('Measuring the difference'), findsOneWidget);
+    expect(find.text('Step 3 of 4'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('audio-compare-cancel')));
+    expect(cancelled, isTrue);
+  });
 
-    testWidgets('$style: result reads out the timeline and seeks', (
-      tester,
-    ) async {
-      final result = _result();
-      addTearDown(result.dispose);
-      double? seeked;
-      await tester.pumpWidget(
-        _host(
-          AudioCompareView(result: result, onSeek: (s) => seeked = s),
-          mornye: mornye,
+  testWidgets('result reads out the timeline and seeks', (tester) async {
+    final result = _result();
+    addTearDown(result.dispose);
+    double? seeked;
+    await tester.pumpWidget(
+      _host(AudioCompareView(result: result, onSeek: (s) => seeked = s)),
+    );
+    expect(result.notices, isEmpty);
+    expect(find.byKey(const ValueKey('audio-compare-notice')), findsNothing);
+    expect(
+      find.text(
+        'The files share a source but differ clearly, as lossy encoding '
+        'or a filter does.',
+      ),
+      findsOneWidget,
+    );
+    expect(
+      find.text('Most of the difference is in the high frequencies.'),
+      findsOneWidget,
+    );
+    expect(find.text('1105 samples (25.1 ms)'), findsOneWidget);
+    expect(find.text('+0.44 dB'), findsOneWidget);
+    expect(
+      find.text('FLAC · 44.1 kHz · 24-bit · Stereo · 1:00'),
+      findsOneWidget,
+    );
+    expect(find.text('Left'), findsWidgets);
+
+    final timeline = find.byKey(const ValueKey('audio-compare-timeline'));
+    final box = tester.getRect(timeline);
+    await tester.tapAt(
+      Offset(box.left + 40 + (box.width - 40) / 2, box.center.dy),
+    );
+    await tester.pump();
+    final readout = tester.widget<Text>(
+      find.byKey(const ValueKey('audio-compare-readout')),
+    );
+    expect(readout.data, startsWith('0:30'));
+    expect(readout.data, endsWith('dB'));
+    await tester.tap(find.byKey(const ValueKey('audio-compare-seek')));
+    expect(seeked, closeTo(30, 0.2));
+
+    // The explanation stays folded until asked for.
+    final explain = find.byKey(const ValueKey('audio-compare-explain'));
+    await tester.scrollUntilVisible(explain, 200);
+    expect(find.textContaining('A null test lines up'), findsNothing);
+    await tester.tap(explain);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('A null test lines up'), findsOneWidget);
+  });
+
+  testWidgets('fits a phone width', (tester) async {
+    tester.view.physicalSize = const Size(320, 700);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final result = _result();
+    addTearDown(result.dispose);
+    await tester.pumpWidget(
+      _host(AudioCompareView(result: result, onSeek: (_) {})),
+    );
+    await tester.tap(find.byKey(const ValueKey('audio-compare-timeline')));
+    await tester.pump();
+    await tester.drag(
+      find.byType(SingleChildScrollView),
+      const Offset(0, -2000),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('no seek when the reference is not playing', (tester) async {
+    final result = _result();
+    addTearDown(result.dispose);
+    await tester.pumpWidget(_host(AudioCompareView(result: result)));
+    await tester.tap(find.byKey(const ValueKey('audio-compare-timeline')));
+    await tester.pump();
+    expect(find.byKey(const ValueKey('audio-compare-seek')), findsNothing);
+  });
+
+  testWidgets('unrelated files show the notice', (tester) async {
+    final result = _result(
+      residualDb: 0,
+      correlation: 0.02,
+      high: false,
+      other: const AudioCompareFileInfo(
+        name: 'Other.flac',
+        codec: 'FLAC',
+        sampleRate: 48000,
+        bitsPerSample: 16,
+        channels: 2,
+        durationSeconds: 75,
+      ),
+    );
+    addTearDown(result.dispose);
+    await tester.pumpWidget(_host(AudioCompareView(result: result)));
+    expect(
+      result.notices,
+      containsAll([
+        AudioCompareNotice.weakAlignment,
+        AudioCompareNotice.residualHigh,
+        AudioCompareNotice.durationMismatch,
+      ]),
+    );
+    expect(find.byKey(const ValueKey('audio-compare-notice')), findsOneWidget);
+    expect(find.text('This comparison may not mean much'), findsOneWidget);
+    expect(
+      find.textContaining('could not be lined up with confidence'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('The lengths differ by'), findsOneWidget);
+    // A notice is a warning, not an error.
+    expect(
+      _noticeColor(tester, 'audio-compare-notice'),
+      _scheme(tester).tertiaryContainer,
+    );
+    // The band reading is withheld when the comparison is not meaningful.
+    expect(
+      find.text('The difference is spread across the whole range.'),
+      findsNothing,
+    );
+  });
+
+  testWidgets('a decode failure can be retried', (tester) async {
+    var retried = false;
+    await tester.pumpWidget(
+      _host(
+        AudioCompareView(
+          error: const AudioCompareException(AudioCompareFailure.decodeFailed),
+          onRetry: () => retried = true,
         ),
-      );
-      expect(result.notices, isEmpty);
-      expect(find.byKey(const ValueKey('audio-compare-notice')), findsNothing);
-      expect(
-        find.text(
-          'The files share a source but differ clearly, as lossy encoding '
-          'or a filter does.',
+      ),
+    );
+    expect(find.byKey(const ValueKey('audio-compare-error')), findsOneWidget);
+    expect(
+      _noticeColor(tester, 'audio-compare-error'),
+      _scheme(tester).errorContainer,
+    );
+    expect(find.text('One of the files could not be decoded.'), findsOneWidget);
+    await tester.tap(find.text('Retry'));
+    expect(retried, isTrue);
+  });
+
+  testWidgets('an unsupported codec says which', (tester) async {
+    await tester.pumpWidget(
+      _host(
+        const AudioCompareView(
+          error: UnsupportedAudioAnalysisCodecException('AC-4'),
         ),
-        findsOneWidget,
-      );
-      expect(
-        find.text('Most of the difference is in the high frequencies.'),
-        findsOneWidget,
-      );
-      expect(find.text('1105 samples (25.1 ms)'), findsOneWidget);
-      expect(find.text('+0.44 dB'), findsOneWidget);
-      expect(
-        find.text('FLAC · 44.1 kHz · 24-bit · Stereo · 1:00'),
-        findsOneWidget,
-      );
-      expect(find.text('Left'), findsWidgets);
-
-      final timeline = find.byKey(const ValueKey('audio-compare-timeline'));
-      final box = tester.getRect(timeline);
-      await tester.tapAt(
-        Offset(box.left + 40 + (box.width - 40) / 2, box.center.dy),
-      );
-      await tester.pump();
-      final readout = tester.widget<Text>(
-        find.byKey(const ValueKey('audio-compare-readout')),
-      );
-      expect(readout.data, startsWith('0:30'));
-      expect(readout.data, endsWith('dB'));
-      await tester.tap(find.byKey(const ValueKey('audio-compare-seek')));
-      expect(seeked, closeTo(30, 0.2));
-
-      // The explanation stays folded until asked for.
-      final explain = find.byKey(const ValueKey('audio-compare-explain'));
-      await tester.scrollUntilVisible(explain, 200);
-      expect(find.textContaining('A null test lines up'), findsNothing);
-      await tester.tap(explain);
-      await tester.pumpAndSettle();
-      expect(find.textContaining('A null test lines up'), findsOneWidget);
-    });
-
-    testWidgets('$style: fits a phone width', (tester) async {
-      tester.view.physicalSize = const Size(320, 700);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      final result = _result();
-      addTearDown(result.dispose);
-      await tester.pumpWidget(
-        _host(
-          AudioCompareView(result: result, onSeek: (_) {}),
-          mornye: mornye,
-        ),
-      );
-      await tester.tap(find.byKey(const ValueKey('audio-compare-timeline')));
-      await tester.pump();
-      await tester.drag(
-        find.byType(SingleChildScrollView),
-        const Offset(0, -2000),
-      );
-      await tester.pumpAndSettle();
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('$style: no seek when the reference is not playing', (
-      tester,
-    ) async {
-      final result = _result();
-      addTearDown(result.dispose);
-      await tester.pumpWidget(
-        _host(AudioCompareView(result: result), mornye: mornye),
-      );
-      await tester.tap(find.byKey(const ValueKey('audio-compare-timeline')));
-      await tester.pump();
-      expect(find.byKey(const ValueKey('audio-compare-seek')), findsNothing);
-    });
-
-    testWidgets('$style: unrelated files show the notice', (tester) async {
-      final result = _result(
-        residualDb: 0,
-        correlation: 0.02,
-        high: false,
-        other: const AudioCompareFileInfo(
-          name: 'Other.flac',
-          codec: 'FLAC',
-          sampleRate: 48000,
-          bitsPerSample: 16,
-          channels: 2,
-          durationSeconds: 75,
-        ),
-      );
-      addTearDown(result.dispose);
-      await tester.pumpWidget(
-        _host(AudioCompareView(result: result), mornye: mornye),
-      );
-      expect(
-        result.notices,
-        containsAll([
-          AudioCompareNotice.weakAlignment,
-          AudioCompareNotice.residualHigh,
-          AudioCompareNotice.durationMismatch,
-        ]),
-      );
-      expect(
-        find.byKey(const ValueKey('audio-compare-notice')),
-        findsOneWidget,
-      );
-      expect(find.text('This comparison may not mean much'), findsOneWidget);
-      expect(
-        find.textContaining('could not be lined up with confidence'),
-        findsOneWidget,
-      );
-      expect(find.textContaining('The lengths differ by'), findsOneWidget);
-      // A notice is a warning, not an error.
-      expect(
-        _noticeColor(tester, 'audio-compare-notice'),
-        _scheme(tester).tertiaryContainer,
-      );
-      // The band reading is withheld when the comparison is not meaningful.
-      expect(
-        find.text('The difference is spread across the whole range.'),
-        findsNothing,
-      );
-    });
-
-    testWidgets('$style: a decode failure can be retried', (tester) async {
-      var retried = false;
-      await tester.pumpWidget(
-        _host(
-          AudioCompareView(
-            error: const AudioCompareException(
-              AudioCompareFailure.decodeFailed,
-            ),
-            onRetry: () => retried = true,
-          ),
-          mornye: mornye,
-        ),
-      );
-      expect(find.byKey(const ValueKey('audio-compare-error')), findsOneWidget);
-      expect(
-        _noticeColor(tester, 'audio-compare-error'),
-        _scheme(tester).errorContainer,
-      );
-      expect(
-        find.text('One of the files could not be decoded.'),
-        findsOneWidget,
-      );
-      await tester.tap(find.text('Retry'));
-      expect(retried, isTrue);
-    });
-
-    testWidgets('$style: an unsupported codec says which', (tester) async {
-      await tester.pumpWidget(
-        _host(
-          const AudioCompareView(
-            error: UnsupportedAudioAnalysisCodecException('AC-4'),
-          ),
-          mornye: mornye,
-        ),
-      );
-      expect(find.text('Unsupported audio format: AC-4'), findsOneWidget);
-      expect(find.text('Retry'), findsNothing);
-    });
-  }
+      ),
+    );
+    expect(find.text('Unsupported audio format: AC-4'), findsOneWidget);
+    expect(find.text('Retry'), findsNothing);
+  });
 
   testWidgets('the residual spectrogram has no save button', (tester) async {
     final result = _result();
@@ -301,9 +271,7 @@ void main() {
     result.spectrogram = await tester.runAsync(
       () => createTestImage(width: 16, height: 8),
     );
-    await tester.pumpWidget(
-      _host(AudioCompareView(result: result), mornye: false),
-    );
+    await tester.pumpWidget(_host(AudioCompareView(result: result)));
     await tester.scrollUntilVisible(
       find.text('Spectrogram of the difference'),
       200,

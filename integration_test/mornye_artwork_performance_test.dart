@@ -13,12 +13,10 @@ import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/playback_seek_preview.dart';
 import 'package:sistrum/widgets/mornye_player_artwork.dart';
 import 'package:sistrum/widgets/mornye_player_layout.dart';
-import 'package:sistrum/widgets/material_player_layout.dart';
 import 'package:sistrum/widgets/player_volume_control.dart';
 
 import 'performance_probe.dart';
@@ -33,12 +31,12 @@ class _Collections extends LibraryCollectionsNotifier {
   LibraryCollectionsState build() => LibraryCollectionsState(isLoaded: true);
 }
 
-void main() => runArtworkPerformanceTests(mornye: true);
+void main() => runArtworkPerformanceTests();
 
 /// The same source image and panel gestures exercise both player layouts.
-void runArtworkPerformanceTests({required bool mornye}) {
+void runArtworkPerformanceTests() {
   final binding = PerformanceTestBinding.ensureInitialized();
-  final style = mornye ? 'mornye' : 'material';
+  final style = 'mornye';
   testWidgets('$style player panel transitions and artwork cache', (
     tester,
   ) async {
@@ -76,7 +74,7 @@ void runArtworkPerformanceTests({required bool mornye}) {
       duration: const Duration(minutes: 4),
       artUri: cover.uri,
     );
-    final theme = mornye ? MornyeTheme.build(Brightness.dark) : AppTheme.dark();
+    final theme = MornyeTheme.build(Brightness.dark);
     final page = ValueNotifier(0);
     final metadata = PlayerMetadataController();
     final seek = PlaybackSeekPreview();
@@ -131,46 +129,30 @@ void runArtworkPerformanceTests({required bool mornye}) {
             body: SafeArea(
               child: ValueListenableBuilder<int>(
                 valueListenable: page,
-                builder: (context, value, _) => !mornye
-                    ? MaterialPlayerLayout(
-                        mediaItem: item,
-                        metadata: metadata,
-                        seekPreview: seek,
-                        colorScheme: theme.colorScheme,
-                        showLyrics: value == 1,
-                        lyricsBuilder: (_) => ListView.builder(
-                          itemCount: 200,
-                          itemBuilder: (_, index) => Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Text('Lyric line $index'),
-                          ),
-                        ),
-                        onOpenQueue: () {},
-                      )
-                    : MornyePlayerLayout(
-                        mediaItem: item,
-                        metadata: metadata,
-                        seekPreview: seek,
-                        colorScheme: theme.colorScheme,
-                        page: value,
-                        motionArtwork: MornyePlayerArtwork(mediaItem: item),
-                        insetArtwork: true,
-                        artworkTopInset: 0,
-                        artworkKeys: keys,
-                        lyricsControlsHidden: false,
-                        lyricsOptionsOpen: false,
-                        lyricsBuilder: (_) => ListView.builder(
-                          itemCount: 200,
-                          itemBuilder: (_, index) => Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Text('Lyric line $index'),
-                          ),
-                        ),
-                        lyricsOptions: null,
-                        onPageChanged: (value) => page.value = value,
-                        onTrackNavigation: (_, _) async {},
-                        onMoreActions: (_, _, _) async {},
-                      ),
+                builder: (context, value, _) => MornyePlayerLayout(
+                  mediaItem: item,
+                  metadata: metadata,
+                  seekPreview: seek,
+                  colorScheme: theme.colorScheme,
+                  page: value,
+                  motionArtwork: MornyePlayerArtwork(mediaItem: item),
+                  insetArtwork: true,
+                  artworkTopInset: 0,
+                  artworkKeys: keys,
+                  lyricsControlsHidden: false,
+                  lyricsOptionsOpen: false,
+                  lyricsBuilder: (_) => ListView.builder(
+                    itemCount: 200,
+                    itemBuilder: (_, index) => Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Text('Lyric line $index'),
+                    ),
+                  ),
+                  lyricsOptions: null,
+                  onPageChanged: (value) => page.value = value,
+                  onTrackNavigation: (_, _) async {},
+                  onMoreActions: (_, _, _) async {},
+                ),
               ),
             ),
           ),
@@ -186,14 +168,12 @@ void runArtworkPerformanceTests({required bool mornye}) {
         await probe.wait(const Duration(milliseconds: 500));
       }
     });
-    if (mornye) {
-      await probe.measure('player_lyrics_queue_transitions', () async {
-        for (final value in [1, 0, 2, 0]) {
-          page.value = value;
-          await probe.wait(const Duration(milliseconds: 500));
-        }
-      });
-    }
+    await probe.measure('player_lyrics_queue_transitions', () async {
+      for (final value in [1, 0, 2, 0]) {
+        page.value = value;
+        await probe.wait(const Duration(milliseconds: 500));
+      }
+    });
     snapshots['after_panels'] = snapshot();
     // Allow the queue's small thumbnail, but not a second full-size decode.
     expect(
@@ -206,7 +186,7 @@ void runArtworkPerformanceTests({required bool mornye}) {
     await probe.finish(
       metadata: {
         'fixture':
-            'Production ${mornye ? 'MornyePlayerLayout' : 'MaterialPlayerLayout'}, local 2400px static cover; '
+            'Production ${'MornyePlayerLayout'}, local 2400px static cover; '
             'synthetic lyrics/queue and no playback or persistent data',
         'style': style,
         'cache_snapshots': snapshots,

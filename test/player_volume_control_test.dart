@@ -13,8 +13,8 @@ import 'package:sistrum/services/playback_deck.dart';
 import 'package:sistrum/services/playback_output_volume.dart';
 import 'package:sistrum/services/system_volume_service.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/mornye_player_slider.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
-import 'package:sistrum/widgets/app_slider.dart';
 import 'package:sistrum/widgets/player_volume_control.dart';
 
 void main() {
@@ -138,137 +138,130 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets(
-      'Desktop wheel adjusts volume without scrolling the page ($mornye)',
-      (tester) async {
-        PlaybackOutputVolumeStore.debugReset();
-        debugDesktopPlatformOverride = true;
-        playbackOutputVolume.value = 0.5;
-        addTearDown(() {
-          PlaybackOutputVolumeStore.debugReset();
-          debugDesktopPlatformOverride = null;
-          playbackOutputVolume.value = 1;
-        });
-        final scroll = ScrollController();
-        addTearDown(scroll.dispose);
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              systemVolumeProvider.overrideWith(
-                (ref) => playbackOutputVolumeChanges(),
-              ),
-            ],
-            child: MaterialApp(
-              theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: Scaffold(
-                body: ListView(
-                  controller: scroll,
-                  children: const [
-                    PlayerVolumeControl(),
-                    SizedBox(height: 2000),
-                  ],
-                ),
-              ),
+  testWidgets('Desktop wheel adjusts volume without scrolling the page', (
+    tester,
+  ) async {
+    PlaybackOutputVolumeStore.debugReset();
+    debugDesktopPlatformOverride = true;
+    playbackOutputVolume.value = 0.5;
+    addTearDown(() {
+      PlaybackOutputVolumeStore.debugReset();
+      debugDesktopPlatformOverride = null;
+      playbackOutputVolume.value = 1;
+    });
+    final scroll = ScrollController();
+    addTearDown(scroll.dispose);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          systemVolumeProvider.overrideWith(
+            (ref) => playbackOutputVolumeChanges(),
+          ),
+        ],
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: ListView(
+              controller: scroll,
+              children: const [PlayerVolumeControl(), SizedBox(height: 2000)],
             ),
           ),
-        );
-        await tester.pumpAndSettle();
-        final icon = find.byIcon(
-          mornye ? CupertinoIcons.speaker_3_fill : Icons.volume_up_rounded,
-        );
-        final position = tester.getCenter(icon);
-        void wheel(Offset delta) => tester.binding.handlePointerEvent(
-          PointerScrollEvent(position: position, scrollDelta: delta),
-        );
-
-        // Repeated events before a rebuild still use the latest app gain.
-        for (var i = 0; i < 3; i++) {
-          wheel(const Offset(0, -20));
-        }
-        expect(playbackOutputVolume.value, closeTo(0.65, 0.000001));
-        wheel(const Offset(0, 20));
-        expect(playbackOutputVolume.value, closeTo(0.6, 0.000001));
-        wheel(const Offset(20, 0));
-        expect(playbackOutputVolume.value, closeTo(0.6, 0.000001));
-        await tester.pumpAndSettle();
-        expect(scroll.offset, 0);
-
-        for (var i = 0; i < 30; i++) {
-          wheel(const Offset(0, 20));
-        }
-        expect(playbackOutputVolume.value, 0);
-        for (var i = 0; i < 30; i++) {
-          wheel(const Offset(0, -20));
-        }
-        expect(playbackOutputVolume.value, 1);
-        await tester.pumpAndSettle();
-        expect(scroll.offset, 0);
-        expect(tester.takeException(), isNull);
-      },
+        ),
+      ),
     );
-  }
+    await tester.pumpAndSettle();
+    final icon = find.byIcon(CupertinoIcons.speaker_3_fill);
+    final position = tester.getCenter(icon);
+    void wheel(Offset delta) => tester.binding.handlePointerEvent(
+      PointerScrollEvent(position: position, scrollDelta: delta),
+    );
+
+    // Repeated events before a rebuild still use the latest app gain.
+    for (var i = 0; i < 3; i++) {
+      wheel(const Offset(0, -20));
+    }
+    expect(playbackOutputVolume.value, closeTo(0.65, 0.000001));
+    wheel(const Offset(0, 20));
+    expect(playbackOutputVolume.value, closeTo(0.6, 0.000001));
+    wheel(const Offset(20, 0));
+    expect(playbackOutputVolume.value, closeTo(0.6, 0.000001));
+    await tester.pumpAndSettle();
+    expect(scroll.offset, 0);
+
+    for (var i = 0; i < 30; i++) {
+      wheel(const Offset(0, 20));
+    }
+    expect(playbackOutputVolume.value, 0);
+    for (var i = 0; i < 30; i++) {
+      wheel(const Offset(0, -20));
+    }
+    expect(playbackOutputVolume.value, 1);
+    await tester.pumpAndSettle();
+    expect(scroll.offset, 0);
+    expect(tester.takeException(), isNull);
+  });
 
   for (final reducedMotion in [false, true]) {
-    testWidgets(
-      'Material holds dragged volume (reduced motion: $reducedMotion)',
-      (tester) async {
-        final writes = <double>[];
-        final volumes = StreamController<double>();
-        addTearDown(volumes.close);
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              systemVolumeProvider.overrideWith((ref) => volumes.stream),
-              systemVolumeWriterProvider.overrideWith(
-                (ref) =>
-                    (value) async => writes.add(value),
-              ),
-            ],
-            child: MaterialApp(
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: MediaQuery(
-                data: MediaQueryData(disableAnimations: reducedMotion),
-                child: const Scaffold(body: PlayerVolumeControl()),
-              ),
+    testWidgets('holds dragged volume (reduced motion: $reducedMotion)', (
+      tester,
+    ) async {
+      final writes = <double>[];
+      final volumes = StreamController<double>();
+      addTearDown(volumes.close);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            systemVolumeProvider.overrideWith((ref) => volumes.stream),
+            systemVolumeWriterProvider.overrideWith(
+              (ref) =>
+                  (value) async => writes.add(value),
+            ),
+          ],
+          child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.dark),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: MediaQuery(
+              data: MediaQueryData(disableAnimations: reducedMotion),
+              child: const Scaffold(body: PlayerVolumeControl()),
             ),
           ),
-        );
-        volumes.add(0.5);
-        await tester.pumpAndSettle();
-        AppSlider slider() => tester.widget(find.byType(AppSlider));
-        expect(slider().value, 0.5);
+        ),
+      );
+      volumes.add(0.5);
+      await tester.pumpAndSettle();
+      MornyePlayerSlider slider() =>
+          tester.widget(find.byType(MornyePlayerSlider));
+      expect(slider().value, 0.5);
 
-        // A finger on the track: the write finishes and the system echoes an
-        // older level, but the thumb stays where the user put it.
-        final finger = await tester.startGesture(
-          tester.getCenter(find.byType(AppSlider)),
-        );
-        await finger.moveBy(const Offset(20, 0));
-        await tester.pump();
-        await finger.moveBy(const Offset(100, 0));
-        await tester.pump();
-        final draggedVolume = slider().value;
-        expect(draggedVolume, greaterThan(0.5));
-        expect(writes.last, draggedVolume);
-        volumes.add(0.6);
-        await tester.pump();
-        expect(slider().value, draggedVolume);
+      // A finger on the track: the write finishes and the system echoes an
+      // older level, but the thumb stays where the user put it.
+      final finger = await tester.startGesture(
+        tester.getCenter(find.byType(MornyePlayerSlider)),
+      );
+      await finger.moveBy(const Offset(20, 0));
+      await tester.pump();
+      await finger.moveBy(const Offset(100, 0));
+      await tester.pump();
+      final draggedVolume = slider().value;
+      expect(draggedVolume, greaterThan(0.5));
+      expect(writes.last, draggedVolume);
+      volumes.add(0.6);
+      await tester.pump();
+      expect(slider().value, draggedVolume);
 
-        // Once the finger lifts the slider follows the system again.
-        await finger.up();
-        expect(writes.last, draggedVolume);
-        volumes.add(draggedVolume);
-        await tester.pumpAndSettle();
-        expect(slider().value, draggedVolume);
-        volumes.add(0.2);
-        await tester.pumpAndSettle();
-        expect(slider().value, 0.2);
-        expect(tester.takeException(), isNull);
-      },
-    );
+      // Once the finger lifts the slider follows the system again.
+      await finger.up();
+      expect(writes.last, draggedVolume);
+      volumes.add(draggedVolume);
+      await tester.pumpAndSettle();
+      expect(slider().value, draggedVolume);
+      volumes.add(0.2);
+      await tester.pumpAndSettle();
+      expect(slider().value, 0.2);
+      expect(tester.takeException(), isNull);
+    });
   }
 }

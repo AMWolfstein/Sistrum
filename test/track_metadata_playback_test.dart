@@ -13,7 +13,6 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/music_player_service.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mornye_context_menu.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -63,115 +62,33 @@ void main() {
   });
   tearDown(() => messenger.setMockMethodCallHandler(channel, null));
 
-  for (final mornye in [false, true]) {
-    for (final format in ['flac', 'opus']) {
-      for (final menu in [false, if (mornye) true]) {
-        testWidgets('metadata Play carries $format file information '
-            '(Mornye=$mornye, menu=$menu)', (tester) async {
-          await tester.binding.setSurfaceSize(const Size(393, 852));
-          addTearDown(() => tester.binding.setSurfaceSize(null));
-          final player = _Player();
-          final bitDepth = format == 'flac' ? 24 : null;
-          final sampleRate = format == 'flac' ? 96000 : 48000;
-          final bitrate = format == 'flac' ? 2800 : 192;
-          final path = 'content://library/document/song.$format';
-          final screen = TrackMetadataScreen(
-            localItem: LocalLibraryItem(
-              id: 'local-song',
-              trackName: 'Song',
-              artistName: 'Artist',
-              albumName: 'Album',
-              filePath: path,
-              scannedAt: DateTime(2026),
-              duration: 210,
-              bitDepth: bitDepth,
-              sampleRate: sampleRate,
-              bitrate: bitrate,
-              format: format,
-              explicit: true,
-            ),
-          );
-          await tester.pumpWidget(
-            ProviderScope(
-              overrides: [
-                settingsProvider.overrideWith(_Settings.new),
-                musicPlayerControllerProvider.overrideWithValue(player),
-              ],
-              child: MaterialApp(
-                theme: mornye
-                    ? MornyeTheme.build(Brightness.dark)
-                    : AppTheme.dark(),
-                localizationsDelegates: AppLocalizations.localizationsDelegates,
-                supportedLocales: AppLocalizations.supportedLocales,
-                home: screen,
-              ),
-            ),
-          );
-          await tester.pumpAndSettle();
-          if (menu) {
-            await tester.tap(findByTooltip('Show menu'));
-            await tester.pumpAndSettle();
-            await tester.tap(
-              find.descendant(
-                of: find.byType(MornyeContextMenu),
-                matching: find.text('Play'),
-              ),
-            );
-          } else {
-            // Play is in the header, on the first screen.
-            await tester.tap(find.text('Play'));
-          }
-          await tester.pumpAndSettle();
-
-          final media = player.played.single;
-          expect(media.source, path);
-          expect(media.title, 'Song');
-          expect(media.artist, 'Artist');
-          expect(media.album, 'Album');
-          expect(media.duration, const Duration(seconds: 210));
-          expect(media.bitDepth, bitDepth);
-          expect(media.sampleRate, sampleRate);
-          expect(media.bitrate, bitrate);
-          expect(media.format, format);
-          expect(media.explicit, isTrue);
-
-          final reads = <String>[];
-          final metadata = PlayerMetadataController(
-            readMetadata: (path) async {
-              reads.add(path);
-              return {};
-            },
-          );
-          addTearDown(metadata.dispose);
-          // The player must show the known quality without opening Lyrics
-          // or copying the SAF document for a full metadata probe.
-          await metadata.load(media.toMediaItem());
-          expect(
-            metadata.qualityLabel,
-            format == 'flac'
-                ? 'FLAC  ·  24-bit  ·  96 kHz'
-                : 'OPUS  ·  48 kHz  ·  192 kbps',
-          );
-          expect(reads, isEmpty);
-          expect(tester.takeException(), isNull);
-        });
-      }
-    }
-
-    for (final exists in [true, false]) {
-      testWidgets('metadata header holds the song actions '
-          '(Mornye=$mornye, file exists=$exists)', (tester) async {
+  for (final format in ['flac', 'opus']) {
+    for (final menu in [false, true]) {
+      testWidgets('metadata Play carries $format file information '
+          '(menu=$menu)', (tester) async {
         await tester.binding.setSurfaceSize(const Size(393, 852));
         addTearDown(() => tester.binding.setSurfaceSize(null));
-        if (!exists) {
-          messenger.setMockMethodCallHandler(channel, (call) async {
-            return switch (call.method) {
-              'safStat' => jsonEncode({'exists': false}),
-              _ => null,
-            };
-          });
-        }
         final player = _Player();
+        final bitDepth = format == 'flac' ? 24 : null;
+        final sampleRate = format == 'flac' ? 96000 : 48000;
+        final bitrate = format == 'flac' ? 2800 : 192;
+        final path = 'content://library/document/song.$format';
+        final screen = TrackMetadataScreen(
+          localItem: LocalLibraryItem(
+            id: 'local-song',
+            trackName: 'Song',
+            artistName: 'Artist',
+            albumName: 'Album',
+            filePath: path,
+            scannedAt: DateTime(2026),
+            duration: 210,
+            bitDepth: bitDepth,
+            sampleRate: sampleRate,
+            bitrate: bitrate,
+            format: format,
+            explicit: true,
+          ),
+        );
         await tester.pumpWidget(
           ProviderScope(
             overrides: [
@@ -179,45 +96,121 @@ void main() {
               musicPlayerControllerProvider.overrideWithValue(player),
             ],
             child: MaterialApp(
-              theme: mornye
-                  ? MornyeTheme.build(Brightness.dark)
-                  : AppTheme.dark(),
+              theme: MornyeTheme.build(Brightness.dark),
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
-              home: TrackMetadataScreen(
-                localItem: LocalLibraryItem(
-                  id: 'local-song',
-                  trackName: 'Song',
-                  artistName: 'Artist',
-                  albumName: 'Album',
-                  filePath: 'content://library/document/song.flac',
-                  scannedAt: DateTime(2026),
-                  format: 'flac',
-                ),
-              ),
+              home: screen,
             ),
           ),
         );
         await tester.pumpAndSettle();
-
-        // Play stays where it is; the round actions need the file.
-        expect(find.text('Play'), findsOneWidget);
-        final round = exists ? findsOneWidget : findsNothing;
-        expect(findByTooltip('Edit Metadata'), round);
-        expect(findByTooltip('Add to queue'), round);
-        // Delete is kept to the More menu.
-        expect(find.text('Delete'), findsNothing);
-
-        await tester.tap(find.text('Play'));
-        await tester.pumpAndSettle();
-        expect(player.played, hasLength(exists ? 1 : 0));
-        if (exists) {
-          await tester.tap(findByTooltip('Add to queue'));
+        if (menu) {
+          await tester.tap(findByTooltip('Show menu'));
           await tester.pumpAndSettle();
-          expect(player.queued.single.title, 'Song');
+          await tester.tap(
+            find.descendant(
+              of: find.byType(MornyeContextMenu),
+              matching: find.text('Play'),
+            ),
+          );
+        } else {
+          // Play is in the header, on the first screen.
+          await tester.tap(find.text('Play'));
         }
+        await tester.pumpAndSettle();
+
+        final media = player.played.single;
+        expect(media.source, path);
+        expect(media.title, 'Song');
+        expect(media.artist, 'Artist');
+        expect(media.album, 'Album');
+        expect(media.duration, const Duration(seconds: 210));
+        expect(media.bitDepth, bitDepth);
+        expect(media.sampleRate, sampleRate);
+        expect(media.bitrate, bitrate);
+        expect(media.format, format);
+        expect(media.explicit, isTrue);
+
+        final reads = <String>[];
+        final metadata = PlayerMetadataController(
+          readMetadata: (path) async {
+            reads.add(path);
+            return {};
+          },
+        );
+        addTearDown(metadata.dispose);
+        // The player must show the known quality without opening Lyrics
+        // or copying the SAF document for a full metadata probe.
+        await metadata.load(media.toMediaItem());
+        expect(
+          metadata.qualityLabel,
+          format == 'flac'
+              ? 'FLAC  ·  24-bit  ·  96 kHz'
+              : 'OPUS  ·  48 kHz  ·  192 kbps',
+        );
+        expect(reads, isEmpty);
         expect(tester.takeException(), isNull);
       });
     }
+  }
+
+  for (final exists in [true, false]) {
+    testWidgets('metadata header holds the song actions '
+        '(file exists=$exists)', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(393, 852));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      if (!exists) {
+        messenger.setMockMethodCallHandler(channel, (call) async {
+          return switch (call.method) {
+            'safStat' => jsonEncode({'exists': false}),
+            _ => null,
+          };
+        });
+      }
+      final player = _Player();
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            settingsProvider.overrideWith(_Settings.new),
+            musicPlayerControllerProvider.overrideWithValue(player),
+          ],
+          child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.dark),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: TrackMetadataScreen(
+              localItem: LocalLibraryItem(
+                id: 'local-song',
+                trackName: 'Song',
+                artistName: 'Artist',
+                albumName: 'Album',
+                filePath: 'content://library/document/song.flac',
+                scannedAt: DateTime(2026),
+                format: 'flac',
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Play stays where it is; the round actions need the file.
+      expect(find.text('Play'), findsOneWidget);
+      final round = exists ? findsOneWidget : findsNothing;
+      expect(findByTooltip('Edit Metadata'), round);
+      expect(findByTooltip('Add to queue'), round);
+      // Delete is kept to the More menu.
+      expect(find.text('Delete'), findsNothing);
+
+      await tester.tap(find.text('Play'));
+      await tester.pumpAndSettle();
+      expect(player.played, hasLength(exists ? 1 : 0));
+      if (exists) {
+        await tester.tap(findByTooltip('Add to queue'));
+        await tester.pumpAndSettle();
+        expect(player.queued.single.title, 'Song');
+      }
+      expect(tester.takeException(), isNull);
+    });
   }
 }

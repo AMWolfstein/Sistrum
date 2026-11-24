@@ -6,10 +6,8 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:sistrum/controllers/selection_mode_mixin.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/desktop/context_menu.dart';
@@ -22,9 +20,9 @@ import 'package:sistrum/widgets/track_card.dart';
 
 import 'support/tooltip_finder.dart';
 
-Widget _app(Widget child, {bool mornye = false}) => ProviderScope(
+Widget _app(Widget child) => ProviderScope(
   child: MaterialApp(
-    theme: mornye ? MornyeTheme.build(Brightness.light) : AppTheme.light(),
+    theme: MornyeTheme.build(Brightness.light),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     home: Scaffold(body: child),
@@ -164,137 +162,11 @@ void main() {
   );
 
   group('context menus', () {
-    testWidgets('Material right-click opens the long-press actions', (
-      tester,
-    ) async {
-      final log = <String>[];
-      await tester.pumpWidget(_app(card(log)));
-
-      await _rightClick(tester, find.text('Song'));
-      final menu = find.byType(M3EMenuPopup<int>);
-      expect(menu, findsOneWidget);
-      expect(find.text('Play'), findsOneWidget);
-      // The rows grow from the pointer, Play first.
-      final point = tester.getCenter(find.text('Song'));
-      final play = tester.getRect(find.text('Play'));
-      expect(play.top, greaterThanOrEqualTo(point.dy));
-      expect(play.top, lessThan(tester.getRect(find.text('Delete')).top));
-
-      await tester.tap(find.text('Delete'));
-      await tester.pumpAndSettle();
-      expect(log, ['delete']);
-      expect(menu, findsNothing);
-    });
-
-    testWidgets('Escape closes the Material menu without an action', (
-      tester,
-    ) async {
-      final log = <String>[];
-      await tester.pumpWidget(_app(card(log)));
-
-      await _rightClick(tester, find.text('Song'));
-      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
-      await tester.pumpAndSettle();
-      expect(find.byType(M3EMenuPopup<int>), findsNothing);
-      expect(log, isEmpty);
-    });
-
-    double menuOpacity(WidgetTester tester, String label) => tester
-        .widgetList<Opacity>(
-          find.ancestor(of: find.text(label), matching: find.byType(Opacity)),
-        )
-        .fold(1.0, (opacity, fade) => opacity * fade.opacity);
-
-    for (final reducedMotion in [false, true]) {
-      testWidgets('Material menu motion (reduced motion: $reducedMotion)', (
-        tester,
-      ) async {
-        final log = <String>[];
-        await tester.pumpWidget(
-          ProviderScope(
-            child: MaterialApp(
-              theme: AppTheme.light(),
-              builder: (context, child) => MediaQuery(
-                data: MediaQuery.of(
-                  context,
-                ).copyWith(disableAnimations: reducedMotion),
-                child: child!,
-              ),
-              home: Scaffold(
-                body: Builder(
-                  builder: (context) => Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextButton(
-                        onPressed: () => log.add('behind'),
-                        child: const Text('Behind'),
-                      ),
-                      TextButton(
-                        onPressed: () => showContextMenu(
-                          context,
-                          position: const Offset(300, 300),
-                          groups: menu(log),
-                        ),
-                        child: const Text('Open'),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-
-        // Reduced motion keeps the instant menu; expressive motion grows
-        // the More menus' popup from the pointer.
-        final menuFinder = find.byType(
-          reducedMotion ? MenuItemButton : M3EMenuPopup<int>,
-        );
-        await tester.tap(find.text('Open'));
-        await tester.pump();
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 30));
-        expect(menuFinder, findsWidgets);
-        if (reducedMotion) {
-          expect(menuOpacity(tester, 'Delete'), 1);
-        } else {
-          expect(menuOpacity(tester, 'Delete'), lessThan(1));
-          // The rows take clicks while the menu grows.
-          await tester.tap(find.text('Play'));
-          await tester.pumpAndSettle();
-          expect(log, ['play']);
-          expect(menuFinder, findsNothing);
-          await tester.tap(find.text('Open'));
-          await tester.pump();
-          await tester.pump();
-        }
-        await tester.pumpAndSettle();
-        expect(menuOpacity(tester, 'Delete'), closeTo(1, 0.001));
-
-        // The first row has focus, so the arrows and Enter choose a row.
-        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
-        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-        await tester.pumpAndSettle();
-        expect(log.last, 'delete');
-        expect(menuFinder, findsNothing);
-
-        // Escape closes the menu; a click right after it reaches the page.
-        await tester.tap(find.text('Open'));
-        await tester.pumpAndSettle();
-        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
-        await tester.pump(const Duration(milliseconds: 16));
-        await tester.tap(find.text('Behind'));
-        await tester.pumpAndSettle();
-        expect(log.last, 'behind');
-        expect(menuFinder, findsNothing);
-      });
-    }
-
     testWidgets('Mornye right-click opens the Mornye context menu', (
       tester,
     ) async {
       final log = <String>[];
-      await tester.pumpWidget(_app(card(log), mornye: true));
+      await tester.pumpWidget(_app(card(log)));
 
       await _rightClick(tester, find.text('Song'));
       expect(find.byType(MornyeContextMenu), findsOneWidget);
@@ -512,6 +384,17 @@ void main() {
   });
 
   group('hover play button', () {
+    // The scrim is the first AnimatedOpacity in the tile; the Play button's
+    // own fade is the last one.
+    AnimatedOpacity playFade(WidgetTester tester) => tester
+        .widgetList<AnimatedOpacity>(
+          find.descendant(
+            of: find.byType(DesktopHoverPlayButton),
+            matching: find.byType(AnimatedOpacity),
+          ),
+        )
+        .last;
+
     Widget tile(VoidCallback onPlay) => _app(
       Center(
         child: SizedBox.square(
@@ -542,7 +425,6 @@ void main() {
               ),
             ),
           ),
-          mornye: true,
         ),
       );
       final scrim = find.byKey(const ValueKey('desktop-hover-scrim'));
@@ -570,18 +452,14 @@ void main() {
     testWidgets('appears while the pointer is on the artwork', (tester) async {
       var played = 0;
       await tester.pumpWidget(tile(() => played++));
-      final opacity = find.descendant(
-        of: find.byType(DesktopHoverPlayButton),
-        matching: find.byType(AnimatedOpacity),
-      );
-      expect(tester.widget<AnimatedOpacity>(opacity).opacity, 0);
+      expect(playFade(tester).opacity, 0);
 
       final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
       await mouse.addPointer(
         location: tester.getCenter(find.byType(ColoredBox).last),
       );
       await tester.pumpAndSettle();
-      expect(tester.widget<AnimatedOpacity>(opacity).opacity, 1);
+      expect(playFade(tester).opacity, 1);
 
       await tester.tap(findByTooltip('Play'));
       expect(played, 1);
@@ -610,15 +488,11 @@ void main() {
     testWidgets('Tab reaches the button before it is built', (tester) async {
       var played = 0;
       await tester.pumpWidget(tile(() => played++));
-      final opacity = find.descendant(
-        of: find.byType(DesktopHoverPlayButton),
-        matching: find.byType(AnimatedOpacity),
-      );
       expect(find.byType(IconButton), findsNothing);
 
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);
       await tester.pumpAndSettle();
-      expect(tester.widget<AnimatedOpacity>(opacity).opacity, 1);
+      expect(playFade(tester).opacity, 1);
       final button = find.byType(IconButton);
       expect(button, findsOneWidget);
       expect(
@@ -636,7 +510,7 @@ void main() {
 
       FocusManager.instance.primaryFocus!.unfocus();
       await tester.pumpAndSettle();
-      expect(tester.widget<AnimatedOpacity>(opacity).opacity, 0);
+      expect(playFade(tester).opacity, 0);
     });
 
     testWidgets('phones show no hover button', (tester) async {

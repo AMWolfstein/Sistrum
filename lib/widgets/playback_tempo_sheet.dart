@@ -6,11 +6,9 @@ import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/playback_deck.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_slider.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/slider_value_header.dart';
 
@@ -92,7 +90,6 @@ Future<void> showPlaybackTempoSheet(BuildContext context) =>
     showAppBottomSheet<void>(
       context: context,
       useRootNavigator: true,
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
       title: context.l10n.playbackTempoTitle,
       maxHeightFactor: 0.85,
       dialogSize: AppDialogSize.compact,
@@ -263,7 +260,6 @@ class _PlaybackTempoControlsState extends ConsumerState<PlaybackTempoControls> {
                     min: -maxPlaybackPitch,
                     max: maxPlaybackPitch,
                     divisions: _pitchDivisions,
-                    centered: true,
                     label: pitchLabel,
                     semanticLabel: l10n.playbackTempoPitch,
                     semanticFormatterCallback: (value) =>
@@ -299,8 +295,7 @@ class _PlaybackTempoControlsState extends ConsumerState<PlaybackTempoControls> {
           ),
           child: Align(
             alignment: AlignmentDirectional.centerEnd,
-            child: ExpressiveButton(
-              text: true,
+            child: TextButton.icon(
               icon: const AppIcon(Icons.restart_alt),
               onPressed:
                   !speedEnabled || _isDefaultTempo(speed, keepPitch, pitch)
@@ -312,7 +307,7 @@ class _PlaybackTempoControlsState extends ConsumerState<PlaybackTempoControls> {
                       });
                       notifier.resetPlaybackTempo();
                     },
-              child: Text(l10n.playbackTempoReset),
+              label: Text(l10n.playbackTempoReset),
             ),
           ),
         ),
@@ -348,35 +343,25 @@ class PlaybackTempoBadge extends ConsumerWidget {
       ),
     ].join(', ');
     // Styled like the audio format label beside it.
-    final mornye = context.isMornye;
     final radius = BorderRadius.circular(20);
     final pill = Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: mornye ? 8 : 10,
-        vertical: mornye ? 2 : 5,
-      ),
-      decoration: mornye
-          ? null
-          : BoxDecoration(
-              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-              borderRadius: radius,
-            ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           AppIcon.adaptive(
             Icons.speed,
-            size: mornye ? 11 : 14,
+            size: 11,
             color: colorScheme.onSurfaceVariant,
           ),
-          SizedBox(width: mornye ? 5 : 6),
+          const SizedBox(width: 5),
           Flexible(
             child: Text(
               text,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                fontSize: mornye ? 10.5 : 12,
+                fontSize: 10.5,
                 color: colorScheme.onSurfaceVariant,
                 letterSpacing: 0.2,
               ),

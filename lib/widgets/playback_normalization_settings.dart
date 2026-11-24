@@ -2,10 +2,8 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_choice_chip.dart';
 import 'package:sistrum/widgets/app_slider.dart';
-import 'package:sistrum/widgets/slider_value_header.dart';
 
 /// Gain mode and pre-amp shown under the volume normalization switch.
 class PlaybackNormalizationSettings extends ConsumerStatefulWidget {
@@ -61,7 +59,6 @@ class _PlaybackNormalizationSettingsState
                 AppChoiceChip(
                   label: Text(label),
                   selected: mode == id,
-                  singleChoice: true,
                   onSelected: widget.enabled
                       ? (_) => notifier.setPlaybackNormalizationMode(id)
                       : null,
@@ -69,14 +66,7 @@ class _PlaybackNormalizationSettingsState
             ],
           ),
           const SizedBox(height: 16),
-          if (context.isMornye)
-            Text('${l10n.playbackNormalizationPreamp}: $value')
-          else
-            SliderValueHeader(
-              title: l10n.playbackNormalizationPreamp,
-              value: value,
-              enabled: widget.enabled,
-            ),
+          Text('${l10n.playbackNormalizationPreamp}: $value'),
           AppSlider(
             value: preamp.toDouble(),
             min: -15,

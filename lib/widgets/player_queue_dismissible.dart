@@ -3,8 +3,6 @@ import 'package:cupertino_ui/cupertino_ui.dart'
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/scheduler.dart' show SchedulerBinding;
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/queue_swipe.dart';
 import 'package:sistrum/widgets/swipe_commit_haptic.dart';
 
@@ -100,32 +98,13 @@ class _PlayerQueueDismissibleState extends State<PlayerQueueDismissible>
     direction: widget.enabled
         ? DismissDirection.endToStart
         : DismissDirection.none,
-    dismissThresholds: context.isMornye
-        ? const {DismissDirection.endToStart: 0.5}
-        : const {},
+    dismissThresholds: const {DismissDirection.endToStart: 0.5},
     onUpdate: (details) {
       _haptic.update(details.reached);
-      if (context.isMornye) _progress.value = details.progress;
+      _progress.value = details.progress;
     },
     confirmDismiss: (_) => _confirmRemove(),
-    background: context.isMornye
-        ? _buildMornyeBackground(context)
-        : Container(
-            alignment: AlignmentDirectional.centerEnd,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.error,
-              // Matches the queue sheet's row corners.
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: AppIcon(
-              Icons.delete_outline,
-              color: Theme.of(context).colorScheme.onError,
-              semanticLabel: MaterialLocalizations.of(
-                context,
-              ).deleteButtonTooltip,
-            ),
-          ),
+    background: _buildMornyeBackground(context),
     child: _withPlayNext(context, widget.child),
   );
 
@@ -137,8 +116,6 @@ class _PlayerQueueDismissibleState extends State<PlayerQueueDismissible>
     return QueueSwipe(
       actions: actions,
       enabled: widget.enabled,
-      // Matches the queue sheet's row corners, as the removal strip does.
-      borderRadius: BorderRadius.circular(context.isMornye ? 12 : 16),
       // One node, so screen readers find Play next on the row itself.
       child: MergeSemantics(
         child: Stack(

@@ -17,290 +17,277 @@ import 'package:sistrum/services/song_analysis.dart';
 import 'package:sistrum/services/song_analysis_store.dart';
 import 'package:sistrum/services/song_features.dart';
 import 'package:sistrum/utils/settings_search_catalog.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
-  for (final mornye in [false, true]) {
-    testWidgets('personalization switch persists and is searchable ($mornye)', (
-      tester,
-    ) async {
-      SharedPreferences.setMockInitialValues({});
-      tester.view.physicalSize = const Size(390, 844);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      final container = ProviderContainer(
-        overrides: [
-          initialSettingsProvider.overrideWithValue(const AppSettings()),
-        ],
-      );
-      addTearDown(container.dispose);
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: MaterialApp(
-            theme: mornye
-                ? MornyeTheme.build(Brightness.dark, accent: MornyeAccent.blue)
-                : AppTheme.light(),
-            locale: const Locale('en'),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: const PlaybackSettingsPage(),
+  testWidgets('personalization switch persists and is searchable', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final container = ProviderContainer(
+      overrides: [
+        initialSettingsProvider.overrideWithValue(const AppSettings()),
+      ],
+    );
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark, accent: MornyeAccent.blue),
+          locale: const Locale('en'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const PlaybackSettingsPage(),
+        ),
+      ),
+    );
+    final label = find.text('Personalized autoplay');
+    await tester.scrollUntilVisible(
+      label,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    // On by default; the reset action belongs to the enabled state.
+    expect(container.read(settingsProvider).autoplayPersonalization, isTrue);
+    expect(find.text('Reset recommendation learning'), findsOneWidget);
+    // A stray tap only asks; cancelling keeps what was learned.
+    await tester.tap(find.text('Reset recommendation learning'));
+    await tester.pumpAndSettle();
+    expect(find.text('Reset recommendation learning?'), findsOneWidget);
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(find.text('Reset recommendation learning?'), findsNothing);
+    await tester.tap(label);
+    await tester.pumpAndSettle();
+    expect(container.read(settingsProvider).autoplayPersonalization, isFalse);
+    expect(container.read(settingsProvider).autoplay, isFalse);
+    final prefs = await SharedPreferences.getInstance();
+    expect(
+      AppSettings.fromJson(
+        jsonDecode(prefs.getString('app_settings')!) as Map<String, dynamic>,
+      ).autoplayPersonalization,
+      isFalse,
+    );
+    expect(find.text('Reset recommendation learning'), findsNothing);
+    await tester.ensureVisible(label);
+    await tester.pumpAndSettle();
+    await tester.tap(label);
+    await tester.pumpAndSettle();
+    expect(container.read(settingsProvider).autoplayPersonalization, isTrue);
+    final l10n = AppLocalizations.of(tester.element(label));
+    expect(
+      SettingsSearchCatalog(l10n).playback.any(
+        (entry) => entry.matches(SettingsSearchQuery('machine learning')),
+      ),
+      isTrue,
+    );
+    container.read(settingsProvider.notifier).setPlayerMode('external');
+    await tester.pump();
+    expect(
+      tester
+          .widget<SettingsSwitchItem>(
+            find.byWidgetPredicate(
+              (widget) =>
+                  widget is SettingsSwitchItem &&
+                  widget.title == 'Personalized autoplay',
+            ),
+          )
+          .enabled,
+      isFalse,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('reset learning tells how well ranking learned', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    sqfliteFfiInit();
+    final db = (await tester.runAsync(
+      () => AutoplayRanker.openWithFactory(
+        databaseFactoryFfi,
+        inMemoryDatabasePath,
+      ),
+    ))!;
+    addTearDown(() => tester.runAsync(db.close));
+    var evaluation = const AutoplayRankEvaluation(outcomes: 12);
+    final ranker = AutoplayRanker(
+      open: () async => db,
+      train: (_) async =>
+          (weights: const <String, double>{}, evaluation: evaluation),
+    );
+    await tester.runAsync(ranker.train);
+    final container = ProviderContainer(
+      overrides: [
+        initialSettingsProvider.overrideWithValue(const AppSettings()),
+        musicPlayerRuntimeProvider.overrideWithValue(
+          MusicPlayerRuntime(
+            dependencies: PlaybackDependencies(createRanker: () => ranker),
           ),
         ),
-      );
-      final label = find.text('Personalized autoplay');
-      await tester.scrollUntilVisible(
-        label,
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.pumpAndSettle();
-      // On by default; the reset action belongs to the enabled state.
-      expect(container.read(settingsProvider).autoplayPersonalization, isTrue);
-      expect(find.text('Reset recommendation learning'), findsOneWidget);
-      // A stray tap only asks; cancelling keeps what was learned.
-      await tester.tap(find.text('Reset recommendation learning'));
-      await tester.pumpAndSettle();
-      expect(find.text('Reset recommendation learning?'), findsOneWidget);
-      await tester.tap(find.text('Cancel'));
-      await tester.pumpAndSettle();
-      expect(find.text('Reset recommendation learning?'), findsNothing);
-      await tester.tap(label);
-      await tester.pumpAndSettle();
-      expect(container.read(settingsProvider).autoplayPersonalization, isFalse);
-      expect(container.read(settingsProvider).autoplay, isFalse);
-      final prefs = await SharedPreferences.getInstance();
-      expect(
-        AppSettings.fromJson(
-          jsonDecode(prefs.getString('app_settings')!) as Map<String, dynamic>,
-        ).autoplayPersonalization,
-        isFalse,
-      );
-      expect(find.text('Reset recommendation learning'), findsNothing);
-      await tester.ensureVisible(label);
-      await tester.pumpAndSettle();
-      await tester.tap(label);
-      await tester.pumpAndSettle();
-      expect(container.read(settingsProvider).autoplayPersonalization, isTrue);
-      final l10n = AppLocalizations.of(tester.element(label));
-      expect(
-        SettingsSearchCatalog(l10n).playback.any(
-          (entry) => entry.matches(SettingsSearchQuery('machine learning')),
+      ],
+    );
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark, accent: MornyeAccent.blue),
+          locale: const Locale('en'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const PlaybackSettingsPage(),
         ),
-        isTrue,
-      );
-      container.read(settingsProvider.notifier).setPlayerMode('external');
-      await tester.pump();
-      expect(
-        tester
-            .widget<SettingsSwitchItem>(
-              find.byWidgetPredicate(
-                (widget) =>
-                    widget is SettingsSwitchItem &&
-                    widget.title == 'Personalized autoplay',
-              ),
-            )
-            .enabled,
-        isFalse,
-      );
-      expect(tester.takeException(), isNull);
-    });
+      ),
+    );
+    final progress = find.text(
+      'Ranking tunes to you after 40 Autoplay songs (12 so far)',
+    );
+    await tester.scrollUntilVisible(
+      progress,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    expect(progress, findsOneWidget);
 
-    testWidgets('reset learning tells how well ranking learned ($mornye)', (
-      tester,
-    ) async {
-      SharedPreferences.setMockInitialValues({});
-      tester.view.physicalSize = const Size(390, 844);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      sqfliteFfiInit();
-      final db = (await tester.runAsync(
-        () => AutoplayRanker.openWithFactory(
-          databaseFactoryFfi,
-          inMemoryDatabasePath,
-        ),
-      ))!;
-      addTearDown(() => tester.runAsync(db.close));
-      var evaluation = const AutoplayRankEvaluation(outcomes: 12);
-      final ranker = AutoplayRanker(
-        open: () async => db,
-        train: (_) async =>
-            (weights: const <String, double>{}, evaluation: evaluation),
+    evaluation = const AutoplayRankEvaluation(
+      outcomes: 80,
+      tested: 20,
+      starting: 0.642,
+      learned: 0.71,
+    );
+    await tester.runAsync(ranker.train);
+    await tester.pumpAndSettle();
+    expect(
+      find.text(
+        'Tuned to you: 71% accurate on your latest songs '
+        '(standard 64%)',
+      ),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('song analysis shows its progress and clears', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final store = _MemoryStore();
+    for (var i = 0; i < 1234; i++) {
+      store.rows['/$i.flac'] = const SongAnalysisRecord(
+        stamp: (size: 1, modified: 1),
+        version: SongFeatures.version,
+        failed: false,
       );
-      await tester.runAsync(ranker.train);
-      final container = ProviderContainer(
-        overrides: [
-          initialSettingsProvider.overrideWithValue(const AppSettings()),
-          musicPlayerRuntimeProvider.overrideWithValue(
-            MusicPlayerRuntime(
-              dependencies: PlaybackDependencies(createRanker: () => ranker),
+    }
+    final analysis = SongAnalysis(
+      store: store,
+      librarySongs: () async => [
+        for (var i = 0; i < 5000; i++)
+          (path: '/$i.flac', duration: null, local: false),
+      ],
+      sweep: SongAnalysisSweep.never,
+      isAndroid: false,
+    );
+    final container = ProviderContainer(
+      overrides: [
+        initialSettingsProvider.overrideWithValue(
+          const AppSettings(songAnalysis: true),
+        ),
+        musicPlayerRuntimeProvider.overrideWithValue(
+          MusicPlayerRuntime(
+            dependencies: PlaybackDependencies(
+              createSongAnalysis: (_) => analysis,
             ),
           ),
-        ],
-      );
-      addTearDown(container.dispose);
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: MaterialApp(
-            theme: mornye
-                ? MornyeTheme.build(Brightness.dark, accent: MornyeAccent.blue)
-                : AppTheme.light(),
-            locale: const Locale('en'),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: const PlaybackSettingsPage(),
-          ),
         ),
-      );
-      final progress = find.text(
-        'Ranking tunes to you after 40 Autoplay songs (12 so far)',
-      );
-      await tester.scrollUntilVisible(
-        progress,
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.pumpAndSettle();
-      expect(progress, findsOneWidget);
-
-      evaluation = const AutoplayRankEvaluation(
-        outcomes: 80,
-        tested: 20,
-        starting: 0.642,
-        learned: 0.71,
-      );
-      await tester.runAsync(ranker.train);
-      await tester.pumpAndSettle();
-      expect(
-        find.text(
-          'Tuned to you: 71% accurate on your latest songs '
-          '(standard 64%)',
+      ],
+    );
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark, accent: MornyeAccent.blue),
+          locale: const Locale('en'),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const PlaybackSettingsPage(),
         ),
-        findsOneWidget,
-      );
-      expect(tester.takeException(), isNull);
-    });
+      ),
+    );
+    final clear = find.text('Clear song analysis');
+    await tester.scrollUntilVisible(
+      clear,
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('1,234 of 5,000 songs analyzed'), findsOneWidget);
+    // The charging rule is Android's.
+    expect(find.text('Only while charging'), findsNothing);
 
-    testWidgets('song analysis shows its progress and clears ($mornye)', (
-      tester,
-    ) async {
-      SharedPreferences.setMockInitialValues({});
-      tester.view.physicalSize = const Size(390, 844);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      final store = _MemoryStore();
-      for (var i = 0; i < 1234; i++) {
-        store.rows['/$i.flac'] = const SongAnalysisRecord(
-          stamp: (size: 1, modified: 1),
-          version: SongFeatures.version,
-          failed: false,
-        );
-      }
-      final analysis = SongAnalysis(
-        store: store,
-        librarySongs: () async => [
-          for (var i = 0; i < 5000; i++)
-            (path: '/$i.flac', duration: null, local: false),
-        ],
-        sweep: SongAnalysisSweep.never,
-        isAndroid: false,
+    for (var i = 1234; i < 5000; i++) {
+      store.rows['/$i.flac'] = const SongAnalysisRecord(
+        stamp: (size: 1, modified: 1),
+        version: SongFeatures.version,
+        failed: true,
       );
-      final container = ProviderContainer(
-        overrides: [
-          initialSettingsProvider.overrideWithValue(
-            const AppSettings(songAnalysis: true),
-          ),
-          musicPlayerRuntimeProvider.overrideWithValue(
-            MusicPlayerRuntime(
-              dependencies: PlaybackDependencies(
-                createSongAnalysis: (_) => analysis,
-              ),
-            ),
-          ),
-        ],
-      );
-      addTearDown(container.dispose);
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: MaterialApp(
-            theme: mornye
-                ? MornyeTheme.build(Brightness.dark, accent: MornyeAccent.blue)
-                : AppTheme.light(),
-            locale: const Locale('en'),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: const PlaybackSettingsPage(),
-          ),
-        ),
-      );
-      final clear = find.text('Clear song analysis');
-      await tester.scrollUntilVisible(
-        clear,
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.pumpAndSettle();
-      expect(find.text('1,234 of 5,000 songs analyzed'), findsOneWidget);
-      // The charging rule is Android's.
-      expect(find.text('Only while charging'), findsNothing);
+    }
+    await analysis.refreshProgress();
+    await tester.pumpAndSettle();
+    expect(
+      find.text(
+        '1,234 of 5,000 songs analyzed; 3,766 skipped '
+        '(missing, unreadable or silent)',
+      ),
+      findsOneWidget,
+    );
+    final clearItem = tester.widget<SettingsItem>(
+      find.ancestor(of: clear, matching: find.byType(SettingsItem)),
+    );
+    expect(clearItem.footer, isNull);
+    expect(clearItem.onTap, isNotNull);
 
-      for (var i = 1234; i < 5000; i++) {
-        store.rows['/$i.flac'] = const SongAnalysisRecord(
-          stamp: (size: 1, modified: 1),
-          version: SongFeatures.version,
-          failed: true,
-        );
-      }
-      await analysis.refreshProgress();
-      await tester.pumpAndSettle();
-      expect(
-        find.text(
-          '1,234 of 5,000 songs analyzed; 3,766 skipped '
-          '(missing, unreadable or silent)',
-        ),
-        findsOneWidget,
-      );
-      final clearItem = tester.widget<SettingsItem>(
-        find.ancestor(of: clear, matching: find.byType(SettingsItem)),
-      );
-      expect(clearItem.footer, isNull);
-      expect(clearItem.onTap, isNotNull);
+    final label = find.text('Song analysis');
+    await tester.ensureVisible(label);
+    await tester.pumpAndSettle();
+    await tester.tap(label);
+    await tester.pumpAndSettle();
+    expect(container.read(settingsProvider).songAnalysis, isFalse);
+    // What was analyzed can still be cleared.
+    expect(clear, findsOneWidget);
+    await tester.ensureVisible(clear);
+    await tester.pumpAndSettle();
+    await tester.tap(clear);
+    await tester.pumpAndSettle();
+    expect(find.text('Clear song analysis?'), findsOneWidget);
+    await tester.tap(find.text('Clear'));
+    await tester.pumpAndSettle();
+    expect(store.rows, isEmpty);
+    expect(clear, findsNothing);
 
-      final label = find.text('Song analysis');
-      await tester.ensureVisible(label);
-      await tester.pumpAndSettle();
-      await tester.tap(label);
-      await tester.pumpAndSettle();
-      expect(container.read(settingsProvider).songAnalysis, isFalse);
-      // What was analyzed can still be cleared.
-      expect(clear, findsOneWidget);
-      await tester.ensureVisible(clear);
-      await tester.pumpAndSettle();
-      await tester.tap(clear);
-      await tester.pumpAndSettle();
-      expect(find.text('Clear song analysis?'), findsOneWidget);
-      await tester.tap(find.text('Clear'));
-      await tester.pumpAndSettle();
-      expect(store.rows, isEmpty);
-      expect(clear, findsNothing);
-
-      final l10n = AppLocalizations.of(
-        tester.element(find.text('Song analysis')),
-      );
-      expect(
-        SettingsSearchCatalog(
-          l10n,
-        ).playback.any((entry) => entry.matches(SettingsSearchQuery('bpm'))),
-        isTrue,
-      );
-      expect(tester.takeException(), isNull);
-    });
-  }
+    final l10n = AppLocalizations.of(
+      tester.element(find.text('Song analysis')),
+    );
+    expect(
+      SettingsSearchCatalog(
+        l10n,
+      ).playback.any((entry) => entry.matches(SettingsSearchQuery('bpm'))),
+      isTrue,
+    );
+    expect(tester.takeException(), isNull);
+  });
 }
 
 /// Song analysis kept in memory.

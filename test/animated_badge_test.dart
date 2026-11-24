@@ -9,11 +9,10 @@ void main() {
   Future<void> pumpBadge(
     WidgetTester tester, {
     required int count,
-    bool mornye = false,
     bool reducedMotion = false,
   }) => tester.pumpWidget(
     MaterialApp(
-      theme: mornye ? MornyeTheme.build(Brightness.light) : ThemeData(),
+      theme: MornyeTheme.build(Brightness.light),
       home: MediaQuery(
         data: MediaQueryData(disableAnimations: reducedMotion),
         child: Center(
@@ -36,14 +35,11 @@ void main() {
   testWidgets('reduced motion shows a new count without a bump', (
     tester,
   ) async {
-    for (final mornye in [false, true]) {
-      await pumpBadge(tester, count: 1, mornye: mornye, reducedMotion: true);
-      await pumpBadge(tester, count: 2, mornye: mornye, reducedMotion: true);
-      for (var frame = 0; frame < 30; frame++) {
-        expect(scale(tester), 1);
-        await tester.pump(const Duration(milliseconds: 16));
-      }
-      await tester.pumpWidget(const SizedBox());
+    await pumpBadge(tester, count: 1, reducedMotion: true);
+    await pumpBadge(tester, count: 2, reducedMotion: true);
+    for (var frame = 0; frame < 30; frame++) {
+      expect(scale(tester), 1);
+      await tester.pump(const Duration(milliseconds: 16));
     }
   });
 
@@ -61,30 +57,9 @@ void main() {
     return (low, high);
   }
 
-  testWidgets('Material pushes from 1 on its fast spatial spring', (
-    tester,
-  ) async {
+  testWidgets('pushes on its fast spring without a bounce', (tester) async {
     await pumpBadge(tester, count: 1);
-    expect(scale(tester), 1);
     await pumpBadge(tester, count: 2);
-    // The bump starts from the scale on screen, not from its peak.
-    expect(scale(tester), 1);
-    final (low, high) = await track(tester);
-    expect(high, closeTo(1 + AnimatedBadge.bumpHeight, 0.01));
-    // The expressive spring dips slightly below rest on the way back.
-    expect(low, lessThan(1));
-    expect(scale(tester), 1);
-
-    // A lower count does not bump.
-    await pumpBadge(tester, count: 1);
-    expect(scale(tester), 1);
-  });
-
-  testWidgets('Mornye pushes on its fast spring without a bounce', (
-    tester,
-  ) async {
-    await pumpBadge(tester, count: 1, mornye: true);
-    await pumpBadge(tester, count: 2, mornye: true);
     expect(scale(tester), 1);
     final (low, high) = await track(tester);
     expect(high, closeTo(1 + AnimatedBadge.bumpHeight, 0.01));
@@ -95,27 +70,24 @@ void main() {
   testWidgets('a count that grows mid-bump goes on from the scale on screen', (
     tester,
   ) async {
-    for (final mornye in [false, true]) {
-      await pumpBadge(tester, count: 1, mornye: mornye);
-      await pumpBadge(tester, count: 2, mornye: mornye);
-      await tester.pump(const Duration(milliseconds: 16));
-      await tester.pump(const Duration(milliseconds: 16));
-      final before = scale(tester);
-      expect(before, greaterThan(1.05));
+    await pumpBadge(tester, count: 1);
+    await pumpBadge(tester, count: 2);
+    await tester.pump(const Duration(milliseconds: 16));
+    await tester.pump(const Duration(milliseconds: 16));
+    final before = scale(tester);
+    expect(before, greaterThan(1.05));
 
-      await pumpBadge(tester, count: 3, mornye: mornye);
-      expect(scale(tester), before);
-      var previous = before;
-      for (var frame = 0; frame < 3; frame++) {
-        await tester.pump(const Duration(milliseconds: 8));
-        // No restart from 1: each frame moves on from the last one.
-        expect(scale(tester), greaterThan(1.05));
-        expect((scale(tester) - previous).abs(), lessThan(0.1));
-        previous = scale(tester);
-      }
-      await tester.pumpAndSettle();
-      expect(scale(tester), 1);
-      await tester.pumpWidget(const SizedBox());
+    await pumpBadge(tester, count: 3);
+    expect(scale(tester), before);
+    var previous = before;
+    for (var frame = 0; frame < 3; frame++) {
+      await tester.pump(const Duration(milliseconds: 8));
+      // No restart from 1: each frame moves on from the last one.
+      expect(scale(tester), greaterThan(1.05));
+      expect((scale(tester) - previous).abs(), lessThan(0.1));
+      previous = scale(tester);
     }
+    await tester.pumpAndSettle();
+    expect(scale(tester), 1);
   });
 }

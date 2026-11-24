@@ -12,7 +12,6 @@ import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/services/shell_navigation_service.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
@@ -200,7 +199,7 @@ void main() {
           playbackStateProvider.overrideWith((ref) => playback.stream),
         ],
         child: MaterialApp(
-          theme: AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: DesktopMiniPlayer(
@@ -234,375 +233,112 @@ void main() {
     );
   });
 
-  for (final mornye in [false, true]) {
-    final style = mornye ? 'Mornye' : 'Material';
-
-    for (final hiddenByLifecycle in [false, true]) {
-      testWidgets(
-        '$style compact lyrics suspend while hidden ($hiddenByLifecycle)',
-        (tester) async {
-          var now = DateTime(2026);
-          await withClock(Clock(() => now), () async {
-            tester.view.physicalSize = const Size(360, 248);
-            tester.view.devicePixelRatio = 1;
-            addTearDown(tester.view.resetPhysicalSize);
-            addTearDown(tester.view.resetDevicePixelRatio);
-            addTearDown(
-              () => tester.binding.handleAppLifecycleStateChanged(
-                AppLifecycleState.resumed,
-              ),
-            );
-            final playback = StreamController<PlaybackState>();
-            final visible = ValueNotifier(true);
-            addTearDown(playback.close);
-            addTearDown(visible.dispose);
-            void report(int seconds, {bool playing = false}) => playback.add(
-              PlaybackState(
-                processingState: AudioProcessingState.ready,
-                updatePosition: Duration(seconds: seconds),
-                playing: playing,
-              ),
-            );
-            report(1);
-            desktopMiniPlayerLyrics.value = true;
-            await tester.pumpWidget(
-              ProviderScope(
-                overrides: [
-                  currentMediaItemProvider.overrideWithBuild(
-                    (ref, notifier) => Stream.value(_track),
-                  ),
-                  playbackStateProvider.overrideWith((ref) => playback.stream),
-                ],
-                child: MaterialApp(
-                  theme: mornye
-                      ? MornyeTheme.build(Brightness.dark)
-                      : AppTheme.dark(),
-                  localizationsDelegates:
-                      AppLocalizations.localizationsDelegates,
-                  supportedLocales: AppLocalizations.supportedLocales,
-                  home: ValueListenableBuilder<bool>(
-                    valueListenable: visible,
-                    builder: (context, visible, child) =>
-                        TickerMode(enabled: visible, child: child!),
-                    child: DesktopMiniPlayer(
-                      metadataControllerFactory: () => PlayerMetadataController(
-                        readMetadata: (_) async => {'lyrics': _lrc},
-                        parseLyrics: (raw) async => LyricsParser.parse(raw!),
-                      ),
+  for (final hiddenByLifecycle in [false, true]) {
+    testWidgets(
+      'Mornye compact lyrics suspend while hidden ($hiddenByLifecycle)',
+      (tester) async {
+        var now = DateTime(2026);
+        await withClock(Clock(() => now), () async {
+          tester.view.physicalSize = const Size(360, 248);
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.resetPhysicalSize);
+          addTearDown(tester.view.resetDevicePixelRatio);
+          addTearDown(
+            () => tester.binding.handleAppLifecycleStateChanged(
+              AppLifecycleState.resumed,
+            ),
+          );
+          final playback = StreamController<PlaybackState>();
+          final visible = ValueNotifier(true);
+          addTearDown(playback.close);
+          addTearDown(visible.dispose);
+          void report(int seconds, {bool playing = false}) => playback.add(
+            PlaybackState(
+              processingState: AudioProcessingState.ready,
+              updatePosition: Duration(seconds: seconds),
+              playing: playing,
+            ),
+          );
+          report(1);
+          desktopMiniPlayerLyrics.value = true;
+          await tester.pumpWidget(
+            ProviderScope(
+              overrides: [
+                currentMediaItemProvider.overrideWithBuild(
+                  (ref, notifier) => Stream.value(_track),
+                ),
+                playbackStateProvider.overrideWith((ref) => playback.stream),
+              ],
+              child: MaterialApp(
+                theme: MornyeTheme.build(Brightness.dark),
+                localizationsDelegates: AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                home: ValueListenableBuilder<bool>(
+                  valueListenable: visible,
+                  builder: (context, visible, child) =>
+                      TickerMode(enabled: visible, child: child!),
+                  child: DesktopMiniPlayer(
+                    metadataControllerFactory: () => PlayerMetadataController(
+                      readMetadata: (_) async => {'lyrics': _lrc},
+                      parseLyrics: (raw) async => LyricsParser.parse(raw!),
                     ),
                   ),
                 ),
               ),
-            );
-            await tester.pumpAndSettle();
-            expect(find.text('First line'), findsOneWidget);
-            report(1, playing: true);
-            await tester.pump();
-            if (hiddenByLifecycle) {
-              tester.binding.handleAppLifecycleStateChanged(
-                AppLifecycleState.paused,
-              );
-            } else {
-              visible.value = false;
-            }
-            await tester.pump();
-            now = now.add(const Duration(seconds: 11));
-            await tester.pump(const Duration(seconds: 11));
-            expect(find.text('First line'), findsOneWidget);
-            expect(find.text('Third line'), findsNothing);
-            if (hiddenByLifecycle) {
-              tester.binding.handleAppLifecycleStateChanged(
-                AppLifecycleState.resumed,
-              );
-            } else {
-              visible.value = true;
-            }
-            await tester.pump();
-            await tester.pump(const Duration(milliseconds: 500));
-            expect(find.text('First line'), findsNothing);
-            expect(find.text('Third line'), findsOneWidget);
-            expect(tester.takeException(), isNull);
-            await tester.pumpWidget(const SizedBox.shrink());
-          });
-        },
-      );
-    }
-
-    testWidgets(
-      '$style TTML words follow pause and seeks during panel resizing',
-      (tester) async {
-        tester.view.physicalSize = const Size(360, 248);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.resetPhysicalSize);
-        addTearDown(tester.view.resetDevicePixelRatio);
-        final playback = StreamController<PlaybackState>();
-        addTearDown(playback.close);
-        void pauseAt(int seconds) => playback.add(
-          PlaybackState(
-            processingState: AudioProcessingState.ready,
-            updatePosition: Duration(seconds: seconds),
-          ),
-        );
-        pauseAt(1);
-        desktopMiniPlayerOpen.value = true;
-        desktopMiniPlayerLyrics.value = true;
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              currentMediaItemProvider.overrideWithBuild(
-                (ref, notifier) => Stream.value(_track),
-              ),
-              playbackStateProvider.overrideWith((ref) => playback.stream),
-            ],
-            child: MaterialApp(
-              theme: mornye
-                  ? MornyeTheme.build(Brightness.light)
-                  : AppTheme.light(),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: DesktopMiniPlayer(
-                metadataControllerFactory: () => PlayerMetadataController(
-                  readMetadata: (_) async => {'lyrics': _ttml},
-                  parseLyrics: (raw) async => LyricsParser.parse(raw!),
-                ),
-              ),
             ),
-          ),
-        );
-        await tester.pumpAndSettle();
-        final first = await _wordPixels(tester);
-        pauseAt(3);
-        await tester.pumpAndSettle();
-        final second = await _wordPixels(tester);
-        expect(second, isNot(orderedEquals(first)));
-        await tester.pump(const Duration(seconds: 1));
-        expect(await _wordPixels(tester), orderedEquals(second));
-        pauseAt(1);
-        await tester.pumpAndSettle();
-        expect(await _wordPixels(tester), orderedEquals(first));
-
-        pauseAt(6);
-        await tester.pumpAndSettle();
-        expect(
-          tester
-              .widget<WordTimedLyricLine>(find.byType(WordTimedLyricLine))
-              .line
-              .text,
-          'Second words',
-        );
-        for (final height in [192.0, 140.0, 192.0, 248.0]) {
-          tester.view.physicalSize = Size(360, height);
+          );
+          await tester.pumpAndSettle();
+          expect(find.text('First line'), findsOneWidget);
+          report(1, playing: true);
           await tester.pump();
+          if (hiddenByLifecycle) {
+            tester.binding.handleAppLifecycleStateChanged(
+              AppLifecycleState.paused,
+            );
+          } else {
+            visible.value = false;
+          }
+          await tester.pump();
+          now = now.add(const Duration(seconds: 11));
+          await tester.pump(const Duration(seconds: 11));
+          expect(find.text('First line'), findsOneWidget);
+          expect(find.text('Third line'), findsNothing);
+          if (hiddenByLifecycle) {
+            tester.binding.handleAppLifecycleStateChanged(
+              AppLifecycleState.resumed,
+            );
+          } else {
+            visible.value = true;
+          }
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 500));
+          expect(find.text('First line'), findsNothing);
+          expect(find.text('Third line'), findsOneWidget);
           expect(tester.takeException(), isNull);
-        }
-        pauseAt(1);
-        await tester.pumpAndSettle();
-        expect(await _wordPixels(tester), orderedEquals(first));
-        await tester.pumpWidget(const SizedBox.shrink());
+          await tester.pumpWidget(const SizedBox.shrink());
+        });
       },
     );
+  }
 
-    for (final reducedMotion in [false, true]) {
-      testWidgets('$style panel fades the title on a track change '
-          '(reduced motion: $reducedMotion)', (tester) async {
-        tester.view.physicalSize = const Size(360, 140);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.resetPhysicalSize);
-        addTearDown(tester.view.resetDevicePixelRatio);
-        if (reducedMotion) {
-          tester.platformDispatcher.accessibilityFeaturesTestValue =
-              const FakeAccessibilityFeatures(disableAnimations: true);
-          addTearDown(
-            tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
-          );
-        }
-        final items = StreamController<MediaItem?>();
-        addTearDown(items.close);
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              currentMediaItemProvider.overrideWithBuild(
-                (ref, notifier) => items.stream,
-              ),
-              playbackStateProvider.overrideWith(
-                (ref) => Stream.value(PlaybackState()),
-              ),
-            ],
-            child: MaterialApp(
-              theme: mornye
-                  ? MornyeTheme.build(Brightness.dark)
-                  : AppTheme.dark(),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: DesktopMiniPlayer(
-                metadataControllerFactory: () => PlayerMetadataController(
-                  readMetadata: (_) async => const {},
-                ),
-              ),
-            ),
-          ),
-        );
-        items.add(_track);
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 500));
-        items.add(_track.copyWith(id: 'next', title: 'Next song'));
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 50));
-        expect(
-          find.text('A song'),
-          reducedMotion ? findsNothing : findsOneWidget,
-        );
-        expect(find.text('Next song'), findsOneWidget);
-        await tester.pump(const Duration(milliseconds: 500));
-        expect(find.text('A song'), findsNothing);
-        expect(find.text('Next song'), findsOneWidget);
-        expect(tester.takeException(), isNull);
-        await tester.pumpWidget(const SizedBox.shrink());
-      });
-    }
-
-    testWidgets('$style switches the retained shell through native resizing', (
-      tester,
-    ) async {
-      tester.view.physicalSize = const Size(1280, 800);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      final navigatorKey = GlobalKey<NavigatorState>();
-      final pageKey = GlobalKey();
-      late Completer<Object?> transition;
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(_channel, (call) async {
-            transition = Completer<Object?>();
-            return transition.future;
-          });
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            currentMediaItemProvider.overrideWithBuild(
-              (ref, notifier) => Stream.value(null),
-            ),
-            playbackStateProvider.overrideWith(
-              (ref) => Stream.value(PlaybackState()),
-            ),
-          ],
-          child: MaterialApp(
-            theme: mornye
-                ? MornyeTheme.build(Brightness.light)
-                : AppTheme.light(),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: Builder(
-              builder: (context) {
-                MediaQuery.sizeOf(context);
-                return Scaffold(
-                  body: DesktopShellLayout(
-                    destinations: const [
-                      DesktopDestination(
-                        tab: ShellTab.home,
-                        icon: Icons.home,
-                        selectedIcon: Icons.home,
-                        label: 'Home',
-                      ),
-                    ],
-                    selected: ShellTab.home,
-                    onSelected: (_) {},
-                    body: KeyedSubtree(
-                      key: pageKey,
-                      child: Navigator(
-                        key: navigatorKey,
-                        onGenerateRoute: (_) => MaterialPageRoute<void>(
-                          builder: (_) => const Scaffold(
-                            body: Center(child: Text('Retained page')),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      final navigator = navigatorKey.currentState;
-      final pageSize = tester.getSize(find.byKey(pageKey));
-      double opacity(String key) => tester
-          .widget<Opacity>(find.byKey(ValueKey(key), skipOffstage: false))
-          .opacity;
-      for (var attempt = 0; attempt < 3; attempt++) {
-        await tester.tap(find.byKey(const ValueKey('desktop-player-mini')));
-        await tester.pump();
-        expect(opacity('desktop-mini-player-fade'), 0);
-        expect(opacity('desktop-mini-player-shell-fade'), 1);
-        var previous = 0.0;
-        for (final size in [
-          const Size(1000, 650),
-          const Size(640, 390),
-          const Size(360, 140),
-        ]) {
-          tester.view.physicalSize = size;
-          await tester.pump();
-          final fade = opacity('desktop-mini-player-fade');
-          expect(fade, greaterThan(previous));
-          expect(opacity('desktop-mini-player-shell-fade'), 1 - fade);
-          expect(
-            tester.getSize(find.byKey(pageKey, skipOffstage: false)),
-            pageSize,
-          );
-          expect(tester.takeException(), isNull);
-          previous = fade;
-        }
-        transition.complete(true);
-        await tester.pumpAndSettle();
-        expect(tester.takeException(), isNull);
-        expect(find.byType(DesktopMiniPlayer), findsOneWidget);
-        expect(find.text('Retained page'), findsNothing);
-        expect(navigatorKey.currentState, same(navigator));
-        await tester.tap(
-          find.byKey(const ValueKey('desktop-mini-player-expand')),
-        );
-        await tester.pump();
-        previous = 1;
-        for (final size in [
-          const Size(640, 390),
-          const Size(1000, 650),
-          const Size(1280, 800),
-        ]) {
-          tester.view.physicalSize = size;
-          await tester.pump();
-          final fade = opacity('desktop-mini-player-fade');
-          expect(fade, lessThan(previous));
-          expect(opacity('desktop-mini-player-shell-fade'), 1 - fade);
-          expect(navigatorKey.currentState, same(navigator));
-          expect(tester.takeException(), isNull);
-          previous = fade;
-        }
-        expect(desktopMiniPlayerOpen.value, isTrue);
-        transition.complete(null);
-        await tester.pumpAndSettle();
-        expect(tester.takeException(), isNull);
-        expect(find.text('Retained page'), findsOneWidget);
-        expect(navigatorKey.currentState, same(navigator));
-      }
-    });
-
-    testWidgets('$style panel follows the lyrics and grows for them', (
-      tester,
-    ) async {
+  testWidgets(
+    'Mornye TTML words follow pause and seeks during panel resizing',
+    (tester) async {
       tester.view.physicalSize = const Size(360, 248);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       final playback = StreamController<PlaybackState>();
       addTearDown(playback.close);
-      PlaybackState pausedAt(int seconds) => PlaybackState(
-        processingState: AudioProcessingState.ready,
-        updatePosition: Duration(seconds: seconds),
+      void pauseAt(int seconds) => playback.add(
+        PlaybackState(
+          processingState: AudioProcessingState.ready,
+          updatePosition: Duration(seconds: seconds),
+        ),
       );
-      playback.add(pausedAt(6));
+      pauseAt(1);
       desktopMiniPlayerOpen.value = true;
+      desktopMiniPlayerLyrics.value = true;
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -612,14 +348,12 @@ void main() {
             playbackStateProvider.overrideWith((ref) => playback.stream),
           ],
           child: MaterialApp(
-            theme: mornye
-                ? MornyeTheme.build(Brightness.light)
-                : AppTheme.light(),
+            theme: MornyeTheme.build(Brightness.light),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             home: DesktopMiniPlayer(
               metadataControllerFactory: () => PlayerMetadataController(
-                readMetadata: (_) async => {'lyrics': _lrc},
+                readMetadata: (_) async => {'lyrics': _ttml},
                 parseLyrics: (raw) async => LyricsParser.parse(raw!),
               ),
             ),
@@ -627,29 +361,274 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text('A song'), findsOneWidget);
-      expect(find.text('Second line'), findsNothing);
+      final first = await _wordPixels(tester);
+      pauseAt(3);
+      await tester.pumpAndSettle();
+      final second = await _wordPixels(tester);
+      expect(second, isNot(orderedEquals(first)));
+      await tester.pump(const Duration(seconds: 1));
+      expect(await _wordPixels(tester), orderedEquals(second));
+      pauseAt(1);
+      await tester.pumpAndSettle();
+      expect(await _wordPixels(tester), orderedEquals(first));
 
-      await tester.tap(
-        find.byKey(const ValueKey('desktop-mini-player-lyrics')),
+      pauseAt(6);
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<WordTimedLyricLine>(find.byType(WordTimedLyricLine))
+            .line
+            .text,
+        'Second words',
       );
+      for (final height in [192.0, 140.0, 192.0, 248.0]) {
+        tester.view.physicalSize = Size(360, height);
+        await tester.pump();
+        expect(tester.takeException(), isNull);
+      }
+      pauseAt(1);
       await tester.pumpAndSettle();
-      expect(desktopMiniPlayerLyrics.value, isTrue);
-      expect(calls.last.arguments, {'width': 360.0, 'height': 248.0});
-      expect(find.text('Second line'), findsOneWidget);
-      expect(find.text('Third line'), findsOneWidget);
+      expect(await _wordPixels(tester), orderedEquals(first));
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
 
-      playback.add(pausedAt(11));
+  for (final reducedMotion in [false, true]) {
+    testWidgets('Mornye panel fades the title on a track change '
+        '(reduced motion: $reducedMotion)', (tester) async {
+      tester.view.physicalSize = const Size(360, 140);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      if (reducedMotion) {
+        tester.platformDispatcher.accessibilityFeaturesTestValue =
+            const FakeAccessibilityFeatures(disableAnimations: true);
+        addTearDown(
+          tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+        );
+      }
+      final items = StreamController<MediaItem?>();
+      addTearDown(items.close);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            currentMediaItemProvider.overrideWithBuild(
+              (ref, notifier) => items.stream,
+            ),
+            playbackStateProvider.overrideWith(
+              (ref) => Stream.value(PlaybackState()),
+            ),
+          ],
+          child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.dark),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: DesktopMiniPlayer(
+              metadataControllerFactory: () =>
+                  PlayerMetadataController(readMetadata: (_) async => const {}),
+            ),
+          ),
+        ),
+      );
+      items.add(_track);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      items.add(_track.copyWith(id: 'next', title: 'Next song'));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(
+        find.text('A song'),
+        reducedMotion ? findsNothing : findsOneWidget,
+      );
+      expect(find.text('Next song'), findsOneWidget);
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.text('A song'), findsNothing);
+      expect(find.text('Next song'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+  }
+
+  testWidgets('Mornye switches the retained shell through native resizing', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final navigatorKey = GlobalKey<NavigatorState>();
+    final pageKey = GlobalKey();
+    late Completer<Object?> transition;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(_channel, (call) async {
+          transition = Completer<Object?>();
+          return transition.future;
+        });
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          currentMediaItemProvider.overrideWithBuild(
+            (ref, notifier) => Stream.value(null),
+          ),
+          playbackStateProvider.overrideWith(
+            (ref) => Stream.value(PlaybackState()),
+          ),
+        ],
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.light),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (context) {
+              MediaQuery.sizeOf(context);
+              return Scaffold(
+                body: DesktopShellLayout(
+                  destinations: const [
+                    DesktopDestination(
+                      tab: ShellTab.home,
+                      icon: Icons.home,
+                      selectedIcon: Icons.home,
+                      label: 'Home',
+                    ),
+                  ],
+                  selected: ShellTab.home,
+                  onSelected: (_) {},
+                  body: KeyedSubtree(
+                    key: pageKey,
+                    child: Navigator(
+                      key: navigatorKey,
+                      onGenerateRoute: (_) => MaterialPageRoute<void>(
+                        builder: (_) => const Scaffold(
+                          body: Center(child: Text('Retained page')),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final navigator = navigatorKey.currentState;
+    final pageSize = tester.getSize(find.byKey(pageKey));
+    double opacity(String key) => tester
+        .widget<Opacity>(find.byKey(ValueKey(key), skipOffstage: false))
+        .opacity;
+    for (var attempt = 0; attempt < 3; attempt++) {
+      await tester.tap(find.byKey(const ValueKey('desktop-player-mini')));
+      await tester.pump();
+      expect(opacity('desktop-mini-player-fade'), 0);
+      expect(opacity('desktop-mini-player-shell-fade'), 1);
+      var previous = 0.0;
+      for (final size in [
+        const Size(1000, 650),
+        const Size(640, 390),
+        const Size(360, 140),
+      ]) {
+        tester.view.physicalSize = size;
+        await tester.pump();
+        final fade = opacity('desktop-mini-player-fade');
+        expect(fade, greaterThan(previous));
+        expect(opacity('desktop-mini-player-shell-fade'), 1 - fade);
+        expect(
+          tester.getSize(find.byKey(pageKey, skipOffstage: false)),
+          pageSize,
+        );
+        expect(tester.takeException(), isNull);
+        previous = fade;
+      }
+      transition.complete(true);
       await tester.pumpAndSettle();
-      expect(find.text('Second line'), findsNothing);
-      expect(find.text('Third line'), findsOneWidget);
-
+      expect(tester.takeException(), isNull);
+      expect(find.byType(DesktopMiniPlayer), findsOneWidget);
+      expect(find.text('Retained page'), findsNothing);
+      expect(navigatorKey.currentState, same(navigator));
       await tester.tap(
         find.byKey(const ValueKey('desktop-mini-player-expand')),
       );
+      await tester.pump();
+      previous = 1;
+      for (final size in [
+        const Size(640, 390),
+        const Size(1000, 650),
+        const Size(1280, 800),
+      ]) {
+        tester.view.physicalSize = size;
+        await tester.pump();
+        final fade = opacity('desktop-mini-player-fade');
+        expect(fade, lessThan(previous));
+        expect(opacity('desktop-mini-player-shell-fade'), 1 - fade);
+        expect(navigatorKey.currentState, same(navigator));
+        expect(tester.takeException(), isNull);
+        previous = fade;
+      }
+      expect(desktopMiniPlayerOpen.value, isTrue);
+      transition.complete(null);
       await tester.pumpAndSettle();
-      expect(calls.last.method, 'closeMiniPlayer');
-      expect(desktopMiniPlayerOpen.value, isFalse);
-    });
-  }
+      expect(tester.takeException(), isNull);
+      expect(find.text('Retained page'), findsOneWidget);
+      expect(navigatorKey.currentState, same(navigator));
+    }
+  });
+
+  testWidgets('Mornye panel follows the lyrics and grows for them', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(360, 248);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final playback = StreamController<PlaybackState>();
+    addTearDown(playback.close);
+    PlaybackState pausedAt(int seconds) => PlaybackState(
+      processingState: AudioProcessingState.ready,
+      updatePosition: Duration(seconds: seconds),
+    );
+    playback.add(pausedAt(6));
+    desktopMiniPlayerOpen.value = true;
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          currentMediaItemProvider.overrideWithBuild(
+            (ref, notifier) => Stream.value(_track),
+          ),
+          playbackStateProvider.overrideWith((ref) => playback.stream),
+        ],
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.light),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: DesktopMiniPlayer(
+            metadataControllerFactory: () => PlayerMetadataController(
+              readMetadata: (_) async => {'lyrics': _lrc},
+              parseLyrics: (raw) async => LyricsParser.parse(raw!),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('A song'), findsOneWidget);
+    expect(find.text('Second line'), findsNothing);
+
+    await tester.tap(find.byKey(const ValueKey('desktop-mini-player-lyrics')));
+    await tester.pumpAndSettle();
+    expect(desktopMiniPlayerLyrics.value, isTrue);
+    expect(calls.last.arguments, {'width': 360.0, 'height': 248.0});
+    expect(find.text('Second line'), findsOneWidget);
+    expect(find.text('Third line'), findsOneWidget);
+
+    playback.add(pausedAt(11));
+    await tester.pumpAndSettle();
+    expect(find.text('Second line'), findsNothing);
+    expect(find.text('Third line'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey('desktop-mini-player-expand')));
+    await tester.pumpAndSettle();
+    expect(calls.last.method, 'closeMiniPlayer');
+    expect(desktopMiniPlayerOpen.value, isFalse);
+  });
 }

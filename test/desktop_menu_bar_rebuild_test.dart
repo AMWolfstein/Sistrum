@@ -10,7 +10,7 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/system_volume_provider.dart';
 import 'package:sistrum/services/app_navigation_service.dart';
 import 'package:sistrum/services/shell_navigation_service.dart';
-import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/desktop/desktop_player_bar.dart';
@@ -112,8 +112,8 @@ void main() {
         overrides: overrides,
         child: MaterialApp(
           navigatorKey: AppNavigationService.rootNavigatorKey,
-          theme: AppTheme.light(),
-          darkTheme: AppTheme.dark(),
+          theme: MornyeTheme.build(Brightness.light),
+          darkTheme: MornyeTheme.build(Brightness.dark),
           themeMode: themeMode,
           themeAnimationDuration: const Duration(milliseconds: 300),
           locale: locale,

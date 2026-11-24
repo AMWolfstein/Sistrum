@@ -17,13 +17,11 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/equalizer_screen.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/theme/player_artwork_theme.dart';
 import 'package:sistrum/utils/playback_seek_preview.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/desktop/desktop_inspector.dart';
 import 'package:sistrum/widgets/desktop/desktop_window.dart';
 import 'package:sistrum/widgets/lyrics_options_button.dart';
-import 'package:sistrum/widgets/material_player_backdrop.dart';
 import 'package:sistrum/widgets/mornye_context_menu.dart';
 import 'package:sistrum/widgets/mornye_playback_button.dart';
 import 'package:sistrum/widgets/mornye_player_background.dart';
@@ -101,22 +99,11 @@ class _DesktopNowPlayingState extends ConsumerState<DesktopNowPlaying> {
   @override
   Widget build(BuildContext context) {
     final mediaItem = ref.watch(currentMediaItemProvider).value;
-    if (context.isMornye) return _buildPlayer(context, mediaItem);
-    // Material takes the track's artwork scheme. Providers are read above,
-    // so the scoped builder reads none. The scheme swaps in one step and
-    // only the page background moves, as on the phone player.
-    return PlayerArtworkTheme(
-      artUri: mediaItem?.artUri?.toString(),
-      fadesSurfaceOnly: true,
-      child: Builder(builder: (context) => _buildPlayer(context, mediaItem)),
-    );
+    return _buildPlayer(context, mediaItem);
   }
 
   Widget _buildPlayer(BuildContext context, MediaItem? mediaItem) {
-    final mornye = context.isMornye;
-    final theme = mornye
-        ? MornyeTheme.fromContext(context, brightness: Brightness.dark)
-        : Theme.of(context);
+    final theme = MornyeTheme.fromContext(context, brightness: Brightness.dark);
     final colorScheme = theme.colorScheme;
     return Theme(
       data: theme,
@@ -125,16 +112,7 @@ class _DesktopNowPlayingState extends ConsumerState<DesktopNowPlaying> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            if (mornye)
-              MornyePlayerBackground(artUri: mediaItem?.artUri)
-            else if (mediaItem != null)
-              MaterialPlayerBackdrop(
-                mediaItem: mediaItem,
-                colorScheme: colorScheme,
-                showArtwork: false,
-              )
-            else
-              PlayerArtworkSurface(surface: colorScheme.surface),
+            MornyePlayerBackground(artUri: mediaItem?.artUri),
             ValueListenableBuilder<DesktopInspectorPanel?>(
               valueListenable: desktopInspectorPanel,
               builder: (context, panel, _) => mediaItem == null
@@ -170,7 +148,7 @@ class _DesktopNowPlayingState extends ConsumerState<DesktopNowPlaying> {
               child: _RoundButton(
                 key: const ValueKey('desktop-now-playing-close'),
                 tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-                icon: mornye ? CupertinoIcons.xmark : Icons.close,
+                icon: CupertinoIcons.xmark,
                 onPressed: closeDesktopNowPlaying,
               ),
             ),
@@ -179,9 +157,7 @@ class _DesktopNowPlayingState extends ConsumerState<DesktopNowPlaying> {
               end: 20,
               width: 260,
               child: _Capsule(
-                child: PlayerVolumeControl(
-                  foreground: mornye ? Colors.white : colorScheme.onSurface,
-                ),
+                child: PlayerVolumeControl(foreground: Colors.white),
               ),
             ),
             PositionedDirectional(
@@ -193,31 +169,9 @@ class _DesktopNowPlayingState extends ConsumerState<DesktopNowPlaying> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Mornye reaches Speed and pitch from its More menu;
-                      // the Material player has no More menu.
-                      if (!mornye) ...[
-                        Consumer(
-                          builder: (context, ref, _) => _RoundButton(
-                            key: const ValueKey('desktop-now-playing-tempo'),
-                            tooltip: context.l10n.playbackTempoTitle,
-                            icon: Icons.speed,
-                            selected: ref.watch(
-                              settingsProvider.select(
-                                (settings) =>
-                                    settings.playbackSpeed != 1 ||
-                                    settings.playbackPitch != 0,
-                              ),
-                            ),
-                            onPressed: () => showPlaybackTempoSheet(context),
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                      ],
                       _RoundButton(
                         tooltip: context.l10n.nowPlayingTabLyrics,
-                        icon: mornye
-                            ? CupertinoIcons.quote_bubble
-                            : Icons.lyrics_outlined,
+                        icon: CupertinoIcons.quote_bubble,
                         selected: panel == DesktopInspectorPanel.lyrics,
                         onPressed: () => toggleDesktopInspector(
                           DesktopInspectorPanel.lyrics,
@@ -226,9 +180,7 @@ class _DesktopNowPlayingState extends ConsumerState<DesktopNowPlaying> {
                       const SizedBox(width: 4),
                       _RoundButton(
                         tooltip: context.l10n.nowPlayingUpNext,
-                        icon: mornye
-                            ? CupertinoIcons.list_bullet
-                            : Icons.queue_music,
+                        icon: CupertinoIcons.list_bullet,
                         selected: panel == DesktopInspectorPanel.upNext,
                         onPressed: () => toggleDesktopInspector(
                           DesktopInspectorPanel.upNext,
@@ -440,9 +392,7 @@ class _DesktopNowPlayingState extends ConsumerState<DesktopNowPlaying> {
                   ? KeyedSubtree(
                       key: const ValueKey('desktop-now-playing-upNext'),
                       child: NoScrollbars(
-                        child: context.isMornye
-                            ? MornyePlayerQueue(colorScheme: colorScheme)
-                            : DesktopMaterialQueue(colorScheme: colorScheme),
+                        child: MornyePlayerQueue(colorScheme: colorScheme),
                       ),
                     )
                   : const SizedBox.shrink(),
@@ -472,9 +422,8 @@ class _PlayerColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mornye = context.isMornye;
     final textTheme = Theme.of(context).textTheme;
-    final corners = BorderRadius.circular(mornye ? 12 : 28);
+    final corners = BorderRadius.circular(12);
     final artwork = PlayerArtwork(
       artUri: mediaItem.artUri?.toString(),
       colorScheme: colorScheme,
@@ -504,9 +453,7 @@ class _PlayerColumn extends StatelessWidget {
                 ),
               ],
             ),
-            child: mornye
-                ? ClipRSuperellipse(borderRadius: corners, child: artwork)
-                : ClipRRect(borderRadius: corners, child: artwork),
+            child: ClipRSuperellipse(borderRadius: corners, child: artwork),
           ),
         ),
         const SizedBox(height: 28),
@@ -522,14 +469,10 @@ class _PlayerColumn extends StatelessWidget {
                     PlayerMetadataTitle(
                       mediaItem: mediaItem,
                       metadata: metadata,
-                      style:
-                          (mornye
-                                  ? textTheme.titleMedium
-                                  : textTheme.titleLarge)
-                              ?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: colorScheme.onSurface,
-                              ),
+                      style: textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: colorScheme.onSurface,
+                      ),
                       maxLines: 1,
                     ),
                     if (subtitle.isNotEmpty)
@@ -537,35 +480,31 @@ class _PlayerColumn extends StatelessWidget {
                         subtitle,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style:
-                            (mornye
-                                    ? textTheme.bodyMedium
-                                    : textTheme.titleSmall)
-                                ?.copyWith(color: colorScheme.onSurfaceVariant),
+                        style: textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                        ),
                       ),
                   ],
                 ),
               ),
             ),
-            if (mornye) ...[
-              const SizedBox(width: 8),
-              _ActionDisc(
-                child: MornyePlayerFavoriteButton(
-                  mediaItem: mediaItem,
-                  color: colorScheme.onSurface,
-                  iconSize: _actionIconSize,
-                  padding: _actionPadding,
-                ),
+            const SizedBox(width: 8),
+            _ActionDisc(
+              child: MornyePlayerFavoriteButton(
+                mediaItem: mediaItem,
+                color: colorScheme.onSurface,
+                iconSize: _actionIconSize,
+                padding: _actionPadding,
               ),
-              const SizedBox(width: 8),
-              _ActionDisc(
-                child: _PlayerMoreButton(
-                  mediaItem: mediaItem,
-                  metadata: metadata,
-                  colorScheme: colorScheme,
-                ),
+            ),
+            const SizedBox(width: 8),
+            _ActionDisc(
+              child: _PlayerMoreButton(
+                mediaItem: mediaItem,
+                metadata: metadata,
+                colorScheme: colorScheme,
               ),
-            ],
+            ),
           ],
         ),
         PlayerPlaybackControls(
@@ -772,12 +711,11 @@ class _Capsule extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final fill = context.isMornye
-        ? Colors.white.withValues(alpha: 0.12)
-        : scheme.surfaceContainerHigh.withValues(alpha: 0.72);
     return DecoratedBox(
-      decoration: ShapeDecoration(color: fill, shape: const StadiumBorder()),
+      decoration: ShapeDecoration(
+        color: Colors.white.withValues(alpha: 0.12),
+        shape: const StadiumBorder(),
+      ),
       child: Padding(padding: const EdgeInsets.all(4), child: child),
     );
   }
@@ -799,44 +737,25 @@ class _RoundButton extends StatelessWidget {
   final bool selected;
 
   @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    if (context.isMornye) {
-      return Tooltip(
-        message: tooltip,
-        child: Semantics(
-          button: true,
-          selected: selected,
-          child: CupertinoButton(
-            minimumSize: const Size.square(36),
-            padding: EdgeInsets.zero,
-            borderRadius: BorderRadius.circular(18),
-            color: selected
-                ? Colors.white.withValues(alpha: 0.9)
-                : Colors.white.withValues(alpha: 0.12),
-            onPressed: onPressed,
-            child: AppIcon(
-              icon,
-              size: 18,
-              color: selected ? Colors.black : Colors.white,
-            ),
-          ),
+  Widget build(BuildContext context) => Tooltip(
+    message: tooltip,
+    child: Semantics(
+      button: true,
+      selected: selected,
+      child: CupertinoButton(
+        minimumSize: const Size.square(36),
+        padding: EdgeInsets.zero,
+        borderRadius: BorderRadius.circular(18),
+        color: selected
+            ? Colors.white.withValues(alpha: 0.9)
+            : Colors.white.withValues(alpha: 0.12),
+        onPressed: onPressed,
+        child: AppIcon(
+          icon,
+          size: 18,
+          color: selected ? Colors.black : Colors.white,
         ),
-      );
-    }
-    return IconButton(
-      tooltip: tooltip,
-      isSelected: selected,
-      style: IconButton.styleFrom(
-        backgroundColor: selected
-            ? scheme.secondaryContainer
-            : scheme.surfaceContainerHighest,
-        foregroundColor: selected
-            ? scheme.onSecondaryContainer
-            : scheme.onSurfaceVariant,
       ),
-      icon: AppIcon(icon),
-      onPressed: onPressed,
-    );
-  }
+    ),
+  );
 }

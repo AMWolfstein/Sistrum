@@ -13,17 +13,9 @@ Iterable<(String, TextStyle, List<LyricWord>, bool)> _lyricSupplements(
     yield (
       text,
       base.copyWith(
-        fontSize:
-            (context.isMornye
-                ? (translation ? 18.0 : 22.0)
-                : isDesktopPlatform
-                ? (translation ? 18.0 : 20.0)
-                : (translation ? 14.0 : 16.0)) *
-            (line.isBackground ? 0.8 : 1),
+        fontSize: (translation ? 18.0 : 22.0) * (line.isBackground ? 0.8 : 1),
         height: 1.35,
-        fontWeight: context.isMornye
-            ? (translation ? FontWeight.w600 : FontWeight.bold)
-            : FontWeight.w500,
+        fontWeight: translation ? FontWeight.w600 : FontWeight.bold,
       ),
       translation ? line.translationWords : line.romanizationWords,
       translation,
@@ -34,11 +26,7 @@ Iterable<(String, TextStyle, List<LyricWord>, bool)> _lyricSupplements(
 TextStyle _primaryLyricStyle(BuildContext context, {bool background = false}) =>
     DefaultTextStyle.of(context).style.merge(
       (Theme.of(context).textTheme.headlineSmall ?? const TextStyle()).copyWith(
-        fontSize: context.isMornye
-            ? _mornyeLyricFontSize * (background ? 0.68 : 1)
-            : background
-            ? _materialBackgroundLyricFontSize
-            : _materialLyricFontSize,
+        fontSize: _mornyeLyricFontSize * (background ? 0.68 : 1),
         height: context.tokens.lyricsLineHeight,
         fontWeight: FontWeight.bold,
       ),
@@ -145,8 +133,7 @@ Widget _withLyricSupplements(
           ),
     ],
   );
-  if (!context.isMornye ||
-      line.romanizationWords.isEmpty ||
+  if (line.romanizationWords.isEmpty ||
       line.romanization?.trim().isNotEmpty != true) {
     return withSupplements(primary);
   }

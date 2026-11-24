@@ -1,6 +1,5 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/player_track_crossfade.dart';
 
@@ -15,14 +14,12 @@ double _opacity(WidgetTester tester, Finder finder) {
 }
 
 void main() {
-  for (final (style, mornye) in [('Material', false), ('Mornye', true)]) {
+  for (final style in ['Mornye']) {
     for (final reducedMotion in [false, true]) {
       testWidgets('$style titles fade through without overlapping '
           '(reduced motion: $reducedMotion)', (tester) async {
         Widget app(String title) => MaterialApp(
-          theme: mornye
-              ? MornyeTheme.build(Brightness.light)
-              : AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.light),
           home: MediaQuery(
             data: MediaQueryData(disableAnimations: reducedMotion),
             child: Center(

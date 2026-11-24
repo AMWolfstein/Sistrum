@@ -11,20 +11,15 @@ import 'package:sistrum/providers/library_search_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/screens/library_tracks_folder_screen.dart';
 import 'package:sistrum/services/library_search.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/desktop/track_list_table.dart';
 import 'package:sistrum/widgets/library_search_results.dart';
 import 'package:sistrum/widgets/now_playing_indicator.dart';
-import 'package:sistrum/widgets/song_row_tap.dart';
-import 'package:sistrum/widgets/track_card.dart';
 import 'package:sistrum/widgets/track_list_tile.dart';
 
 import 'support/fixed_settings.dart';
-import 'support/tooltip_finder.dart';
 
 /// The playing track, a different track, and a track another provider lists
 /// under the same catalog id.
@@ -111,7 +106,6 @@ List<Override> _overrides({MediaItem? current, required bool identified}) => [
 
 Widget _app(
   Widget home, {
-  bool mornye = false,
   MediaItem? current,
   bool identified = true,
   List<Override> overrides = const [],
@@ -121,7 +115,7 @@ Widget _app(
     ...overrides,
   ],
   child: MaterialApp(
-    theme: mornye ? MornyeTheme.build(Brightness.light) : AppTheme.light(),
+    theme: MornyeTheme.build(Brightness.light),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     home: home,
@@ -140,19 +134,6 @@ Future<void> _pumpFor(
   }
 }
 
-/// Whether the row of type [row] that shows [title] carries the glyph.
-bool _hasGlyph(Type row, String title) => find
-    .descendant(
-      of: find.ancestor(of: find.text(title), matching: find.byType(row)).first,
-      matching: find.byType(NowPlayingIndicator),
-    )
-    .evaluate()
-    .isNotEmpty;
-
-TrackCard _card(WidgetTester tester, String title) => tester.widget<TrackCard>(
-  find.ancestor(of: find.text(title), matching: find.byType(TrackCard)),
-);
-
 /// Mornye marks the current row with its title's colour alone.
 void _expectOnlyCurrentAccented(WidgetTester tester) {
   Color? titleColor(String title) =>
@@ -166,15 +147,6 @@ void _expectOnlyCurrentAccented(WidgetTester tester) {
   expect(find.byType(NowPlayingIndicator), findsNothing);
 }
 
-void _expectOnlyCurrentMarked(WidgetTester tester) {
-  expect(_card(tester, 'Current song').isCurrent, isTrue);
-  expect(_card(tester, 'Other song').isCurrent, isFalse);
-  expect(_card(tester, 'Same id song').isCurrent, isFalse);
-  expect(_hasGlyph(TrackCard, 'Current song'), isTrue);
-  expect(_hasGlyph(TrackCard, 'Other song'), isFalse);
-  expect(_hasGlyph(TrackCard, 'Same id song'), isFalse);
-}
-
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
   tearDown(() => debugDesktopPlatformOverride = null);
@@ -184,20 +156,10 @@ void main() {
       body: ListView(
         children: [
           for (final track in _tracks)
-            TrackListTile(
-              track: track,
-              leading: Text('${track.trackNumber}'),
-            ),
+            TrackListTile(track: track, leading: Text('${track.trackNumber}')),
         ],
       ),
     );
-
-    testWidgets('marks only the playing track (Material)', (tester) async {
-      await tester.pumpWidget(_app(list()));
-      await _pumpFor(tester);
-      _expectOnlyCurrentMarked(tester);
-      expect(tester.takeException(), isNull);
-    });
 
     testWidgets('marks nothing when no file is identified', (tester) async {
       await tester.pumpWidget(_app(list(), identified: false));
@@ -208,7 +170,7 @@ void main() {
     testWidgets('Mornye rows show only the current title in the accent', (
       tester,
     ) async {
-      await tester.pumpWidget(_app(list(), mornye: true));
+      await tester.pumpWidget(_app(list()));
       await _pumpFor(tester);
       _expectOnlyCurrentAccented(tester);
     });
@@ -229,74 +191,14 @@ void main() {
       ),
     );
 
-    testWidgets('marks only the playing track (Material)', (tester) async {
+    testWidgets('Mornye rows show no current-track state', (tester) async {
       debugDesktopPlatformOverride = true;
       tester.view.physicalSize = const Size(1200, 800);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       await tester.pumpWidget(_app(table()));
       await _pumpFor(tester);
-      expect(find.byType(NowPlayingIndicator), findsOneWidget);
-      expect(_hasGlyph(Consumer, 'Current song'), isTrue);
-      expect(_hasGlyph(Consumer, 'Other song'), isFalse);
-      expect(_hasGlyph(Consumer, 'Same id song'), isFalse);
-      // The glyph takes the current row's track number.
-      expect(find.text('1'), findsNothing);
-      expect(find.text('3'), findsOneWidget);
-      final surface = tester
-          .widgetList<Material>(
-            find.ancestor(
-              of: find.text('Current song'),
-              matching: find.byType(Material),
-            ),
-          )
-          .first;
-      final scheme = Theme.of(
-        tester.element(find.text('Current song')),
-      ).colorScheme;
-      expect(surface.color, scheme.primaryContainer);
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('Mornye rows show no current-track state', (tester) async {
-      debugDesktopPlatformOverride = true;
-      tester.view.physicalSize = const Size(1200, 800);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      await tester.pumpWidget(_app(table(), mornye: true));
-      await _pumpFor(tester);
       expect(find.byType(NowPlayingIndicator), findsNothing);
-    });
-  });
-
-  group('Library folder', () {
-    Widget folder() => const LibraryTracksFolderScreen(
-      mode: LibraryTracksFolderMode.playlist,
-      playlistId: 'playlist',
-    );
-
-    testWidgets('phone rows mark only the playing track', (tester) async {
-      debugDesktopPlatformOverride = false;
-      tester.view.physicalSize = const Size(400, 900);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      await tester.pumpWidget(_app(folder()));
-      await _pumpFor(tester);
-      _expectOnlyCurrentMarked(tester);
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('desktop rows mark only the playing track', (tester) async {
-      debugDesktopPlatformOverride = true;
-      tester.view.physicalSize = const Size(1200, 900);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      await tester.pumpWidget(_app(folder()));
-      await _pumpFor(tester);
-      expect(find.byType(NowPlayingIndicator), findsOneWidget);
-      expect(_hasGlyph(Consumer, 'Current song'), isTrue);
-      expect(_hasGlyph(Consumer, 'Same id song'), isFalse);
-      expect(tester.takeException(), isNull);
     });
   });
 
@@ -345,41 +247,11 @@ void main() {
       ),
     ];
 
-    for (final desktop in [false, true]) {
-      testWidgets('rows mark only the playing file (desktop: $desktop)', (
-        tester,
-      ) async {
-        debugDesktopPlatformOverride = desktop;
-        await tester.pumpWidget(
-          _app(
-            results(),
-            current: current,
-            overrides: [
-              ...searchOverrides,
-              // The rows keep their Play buttons while a tap opens details.
-              librarySongTapPlaysProvider.overrideWithValue(false),
-            ],
-          ),
-        );
-        await _pumpFor(tester);
-        _expectOnlyCurrentMarked(tester);
-        // The current row's button pauses rather than restarting.
-        expect(findByTooltip('Pause'), findsOneWidget);
-        expect(findByTooltip('Play'), findsNWidgets(2));
-        expect(tester.takeException(), isNull);
-      });
-    }
-
     testWidgets('Mornye rows show only the current title in the accent', (
       tester,
     ) async {
       await tester.pumpWidget(
-        _app(
-          results(),
-          mornye: true,
-          current: current,
-          overrides: searchOverrides,
-        ),
+        _app(results(), current: current, overrides: searchOverrides),
       );
       await _pumpFor(tester);
       _expectOnlyCurrentAccented(tester);

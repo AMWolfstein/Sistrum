@@ -136,7 +136,6 @@ extension _TrackMetadataFileActions on _TrackMetadataScreenState {
       confirmLabel: l10n.dialogDelete,
       destructive: true,
       filled: false,
-      confirmStyle: TextButton.styleFrom(foregroundColor: colorScheme.error),
     );
     if (!confirmed || !mounted || filePath != cleanFilePath) return;
     _isDeleting = true;

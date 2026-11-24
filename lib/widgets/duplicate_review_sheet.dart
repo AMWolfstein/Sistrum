@@ -5,7 +5,6 @@ import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:sistrum/l10n/l10n.dart';
@@ -32,11 +31,9 @@ class DuplicateReviewSheet extends ConsumerStatefulWidget {
   const DuplicateReviewSheet({super.key});
 
   static Future<void> show(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return showAppBottomSheet<void>(
       context: context,
       useRootNavigator: true,
-      backgroundColor: colorScheme.surfaceContainerHigh,
       title: context.l10n.duplicatesTitle,
       maxHeightFactor: 0.85,
       builder: (_) => const DuplicateReviewSheet(),
@@ -128,7 +125,6 @@ class _DuplicateReviewSheetState extends ConsumerState<DuplicateReviewSheet> {
       message: message,
       confirmLabel: context.l10n.dialogDelete,
       destructive: true,
-      errorConfirm: true,
     );
     return confirmed && mounted;
   }
@@ -247,7 +243,7 @@ class _DuplicateReviewSheetState extends ConsumerState<DuplicateReviewSheet> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                ExpressiveButton(
+                FilledButton(
                   onPressed: _reload,
                   child: Text(context.l10n.dialogRetry),
                 ),
@@ -295,7 +291,7 @@ class _DuplicateReviewSheetState extends ConsumerState<DuplicateReviewSheet> {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
       child: SizedBox(
         width: double.infinity,
-        child: ExpressiveButton(
+        child: FilledButton.icon(
           onPressed: _deleteActionInProgress
               ? null
               : () => _keepBestAll(groups),
@@ -310,7 +306,7 @@ class _DuplicateReviewSheetState extends ConsumerState<DuplicateReviewSheet> {
                   color: colorScheme.onError,
                 )
               : const Icon(Icons.delete_sweep_outlined),
-          child: Text(context.l10n.duplicatesKeepBestAll),
+          label: Text(context.l10n.duplicatesKeepBestAll),
         ),
       ),
     );
@@ -353,8 +349,7 @@ class _DuplicateReviewSheetState extends ConsumerState<DuplicateReviewSheet> {
                   ],
                 ),
               ),
-              ExpressiveButton(
-                text: true,
+              TextButton(
                 onPressed: _deleteActionInProgress
                     ? null
                     : () => _keepBest(group),

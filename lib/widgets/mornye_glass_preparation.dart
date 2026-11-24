@@ -15,8 +15,7 @@ class MornyeGlassPreparation extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (context.isMornye &&
-        ref.watch(mornyeGlassLevelProvider) == MornyeGlassLevel.liquid &&
+    if (ref.watch(mornyeGlassLevelProvider) == MornyeGlassLevel.liquid &&
         MornyeTheme.glassClarityOf(context) > 0.2 &&
         !ref.watch(
           mornyeGlassContrastBlockedProvider(

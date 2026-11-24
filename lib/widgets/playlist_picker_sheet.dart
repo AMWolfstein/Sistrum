@@ -7,14 +7,12 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/logger.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_text_field.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 
@@ -42,7 +40,7 @@ Future<void> showAddTracksToPlaylistSheet(
   await showAppModalBottomSheet<void>(
     context: context,
     useRootNavigator: true,
-    showDragHandle: !context.isMornye,
+    showDragHandle: false,
     isScrollControlled: true,
     // The picker keeps its lighter glass tint.
     mornyeGlass: false,
@@ -52,9 +50,7 @@ Future<void> showAddTracksToPlaylistSheet(
         playlistNamePrefill: playlistNamePrefill,
         preserveOccurrences: preserveOccurrences,
       );
-      return sheetContext.isMornye
-          ? MornyeGlassPanel(tintOpacity: 0.78, child: content)
-          : content;
+      return MornyeGlassPanel(tintOpacity: 0.78, child: content);
     },
   );
 }
@@ -181,44 +177,35 @@ class _PlaylistPickerSheetContentState
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (context.isMornye) ...[
-            const AppSheetHandle(),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
-              child: SizedBox(
-                width: double.infinity,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      context.l10n.collectionAddToPlaylist,
-                      style: Theme.of(context).textTheme.titleLarge,
+          const AppSheetHandle(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+            child: SizedBox(
+              width: double.infinity,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.l10n.collectionAddToPlaylist,
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    subtitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      subtitle,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ] else
-            ListTile(
-              leading: const Icon(Icons.playlist_add),
-              title: Text(context.l10n.collectionAddToPlaylist),
-              subtitle: Text(subtitle),
-            ),
-          if (context.isMornye) const Divider(height: 1),
+          ),
+          const Divider(height: 1),
           _PlaylistPickerRow(
             leading: Icon(
-              context.isMornye
-                  ? CupertinoIcons.add_circled
-                  : Icons.add_circle_outline,
+              CupertinoIcons.add_circled,
               color: Theme.of(context).colorScheme.primary,
             ),
             title: Text(context.l10n.collectionCreatePlaylist),
@@ -285,10 +272,7 @@ class _PlaylistPickerSheetContentState
                           isAlreadyIn;
 
                       return _PlaylistPickerRow(
-                        leading: _PlaylistPickerThumbnail(
-                          playlist: playlist,
-                          isSelected: !context.isMornye && isSelected,
-                        ),
+                        leading: _PlaylistPickerThumbnail(playlist: playlist),
                         title: Text(playlist.name),
                         subtitle: Text(
                           context.l10n.collectionPlaylistTracks(
@@ -335,16 +319,11 @@ class _PlaylistPickerSheetContentState
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
             child: SizedBox(
               width: double.infinity,
-              child: context.isMornye
-                  ? AppActionButton(
-                      onPressed: _isSubmitting ? null : onDone,
-                      icon: const Icon(CupertinoIcons.checkmark),
-                      label: Text(context.l10n.dialogDone),
-                    )
-                  : ExpressiveButton(
-                      onPressed: _isSubmitting ? null : onDone,
-                      child: Text(context.l10n.dialogDone),
-                    ),
+              child: AppActionButton(
+                onPressed: _isSubmitting ? null : onDone,
+                icon: const Icon(CupertinoIcons.checkmark),
+                label: Text(context.l10n.dialogDone),
+              ),
             ),
           ),
         ],
@@ -467,15 +446,6 @@ class _PlaylistPickerRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!context.isMornye) {
-      return ListTile(
-        leading: leading,
-        title: title,
-        subtitle: subtitle,
-        enabled: enabled,
-        onTap: onTap,
-      );
-    }
     final theme = Theme.of(context);
     return Semantics(
       selected: selected,
@@ -536,12 +506,8 @@ class _PlaylistPickerRow extends StatelessWidget {
 
 class _PlaylistPickerThumbnail extends StatelessWidget {
   final PlaylistPickerSummary playlist;
-  final bool isSelected;
 
-  const _PlaylistPickerThumbnail({
-    required this.playlist,
-    required this.isSelected,
-  });
+  const _PlaylistPickerThumbnail({required this.playlist});
 
   @override
   Widget build(BuildContext context) {
@@ -558,32 +524,6 @@ class _PlaylistPickerThumbnail extends StatelessWidget {
             borderRadius: borderRadius,
             child: _buildCoverImage(context, colorScheme, size),
           ),
-          if (isSelected) ...[
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: colorScheme.primary.withValues(alpha: 0.3),
-                  borderRadius: borderRadius,
-                ),
-              ),
-            ),
-            PositionedDirectional(
-              end: 2,
-              top: 2,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: colorScheme.primary,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: colorScheme.primary, width: 1.5),
-                ),
-                child: Icon(
-                  Icons.check,
-                  color: colorScheme.onPrimary,
-                  size: 14,
-                ),
-              ),
-            ),
-          ],
         ],
       ),
     );
@@ -652,7 +592,7 @@ class _PlaylistPickerThumbnail extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Icon(
-        context.isMornye ? CupertinoIcons.music_note_list : Icons.queue_music,
+        CupertinoIcons.music_note_list,
         color: colorScheme.onSurfaceVariant,
       ),
     );

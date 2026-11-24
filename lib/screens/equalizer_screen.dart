@@ -5,7 +5,6 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/equalizer_settings.dart';
@@ -13,21 +12,13 @@ import 'package:sistrum/providers/equalizer_provider.dart';
 import 'package:sistrum/services/playback_equalizer.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/material_expressive.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
-import 'package:sistrum/widgets/app_choice_chip.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_menu_button.dart';
-import 'package:sistrum/widgets/app_slider.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
-import 'package:sistrum/widgets/app_switch.dart';
 import 'package:sistrum/widgets/app_text_field.dart';
 import 'package:sistrum/widgets/beta_badge.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
-import 'package:sistrum/widgets/expressive_icon_button.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/mornye_level_slider.dart';
 import 'package:sistrum/widgets/settings_group.dart';
@@ -42,8 +33,6 @@ class EqualizerScreen extends ConsumerStatefulWidget {
   @override
   ConsumerState<EqualizerScreen> createState() => _EqualizerScreenState();
 }
-
-enum _PresetAction { manage, import, export }
 
 final _selectedEqualizerPresetProvider = Provider<EqualizerPreset?>(
   (ref) => _matchingPreset(ref.watch(equalizerProvider)),
@@ -124,7 +113,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
       builder: (context, ref, _) {
         final state = ref.watch(equalizerProvider);
         final selected = _matchingPreset(state);
-        final mornye = context.isMornye;
         return SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -137,18 +125,12 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
                   title: Text(preset.name),
                   selected: preset == selected,
                   // iOS lists mark the choice with a trailing checkmark.
-                  leading: mornye
-                      ? null
-                      : preset == selected
-                      ? const AppIcon(Icons.check)
-                      : const AppIcon(Icons.graphic_eq),
-                  trailing:
-                      (mornye && preset == selected) ||
-                          state.presets.contains(preset)
+                  leading: null,
+                  trailing: preset == selected || state.presets.contains(preset)
                       ? Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            if (mornye && preset == selected)
+                            if (preset == selected)
                               AppIcon(
                                 Icons.check,
                                 color: Theme.of(context).colorScheme.primary,
@@ -223,7 +205,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
     );
     final notifier = ref.read(equalizerProvider.notifier);
     final l10n = context.l10n;
-    final mornye = context.isMornye;
     void update(EqualizerSettings next) => notifier.update(next);
     void setEnabled(bool v) =>
         update(ref.read(equalizerProvider).settings.copyWith(enabled: v));
@@ -248,84 +229,52 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
       body: CustomScrollView(
         slivers: [
           AppSliverHeader.page(title: l10n.equalizerTitle),
-          if (mornye) ...[
-            // iOS order: the master switch, its footnote, then the response.
-            section(
-              SettingsGroup(
-                children: [
-                  SettingsSwitchItem(
-                    icon: Icons.graphic_eq,
-                    title: l10n.equalizerEnable,
-                    titleTrailing: const BetaBadge(),
-                    value: settings.enabled,
-                    onChanged: setEnabled,
-                    showDivider: false,
-                  ),
-                ],
-              ),
+          // iOS order: the master switch, its footnote, then the response.
+          section(
+            SettingsGroup(
+              children: [
+                SettingsSwitchItem(
+                  icon: Icons.graphic_eq,
+                  title: l10n.equalizerEnable,
+                  titleTrailing: const BetaBadge(),
+                  value: settings.enabled,
+                  onChanged: setEnabled,
+                  showDivider: false,
+                ),
+              ],
             ),
-            section(_Footnote(l10n.equalizerBypass)),
-            error,
-            section(SettingsGroup(children: [const _EqualizerOverview()])),
-            // The value cell names the group, so it needs no header.
-            const SliverToBoxAdapter(child: SizedBox(height: 28)),
-            section(
-              SettingsGroup(
-                children: [
-                  SettingsItem(
-                    title: l10n.equalizerPresets,
-                    trailing: Consumer(
-                      builder: (context, ref, _) => _DetailValue(
-                        ref.watch(_selectedEqualizerPresetProvider)?.name ??
-                            context.l10n.equalizerCustom,
-                      ),
+          ),
+          section(_Footnote(l10n.equalizerBypass)),
+          error,
+          section(SettingsGroup(children: [const _EqualizerOverview()])),
+          // The value cell names the group, so it needs no header.
+          const SliverToBoxAdapter(child: SizedBox(height: 28)),
+          section(
+            SettingsGroup(
+              children: [
+                SettingsItem(
+                  title: l10n.equalizerPresets,
+                  trailing: Consumer(
+                    builder: (context, ref, _) => _DetailValue(
+                      ref.watch(_selectedEqualizerPresetProvider)?.name ??
+                          context.l10n.equalizerCustom,
                     ),
-                    onTap: _presets,
                   ),
-                  _ActionRow(
-                    label: l10n.equalizerSavePreset,
-                    onTap: _savePreset,
-                  ),
-                  _ActionRow(
-                    label: l10n.equalizerImport,
-                    onTap: _busy ? null : _import,
-                  ),
-                  _ActionRow(
-                    label: l10n.equalizerExport,
-                    onTap: _export,
-                    last: true,
-                  ),
-                ],
-              ),
+                  onTap: _presets,
+                ),
+                _ActionRow(label: l10n.equalizerSavePreset, onTap: _savePreset),
+                _ActionRow(
+                  label: l10n.equalizerImport,
+                  onTap: _busy ? null : _import,
+                ),
+                _ActionRow(
+                  label: l10n.equalizerExport,
+                  onTap: _export,
+                  last: true,
+                ),
+              ],
             ),
-          ] else ...[
-            section(
-              SettingsGroup(
-                children: [_EqualizerOverview(onEnabledChanged: setEnabled)],
-              ),
-            ),
-            error,
-            section(
-              SettingsInfoCard(
-                message: l10n.equalizerBypass,
-                icon: Icons.info_outline,
-              ),
-            ),
-            section(SettingsSectionHeader(title: l10n.equalizerPresets)),
-            section(
-              _PresetBar(
-                busy: _busy,
-                onApply: notifier.applyPreset,
-                onSave: _savePreset,
-                onReset: _reset,
-                onAction: (action) => switch (action) {
-                  _PresetAction.manage => _presets(),
-                  _PresetAction.import => _import(),
-                  _PresetAction.export => _export(),
-                },
-              ),
-            ),
-          ],
+          ),
           section(SettingsSectionHeader(title: l10n.equalizerBands)),
           section(SettingsGroup(children: [const _BandEditor()])),
           section(SettingsSectionHeader(title: l10n.equalizerTone)),
@@ -334,7 +283,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
               connected: true,
               children: [
                 _SliderTile(
-                  icon: Icons.volume_up_outlined,
                   title: l10n.equalizerPreamp,
                   control: _ToneControl.preamp,
                   min: -24,
@@ -343,7 +291,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
                   unit: 'dB',
                 ),
                 _SliderTile(
-                  icon: Icons.speaker_outlined,
                   title: l10n.equalizerBass,
                   control: _ToneControl.bass,
                   min: -12,
@@ -353,7 +300,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
                   centered: true,
                 ),
                 _SliderTile(
-                  icon: Icons.music_note_outlined,
                   title: l10n.equalizerTreble,
                   control: _ToneControl.treble,
                   min: -12,
@@ -363,7 +309,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
                   centered: true,
                 ),
                 _SliderTile(
-                  icon: Icons.surround_sound_outlined,
                   title: l10n.equalizerBalance,
                   control: _ToneControl.balance,
                   min: -100,
@@ -418,7 +363,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
                 if (settings.compressor) ...[
                   _SliderTile(
                     title: l10n.equalizerThreshold,
-                    indented: true,
                     control: _ToneControl.threshold,
                     min: -60,
                     max: 0,
@@ -427,7 +371,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
                   ),
                   _SliderTile(
                     title: l10n.equalizerRatio,
-                    indented: true,
                     control: _ToneControl.ratio,
                     min: 1,
                     max: 20,
@@ -437,7 +380,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
                   ),
                   _SliderTile(
                     title: l10n.equalizerAttack,
-                    indented: true,
                     control: _ToneControl.attack,
                     min: 1,
                     max: 100,
@@ -447,7 +389,6 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
                   ),
                   _SliderTile(
                     title: l10n.equalizerRelease,
-                    indented: true,
                     control: _ToneControl.release,
                     min: 20,
                     max: 1000,
@@ -460,22 +401,20 @@ class _EqualizerScreenState extends ConsumerState<EqualizerScreen> {
               ],
             ),
           ),
-          if (mornye) ...[
-            // iOS keeps a destructive command in its own group at the end.
-            const SliverToBoxAdapter(child: SizedBox(height: 28)),
-            section(
-              SettingsGroup(
-                children: [
-                  _ActionRow(
-                    label: l10n.libraryFilterReset,
-                    onTap: _reset,
-                    destructive: true,
-                    last: true,
-                  ),
-                ],
-              ),
+          // iOS keeps a destructive command in its own group at the end.
+          const SliverToBoxAdapter(child: SizedBox(height: 28)),
+          section(
+            SettingsGroup(
+              children: [
+                _ActionRow(
+                  label: l10n.libraryFilterReset,
+                  onTap: _reset,
+                  destructive: true,
+                  last: true,
+                ),
+              ],
             ),
-          ],
+          ),
           SliverToBoxAdapter(
             child: SizedBox(height: 40 + MediaQuery.paddingOf(context).bottom),
           ),

@@ -5,7 +5,6 @@ import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
@@ -97,9 +96,7 @@ class SongRowButton extends ConsumerWidget {
         // Smaller than the play glyph it replaces: details are the lesser
         // action of the row.
         size: dense ? 16 : 20,
-        color: context.isMornye
-            ? colorScheme.primary
-            : colorScheme.onSurfaceVariant,
+        color: colorScheme.primary,
       ),
       style: IconButton.styleFrom(
         minimumSize: Size.square(dense ? 32 : context.tokens.minTouchTarget),

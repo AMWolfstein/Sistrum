@@ -10,7 +10,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/models/theme_settings.dart';
 import 'package:sistrum/providers/theme_provider.dart';
 import 'package:sistrum/services/custom_font_service.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 
 void main() {
@@ -130,13 +129,15 @@ void main() {
         ),
       );
       expect(
-        AppTheme.light(
+        MornyeTheme.build(
+          Brightness.light,
           fontFamily: 'ImportedFont_test',
         ).textTheme.bodyMedium!.fontFamily,
         'ImportedFont_test',
       );
       expect(
-        AppTheme.dark(
+        MornyeTheme.build(
+          Brightness.dark,
           fontFamily: 'ImportedFont_test',
         ).textTheme.bodyMedium!.fontFamily,
         'ImportedFont_test',

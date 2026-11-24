@@ -69,14 +69,6 @@
   "@appearanceThemeDark": {
     "description": "Dark theme"
   },
-  "appearanceDynamicColor": "Dynamic Color",
-  "@appearanceDynamicColor": {
-    "description": "Material You dynamic colors"
-  },
-  "appearanceDynamicColorSubtitle": "Use colors from your wallpaper",
-  "@appearanceDynamicColorSubtitle": {
-    "description": "Subtitle for dynamic color"
-  },
   "appearanceHistoryView": "History View",
   "@appearanceHistoryView": {
     "description": "Layout style for history"
@@ -736,14 +728,6 @@
   "downloadAlbumFolderStructure": "Album Folder Structure",
   "@downloadAlbumFolderStructure": {
     "description": "Setting - album folder organization"
-  },
-  "appearanceAmoledDark": "AMOLED Dark",
-  "@appearanceAmoledDark": {
-    "description": "Theme option - pure black"
-  },
-  "appearanceAmoledDarkSubtitle": "Pure black background",
-  "@appearanceAmoledDarkSubtitle": {
-    "description": "Subtitle for AMOLED dark"
   },
   "downloadedAlbumDeleteSelected": "Delete Selected",
   "@downloadedAlbumDeleteSelected": {

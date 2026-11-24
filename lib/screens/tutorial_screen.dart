@@ -14,7 +14,6 @@ import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
 import 'package:sistrum/widgets/app_search_field.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/tv_navigation.dart';
 
 class TutorialScreen extends ConsumerStatefulWidget {
@@ -130,8 +129,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
                       ),
                     ),
 
-                    ExpressiveButton(
-                      text: true,
+                    TextButton(
                       onPressed: _skipTutorial,
                       style: TextButton.styleFrom(
                         foregroundColor: colorScheme.onSurfaceVariant,
@@ -275,7 +273,7 @@ class _TutorialScreenState extends ConsumerState<TutorialScreen> {
                         child: SizedBox(
                           width: double.infinity,
                           height: actionButtonHeight,
-                          child: ExpressiveButton(
+                          child: FilledButton(
                             onPressed: _nextPage,
                             style: FilledButton.styleFrom(
                               shape: RoundedRectangleBorder(

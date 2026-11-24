@@ -9,7 +9,6 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/routes/now_playing_route.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mini_player.dart';
 import 'package:sistrum/widgets/player_artwork.dart';
@@ -55,9 +54,8 @@ void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
   for (final configuration in [
-    (name: 'Material', mornye: false, compact: false),
-    (name: 'Mornye', mornye: true, compact: false),
-    (name: 'Mornye compact', mornye: true, compact: true),
+    (name: 'Mornye', compact: false),
+    (name: 'Mornye compact', compact: true),
   ]) {
     Future<_Controller> pumpPlayer(
       WidgetTester tester, {
@@ -92,9 +90,7 @@ void main() {
           ],
           child: MaterialApp(
             navigatorObservers: [?observer],
-            theme: configuration.mornye
-                ? MornyeTheme.build(Brightness.light)
-                : AppTheme.light(),
+            theme: MornyeTheme.build(Brightness.light),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             home: Scaffold(
@@ -358,14 +354,7 @@ void main() {
         final mini = tester.getRect(find.byType(MiniPlayer));
         expect(geometry.surface.topLeft, mini.topLeft);
         expect(geometry.surface.width, mini.width);
-        if (configuration.mornye) {
-          expect(route.morph, isNull);
-        } else {
-          expect(
-            route.morph!.duration,
-            reducedMotion ? Duration.zero : greaterThan(Duration.zero),
-          );
-        }
+        expect(route.morph, isNull);
         // The test leaves the full player itself unbuilt.
         route.navigator!.removeRoute(route);
         await tester.pumpWidget(const SizedBox.shrink());

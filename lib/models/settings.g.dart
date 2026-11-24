@@ -97,11 +97,9 @@ AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => AppSettings(
   playerCoverStyle: json['playerCoverStyle'] == null
       ? ''
       : playerCoverStyleFromJson(json['playerCoverStyle']),
-  landscapeLyricsArtwork: json['landscapeLyricsArtwork'] as bool? ?? false,
   autoHideLyricsControls: json['autoHideLyricsControls'] as bool? ?? true,
   autoHideLyricsControlsWithAccessibility:
       json['autoHideLyricsControlsWithAccessibility'] as bool? ?? false,
-  compactPlayer: json['compactPlayer'] as bool? ?? false,
   isFirstLaunch: json['isFirstLaunch'] as bool? ?? true,
   historyViewMode: json['historyViewMode'] as String? ?? 'grid',
   historyFilterMode: json['historyFilterMode'] as String? ?? 'all',
@@ -210,11 +208,9 @@ Map<String, dynamic> _$AppSettingsToJson(AppSettings instance) =>
       'musicHapticsSensitivity': instance.musicHapticsSensitivity,
       'musicHapticsStrength': instance.musicHapticsStrength,
       'playerCoverStyle': instance.playerCoverStyle,
-      'landscapeLyricsArtwork': instance.landscapeLyricsArtwork,
       'autoHideLyricsControls': instance.autoHideLyricsControls,
       'autoHideLyricsControlsWithAccessibility':
           instance.autoHideLyricsControlsWithAccessibility,
-      'compactPlayer': instance.compactPlayer,
       'isFirstLaunch': instance.isFirstLaunch,
       'historyViewMode': instance.historyViewMode,
       'historyFilterMode': instance.historyFilterMode,

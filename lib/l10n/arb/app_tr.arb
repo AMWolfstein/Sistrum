@@ -49,7 +49,6 @@
   "@nowPlayingVolume": {
     "description": "System volume control label in the Sistrum player"
   },
-  "appearanceStyle": "Uygulama stili",
   "appearanceAccentRed": "Kırmızı (varsayılan)",
   "appearanceAccentOrange": "Turuncu",
   "appearanceAccentGreen": "Yeşil",
@@ -84,9 +83,6 @@
   },
   "appearanceUseSystemFont": "Sistem yazı tipini kullan",
   "appearanceUseSystemFontSubtitle": "Uygulama metinleri için cihazınızın varsayılan yazı tipini kullanın.",
-  "@appearanceStyle": {
-    "description": "Appearance section for choosing the app visual style"
-  },
   "@@locale": "tr",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
@@ -208,14 +204,6 @@
   "appearanceThemeDark": "Koyu",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceDynamicColor": "Dinamik Renk",
-  "@appearanceDynamicColor": {
-    "description": "Material You dynamic colors"
-  },
-  "appearanceDynamicColorSubtitle": "Duvar kağıdının renklerini kullan",
-  "@appearanceDynamicColorSubtitle": {
-    "description": "Subtitle for dynamic color"
   },
   "appearanceHistoryView": "Geçmiş Düzeni",
   "@appearanceHistoryView": {
@@ -1284,14 +1272,6 @@
   "downloadUsePrimaryArtistOnly": "Klasörler için yalnızca birincil sanatçıyı kullan",
   "@downloadUsePrimaryArtistOnly": {
     "description": "Setting - strip featured artists from folder name"
-  },
-  "appearanceAmoledDark": "AMOLED Koyu",
-  "@appearanceAmoledDark": {
-    "description": "Theme option - pure black"
-  },
-  "appearanceAmoledDarkSubtitle": "Saf siyah arka plan",
-  "@appearanceAmoledDarkSubtitle": {
-    "description": "Subtitle for AMOLED dark"
   },
   "appearanceHeroAnimations": "Hero animasyonları",
   "@appearanceHeroAnimations": {
@@ -3523,15 +3503,6 @@
   "@queueDownloadedFileMissing": {
     "description": "Accessibility label when a downloaded file is missing from disk"
   },
-  "appearanceSelectAccentColor": "Vurgu rengini seç {hex}",
-  "@appearanceSelectAccentColor": {
-    "description": "Accessibility label for picking an accent color",
-    "placeholders": {
-      "hex": {
-        "type": "String"
-      }
-    }
-  },
   "logAutoScrollOn": "Otomatik kaydırma AÇIK",
   "@logAutoScrollOn": {
     "description": "Tooltip when auto-scroll is enabled on the log screen"
@@ -4409,22 +4380,6 @@
   "playerCoverStyle": "Albüm kapağı",
   "@playerCoverStyle": {
     "description": "Settings section choosing how the player shows cover art"
-  },
-  "landscapeLyricsArtwork": "Şarkı sözlerinin yanında albüm kapağı",
-  "@landscapeLyricsArtwork": {
-    "description": "Switch choosing album artwork instead of track details alongside lyrics in landscape"
-  },
-  "landscapeLyricsArtworkDescription": "Material yatay oynatıcıda parça ayrıntıları yerine albüm kapağını göster",
-  "@landscapeLyricsArtworkDescription": {
-    "description": "Subtitle explaining the Material landscape lyrics layout setting"
-  },
-  "compactPlayer": "Kompakt oynatıcı",
-  "@compactPlayer": {
-    "description": "Material player setting: idle lyrics shrink the player to a slim bar instead of hiding it"
-  },
-  "compactPlayerDescription": "Şarkı sözleri kendi hâline bırakıldığında, şarkı sözlerine daha fazla yer açmak için oynatıcıyı ince bir çubuğa küçült. Dokunmak tam oynatıcıyı geri getirir",
-  "@compactPlayerDescription": {
-    "description": "Subtitle of the compact player setting"
   },
   "playerCoverStyleCard": "Kart",
   "@playerCoverStyleCard": {

@@ -1,11 +1,8 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_content_card.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_shape.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 
 /// Error card shown by detail screens: a dedicated rate-limit presentation
 /// when the message looks like an HTTP 429, otherwise a generic error row.
@@ -80,11 +77,10 @@ class ErrorCard extends StatelessWidget {
                   ),
                   if (onRetry != null) ...[
                     SizedBox(height: tokens.gapMd),
-                    ExpressiveButton(
-                      tonal: true,
+                    FilledButton.tonalIcon(
                       onPressed: onRetry,
                       icon: const Icon(Icons.refresh, size: 18),
-                      child: Text(context.l10n.dialogRetry),
+                      label: Text(context.l10n.dialogRetry),
                     ),
                   ],
                 ],
@@ -126,19 +122,7 @@ class EmptyState extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (context.isMornye)
-              Icon(icon, size: 64, color: colorScheme.onSurfaceVariant)
-            else
-              AppShapeBadge(
-                kind: AppShapes.badge,
-                size: 112,
-                color: colorScheme.secondaryContainer,
-                child: AppIcon(
-                  icon,
-                  size: 52,
-                  color: colorScheme.onSecondaryContainer,
-                ),
-              ),
+            Icon(icon, size: 64, color: colorScheme.onSurfaceVariant),
             SizedBox(height: tokens.gapLg),
             Text(
               title,

@@ -72,9 +72,6 @@ extension _QueueTabFilterWidgets on _QueueTabState {
               .where((entry) => entry.type != _CollectionEntryType.playlist)
               .toList(growable: false)
         : const <_CollectionEntry>[];
-    // Material lists group rows under pinned sections.
-    final sectioned = rootLibrary && !context.isMornye;
-
     // Indexes into collectionState.playlists, name-filtered by the search
     // query, for the 'playlists' view.
     final playlistIndexes = <int>[];
@@ -138,29 +135,19 @@ extension _QueueTabFilterWidgets on _QueueTabState {
         context,
         context.l10n.queueTrackCount(totalTrackCount),
         [
-          // Material keeps Shuffle with the page's tools; Mornye shows its
-          // capsule above this row.
           if (rootLibrary && !_isSelectionMode)
-            ..._buildLibraryTools(
-              context,
-              viewMode: historyViewMode,
-              onShuffle: showShuffle && !context.isMornye ? shuffleSongs : null,
-            )
-          else if (!_isSelectionMode) ...[
-            if (showShuffle && !context.isMornye)
-              _buildLibraryShuffleButton(context, onPressed: shuffleSongs),
+            ..._buildLibraryTools(context, viewMode: historyViewMode)
+          else if (!_isSelectionMode)
             _buildFilterButton(context),
-          ],
           // The root Library creates playlists from the Playlists page.
           if (!rootLibrary &&
               !_isSelectionMode &&
               filteredUnifiedItems.isNotEmpty)
-            ExpressiveButton(
-              text: true,
+            TextButton.icon(
               onPressed: () => _showCreatePlaylistDialog(context),
               icon: const Icon(Icons.add, size: 20),
               style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
-              child: Text(context.l10n.collectionCreatePlaylist),
+              label: Text(context.l10n.collectionCreatePlaylist),
             ),
         ],
       ),
@@ -175,7 +162,6 @@ extension _QueueTabFilterWidgets on _QueueTabState {
         if (rootLibrary &&
             filterMode == 'all' &&
             _searchQuery.isEmpty &&
-            !context.isMornye &&
             !_isSelectionMode &&
             ref.watch(
               settingsProvider.select((s) => s.listeningStatisticsEnabled),
@@ -186,7 +172,7 @@ extension _QueueTabFilterWidgets on _QueueTabState {
             ),
           ),
 
-        if (totalTrackCount > 0 && showShuffle && context.isMornye)
+        if (totalTrackCount > 0 && showShuffle)
           SliverToBoxAdapter(
             child: _buildLibraryShuffleButton(context, onPressed: shuffleSongs),
           ),
@@ -295,14 +281,13 @@ extension _QueueTabFilterWidgets on _QueueTabState {
               context.l10n.queuePlaylistCount(playlistIndexes.length),
               [
                 if (!_isPlaylistSelectionMode)
-                  ExpressiveButton(
-                    text: true,
+                  TextButton.icon(
                     onPressed: () => _showCreatePlaylistDialog(context),
                     icon: const Icon(Icons.add, size: 20),
                     style: TextButton.styleFrom(
                       visualDensity: VisualDensity.compact,
                     ),
-                    child: Text(context.l10n.collectionCreatePlaylist),
+                    label: Text(context.l10n.collectionCreatePlaylist),
                   ),
               ],
             ),
@@ -407,13 +392,6 @@ extension _QueueTabFilterWidgets on _QueueTabState {
                 localNavigationItems: localNavigationItems,
                 localNavigationIndex: localNavigationIndexByUnifiedId[item.id],
               ),
-            )
-          else if (sectioned)
-            _buildSectionedTrackSlivers(
-              context: context,
-              items: filteredUnifiedItems,
-              rowBuilder: (index) =>
-                  trackTile(filteredUnifiedItems[index], grid: false),
             )
           else
             SliverPadding(
@@ -565,35 +543,17 @@ extension _QueueTabFilterWidgets on _QueueTabState {
         icon = Icons.history;
     }
 
-    if (context.isMornye) {
-      return EmptyState(
-        icon: icon,
-        title: message,
-        message: subtitle,
-        // Every empty branch here means the library has no songs of this
-        // kind yet, so the way forward is always search.
-        action: ExpressiveButton(
-          onPressed: () => ShellNavigationService.requestTab(ShellTab.home),
-          icon: const Icon(Icons.search),
-          child: Text(context.l10n.navHome),
-        ),
-      );
-    }
-
-    // Material names the next step in the copy. Home already sits in the
-    // navigation bar, so only creating the first playlist, which the empty
-    // Playlists page does not otherwise offer, gets a button.
     return EmptyState(
       icon: icon,
       title: message,
       message: subtitle,
-      action: filterMode == 'playlists'
-          ? ExpressiveButton(
-              onPressed: () => _showCreatePlaylistDialog(context),
-              icon: const Icon(Icons.add),
-              child: Text(context.l10n.collectionCreatePlaylist),
-            )
-          : null,
+      // Every empty branch here means the library has no songs of this
+      // kind yet, so the way forward is always search.
+      action: FilledButton.icon(
+        onPressed: () => ShellNavigationService.requestTab(ShellTab.home),
+        icon: const Icon(Icons.search),
+        label: Text(context.l10n.navHome),
+      ),
     );
   }
 

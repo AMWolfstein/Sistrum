@@ -15,9 +15,7 @@ import 'package:sistrum/screens/local_album_screen.dart';
 import 'package:sistrum/screens/mornye_library_screen.dart';
 import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
 import 'package:sistrum/services/library_database.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/local_library_artwork_builder.dart';
 import 'package:sistrum/widgets/mornye_artist_header.dart';
@@ -69,7 +67,7 @@ void main() {
     await directory.delete(recursive: true);
   });
 
-  Widget app(Widget home, {bool mornye = false}) => ProviderScope(
+  Widget app(Widget home) => ProviderScope(
     overrides: [
       settingsProvider.overrideWith(
         () => FixedSettingsNotifier(
@@ -78,7 +76,7 @@ void main() {
       ),
     ],
     child: MaterialApp(
-      theme: mornye ? MornyeTheme.build(Brightness.light) : AppTheme.light(),
+      theme: MornyeTheme.build(Brightness.light),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: home,
@@ -257,21 +255,63 @@ void main() {
     },
   );
 
-  for (final mornye in [false, true]) {
-    testWidgets('blank album cover keeps the scanned track cover ($mornye)', (
+  testWidgets('blank album cover keeps the scanned track cover', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(430, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.runAsync(() async {
+      await scannedCover.writeAsBytes(png);
+      await tester.pumpWidget(
+        app(
+          LocalAlbumScreen(
+            albumName: 'Album',
+            artistName: 'Artist',
+            coverPath: '   ',
+            tracks: [
+              LocalLibraryItem(
+                id: 'song',
+                trackName: 'Song',
+                artistName: 'Artist',
+                albumName: 'Album',
+                filePath: audio.path,
+                coverPath: scannedCover.path,
+                scannedAt: DateTime(2026),
+              ),
+            ],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    });
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<MornyeArtistSurface>(find.byType(MornyeArtistSurface))
+          .imageSource,
+      scannedCover.path,
+    );
+    expect(extractions, 0);
+    expect(tester.takeException(), isNull);
+  });
+
+  for (final stale in [false, true]) {
+    testWidgets('album header recovers artwork (stale: $stale)', (
       tester,
     ) async {
       tester.view.physicalSize = const Size(430, 1200);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
+      // The player has already recovered artwork, as in the tester report.
+      final preview = await playerPreview(tester);
       await tester.runAsync(() async {
-        await scannedCover.writeAsBytes(png);
         await tester.pumpWidget(
           app(
             LocalAlbumScreen(
               albumName: 'Album',
               artistName: 'Artist',
-              coverPath: '   ',
+              coverPath: stale ? scannedCover.path : null,
               tracks: [
                 LocalLibraryItem(
                   id: 'song',
@@ -279,85 +319,27 @@ void main() {
                   artistName: 'Artist',
                   albumName: 'Album',
                   filePath: audio.path,
-                  coverPath: scannedCover.path,
+                  coverPath: stale ? scannedCover.path : null,
                   scannedAt: DateTime(2026),
                 ),
               ],
             ),
-            mornye: mornye,
           ),
         );
         await tester.pumpAndSettle();
       });
       await tester.pumpAndSettle();
-      expect(
-        mornye
-            ? tester
-                  .widget<MornyeArtistSurface>(find.byType(MornyeArtistSurface))
-                  .imageSource
-            : tester
-                  .widget<AlbumDetailHeader>(find.byType(AlbumDetailHeader))
-                  .paletteSource,
-        scannedCover.path,
+      await pumpUntil(
+        tester,
+        () =>
+            tester
+                .widget<MornyeArtistSurface>(find.byType(MornyeArtistSurface))
+                .imageSource ==
+            preview,
       );
-      expect(extractions, 0);
+      expect(extractions, 1);
       expect(tester.takeException(), isNull);
     });
-
-    for (final stale in [false, true]) {
-      testWidgets('album header recovers artwork ($mornye, stale: $stale)', (
-        tester,
-      ) async {
-        tester.view.physicalSize = const Size(430, 1200);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.reset);
-        // The player has already recovered artwork, as in the tester report.
-        final preview = await playerPreview(tester);
-        await tester.runAsync(() async {
-          await tester.pumpWidget(
-            app(
-              LocalAlbumScreen(
-                albumName: 'Album',
-                artistName: 'Artist',
-                coverPath: stale ? scannedCover.path : null,
-                tracks: [
-                  LocalLibraryItem(
-                    id: 'song',
-                    trackName: 'Song',
-                    artistName: 'Artist',
-                    albumName: 'Album',
-                    filePath: audio.path,
-                    coverPath: stale ? scannedCover.path : null,
-                    scannedAt: DateTime(2026),
-                  ),
-                ],
-              ),
-              mornye: mornye,
-            ),
-          );
-          await tester.pumpAndSettle();
-        });
-        await tester.pumpAndSettle();
-        await pumpUntil(
-          tester,
-          () => mornye
-              ? tester
-                        .widget<MornyeArtistSurface>(
-                          find.byType(MornyeArtistSurface),
-                        )
-                        .imageSource ==
-                    preview
-              : tester
-                        .widget<AlbumDetailHeader>(
-                          find.byType(AlbumDetailHeader),
-                        )
-                        .paletteSource ==
-                    preview,
-        );
-        expect(extractions, 1);
-        expect(tester.takeException(), isNull);
-      });
-    }
   }
 
   testWidgets('Mornye album grid replaces a stale scan path', (tester) async {
@@ -404,9 +386,7 @@ void main() {
     await pumpUntil(
       tester,
       () => tester
-          .widgetList<LocalCoverImage>(
-            find.byType(LocalCoverImage),
-          )
+          .widgetList<LocalCoverImage>(find.byType(LocalCoverImage))
           .any((image) => image.url == preview),
     );
     expect(extractions, 1);

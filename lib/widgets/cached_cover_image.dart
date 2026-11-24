@@ -7,7 +7,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:path/path.dart' as p;
 import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
 import 'package:sistrum/theme/cover_palette.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/image_cache_utils.dart';
 
 /// Renders a stored cover string from disk: an absolute path or `file://` URI.
@@ -213,7 +212,11 @@ ImageProvider<Object>? coverImageProvider(
 }) {
   final path = coverFilePath(source);
   if (path == null) return null;
-  return ResizeImage.resizeIfNeeded(cacheWidth, cacheHeight, FileImage(File(path)));
+  return ResizeImage.resizeIfNeeded(
+    cacheWidth,
+    cacheHeight,
+    FileImage(File(path)),
+  );
 }
 
 /// Chooses one artwork source for both the Metadata foreground cover and its
@@ -262,7 +265,6 @@ Future<void> precacheMetadataBackdrop(
   // a cover is seen.
   final paletteSource = coverFilePath(normalized);
   final brightness = Theme.of(context).brightness;
-  final neutral = !context.isMornye;
   try {
     await Future.wait([
       precacheImage(
@@ -274,7 +276,6 @@ Future<void> precacheMetadataBackdrop(
         CoverPalette.resolve(
           paletteSource,
           brightness,
-          neutralGrayscale: neutral,
         ).timeout(const Duration(milliseconds: 300), onTimeout: () => null),
     ]);
   } catch (_) {}
@@ -291,10 +292,7 @@ Future<void> prepareTrackDetailsCover(
   String filePath, {
   String? fallback,
 }) async {
-  final embedded = await trackDetailsEmbeddedCover(filePath);
-  // Only Material's header has the blurred backdrop.
-  if (!context.mounted || context.isMornye) return;
-  await precacheMetadataBackdrop(context, embedded ?? fallback);
+  await trackDetailsEmbeddedCover(filePath);
 }
 
 /// The picture inside the song's file, waiting a short while for a first
@@ -330,9 +328,5 @@ void precacheCoverImage(
   if (provider == null) return;
   // A stale local path is common and its placeholder already covers it; only
   // a failed download still reaches the app's error handler.
-  precacheImage(
-    provider,
-    context,
-    onError: (_, _) {},
-  );
+  precacheImage(provider, context, onError: (_, _) {});
 }

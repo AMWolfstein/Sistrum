@@ -14,15 +14,12 @@ import 'package:sistrum/widgets/queue_swipe.dart';
 import 'package:sistrum/widgets/track_card.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/material_expressive.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/pinned_section_sliver_list.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/album_detail_header.dart'
     show HeaderFilledButton;
 import 'package:sistrum/widgets/app_search_field.dart';
@@ -36,7 +33,6 @@ import 'package:sistrum/widgets/local_library_artwork_builder.dart';
 import 'package:sistrum/widgets/library_playlist_drag_source.dart';
 import 'package:sistrum/widgets/playlist_picker_sheet.dart';
 import 'package:sistrum/widgets/create_playlist_sheet.dart';
-import 'package:sistrum/widgets/tool_button_group.dart';
 import 'package:flutter/rendering.dart' show RenderSliver;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -212,10 +208,6 @@ class _QueueTabState extends ConsumerState<QueueTab> {
   String _libraryQualityLabelMode = AppSettings.libraryQualityLabelBitDepthOnly;
   final _libraryGridExtent = ValueNotifier(_libraryGridDefaultExtent);
   double? _libraryGridPinchStartExtent;
-  List<UnifiedLibraryItem>? _sectionItems;
-  String? _sectionSort;
-  String? _sectionLocale;
-  List<_LibrarySection> _cachedTrackSections = const [];
 
   /// Filter data per mode with the page and totals it came
   /// from, so an unchanged page keeps its filtered rows across rebuilds.
@@ -542,7 +534,7 @@ class _QueueTabState extends ConsumerState<QueueTab> {
 
   @override
   Widget build(BuildContext context) {
-    if (context.isMornye && widget.librarySection == null) {
+    if (widget.librarySection == null) {
       return MornyeLibraryScreen(
         onOpenSection: (section) => pushPage<void>(
           context,

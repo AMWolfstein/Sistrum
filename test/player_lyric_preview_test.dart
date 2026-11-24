@@ -77,7 +77,6 @@ void main() {
     WidgetTester tester, {
     required PlayerMetadataController metadata,
     AppSettings settings = _enabled,
-    bool mornye = true,
     VoidCallback? onTap,
   }) async {
     final playback = StreamController<PlaybackState>.broadcast();
@@ -94,7 +93,7 @@ void main() {
       UncontrolledProviderScope(
         container: container,
         child: MaterialApp(
-          theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
+          theme: MornyeTheme.build(Brightness.dark),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
@@ -127,43 +126,37 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  for (final mornye in [true, false]) {
-    testWidgets('follows the sung line and opens lyrics (mornye: $mornye)', (
+  testWidgets('follows the sung line and opens lyrics ', (tester) async {
+    var opened = 0;
+    final view = await pumpPreview(
       tester,
-    ) async {
-      var opened = 0;
-      final view = await pumpPreview(
-        tester,
-        metadata: await _metadata(),
-        mornye: mornye,
-        onTap: () => opened++,
-      );
-      final chevron = mornye ? CupertinoIcons.forward : Icons.chevron_right;
+      metadata: await _metadata(),
+      onTap: () => opened++,
+    );
 
-      view.playback.add(_at(const Duration(seconds: 1), playing: false));
-      await tester.pumpAndSettle();
-      expect(find.text('•••'), findsOneWidget);
-      expect(find.byIcon(chevron), findsOneWidget);
+    view.playback.add(_at(const Duration(seconds: 1), playing: false));
+    await tester.pumpAndSettle();
+    expect(find.text('•••'), findsOneWidget);
+    expect(find.byIcon(CupertinoIcons.forward), findsOneWidget);
 
-      view.playback.add(_at(const Duration(seconds: 6), playing: false));
-      await tester.pumpAndSettle();
-      expect(find.text('First example line'), findsOneWidget);
-      expect(
-        find.bySemanticsLabel('Lyrics'),
-        findsOneWidget,
-        reason: 'The line reads as one Lyrics button',
-      );
+    view.playback.add(_at(const Duration(seconds: 6), playing: false));
+    await tester.pumpAndSettle();
+    expect(find.text('First example line'), findsOneWidget);
+    expect(
+      find.bySemanticsLabel('Lyrics'),
+      findsOneWidget,
+      reason: 'The line reads as one Lyrics button',
+    );
 
-      await tester.tap(find.text('First example line'));
-      await tester.pump();
-      expect(opened, 1);
+    await tester.tap(find.text('First example line'));
+    await tester.pump();
+    expect(opened, 1);
 
-      view.playback.add(_at(const Duration(seconds: 11), playing: false));
-      await tester.pumpAndSettle();
-      expect(find.text('Second example line'), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
-  }
+    view.playback.add(_at(const Duration(seconds: 11), playing: false));
+    await tester.pumpAndSettle();
+    expect(find.text('Second example line'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('moves to the next line on time without a new state', (
     tester,
@@ -344,75 +337,67 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  for (final mornye in [true, false]) {
-    testWidgets('slides a long right-to-left line towards its end on the '
-        'left (mornye: $mornye)', (tester) async {
-      tester.view.physicalSize = const Size(320, 800);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      // Invented: "the blue door at the end of the old garden opens onto a
-      // long road between the trees".
-      const long =
-          'الباب الأزرق في آخر الحديقة القديمة يفتح على طريق طويل بين '
-          'الأشجار';
-      final lyrics = LyricsParser.parse('''
+  testWidgets('slides a long right-to-left line towards its end on the '
+      'left ', (tester) async {
+    tester.view.physicalSize = const Size(320, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    // Invented: "the blue door at the end of the old garden opens onto a
+    // long road between the trees".
+    const long =
+        'الباب الأزرق في آخر الحديقة القديمة يفتح على طريق طويل بين '
+        'الأشجار';
+    final lyrics = LyricsParser.parse('''
 [00:00.00]Short line
 [00:05.00]$long
 [00:15.00]
 ''');
-      final view = await pumpPreview(
-        tester,
-        metadata: await _metadata(lyrics),
-        mornye: mornye,
-      );
-      double offset() => tester
-          .widget<Transform>(
-            find.descendant(
-              of: find.byType(LyricLineScroller),
-              matching: find.byType(Transform),
-            ),
-          )
-          .transform
-          .getTranslation()
-          .x;
-      Rect line() => tester.getRect(
-        find.ancestor(
-          of: find.text(long),
-          matching: find.byType(LyricLineScroller),
-        ),
-      );
-      Rect text() => tester.getRect(find.text(long));
+    final view = await pumpPreview(tester, metadata: await _metadata(lyrics));
+    double offset() => tester
+        .widget<Transform>(
+          find.descendant(
+            of: find.byType(LyricLineScroller),
+            matching: find.byType(Transform),
+          ),
+        )
+        .transform
+        .getTranslation()
+        .x;
+    Rect line() => tester.getRect(
+      find.ancestor(
+        of: find.text(long),
+        matching: find.byType(LyricLineScroller),
+      ),
+    );
+    Rect text() => tester.getRect(find.text(long));
 
-      view.playback.add(_at(const Duration(seconds: 5)));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
-      expect(
-        tester.renderObject<RenderParagraph>(find.text(long)).textDirection,
-        TextDirection.rtl,
-      );
-      // The line starts at its beginning, on the right.
-      expect(offset(), 0);
-      expect(text().right, moreOrLessEquals(line().right, epsilon: 0.5));
-      expect(text().left, lessThan(line().left));
+    view.playback.add(_at(const Duration(seconds: 5)));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(
+      tester.renderObject<RenderParagraph>(find.text(long)).textDirection,
+      TextDirection.rtl,
+    );
+    // The line starts at its beginning, on the right.
+    expect(offset(), 0);
+    expect(text().right, moreOrLessEquals(line().right, epsilon: 0.5));
+    expect(text().left, lessThan(line().left));
 
-      // Its first words sung, it moves right to bring the next ones in.
-      await tester.pump(const Duration(seconds: 2));
-      await tester.pump(const Duration(seconds: 2));
-      final sliding = offset();
-      expect(sliding, greaterThan(0));
+    // Its first words sung, it moves right to bring the next ones in.
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pump(const Duration(seconds: 2));
+    final sliding = offset();
+    expect(sliding, greaterThan(0));
 
-      // Near its end the line's last words, on its left, are in view.
-      view.playback.add(
-        _at(const Duration(milliseconds: 14500), playing: false),
-      );
-      await tester.pumpAndSettle();
-      expect(offset(), greaterThan(sliding));
-      expect(text().left, moreOrLessEquals(line().left, epsilon: 0.5));
-      // The row around it keeps the app's direction.
-      expect(tester.getCenter(find.byType(Icon)).dx, greaterThan(line().right));
-      expect(tester.takeException(), isNull);
-    });
-  }
+    // Near its end the line's last words, on its left, are in view.
+    view.playback.add(_at(const Duration(milliseconds: 14500), playing: false));
+    await tester.pumpAndSettle();
+    expect(offset(), greaterThan(sliding));
+    expect(text().left, moreOrLessEquals(line().left, epsilon: 0.5));
+    // The row around it keeps the app's direction.
+    expect(tester.getCenter(find.byType(Icon)).dx, greaterThan(line().right));
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('keeps sliding forward when playback reports a later time late', (
     tester,
@@ -542,86 +527,76 @@ void main() {
       return seen;
     }
 
-    for (final mornye in [false, true]) {
-      testWidgets('between two songs with lyrics the row never moves '
-          '(mornye: $mornye)', (tester) async {
-        final metadata = controller();
-        answer('network://example/a', lrcFor('a'));
-        await metadata.load(song('a'));
-        final view = await pumpPreview(
-          tester,
-          metadata: metadata,
-          mornye: mornye,
-        );
-        view.playback.add(_at(const Duration(seconds: 6), playing: false));
-        await tester.pumpAndSettle();
-        expect(find.text('Line of a'), findsOneWidget);
-        final open = height(tester);
-        expect(open, greaterThan(20));
+    testWidgets('between two songs with lyrics the row never moves '
+        '', (tester) async {
+      final metadata = controller();
+      answer('network://example/a', lrcFor('a'));
+      await metadata.load(song('a'));
+      final view = await pumpPreview(tester, metadata: metadata);
+      view.playback.add(_at(const Duration(seconds: 6), playing: false));
+      await tester.pumpAndSettle();
+      expect(find.text('Line of a'), findsOneWidget);
+      final open = height(tester);
+      expect(open, greaterThan(20));
 
-        // The next song starts loading: the row stays, its line leaves.
-        unawaited(metadata.load(song('b')));
-        expect(await heights(tester, 400), everyElement(open));
-        expect(find.text('Line of a'), findsNothing);
-        expect(find.text('•••'), findsNothing);
+      // The next song starts loading: the row stays, its line leaves.
+      unawaited(metadata.load(song('b')));
+      expect(await heights(tester, 400), everyElement(open));
+      expect(find.text('Line of a'), findsNothing);
+      expect(find.text('•••'), findsNothing);
 
-        answer('network://example/b', lrcFor('b'));
-        expect(await heights(tester, 400), everyElement(open));
+      answer('network://example/b', lrcFor('b'));
+      expect(await heights(tester, 400), everyElement(open));
+      expect(find.text('Line of b'), findsOneWidget);
+
+      // The same song read again, as when its file replaces the catalog
+      // entry: the line stays on screen throughout.
+      unawaited(metadata.load(song('b', resolved: '/cache/b.flac')));
+      for (var frame = 0; frame < 20; frame++) {
+        await tester.pump(const Duration(milliseconds: 16));
+        expect(height(tester), open);
         expect(find.text('Line of b'), findsOneWidget);
+      }
+      answer('/cache/b.flac', lrcFor('b'));
+      expect(await heights(tester, 300), everyElement(open));
+      expect(find.text('Line of b'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
 
-        // The same song read again, as when its file replaces the catalog
-        // entry: the line stays on screen throughout.
-        unawaited(metadata.load(song('b', resolved: '/cache/b.flac')));
-        for (var frame = 0; frame < 20; frame++) {
-          await tester.pump(const Duration(milliseconds: 16));
-          expect(height(tester), open);
-          expect(find.text('Line of b'), findsOneWidget);
-        }
-        answer('/cache/b.flac', lrcFor('b'));
-        expect(await heights(tester, 300), everyElement(open));
-        expect(find.text('Line of b'), findsOneWidget);
-        expect(tester.takeException(), isNull);
-      });
+    testWidgets('the row closes and opens once, without a bounce '
+        '', (tester) async {
+      final metadata = controller();
+      answer('network://example/a', lrcFor('a'));
+      await metadata.load(song('a'));
+      final view = await pumpPreview(tester, metadata: metadata);
+      view.playback.add(_at(const Duration(seconds: 6), playing: false));
+      await tester.pumpAndSettle();
+      final open = height(tester);
 
-      testWidgets('the row closes and opens once, without a bounce '
-          '(mornye: $mornye)', (tester) async {
-        final metadata = controller();
-        answer('network://example/a', lrcFor('a'));
-        await metadata.load(song('a'));
-        final view = await pumpPreview(
-          tester,
-          metadata: metadata,
-          mornye: mornye,
-        );
-        view.playback.add(_at(const Duration(seconds: 6), playing: false));
-        await tester.pumpAndSettle();
-        final open = height(tester);
+      // A song without lyrics: nothing moves while it loads.
+      unawaited(metadata.load(song('plain')));
+      expect(await heights(tester, 300), everyElement(open));
+      answer('network://example/plain', '');
+      final closing = await heights(tester, 1600);
+      expect(closing.first, open);
+      expect(closing.last, 0);
+      for (var frame = 1; frame < closing.length; frame++) {
+        expect(closing[frame], lessThanOrEqualTo(closing[frame - 1]));
+      }
+      expect(find.text('•••'), findsNothing);
 
-        // A song without lyrics: nothing moves while it loads.
-        unawaited(metadata.load(song('plain')));
-        expect(await heights(tester, 300), everyElement(open));
-        answer('network://example/plain', '');
-        final closing = await heights(tester, 1600);
-        expect(closing.first, open);
-        expect(closing.last, 0);
-        for (var frame = 1; frame < closing.length; frame++) {
-          expect(closing[frame], lessThanOrEqualTo(closing[frame - 1]));
-        }
-        expect(find.text('•••'), findsNothing);
-
-        // Back to a song with lyrics: closed while it loads, then it opens.
-        unawaited(metadata.load(song('c')));
-        expect(await heights(tester, 300), everyElement(0));
-        answer('network://example/c', lrcFor('c'));
-        final opening = await heights(tester, 1000);
-        expect(opening.last, open);
-        for (var frame = 1; frame < opening.length; frame++) {
-          expect(opening[frame], greaterThanOrEqualTo(opening[frame - 1]));
-          expect(opening[frame], lessThanOrEqualTo(open));
-        }
-        expect(find.text('Line of c'), findsOneWidget);
-        expect(tester.takeException(), isNull);
-      });
-    }
+      // Back to a song with lyrics: closed while it loads, then it opens.
+      unawaited(metadata.load(song('c')));
+      expect(await heights(tester, 300), everyElement(0));
+      answer('network://example/c', lrcFor('c'));
+      final opening = await heights(tester, 1000);
+      expect(opening.last, open);
+      for (var frame = 1; frame < opening.length; frame++) {
+        expect(opening[frame], greaterThanOrEqualTo(opening[frame - 1]));
+        expect(opening[frame], lessThanOrEqualTo(open));
+      }
+      expect(find.text('Line of c'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
   });
 }

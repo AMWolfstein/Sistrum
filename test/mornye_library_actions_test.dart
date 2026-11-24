@@ -105,7 +105,7 @@ void main() {
                 const SizedBox(height: 8),
                 DestructiveSelectionButton(
                   count: 1,
-                  colorScheme: Theme.of(context).colorScheme,
+
                   onPressed: () => deleted = true,
                 ),
               ],

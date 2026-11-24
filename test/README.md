@@ -93,8 +93,8 @@ only for that:
 - `test/design_system_test.dart` scans every `.dart` file under `lib/`:
   - every `IconButton` has a tooltip;
   - only `app_sliver_header.dart` uses `expandedTitleScale`;
-  - only `app_bottom_sheet.dart` draws a drag handle, and only
-    `app_theme.dart` sets a modal sheet shape;
+  - only `app_bottom_sheet.dart` draws a drag handle, and no call site
+    overrides the modal sheet shape;
   - only `selection_bottom_bar.dart` and `app_menu_button.dart` create an
     `OverlayEntry`;
   - `album_screen.dart`, `playlist_screen.dart`, `local_album_screen.dart`,

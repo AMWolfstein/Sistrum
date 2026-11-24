@@ -73,9 +73,6 @@ Future<void> _toggleMiniPlayerLyrics() async {
 /// the current and next lyric lines below when they are on. The window
 /// floats above other apps while it shows; dragging anywhere but a control
 /// moves it.
-///
-/// Material takes the track's artwork scheme on `surfaceContainer`; Mornye
-/// uses the dark Now Playing background.
 class DesktopMiniPlayer extends ConsumerStatefulWidget {
   const DesktopMiniPlayer({super.key, this.metadataControllerFactory});
 
@@ -115,19 +112,11 @@ class _DesktopMiniPlayerState extends ConsumerState<DesktopMiniPlayer> {
   @override
   Widget build(BuildContext context) {
     final mediaItem = ref.watch(currentMediaItemProvider).value;
-    if (context.isMornye) return _buildPanel(context, mediaItem);
-    return PlayerArtworkTheme(
-      artUri: mediaItem?.artUri?.toString(),
-      child: Builder(builder: (context) => _buildPanel(context, mediaItem)),
-    );
+    return _buildPanel(context, mediaItem);
   }
 
   Widget _buildPanel(BuildContext context, MediaItem? mediaItem) {
-    final mornye = context.isMornye;
-    final theme = mornye
-        ? MornyeTheme.fromContext(context, brightness: Brightness.dark)
-        : Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final theme = MornyeTheme.fromContext(context, brightness: Brightness.dark);
     return Theme(
       data: theme,
       child: Material(
@@ -135,10 +124,7 @@ class _DesktopMiniPlayerState extends ConsumerState<DesktopMiniPlayer> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            if (mornye)
-              MornyePlayerBackground(artUri: mediaItem?.artUri)
-            else
-              ColoredBox(color: colorScheme.surfaceContainer),
+            MornyePlayerBackground(artUri: mediaItem?.artUri),
             // Behind the content, so empty space and text drag the window
             // while the controls keep their clicks.
             const Positioned.fill(
@@ -171,7 +157,6 @@ class _DesktopMiniPlayerState extends ConsumerState<DesktopMiniPlayer> {
     MediaItem? mediaItem, {
     required bool lyrics,
   }) {
-    final mornye = context.isMornye;
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = context.l10n;
     final buttonStyle = IconButton.styleFrom(
@@ -186,7 +171,7 @@ class _DesktopMiniPlayerState extends ConsumerState<DesktopMiniPlayer> {
           height: 88,
           child: Row(
             children: [
-              _Artwork(mediaItem: mediaItem, size: 72, radius: mornye ? 8 : 12),
+              _Artwork(mediaItem: mediaItem, size: 72, radius: 8),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -222,9 +207,7 @@ class _DesktopMiniPlayerState extends ConsumerState<DesktopMiniPlayer> {
                     style: buttonStyle,
                     color: colorScheme.onSurfaceVariant,
                     icon: AppIcon(
-                      mornye
-                          ? CupertinoIcons.arrow_up_left_arrow_down_right
-                          : Icons.open_in_full,
+                      CupertinoIcons.arrow_up_left_arrow_down_right,
                     ),
                     onPressed: () => setDesktopMiniPlayer(open: false),
                   ),
@@ -237,11 +220,7 @@ class _DesktopMiniPlayerState extends ConsumerState<DesktopMiniPlayer> {
                     color: lyrics
                         ? colorScheme.primary
                         : colorScheme.onSurfaceVariant,
-                    icon: AppIcon(
-                      mornye
-                          ? CupertinoIcons.quote_bubble
-                          : Icons.lyrics_outlined,
-                    ),
+                    icon: AppIcon(CupertinoIcons.quote_bubble),
                     onPressed: _toggleMiniPlayerLyrics,
                   ),
                 ],
@@ -250,13 +229,13 @@ class _DesktopMiniPlayerState extends ConsumerState<DesktopMiniPlayer> {
           ),
         ),
         const SizedBox(height: 8),
-        // The Material slider keeps its full height for dragging, centered
-        // on a thin row.
+        // The slider keeps its full height for dragging, centered on a thin
+        // row.
         SizedBox(
           height: 16,
           child: OverflowBox(
             minHeight: 0,
-            maxHeight: mornye ? 10 : 48,
+            maxHeight: 10,
             child: _SeekRow(mediaItem: mediaItem, dense: true),
           ),
         ),

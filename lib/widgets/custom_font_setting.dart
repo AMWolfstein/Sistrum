@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/theme_provider.dart';
 import 'package:sistrum/services/custom_font_service.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 
@@ -49,7 +48,6 @@ class _CustomFontSettingState extends ConsumerState<CustomFontSetting> {
   Widget build(BuildContext context) {
     final theme = ref.watch(themeProvider);
     return ListTile(
-      leading: context.isMornye ? null : const Icon(Icons.text_fields),
       title: Text(context.l10n.appearanceCustomFont),
       subtitle: Text(
         theme.customFontId.isEmpty

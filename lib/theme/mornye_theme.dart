@@ -504,10 +504,6 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
   );
 }
 
-extension MornyeThemeContext on BuildContext {
-  bool get isMornye => Theme.of(this).extension<MornyeTheme>() != null;
-}
-
 /// Settings uses iOS's inset grouped surfaces while the music library keeps
 /// its artwork-led, plain background.
 class MornyeSettingsTheme extends StatelessWidget {
@@ -520,7 +516,6 @@ class MornyeSettingsTheme extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!context.isMornye) return child;
     final theme = Theme.of(context);
     final dark = theme.brightness == Brightness.dark;
     final background = dark ? Colors.black : const Color(0xfff2f2f7);

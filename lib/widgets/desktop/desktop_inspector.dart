@@ -7,7 +7,6 @@ import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
@@ -23,7 +22,6 @@ import 'package:sistrum/widgets/lyrics_options_button.dart';
 import 'package:sistrum/widgets/mornye_player_background.dart';
 import 'package:sistrum/widgets/mornye_player_queue.dart';
 import 'package:sistrum/widgets/player_lyrics_section.dart';
-import 'package:sistrum/widgets/player_queue_sheet.dart';
 import 'package:sistrum/widgets/no_scrollbars.dart';
 
 enum DesktopInspectorPanel { lyrics, upNext }
@@ -86,28 +84,28 @@ void closeDesktopNowPlaying() {
 }
 
 /// Whether the inspector floats over the content in a window [windowWidth]
-/// wide. Mornye's floats at any width until the window goes full screen.
-bool desktopInspectorOverlays(double windowWidth, {required bool mornye}) =>
+/// wide. It floats at any width until the window goes full screen.
+bool desktopInspectorOverlays(double windowWidth) =>
     windowWidth < desktopInspectorBesideBreakpoint ||
-    (mornye && !desktopWindowFullScreen.value);
+    !desktopWindowFullScreen.value;
 
 /// Whether Escape or Back has a player layer to close in a window
 /// [windowWidth] wide.
-bool canDismissDesktopPlayerLayer(double windowWidth, {required bool mornye}) =>
+bool canDismissDesktopPlayerLayer(double windowWidth) =>
     desktopNowPlayingOpen.value ||
     (desktopInspectorPanel.value != null &&
-        desktopInspectorOverlays(windowWidth, mornye: mornye));
+        desktopInspectorOverlays(windowWidth));
 
 /// Closes the top player layer: Now Playing, which covers the window, then
 /// the inspector while it floats over the content. Returns whether a layer
 /// closed.
-bool dismissDesktopPlayerLayer(double windowWidth, {required bool mornye}) {
+bool dismissDesktopPlayerLayer(double windowWidth) {
   if (desktopNowPlayingOpen.value) {
     closeDesktopNowPlaying();
     return true;
   }
   if (desktopInspectorPanel.value != null &&
-      desktopInspectorOverlays(windowWidth, mornye: mornye)) {
+      desktopInspectorOverlays(windowWidth)) {
     desktopInspectorPanel.value = null;
     return true;
   }
@@ -144,8 +142,7 @@ class DesktopInspector extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final mornye = context.isMornye;
-    final glass = mornye && overlay;
+    final glass = overlay;
     final l10n = context.l10n;
     final mediaItem = ref.watch(currentMediaItemProvider).value;
     final title = switch (panel) {
@@ -176,7 +173,7 @@ class DesktopInspector extends ConsumerWidget {
               key: const ValueKey('desktop-inspector-close'),
               tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
               color: colorScheme.onSurfaceVariant,
-              icon: AppIcon(mornye ? CupertinoIcons.xmark : Icons.close),
+              icon: AppIcon(CupertinoIcons.xmark),
               onPressed: () => desktopInspectorPanel.value = null,
             ),
           ],
@@ -201,10 +198,9 @@ class DesktopInspector extends ConsumerWidget {
           DesktopInspectorPanel.lyrics => _InspectorLyrics(
             colorScheme: colorScheme,
           ),
-          DesktopInspectorPanel.upNext =>
-            mornye
-                ? MornyePlayerQueue(colorScheme: colorScheme)
-                : DesktopMaterialQueue(colorScheme: colorScheme),
+          DesktopInspectorPanel.upNext => MornyePlayerQueue(
+            colorScheme: colorScheme,
+          ),
         };
       }
       // The player capsule's toggles close the glass panel.
@@ -220,54 +216,40 @@ class DesktopInspector extends ConsumerWidget {
       );
     }
 
-    final Widget panelSurface;
-    if (mornye) {
-      // Lyrics and Up Next keep the player's dark artwork backdrop, as the
-      // full player draws them in white over it.
-      final theme = MornyeTheme.fromContext(
-        context,
-        brightness: Brightness.dark,
-      );
-      final blur = ref.watch(mornyeBlurEnabledProvider);
-      panelSurface = Theme(
-        data: theme,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            // The floating panel samples the content beneath it; the full
-            // screen panel keeps the artwork backdrop.
-            if (overlay) ...[
-              if (blur)
-                BackdropFilter(
-                  filter: ui.ImageFilter.blur(sigmaX: 60, sigmaY: 60),
-                  child: const SizedBox.expand(),
-                ),
-              ColoredBox(
-                color: const Color(
-                  0xff363636,
-                ).withValues(alpha: blur ? 0.74 : 0.97),
+    // Lyrics and Up Next keep the player's dark artwork backdrop, as the
+    // full player draws them in white over it.
+    final theme = MornyeTheme.fromContext(context, brightness: Brightness.dark);
+    final blur = ref.watch(mornyeBlurEnabledProvider);
+    final panelSurface = Theme(
+      data: theme,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // The floating panel samples the content beneath it; the full
+          // screen panel keeps the artwork backdrop.
+          if (overlay) ...[
+            if (blur)
+              BackdropFilter(
+                filter: ui.ImageFilter.blur(sigmaX: 60, sigmaY: 60),
+                child: const SizedBox.expand(),
               ),
-            ] else
-              MornyePlayerBackground(artUri: mediaItem?.artUri),
-            Material(
-              type: MaterialType.transparency,
-              child: Builder(builder: content),
+            ColoredBox(
+              color: const Color(
+                0xff363636,
+              ).withValues(alpha: blur ? 0.74 : 0.97),
             ),
-          ],
-        ),
-      );
-    } else {
-      final colorScheme = Theme.of(context).colorScheme;
-      panelSurface = Material(
-        color: colorScheme.surfaceContainerLow,
-        child: Builder(builder: content),
-      );
-    }
+          ] else
+            MornyePlayerBackground(artUri: mediaItem?.artUri),
+          Material(
+            type: MaterialType.transparency,
+            child: Builder(builder: content),
+          ),
+        ],
+      ),
+    );
 
     final divider = BorderSide(
-      color: mornye
-          ? MornyeTheme.metadataDividerColor(context)
-          : Theme.of(context).colorScheme.outlineVariant,
+      color: MornyeTheme.metadataDividerColor(context),
     );
     return Semantics(
       container: true,
@@ -278,13 +260,11 @@ class DesktopInspector extends ConsumerWidget {
         width: glass ? mornyeGlassInspectorWidth : desktopInspectorWidth,
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          border: overlay && !mornye
-              ? null
-              : BorderDirectional(
-                  start: overlay
-                      ? BorderSide(color: Colors.white.withValues(alpha: 0.1))
-                      : divider,
-                ),
+          border: BorderDirectional(
+            start: overlay
+                ? BorderSide(color: Colors.white.withValues(alpha: 0.1))
+                : divider,
+          ),
           // The shadow falls toward the content the pane floats over.
           boxShadow: overlay
               ? [
@@ -306,18 +286,11 @@ class DesktopInspector extends ConsumerWidget {
   }
 }
 
-/// Motion for opening the inspector: the default spatial spring of the
-/// style, Material's expressive one or Mornye's standard one.
+/// Motion for opening the inspector: the style's default spatial spring.
 AppMotionSpec desktopInspectorMotion(BuildContext context) => AppMotion.spatial(
   context,
   const AppMotionSpec(Duration(milliseconds: 300), Curves.easeOutCubic),
 );
-
-/// [desktopInspectorMotion]'s spring, for an opening that goes on from the
-/// pane's own velocity.
-SpringDescription _inspectorSpring(BuildContext context) => context.isMornye
-    ? MornyeMotion.standardSpring
-    : M3EMotion.expressiveSpatialDefault.toDescription();
 
 /// Opens and closes [panel] with motion, keeping the last panel on screen
 /// while it leaves. Beside the content the pane grows from the trailing
@@ -376,7 +349,7 @@ class _DesktopInspectorTransitionState extends State<DesktopInspectorTransition>
         // A pane closing when it opens again turns on its own velocity.
         _controller.animateWith(
           SpringSimulation(
-            _inspectorSpring(context),
+            MornyeMotion.standardSpring,
             _controller.value,
             1,
             _controller.velocity,
@@ -449,12 +422,7 @@ class _DesktopInspectorTransitionState extends State<DesktopInspectorTransition>
         if (widget.overlay) {
           final translation = Offset((1 - value) * (rtl ? -1 : 1), 0);
           // An opacity layer would hide the backdrop from Mornye's glass.
-          return FractionalTranslation(
-            translation: translation,
-            child: context.isMornye
-                ? child
-                : Opacity(opacity: value.clamp(0.0, 1.0), child: child),
-          );
+          return FractionalTranslation(translation: translation, child: child);
         }
         return ClipRect(
           child: Align(
@@ -517,31 +485,5 @@ class _InspectorLyricsState extends ConsumerState<_InspectorLyrics> {
       metadata: _metadata,
       colorScheme: widget.colorScheme,
     ),
-  );
-}
-
-class DesktopMaterialQueue extends StatefulWidget {
-  const DesktopMaterialQueue({super.key, required this.colorScheme});
-
-  final ColorScheme colorScheme;
-
-  @override
-  State<DesktopMaterialQueue> createState() => _DesktopMaterialQueueState();
-}
-
-class _DesktopMaterialQueueState extends State<DesktopMaterialQueue> {
-  final _scrollController = ScrollController();
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => PlayerQueueSheet(
-    colorScheme: widget.colorScheme,
-    scrollController: _scrollController,
-    embedded: true,
   );
 }

@@ -11,8 +11,6 @@ import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/desktop/context_menu.dart';
 import 'package:sistrum/widgets/desktop/desktop_selection.dart';
 import 'package:sistrum/widgets/desktop/track_list_table.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
-import 'package:sistrum/widgets/expressive_button_group.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/widgets/song_row_tap.dart';
 import 'package:sistrum/widgets/track_card.dart';
@@ -783,7 +781,6 @@ class _LibraryTracksFolderScreenState
           const SizedBox(height: 8),
           DestructiveSelectionButton(
             count: _trackActionInProgress ? 0 : localCount,
-            colorScheme: colorScheme,
             label: deleteLabel,
             onPressed: () => _deleteSelectedFiles(files),
           ),
@@ -955,11 +952,11 @@ class _LibraryTracksFolderScreenState
           : null,
       // Play is the one wide action, before Shuffle.
       actions: entries.isNotEmpty && !_editingOrder
-          ? ExpressiveButtonGroup(
-              flexible: const {0},
-              spacing: 8,
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _buildPlayAllCenterButton(entries),
+                Flexible(child: _buildPlayAllCenterButton(entries)),
+                const SizedBox(width: 8),
                 HeaderCircleButton(
                   key: const ValueKey('collection-shuffle'),
                   icon: Icons.shuffle,
@@ -974,9 +971,8 @@ class _LibraryTracksFolderScreenState
           : null,
       appBarActions: [
         if (_editingOrder)
-          ExpressiveButton(
+          TextButton(
             key: const ValueKey('collection-order-save'),
-            text: true,
             onPressed: !_orderChanged || _savingOrder || _draggingOrder
                 ? null
                 : _saveOrder,

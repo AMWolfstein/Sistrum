@@ -7,7 +7,6 @@ import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/theme_settings.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/settings/playback_settings_page.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/android_tv.dart';
 import 'package:sistrum/utils/settings_search_catalog.dart';
@@ -18,7 +17,6 @@ const _title = 'New playback engine';
 
 Future<ProviderContainer> _pumpPage(
   WidgetTester tester, {
-  required bool mornye,
   AppSettings settings = const AppSettings(),
 }) async {
   SharedPreferences.setMockInitialValues({});
@@ -33,9 +31,7 @@ Future<ProviderContainer> _pumpPage(
     UncontrolledProviderScope(
       container: container,
       child: MaterialApp(
-        theme: mornye
-            ? MornyeTheme.build(Brightness.dark, accent: MornyeAccent.blue)
-            : AppTheme.light(),
+        theme: MornyeTheme.build(Brightness.dark, accent: MornyeAccent.blue),
         locale: const Locale('en'),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
@@ -67,37 +63,33 @@ void main() {
     );
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets('Android offers the engine as a beta switch ($mornye)', (
-      tester,
-    ) async {
-      debugAndroidAudioSettingsOverride = true;
-      final container = await _pumpPage(tester, mornye: mornye);
-      await tester.scrollUntilVisible(
-        _switchFinder,
-        300,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.pumpAndSettle();
-      final item = tester.widget<SettingsSwitchItem>(_switchFinder);
-      expect(item.value, isFalse);
-      expect(item.titleTrailing, isA<BetaBadge>());
-      expect(
-        item.subtitle,
-        startsWith("Plays through the app's own engine instead of the phone's"),
-      );
+  testWidgets('Android offers the engine as a beta switch', (tester) async {
+    debugAndroidAudioSettingsOverride = true;
+    final container = await _pumpPage(tester);
+    await tester.scrollUntilVisible(
+      _switchFinder,
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    final item = tester.widget<SettingsSwitchItem>(_switchFinder);
+    expect(item.value, isFalse);
+    expect(item.titleTrailing, isA<BetaBadge>());
+    expect(
+      item.subtitle,
+      startsWith("Plays through the app's own engine instead of the phone's"),
+    );
 
-      await tester.tap(find.text(_title));
-      await tester.pumpAndSettle();
-      expect(container.read(settingsProvider).media3Engine, isTrue);
-      expect(tester.widget<SettingsSwitchItem>(_switchFinder).value, isTrue);
-      expect(tester.takeException(), isNull);
-    });
-  }
+    await tester.tap(find.text(_title));
+    await tester.pumpAndSettle();
+    expect(container.read(settingsProvider).media3Engine, isTrue);
+    expect(tester.widget<SettingsSwitchItem>(_switchFinder).value, isTrue);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('other platforms do not show it', (tester) async {
     debugAndroidAudioSettingsOverride = false;
-    await _pumpPage(tester, mornye: false);
+    await _pumpPage(tester);
     for (var i = 0; i < 10; i++) {
       await tester.drag(find.byType(Scrollable).first, const Offset(0, -600));
       await tester.pumpAndSettle();
@@ -143,45 +135,41 @@ void main() {
     (widget) => widget is SettingsSwitchItem && widget.title == 'Skip silence',
   );
 
-  for (final mornye in [false, true]) {
-    testWidgets('skip silence sits under the engine and needs it ($mornye)', (
+  testWidgets('skip silence sits under the engine and needs it', (
+    tester,
+  ) async {
+    debugAndroidAudioSettingsOverride = true;
+    final container = await _pumpPage(
       tester,
-    ) async {
-      debugAndroidAudioSettingsOverride = true;
-      final container = await _pumpPage(
-        tester,
-        mornye: mornye,
-        settings: const AppSettings(media3Engine: true),
-      );
-      await tester.scrollUntilVisible(
-        skipSwitch(),
-        300,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.pumpAndSettle();
-      var item = tester.widget<SettingsSwitchItem>(skipSwitch());
-      expect(item.value, isFalse);
-      expect(item.enabled, isTrue);
-      expect(item.subtitle, startsWith('Jumps over silent parts of songs.'));
+      settings: const AppSettings(media3Engine: true),
+    );
+    await tester.scrollUntilVisible(
+      skipSwitch(),
+      300,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    var item = tester.widget<SettingsSwitchItem>(skipSwitch());
+    expect(item.value, isFalse);
+    expect(item.enabled, isTrue);
+    expect(item.subtitle, startsWith('Jumps over silent parts of songs.'));
 
-      await tester.tap(find.text('Skip silence'));
-      await tester.pumpAndSettle();
-      expect(container.read(settingsProvider).skipSilence, isTrue);
+    await tester.tap(find.text('Skip silence'));
+    await tester.pumpAndSettle();
+    expect(container.read(settingsProvider).skipSilence, isTrue);
 
-      await tester.tap(find.text(_title));
-      await tester.pumpAndSettle();
-      item = tester.widget<SettingsSwitchItem>(skipSwitch());
-      expect(item.enabled, isFalse);
-      expect(item.subtitle, contains('Turn on the new playback engine'));
-      expect(tester.takeException(), isNull);
-    });
-  }
+    await tester.tap(find.text(_title));
+    await tester.pumpAndSettle();
+    item = tester.widget<SettingsSwitchItem>(skipSwitch());
+    expect(item.enabled, isFalse);
+    expect(item.subtitle, contains('Turn on the new playback engine'));
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('skip silence says AutoMix suspends it', (tester) async {
     debugAndroidAudioSettingsOverride = true;
     await _pumpPage(
       tester,
-      mornye: false,
       settings: const AppSettings(
         media3Engine: true,
         autoMix: true,
@@ -202,7 +190,7 @@ void main() {
     debugAndroidAudioSettingsOverride = true;
     debugAndroidTvOverride = true;
     addTearDown(() => debugAndroidTvOverride = null);
-    await _pumpPage(tester, mornye: false);
+    await _pumpPage(tester);
     await tester.scrollUntilVisible(
       _switchFinder,
       300,

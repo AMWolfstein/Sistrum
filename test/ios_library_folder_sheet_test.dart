@@ -39,11 +39,11 @@ void main() {
     await root.delete(recursive: true);
   });
 
-  Future<void> openSheet(WidgetTester tester, {bool mornye = false}) async {
+  Future<void> openSheet(WidgetTester tester) async {
     await tester.pumpWidget(
       ProviderScope(
         child: MaterialApp(
-          theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
+          theme: MornyeTheme.build(Brightness.dark),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
@@ -67,25 +67,21 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  for (final mornye in [false, true]) {
-    testWidgets('internal music bypasses Files (Mornye=$mornye)', (
-      tester,
-    ) async {
-      final music = File('${documents.path}/Sistrum/example.flac');
-      music.parent.createSync(recursive: true);
-      music.writeAsBytesSync([1, 2, 3]);
-      await openSheet(tester, mornye: mornye);
-      expect(find.text('Choose from Files'), findsOneWidget);
-      await tester.tap(find.text('App Documents Folder'));
-      await tester.pumpAndSettle();
-      expect(selection?.path, documents.path);
-      expect(selection?.bookmark, isEmpty);
-      expect(calls, isEmpty);
-      expect(music.readAsBytesSync(), [1, 2, 3]);
-      expect(failure, isNull);
-      expect(tester.takeException(), isNull);
-    });
-  }
+  testWidgets('internal music bypasses Files', (tester) async {
+    final music = File('${documents.path}/Sistrum/example.flac');
+    music.parent.createSync(recursive: true);
+    music.writeAsBytesSync([1, 2, 3]);
+    await openSheet(tester);
+    expect(find.text('Choose from Files'), findsOneWidget);
+    await tester.tap(find.text('App Documents Folder'));
+    await tester.pumpAndSettle();
+    expect(selection?.path, documents.path);
+    expect(selection?.bookmark, isEmpty);
+    expect(calls, isEmpty);
+    expect(music.readAsBytesSync(), [1, 2, 3]);
+    expect(failure, isNull);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('external selection retains its native access bookmark', (
     tester,

@@ -6,13 +6,11 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/theme_settings.dart';
 import 'package:sistrum/providers/song_lyrics_offset_provider.dart';
 import 'package:sistrum/providers/theme_provider.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_slider.dart';
 import 'package:sistrum/widgets/lyrics_text_scale.dart';
 import 'package:sistrum/widgets/settings_group.dart';
-import 'package:sistrum/widgets/slider_value_header.dart';
 
 class LyricsSizeSetting extends ConsumerWidget {
   const LyricsSizeSetting({super.key});
@@ -34,25 +32,18 @@ class LyricsSizeSetting extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (context.isMornye)
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    context.l10n.lyricsTextSize,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  context.l10n.lyricsTextSize,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
-                Text(percent),
-                reset,
-              ],
-            )
-          else
-            SliderValueHeader(
-              title: context.l10n.lyricsTextSize,
-              value: percent,
-              trailing: reset,
-            ),
+              ),
+              Text(percent),
+              reset,
+            ],
+          ),
           LyricsTextScale(
             child: Text(
               context.l10n.lyricsTextPreview,
@@ -181,21 +172,18 @@ class _LyricsOffsetSlider extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (context.isMornye)
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    title,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
-                Text(value),
-                reset,
-              ],
-            )
-          else
-            SliderValueHeader(title: title, value: value, trailing: reset),
+              ),
+              Text(value),
+              reset,
+            ],
+          ),
           if (subtitle != null)
             Text(
               subtitle!,
@@ -233,7 +221,6 @@ Future<void> showLyricsTimingSheet(
   return showAppBottomSheet<void>(
     context: context,
     useRootNavigator: true,
-    backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
     title: l10n.lyricsOffset,
     maxHeightFactor: 0.85,
     dialogSize: AppDialogSize.compact,

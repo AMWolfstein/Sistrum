@@ -9,19 +9,16 @@ import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/theme_settings.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/settings/playback_settings_page.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/android_tv.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/settings_search_catalog.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
-import 'package:sistrum/widgets/settings_group.dart';
 
 const _title = 'Play when headphones or a car connect';
 
 Future<ProviderContainer> _pumpPage(
   WidgetTester tester, {
-  bool mornye = false,
   AppSettings settings = const AppSettings(),
   String locale = 'en',
 }) async {
@@ -38,9 +35,7 @@ Future<ProviderContainer> _pumpPage(
     UncontrolledProviderScope(
       container: container,
       child: MaterialApp(
-        theme: mornye
-            ? MornyeTheme.build(Brightness.dark, accent: MornyeAccent.blue)
-            : AppTheme.light(),
+        theme: MornyeTheme.build(Brightness.dark, accent: MornyeAccent.blue),
         locale: Locale(locale),
         localizationsDelegates: appLocalizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
@@ -87,77 +82,65 @@ void main() {
     debugDesktopPlatformOverride = null;
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets('one three-way choice, off by default ($mornye)', (
+  testWidgets('one three-way choice, off by default', (tester) async {
+    final container = await _pumpPage(tester);
+    await _scrollToChoice(tester);
+    expect(find.byType(MornyeSegmentedControl), findsOneWidget);
+    expect(find.text(_title), findsOneWidget);
+    expect(
+      find.text('Connecting headphones or a car does not start playback.'),
+      findsOneWidget,
+    );
+    expect(find.text('Resume when headphones reconnect'), findsNothing);
+
+    await tester.tap(_option('Reconnect'));
+    await tester.pumpAndSettle();
+    expect(
+      container.read(settingsProvider).headphoneResume,
+      'after_disconnect',
+    );
+    expect(find.textContaining('within 30 minutes'), findsOneWidget);
+
+    await tester.tap(_option('Always'));
+    await tester.pumpAndSettle();
+    expect(container.read(settingsProvider).headphoneResume, 'always');
+    expect(find.textContaining('Disconnecting pauses'), findsOneWidget);
+    final prefs = await SharedPreferences.getInstance();
+    final saved = jsonDecode(prefs.getString('app_settings')!) as Map;
+    expect(saved['headphoneResume'], 'always');
+    expect(saved['playOnHeadphonesConnected'], isTrue);
+
+    await tester.tap(_option('Off'));
+    await tester.pumpAndSettle();
+    expect(container.read(settingsProvider).headphoneResume, 'off');
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Indonesian shows its own choices', (tester) async {
+    await _pumpPage(tester, locale: 'id');
+    // By its title: the page holds other segmented controls above it.
+    await tester.scrollUntilVisible(
+      find.text('Putar saat earphone atau mobil terhubung'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    for (final label in ['Mati', 'Sambung lagi', 'Selalu']) {
+      expect(find.text(label), findsWidgets, reason: label);
+    }
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the external player disables the choice', (tester) async {
+    final container = await _pumpPage(
       tester,
-    ) async {
-      final container = await _pumpPage(tester, mornye: mornye);
-      await _scrollToChoice(tester);
-      expect(
-        mornye
-            ? find.byType(MornyeSegmentedControl)
-            : find.byType(SettingsSegmentedChoice<String>),
-        findsOneWidget,
-      );
-      expect(find.text(_title), findsOneWidget);
-      expect(
-        find.text('Connecting headphones or a car does not start playback.'),
-        findsOneWidget,
-      );
-      expect(find.text('Resume when headphones reconnect'), findsNothing);
-
-      await tester.tap(_option('Reconnect'));
-      await tester.pumpAndSettle();
-      expect(
-        container.read(settingsProvider).headphoneResume,
-        'after_disconnect',
-      );
-      expect(find.textContaining('within 30 minutes'), findsOneWidget);
-
-      await tester.tap(_option('Always'));
-      await tester.pumpAndSettle();
-      expect(container.read(settingsProvider).headphoneResume, 'always');
-      expect(find.textContaining('Disconnecting pauses'), findsOneWidget);
-      final prefs = await SharedPreferences.getInstance();
-      final saved = jsonDecode(prefs.getString('app_settings')!) as Map;
-      expect(saved['headphoneResume'], 'always');
-      expect(saved['playOnHeadphonesConnected'], isTrue);
-
-      await tester.tap(_option('Off'));
-      await tester.pumpAndSettle();
-      expect(container.read(settingsProvider).headphoneResume, 'off');
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('Indonesian shows its own choices ($mornye)', (tester) async {
-      await _pumpPage(tester, mornye: mornye, locale: 'id');
-      // By its title: the page holds other segmented controls above it.
-      await tester.scrollUntilVisible(
-        find.text('Putar saat earphone atau mobil terhubung'),
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.pumpAndSettle();
-      for (final label in ['Mati', 'Sambung lagi', 'Selalu']) {
-        expect(find.text(label), findsWidgets, reason: label);
-      }
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('the external player disables the choice ($mornye)', (
-      tester,
-    ) async {
-      final container = await _pumpPage(
-        tester,
-        mornye: mornye,
-        settings: const AppSettings(playerMode: 'external'),
-      );
-      await _scrollToChoice(tester);
-      await tester.tap(_option('Always'), warnIfMissed: false);
-      await tester.pumpAndSettle();
-      expect(container.read(settingsProvider).headphoneResume, 'off');
-    });
-  }
+      settings: const AppSettings(playerMode: 'external'),
+    );
+    await _scrollToChoice(tester);
+    await tester.tap(_option('Always'), warnIfMissed: false);
+    await tester.pumpAndSettle();
+    expect(container.read(settingsProvider).headphoneResume, 'off');
+  });
 
   testWidgets('a saved old switch shows as Always', (tester) async {
     await _pumpPage(

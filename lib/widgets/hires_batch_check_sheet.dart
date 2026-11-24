@@ -5,15 +5,12 @@ import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/services/audio_analysis_jobs.dart';
 import 'package:sistrum/services/hires_check_service.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/utils/string_utils.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/hires_check_card.dart';
 import 'package:sistrum/widgets/hires_report_content.dart';
 import 'package:sistrum/widgets/hires_report_view.dart';
@@ -24,10 +21,7 @@ List<UnifiedLibraryItem> hiResCheckableItems(List<UnifiedLibraryItem> items) =>
     [
       for (final item in items)
         if (!isCueVirtualPath(item.filePath) &&
-            HiResCheckCard.isCandidate(
-              item.filePath,
-              item.localItem?.format,
-            ))
+            HiResCheckCard.isCandidate(item.filePath, item.localItem?.format))
           item,
     ];
 
@@ -196,7 +190,6 @@ class _HiResBatchCheckState extends State<HiResBatchCheck> {
     final cs = Theme.of(context).colorScheme;
     final l10n = context.l10n;
     final tokens = context.tokens;
-    final mornye = context.isMornye;
     final total = _entries.length;
     final secondary = TextStyle(
       color: cs.onSurfaceVariant,
@@ -244,20 +237,13 @@ class _HiResBatchCheckState extends State<HiResBatchCheck> {
               tokens.gapXl,
               0,
             ),
-            child: mornye
-                ? AppActionButton(
-                    outlined: true,
-                    tonal: true,
-                    onPressed: _share,
-                    icon: const Icon(Icons.share_outlined),
-                    label: Text(l10n.hiResReportShare),
-                  )
-                : ExpressiveButton(
-                    tonal: true,
-                    onPressed: _share,
-                    icon: const Icon(Icons.share_outlined, size: 20),
-                    child: Text(l10n.hiResReportShare),
-                  ),
+            child: AppActionButton(
+              outlined: true,
+              tonal: true,
+              onPressed: _share,
+              icon: const Icon(Icons.share_outlined),
+              label: Text(l10n.hiResReportShare),
+            ),
           ),
       ],
     );
@@ -288,11 +274,7 @@ class _HiResBatchCheckState extends State<HiResBatchCheck> {
       leading = SizedBox(
         width: 24,
         height: 24,
-        child: Center(
-          child: context.isMornye
-              ? const CupertinoActivityIndicator()
-              : const AppLoadingIndicator(size: 20, strokeWidth: 2.5),
-        ),
+        child: Center(child: const CupertinoActivityIndicator()),
       );
       status = l10n.hiResBatchReading;
     } else if (waiting) {

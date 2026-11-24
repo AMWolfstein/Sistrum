@@ -224,12 +224,8 @@ class _Artwork extends StatelessWidget {
               iconSize: size * 0.4,
             ),
     );
-    if (artist) return AppShapeClip(kind: AppShapes.artist, child: image);
-    final radius = context.isMornye
-        ? size * 0.06
-        : size >= 120
-        ? 28.0
-        : 12.0;
+    if (artist) return AppShapeClip(child: image);
+    final radius = size * 0.06;
     return ClipRRect(borderRadius: BorderRadius.circular(radius), child: image);
   }
 }

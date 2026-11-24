@@ -1,16 +1,12 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show ProviderListenable;
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/desktop/context_menu.dart';
-import 'package:sistrum/widgets/desktop/desktop_row_ink.dart';
 import 'package:sistrum/widgets/desktop/desktop_selection.dart';
-import 'package:sistrum/widgets/now_playing_indicator.dart';
 
 /// A column of a [SliverTrackTable], in display order.
 enum TrackTableColumn { number, title, artist, album, quality, duration }
@@ -53,13 +49,13 @@ class TrackTableRow {
   final Widget? titleTrailing;
 
   /// Row actions at the end of the row, such as the options button. They show
-  /// on hover, selection, keyboard focus or while the row is current.
+  /// on hover, selection or keyboard focus.
   final Widget? trailing;
 
   /// How this song follows the player, such as
   /// [mediaItemPlaybackUiProvider] for a Library file or
-  /// [catalogTrackPlaybackUiProvider] for a catalog track. With one, a
-  /// Material row marks itself while it is the current track.
+  /// [catalogTrackPlaybackUiProvider] for a catalog track. The table no longer
+  /// reads it: its rows do not mark the current track.
   final ProviderListenable<MediaPlaybackUi>? playback;
 }
 
@@ -232,8 +228,6 @@ class _SliverTrackTableState extends State<SliverTrackTable> {
                   columns: widget.columns,
                   hasTrailing: hasTrailing,
                   selected: false,
-                  current: false,
-                  playing: false,
                   onTap: () {},
                   onContextMenu: null,
                 ),
@@ -265,18 +259,12 @@ class _SliverTrackTableState extends State<SliverTrackTable> {
         ),
         rowList((context, index) {
           final row = rows[index];
-          Widget rowView({
-            Key? key,
-            bool current = false,
-            bool playing = false,
-          }) => _TrackTableRowView(
+          Widget rowView({Key? key}) => _TrackTableRowView(
             key: key,
             row: row,
             columns: widget.columns,
             hasTrailing: hasTrailing,
             selected: widget.selectedIds.contains(row.id),
-            current: current,
-            playing: playing,
             onTap: () => handleDesktopRowClick(
               row.id,
               select: (kind) => widget.onSelect(row.id, kind, orderedIds),
@@ -286,22 +274,7 @@ class _SliverTrackTableState extends State<SliverTrackTable> {
                 ? null
                 : (position) => widget.onContextMenu!(row.id, position),
           );
-          final rowPlayback = row.playback;
-          if (rowPlayback == null || context.isMornye) {
-            return rowView(key: ValueKey(row.id));
-          }
-          // Each row follows only its own track, so a track change
-          // rebuilds the two rows involved rather than the whole table.
-          return Consumer(
-            key: ValueKey(row.id),
-            builder: (context, ref, _) {
-              final playback = ref.watch(rowPlayback);
-              return rowView(
-                current: playback.isCurrent,
-                playing: playback.isPlaying,
-              );
-            },
-          );
+          return rowView(key: ValueKey(row.id));
         }),
       ],
     );
@@ -407,10 +380,8 @@ class TrackTableLayout {
   static const double albumNumber = 32;
   static const double albumTitleGap = 14;
 
-  // Pointer rows: 40pt for Mornye, and the M3 compact list density for Material
-  // instead of the 48dp touch row.
-  static double rowMinHeightFor(BuildContext context) =>
-      context.isMornye ? 40 : 44;
+  /// Pointer rows are 40pt, the list density of the Mornye rows.
+  static double rowMinHeightFor(BuildContext context) => 40;
 
   static double headerHeightFor(BuildContext context) =>
       MediaQuery.textScalerOf(context).scale(20) + 16;
@@ -589,8 +560,6 @@ class _TrackTableRowView extends StatefulWidget {
     required this.selected,
     required this.onTap,
     required this.onContextMenu,
-    this.current = false,
-    this.playing = false,
   });
 
   final TrackTableRow row;
@@ -599,12 +568,6 @@ class _TrackTableRowView extends StatefulWidget {
   final bool selected;
   final VoidCallback onTap;
   final ValueChanged<Offset>? onContextMenu;
-
-  /// The row is the player's current track. Only Material rows pass it.
-  final bool current;
-
-  /// The current track is playing, so its equalizer glyph moves.
-  final bool playing;
 
   @override
   State<_TrackTableRowView> createState() => _TrackTableRowViewState();
@@ -627,26 +590,13 @@ class _TrackTableRowViewState extends State<_TrackTableRowView> {
     final columns = widget.columns;
     final hasTrailing = widget.hasTrailing;
     final selected = widget.selected;
-    final current = widget.current;
     final onTap = widget.onTap;
     final onContextMenu = widget.onContextMenu;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final tokens = context.tokens;
-    final material = !context.isMornye;
-    // Material text takes the content color of the row's fill. A selected
-    // row keeps the selection fill; being current then shows only through
-    // the glyph and the title weight.
-    final Color? content = !material
-        ? null
-        : selected
-        ? colorScheme.onSecondaryContainer
-        : current
-        ? colorScheme.onPrimaryContainer
-        : null;
-    // Row actions appear for the row under the pointer, the selection, the
-    // current track, or keyboard focus, so a long list does not repeat them
-    // on every row.
+    // Row actions appear for the row under the pointer, the selection or
+    // keyboard focus, so a long list does not repeat them on every row.
     final trailing = row.trailing == null
         ? null
         : Focus(
@@ -657,9 +607,7 @@ class _TrackTableRowViewState extends State<_TrackTableRowView> {
             child: ValueListenableBuilder(
               valueListenable: _hovered,
               builder: (context, hovered, child) => AnimatedOpacity(
-                opacity: hovered || selected || current || _trailingFocused
-                    ? 1
-                    : 0,
+                opacity: hovered || selected || _trailingFocused ? 1 : 0,
                 duration: _rowActionFade(context).duration,
                 curve: _rowActionFade(context).curve,
                 child: child,
@@ -668,39 +616,10 @@ class _TrackTableRowViewState extends State<_TrackTableRowView> {
             ),
           );
     final secondary = theme.textTheme.bodyMedium?.copyWith(
-      color: content ?? colorScheme.onSurfaceVariant,
+      color: colorScheme.onSurfaceVariant,
     );
-    final indicator = NowPlayingIndicator(
-      playing: widget.playing,
-      color: content,
-    );
-    // The glyph replaces the track number. Tables without a number column
-    // lay it over the artwork, so no column shifts.
-    final markNumber = current && columns.contains(TrackTableColumn.number);
-    final markTitle = current && !markNumber;
-    var leading = row.leading;
-    if (markTitle && leading != null) {
-      leading = Stack(
-        alignment: Alignment.center,
-        children: [
-          leading,
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                // A tint of the row's fill, so the glyph reads on any cover.
-                color:
-                    (selected
-                            ? colorScheme.secondaryContainer
-                            : colorScheme.primaryContainer)
-                        .withValues(alpha: 0.75),
-                borderRadius: tokens.borderRadiusThumb,
-              ),
-            ),
-          ),
-          indicator,
-        ],
-      );
-    }
+    final leading = row.leading;
+
     Widget plain(String? value, {bool end = false}) => Text(
       value ?? '',
       maxLines: 1,
@@ -712,27 +631,17 @@ class _TrackTableRowViewState extends State<_TrackTableRowView> {
     );
 
     Widget cell(TrackTableColumn column) => switch (column) {
-      TrackTableColumn.number =>
-        markNumber
-            ? Align(alignment: AlignmentDirectional.centerEnd, child: indicator)
-            : plain(row.number?.toString(), end: true),
+      TrackTableColumn.number => plain(row.number?.toString(), end: true),
       TrackTableColumn.title => Row(
         children: [
-          if (leading != null) ...[
-            leading,
-            const SizedBox(width: 10),
-          ] else if (markTitle) ...[
-            indicator,
-            const SizedBox(width: 10),
-          ],
+          if (leading != null) ...[leading, const SizedBox(width: 10)],
           Flexible(
             child: Text(
               row.title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: current ? FontWeight.w700 : FontWeight.w500,
-                color: content,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -751,19 +660,9 @@ class _TrackTableRowViewState extends State<_TrackTableRowView> {
       ),
     };
 
-    final selectedFill = context.isMornye
-        ? colorScheme.primary.withValues(alpha: 0.16)
-        : colorScheme.secondaryContainer;
-    final press = desktopRowInk(context, content: content);
     final ink = InkWell(
       onTap: onTap,
       onHover: (hovered) => _hovered.value = hovered,
-      // The M3 hover state layer: 8% of the row's content color.
-      hoverColor: material
-          ? (content ?? colorScheme.onSurface).withValues(alpha: 0.08)
-          : null,
-      splashFactory: press.splashFactory,
-      highlightColor: press.highlightColor,
       child: ConstrainedBox(
         constraints: BoxConstraints(
           minHeight: TrackTableLayout.rowMinHeightFor(context),
@@ -781,37 +680,7 @@ class _TrackTableRowViewState extends State<_TrackTableRowView> {
         ),
       ),
     );
-    Widget surface(Color? color, Widget? child) => Material(
-      color: color,
-      borderRadius: BorderRadius.circular(8),
-      clipBehavior: Clip.antiAlias,
-      child: child,
-    );
-    final Widget body;
-    if (material) {
-      // The row keeps its shape; the fill fades between roles. The resting
-      // fill is the page surface at zero alpha, so a fade never passes
-      // through black.
-      final motion = AppMotion.effects(
-        context,
-        const AppMotionSpec(Duration.zero, Curves.linear),
-      );
-      body = TweenAnimationBuilder<Color?>(
-        tween: ColorTween(
-          end: selected
-              ? selectedFill
-              : current
-              ? colorScheme.primaryContainer
-              : colorScheme.surface.withValues(alpha: 0),
-        ),
-        duration: motion.duration,
-        curve: motion.curve,
-        builder: (context, color, child) => surface(color, child),
-        child: ink,
-      );
-    } else {
-      body = surface(selected ? selectedFill : Colors.transparent, ink);
-    }
+    final selectedFill = colorScheme.primary.withValues(alpha: 0.16);
     return Semantics(
       selected: selected,
       label: [row.title, ?row.artist].join(', '),
@@ -819,7 +688,12 @@ class _TrackTableRowViewState extends State<_TrackTableRowView> {
         onContextMenu: onContextMenu,
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: tokens.gapXs, vertical: 1),
-          child: body,
+          child: Material(
+            color: selected ? selectedFill : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+            clipBehavior: Clip.antiAlias,
+            child: ink,
+          ),
         ),
       ),
     );
@@ -956,13 +830,7 @@ class _AlbumRowViewState extends State<_AlbumRowView> {
           ),
       ],
     );
-    final selectedFill = context.isMornye
-        ? scheme.primary.withValues(alpha: 0.16)
-        : scheme.secondaryContainer;
-    final press = desktopRowInk(
-      context,
-      content: widget.selected ? scheme.onSecondaryContainer : null,
-    );
+    final selectedFill = scheme.primary.withValues(alpha: 0.16);
     return Semantics(
       selected: widget.selected,
       label: [row.title, ?widget.artist].join(', '),
@@ -980,8 +848,6 @@ class _AlbumRowViewState extends State<_AlbumRowView> {
             onTap: widget.onTap,
             onHover: (hovered) => setState(() => _hovered = hovered),
             hoverColor: Colors.transparent,
-            splashFactory: press.splashFactory,
-            highlightColor: press.highlightColor,
             child: ConstrainedBox(
               constraints: const BoxConstraints(
                 minHeight: TrackTableLayout.albumRowHeight,

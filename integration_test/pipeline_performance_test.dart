@@ -7,6 +7,5 @@ void main() {
   PerformanceTestBinding.ensureInitialized();
   library_pipeline.main();
   playback.main();
-  lyrics.runLyricsPerformanceTests(mornye: false);
-  lyrics.runLyricsPerformanceTests(mornye: true);
+  lyrics.runLyricsPerformanceTests();
 }

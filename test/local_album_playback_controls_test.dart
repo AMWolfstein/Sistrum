@@ -11,7 +11,6 @@ import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/playback_provider.dart';
 import 'package:sistrum/screens/local_album_screen.dart';
 import 'package:sistrum/services/library_database.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/album_track_tile.dart';
@@ -70,14 +69,12 @@ Future<void> _settle(WidgetTester tester) async {
 }
 
 void main() {
-  for (final mornye in [false, true]) {
-    for (final tapPlays in [false, true]) {
-      testWidgets(
-        'local album controls pause and resume without restarting '
-        '($mornye, tapPlays: $tapPlays)',
-        (tester) => _pauseAndResume(tester, mornye: mornye, tapPlays: tapPlays),
-      );
-    }
+  for (final tapPlays in [false, true]) {
+    testWidgets(
+      'local album controls pause and resume without restarting '
+      '(tapPlays: $tapPlays)',
+      (tester) => _pauseAndResume(tester, tapPlays: tapPlays),
+    );
   }
 }
 
@@ -85,7 +82,6 @@ void main() {
 /// otherwise, and the row shows a details button instead of a play glyph.
 Future<void> _pauseAndResume(
   WidgetTester tester, {
-  required bool mornye,
   required bool tapPlays,
 }) async {
   SharedPreferences.setMockInitialValues({});
@@ -134,7 +130,7 @@ Future<void> _pauseAndResume(
         librarySongTapPlaysProvider.overrideWithValue(tapPlays),
       ],
       child: MaterialApp(
-        theme: mornye ? MornyeTheme.build(Brightness.light) : AppTheme.light(),
+        theme: MornyeTheme.build(Brightness.light),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: LocalAlbumScreen(
@@ -161,8 +157,8 @@ Future<void> _pauseAndResume(
     findByTooltip('Show details'),
     tapPlays ? findsNWidgets(2) : findsNothing,
   );
-  final pauseIcon = mornye ? CupertinoIcons.pause_fill : Icons.pause;
-  final playIcon = mornye ? CupertinoIcons.play_fill : Icons.play_arrow;
+  const pauseIcon = CupertinoIcons.pause_fill;
+  const playIcon = CupertinoIcons.play_fill;
 
   await tester.tap(find.descendant(of: header, matching: find.text('Play')));
   await _settle(tester);

@@ -49,7 +49,6 @@
   "@nowPlayingVolume": {
     "description": "System volume control label in the Sistrum player"
   },
-  "appearanceStyle": "Style de l'application",
   "appearanceAccentRed": "Rouge (par défaut)",
   "appearanceAccentOrange": "Orange",
   "appearanceAccentGreen": "Vert",
@@ -84,9 +83,6 @@
   },
   "appearanceUseSystemFont": "Utiliser la police système",
   "appearanceUseSystemFontSubtitle": "Utilisez la police par défaut de votre appareil pour le texte de l'application.",
-  "@appearanceStyle": {
-    "description": "Appearance section for choosing the app visual style"
-  },
   "@@locale": "fr",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
@@ -208,14 +204,6 @@
   "appearanceThemeDark": "Sombre",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceDynamicColor": "Couleur dynamique",
-  "@appearanceDynamicColor": {
-    "description": "Material You dynamic colors"
-  },
-  "appearanceDynamicColorSubtitle": "Utilisez les couleurs de votre fond d'écran",
-  "@appearanceDynamicColorSubtitle": {
-    "description": "Subtitle for dynamic color"
   },
   "appearanceHistoryView": "Historique",
   "@appearanceHistoryView": {
@@ -1284,14 +1272,6 @@
   "downloadUsePrimaryArtistOnly": "Artiste principal uniquement pour les dossiers",
   "@downloadUsePrimaryArtistOnly": {
     "description": "Setting - strip featured artists from folder name"
-  },
-  "appearanceAmoledDark": "Noir Amoled",
-  "@appearanceAmoledDark": {
-    "description": "Theme option - pure black"
-  },
-  "appearanceAmoledDarkSubtitle": "Fond noir pur",
-  "@appearanceAmoledDarkSubtitle": {
-    "description": "Subtitle for AMOLED dark"
   },
   "appearanceHeroAnimations": "Animations des héros",
   "@appearanceHeroAnimations": {
@@ -3523,15 +3503,6 @@
   "@queueDownloadedFileMissing": {
     "description": "Accessibility label when a downloaded file is missing from disk"
   },
-  "appearanceSelectAccentColor": "Sélectionnez une couleur d'accentuation {hex}",
-  "@appearanceSelectAccentColor": {
-    "description": "Accessibility label for picking an accent color",
-    "placeholders": {
-      "hex": {
-        "type": "String"
-      }
-    }
-  },
   "logAutoScrollOn": "Défilement automatique activé",
   "@logAutoScrollOn": {
     "description": "Tooltip when auto-scroll is enabled on the log screen"
@@ -4409,22 +4380,6 @@
   "playerCoverStyle": "Cover art",
   "@playerCoverStyle": {
     "description": "Settings section choosing how the player shows cover art"
-  },
-  "landscapeLyricsArtwork": "Album art beside lyrics",
-  "@landscapeLyricsArtwork": {
-    "description": "Switch choosing album artwork instead of track details alongside lyrics in landscape"
-  },
-  "landscapeLyricsArtworkDescription": "Show album art instead of track details in the Material landscape player",
-  "@landscapeLyricsArtworkDescription": {
-    "description": "Subtitle explaining the Material landscape lyrics layout setting"
-  },
-  "compactPlayer": "Compact player",
-  "@compactPlayer": {
-    "description": "Material player setting: idle lyrics shrink the player to a slim bar instead of hiding it"
-  },
-  "compactPlayerDescription": "When lyrics are left alone, shrink the player to a slim bar so the lyrics get more room. A tap brings the full player back",
-  "@compactPlayerDescription": {
-    "description": "Subtitle of the compact player setting"
   },
   "playerCoverStyleCard": "Card",
   "@playerCoverStyleCard": {

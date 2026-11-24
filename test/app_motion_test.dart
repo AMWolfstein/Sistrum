@@ -1,20 +1,19 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_3_expressive/material_3_expressive.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:sistrum/theme/app_motion.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 
 void main() {
   test('spring curves start at rest and settle within their duration', () {
-    for (final spring in [
-      M3EMotion.expressiveSpatialFast,
-      M3EMotion.expressiveSpatialDefault,
-      M3EMotion.expressiveSpatialSlow,
-      M3EMotion.effectsFast,
-      M3EMotion.effectsDefault,
+    for (final spring in <SpringDescription>[
+      MornyeMotion.fastSpring,
+      MornyeMotion.standardSpring,
+      MornyeMotion.slowSpring,
+      MornyeMotion.snappySpring,
+      MornyeMotion.effectsFastSpring,
+      MornyeMotion.effectsSpring,
     ]) {
-      final curve = SpringCurve(spring);
+      final curve = SpringCurve.of(spring);
       expect(curve.transform(0), 0);
       expect(curve.transform(1), 1);
       expect(curve.transform(0.98), closeTo(1, 0.01));
@@ -22,16 +21,16 @@ void main() {
     }
   });
 
-  test('spatial springs overshoot while effects springs do not', () {
+  test('only the snappy spring overshoots; effects springs do not', () {
     double peak(SpringCurve curve) => [
       for (var t = 0.0; t <= 1; t += 0.01) curve.transform(t),
     ].reduce((a, b) => a > b ? a : b);
 
+    expect(peak(SpringCurve.of(MornyeMotion.snappySpring)), greaterThan(1));
     expect(
-      peak(SpringCurve(M3EMotion.expressiveSpatialDefault)),
-      greaterThan(1),
+      peak(SpringCurve.of(MornyeMotion.effectsSpring)),
+      lessThanOrEqualTo(1),
     );
-    expect(peak(SpringCurve(M3EMotion.effectsDefault)), lessThanOrEqualTo(1));
   });
 
   test('a leaving child goes the way the spring moves, fastest first', () {
@@ -39,8 +38,8 @@ void main() {
       MornyeMotion.standard,
       MornyeMotion.effects,
       AppMotionSpec(
-        SpringCurve(M3EMotion.effectsDefault).duration,
-        SpringCurve(M3EMotion.effectsDefault),
+        SpringCurve.of(MornyeMotion.effectsSpring).duration,
+        SpringCurve.of(MornyeMotion.effectsSpring),
       ),
     ]) {
       // A switcher runs the leaving curve from 1 down to 0: a quarter of the
@@ -114,17 +113,13 @@ void main() {
     return spec;
   }
 
-  testWidgets('Material uses its springs; reduced motion keeps the fallback', (
-    tester,
-  ) async {
-    final material = await resolve(tester, theme: AppTheme.light());
-    expect(material.curve, isA<SpringCurve>());
-    expect(material, isNot(same(MornyeMotion.standard)));
-    for (final theme in [
-      AppTheme.light(),
-      MornyeTheme.build(Brightness.light),
-    ]) {
-      final spec = await resolve(tester, theme: theme, reduceMotion: true);
+  testWidgets('reduced motion keeps the fallback', (tester) async {
+    for (final brightness in Brightness.values) {
+      final spec = await resolve(
+        tester,
+        theme: MornyeTheme.build(brightness),
+        reduceMotion: true,
+      );
       expect(spec.curve, Curves.easeOutCubic);
       expect(spec.duration, const Duration(milliseconds: 250));
     }
@@ -148,7 +143,8 @@ void main() {
     expect(
       await resolve(
         tester,
-        theme: AppTheme.light(),
+        theme: theme,
+        reduceMotion: true,
         mornye: MornyeMotion.snappy,
       ),
       isNot(same(MornyeMotion.snappy)),

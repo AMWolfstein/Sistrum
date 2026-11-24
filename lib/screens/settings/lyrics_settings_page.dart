@@ -8,7 +8,6 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/lyrics_size_setting.dart';
 
@@ -32,7 +31,7 @@ class LyricsSettingsPage extends ConsumerWidget {
               children: [
                 const LyricsSizeSetting(),
                 // Lyrics blur only where the player draws it.
-                if (context.isMornye && ref.watch(mornyeLiquidGlassProvider))
+                if (ref.watch(mornyeLiquidGlassProvider))
                   const LyricsBlurSetting(),
                 const LyricsOffsetSetting(),
                 SettingsSwitchItem(
@@ -164,5 +163,4 @@ class LyricsSettingsPage extends ConsumerWidget {
     onSelected: (mode) =>
         ref.read(settingsProvider.notifier).setLyricsMode(mode),
   );
-
 }

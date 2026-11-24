@@ -15,7 +15,6 @@ import 'package:sistrum/providers/playback_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/library_tracks_folder_screen.dart';
 import 'package:sistrum/services/music_player_service.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/song_row_tap.dart';
@@ -231,7 +230,6 @@ class _Library extends LocalLibraryNotifier {
 }
 
 Widget _selectionApp({
-  required bool mornye,
   required _Player player,
   required _Playback playback,
   _Library? library,
@@ -249,7 +247,7 @@ Widget _selectionApp({
     localLibraryFirstCoverProvider.overrideWith((ref, request) async => null),
   ],
   child: MaterialApp(
-    theme: mornye ? MornyeTheme.build(Brightness.dark) : AppTheme.light(),
+    theme: MornyeTheme.build(Brightness.dark),
     localizationsDelegates: appLocalizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     home: const SelectionOverlayHost(
@@ -282,385 +280,182 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  for (final mornye in [false, true]) {
-    for (final desktop in [false, true]) {
-      for (final next in <bool?>[null, true, false]) {
-        testWidgets(
-          'playlist selection plays or enqueues in order ($mornye, $desktop, $next)',
-          (tester) async {
-            debugDesktopPlatformOverride = desktop;
-            addTearDown(() => debugDesktopPlatformOverride = null);
-            tester.view.physicalSize = desktop
-                ? const Size(1000, 900)
-                : const Size(360, 780);
-            tester.view.devicePixelRatio = 1;
-            addTearDown(tester.view.reset);
-            final player = _Player();
-            final playback = _Playback();
-            await tester.pumpWidget(
-              _selectionApp(mornye: mornye, player: player, playback: playback),
-            );
-            await _selectAllTracks(tester);
-            final action = find.widgetWithText(
-              SelectionActionButton,
-              next == null
-                  ? 'Play'
-                  : next
-                  ? 'Play next'
-                  : 'Add to queue',
-            );
-            await tester.ensureVisible(action);
-            await tester.tap(action);
-            await tester.pumpAndSettle();
-
-            expect(player.queue.map((item) => item.title), [
-              'First',
-              'Selected',
-              'Last',
-            ]);
-            expect(player.insertedNext, next);
-            if (next == null) expect(player.index, 0);
-            expect(find.byType(SelectionBottomBar), findsNothing);
-            expect(tester.takeException(), isNull);
-          },
-        );
-      }
-    }
-
-    testWidgets('playlist desktop menu acts on its clicked track ($mornye)', (
-      tester,
-    ) async {
-      debugDesktopPlatformOverride = true;
-      addTearDown(() => debugDesktopPlatformOverride = null);
-      tester.view.physicalSize = const Size(1000, 900);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      final player = _Player();
-      await tester.pumpWidget(
-        _selectionApp(mornye: mornye, player: player, playback: _Playback()),
-      );
-      await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text('First'));
-      final gesture = await tester.startGesture(
-        tester.getCenter(find.text('First')),
-        kind: PointerDeviceKind.mouse,
-        buttons: kSecondaryButton,
-      );
-      await gesture.up();
-      await tester.pumpAndSettle();
-      expect(find.text('Add to queue'), findsOneWidget);
-      expect(find.text('Delete 1 track'), findsOneWidget);
-      expect(find.text('Remove from playlist (1)'), findsOneWidget);
-      await tester.tap(find.text('Play next'));
-      await tester.pumpAndSettle();
-      expect(player.queue.map((item) => item.title), ['First']);
-      expect(player.insertedNext, isTrue);
-      expect(find.byType(SelectionBottomBar), findsNothing);
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets(
-      'playlist leaves unavailable and CUE files out of actions ($mornye)',
-      (tester) async {
-        tester.view.physicalSize = const Size(390, 844);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.reset);
-        final playback = _Playback()..paths.clear();
-        playback.paths['First'] = '/album.cue#track01';
-        await tester.pumpWidget(
-          _selectionApp(mornye: mornye, player: _Player(), playback: playback),
-        );
-        await _selectAllTracks(tester);
-        expect(
-          find.widgetWithText(
-            SelectionActionButton,
-            'Remove from playlist (4)',
-          ),
-          findsOneWidget,
-        );
-        expect(find.textContaining('Delete '), findsNothing);
-        final next = tester.widget<SelectionActionButton>(
-          find.widgetWithText(SelectionActionButton, 'Play next'),
-        );
-        expect(next.onPressed, isNull);
-        expect(tester.takeException(), isNull);
-      },
-    );
-
-    testWidgets('external player hides collection queue controls ($mornye)', (
-      tester,
-    ) async {
-      tester.view.physicalSize = const Size(390, 844);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      await tester.pumpWidget(
-        _selectionApp(
-          mornye: mornye,
-          player: _Player(),
-          playback: _Playback(),
-          internalPlayer: false,
-        ),
-      );
-      await _selectAllTracks(tester);
-      expect(find.text('Play next'), findsNothing);
-      expect(find.text('Add to queue'), findsNothing);
-      expect(find.textContaining('Add to playlist'), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
-  }
-
-  for (final mornye in [false, true]) {
-    testWidgets('large local playlist renders and scrolls ($mornye)', (
-      tester,
-    ) async {
-      tester.view.physicalSize = const Size(400, 850);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            settingsProvider.overrideWith(_Settings.new),
-            libraryCollectionsProvider.overrideWith(_LocalCollections.new),
-            localLibraryProvider.overrideWith(_Library.new),
-            localLibraryCoverProvider.overrideWith(
-              (ref, request) async => null,
-            ),
-            localLibraryFirstCoverProvider.overrideWith(
-              (ref, request) async => null,
-            ),
-          ],
-          child: MaterialApp(
-            theme: mornye
-                ? MornyeTheme.build(Brightness.dark)
-                : AppTheme.light(),
-            localizationsDelegates: appLocalizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: const LibraryTracksFolderScreen(
-              mode: LibraryTracksFolderMode.playlist,
-              playlistId: 'playlist',
-            ),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(find.text('620 tracks'), findsOneWidget);
-      expect(find.text('Local song 0'), findsOneWidget);
-      await tester.scrollUntilVisible(
-        find.text('Local song 619'),
-        1000,
-        maxScrolls: 100,
-      );
-      expect(find.text('Local song 619'), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
-  }
-
-  for (final mode in LibraryTracksFolderMode.values) {
-    for (final mornye in [false, true]) {
+  for (final desktop in [false, true]) {
+    for (final next in <bool?>[null, true, false]) {
       testWidgets(
-        'selection dispatches one ${mode.name} removal (Mornye: $mornye)',
+        'playlist selection plays or enqueues in order ($desktop, $next)',
         (tester) async {
-          tester.view.physicalSize = const Size(400, 850);
+          debugDesktopPlatformOverride = desktop;
+          addTearDown(() => debugDesktopPlatformOverride = null);
+          tester.view.physicalSize = desktop
+              ? const Size(1000, 900)
+              : const Size(360, 780);
           tester.view.devicePixelRatio = 1;
           addTearDown(tester.view.reset);
-          final calls = <(String, List<String>)>[];
+          final player = _Player();
+          final playback = _Playback();
           await tester.pumpWidget(
-            ProviderScope(
-              overrides: [
-                settingsProvider.overrideWith(_Settings.new),
-                musicPlayerControllerProvider.overrideWithValue(_Player()),
-                playbackProvider.overrideWith(_Playback.new),
-                libraryCollectionsProvider.overrideWith(
-                  () => _RemovalCollections(
-                    (kind, keys) => calls.add((kind, keys)),
-                  ),
-                ),
-                localLibraryProvider.overrideWith(_Library.new),
-                localLibraryCoverProvider.overrideWith(
-                  (ref, request) async => null,
-                ),
-                localLibraryFirstCoverProvider.overrideWith(
-                  (ref, request) async => null,
-                ),
-              ],
-              child: MaterialApp(
-                theme: mornye
-                    ? MornyeTheme.build(Brightness.dark)
-                    : AppTheme.light(),
-                localizationsDelegates: appLocalizationsDelegates,
-                supportedLocales: AppLocalizations.supportedLocales,
-                home: LibraryTracksFolderScreen(
-                  mode: mode,
-                  playlistId: mode == LibraryTracksFolderMode.playlist
-                      ? 'playlist'
-                      : null,
-                ),
-              ),
-            ),
+            _selectionApp(player: player, playback: playback),
           );
-          await tester.pumpAndSettle();
-          await tester.ensureVisible(find.text('First'));
-          await tester.longPress(find.text('First'));
-          await tester.pumpAndSettle();
-          await Scrollable.ensureVisible(
-            tester.element(find.text('Unavailable')),
-            alignment: 0.15,
+          await _selectAllTracks(tester);
+          final action = find.widgetWithText(
+            SelectionActionButton,
+            next == null
+                ? 'Play'
+                : next
+                ? 'Play next'
+                : 'Add to queue',
           );
+          await tester.ensureVisible(action);
+          await tester.tap(action);
           await tester.pumpAndSettle();
-          await tester.tap(find.text('Unavailable'));
-          await tester.pumpAndSettle();
-          await tester.tap(findAppIcon(Icons.remove_circle_outline));
-          await tester.pumpAndSettle();
-          expect(calls, hasLength(1));
-          expect(calls.single.$1, mode.name);
-          expect(calls.single.$2, ['First', 'Unavailable']);
-          expect(find.text('First'), findsNothing);
-          expect(find.text('Unavailable'), findsNothing);
-          expect(findAppIcon(Icons.remove_circle_outline), findsNothing);
-          final l10n = AppLocalizations.of(
-            tester.element(find.byType(LibraryTracksFolderScreen)),
-          );
-          expect(find.text(l10n.selectionSelected(2)), findsOneWidget);
+
+          expect(player.queue.map((item) => item.title), [
+            'First',
+            'Selected',
+            'Last',
+          ]);
+          expect(player.insertedNext, next);
+          if (next == null) expect(player.index, 0);
+          expect(find.byType(SelectionBottomBar), findsNothing);
           expect(tester.takeException(), isNull);
         },
       );
     }
   }
 
-  for (final mornye in [false, true]) {
-    for (final tapPlays in [false, true]) {
-      testWidgets('playlist row queues its neighbors from '
-          '${tapPlays ? 'a tap' : 'its Play button'} (Mornye: $mornye)', (
-        tester,
-      ) async {
-        final player = _Player();
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              settingsProvider.overrideWith(
-                () => _Settings(includeLocal: true),
-              ),
-              librarySongTapPlaysProvider.overrideWithValue(tapPlays),
-              musicPlayerControllerProvider.overrideWithValue(player),
-              playbackProvider.overrideWith(_Playback.new),
-              libraryCollectionsProvider.overrideWith(_Collections.new),
-              localLibraryProvider.overrideWith(
-                () => _Library(inLibrary: {'First', 'Selected', 'Last'}),
-              ),
-              localLibraryCoverProvider.overrideWith(
-                (ref, request) async => null,
-              ),
-              localLibraryFirstCoverProvider.overrideWith(
-                (ref, request) async => null,
-              ),
-            ],
-            child: MaterialApp(
-              theme: mornye
-                  ? MornyeTheme.build(Brightness.dark)
-                  : AppTheme.light(),
-              localizationsDelegates: appLocalizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: const LibraryTracksFolderScreen(
-                mode: LibraryTracksFolderMode.playlist,
-                playlistId: 'playlist',
-              ),
-            ),
+  testWidgets('playlist desktop menu acts on its clicked track', (
+    tester,
+  ) async {
+    debugDesktopPlatformOverride = true;
+    addTearDown(() => debugDesktopPlatformOverride = null);
+    tester.view.physicalSize = const Size(1000, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final player = _Player();
+    await tester.pumpWidget(
+      _selectionApp(player: player, playback: _Playback()),
+    );
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('First'));
+    final gesture = await tester.startGesture(
+      tester.getCenter(find.text('First')),
+      kind: PointerDeviceKind.mouse,
+      buttons: kSecondaryButton,
+    );
+    await gesture.up();
+    await tester.pumpAndSettle();
+    expect(find.text('Add to queue'), findsOneWidget);
+    expect(find.text('Delete 1 track'), findsOneWidget);
+    expect(find.text('Remove from playlist (1)'), findsOneWidget);
+    await tester.tap(find.text('Play next'));
+    await tester.pumpAndSettle();
+    expect(player.queue.map((item) => item.title), ['First']);
+    expect(player.insertedNext, isTrue);
+    expect(find.byType(SelectionBottomBar), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('playlist leaves unavailable and CUE files out of actions', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final playback = _Playback()..paths.clear();
+    playback.paths['First'] = '/album.cue#track01';
+    await tester.pumpWidget(
+      _selectionApp(player: _Player(), playback: playback),
+    );
+    await _selectAllTracks(tester);
+    expect(
+      find.widgetWithText(SelectionActionButton, 'Remove from playlist (4)'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('Delete '), findsNothing);
+    final next = tester.widget<SelectionActionButton>(
+      find.widgetWithText(SelectionActionButton, 'Play next'),
+    );
+    expect(next.onPressed, isNull);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('external player hides collection queue controls', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      _selectionApp(
+        player: _Player(),
+        playback: _Playback(),
+        internalPlayer: false,
+      ),
+    );
+    await _selectAllTracks(tester);
+    expect(find.text('Play next'), findsNothing);
+    expect(find.text('Add to queue'), findsNothing);
+    expect(find.textContaining('Add to playlist'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('large local playlist renders and scrolls', (tester) async {
+    tester.view.physicalSize = const Size(400, 850);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          settingsProvider.overrideWith(_Settings.new),
+          libraryCollectionsProvider.overrideWith(_LocalCollections.new),
+          localLibraryProvider.overrideWith(_Library.new),
+          localLibraryCoverProvider.overrideWith((ref, request) async => null),
+          localLibraryFirstCoverProvider.overrideWith(
+            (ref, request) async => null,
           ),
-        );
-        await tester.pumpAndSettle();
-        final row = find.ancestor(
-          of: find.text('Selected'),
-          matching: find.byType(TrackCard),
-        );
-        await tester.scrollUntilVisible(row, 200);
-        expect(
-          find.descendant(of: row, matching: findByTooltip('Show details')),
-          tapPlays ? findsOneWidget : findsNothing,
-        );
-        await tester.tap(
-          tapPlays
-              ? find.text('Selected')
-              : find.descendant(
-                  of: row,
-                  matching: findAppIcon(Icons.play_arrow),
-                ),
-        );
-        await tester.pumpAndSettle();
-
-        expect(player.queue.map((item) => item.title), [
-          'First',
-          'Selected',
-          'Last',
-        ]);
-        expect(player.index, 1);
-        expect(tester.takeException(), isNull);
-      });
-    }
-
-    testWidgets('playlist header shuffles every song (Mornye: $mornye)', (
-      tester,
-    ) async {
-      // A narrow phone, so Play and Shuffle must share it.
-      tester.view.physicalSize = const Size(360, 780);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      final player = _Player();
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            settingsProvider.overrideWith(_Settings.new),
-            musicPlayerControllerProvider.overrideWithValue(player),
-            playbackProvider.overrideWith(_Playback.new),
-            libraryCollectionsProvider.overrideWith(_Collections.new),
-            localLibraryProvider.overrideWith(_Library.new),
-            localLibraryCoverProvider.overrideWith(
-              (ref, request) async => null,
-            ),
-            localLibraryFirstCoverProvider.overrideWith(
-              (ref, request) async => null,
-            ),
-          ],
-          child: MaterialApp(
-            theme: mornye
-                ? MornyeTheme.build(Brightness.dark)
-                : AppTheme.light(),
-            localizationsDelegates: appLocalizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: const LibraryTracksFolderScreen(
-              mode: LibraryTracksFolderMode.playlist,
-              playlistId: 'playlist',
-            ),
+        ],
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: appLocalizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const LibraryTracksFolderScreen(
+            mode: LibraryTracksFolderMode.playlist,
+            playlistId: 'playlist',
           ),
         ),
-      );
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const ValueKey('collection-shuffle')));
-      await tester.pumpAndSettle();
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('620 tracks'), findsOneWidget);
+    expect(find.text('Local song 0'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Local song 619'),
+      1000,
+      maxScrolls: 100,
+    );
+    expect(find.text('Local song 619'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
-      expect(player.shuffle, isTrue);
-      // The unresolved song drops out; the rest play from a random one.
-      expect(player.queue.map((item) => item.title), [
-        'First',
-        'Selected',
-        'Last',
-      ]);
-      expect(player.index, inInclusiveRange(0, 2));
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('playlist header mirrors in Arabic (Mornye: $mornye)', (
+  for (final mode in LibraryTracksFolderMode.values) {
+    testWidgets('selection dispatches one ${mode.name} removal ()', (
       tester,
     ) async {
-      tester.view.physicalSize = const Size(360, 780);
+      tester.view.physicalSize = const Size(400, 850);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
+      final calls = <(String, List<String>)>[];
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
             settingsProvider.overrideWith(_Settings.new),
             musicPlayerControllerProvider.overrideWithValue(_Player()),
             playbackProvider.overrideWith(_Playback.new),
-            libraryCollectionsProvider.overrideWith(_Collections.new),
+            libraryCollectionsProvider.overrideWith(
+              () =>
+                  _RemovalCollections((kind, keys) => calls.add((kind, keys))),
+            ),
             localLibraryProvider.overrideWith(_Library.new),
             localLibraryCoverProvider.overrideWith(
               (ref, request) async => null,
@@ -670,10 +465,69 @@ void main() {
             ),
           ],
           child: MaterialApp(
-            locale: const Locale('ar'),
-            theme: mornye
-                ? MornyeTheme.build(Brightness.dark)
-                : AppTheme.light(),
+            theme: MornyeTheme.build(Brightness.dark),
+            localizationsDelegates: appLocalizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: LibraryTracksFolderScreen(
+              mode: mode,
+              playlistId: mode == LibraryTracksFolderMode.playlist
+                  ? 'playlist'
+                  : null,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('First'));
+      await tester.longPress(find.text('First'));
+      await tester.pumpAndSettle();
+      await Scrollable.ensureVisible(
+        tester.element(find.text('Unavailable')),
+        alignment: 0.15,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Unavailable'));
+      await tester.pumpAndSettle();
+      await tester.tap(findAppIcon(Icons.remove_circle_outline));
+      await tester.pumpAndSettle();
+      expect(calls, hasLength(1));
+      expect(calls.single.$1, mode.name);
+      expect(calls.single.$2, ['First', 'Unavailable']);
+      expect(find.text('First'), findsNothing);
+      expect(find.text('Unavailable'), findsNothing);
+      expect(findAppIcon(Icons.remove_circle_outline), findsNothing);
+      final l10n = AppLocalizations.of(
+        tester.element(find.byType(LibraryTracksFolderScreen)),
+      );
+      expect(find.text(l10n.selectionSelected(2)), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  for (final tapPlays in [false, true]) {
+    testWidgets('playlist row queues its neighbors from '
+        '${tapPlays ? 'a tap' : 'its Play button'} ()', (tester) async {
+      final player = _Player();
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            settingsProvider.overrideWith(() => _Settings(includeLocal: true)),
+            librarySongTapPlaysProvider.overrideWithValue(tapPlays),
+            musicPlayerControllerProvider.overrideWithValue(player),
+            playbackProvider.overrideWith(_Playback.new),
+            libraryCollectionsProvider.overrideWith(_Collections.new),
+            localLibraryProvider.overrideWith(
+              () => _Library(inLibrary: {'First', 'Selected', 'Last'}),
+            ),
+            localLibraryCoverProvider.overrideWith(
+              (ref, request) async => null,
+            ),
+            localLibraryFirstCoverProvider.overrideWith(
+              (ref, request) async => null,
+            ),
+          ],
+          child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.dark),
             localizationsDelegates: appLocalizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             home: const LibraryTracksFolderScreen(
@@ -684,23 +538,123 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-
-      final width = tester.view.physicalSize.width;
-      // Back sits at the reading start, the right edge in Arabic.
+      final row = find.ancestor(
+        of: find.text('Selected'),
+        matching: find.byType(TrackCard),
+      );
+      await tester.scrollUntilVisible(row, 200);
       expect(
-        tester.getCenter(findByTooltip('رجوع').first).dx,
-        greaterThan(width / 2),
+        find.descendant(of: row, matching: findByTooltip('Show details')),
+        tapPlays ? findsOneWidget : findsNothing,
       );
-      // Play and Shuffle run from the right, and only Play
-      // carries a label.
-      final play = tester.getCenter(find.byType(HeaderFilledButton));
-      final shuffle = tester.getCenter(
-        find.byKey(const ValueKey('collection-shuffle')),
+      await tester.tap(
+        tapPlays
+            ? find.text('Selected')
+            : find.descendant(of: row, matching: findAppIcon(Icons.play_arrow)),
       );
-      expect(play.dx, greaterThan(shuffle.dx));
+      await tester.pumpAndSettle();
+
+      expect(player.queue.map((item) => item.title), [
+        'First',
+        'Selected',
+        'Last',
+      ]);
+      expect(player.index, 1);
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('playlist header shuffles every song ()', (tester) async {
+    // A narrow phone, so Play and Shuffle must share it.
+    tester.view.physicalSize = const Size(360, 780);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final player = _Player();
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          settingsProvider.overrideWith(_Settings.new),
+          musicPlayerControllerProvider.overrideWithValue(player),
+          playbackProvider.overrideWith(_Playback.new),
+          libraryCollectionsProvider.overrideWith(_Collections.new),
+          localLibraryProvider.overrideWith(_Library.new),
+          localLibraryCoverProvider.overrideWith((ref, request) async => null),
+          localLibraryFirstCoverProvider.overrideWith(
+            (ref, request) async => null,
+          ),
+        ],
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: appLocalizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const LibraryTracksFolderScreen(
+            mode: LibraryTracksFolderMode.playlist,
+            playlistId: 'playlist',
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('collection-shuffle')));
+    await tester.pumpAndSettle();
+
+    expect(player.shuffle, isTrue);
+    // The unresolved song drops out; the rest play from a random one.
+    expect(player.queue.map((item) => item.title), [
+      'First',
+      'Selected',
+      'Last',
+    ]);
+    expect(player.index, inInclusiveRange(0, 2));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('playlist header mirrors in Arabic ()', (tester) async {
+    tester.view.physicalSize = const Size(360, 780);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          settingsProvider.overrideWith(_Settings.new),
+          musicPlayerControllerProvider.overrideWithValue(_Player()),
+          playbackProvider.overrideWith(_Playback.new),
+          libraryCollectionsProvider.overrideWith(_Collections.new),
+          localLibraryProvider.overrideWith(_Library.new),
+          localLibraryCoverProvider.overrideWith((ref, request) async => null),
+          localLibraryFirstCoverProvider.overrideWith(
+            (ref, request) async => null,
+          ),
+        ],
+        child: MaterialApp(
+          locale: const Locale('ar'),
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: appLocalizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const LibraryTracksFolderScreen(
+            mode: LibraryTracksFolderMode.playlist,
+            playlistId: 'playlist',
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final width = tester.view.physicalSize.width;
+    // Back sits at the reading start, the right edge in Arabic.
+    expect(
+      tester.getCenter(findByTooltip('رجوع').first).dx,
+      greaterThan(width / 2),
+    );
+    // Play and Shuffle run from the right, and only Play
+    // carries a label.
+    final play = tester.getCenter(find.byType(HeaderFilledButton));
+    final shuffle = tester.getCenter(
+      find.byKey(const ValueKey('collection-shuffle')),
+    );
+    expect(play.dx, greaterThan(shuffle.dx));
+    expect(tester.takeException(), isNull);
+  });
 
   late ProviderContainer container;
   late _Player player;

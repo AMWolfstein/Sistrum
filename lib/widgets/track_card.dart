@@ -1,15 +1,9 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/providers/music_player_provider.dart';
-import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/theme/player_artwork_theme.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/app_content_card.dart';
 import 'package:sistrum/widgets/desktop/context_menu.dart';
-import 'package:sistrum/widgets/now_playing_indicator.dart';
 import 'package:sistrum/widgets/queue_swipe.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 
@@ -52,10 +46,8 @@ class TrackCardSegment extends InheritedWidget {
   final bool first;
   final bool last;
 
-  static TrackCardSegment? _of(BuildContext context) {
-    if (context.isMornye) return null;
-    return context.dependOnInheritedWidgetOfExactType<TrackCardSegment>();
-  }
+  // Mornye draws no connected run, so no segment is ever found.
+  static TrackCardSegment? _of(BuildContext context) => null;
 
   /// Corners of the enclosing segment, or null outside a connected run.
   static BorderRadius? radiusOf(BuildContext context) {
@@ -149,11 +141,8 @@ class TrackCard extends StatelessWidget {
   /// aligned with each other.
   final EdgeInsetsGeometry? margin;
 
-  /// The row is the player's current track. The Material style fills it with
-  /// `primaryContainer` of the track's artwork scheme ([PlayerArtworkTheme]),
-  /// rounds its ends into a pill and shows a [NowPlayingIndicator] before
-  /// [trailing]. Mornye keeps the row plain and shows the title in its
-  /// accent.
+  /// The row is the player's current track. Mornye keeps the row plain and
+  /// shows the title in its accent.
   final bool isCurrent;
 
   /// The current track is playing, so the indicator moves.
@@ -169,22 +158,12 @@ class TrackCard extends StatelessWidget {
   final QueueSwipeActions? queueSwipe;
 
   @override
-  Widget build(BuildContext context) {
-    if (context.isMornye) return _buildCard(context);
-    // A selected current row keeps the app's selection fill, so a
-    // selection reads as one colour.
-    return _CurrentTrackArtworkTheme(
-      current: isCurrent && !isSelected,
-      child: Builder(builder: _buildCard),
-    );
-  }
+  Widget build(BuildContext context) => _buildCard(context);
 
   Widget _buildCard(BuildContext context) {
     final tokens = context.tokens;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final material = !context.isMornye;
-    final current = material && isCurrent;
     final filled = style == TrackCardStyle.filled;
     final borderRadius =
         (filled ? TrackCardSegment.radiusOf(context) : null) ??
@@ -192,7 +171,7 @@ class TrackCard extends StatelessWidget {
     final segmentMargin = filled ? TrackCardSegment.marginOf(context) : null;
     // The two styles carry their own outer margin so no call site has to
     // repeat it: flat rows sit tight inside a collection list, filled cards
-    // get the Material list margin.
+    // get the list margin.
     final cardMargin =
         margin ??
         segmentMargin ??
@@ -211,96 +190,13 @@ class TrackCard extends StatelessWidget {
           )
         : EdgeInsetsDirectional.all(tokens.gapMd);
 
-    // Material selection and the current track use solid roles. A selected
-    // current row keeps the selection fill and shows its state through the
-    // shape, the glyph and the title weight.
-    final Color? cardColor;
-    final Color? contentColor;
-    if (isSelected) {
-      cardColor = material
-          ? colorScheme.secondaryContainer
-          : colorScheme.primaryContainer.withValues(alpha: 0.3);
-      contentColor = material ? colorScheme.onSecondaryContainer : null;
-    } else if (current) {
-      cardColor = colorScheme.primaryContainer;
-      contentColor = colorScheme.onPrimaryContainer;
-    } else if (context.isMornye) {
-      cardColor = Colors.transparent;
-      contentColor = null;
-    } else if (style == TrackCardStyle.flat) {
-      // Rest on the fill the row may take, at zero alpha, so becoming
-      // current or selected only fades it in instead of passing through
-      // the dark tint between transparent black and the fill.
-      cardColor =
-          (isSelectionMode
-                  ? colorScheme.secondaryContainer
-                  : colorScheme.primaryContainer)
-              .withValues(alpha: 0);
-      contentColor = null;
-    } else {
-      // The card theme's tone, which the expressive card does not read.
-      cardColor = theme.cardTheme.color;
-      contentColor = null;
-    }
+    // A selected row takes the primary fill at reduced alpha; rest is clear.
+    final cardColor = isSelected
+        ? colorScheme.primaryContainer.withValues(alpha: 0.3)
+        : Colors.transparent;
     // Text without a colour of its own in the leading slot or the subtitle
     // takes the row's supporting colour, so it stays readable on any fill.
-    final supportingStyle = TextStyle(
-      color: contentColor ?? colorScheme.onSurfaceVariant,
-    );
-    // Trailing controls sit directly on the fill: their content roles take
-    // its content colour, and a filled control inverts against it.
-    final trailingTheme = contentColor == null || cardColor == null
-        ? theme
-        : theme.copyWith(
-            colorScheme: colorScheme.copyWith(
-              primary: contentColor,
-              onPrimary: cardColor,
-              onSurface: contentColor,
-              onSurfaceVariant: contentColor,
-            ),
-          );
-
-    // The current row's shapes morph on the spatial spring; reduced motion
-    // switches them in place. A clip applies only while the row is, or is
-    // leaving, the current track.
-    final shapeMotion = AppMotion.spatial(
-      context,
-      const AppMotionSpec(Duration.zero, Curves.linear),
-    );
-    final textDirection = Directionality.of(context);
-    Widget morph(
-      Widget child, {
-      required ShapeBorder from,
-      required ShapeBorder to,
-      EdgeInsets inset = EdgeInsets.zero,
-    }) => TweenAnimationBuilder<double>(
-      tween: Tween(end: current ? 1 : 0),
-      duration: shapeMotion.duration,
-      curve: shapeMotion.curve,
-      builder: (context, t, child) {
-        final progress = t.clamp(0.0, 1.0);
-        return ClipPath(
-          clipper: _InsetShapeClipper(
-            shape: ShapeBorder.lerp(from, to, progress)!,
-            inset: inset,
-            textDirection: textDirection,
-          ),
-          clipBehavior: progress > 0 ? Clip.antiAlias : Clip.none,
-          child: child,
-        );
-      },
-      child: child,
-    );
-
-    final rowLeading = material && leadingArtwork
-        ? morph(
-            leading,
-            from: RoundedRectangleBorder(
-              borderRadius: tokens.borderRadiusThumb,
-            ),
-            to: const CircleBorder(),
-          )
-        : leading;
+    final supportingStyle = TextStyle(color: colorScheme.onSurfaceVariant);
 
     final card = AppContentCard(
       elevation: 0,
@@ -335,10 +231,7 @@ class TrackCard extends StatelessWidget {
                   ),
                   SizedBox(width: tokens.gapMd),
                 ],
-                DefaultTextStyle.merge(
-                  style: supportingStyle,
-                  child: rowLeading,
-                ),
+                DefaultTextStyle.merge(style: supportingStyle, child: leading),
                 SizedBox(width: tokens.gapMd),
                 Expanded(
                   child: Column(
@@ -350,14 +243,10 @@ class TrackCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.bodyLarge?.copyWith(
-                          fontWeight: current
-                              ? FontWeight.w700
-                              : FontWeight.w500,
+                          fontWeight: FontWeight.w500,
                           // The accent as status: Mornye's only sign of
                           // the current track.
-                          color: isCurrent && !material
-                              ? colorScheme.primary
-                              : contentColor,
+                          color: isCurrent ? colorScheme.primary : null,
                         ),
                       ),
                       if (subtitle != null) ...[
@@ -370,18 +259,11 @@ class TrackCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (current) ...[
-                  SizedBox(width: tokens.gapSm),
-                  NowPlayingIndicator(playing: isPlaying, color: contentColor),
-                ],
                 if (trailing != null && !isSelectionMode) ...[
                   SizedBox(width: tokens.gapSm),
                   // Mornye rows never fill with a content colour and keep
                   // their ambient theme.
-                  if (material)
-                    Theme(data: trailingTheme, child: trailing!)
-                  else
-                    trailing!,
+                  trailing!,
                 ],
               ],
             ),
@@ -396,25 +278,8 @@ class TrackCard extends StatelessWidget {
         : QueueSwipe(
             actions: queueSwipe,
             enabled: !isSelectionMode,
-            margin: cardMargin,
-            borderRadius: borderRadius,
             child: row,
           );
-    if (material) {
-      // The card keeps its connected-group corners; a clip inside the
-      // margin rounds the current row's ends into a pill, ripple included.
-      return swipe(
-        DesktopContextMenuRegion(
-          onContextMenu: onContextMenu,
-          child: morph(
-            card,
-            from: RoundedRectangleBorder(borderRadius: borderRadius),
-            to: const StadiumBorder(),
-            inset: cardMargin.resolve(textDirection),
-          ),
-        ),
-      );
-    }
     return swipe(
       DesktopContextMenuRegion(
         onContextMenu: onContextMenu,
@@ -434,94 +299,6 @@ class TrackCard extends StatelessWidget {
       ),
     );
   }
-}
-
-/// Gives the current Material row the colour scheme of the playing track's
-/// artwork, like the mini player; other rows keep the app scheme. It stays
-/// in the tree either way, so the row's shape morph and ripple survive the
-/// switch, and it reads the player only while the row is current, so rows
-/// outside a [ProviderScope] still build.
-class _CurrentTrackArtworkTheme extends StatefulWidget {
-  const _CurrentTrackArtworkTheme({required this.current, required this.child});
-
-  final bool current;
-  final Widget child;
-
-  @override
-  State<_CurrentTrackArtworkTheme> createState() =>
-      _CurrentTrackArtworkThemeState();
-}
-
-class _CurrentTrackArtworkThemeState extends State<_CurrentTrackArtworkTheme> {
-  ProviderSubscription<String?>? _subscription;
-  String? _artUri;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _listen();
-  }
-
-  @override
-  void didUpdateWidget(_CurrentTrackArtworkTheme oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.current != widget.current) _listen();
-  }
-
-  @override
-  void dispose() {
-    _subscription?.close();
-    super.dispose();
-  }
-
-  void _listen() {
-    if (!widget.current) {
-      _subscription?.close();
-      _subscription = null;
-      _artUri = null;
-      return;
-    }
-    if (_subscription != null) return;
-    _subscription = ProviderScope.containerOf(context, listen: false).listen(
-      currentMediaItemProvider.select((item) => item.value?.artUri?.toString()),
-      (_, artUri) {
-        if (mounted) setState(() => _artUri = artUri);
-      },
-    );
-    _artUri = _subscription!.read();
-  }
-
-  @override
-  Widget build(BuildContext context) => PlayerArtworkTheme(
-    artUri: widget.current ? _artUri : null,
-    child: widget.child,
-  );
-}
-
-/// Clips to [shape] laid out inside [inset], so a card's outer margin stays
-/// outside its silhouette.
-class _InsetShapeClipper extends CustomClipper<Path> {
-  const _InsetShapeClipper({
-    required this.shape,
-    required this.inset,
-    required this.textDirection,
-  });
-
-  final ShapeBorder shape;
-  final EdgeInsets inset;
-  final TextDirection textDirection;
-
-  @override
-  Path getClip(Size size) => shape.getOuterPath(
-    inset.deflateRect(Offset.zero & size),
-    textDirection: textDirection,
-  );
-
-  @override
-  bool shouldReclip(_InsetShapeClipper oldClipper) =>
-      shape != oldClipper.shape ||
-      inset != oldClipper.inset ||
-      textDirection != oldClipper.textDirection;
 }
 
 /// Grid counterpart of [TrackCard]: square artwork with overlays, then the

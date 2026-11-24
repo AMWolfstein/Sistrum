@@ -10,7 +10,6 @@ import 'package:sistrum/controllers/metadata_editor_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/services/metadata_cover_resources.dart';
 import 'package:sistrum/services/metadata_persistence_service.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
@@ -81,14 +80,12 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
     required String Function(BuildContext sheetContext, T option) label,
     required IconData Function(BuildContext sheetContext, T option) icon,
     bool ellipsizeLabels = false,
-    bool checkInSheetTheme = false,
   }) {
     FocusScope.of(context).unfocus();
     return showAppModalBottomSheet<T>(
       context: context,
       useRootNavigator: true,
       isScrollControlled: true,
-      showDragHandle: !context.isMornye,
       builder: (sheetContext) {
         final cs = Theme.of(sheetContext).colorScheme;
         final items = options(sheetContext);
@@ -104,7 +101,7 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // The glass carries the handle that Material's sheet draws.
-                if (sheetContext.isMornye) const AppSheetHandle(),
+                const AppSheetHandle(),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
                   child: Text(
@@ -143,14 +140,7 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
                                 selected: isSelected(items[index]),
                                 selectedColor: cs.primary,
                                 trailing: isSelected(items[index])
-                                    ? Icon(
-                                        (checkInSheetTheme
-                                                    ? sheetContext
-                                                    : context)
-                                                .isMornye
-                                            ? CupertinoIcons.checkmark
-                                            : Icons.check_rounded,
-                                      )
+                                    ? const Icon(CupertinoIcons.checkmark)
                                     : null,
                                 onTap: () =>
                                     Navigator.pop(sheetContext, items[index]),
@@ -305,12 +295,7 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
                           child: SizedBox(
                             width: 22,
                             height: 22,
-                            child: context.isMornye
-                                ? const CupertinoActivityIndicator()
-                                : const AppLoadingIndicator(
-                                    size: 22,
-                                    strokeWidth: 2,
-                                  ),
+                            child: const CupertinoActivityIndicator(),
                           ),
                         )
                       else
@@ -318,15 +303,6 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
                           onPressed: _save,
                           icon: const Icon(Icons.check, size: 18),
                           label: Text(context.l10n.dialogSave),
-                          style: FilledButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 12,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                          ),
                         ),
                     ],
                   ),

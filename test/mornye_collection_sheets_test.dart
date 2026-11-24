@@ -14,7 +14,6 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/playlist_picker_sheet.dart';
 import 'package:sistrum/widgets/track_collection_quick_actions.dart';
@@ -75,9 +74,8 @@ class _PopObserver extends NavigatorObserver {
   }
 }
 
-VoidCallback? _doneAction(WidgetTester tester, bool mornye) => mornye
-    ? tester.widget<AppActionButton>(find.byType(AppActionButton)).onPressed
-    : tester.widget<ExpressiveButton>(find.byType(ExpressiveButton)).onPressed;
+VoidCallback? _doneAction(WidgetTester tester) =>
+    tester.widget<AppActionButton>(find.byType(AppActionButton)).onPressed;
 
 PlaylistPickerSummary _playlist(String name, {bool contains = false}) =>
     PlaylistPickerSummary(
@@ -91,7 +89,6 @@ Widget _app(
   Widget child,
   _Collections collections, {
   required Brightness brightness,
-  bool mornye = true,
   double textScale = 1,
   List<NavigatorObserver> navigatorObservers = const [],
 }) => ProviderScope(
@@ -104,7 +101,7 @@ Widget _app(
   ],
   child: MaterialApp(
     navigatorObservers: navigatorObservers,
-    theme: mornye ? MornyeTheme.build(brightness) : ThemeData(),
+    theme: MornyeTheme.build(brightness),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     builder: (context, child) => MediaQuery(
@@ -193,135 +190,124 @@ void main() {
     });
   }
 
-  for (final mornye in [true, false]) {
-    testWidgets('picker submits and closes once (Mornye: $mornye)', (
-      tester,
-    ) async {
-      final addition = Completer<void>();
-      final collections = _Collections()
-        .._summaries = [_playlist('Road trip')]
-        ..pendingAdditions.add(addition);
-      final observer = _PopObserver();
-      await tester.pumpWidget(
-        _app(
-          Consumer(
-            builder: (context, ref, _) => TextButton(
-              onPressed: () =>
-                  showAddTracksToPlaylistSheet(context, ref, [_track]),
-              child: const Text('Open'),
-            ),
+  testWidgets('picker submits and closes once', (tester) async {
+    final addition = Completer<void>();
+    final collections = _Collections()
+      .._summaries = [_playlist('Road trip')]
+      ..pendingAdditions.add(addition);
+    final observer = _PopObserver();
+    await tester.pumpWidget(
+      _app(
+        Consumer(
+          builder: (context, ref, _) => TextButton(
+            onPressed: () =>
+                showAddTracksToPlaylistSheet(context, ref, [_track]),
+            child: const Text('Open'),
           ),
-          collections,
-          brightness: Brightness.light,
-          mornye: mornye,
-          navigatorObservers: [observer],
         ),
-      );
-      await tester.tap(find.text('Open'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Road trip'));
-      await tester.pump();
-      final submit = _doneAction(tester, mornye)!;
-      // A repeated callback can arrive before the disabled button is rebuilt.
-      submit();
-      submit();
-      await tester.pump();
-      expect(collections.additions, ['Road trip']);
-      expect(_doneAction(tester, mornye), isNull);
-      expect(observer.pops, 0);
+        collections,
+        brightness: Brightness.light,
+        navigatorObservers: [observer],
+      ),
+    );
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Road trip'));
+    await tester.pump();
+    final submit = _doneAction(tester)!;
+    // A repeated callback can arrive before the disabled button is rebuilt.
+    submit();
+    submit();
+    await tester.pump();
+    expect(collections.additions, ['Road trip']);
+    expect(_doneAction(tester), isNull);
+    expect(observer.pops, 0);
 
-      addition.complete();
-      await tester.pump();
-      // The route remains mounted while its closing animation runs.
-      submit();
-      await tester.pumpAndSettle();
-      expect(collections.additions, ['Road trip']);
-      expect(observer.pops, 1);
-      expect(find.text('Open'), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
+    addition.complete();
+    await tester.pump();
+    // The route remains mounted while its closing animation runs.
+    submit();
+    await tester.pumpAndSettle();
+    expect(collections.additions, ['Road trip']);
+    expect(observer.pops, 1);
+    expect(find.text('Open'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
-    testWidgets('picker retains selections after failure (Mornye: $mornye)', (
-      tester,
-    ) async {
-      final firstAddition = Completer<void>()..complete();
-      final secondAddition = Completer<void>();
-      final collections = _Collections()
-        .._summaries = [_playlist('Road trip'), _playlist('Evening music')]
-        ..pendingAdditions.addAll([firstAddition, secondAddition]);
-      final observer = _PopObserver();
-      await tester.pumpWidget(
-        _app(
-          Consumer(
-            builder: (context, ref, _) => TextButton(
-              onPressed: () =>
-                  showAddTracksToPlaylistSheet(context, ref, [_track]),
-              child: const Text('Open'),
-            ),
+  testWidgets('picker retains selections after failure', (tester) async {
+    final firstAddition = Completer<void>()..complete();
+    final secondAddition = Completer<void>();
+    final collections = _Collections()
+      .._summaries = [_playlist('Road trip'), _playlist('Evening music')]
+      ..pendingAdditions.addAll([firstAddition, secondAddition]);
+    final observer = _PopObserver();
+    await tester.pumpWidget(
+      _app(
+        Consumer(
+          builder: (context, ref, _) => TextButton(
+            onPressed: () =>
+                showAddTracksToPlaylistSheet(context, ref, [_track]),
+            child: const Text('Open'),
           ),
-          collections,
-          brightness: Brightness.light,
-          mornye: mornye,
-          navigatorObservers: [observer],
         ),
-      );
-      await tester.tap(find.text('Open'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Road trip'));
-      await tester.tap(find.text('Evening music'));
-      await tester.pump();
-      await tester.tap(find.text('Done'));
-      await tester.pump();
-      expect(collections.additions, ['Road trip', 'Evening music']);
-      secondAddition.completeError(StateError('write failed'));
-      await tester.pump();
-      expect(observer.pops, 0);
-      expect(_doneAction(tester, mornye), isNotNull);
+        collections,
+        brightness: Brightness.light,
+        navigatorObservers: [observer],
+      ),
+    );
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Road trip'));
+    await tester.tap(find.text('Evening music'));
+    await tester.pump();
+    await tester.tap(find.text('Done'));
+    await tester.pump();
+    expect(collections.additions, ['Road trip', 'Evening music']);
+    secondAddition.completeError(StateError('write failed'));
+    await tester.pump();
+    expect(observer.pops, 0);
+    expect(_doneAction(tester), isNotNull);
 
-      // Retrying keeps the failed selection and skips the persisted playlist.
-      await tester.tap(find.text('Done'));
-      await tester.pumpAndSettle();
-      expect(collections.additions, [
-        'Road trip',
-        'Evening music',
-        'Evening music',
-      ]);
-      expect(observer.pops, 1);
-      expect(tester.takeException(), isNull);
-    });
+    // Retrying keeps the failed selection and skips the persisted playlist.
+    await tester.tap(find.text('Done'));
+    await tester.pumpAndSettle();
+    expect(collections.additions, [
+      'Road trip',
+      'Evening music',
+      'Evening music',
+    ]);
+    expect(observer.pops, 1);
+    expect(tester.takeException(), isNull);
+  });
 
-    testWidgets('picker adds only new selections (Mornye: $mornye)', (
-      tester,
-    ) async {
-      final collections = _Collections()
-        .._summaries = [
-          _playlist('Already included', contains: true),
-          _playlist('Road trip'),
-          _playlist('Unselected playlist'),
-        ];
-      await tester.pumpWidget(
-        _app(
-          Consumer(
-            builder: (context, ref, _) => TextButton(
-              onPressed: () =>
-                  showAddTracksToPlaylistSheet(context, ref, [_track]),
-              child: const Text('Open'),
-            ),
+  testWidgets('picker adds only new selections', (tester) async {
+    final collections = _Collections()
+      .._summaries = [
+        _playlist('Already included', contains: true),
+        _playlist('Road trip'),
+        _playlist('Unselected playlist'),
+      ];
+    await tester.pumpWidget(
+      _app(
+        Consumer(
+          builder: (context, ref, _) => TextButton(
+            onPressed: () =>
+                showAddTracksToPlaylistSheet(context, ref, [_track]),
+            child: const Text('Open'),
           ),
-          collections,
-          brightness: Brightness.light,
-          mornye: mornye,
         ),
-      );
-      await tester.tap(find.text('Open'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Already included'));
-      await tester.tap(find.text('Road trip'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Done'));
-      await tester.pumpAndSettle();
-      expect(collections.additions, ['Road trip']);
-      expect(tester.takeException(), isNull);
-    });
-  }
+        collections,
+        brightness: Brightness.light,
+      ),
+    );
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Already included'));
+    await tester.tap(find.text('Road trip'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Done'));
+    await tester.pumpAndSettle();
+    expect(collections.additions, ['Road trip']);
+    expect(tester.takeException(), isNull);
+  });
 }

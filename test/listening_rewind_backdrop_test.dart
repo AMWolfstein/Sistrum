@@ -13,7 +13,6 @@ import 'package:sistrum/screens/listening_rewind_screen.dart';
 import 'package:sistrum/services/listening_rewind.dart';
 import 'package:sistrum/services/listening_statistics.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/widgets/app_shape.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/decorative_phase.dart';
 import 'package:sistrum/widgets/settled_blur.dart';
@@ -136,7 +135,7 @@ void main() {
     tickers.dispose();
   });
 
-  Future<void> open(WidgetTester tester, {required bool mornye}) async {
+  Future<void> open(WidgetTester tester) async {
     // The backdrop settles its blur only in a resumed app.
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
     tester.view.physicalSize = _size;
@@ -163,7 +162,7 @@ void main() {
           listeningRewindProvider.overrideWith((ref, period) async => rewind),
         ],
         child: MaterialApp(
-          theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
+          theme: MornyeTheme.build(Brightness.dark),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           builder: (context, child) => ListenableBuilder(
@@ -202,7 +201,7 @@ void main() {
   testWidgets('Mornye blurs each slide cover once while it zooms and swipes', (
     tester,
   ) async {
-    await open(tester, mornye: true);
+    await open(tester);
     var frames = 0;
     var liveFrames = 0;
     final images = Set<ui.Image>.identity();
@@ -250,66 +249,54 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets(
-      'the backdrop drift moves at 30 Hz on the same clock ($mornye)',
-      (tester) async {
-        await open(tester, mornye: mornye);
-        // The Ken Burns zoom (Mornye) or the largest shape's pulse (Material).
-        final transform = mornye
-            ? find
-                  .ancestor(
-                    of: find.byType(SettledBlur),
-                    matching: find.byType(Transform),
-                  )
-                  .first
-            : find
-                  .ancestor(
-                    of: find.byType(AppShapeBadge).first,
-                    matching: find.byType(Transform),
-                  )
-                  .first;
-        // Drift phase in [0, 1) of the 24 s loop from the drawn scale.
-        double phase() {
-          final scale = tester.widget<Transform>(transform).transform[0];
-          return mornye
-              ? math.asin((scale - 1.15) / 0.06) / (2 * math.pi)
-              : math.asin((scale - 1) / 0.05) / (4 * math.pi);
-        }
+  testWidgets('the backdrop drift moves at 30 Hz on the same clock', (
+    tester,
+  ) async {
+    await open(tester);
+    // The Ken Burns zoom of the settled backdrop.
+    final transform = find
+        .ancestor(
+          of: find.byType(SettledBlur),
+          matching: find.byType(Transform),
+        )
+        .first;
+    // Drift phase in [0, 1) of the 24 s loop from the drawn scale.
+    double phase() {
+      final scale = tester.widget<Transform>(transform).transform[0];
+      return math.asin((scale - 1.15) / 0.06) / (2 * math.pi);
+    }
 
-        const step = Duration(microseconds: 8333);
-        var elapsed = Duration.zero;
-        var changes = 0;
-        var previous = phase();
-        for (var i = 0; i < 120; i++) {
-          await tester.pump(step);
-          elapsed += step;
-          final value = phase();
-          if (value != previous) changes++;
-          previous = value;
-          // Where the drift was 0 to 34 ms (one decorative tick) earlier.
-          final at = value * 24e6;
-          expect(at, lessThanOrEqualTo(elapsed.inMicroseconds + 1));
-          expect(
-            at,
-            greaterThanOrEqualTo(
-              elapsed.inMicroseconds -
-                  DecorativePhase.interval.inMicroseconds -
-                  step.inMicroseconds,
-            ),
-          );
-        }
-        // The old vsync drift changed on all 120 frames of the 120 Hz second.
-        expect(changes, inInclusiveRange(28, 30));
-        expect(tester.takeException(), isNull);
-      },
-    );
-  }
+    const step = Duration(microseconds: 8333);
+    var elapsed = Duration.zero;
+    var changes = 0;
+    var previous = phase();
+    for (var i = 0; i < 120; i++) {
+      await tester.pump(step);
+      elapsed += step;
+      final value = phase();
+      if (value != previous) changes++;
+      previous = value;
+      // Where the drift was 0 to 34 ms (one decorative tick) earlier.
+      final at = value * 24e6;
+      expect(at, lessThanOrEqualTo(elapsed.inMicroseconds + 1));
+      expect(
+        at,
+        greaterThanOrEqualTo(
+          elapsed.inMicroseconds -
+              DecorativePhase.interval.inMicroseconds -
+              step.inMicroseconds,
+        ),
+      );
+    }
+    // The old vsync drift changed on all 120 frames of the 120 Hz second.
+    expect(changes, inInclusiveRange(28, 30));
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('the drift clock stops while paused, hidden, still or closed', (
     tester,
   ) async {
-    await open(tester, mornye: false);
+    await open(tester);
     expect(DecorativePhase.debugClockRunning, isTrue);
 
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
@@ -338,7 +325,7 @@ void main() {
   testWidgets('story progress redraws at 30 Hz without a vsync ticker', (
     tester,
   ) async {
-    await open(tester, mornye: false);
+    await open(tester);
     await tester.pump(const Duration(milliseconds: 1600));
     expect(tester.binding.transientCallbackCount, 0);
 
@@ -356,7 +343,7 @@ void main() {
   });
 
   testWidgets('auto-advance keeps its six-second deadline', (tester) async {
-    await open(tester, mornye: false);
+    await open(tester);
     await tester.pump(const Duration(milliseconds: 5999));
     expect(pages(tester).page, 0);
     expect(pages(tester).position.isScrollingNotifier.value, isFalse);
@@ -370,7 +357,7 @@ void main() {
   testWidgets('holding pauses elapsed time and resumes the remaining time', (
     tester,
   ) async {
-    await open(tester, mornye: false);
+    await open(tester);
     await tester.pump(const Duration(seconds: 1));
     final gesture = await tester.startGesture(
       tester.getRect(find.byType(PageView)).center,
@@ -393,7 +380,7 @@ void main() {
     testWidgets('hidden stories catch up on return ($background)', (
       tester,
     ) async {
-      await open(tester, mornye: false);
+      await open(tester);
       await tester.pump(const Duration(seconds: 1));
       if (background) {
         tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
@@ -422,7 +409,7 @@ void main() {
   testWidgets('reduced motion stops advance and restarts from six seconds', (
     tester,
   ) async {
-    await open(tester, mornye: false);
+    await open(tester);
     await tester.pump(const Duration(seconds: 1));
     reduced.value = true;
     await tester.pump();
@@ -442,7 +429,7 @@ void main() {
     tester,
   ) async {
     reduced.value = true;
-    await open(tester, mornye: true);
+    await open(tester);
     final temporary = Directory('${directory.path}/share')..createSync();
     final messenger =
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
@@ -528,7 +515,7 @@ void main() {
   ]) {
     testWidgets('$choice shares $fileName at $width x $height', (tester) async {
       reduced.value = true;
-      await open(tester, mornye: false);
+      await open(tester);
       final temporary = Directory('${directory.path}/share')..createSync();
       final messenger =
           TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
@@ -580,51 +567,47 @@ void main() {
     });
   }
 
-  for (final mornye in [true, false]) {
-    testWidgets('the summary card holds five long names (Mornye: $mornye)', (
-      tester,
-    ) async {
-      final long = 'A very long name that cannot fit on one line ' * 3;
-      final rows = [
-        for (var i = 0; i < 6; i++)
-          _row(
-            '2026-10-0${i + 1}',
-            '$long$i',
-            artist: '$long$i',
-            minutes: 400000 - i,
-          ),
-      ];
-      final rewind = ListeningRewind.compute(
-        range: ListeningRewindRange.of(
-          ListeningRewindPeriod.year,
-          DateTime(2026, 10, 14, 21),
+  testWidgets('the summary card holds five long names', (tester) async {
+    final long = 'A very long name that cannot fit on one line ' * 3;
+    final rows = [
+      for (var i = 0; i < 6; i++)
+        _row(
+          '2026-10-0${i + 1}',
+          '$long$i',
+          artist: '$long$i',
+          minutes: 400000 - i,
         ),
-        summary: ListeningSummary.fromRows(rows),
-        previousMilliseconds: 0,
-      );
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: Center(
-            child: FittedBox(
-              child: MediaQuery(
-                data: const MediaQueryData(textScaler: TextScaler.linear(2)),
-                child: RewindShareCard(
-                  rewind: rewind,
-                  period: ListeningRewindPeriod.year,
-                ),
+    ];
+    final rewind = ListeningRewind.compute(
+      range: ListeningRewindRange.of(
+        ListeningRewindPeriod.year,
+        DateTime(2026, 10, 14, 21),
+      ),
+      summary: ListeningSummary.fromRows(rows),
+      previousMilliseconds: 0,
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: MornyeTheme.build(Brightness.dark),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Center(
+          child: FittedBox(
+            child: MediaQuery(
+              data: const MediaQueryData(textScaler: TextScaler.linear(2)),
+              child: RewindShareCard(
+                rewind: rewind,
+                period: ListeningRewindPeriod.year,
               ),
             ),
           ),
         ),
-      );
-      await tester.pump();
-      expect(tester.getSize(find.byType(RewindShareCard)), rewindShareCardSize);
-      expect(find.text('5'), findsNWidgets(2));
-      expect(find.text('6'), findsNothing);
-      expect(tester.takeException(), isNull);
-    });
-  }
+      ),
+    );
+    await tester.pump();
+    expect(tester.getSize(find.byType(RewindShareCard)), rewindShareCardSize);
+    expect(find.text('5'), findsNWidgets(2));
+    expect(find.text('6'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
 }

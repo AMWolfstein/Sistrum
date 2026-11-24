@@ -9,13 +9,11 @@ class DestructiveSelectionButton extends StatelessWidget {
   const DestructiveSelectionButton({
     super.key,
     required this.count,
-    required this.colorScheme,
     required this.onPressed,
     this.label,
   });
 
   final int count;
-  final ColorScheme colorScheme;
   final VoidCallback onPressed;
 
   /// Replaces the downloaded album delete label.
@@ -34,18 +32,6 @@ class DestructiveSelectionButton extends StatelessWidget {
               (count > 0
                   ? context.l10n.downloadedAlbumDeleteCount(count)
                   : context.l10n.downloadedAlbumSelectToDelete),
-        ),
-        style: FilledButton.styleFrom(
-          backgroundColor: count > 0
-              ? colorScheme.error
-              : colorScheme.surfaceContainerHighest,
-          foregroundColor: count > 0
-              ? colorScheme.onError
-              : colorScheme.onSurfaceVariant,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
         ),
       ),
     );

@@ -5,9 +5,9 @@ import 'package:material_ui/material_ui.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/services/hires_check_service.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/widgets/hires_batch_check_sheet.dart';
 import 'package:sistrum/widgets/hires_report_content.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 
 UnifiedLibraryItem _song(String name, {String extension = 'flac'}) =>
     UnifiedLibraryItem(
@@ -65,7 +65,7 @@ void main() {
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
       MaterialApp(
-        theme: AppTheme.light(),
+        theme: MornyeTheme.build(Brightness.light),
         localizationsDelegates: appLocalizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(

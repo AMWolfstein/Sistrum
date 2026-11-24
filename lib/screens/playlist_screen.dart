@@ -19,7 +19,6 @@ import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/desktop/desktop_selection.dart';
 import 'package:sistrum/widgets/desktop/track_list_table.dart';
 import 'package:sistrum/controllers/collapsing_header_scroll_mixin.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mornye_artist_header.dart';
 
 class PlaylistScreen extends ConsumerStatefulWidget {
@@ -63,14 +62,11 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
 
   @override
   Widget build(BuildContext context) {
-    if (context.isMornye) {
-      return MornyeArtistSurface(
-        imageSource: _coverUrl,
-        neutralActions: true,
-        child: Builder(builder: _buildPage),
-      );
-    }
-    return _buildPage(context);
+    return MornyeArtistSurface(
+      imageSource: _coverUrl,
+      neutralActions: true,
+      child: Builder(builder: _buildPage),
+    );
   }
 
   Widget _buildPage(BuildContext context) {
@@ -131,7 +127,7 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
 
     return AlbumDetailHeader(
       title: _playlistName,
-      immersive: context.isMornye,
+      immersive: true,
       squareArtwork: !hasMotion,
       expandedHeight: expandedHeight,
       showTitleInAppBar: false,
@@ -243,7 +239,8 @@ class _PlaylistScreenState extends ConsumerState<PlaylistScreen>
                         width: 48,
                         height: 48,
                         borderRadius: BorderRadius.circular(8),
-                        placeholder: (_) => const SizedBox(width: 48, height: 48),
+                        placeholder: (_) =>
+                            const SizedBox(width: 48, height: 48),
                       )
                     : Container(
                         width: 48,

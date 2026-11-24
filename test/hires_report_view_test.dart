@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/services/hires_check_service.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/widgets/hires_report_view.dart';
 
 /// What the backend returns for a whole-file inspection.
@@ -44,7 +44,7 @@ Future<void> _pump(WidgetTester tester, Map<String, dynamic> json) async {
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
     MaterialApp(
-      theme: AppTheme.light(),
+      theme: MornyeTheme.build(Brightness.light),
       localizationsDelegates: appLocalizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(

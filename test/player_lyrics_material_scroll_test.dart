@@ -2,16 +2,15 @@ import 'dart:async';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:sistrum/widgets/player_lyrics.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 
 void main() {
-  testWidgets('Material opens on a far line taller than the estimate', (
+  testWidgets('lyrics open on a far line taller than the estimate', (
     tester,
   ) async {
     // A narrow desktop panel: each line wraps and carries a romanization,
@@ -24,7 +23,7 @@ void main() {
     final seek = ValueNotifier<Duration?>(null);
     addTearDown(playback.close);
     addTearDown(seek.dispose);
-    final theme = AppTheme.dark();
+    final theme = MornyeTheme.build(Brightness.dark);
     final lyrics = ParsedLyrics(
       synced: true,
       wordSynced: false,
@@ -78,26 +77,18 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets('Material offscreen seek resumes line progression', (
-    tester,
-  ) async {
+  testWidgets('lyrics offscreen seek resumes line progression', (tester) async {
     tester.view.physicalSize = const Size(1080, 2424);
     tester.view.devicePixelRatio = 2.625;
     tester.view.padding = const FakeViewPadding(top: 142, bottom: 63);
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(tester.view.resetPadding);
-    final font = FontLoader('Google Sans Flex')
-      ..addFont(rootBundle.load('assets/fonts/GoogleSansFlex.ttf'));
-    await font.load();
-    // The new font is announced on a real event-loop turn. Take it now, or
-    // it lands after the test and relays out the binding's closing message.
-    await tester.runAsync(() => Future<void>.delayed(Duration.zero));
     final playback = StreamController<PlaybackState>.broadcast();
     final seek = ValueNotifier<Duration?>(null);
     addTearDown(playback.close);
     addTearDown(seek.dispose);
-    final theme = AppTheme.dark();
+    final theme = MornyeTheme.build(Brightness.dark);
     final lyrics = ParsedLyrics(
       synced: true,
       wordSynced: true,
@@ -172,9 +163,13 @@ void main() {
           widget.properties.label == lyrics.lines[line].text,
     );
     expect(highlighted(20), findsOneWidget);
+    // Mornye anchors the focused line at the top of the panel, not its
+    // middle: a 48 dp focus inset (6% of the screen, clamped) plus the row's
+    // 16 dp padding.
     expect(
-      tester.getCenter(highlighted(20)).dy,
-      closeTo(tester.getCenter(find.byType(ListView)).dy, 1),
+      tester.getTopLeft(highlighted(20)).dy -
+          tester.getTopLeft(find.byType(ListView)).dy,
+      closeTo(64, 1),
     );
     for (var i = 0; i < 13; i++) {
       report(40000 + i * 200, playing: true);

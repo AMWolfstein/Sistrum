@@ -1,12 +1,12 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/decorative_phase.dart';
 import 'package:sistrum/widgets/loaded_sliver_fade_in.dart';
 
 Widget _app(Widget child, {bool reduced = false}) => MaterialApp(
-  theme: AppTheme.light(),
+  theme: MornyeTheme.build(Brightness.light),
   home: Builder(
     builder: (context) => MediaQuery(
       data: MediaQuery.of(context).copyWith(disableAnimations: reduced),

@@ -310,7 +310,7 @@ class _WordHighlightedLyricLineState
     final decorativeMotion =
         !MediaQuery.disableAnimationsOf(context) &&
         !ref.read(lowEndDeviceProvider);
-    final glow = context.isMornye && ref.read(mornyeLiquidGlassProvider);
+    final glow = ref.read(mornyeLiquidGlassProvider);
     var end = Duration.zero;
     for (final words in [
       widget.line.words,
@@ -413,10 +413,7 @@ class _WordHighlightedLyricLineState
     TextAlign? textAlign,
   }) {
     final highlightedColor = widget.colorScheme.onSurface;
-    final mornye = context.isMornye;
-    final pendingColor = mornye
-        ? Colors.white.withValues(alpha: 0.4)
-        : widget.colorScheme.onSurfaceVariant.withValues(alpha: 0.6);
+    final pendingColor = Colors.white.withValues(alpha: 0.4);
     return _SweepingTimedLyricText(
       segments: [for (final word in words) word.text],
       starts: [for (final word in words) word.time],
@@ -441,7 +438,7 @@ class _WordHighlightedLyricLineState
           lift &&
           !MediaQuery.disableAnimationsOf(context) &&
           !ref.watch(lowEndDeviceProvider),
-      glowEnabled: mornye && ref.watch(mornyeLiquidGlassProvider),
+      glowEnabled: ref.watch(mornyeLiquidGlassProvider),
       maxLines: widget.maxLines,
     );
   }

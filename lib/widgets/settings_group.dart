@@ -3,32 +3,17 @@ import 'dart:math';
 
 import 'package:material_ui/material_ui.dart';
 import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
-import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:sistrum/theme/app_motion.dart';
-import 'package:sistrum/theme/material_expressive.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_switch.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 
 /// The neutral grouped fill used in Settings, including AMOLED themes.
-Color settingsGroupColor(BuildContext context) {
-  final colorScheme = Theme.of(context).colorScheme;
-  if (context.isMornye) return colorScheme.surfaceContainer;
-  final isDark = Theme.of(context).brightness == Brightness.dark;
-  return isDark
-      ? Color.alphaBlend(
-          Colors.white.withValues(alpha: 0.08),
-          colorScheme.surface,
-        )
-      : Color.alphaBlend(
-          Colors.black.withValues(alpha: 0.04),
-          colorScheme.surface,
-        );
-}
+Color settingsGroupColor(BuildContext context) =>
+    Theme.of(context).colorScheme.surfaceContainer;
 
 /// Carries a Settings search result into its destination page.
 ///
@@ -256,18 +241,10 @@ class SettingsGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cardColor = settingsGroupColor(context);
-    final colorScheme = Theme.of(context).colorScheme;
 
     final decoration = BoxDecoration(
       color: cardColor,
-      borderRadius: BorderRadius.circular(
-        context.isMornye ? 28 : context.tokens.radiusCard,
-      ),
-      border: context.isMornye
-          ? null
-          : Border.all(
-              color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-            ),
+      borderRadius: BorderRadius.circular(28),
     );
     final child = Material(
       color: Colors.transparent,
@@ -291,68 +268,10 @@ class SettingsGroup extends StatelessWidget {
             ),
           );
 
-    if (glass && context.isMornye) {
+    if (glass) {
       // Groups scroll over the opaque page color, where a backdrop pass
       // filters a flat color; keep the glass tint and rim without it.
       return inset(MornyeGlassPanel(samplesBackdrop: false, child: child));
-    }
-
-    final expressive = materialExpressiveEnabled(context);
-    // Only groups of standard rows split into connected tiles. Forms and
-    // custom content keep one card, so spacers never become empty tiles.
-    final standardRows =
-        children.isNotEmpty &&
-        (connected ||
-            children.every(
-              (child) =>
-                  child is SettingsItem ||
-                  child is SettingsSwitchItem ||
-                  child is ListTile,
-            ));
-    // Connected surfaces are static layout, so reduced motion keeps the gaps.
-    if (!context.isMornye && standardRows) {
-      // Expressive connected list: every row is its own surface separated by
-      // a 2dp gap. The group's ends keep the card radius, inner corners stay
-      // tight, and the gaps replace row dividers.
-      final last = children.length - 1;
-      return inset(
-        _ConnectedRowsScope(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final (index, row) in children.indexed) ...[
-                if (index > 0) const SizedBox(height: 2),
-                Material(
-                  color: cardColor,
-                  clipBehavior: Clip.antiAlias,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: connectedRowRadius(
-                      context,
-                      first: index == 0,
-                      last: index == last,
-                    ),
-                  ),
-                  child: row,
-                ),
-              ],
-            ],
-          ),
-        ),
-      );
-    }
-
-    if (expressive) {
-      return inset(
-        MaterialExpressiveScope(
-          child: M3ECard(
-            variant: M3ECardVariant.filled,
-            color: cardColor,
-            padding: EdgeInsets.zero,
-            borderRadius: context.tokens.borderRadiusCard,
-            child: child,
-          ),
-        ),
-      );
     }
 
     return inset(
@@ -403,25 +322,15 @@ class SliverSettingsGroup extends StatelessWidget {
       itemBuilder: (context, index) {
         final first = index == 0;
         final last = index == itemCount - 1;
-        final mornye = context.isMornye;
-        final radius = mornye
-            ? BorderRadius.vertical(
-                top: first ? const Radius.circular(28) : Radius.zero,
-                bottom: last ? const Radius.circular(28) : Radius.zero,
-              )
-            : connectedRowRadius(context, first: first, last: last);
-        final row = Material(
+        return Material(
           color: settingsGroupColor(context),
           clipBehavior: Clip.antiAlias,
-          borderRadius: radius,
+          borderRadius: BorderRadius.vertical(
+            top: first ? const Radius.circular(28) : Radius.zero,
+            bottom: last ? const Radius.circular(28) : Radius.zero,
+          ),
           child: itemBuilder(context, index),
         );
-        return mornye
-            ? row
-            : Padding(
-                padding: EdgeInsets.only(top: first ? 0 : 2),
-                child: _ConnectedRowsScope(child: row),
-              );
       },
     ),
   );
@@ -463,7 +372,7 @@ class SettingsItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final showIcon = icon != null && (!context.isMornye || showIconInMornye);
+    final showIcon = icon != null && showIconInMornye;
 
     final content = Column(
       mainAxisSize: MainAxisSize.min,
@@ -517,17 +426,10 @@ class SettingsItem extends StatelessWidget {
                             const SizedBox(height: 2),
                             Text(
                               subtitle!,
-                              style:
-                                  (context.isMornye
-                                          ? Theme.of(
-                                              context,
-                                            ).textTheme.bodySmall
-                                          : Theme.of(
-                                              context,
-                                            ).textTheme.bodyMedium)
-                                      ?.copyWith(
-                                        color: colorScheme.onSurfaceVariant,
-                                      ),
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(
+                                    color: colorScheme.onSurfaceVariant,
+                                  ),
                             ),
                           ],
                           if (footer != null) ...[
@@ -543,9 +445,7 @@ class SettingsItem extends StatelessWidget {
                     ] else if (onTap != null) ...[
                       const SizedBox(width: 8),
                       AppIcon(
-                        context.isMornye
-                            ? CupertinoIcons.forward
-                            : Icons.chevron_right,
+                        CupertinoIcons.forward,
                         size: context.tokens.rowChevronSize,
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -563,9 +463,7 @@ class SettingsItem extends StatelessWidget {
                 ? context.tokens.rowIconDividerIndent
                 : context.tokens.rowPaddingH,
             endIndent: context.tokens.rowPaddingH,
-            color: context.isMornye
-                ? colorScheme.outlineVariant
-                : colorScheme.outlineVariant.withValues(alpha: 0.3),
+            color: colorScheme.outlineVariant,
           ),
       ],
     );
@@ -599,7 +497,6 @@ class SettingsSwitchItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDisabled = !enabled || onChanged == null;
-    final showIcon = icon != null && !context.isMornye;
 
     final content = Column(
       mainAxisSize: MainAxisSize.min,
@@ -619,16 +516,6 @@ class SettingsSwitchItem extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    if (showIcon) ...[
-                      AppIcon(
-                        icon,
-                        color: isDisabled
-                            ? colorScheme.outline
-                            : colorScheme.onSurfaceVariant,
-                        size: 24,
-                      ),
-                      SizedBox(width: context.tokens.rowIconGap),
-                    ],
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -682,13 +569,9 @@ class SettingsSwitchItem extends StatelessWidget {
         if (showDivider && !settingsRowsConnected(context))
           Divider(
             height: 1,
-            indent: showIcon
-                ? context.tokens.rowIconDividerIndent
-                : context.tokens.rowPaddingH,
+            indent: context.tokens.rowPaddingH,
             endIndent: context.tokens.rowPaddingH,
-            color: context.isMornye
-                ? colorScheme.outlineVariant
-                : colorScheme.outlineVariant.withValues(alpha: 0.3),
+            color: colorScheme.outlineVariant,
           ),
       ],
     );
@@ -705,16 +588,10 @@ class SettingsSectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final label = Text(
       title,
-      style:
-          (context.isMornye
-                  ? Theme.of(context).textTheme.bodyLarge
-                  : Theme.of(context).textTheme.titleSmall)
-              ?.copyWith(
-                color: context.isMornye
-                    ? Theme.of(context).colorScheme.onSurfaceVariant
-                    : Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.w600,
-              ),
+      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+        fontWeight: FontWeight.w600,
+      ),
     );
     // Aligned with the row content of the groups below at any width.
     final content = LayoutBuilder(
@@ -772,16 +649,10 @@ class SettingsChoiceChip extends StatelessWidget {
     final colorScheme = theme.colorScheme;
     final borderRadius = BorderRadius.circular(tokens.radiusCover);
 
-    // One solid tier above a settings group in light, dark and AMOLED.
-    final unselectedColor = context.isMornye
-        ? Colors.transparent
-        : colorScheme.surfaceContainerHigh;
     final foreground = !enabled
         ? colorScheme.onSurface.withValues(alpha: 0.38)
-        : context.isMornye && isSelected
-        ? colorScheme.primary
         : isSelected
-        ? colorScheme.onPrimaryContainer
+        ? colorScheme.primary
         : colorScheme.onSurfaceVariant;
 
     final labelText = Text(
@@ -793,9 +664,7 @@ class SettingsChoiceChip extends StatelessWidget {
         fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
         // Like an iOS segment, the filled chip marks the choice; accent text
         // on Mornye's grey fill falls below readable contrast.
-        color: enabled && context.isMornye && isSelected
-            ? colorScheme.onSurface
-            : foreground,
+        color: enabled && isSelected ? colorScheme.onSurface : foreground,
       ),
     );
 
@@ -824,12 +693,10 @@ class SettingsChoiceChip extends StatelessWidget {
 
     final chip = Material(
       color: !isSelected
-          ? unselectedColor
+          ? Colors.transparent
           : !enabled
           ? colorScheme.onSurface.withValues(alpha: 0.12)
-          : context.isMornye
-          ? colorScheme.surfaceContainerHighest
-          : colorScheme.primaryContainer,
+          : colorScheme.surfaceContainerHighest,
       borderRadius: borderRadius,
       child: Semantics(
         button: true,
@@ -873,10 +740,8 @@ class SettingsSegmentOption<T> {
 
 /// Single-select row of two to four related options that fits on one line.
 ///
-/// Material 3 Expressive replaces the segmented button with a connected
-/// button group spanning the row; reduced motion keeps the static
-/// [SegmentedButton]. Mornye keeps its equal-width chips. Option sets that
-/// wrap belong in a [SettingsChoiceGrid] instead.
+/// Mornye's equal-width chips span the row. Option sets that wrap belong in a
+/// [SettingsChoiceGrid] instead.
 class SettingsSegmentedChoice<T> extends StatelessWidget {
   const SettingsSegmentedChoice({
     super.key,
@@ -897,54 +762,6 @@ class SettingsSegmentedChoice<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (materialExpressiveEnabled(context)) {
-      final index = options.indexWhere((option) => option.value == selected);
-      return MaterialExpressiveScope(
-        skipAutofocus: true,
-        child: M3EButtonGroup(
-          type: M3EButtonGroupType.connected,
-          style: M3EButtonStyle.filled,
-          // Connected segments get no inflated target; keep 48 dp.
-          size: M3EButtonSize.sm.copyWith(height: 48),
-          selectedIndex: index < 0 ? null : index,
-          selectionRequired: true,
-          onSelectedIndexChanged: (index) {
-            if (index != null) onChanged(options[index].value);
-          },
-          semanticLabel: semanticLabel,
-          actions: [
-            for (final option in options)
-              M3EButtonGroupAction(
-                enabled: enabled,
-                icon: option.icon == null
-                    ? null
-                    : AppIcon.adaptive(option.icon!, size: 18, fill: 0),
-                selectedIcon: option.icon == null
-                    ? null
-                    : AppIcon.adaptive(option.icon!, size: 18, fill: 1),
-                label: Text(option.label),
-              ),
-          ],
-        ),
-      );
-    }
-    if (!context.isMornye) {
-      return SegmentedButton<T>(
-        showSelectedIcon: false,
-        expandedInsets: EdgeInsets.zero,
-        segments: [
-          for (final option in options)
-            ButtonSegment(
-              value: option.value,
-              enabled: enabled,
-              label: Text(option.label),
-              icon: option.icon == null ? null : AppIcon(option.icon!),
-            ),
-        ],
-        selected: {selected},
-        onSelectionChanged: (value) => onChanged(value.first),
-      );
-    }
     return Row(
       children: [
         for (final (index, option) in options.indexed) ...[
@@ -1026,31 +843,22 @@ class SettingsInfoCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    // Material uses the solid container with its paired on-color, so the
-    // text keeps its contrast; Mornye keeps its softer fills.
-    final mornye = context.isMornye;
     final (background, foreground) = switch (tone) {
       SettingsInfoTone.neutral => (
-        mornye
-            ? colorScheme.surfaceContainerHighest.withValues(alpha: 0.5)
-            : colorScheme.surfaceContainerHigh,
+        colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         colorScheme.onSurfaceVariant,
       ),
       SettingsInfoTone.warning => (
-        mornye
-            ? colorScheme.tertiaryContainer.withValues(alpha: 0.5)
-            : colorScheme.tertiaryContainer,
+        colorScheme.tertiaryContainer.withValues(alpha: 0.5),
         colorScheme.onTertiaryContainer,
       ),
       SettingsInfoTone.error => (
-        mornye
-            ? colorScheme.errorContainer.withValues(alpha: 0.6)
-            : colorScheme.errorContainer,
+        colorScheme.errorContainer.withValues(alpha: 0.6),
         colorScheme.onErrorContainer,
       ),
     };
 
-    final useGlass = glass && mornye;
+    final useGlass = glass;
     final textColor = useGlass ? colorScheme.onSurface : foreground;
     final content = Padding(
       padding: EdgeInsets.all(tokens.gapLg),

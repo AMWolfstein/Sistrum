@@ -14,7 +14,6 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/library_directory_screen.dart';
 import 'package:sistrum/services/library_directory_index.dart';
 import 'package:sistrum/services/playable_media.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/desktop/hover_play_button.dart';
@@ -75,7 +74,6 @@ Future<_Playback> _pump(
   LibraryDirectoryIndex? index,
   UnifiedLibraryItem Function(String id) song = _item,
   Widget? home,
-  bool mornye = false,
   bool desktop = false,
 }) async {
   debugDesktopPlatformOverride = desktop;
@@ -105,7 +103,7 @@ Future<_Playback> _pump(
         playbackProvider.overrideWith(() => playback),
       ],
       child: MaterialApp(
-        theme: mornye ? MornyeTheme.build(Brightness.light) : AppTheme.light(),
+        theme: MornyeTheme.build(Brightness.light),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: home ?? const LibraryDirectoryScreen(),
@@ -220,7 +218,7 @@ void main() {
   });
 
   testWidgets('Mornye lists folders and songs as flat rows', (tester) async {
-    await _pump(tester, mornye: true);
+    await _pump(tester);
 
     final rows = tester.widgetList<TrackCard>(find.byType(TrackCard));
     expect(rows, isNotEmpty);

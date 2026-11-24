@@ -2,25 +2,15 @@ import 'package:audio_service/audio_service.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_3_expressive/material_3_expressive.dart' show M3ETheme;
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/theme/app_motion.dart';
-import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/material_expressive.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/playback_seek_preview.dart';
-import 'package:sistrum/utils/string_utils.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
-import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/audio_info_sheet.dart';
 import 'package:sistrum/widgets/automix_status_badge.dart';
-import 'package:sistrum/widgets/expressive_button_group.dart';
-import 'package:sistrum/widgets/expressive_icon_button.dart';
-import 'package:sistrum/widgets/expressive_playback_transport.dart';
 import 'package:sistrum/widgets/mornye_playback_button.dart';
 import 'package:sistrum/widgets/mornye_playback_time.dart';
 import 'package:sistrum/widgets/mornye_player_slider.dart';
@@ -43,8 +33,8 @@ class PlayerPlaybackControls extends ConsumerWidget {
   /// side insets, lining up with the artwork above.
   final bool edgeAligned;
 
-  /// Material puts shuffle and repeat beside the transport unless the layout
-  /// shows them elsewhere, as the phone player's [PlayerPlaybackModeToolbar].
+  /// Shuffle and repeat show beside the transport unless the layout shows
+  /// them elsewhere, as the phone player's queue does.
   final bool showPlaybackModes;
 
   const PlayerPlaybackControls({
@@ -63,15 +53,13 @@ class PlayerPlaybackControls extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final controller = ref.read(musicPlayerControllerProvider);
-    final mornye = context.isMornye;
     final isPlaying = ref.watch(playbackPlayingProvider);
     final isLoading = ref.watch(playbackLoadingProvider);
     // Mornye's desktop player keeps a compact transport, with shuffle
     // and repeat at the timeline's ends; its phone player has them in the queue.
-    final desktopMornye = mornye && edgeAligned;
-    final showModes = showPlaybackModes && (!mornye || edgeAligned);
-    final skipSize = desktopMornye ? 30.0 : 40.0;
-    final playPauseSize = desktopMornye
+    final showModes = showPlaybackModes && edgeAligned;
+    final skipSize = edgeAligned ? 30.0 : 40.0;
+    final playPauseSize = edgeAligned
         ? (isPlaying ? 34.0 : 32.0)
         : compact
         ? (isPlaying ? 44.0 : 40.0)
@@ -96,28 +84,17 @@ class PlayerPlaybackControls extends ConsumerWidget {
                   final playback = ref.watch(playbackStateProvider).value;
                   return Padding(
                     padding: EdgeInsets.symmetric(
-                      horizontal: edgeAligned
-                          ? 0
-                          : mornye
-                          ? _mornyeTimelinePadding
-                          : 16,
+                      horizontal: edgeAligned ? 0 : _mornyeTimelinePadding,
                     ),
                     child: Column(
                       children: [
                         SliderTheme(
                           data: SliderThemeData(
                             trackHeight: 4,
-                            activeTrackColor: mornye
-                                ? colorScheme.onSurface
-                                : colorScheme.primary,
-                            // Material matches the volume slider's M3 inactive
-                            // track below it.
-                            inactiveTrackColor: mornye
-                                ? colorScheme.onSurface.withValues(alpha: 0.18)
-                                : colorScheme.secondaryContainer,
-                            thumbColor: mornye
-                                ? colorScheme.onSurface
-                                : colorScheme.primary,
+                            activeTrackColor: colorScheme.onSurface,
+                            inactiveTrackColor: colorScheme.onSurface
+                                .withValues(alpha: 0.18),
+                            thumbColor: colorScheme.onSurface,
                             // A 7dp thumb was hard to grab; 10dp with a 24dp overlay
                             // gives the drag gesture a full-size target.
                             thumbShape: const RoundSliderThumbShape(
@@ -137,14 +114,11 @@ class PlayerPlaybackControls extends ConsumerWidget {
                             edgeAligned: edgeAligned,
                           ),
                         ),
-                        if (!mornye) const SizedBox(height: 8),
                         Padding(
                           padding: EdgeInsets.symmetric(
                             horizontal: edgeAligned
                                 ? 0
-                                : mornye
-                                ? MornyePlayerSlider.horizontalInset
-                                : 12,
+                                : MornyePlayerSlider.horizontalInset,
                           ),
                           child: PlaybackTimeBuilder(
                             key: ValueKey(mediaId),
@@ -154,34 +128,21 @@ class PlayerPlaybackControls extends ConsumerWidget {
                             preview: preview,
                             builder: (context, elapsedSeconds) => Row(
                               children: [
-                                if (mornye)
-                                  MornyePlaybackTime(
-                                    key: ValueKey('elapsed:$mediaId'),
-                                    seconds: elapsedSeconds,
-                                    style: timeStyle,
-                                  )
-                                else
-                                  Text(
-                                    formatClock(elapsedSeconds),
-                                    style: timeStyle,
-                                  ),
+                                MornyePlaybackTime(
+                                  key: ValueKey('elapsed:$mediaId'),
+                                  seconds: elapsedSeconds,
+                                  style: timeStyle,
+                                ),
                                 Expanded(child: Center(child: quality)),
-                                if (mornye)
-                                  MornyePlaybackTime(
-                                    key: ValueKey('remaining:$mediaId'),
-                                    // Subtract whole seconds so both labels roll together,
-                                    // even when the track duration includes milliseconds.
-                                    seconds:
-                                        (duration.inSeconds - elapsedSeconds)
-                                            .clamp(0, duration.inSeconds),
-                                    remaining: true,
-                                    style: timeStyle,
-                                  )
-                                else
-                                  Text(
-                                    formatClock(duration.inSeconds),
-                                    style: timeStyle,
-                                  ),
+                                MornyePlaybackTime(
+                                  key: ValueKey('remaining:$mediaId'),
+                                  // Subtract whole seconds so both labels roll together,
+                                  // even when the track duration includes milliseconds.
+                                  seconds: (duration.inSeconds - elapsedSeconds)
+                                      .clamp(0, duration.inSeconds),
+                                  remaining: true,
+                                  style: timeStyle,
+                                ),
                               ],
                             ),
                           ),
@@ -211,134 +172,60 @@ class PlayerPlaybackControls extends ConsumerWidget {
               ),
             ),
           ),
-          SizedBox(
-            height: compact ? 8 : transportTopPadding + (mornye ? 0 : 8),
-          ),
-          if (!mornye && materialExpressiveEnabled(context))
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: edgeAligned ? 0 : 16),
-              child: ExpressivePlaybackTransport(
-                colorScheme: colorScheme,
-                playing: isPlaying,
-                loading: isLoading,
-                compact: compact,
-                // Shuffle and repeat line up with the timeline's ends. Without
-                // them, the full-size transport spans the timeline alone.
-                fill: edgeAligned || (!showPlaybackModes && !compact),
-                playTooltip: isPlaying
-                    ? context.l10n.actionPause
-                    : context.l10n.tooltipPlay,
-                previousTooltip: context.l10n.nowPlayingPreviousTrack,
-                nextTooltip: context.l10n.nowPlayingNextTrack,
-                onPlayPause: () => controller.togglePlayPause(isPlaying),
-                onPrevious: controller.previous,
-                onNext: controller.next,
-                leading: showPlaybackModes
-                    ? PlayerPlaybackModeButton(
-                        mode: PlayerPlaybackMode.shuffle,
-                        colorScheme: colorScheme,
-                      )
-                    : null,
-                trailing: showPlaybackModes
-                    ? PlayerPlaybackModeButton(
-                        mode: PlayerPlaybackMode.repeat,
-                        colorScheme: colorScheme,
-                      )
-                    : null,
-              ),
-            )
-          else
-            Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: mornye && !edgeAligned ? (compact ? 16 : 32) : 0,
-              ),
-              child: Row(
-                // Edge to edge, the shuffle and repeat buttons line up with
-                // the timeline's ends.
-                mainAxisAlignment: edgeAligned
-                    ? MainAxisAlignment.spaceBetween
-                    : MainAxisAlignment.spaceEvenly,
-                children: [
-                  if (showModes)
-                    PlayerPlaybackModeButton(
-                      mode: PlayerPlaybackMode.shuffle,
-                      colorScheme: colorScheme,
-                    ),
-                  if (mornye)
-                    MornyePlaybackButton(
-                      icon: CupertinoIcons.backward_fill,
-                      color: colorScheme.onSurface,
-                      iconSize: skipSize,
-                      tooltip: context.l10n.nowPlayingPreviousTrack,
-                      onPressed: controller.previous,
-                    )
-                  else
-                    ExpressiveIconButton(
-                      iconSize: 44,
-                      foregroundColor: colorScheme.onSurface,
-                      tooltip: context.l10n.nowPlayingPreviousTrack,
-                      icon: const Icon(Icons.skip_previous),
-                      onPressed: controller.previous,
-                    ),
-                  if (mornye)
-                    MornyePlaybackButton(
-                      icon: isPlaying
-                          ? CupertinoIcons.pause_fill
-                          : CupertinoIcons.play_fill,
-                      tooltip: isPlaying
-                          ? context.l10n.actionPause
-                          : context.l10n.tooltipPlay,
-                      color: colorScheme.onSurface,
-                      iconSize: playPauseSize,
-                      // A smaller play glyph keeps the same 68dp touch target and
-                      // does not move the timeline, artwork or adjacent buttons.
-                      padding: EdgeInsets.all((68 - playPauseSize) / 2),
-                      loading: isLoading,
-                      onPressed: () => controller.togglePlayPause(isPlaying),
-                    )
-                  else
-                    ExpressiveIconButton(
-                      size: 68,
-                      iconSize: 44,
-                      selected: isPlaying,
-                      backgroundColor: colorScheme.primary,
-                      foregroundColor: colorScheme.onPrimary,
-                      tooltip: isPlaying
-                          ? context.l10n.actionPause
-                          : context.l10n.tooltipPlay,
-                      icon: isLoading
-                          ? AppLoadingIndicator(
-                              color: colorScheme.onSurfaceVariant,
-                            )
-                          : Icon(isPlaying ? Icons.pause : Icons.play_arrow),
-                      onPressed: isLoading
-                          ? null
-                          : () => controller.togglePlayPause(isPlaying),
-                    ),
-                  if (mornye)
-                    MornyePlaybackButton(
-                      icon: CupertinoIcons.forward_fill,
-                      color: colorScheme.onSurface,
-                      iconSize: skipSize,
-                      tooltip: context.l10n.nowPlayingNextTrack,
-                      onPressed: controller.next,
-                    )
-                  else
-                    ExpressiveIconButton(
-                      iconSize: 44,
-                      foregroundColor: colorScheme.onSurface,
-                      tooltip: context.l10n.nowPlayingNextTrack,
-                      icon: const Icon(Icons.skip_next),
-                      onPressed: controller.next,
-                    ),
-                  if (showModes)
-                    PlayerPlaybackModeButton(
-                      mode: PlayerPlaybackMode.repeat,
-                      colorScheme: colorScheme,
-                    ),
-                ],
-              ),
+          SizedBox(height: compact ? 8 : transportTopPadding),
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: !edgeAligned ? (compact ? 16 : 32) : 0,
             ),
+            child: Row(
+              // Edge to edge, the shuffle and repeat buttons line up with
+              // the timeline's ends.
+              mainAxisAlignment: edgeAligned
+                  ? MainAxisAlignment.spaceBetween
+                  : MainAxisAlignment.spaceEvenly,
+              children: [
+                if (showModes)
+                  PlayerPlaybackModeButton(
+                    mode: PlayerPlaybackMode.shuffle,
+                    colorScheme: colorScheme,
+                  ),
+                MornyePlaybackButton(
+                  icon: CupertinoIcons.backward_fill,
+                  color: colorScheme.onSurface,
+                  iconSize: skipSize,
+                  tooltip: context.l10n.nowPlayingPreviousTrack,
+                  onPressed: controller.previous,
+                ),
+                MornyePlaybackButton(
+                  icon: isPlaying
+                      ? CupertinoIcons.pause_fill
+                      : CupertinoIcons.play_fill,
+                  tooltip: isPlaying
+                      ? context.l10n.actionPause
+                      : context.l10n.tooltipPlay,
+                  color: colorScheme.onSurface,
+                  iconSize: playPauseSize,
+                  // A smaller play glyph keeps the same 68dp touch target and
+                  // does not move the timeline, artwork or adjacent buttons.
+                  padding: EdgeInsets.all((68 - playPauseSize) / 2),
+                  loading: isLoading,
+                  onPressed: () => controller.togglePlayPause(isPlaying),
+                ),
+                MornyePlaybackButton(
+                  icon: CupertinoIcons.forward_fill,
+                  color: colorScheme.onSurface,
+                  iconSize: skipSize,
+                  tooltip: context.l10n.nowPlayingNextTrack,
+                  onPressed: controller.next,
+                ),
+                if (showModes)
+                  PlayerPlaybackModeButton(
+                    mode: PlayerPlaybackMode.repeat,
+                    colorScheme: colorScheme,
+                  ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -428,185 +315,22 @@ class PlayerPlaybackModeButton extends ConsumerWidget {
       ref,
       mode,
     );
-    if (context.isMornye) {
-      // Plain over the player's backdrop; a fill marks the active mode, as
-      // on the capsule.
-      return Semantics(
-        toggled: selected,
-        child: AppIconButton(
-          tooltip: tooltip,
-          iconSize: 20,
-          isSelected: selected,
-          color: colorScheme.onSurface,
-          style: selected
-              ? IconButton.styleFrom(
-                  backgroundColor: colorScheme.onSurface.withValues(
-                    alpha: 0.18,
-                  ),
-                )
-              : null,
-          icon: AppIcon(icon),
-          onPressed: onPressed,
-        ),
-      );
-    }
-    return ExpressiveIconButton(
-      iconSize: 24,
-      selected: selected,
-      tooltip: tooltip,
-      icon: Icon(icon),
-      // Each fill takes its own content role: primary on primaryContainer
-      // turns white on light gray with a neutral cover scheme.
-      foregroundColor: selected
-          ? (secondary
-                ? colorScheme.onSecondaryContainer
-                : colorScheme.onPrimaryContainer)
-          : colorScheme.onSurfaceVariant,
-      backgroundColor: selected
-          ? (secondary
-                ? colorScheme.secondaryContainer
-                : colorScheme.primaryContainer)
-          : null,
-      onPressed: onPressed,
-    );
-  }
-}
-
-/// Shuffle and repeat as one connected button group in the Material phone
-/// player's footer: round outer ends, small inner corners and a hairline
-/// gap, like the Library toolbar. A selected segment fills its own shape
-/// instead of morphing, and a pressed one widens while the other yields.
-class PlayerPlaybackModeToolbar extends StatefulWidget {
-  const PlayerPlaybackModeToolbar({super.key, required this.colorScheme});
-
-  /// Width of each segment at rest; the footer's lone buttons match it.
-  static const segmentWidth = 56.0;
-
-  final ColorScheme colorScheme;
-
-  @override
-  State<PlayerPlaybackModeToolbar> createState() =>
-      _PlayerPlaybackModeToolbarState();
-}
-
-class _PlayerPlaybackModeToolbarState extends State<PlayerPlaybackModeToolbar>
-    with ExpressivePressSquish {
-  static const _segmentWidth = PlayerPlaybackModeToolbar.segmentWidth;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final height = tokens.minTouchTarget;
-    final outer = Radius.circular(height / 2);
-    final inner = Radius.circular(tokens.radiusThumb);
-    final expressive = materialExpressiveEnabled(context);
-    Widget slot(int index, PlayerPlaybackMode mode, BorderRadiusGeometry ends) {
-      final pressed = pressedIndex;
-      final width = !expressive || pressed == null
-          ? _segmentWidth
-          : _segmentWidth *
-                (pressed == index ? 1 + squishRatio : 1 - squishRatio);
-      return pressSlot(
-        index,
-        TweenAnimationBuilder<double>(
-          tween: Tween(end: width),
-          duration: pressSpring.duration,
-          curve: pressSpring,
-          builder: (context, width, segment) =>
-              SizedBox(width: width, height: height, child: segment),
-          child: _PlaybackModeSegment(
-            mode: mode,
-            colorScheme: widget.colorScheme,
-            borderRadius: ends,
-          ),
-        ),
-      );
-    }
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        slot(
-          0,
-          PlayerPlaybackMode.shuffle,
-          BorderRadiusDirectional.horizontal(start: outer, end: inner),
-        ),
-        SizedBox(width: M3ETheme.of(context).buttonGroupTheme.connectedGap),
-        slot(
-          1,
-          PlayerPlaybackMode.repeat,
-          BorderRadiusDirectional.horizontal(start: inner, end: outer),
-        ),
-      ],
-    );
-  }
-}
-
-class _PlaybackModeSegment extends ConsumerWidget {
-  const _PlaybackModeSegment({
-    required this.mode,
-    required this.colorScheme,
-    required this.borderRadius,
-  });
-
-  final PlayerPlaybackMode mode;
-  final ColorScheme colorScheme;
-  final BorderRadiusGeometry borderRadius;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final (:selected, :icon, :tooltip, :onPressed) = _watchPlaybackMode(
-      context,
-      ref,
-      mode,
-    );
-    final shape = RoundedRectangleBorder(borderRadius: borderRadius);
-    final motion = AppMotion.effectsFast(
-      context,
-      AppMotionSpec(
-        MediaQuery.disableAnimationsOf(context)
-            ? Duration.zero
-            : const Duration(milliseconds: 150),
-        Curves.easeOut,
-      ),
-    );
+    // Plain over the player's backdrop; a fill marks the active mode, as
+    // on the capsule.
     return Semantics(
-      button: true,
-      selected: selected,
-      label: tooltip,
-      excludeSemantics: true,
-      child: Tooltip(
-        message: tooltip,
-        excludeFromSemantics: true,
-        child: TweenAnimationBuilder<double>(
-          tween: Tween(end: selected ? 1 : 0),
-          duration: motion.duration,
-          curve: motion.curve,
-          builder: (context, fill, _) => Material(
-            color: Color.lerp(
-              colorScheme.surfaceContainerHigh,
-              colorScheme.primaryContainer,
-              fill,
-            ),
-            shape: shape,
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              customBorder: shape,
-              onTap: onPressed,
-              child: Center(
-                child: AppIcon(
-                  icon,
-                  size: 24,
-                  color: Color.lerp(
-                    colorScheme.onSurfaceVariant,
-                    colorScheme.onPrimaryContainer,
-                    fill,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
+      toggled: selected,
+      child: AppIconButton(
+        tooltip: tooltip,
+        iconSize: 20,
+        isSelected: selected,
+        color: colorScheme.onSurface,
+        style: selected
+            ? IconButton.styleFrom(
+                backgroundColor: colorScheme.onSurface.withValues(alpha: 0.18),
+              )
+            : null,
+        icon: AppIcon(icon),
+        onPressed: onPressed,
       ),
     );
   }
@@ -627,35 +351,25 @@ class _QualityBadge extends StatelessWidget {
   Widget _buildBadge(BuildContext context) {
     final text = metadata.qualityLabel;
     if (text == null || text.isEmpty) return const SizedBox.shrink();
-    final mornye = context.isMornye;
     final radius = BorderRadius.circular(20);
     final badge = Container(
-      padding: EdgeInsets.symmetric(
-        horizontal: mornye ? 8 : 10,
-        vertical: mornye ? 2 : 5,
-      ),
-      decoration: mornye
-          ? null
-          : BoxDecoration(
-              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-              borderRadius: radius,
-            ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           AppIcon(
             Icons.graphic_eq,
-            size: mornye ? 11 : 14,
+            size: 11,
             color: colorScheme.onSurfaceVariant,
           ),
-          SizedBox(width: mornye ? 5 : 6),
+          const SizedBox(width: 5),
           Flexible(
             child: Text(
               text,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                fontSize: mornye ? 10.5 : 12,
+                fontSize: 10.5,
                 color: colorScheme.onSurfaceVariant,
                 letterSpacing: 0.2,
               ),

@@ -3,57 +3,30 @@ import 'package:material_ui/material_ui.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/material_expressive.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/utils/desktop_platform.dart';
-import 'package:sistrum/widgets/app_bottom_sheet.dart';
-import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 
-/// Dialog presentation follows the selected design, including on Android.
+/// Presents a dialog as Mornye glass.
 Future<T?> showAppDialog<T>({
   required BuildContext context,
   required WidgetBuilder builder,
   bool barrierDismissible = true,
   bool useRootNavigator = true,
 }) {
-  if (context.isMornye) {
-    final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
-    final themes = InheritedTheme.capture(from: context, to: navigator.context);
-    return navigator.push<T>(
-      _MornyeDialogRoute<T>(
-        context: context,
-        builder: (context) => themes.wrap(Builder(builder: builder)),
-        barrierDismissible: barrierDismissible,
-      ),
-    );
-  }
-  if (materialExpressiveEnabled(context)) {
-    final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
-    final themes = InheritedTheme.capture(from: context, to: navigator.context);
-    return navigator.push<T>(
-      _MaterialDialogRoute<T>(
-        context: context,
-        builder: (context) =>
-            themes.wrap(SafeArea(child: Builder(builder: builder))),
-        barrierDismissible: barrierDismissible,
-      ),
-    );
-  }
-  return showDialog<T>(
-    context: context,
-    builder: builder,
-    barrierDismissible: barrierDismissible,
-    useRootNavigator: useRootNavigator,
+  final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
+  final themes = InheritedTheme.capture(from: context, to: navigator.context);
+  return navigator.push<T>(
+    _MornyeDialogRoute<T>(
+      context: context,
+      builder: (context) => themes.wrap(Builder(builder: builder)),
+      barrierDismissible: barrierDismissible,
+    ),
   );
 }
 
 /// Asks a yes/no question: the cancel action pops false, the confirm action
 /// pops true, and dismissing the dialog counts as cancel. [content] replaces
 /// the plain [message] text; the flags map onto the two [AppDialogAction]s.
-/// [errorConfirm] paints the confirm action in the dialog theme's error
-/// color: the fill when [filled], the label otherwise.
 Future<bool> showAppConfirmDialog(
   BuildContext context, {
   required String title,
@@ -65,12 +38,9 @@ Future<bool> showAppConfirmDialog(
   bool filled = true,
   bool cancelIsDefault = false,
   bool confirmIsDefault = false,
-  ButtonStyle? confirmStyle,
-  bool errorConfirm = false,
   bool barrierDismissible = true,
 }) async {
   assert(message == null || content == null, 'Pass message or content.');
-  assert(!errorConfirm || confirmStyle == null, 'Pass one confirm style.');
   final result = await showAppDialog<bool>(
     context: context,
     barrierDismissible: barrierDismissible,
@@ -87,15 +57,6 @@ Future<bool> showAppConfirmDialog(
           filled: filled,
           isDefault: confirmIsDefault,
           isDestructive: destructive,
-          style: !errorConfirm
-              ? confirmStyle
-              : filled
-              ? FilledButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                )
-              : TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.error,
-                ),
           onPressed: () => Navigator.pop(context, true),
           child: Text(confirmLabel),
         ),
@@ -111,22 +72,19 @@ class AppDialogSurface extends StatelessWidget {
     super.key,
     required this.child,
     this.maxWidth = 480,
-    this.backgroundColor,
     this.shape,
   });
 
   final Widget child;
   final double maxWidth;
-  final Color? backgroundColor;
   final ShapeBorder? shape;
 
   @override
   Widget build(BuildContext context) {
-    final mornye = context.isMornye;
     return Dialog(
-      backgroundColor: mornye ? Colors.transparent : backgroundColor,
-      surfaceTintColor: mornye ? Colors.transparent : null,
-      elevation: mornye ? 0 : null,
+      backgroundColor: Colors.transparent,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
       shape: shape,
       insetPadding: EdgeInsets.symmetric(
         horizontal: context.tokens.dialogInsetH,
@@ -134,75 +92,12 @@ class AppDialogSurface extends StatelessWidget {
       ),
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth),
-        child: mornye
-            ? MornyeGlassPanel.overlay(
-                child: SingleChildScrollView(child: child),
-              )
-            : child,
+        child: MornyeGlassPanel.overlay(
+          child: SingleChildScrollView(child: child),
+        ),
       ),
     );
   }
-}
-
-/// The expressive Material dialog: it scales in on a spatial spring while an
-/// effects spring fades it, keeping opacity within range. The exit is a
-/// short accelerating fade with no scale, rather than the spring played
-/// backwards at entrance length. A dismissal during the entrance plays the
-/// entrance back instead of jumping to the exit's start.
-class _MaterialDialogRoute<T> extends RawDialogRoute<T> {
-  _MaterialDialogRoute({
-    required BuildContext context,
-    required WidgetBuilder builder,
-    required super.barrierDismissible,
-  }) : _scale = AppMotion.spatial(context, _fallback),
-       _fade = AppMotion.effectsFast(context, _fallback),
-       super(
-         pageBuilder: (context, animation, secondaryAnimation) =>
-             builder(context),
-         barrierColor: DialogTheme.of(context).barrierColor ?? Colors.black54,
-         barrierLabel: MaterialLocalizations.of(
-           context,
-         ).modalBarrierDismissLabel,
-         transitionDuration: AppMotion.spatial(context, _fallback).duration,
-       );
-
-  static const _fallback = AppMotionSpec(Duration.zero, Curves.linear);
-
-  final AppMotionSpec _scale;
-  final AppMotionSpec _fade;
-
-  static final Animatable<double> _exitFade = Tween<double>(
-    begin: 1,
-    end: 0,
-  ).chain(CurveTween(curve: Curves.easeIn));
-
-  @override
-  Duration get reverseTransitionDuration => const Duration(milliseconds: 150);
-
-  @override
-  Widget buildTransitions(
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    Widget child,
-  ) => DualTransitionBuilder(
-    animation: animation,
-    forwardBuilder: (context, animation, child) => FadeTransition(
-      opacity: animation.drive(CurveTween(curve: _fade.curve)),
-      child: ScaleTransition(
-        scale: animation.drive(
-          Tween<double>(
-            begin: 0.85,
-            end: 1,
-          ).chain(CurveTween(curve: _scale.curve)),
-        ),
-        child: child,
-      ),
-    ),
-    reverseBuilder: (context, animation, child) =>
-        FadeTransition(opacity: _exitFade.animate(animation), child: child),
-    child: child,
-  );
 }
 
 class _MornyeDialogRoute<T> extends RawDialogRoute<T> {
@@ -270,37 +165,15 @@ class AppAlertDialog extends StatelessWidget {
     this.title,
     this.content,
     this.actions = const [],
-    this.backgroundColor,
-    this.shape,
   });
 
   final Widget? icon;
   final Widget? title;
   final Widget? content;
   final List<Widget> actions;
-  final Color? backgroundColor;
-  final ShapeBorder? shape;
 
   @override
   Widget build(BuildContext context) {
-    if (!context.isMornye) {
-      return AlertDialog(
-        // M3 basic dialogs are 280 to 560dp wide; without a cap, a long
-        // message stretches the dialog across a wide window. Desktop starts
-        // at the compact class, so a short question or a single field is
-        // not squeezed to the minimum.
-        constraints: BoxConstraints(
-          minWidth: isDesktopPlatform ? AppDialogSize.compact.width : 280,
-          maxWidth: appSheetDialogMaxWidth,
-        ),
-        backgroundColor: backgroundColor,
-        shape: shape,
-        icon: icon == null ? null : symbolIconWidget(icon!),
-        title: title,
-        content: content,
-        actions: actions,
-      );
-    }
     final theme = Theme.of(context);
     final primaryActions = actions.where(
       (action) =>
@@ -385,8 +258,6 @@ class AppDialogAction extends StatelessWidget {
     this.isDestructive = false,
     this.isDefault = false,
     this.filled = false,
-    this.outlined = false,
-    this.style,
   });
 
   final VoidCallback? onPressed;
@@ -394,47 +265,36 @@ class AppDialogAction extends StatelessWidget {
   final bool isDestructive;
   final bool isDefault;
   final bool filled;
-  final bool outlined;
-  final ButtonStyle? style;
 
   @override
   Widget build(BuildContext context) {
-    if (context.isMornye) {
-      final theme = Theme.of(context);
-      final scheme = theme.colorScheme;
-      final color = onPressed == null
-          ? scheme.onSurfaceVariant
-          : isDestructive
-          ? scheme.primary
-          : scheme.onSurface;
-      return CupertinoButton(
-        onPressed: onPressed,
-        color: MornyeTheme.controlFill(context),
-        disabledColor: MornyeTheme.controlFill(context, enabled: false),
-        borderRadius: BorderRadius.circular(28),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        child: DefaultTextStyle(
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodyLarge!.copyWith(
-            color: color,
-            fontSize: 17,
-            fontWeight: isDestructive || isDefault || filled
-                ? FontWeight.w600
-                : FontWeight.w500,
-          ),
-          child: IconTheme(
-            data: IconThemeData(color: color, size: 20),
-            child: child,
-          ),
-        ),
-      );
-    }
-    return ExpressiveButton(
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final color = onPressed == null
+        ? scheme.onSurfaceVariant
+        : isDestructive
+        ? scheme.primary
+        : scheme.onSurface;
+    return CupertinoButton(
       onPressed: onPressed,
-      style: style,
-      outlined: !filled && outlined,
-      text: !filled && !outlined,
-      child: child,
+      color: MornyeTheme.controlFill(context),
+      disabledColor: MornyeTheme.controlFill(context, enabled: false),
+      borderRadius: BorderRadius.circular(28),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: DefaultTextStyle(
+        textAlign: TextAlign.center,
+        style: theme.textTheme.bodyLarge!.copyWith(
+          color: color,
+          fontSize: 17,
+          fontWeight: isDestructive || isDefault || filled
+              ? FontWeight.w600
+              : FontWeight.w500,
+        ),
+        child: IconTheme(
+          data: IconThemeData(color: color, size: 20),
+          child: child,
+        ),
+      ),
     );
   }
 }

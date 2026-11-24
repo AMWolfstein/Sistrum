@@ -1,9 +1,9 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/widgets/library_playlist_drag_source.dart';
 import 'package:sistrum/widgets/track_card.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 
 void main() {
   for (final grid in [false, true]) {
@@ -20,7 +20,7 @@ void main() {
       var dragging = false;
       await tester.pumpWidget(
         MaterialApp(
-          theme: AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(

@@ -482,7 +482,6 @@ void main() {
     );
     configurePlaybackNotification(
       presentation: const PlaybackNotification(
-        mornye: true,
         mediaId: 'one',
         source: '/one.flac',
         loved: true,
@@ -517,23 +516,26 @@ void main() {
       ),
       toggleFavorite: (_) async => false,
     );
-    final material = handler.playbackState.value;
+    final reconfigured = handler.playbackState.value;
     expect(
-      material.controls.first.customAction?.name,
+      reconfigured.controls.first.customAction?.name,
       PlaybackNotification.favoriteAction,
     );
-    expect(material.controls.first.androidIcon, contains('star_filled'));
-    expect(material.controls.sublist(1, 4), [
-      MediaControl.skipToPrevious,
-      MediaControl.play,
-      MediaControl.skipToNext,
+    expect(reconfigured.controls.first.androidIcon, contains('star_filled'));
+    expect(reconfigured.controls.sublist(1, 4).map((c) => c.action), [
+      MediaAction.skipToPrevious,
+      MediaAction.play,
+      MediaAction.skipToNext,
     ]);
+    expect(reconfigured.controls[1].androidIcon, 'drawable/ic_widget_previous');
+    expect(reconfigured.controls[2].androidIcon, 'drawable/ic_widget_play');
+    expect(reconfigured.controls[3].androidIcon, 'drawable/ic_widget_next');
     expect(
-      material.controls.last.customAction?.name,
+      reconfigured.controls.last.customAction?.name,
       PlaybackNotification.shuffleAction,
     );
-    expect(material.androidCompactActionIndices, [1, 2, 3]);
-    expect(material.updatePosition, state.updatePosition);
+    expect(reconfigured.androidCompactActionIndices, [1, 2, 3]);
+    expect(reconfigured.updatePosition, state.updatePosition);
     handler.playbackState.add(
       PlaybackState(
         playing: true,
@@ -543,7 +545,7 @@ void main() {
       ),
     );
     configurePlaybackNotification(
-      presentation: const PlaybackNotification(mornye: true),
+      presentation: const PlaybackNotification(),
       toggleFavorite: (_) async => false,
     );
     expect(
@@ -554,7 +556,7 @@ void main() {
   });
 
   test(
-    'Material notification shuffle toggles queue order without restarting audio',
+    'notification shuffle toggles queue order without restarting audio',
     () async {
       configurePlaybackNotification(
         presentation: const PlaybackNotification(),
@@ -894,7 +896,7 @@ void main() {
       final save = Completer<void>();
       final selected = <String>[];
       configurePlaybackNotification(
-        presentation: const PlaybackNotification(mornye: true),
+        presentation: const PlaybackNotification(),
         toggleFavorite: (item) async {
           selected.add(item.id);
           await save.future;
@@ -923,7 +925,7 @@ void main() {
     },
   );
 
-  test('Material favorites refresh without a UI rebuild', () async {
+  test('favorites refresh without a UI rebuild', () async {
     var loved = false;
     configurePlaybackNotification(
       presentation: const PlaybackNotification(
@@ -963,7 +965,7 @@ void main() {
 
   test('failed favorite save leaves the notification icon unchanged', () async {
     configurePlaybackNotification(
-      presentation: const PlaybackNotification(mornye: true),
+      presentation: const PlaybackNotification(),
       toggleFavorite: (_) async => throw StateError('Save failed'),
     );
     handler.mediaItem.add(_tracks.first.toMediaItem());
@@ -1982,5 +1984,4 @@ void main() {
     await _until(() => native.calls.any((c) => c.$2 == 'setPlaybackRate'));
     expect(analyzer.calls, ['/one.flac', '/two.flac']);
   });
-
 }

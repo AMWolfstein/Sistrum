@@ -3,13 +3,9 @@ import 'package:material_ui/material_ui.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/services/hires_check_service.dart';
 import 'package:sistrum/services/audio_analysis_jobs.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
 import 'package:sistrum/widgets/app_content_card.dart';
 import 'package:sistrum/widgets/settings_group.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
-import 'package:sistrum/widgets/app_loading_indicator.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/hires_report_content.dart';
 import 'package:sistrum/widgets/hires_report_view.dart';
 import 'package:share_plus/share_plus.dart';
@@ -114,7 +110,6 @@ class _HiResCheckCardState extends State<HiResCheckCard> {
     final l10n = context.l10n;
     final result = _result;
     final report = result?.report;
-    final mornye = context.isMornye;
     final onShare = result != null && result.supported && report != null
         ? () => _share(result, report)
         : null;
@@ -127,7 +122,7 @@ class _HiResCheckCardState extends State<HiResCheckCard> {
         side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.5)),
       ),
       child: Padding(
-        padding: EdgeInsets.all(mornye ? 20 : 16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -147,11 +142,9 @@ class _HiResCheckCardState extends State<HiResCheckCard> {
                   SizedBox(
                     width: 20,
                     height: 20,
-                    child: mornye
-                        ? const CupertinoActivityIndicator()
-                        : const AppLoadingIndicator(size: 20, strokeWidth: 2.5),
+                    child: const CupertinoActivityIndicator(),
                   )
-                else if (mornye && (result != null || _error != null)) ...[
+                else if (result != null || _error != null) ...[
                   if (onShare != null)
                     Tooltip(
                       message: l10n.hiResReportShare,
@@ -179,32 +172,6 @@ class _HiResCheckCardState extends State<HiResCheckCard> {
                       ),
                     ),
                   ),
-                ] else if (result != null || _error != null) ...[
-                  if (onShare != null)
-                    AppIconButton(
-                      icon: const Icon(Icons.share_outlined, size: 20),
-                      tooltip: l10n.hiResReportShare,
-                      visualDensity: VisualDensity.compact,
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(
-                        minWidth: 48,
-                        minHeight: 48,
-                      ),
-                      color: cs.onSurfaceVariant,
-                      onPressed: onShare,
-                    ),
-                  AppIconButton(
-                    icon: const Icon(Icons.refresh, size: 20),
-                    tooltip: l10n.audioAnalysisRescan,
-                    visualDensity: VisualDensity.compact,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 48,
-                      minHeight: 48,
-                    ),
-                    color: cs.onSurfaceVariant,
-                    onPressed: _check,
-                  ),
                 ],
               ],
             ),
@@ -221,20 +188,13 @@ class _HiResCheckCardState extends State<HiResCheckCard> {
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
-                child: mornye
-                    ? AppActionButton(
-                        outlined: true,
-                        tonal: true,
-                        onPressed: _check,
-                        icon: const Icon(Icons.search),
-                        label: Text(l10n.hiResCheckRun),
-                      )
-                    : ExpressiveButton(
-                        tonal: true,
-                        onPressed: _check,
-                        icon: const Icon(Icons.search, size: 20),
-                        child: Text(l10n.hiResCheckRun),
-                      ),
+                child: AppActionButton(
+                  outlined: true,
+                  tonal: true,
+                  onPressed: _check,
+                  icon: const Icon(Icons.search),
+                  label: Text(l10n.hiResCheckRun),
+                ),
               ),
             ] else if (!result.supported)
               _secondaryText(l10n.hiResCheckUnsupported, cs)

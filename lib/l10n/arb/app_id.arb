@@ -112,7 +112,6 @@
   "@nowPlayingVolume": {
     "description": "System volume control label in the Sistrum player"
   },
-  "appearanceStyle": "Gaya Aplikasi",
   "appearanceAccentRed": "Merah (default)",
   "appearanceAccentOrange": "Oranye",
   "appearanceAccentGreen": "Hijau",
@@ -147,9 +146,6 @@
   },
   "appearanceUseSystemFont": "Gunakan font sistem",
   "appearanceUseSystemFontSubtitle": "Menggunakan font default perangkat untuk aplikasi.",
-  "@appearanceStyle": {
-    "description": "Appearance section for choosing the app visual style"
-  },
   "@@locale": "id",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
@@ -250,14 +246,6 @@
   "appearanceThemeDark": "Gelap",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceDynamicColor": "Warna Dinamis",
-  "@appearanceDynamicColor": {
-    "description": "Material You dynamic colors"
-  },
-  "appearanceDynamicColorSubtitle": "Gunakan warna dari wallpapermu",
-  "@appearanceDynamicColorSubtitle": {
-    "description": "Subtitle for dynamic color"
   },
   "appearanceHistoryView": "Tampilan Koleksi",
   "@appearanceHistoryView": {
@@ -1341,14 +1329,6 @@
   "downloadUsePrimaryArtistOnly": "Hanya artis utama untuk folder",
   "@downloadUsePrimaryArtistOnly": {
     "description": "Setting - strip featured artists from folder name"
-  },
-  "appearanceAmoledDark": "AMOLED Gelap",
-  "@appearanceAmoledDark": {
-    "description": "Theme option - pure black"
-  },
-  "appearanceAmoledDarkSubtitle": "Latar belakang hitam murni",
-  "@appearanceAmoledDarkSubtitle": {
-    "description": "Subtitle for AMOLED dark"
   },
   "appearanceHeroAnimations": "Transisi halus",
   "@appearanceHeroAnimations": {
@@ -3987,15 +3967,6 @@
   "@queueDownloadedFileMissing": {
     "description": "Accessibility label when a downloaded file is missing from disk"
   },
-  "appearanceSelectAccentColor": "Pilih warna aksen {hex}",
-  "@appearanceSelectAccentColor": {
-    "description": "Accessibility label for picking an accent color",
-    "placeholders": {
-      "hex": {
-        "type": "String"
-      }
-    }
-  },
   "logAutoScrollOn": "Gulir otomatis HIDUP",
   "@logAutoScrollOn": {
     "description": "Tooltip when auto-scroll is enabled on the log screen"
@@ -4952,14 +4923,6 @@
   "playerCoverStyle": "Foto cover",
   "@playerCoverStyle": {
     "description": "Settings section choosing how the player shows cover art"
-  },
-  "landscapeLyricsArtwork": "Cover album di samping lirik",
-  "@landscapeLyricsArtwork": {
-    "description": "Switch choosing album artwork instead of track details alongside lyrics in landscape"
-  },
-  "landscapeLyricsArtworkDescription": "Tampilkan cover album menggantikan detail lagu pada player Material dalam posisi landscape",
-  "@landscapeLyricsArtworkDescription": {
-    "description": "Subtitle explaining the Material landscape lyrics layout setting"
   },
   "autoHideLyricsControls": "Lirik layar penuh otomatis",
   "@autoHideLyricsControls": {

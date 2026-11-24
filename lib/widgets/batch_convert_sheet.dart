@@ -1,17 +1,15 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
-import 'package:sistrum/widgets/app_choice_chip.dart';
 import 'package:sistrum/widgets/app_slider.dart';
 import 'package:sistrum/widgets/slider_value_header.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/app_switch.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
+import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/utils/audio_conversion_utils.dart';
-import 'package:sistrum/widgets/settings_group.dart';
 
 /// Conversion options shared by the queue, album and single-track sheets.
 class BatchConvertSheet extends StatefulWidget {
@@ -239,18 +237,10 @@ class _BatchConvertSheetState extends State<BatchConvertSheet> {
                       horizontal: 14,
                       vertical: 12,
                     ),
-                    decoration: context.isMornye
-                        ? null
-                        : BoxDecoration(
-                            color: cs.primaryContainer.withValues(alpha: 0.4),
-                            borderRadius: BorderRadius.circular(14),
-                          ),
                     child: Row(
                       children: [
                         Icon(
-                          context.isMornye
-                              ? CupertinoIcons.checkmark_seal
-                              : Icons.verified,
+                          CupertinoIcons.checkmark_seal,
                           size: 18,
                           color: cs.primary,
                         ),
@@ -283,7 +273,6 @@ class _BatchConvertSheetState extends State<BatchConvertSheet> {
                   ),
 
                 _card(
-                  cs,
                   child: AppSwitchListTile(
                     contentPadding: EdgeInsets.zero,
                     title: Text(context.l10n.trackConvertKeepOriginal),
@@ -315,12 +304,6 @@ class _BatchConvertSheetState extends State<BatchConvertSheet> {
                       _keepOriginal,
                     ),
                     icon: const Icon(Icons.swap_horiz),
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
                     label: Text(
                       widget.confirmLabelBuilder?.call(
                             _selectedFormat,
@@ -344,10 +327,7 @@ class _BatchConvertSheetState extends State<BatchConvertSheet> {
   }
 
   Widget _sheetSurface({required Widget child}) {
-    final content = SafeArea(child: child);
-    return context.isMornye
-        ? MornyeGlassPanel.overlay(child: content)
-        : content;
+    return MornyeGlassPanel.overlay(child: SafeArea(child: child));
   }
 
   /// Which TPDF Smart dither adds: plain or high-pass.
@@ -438,31 +418,12 @@ class _BatchConvertSheetState extends State<BatchConvertSheet> {
     );
   }
 
-  Widget _card(ColorScheme cs, {required Widget child}) {
-    if (context.isMornye) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            child,
-            const SizedBox(height: 20),
-            const Divider(height: 1),
-          ],
-        ),
-      );
-    }
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: settingsGroupColor(context),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Material(
-        color: Colors.transparent,
-        child: Padding(padding: const EdgeInsets.all(16), child: child),
+  Widget _card({required Widget child}) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [child, const SizedBox(height: 20), const Divider(height: 1)],
       ),
     );
   }
@@ -478,7 +439,6 @@ class _BatchConvertSheetState extends State<BatchConvertSheet> {
     Widget? footer,
   }) {
     return _card(
-      cs,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -499,7 +459,6 @@ class _BatchConvertSheetState extends State<BatchConvertSheet> {
             children: [
               for (final value in values)
                 _choice(
-                  cs,
                   label: labelOf(value),
                   selected: value == selected,
                   onTap: () => setState(() => onSelect(value)),
@@ -526,25 +485,16 @@ class _BatchConvertSheetState extends State<BatchConvertSheet> {
     );
   }
 
-  Widget _choice(
-    ColorScheme cs, {
+  Widget _choice({
     required String label,
     required bool selected,
     required VoidCallback onTap,
   }) {
-    if (context.isMornye) {
-      return MornyeFilterChip(
-        label: label,
-        selected: selected,
-        onTap: onTap,
-        icon: selected ? CupertinoIcons.checkmark : null,
-      );
-    }
-    return AppChoiceChip(
-      singleChoice: true,
-      label: Text(label),
+    return MornyeFilterChip(
+      label: label,
       selected: selected,
-      onSelected: (_) => onTap(),
+      onTap: onTap,
+      icon: selected ? CupertinoIcons.checkmark : null,
     );
   }
 }

@@ -3,7 +3,6 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 
 class PrioritySettingsScaffold extends StatelessWidget {
@@ -65,8 +64,7 @@ class PrioritySettingsScaffold extends StatelessWidget {
               ),
               actions: [
                 if (hasChanges)
-                  ExpressiveButton(
-                    text: true,
+                  TextButton(
                     onPressed: onSave,
                     child: Text(context.l10n.dialogSave),
                   ),

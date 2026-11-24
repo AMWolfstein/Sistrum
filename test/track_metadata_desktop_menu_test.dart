@@ -1,19 +1,20 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/screens/track_metadata_edit_sheet.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/mornye_context_menu.dart';
 
 import 'support/app_icon_finder.dart';
 
@@ -79,7 +80,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
-            theme: AppTheme.light(),
+            theme: MornyeTheme.build(Brightness.light),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             home: TrackMetadataScreen(
@@ -97,7 +98,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.tap(findAppIcon(Icons.more_vert));
+      await tester.tap(findAppIcon(CupertinoIcons.ellipsis));
       await tester.pumpAndSettle();
       final gate = Completer<String>();
       if (!afterSave) pendingMetadata = gate;
@@ -125,57 +126,52 @@ void main() {
   }
 
   for (final desktop in [true, false]) {
-    testWidgets(
-      'Material song page More button opens a ${desktop ? 'menu' : 'sheet'}',
-      (tester) async {
-        debugDesktopPlatformOverride = desktop;
-        tester.view.physicalSize = desktop
-            ? const Size(1200, 800)
-            : const Size(900, 1800);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.reset);
-        await tester.pumpWidget(
-          ProviderScope(
-            child: MaterialApp(
-              theme: AppTheme.light(),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: TrackMetadataScreen(
-                localItem: LocalLibraryItem(
-                  id: 'local-song',
-                  trackName: 'Song',
-                  artistName: 'Artist',
-                  albumName: 'Album',
-                  filePath: 'content://library/document/song.flac',
-                  scannedAt: DateTime(2026),
-                  format: 'flac',
-                ),
+    testWidgets('song page More button opens a ${desktop ? 'menu' : 'sheet'}', (
+      tester,
+    ) async {
+      debugDesktopPlatformOverride = desktop;
+      tester.view.physicalSize = desktop
+          ? const Size(1200, 800)
+          : const Size(900, 1800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.light),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: TrackMetadataScreen(
+              localItem: LocalLibraryItem(
+                id: 'local-song',
+                trackName: 'Song',
+                artistName: 'Artist',
+                albumName: 'Album',
+                filePath: 'content://library/document/song.flac',
+                scannedAt: DateTime(2026),
+                format: 'flac',
               ),
             ),
           ),
-        );
-        await tester.pumpAndSettle();
-        await tester.tap(findAppIcon(Icons.more_vert));
-        await tester.pumpAndSettle();
-        // Items that do not depend on the file being readable, since the
-        // desktop backend library is absent under flutter test.
-        expect(find.text('Copy file path'), findsOneWidget);
-        expect(find.text('Go to Artist'), findsOneWidget);
-        if (desktop) {
-          final menu = find.byType(M3EMenuPopup<int>);
-          expect(menu, findsOneWidget);
-          expect(find.byType(BottomSheet), findsNothing);
-          final button = tester.getRect(findAppIcon(Icons.more_vert));
-          final row = tester.getRect(find.text('Copy file path'));
-          expect(row.top, greaterThanOrEqualTo(button.bottom - 1));
-          await tester.sendKeyEvent(LogicalKeyboardKey.escape);
-          await tester.pumpAndSettle();
-          expect(menu, findsNothing);
-        } else {
-          expect(find.byType(BottomSheet), findsOneWidget);
-          expect(find.byType(M3EMenuPopup<int>), findsNothing);
-        }
-      },
-    );
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(findAppIcon(CupertinoIcons.ellipsis));
+      await tester.pumpAndSettle();
+      // Items that do not depend on the file being readable, since the
+      // desktop backend library is absent under flutter test.
+      expect(find.text('Copy file path'), findsOneWidget);
+      expect(find.text('Go to Artist'), findsOneWidget);
+      final menu = find.byType(MornyeContextMenu);
+      expect(menu, findsOneWidget);
+      if (desktop) {
+        final button = tester.getRect(findAppIcon(CupertinoIcons.ellipsis));
+        final row = tester.getRect(find.text('Copy file path'));
+        expect(row.top, greaterThanOrEqualTo(button.bottom - 1));
+      }
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(menu, findsNothing);
+    });
   }
 }

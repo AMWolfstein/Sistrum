@@ -9,7 +9,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:sistrum/utils/playback_seek_preview.dart';
@@ -33,13 +32,9 @@ LyricWord _word(String text, int from, int to) => LyricWord(
   text: text,
 );
 
-ThemeData _theme(bool mornye) =>
-    mornye ? MornyeTheme.build(Brightness.dark) : AppTheme.dark();
-
 Future<void> _pumpLyrics(
   WidgetTester tester,
   List<LyricLine> lines, {
-  required bool mornye,
   Duration at = Duration.zero,
   bool showTranslation = false,
   TextDirection? appDirection,
@@ -49,7 +44,7 @@ Future<void> _pumpLyrics(
   addTearDown(tester.view.reset);
   final preview = ValueNotifier<Duration?>(at);
   addTearDown(preview.dispose);
-  final theme = _theme(mornye);
+  final theme = MornyeTheme.build(Brightness.dark);
   Widget view = SyncedLyricsView(
     lyrics: ParsedLyrics(
       synced: true,
@@ -127,8 +122,7 @@ double _sweepRight(_SweepLayout layout) => layout.paint
 
 /// How many fully sung pixels lie in the start and end quarter of a word's
 /// [box], reading in [direction], and how many letter pixels the end
-/// quarter has at all. Sung letters are opaque, unsung ones translucent in
-/// both styles.
+/// quarter has at all. Sung letters are opaque, unsung ones translucent.
 Future<({int start, int end, int endLetters})> _sungInk(
   WidgetTester tester,
   String text,
@@ -201,276 +195,235 @@ _ink(WidgetTester tester, String text) {
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
 
-  for (final mornye in [true, false]) {
-    final style = mornye ? 'Mornye' : 'Material';
-    // Spaces lead the next word, so each word's box holds only letters.
-    final mixedLine = LyricLine(
-      time: Duration.zero,
-      end: const Duration(seconds: 30),
-      text: _arabicMixed,
-      words: [
-        _word('قطتي', 0, 10),
-        _word(' hello', 10, 20),
-        _word(' باب', 20, 30),
-      ],
+  // Spaces lead the next word, so each word's box holds only letters.
+  final mixedLine = LyricLine(
+    time: Duration.zero,
+    end: const Duration(seconds: 30),
+    text: _arabicMixed,
+    words: [
+      _word('قطتي', 0, 10),
+      _word(' hello', 10, 20),
+      _word(' باب', 20, 30),
+    ],
+  );
+  Rect latinBox(_SweepLayout layout) =>
+      layout.boxes[1][layout.directions[1].indexOf(TextDirection.ltr)];
+
+  testWidgets('a right-to-left word-synced line sweeps from the right', (
+    tester,
+  ) async {
+    await _pumpLyrics(tester, [mixedLine], at: const Duration(seconds: 5));
+    final layout = _sweepLayout(tester, _arabicMixed);
+    final first = layout.boxes[0].single;
+    final latin = latinBox(layout);
+    final last = layout.boxes[2].last;
+    // The line reads from the right: its first word is rightmost.
+    expect(layout.directions[0].single, TextDirection.rtl);
+    expect(layout.directions[2].last, TextDirection.rtl);
+    expect([first.top, latin.top, last.top], everyElement(first.top));
+    expect(first.left, greaterThan(latin.right - 0.5));
+    expect(latin.left, greaterThan(last.right - 0.5));
+    expect(first.right, greaterThan(_viewWidth / 2));
+
+    // Halfway through the first word, its right part is sung, its left
+    // part not yet.
+    final ink = await _sungInk(tester, _arabicMixed, first, TextDirection.rtl);
+    expect(ink.start, greaterThan(0));
+    expect(ink.end, 0);
+    expect(ink.endLetters, greaterThan(0));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a left-to-right word in a right-to-left line sweeps from '
+      'its left', (tester) async {
+    await _pumpLyrics(tester, [mixedLine], at: const Duration(seconds: 16));
+    final layout = _sweepLayout(tester, _arabicMixed);
+    final ink = await _sungInk(
+      tester,
+      _arabicMixed,
+      latinBox(layout),
+      TextDirection.ltr,
     );
-    Rect latinBox(_SweepLayout layout) =>
-        layout.boxes[1][layout.directions[1].indexOf(TextDirection.ltr)];
+    expect(ink.start, greaterThan(0));
+    expect(ink.end, 0);
+    expect(ink.endLetters, greaterThan(0));
+    // The word before it is sung through.
+    final done = await _sungInk(
+      tester,
+      _arabicMixed,
+      layout.boxes[0].single,
+      TextDirection.rtl,
+    );
+    expect(done.start, greaterThan(0));
+    expect(done.end, greaterThan(0));
+    expect(tester.takeException(), isNull);
+  });
 
-    testWidgets('a right-to-left word-synced line sweeps from the right '
-        '($style)', (tester) async {
-      await _pumpLyrics(
-        tester,
-        [mixedLine],
-        mornye: mornye,
-        at: const Duration(seconds: 5),
-      );
-      final layout = _sweepLayout(tester, _arabicMixed);
-      final first = layout.boxes[0].single;
-      final latin = latinBox(layout);
-      final last = layout.boxes[2].last;
-      // The line reads from the right: its first word is rightmost.
-      expect(layout.directions[0].single, TextDirection.rtl);
-      expect(layout.directions[2].last, TextDirection.rtl);
-      expect([first.top, latin.top, last.top], everyElement(first.top));
-      expect(first.left, greaterThan(latin.right - 0.5));
-      expect(latin.left, greaterThan(last.right - 0.5));
-      expect(first.right, greaterThan(_viewWidth / 2));
+  testWidgets('a left-to-right word-synced line still sweeps from the '
+      'left', (tester) async {
+    const text = 'Lanterns glow';
+    await _pumpLyrics(tester, [
+      LyricLine(
+        time: Duration.zero,
+        end: const Duration(seconds: 20),
+        text: text,
+        words: [_word('Lanterns', 0, 10), _word(' glow', 10, 20)],
+      ),
+    ], at: const Duration(seconds: 5));
+    final layout = _sweepLayout(tester, text);
+    final first = layout.boxes[0].single;
+    expect(layout.directions[0].single, TextDirection.ltr);
+    expect(first.right, lessThan(layout.boxes[1].first.left + 0.5));
+    expect(first.left, lessThan(_viewWidth / 2));
+    final ink = await _sungInk(tester, text, first, TextDirection.ltr);
+    expect(ink.start, greaterThan(0));
+    expect(ink.end, 0);
+    expect(ink.endLetters, greaterThan(0));
+    expect(tester.takeException(), isNull);
+  });
 
-      // Halfway through the first word, its right part is sung, its left
-      // part not yet.
-      final ink = await _sungInk(
-        tester,
-        _arabicMixed,
-        first,
-        TextDirection.rtl,
-      );
-      expect(ink.start, greaterThan(0));
-      expect(ink.end, 0);
-      expect(ink.endLetters, greaterThan(0));
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('a left-to-right word in a right-to-left line sweeps from '
-        'its left ($style)', (tester) async {
-      await _pumpLyrics(
-        tester,
-        [mixedLine],
-        mornye: mornye,
-        at: const Duration(seconds: 16),
-      );
-      final layout = _sweepLayout(tester, _arabicMixed);
-      final ink = await _sungInk(
-        tester,
-        _arabicMixed,
-        latinBox(layout),
-        TextDirection.ltr,
-      );
-      expect(ink.start, greaterThan(0));
-      expect(ink.end, 0);
-      expect(ink.endLetters, greaterThan(0));
-      // The word before it is sung through.
-      final done = await _sungInk(
-        tester,
-        _arabicMixed,
-        layout.boxes[0].single,
-        TextDirection.rtl,
-      );
-      expect(done.start, greaterThan(0));
-      expect(done.end, greaterThan(0));
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('a left-to-right word-synced line still sweeps from the '
-        'left ($style)', (tester) async {
-      const text = 'Lanterns glow';
-      await _pumpLyrics(
-        tester,
-        [
-          LyricLine(
-            time: Duration.zero,
-            end: const Duration(seconds: 20),
-            text: text,
-            words: [_word('Lanterns', 0, 10), _word(' glow', 10, 20)],
-          ),
-        ],
-        mornye: mornye,
-        at: const Duration(seconds: 5),
-      );
-      final layout = _sweepLayout(tester, text);
-      final first = layout.boxes[0].single;
-      expect(layout.directions[0].single, TextDirection.ltr);
-      expect(first.right, lessThan(layout.boxes[1].first.left + 0.5));
-      expect(first.left, lessThan(_viewWidth / 2));
-      final ink = await _sungInk(tester, text, first, TextDirection.ltr);
-      expect(ink.start, greaterThan(0));
-      expect(ink.end, 0);
-      expect(ink.endLetters, greaterThan(0));
-      expect(tester.takeException(), isNull);
-    });
-
-    for (final appDirection in TextDirection.values) {
-      testWidgets('each line of a mixed song keeps its own direction '
-          '($style, ${appDirection.name} app)', (tester) async {
-        await _pumpLyrics(
-          tester,
-          const [
-            LyricLine(time: Duration.zero, text: _arabicCat),
-            LyricLine(time: Duration(seconds: 5), text: _latin),
-            LyricLine(time: Duration(seconds: 10), text: '...'),
-            LyricLine(
-              time: Duration(seconds: 15),
-              text: _arabicDoor,
-              voice: LyricVoice(id: 'v2', index: 1),
-            ),
-            LyricLine(
-              time: Duration(seconds: 20),
-              text: _latinPath,
-              voice: LyricVoice(id: 'v2', index: 1),
-            ),
-            LyricLine(time: Duration(seconds: 25), text: 'qitta'),
-          ],
-          mornye: mornye,
-          appDirection: appDirection,
-        );
-        // Every line is much shorter than its row, so the side it sits on
-        // shows.
-        void sits(String text, TextDirection direction, {required bool left}) {
-          final ink = _ink(tester, text);
-          expect(ink.direction, direction, reason: text);
-          expect(
-            ink.right - ink.left,
-            lessThan(ink.boxRight - ink.boxLeft - 80),
-          );
-          if (left) {
-            expect(ink.left, moreOrLessEquals(ink.boxLeft, epsilon: 1));
-          } else {
-            expect(ink.right, moreOrLessEquals(ink.boxRight, epsilon: 1));
-          }
+  for (final appDirection in TextDirection.values) {
+    testWidgets('each line of a mixed song keeps its own direction '
+        '(${appDirection.name} app)', (tester) async {
+      await _pumpLyrics(tester, const [
+        LyricLine(time: Duration.zero, text: _arabicCat),
+        LyricLine(time: Duration(seconds: 5), text: _latin),
+        LyricLine(time: Duration(seconds: 10), text: '...'),
+        LyricLine(
+          time: Duration(seconds: 15),
+          text: _arabicDoor,
+          voice: LyricVoice(id: 'v2', index: 1),
+        ),
+        LyricLine(
+          time: Duration(seconds: 20),
+          text: _latinPath,
+          voice: LyricVoice(id: 'v2', index: 1),
+        ),
+        LyricLine(time: Duration(seconds: 25), text: 'qitta'),
+      ], appDirection: appDirection);
+      // Every line is much shorter than its row, so the side it sits on
+      // shows.
+      void sits(String text, TextDirection direction, {required bool left}) {
+        final ink = _ink(tester, text);
+        expect(ink.direction, direction, reason: text);
+        expect(ink.right - ink.left, lessThan(ink.boxRight - ink.boxLeft - 80));
+        if (left) {
+          expect(ink.left, moreOrLessEquals(ink.boxLeft, epsilon: 1));
+        } else {
+          expect(ink.right, moreOrLessEquals(ink.boxRight, epsilon: 1));
         }
+      }
 
-        // Lines start on their own reading side.
-        sits(_arabicCat, TextDirection.rtl, left: false);
-        sits(_latin, TextDirection.ltr, left: true);
-        // A line without letters reads like the line before it.
-        sits('...', TextDirection.ltr, left: true);
-        // A duet's second voice keeps the end of its own line: the left
-        // of a right-to-left line, the right of a left-to-right one.
-        sits(_arabicDoor, TextDirection.rtl, left: true);
-        sits(_latinPath, TextDirection.ltr, left: false);
-        expect(tester.takeException(), isNull);
-      });
-    }
-
-    testWidgets('a translation stays on the side of its right-to-left line '
-        '($style)', (tester) async {
-      const translation = 'A small cat';
-      await _pumpLyrics(
-        tester,
-        const [
-          LyricLine(
-            time: Duration.zero,
-            text: _arabic,
-            translation: translation,
-          ),
-          LyricLine(time: Duration(seconds: 10), text: _latin),
-        ],
-        mornye: mornye,
-        showTranslation: true,
-      );
-      final line = _ink(tester, _arabic);
-      final shown = _ink(tester, translation);
-      expect(shown.direction, TextDirection.ltr);
-      expect(shown.align, TextAlign.right);
-      expect(shown.right, moreOrLessEquals(line.right, epsilon: 1));
-      expect(shown.left, greaterThan(_viewWidth / 2));
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('a timed translation reads left to right on the side of its '
-        'right-to-left line ($style)', (tester) async {
-      const translation = 'A small cat';
-      await _pumpLyrics(
-        tester,
-        [
-          LyricLine(
-            time: Duration.zero,
-            end: const Duration(seconds: 20),
-            text: _arabicCat,
-            words: [_word('قطة ', 0, 10), _word('صغيرة', 10, 20)],
-            translation: translation,
-            translationWords: [
-              _word('A ', 0, 5),
-              _word('small ', 5, 10),
-              _word('cat', 10, 20),
-            ],
-          ),
-        ],
-        mornye: mornye,
-        at: const Duration(seconds: 2),
-        showTranslation: true,
-      );
-      final line = _sweepLayout(tester, _arabicCat);
-      final shown = _sweepLayout(tester, translation);
-      expect(
-        shown.directions.expand((directions) => directions),
-        everyElement(TextDirection.ltr),
-      );
-      // Its first word is leftmost, and it ends under the line's start.
-      expect(
-        shown.boxes.first.first.right,
-        lessThan(shown.boxes.last.first.left + 0.5),
-      );
-      expect(
-        _sweepRight(shown),
-        moreOrLessEquals(_sweepRight(line), epsilon: 1),
-      );
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('plain lyrics mixing directions keep each line\'s own '
-        '($style)', (tester) async {
-      final metadata = PlayerMetadataController(
-        readMetadata: (_) async => const {
-          'lyrics': '$_arabicCat\n$_latin\n...\n$_arabicDoor',
-        },
-        parseLyrics: (raw) async => LyricsParser.parse(raw),
-      );
-      final preview = PlaybackSeekPreview();
-      addTearDown(metadata.dispose);
-      addTearDown(preview.dispose);
-      await metadata.load(
-        MediaItem(
-          id: 'example-song',
-          title: 'Example Song',
-          artist: 'Example Artist',
-          extras: const {'source': '/music/example.flac'},
-        ),
-      );
-      expect(metadata.lyrics.synced, isFalse);
-      await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            theme: _theme(mornye),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: Scaffold(
-              body: PlayerLyricsSection(
-                metadata: metadata,
-                seekPreview: preview,
-                colorScheme: const ColorScheme.dark(),
-                isActive: true,
-              ),
-            ),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(_ink(tester, _arabicCat).direction, TextDirection.rtl);
-      expect(_ink(tester, _latin).direction, TextDirection.ltr);
-      expect(_ink(tester, '...').direction, TextDirection.ltr);
-      expect(_ink(tester, _arabicDoor).direction, TextDirection.rtl);
+      // Lines start on their own reading side.
+      sits(_arabicCat, TextDirection.rtl, left: false);
+      sits(_latin, TextDirection.ltr, left: true);
+      // A line without letters reads like the line before it.
+      sits('...', TextDirection.ltr, left: true);
+      // A duet's second voice keeps the end of its own line: the left
+      // of a right-to-left line, the right of a left-to-right one.
+      sits(_arabicDoor, TextDirection.rtl, left: true);
+      sits(_latinPath, TextDirection.ltr, left: false);
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('a translation stays on the side of its right-to-left line', (
+    tester,
+  ) async {
+    const translation = 'A small cat';
+    await _pumpLyrics(tester, const [
+      LyricLine(time: Duration.zero, text: _arabic, translation: translation),
+      LyricLine(time: Duration(seconds: 10), text: _latin),
+    ], showTranslation: true);
+    final line = _ink(tester, _arabic);
+    final shown = _ink(tester, translation);
+    expect(shown.direction, TextDirection.ltr);
+    expect(shown.align, TextAlign.right);
+    expect(shown.right, moreOrLessEquals(line.right, epsilon: 1));
+    expect(shown.left, greaterThan(_viewWidth / 2));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a timed translation reads left to right on the side of its '
+      'right-to-left line', (tester) async {
+    const translation = 'A small cat';
+    await _pumpLyrics(
+      tester,
+      [
+        LyricLine(
+          time: Duration.zero,
+          end: const Duration(seconds: 20),
+          text: _arabicCat,
+          words: [_word('قطة ', 0, 10), _word('صغيرة', 10, 20)],
+          translation: translation,
+          translationWords: [
+            _word('A ', 0, 5),
+            _word('small ', 5, 10),
+            _word('cat', 10, 20),
+          ],
+        ),
+      ],
+      at: const Duration(seconds: 2),
+      showTranslation: true,
+    );
+    final line = _sweepLayout(tester, _arabicCat);
+    final shown = _sweepLayout(tester, translation);
+    expect(
+      shown.directions.expand((directions) => directions),
+      everyElement(TextDirection.ltr),
+    );
+    // Its first word is leftmost, and it ends under the line's start.
+    expect(
+      shown.boxes.first.first.right,
+      lessThan(shown.boxes.last.first.left + 0.5),
+    );
+    expect(_sweepRight(shown), moreOrLessEquals(_sweepRight(line), epsilon: 1));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('plain lyrics mixing directions keep each line\'s own', (
+    tester,
+  ) async {
+    final metadata = PlayerMetadataController(
+      readMetadata: (_) async => const {
+        'lyrics': '$_arabicCat\n$_latin\n...\n$_arabicDoor',
+      },
+      parseLyrics: (raw) async => LyricsParser.parse(raw),
+    );
+    final preview = PlaybackSeekPreview();
+    addTearDown(metadata.dispose);
+    addTearDown(preview.dispose);
+    await metadata.load(
+      MediaItem(
+        id: 'example-song',
+        title: 'Example Song',
+        artist: 'Example Artist',
+        extras: const {'source': '/music/example.flac'},
+      ),
+    );
+    expect(metadata.lyrics.synced, isFalse);
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: PlayerLyricsSection(
+              metadata: metadata,
+              seekPreview: preview,
+              colorScheme: const ColorScheme.dark(),
+              isActive: true,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(_ink(tester, _arabicCat).direction, TextDirection.rtl);
+    expect(_ink(tester, _latin).direction, TextDirection.ltr);
+    expect(_ink(tester, '...').direction, TextDirection.ltr);
+    expect(_ink(tester, _arabicDoor).direction, TextDirection.rtl);
+    expect(tester.takeException(), isNull);
+  });
 }

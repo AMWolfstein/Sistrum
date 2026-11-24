@@ -7,15 +7,11 @@ import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/theme_settings.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/settings/playback_settings_page.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/settings_search_catalog.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 
-Future<ProviderContainer> _pumpPage(
-  WidgetTester tester, {
-  required bool mornye,
-}) async {
+Future<ProviderContainer> _pumpPage(WidgetTester tester) async {
   SharedPreferences.setMockInitialValues({});
   tester.view.physicalSize = const Size(1200, 1600);
   tester.view.devicePixelRatio = 1;
@@ -28,9 +24,7 @@ Future<ProviderContainer> _pumpPage(
     UncontrolledProviderScope(
       container: container,
       child: MaterialApp(
-        theme: mornye
-            ? MornyeTheme.build(Brightness.dark, accent: MornyeAccent.blue)
-            : AppTheme.light(),
+        theme: MornyeTheme.build(Brightness.dark, accent: MornyeAccent.blue),
         locale: const Locale('en'),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
@@ -56,22 +50,18 @@ Future<void> _scrollTo(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
-  for (final mornye in [false, true]) {
-    testWidgets('No duplicates in queue is a Playback switch ($mornye)', (
-      tester,
-    ) async {
-      final container = await _pumpPage(tester, mornye: mornye);
-      final finder = _switch('No duplicates in queue');
-      await _scrollTo(tester, finder);
-      expect(tester.widget<SettingsSwitchItem>(finder).value, isFalse);
+  testWidgets('No duplicates in queue is a Playback switch', (tester) async {
+    final container = await _pumpPage(tester);
+    final finder = _switch('No duplicates in queue');
+    await _scrollTo(tester, finder);
+    expect(tester.widget<SettingsSwitchItem>(finder).value, isFalse);
 
-      await tester.tap(find.text('No duplicates in queue'));
-      await tester.pumpAndSettle();
-      expect(container.read(settingsProvider).queueNoDuplicates, isTrue);
-      expect(tester.widget<SettingsSwitchItem>(finder).value, isTrue);
-      expect(tester.takeException(), isNull);
-    });
-  }
+    await tester.tap(find.text('No duplicates in queue'));
+    await tester.pumpAndSettle();
+    expect(container.read(settingsProvider).queueNoDuplicates, isTrue);
+    expect(tester.widget<SettingsSwitchItem>(finder).value, isTrue);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('settings search lists the queue options', (tester) async {
     await tester.pumpWidget(
@@ -91,7 +81,7 @@ void main() {
   });
 
   testWidgets('Lock queue is in Playback settings too', (tester) async {
-    final container = await _pumpPage(tester, mornye: false);
+    final container = await _pumpPage(tester);
     final finder = _switch('Lock queue');
     await _scrollTo(tester, finder);
     await tester.tap(find.text('Lock queue'));

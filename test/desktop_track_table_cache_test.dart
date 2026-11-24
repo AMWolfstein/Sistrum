@@ -9,7 +9,6 @@ import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/desktop/desktop_selection.dart';
@@ -18,7 +17,7 @@ import 'package:sistrum/widgets/desktop/track_table.dart';
 
 import 'support/fixed_settings.dart';
 
-Widget _app(Widget child, {bool mornye = false}) => ProviderScope(
+Widget _app(Widget child) => ProviderScope(
   overrides: [
     settingsProvider.overrideWith(
       () =>
@@ -26,7 +25,7 @@ Widget _app(Widget child, {bool mornye = false}) => ProviderScope(
     ),
   ],
   child: MaterialApp(
-    theme: mornye ? MornyeTheme.build(Brightness.light) : AppTheme.light(),
+    theme: MornyeTheme.build(Brightness.light),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     home: Scaffold(body: child),
@@ -348,7 +347,6 @@ void main() {
           ),
         ],
       ),
-      mornye: true,
     );
     List<TrackTableRow> rows() =>
         tester.widget<SliverTrackTable>(find.byType(SliverTrackTable)).rows;

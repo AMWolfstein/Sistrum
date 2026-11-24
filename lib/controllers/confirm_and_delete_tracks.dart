@@ -34,9 +34,6 @@ Future<int?> confirmAndDeleteTracks({
     confirmLabel: context.l10n.dialogDelete,
     destructive: true,
     cancelIsDefault: true,
-    confirmStyle: FilledButton.styleFrom(
-      backgroundColor: Theme.of(context).colorScheme.error,
-    ),
   );
 
   if (!confirmed || !context.mounted) return null;

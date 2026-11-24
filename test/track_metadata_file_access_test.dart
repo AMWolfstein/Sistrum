@@ -37,164 +37,153 @@ void main() {
   });
   tearDownAll(() async => cache.delete(recursive: true));
 
-  for (final mornye in [false, true]) {
-    testWidgets(
-      'open details refresh after an edit and deletion (Mornye=$mornye)',
-      (tester) async {
-        SharedPreferences.setMockInitialValues({});
-        final messenger = tester.binding.defaultBinaryMessenger;
-        messenger.setMockMethodCallHandler(paths, (_) async => cache.path);
-        addTearDown(() => messenger.setMockMethodCallHandler(paths, null));
-        var title = 'Old title';
-        messenger.setMockMethodCallHandler(channel, (call) async {
-          return switch (call.method) {
-            'safStat' => {'exists': true, 'size': 100},
-            'extractCoverToFile' => jsonEncode({'error': 'No cover'}),
-            'readFileMetadata' || 'readAudioMetadata' => jsonEncode({
-              'title': title,
-              'artist': 'Artist',
-              'album': 'Album',
-            }),
-            _ => null,
-          };
-        });
-        addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
-        final item = LocalLibraryItem(
-          id: 'edited-track',
-          trackName: title,
-          artistName: 'Artist',
-          albumName: 'Album',
-          filePath: 'content://provider/music/edited.flac',
-          scannedAt: DateTime(2026),
-        );
-        await tester.pumpWidget(
-          ProviderScope(
-            child: MaterialApp(
-              theme: mornye
-                  ? MornyeTheme.build(Brightness.dark)
-                  : ThemeData.dark(useMaterial3: true),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: TrackMetadataScreen(localItem: item),
-            ),
-          ),
-        );
-        await tester.pumpAndSettle();
-        expect(find.text(title), findsWidgets);
-        title = 'Edited title';
-        await tester.runAsync(
-          () => SourceMetadataEvents.instance.publish(item.filePath),
-        );
-        await _settleFileIo(tester);
-        expect(find.text(title), findsWidgets);
-        expect(find.text('Old title'), findsNothing);
-        await SourceDeletionEvents.instance.publish(item.filePath);
-        await tester.pumpAndSettle();
-        expect(find.text('File not found'), findsOneWidget);
-        expect(tester.takeException(), isNull);
-      },
+  testWidgets('open details refresh after an edit and deletion', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    final messenger = tester.binding.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(paths, (_) async => cache.path);
+    addTearDown(() => messenger.setMockMethodCallHandler(paths, null));
+    var title = 'Old title';
+    messenger.setMockMethodCallHandler(channel, (call) async {
+      return switch (call.method) {
+        'safStat' => {'exists': true, 'size': 100},
+        'extractCoverToFile' => jsonEncode({'error': 'No cover'}),
+        'readFileMetadata' || 'readAudioMetadata' => jsonEncode({
+          'title': title,
+          'artist': 'Artist',
+          'album': 'Album',
+        }),
+        _ => null,
+      };
+    });
+    addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+    final item = LocalLibraryItem(
+      id: 'edited-track',
+      trackName: title,
+      artistName: 'Artist',
+      albumName: 'Album',
+      filePath: 'content://provider/music/edited.flac',
+      scannedAt: DateTime(2026),
     );
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: TrackMetadataScreen(localItem: item),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text(title), findsWidgets);
+    title = 'Edited title';
+    await tester.runAsync(
+      () => SourceMetadataEvents.instance.publish(item.filePath),
+    );
+    await _settleFileIo(tester);
+    expect(find.text(title), findsWidgets);
+    expect(find.text('Old title'), findsNothing);
+    await SourceDeletionEvents.instance.publish(item.filePath);
+    await tester.pumpAndSettle();
+    expect(find.text('File not found'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
-    for (final unavailable in [false, true]) {
-      testWidgets('file status distinguishes provider errors from absence '
-          '(Mornye=$mornye, unavailable=$unavailable)', (tester) async {
-        await tester.binding.setSurfaceSize(const Size(320, 780));
-        addTearDown(() => tester.binding.setSurfaceSize(null));
-        final messenger = tester.binding.defaultBinaryMessenger;
-        messenger.setMockMethodCallHandler(channel, (call) async {
-          if (call.method == 'safStat') {
-            if (unavailable) {
-              throw PlatformException(code: 'provider_unavailable');
-            }
-            return {'exists': false};
-          }
-          return null;
-        });
-        addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
-        final item = LocalLibraryItem(
-          id: 'provider-track',
-          trackName: 'Track',
-          artistName: 'Artist',
-          albumName: 'Album',
-          filePath: 'content://provider/music/track.flac',
-          scannedAt: DateTime(2026),
-        );
-        await tester.pumpWidget(
-          ProviderScope(
-            child: MaterialApp(
-              theme: mornye
-                  ? MornyeTheme.build(Brightness.dark)
-                  : ThemeData.dark(useMaterial3: true),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: TrackMetadataScreen(localItem: item),
-            ),
-          ),
-        );
-        await tester.pumpAndSettle();
-        expect(
-          find.text('File not found'),
-          unavailable ? findsNothing : findsOneWidget,
-        );
-        expect(
-          find.text(
-            'File is currently unavailable. Check storage access and try again.',
-          ),
-          unavailable ? findsOneWidget : findsNothing,
-        );
-        expect(tester.takeException(), isNull);
-      });
-    }
-
-    testWidgets('the header has its buttons before the file check answers, '
-        'and drops the round ones for a missing file (Mornye=$mornye)', (
-      tester,
-    ) async {
-      SharedPreferences.setMockInitialValues({});
+  for (final unavailable in [false, true]) {
+    testWidgets('file status distinguishes provider errors from absence '
+        '(unavailable=$unavailable)', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(320, 780));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
       final messenger = tester.binding.defaultBinaryMessenger;
-      messenger.setMockMethodCallHandler(
-        channel,
-        (call) async => call.method == 'safStat' ? {'exists': false} : null,
-      );
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        if (call.method == 'safStat') {
+          if (unavailable) {
+            throw PlatformException(code: 'provider_unavailable');
+          }
+          return {'exists': false};
+        }
+        return null;
+      });
       addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
       final item = LocalLibraryItem(
-        id: 'unchecked-track',
+        id: 'provider-track',
         trackName: 'Track',
         artistName: 'Artist',
         albumName: 'Album',
-        filePath: 'content://provider/music/unchecked.flac',
+        filePath: 'content://provider/music/track.flac',
         scannedAt: DateTime(2026),
       );
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [playerUiEnabledProvider.overrideWithValue(true)],
           child: MaterialApp(
-            theme: mornye
-                ? MornyeTheme.build(Brightness.dark)
-                : ThemeData.dark(useMaterial3: true),
+            theme: MornyeTheme.build(Brightness.dark),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             home: TrackMetadataScreen(localItem: item),
           ),
         ),
       );
-      // The app's buttons, not flutter_test's own tooltip type.
-      Finder round(String tooltip) => find.byWidgetPredicate(
-        (widget) => widget is HeaderCircleButton && widget.tooltip == tooltip,
-      );
-      VoidCallback? play() => tester
-          .widget<HeaderFilledButton>(find.byType(HeaderFilledButton))
-          .onPressed;
-      // The first frame, before the check of the file has answered.
-      expect(round('Edit Metadata'), findsOneWidget);
-      expect(round('Add to queue'), findsOneWidget);
-      expect(play(), isNotNull);
-
       await tester.pumpAndSettle();
-      expect(round('Edit Metadata'), findsNothing);
-      expect(round('Add to queue'), findsNothing);
-      expect(play(), isNull);
+      expect(
+        find.text('File not found'),
+        unavailable ? findsNothing : findsOneWidget,
+      );
+      expect(
+        find.text(
+          'File is currently unavailable. Check storage access and try again.',
+        ),
+        unavailable ? findsOneWidget : findsNothing,
+      );
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('the header has its buttons before the file check answers, '
+      'and drops the round ones for a missing file', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final messenger = tester.binding.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(
+      channel,
+      (call) async => call.method == 'safStat' ? {'exists': false} : null,
+    );
+    addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+    final item = LocalLibraryItem(
+      id: 'unchecked-track',
+      trackName: 'Track',
+      artistName: 'Artist',
+      albumName: 'Album',
+      filePath: 'content://provider/music/unchecked.flac',
+      scannedAt: DateTime(2026),
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [playerUiEnabledProvider.overrideWithValue(true)],
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: TrackMetadataScreen(localItem: item),
+        ),
+      ),
+    );
+    // The app's buttons, not flutter_test's own tooltip type.
+    Finder round(String tooltip) => find.byWidgetPredicate(
+      (widget) => widget is HeaderCircleButton && widget.tooltip == tooltip,
+    );
+    VoidCallback? play() => tester
+        .widget<HeaderFilledButton>(find.byType(HeaderFilledButton))
+        .onPressed;
+    // The first frame, before the check of the file has answered.
+    expect(round('Edit Metadata'), findsOneWidget);
+    expect(round('Add to queue'), findsOneWidget);
+    expect(play(), isNotNull);
+
+    await tester.pumpAndSettle();
+    expect(round('Edit Metadata'), findsNothing);
+    expect(round('Add to queue'), findsNothing);
+    expect(play(), isNull);
+    expect(tester.takeException(), isNull);
+  });
 }

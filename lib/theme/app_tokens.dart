@@ -1,4 +1,5 @@
 import 'package:material_ui/material_ui.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 
 /// Single source of truth for the app's visual scale.
 ///
@@ -6,7 +7,7 @@ import 'package:material_ui/material_ui.dart';
 ///
 /// Read it through [AppTokensContext.tokens] rather than
 /// `Theme.of(context).extension<AppTokens>()`, so a widget rendered outside a
-/// themed subtree (tests, isolated previews) still gets [AppTokens.standard].
+/// themed subtree (tests, isolated previews) still gets [MornyeTheme.tokens].
 @immutable
 class AppTokens extends ThemeExtension<AppTokens> {
   const AppTokens({
@@ -360,8 +361,8 @@ class AppTokens extends ThemeExtension<AppTokens> {
 }
 
 extension AppTokensContext on BuildContext {
-  /// The active [AppTokens]. Falls back to [AppTokens.standard] when the widget
+  /// The active [AppTokens]. Falls back to [MornyeTheme.tokens] when the widget
   /// is built outside a theme that registered the extension.
   AppTokens get tokens =>
-      Theme.of(this).extension<AppTokens>() ?? AppTokens.standard;
+      Theme.of(this).extension<AppTokens>() ?? MornyeTheme.tokens;
 }

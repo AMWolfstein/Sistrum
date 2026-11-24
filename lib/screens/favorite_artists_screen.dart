@@ -4,7 +4,6 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/controllers/clickable_metadata.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
@@ -64,10 +63,7 @@ class FavoriteArtistsScreen extends ConsumerWidget {
               padding: EdgeInsets.symmetric(horizontal: wideListInset(context)),
               sliver: SliverList.separated(
                 itemCount: artists.length,
-                // Material lists separate rows by space; dividers are Mornye's.
-                separatorBuilder: (_, _) => context.isMornye
-                    ? const Divider(height: 1)
-                    : const SizedBox.shrink(),
+                separatorBuilder: (_, _) => const Divider(height: 1),
                 itemBuilder: (context, index) {
                   final artist = artists[index];
                   return ListTile(
@@ -132,7 +128,6 @@ class _ArtistThumbnail extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final imageUrl = artist.imageUrl;
     return AppShapeClip(
-      kind: AppShapes.artist,
       child: LocalCoverImage(
         url: imageUrl ?? '',
         width: 56,

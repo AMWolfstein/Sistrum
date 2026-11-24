@@ -222,7 +222,6 @@ class _LibrarySourceSettingsItem extends StatelessWidget {
                 ),
               ),
             AppSwitch(
-              adaptive: true,
               semanticLabel: title,
               value: source.enabled,
               onChanged: enabled ? onEnabledChanged : null,
@@ -643,8 +642,7 @@ class _ScanProgressTile extends StatelessWidget {
                 ),
               ),
               if (!isFinalizing)
-                ExpressiveButton(
-                  text: true,
+                TextButton(
                   onPressed: isPaused ? onResume : onPause,
                   child: Text(
                     isPaused
@@ -652,8 +650,7 @@ class _ScanProgressTile extends StatelessWidget {
                         : context.l10n.actionPause,
                   ),
                 ),
-              ExpressiveButton(
-                text: true,
+              TextButton(
                 onPressed: onCancel,
                 child: Text(context.l10n.actionCancel),
               ),

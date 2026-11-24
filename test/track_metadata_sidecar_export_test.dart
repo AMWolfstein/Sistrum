@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,7 +16,6 @@ import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/services/backend/native_backend_transport.dart';
 import 'package:sistrum/services/backend/rust_ffi_backend.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -82,11 +82,9 @@ void main() {
 
   for (final scenario in [
     for (final desktop in [false, true])
-      for (final mornye in [false, true])
-        (desktop: desktop, mornye: mornye, saf: false, cached: false),
-    for (final mornye in [false, true])
-      (desktop: false, mornye: mornye, saf: true, cached: false),
-    (desktop: true, mornye: false, saf: false, cached: true),
+      (desktop: desktop, saf: false, cached: false),
+    (desktop: false, saf: true, cached: false),
+    (desktop: true, saf: false, cached: true),
   ]) {
     testWidgets('imported file exports JPG and LRC: $scenario', (tester) async {
       final (directory, source) = (await tester.runAsync(() async {
@@ -184,9 +182,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
-            theme: scenario.mornye
-                ? MornyeTheme.build(Brightness.light)
-                : AppTheme.light(),
+            theme: MornyeTheme.build(Brightness.light),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             home: TrackMetadataScreen(
@@ -211,11 +207,7 @@ void main() {
         ('Save Cover Art', 'jpg'),
         ('Save Lyrics (.lrc)', 'lrc'),
       ]) {
-        await tester.tap(
-          scenario.mornye
-              ? findByTooltip('Show menu')
-              : findAppIcon(Icons.more_vert),
-        );
+        await tester.tap(findByTooltip('Show menu'));
         await tester.pumpAndSettle();
         expect(find.text(label), findsOneWidget);
         // A long menu scrolls, and these rows start below its fold.
@@ -348,7 +340,7 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
-            theme: AppTheme.light(),
+            theme: MornyeTheme.build(Brightness.light),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             home: TrackMetadataScreen(
@@ -368,7 +360,7 @@ void main() {
       );
       await _settleIo(tester);
       for (final label in ['Save Cover Art', 'Save Lyrics (.lrc)']) {
-        await tester.tap(findAppIcon(Icons.more_vert));
+        await tester.tap(findAppIcon(CupertinoIcons.ellipsis));
         await tester.pumpAndSettle();
         await tester.tap(find.text(label));
         await _settleIo(tester);
@@ -415,7 +407,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         child: MaterialApp(
-          theme: AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: TrackMetadataScreen(
@@ -433,7 +425,7 @@ void main() {
       ),
     );
     await _settleIo(tester);
-    await tester.tap(findAppIcon(Icons.more_vert));
+    await tester.tap(findAppIcon(CupertinoIcons.ellipsis));
     await tester.pumpAndSettle();
     expect(find.text('Save Cover Art'), findsNothing);
     expect(find.text('Save Lyrics (.lrc)'), findsOneWidget);

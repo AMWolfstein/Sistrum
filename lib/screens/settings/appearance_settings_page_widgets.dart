@@ -4,227 +4,59 @@ class _ThemePreviewCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    if (context.isMornye) {
-      return ExcludeSemantics(
-        child: IgnorePointer(
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainer,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  context.l10n.navLibrary,
-                  style: Theme.of(context).textTheme.headlineLarge,
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    AppIcon(
-                      Icons.library_music_outlined,
-                      color: colorScheme.primary,
-                    ),
-                    const SizedBox(width: 16),
-                    Text(
-                      context.l10n.appName,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                MornyeTabBar(
-                  destinations: [
-                    NavigationDestination(
-                      icon: const AppIcon(Icons.home_outlined),
-                      label: context.l10n.navHome,
-                    ),
-                    NavigationDestination(
-                      icon: const AppIcon(Icons.library_music_outlined),
-                      label: context.l10n.navLibrary,
-                    ),
-                    NavigationDestination(
-                      icon: const AppIcon(Icons.settings_outlined),
-                      label: context.l10n.navSettings,
-                    ),
-                  ],
-                  selectedIndex: 1,
-                  onSelected: (_) {},
-                  blurEnabled: false,
-                ),
-              ],
-            ),
+    return ExcludeSemantics(
+      child: IgnorePointer(
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainer,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                context.l10n.navLibrary,
+                style: Theme.of(context).textTheme.headlineLarge,
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  AppIcon(
+                    Icons.library_music_outlined,
+                    color: colorScheme.primary,
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    context.l10n.appName,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              MornyeTabBar(
+                destinations: [
+                  NavigationDestination(
+                    icon: const AppIcon(Icons.home_outlined),
+                    label: context.l10n.navHome,
+                  ),
+                  NavigationDestination(
+                    icon: const AppIcon(Icons.library_music_outlined),
+                    label: context.l10n.navLibrary,
+                  ),
+                  NavigationDestination(
+                    icon: const AppIcon(Icons.settings_outlined),
+                    label: context.l10n.navSettings,
+                  ),
+                ],
+                selectedIndex: 1,
+                onSelected: (_) {},
+                blurEnabled: false,
+              ),
+            ],
           ),
         ),
-      );
-    }
-
-    return RepaintBoundary(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final cardWidth = constraints.maxWidth;
-          final previewHeight = (cardWidth * 0.56).clamp(170.0, 220.0);
-          final innerWidth = (cardWidth - 48).clamp(220.0, 320.0);
-          final innerHeight = (previewHeight * 0.70).clamp(120.0, 160.0);
-          final innerPadding = (innerHeight * 0.11).clamp(12.0, 18.0);
-          final artworkSize = (innerHeight - (innerPadding * 2)).clamp(
-            80.0,
-            120.0,
-          );
-
-          return Container(
-            height: previewHeight,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(28),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Stack(
-              children: [
-                Positioned(
-                  top: -(previewHeight * 0.25),
-                  right: -(previewHeight * 0.25),
-                  child: Container(
-                    width: previewHeight,
-                    height: previewHeight,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: colorScheme.primaryContainer.withValues(
-                        alpha: 0.5,
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: -(previewHeight * 0.15),
-                  left: -(previewHeight * 0.15),
-                  child: Container(
-                    width: previewHeight * 0.75,
-                    height: previewHeight * 0.75,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: colorScheme.tertiaryContainer.withValues(
-                        alpha: 0.5,
-                      ),
-                    ),
-                  ),
-                ),
-                Center(
-                  child: Container(
-                    width: innerWidth,
-                    height: innerHeight,
-                    padding: EdgeInsets.all(innerPadding),
-                    decoration: BoxDecoration(
-                      color: colorScheme.surface,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 12,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: artworkSize,
-                          height: artworkSize,
-                          decoration: BoxDecoration(
-                            color: colorScheme.primary,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: AppIcon(
-                            Icons.music_note,
-                            color: colorScheme.onPrimary,
-                            size: artworkSize * 0.44,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                width: double.infinity,
-                                height: 14,
-                                decoration: BoxDecoration(
-                                  color: colorScheme.onSurface,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Container(
-                                width: 80,
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  color: colorScheme.primary,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              Row(
-                                children: [
-                                  AppIcon(
-                                    Icons.skip_previous,
-                                    size: 24,
-                                    color: colorScheme.onSurfaceVariant,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  AppIcon(
-                                    Icons.play_circle_fill,
-                                    size: 32,
-                                    color: colorScheme.primary,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  AppIcon(
-                                    Icons.skip_next,
-                                    size: 24,
-                                    color: colorScheme.onSurfaceVariant,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                PositionedDirectional(
-                  bottom: 12,
-                  end: 12,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.6),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      isDark
-                          ? context.l10n.appearanceThemeDark
-                          : context.l10n.appearanceThemeLight,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
       ),
     );
   }
@@ -421,117 +253,6 @@ class _MornyeAccentPicker extends StatelessWidget {
   }
 }
 
-class _ColorPalettePicker extends StatelessWidget {
-  final int currentColor;
-  final ValueChanged<Color> onColorSelected;
-  const _ColorPalettePicker({
-    required this.currentColor,
-    required this.onColorSelected,
-  });
-
-  static const _colors = [
-    Color(0xFF1DB954),
-    Color(0xFF6750A4),
-    Color(0xFF0061A4),
-    Color(0xFF006E1C),
-    Color(0xFFBA1A1A),
-    Color(0xFF984061),
-    Color(0xFF7D5260),
-    Color(0xFF006874),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: _colors.map((color) {
-          final isSelected = color.toARGB32() == currentColor;
-          final colorHex = color
-              .toARGB32()
-              .toRadixString(16)
-              .padLeft(8, '0')
-              .toUpperCase();
-          return Padding(
-            padding: const EdgeInsetsDirectional.only(end: 12),
-            child: Semantics(
-              button: true,
-              selected: isSelected,
-              label: context.l10n.appearanceSelectAccentColor(colorHex),
-              child: GestureDetector(
-                onTap: () => onColorSelected(color),
-                child: _ColorPaletteItem(color: color, isSelected: isSelected),
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-}
-
-class _ColorPaletteItem extends StatelessWidget {
-  final Color color;
-  final bool isSelected;
-
-  const _ColorPaletteItem({required this.color, required this.isSelected});
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = ColorScheme.fromSeed(
-      seedColor: color,
-      brightness: Theme.of(context).brightness,
-    );
-    final size = 64.0;
-
-    return Stack(
-      children: [
-        Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    Expanded(child: Container(color: scheme.primaryContainer)),
-                    Expanded(child: Container(color: scheme.tertiaryContainer)),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Container(color: scheme.secondaryContainer),
-                    ),
-                    Expanded(child: Container(color: scheme.surfaceContainer)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (isSelected)
-          Positioned.fill(
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                ),
-                child: AppIcon(Icons.check, size: 16, color: scheme.primary),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-}
-
 class _ThemeModeSelector extends StatelessWidget {
   final ThemeMode currentMode;
   final ValueChanged<ThemeMode> onChanged;
@@ -542,44 +263,18 @@ class _ThemeModeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (context.isMornye) {
-      final labels = {
-        ThemeMode.system: context.l10n.appearanceThemeSystem,
-        ThemeMode.light: context.l10n.appearanceThemeLight,
-        ThemeMode.dark: context.l10n.appearanceThemeDark,
-      };
-      return Padding(
-        padding: const EdgeInsets.all(12),
-        child: MornyeSegmentedControl(
-          labels: labels.values.toList(),
-          selectedIndex: labels.keys.toList().indexOf(currentMode),
-          onChanged: (index) => onChanged(labels.keys.elementAt(index)),
-          samplesBackdrop: false,
-        ),
-      );
-    }
+    final labels = {
+      ThemeMode.system: context.l10n.appearanceThemeSystem,
+      ThemeMode.light: context.l10n.appearanceThemeLight,
+      ThemeMode.dark: context.l10n.appearanceThemeDark,
+    };
     return Padding(
       padding: const EdgeInsets.all(12),
-      child: SettingsSegmentedChoice<ThemeMode>(
-        selected: currentMode,
-        onChanged: onChanged,
-        options: [
-          SettingsSegmentOption(
-            value: ThemeMode.system,
-            icon: Icons.brightness_auto,
-            label: context.l10n.appearanceThemeSystem,
-          ),
-          SettingsSegmentOption(
-            value: ThemeMode.light,
-            icon: Icons.light_mode,
-            label: context.l10n.appearanceThemeLight,
-          ),
-          SettingsSegmentOption(
-            value: ThemeMode.dark,
-            icon: Icons.dark_mode,
-            label: context.l10n.appearanceThemeDark,
-          ),
-        ],
+      child: MornyeSegmentedControl(
+        labels: labels.values.toList(),
+        selectedIndex: labels.keys.toList().indexOf(currentMode),
+        onChanged: (index) => onChanged(labels.keys.elementAt(index)),
+        samplesBackdrop: false,
       ),
     );
   }
@@ -739,9 +434,6 @@ class _LanguageSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final content = ListTile(
-      leading: context.isMornye
-          ? null
-          : AppIcon(Icons.language, color: colorScheme.onSurfaceVariant),
       title: Text(context.l10n.appearanceLanguage),
       subtitle: Text(_getLanguageName(currentLocale)),
       trailing: AppIcon(

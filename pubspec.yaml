@@ -44,14 +44,10 @@ dependencies:
   # UI Components
   liquid_glass_easy: 5.2.0
   cupertino_icons: ^2.0.0
-  material_symbols_icons: ^4.2960.0
   volume_controller: ^3.7.1
 
-  # Material Expressive 3 / Dynamic Color
-  dynamic_color: ^2.1.0
   material_ui: ^1.11.0
   cupertino_ui: ^1.1.6
-  material_3_expressive: ^1.2.0
   material_color_utilities: 0.13.0
 
   # Permissions
@@ -160,7 +156,6 @@ flutter:
     - assets/images/
     - assets/images/sistrum-horizontal-white.png
     - assets/fonts/Inter-LICENSE.txt
-    - assets/fonts/GoogleSansFlex-LICENSE.txt
     - assets/licenses/usb.txt
     - assets/licenses/oboe.txt
     - assets/licenses/wavpack.txt
@@ -176,6 +171,3 @@ flutter:
     - family: Inter
       fonts:
         - asset: assets/fonts/InterVariable.ttf
-    - family: Google Sans Flex
-      fonts:
-        - asset: assets/fonts/GoogleSansFlex.ttf

@@ -11,7 +11,9 @@ import 'package:sistrum/providers/equalizer_provider.dart';
 import 'package:sistrum/services/app_navigation_service.dart';
 import 'package:sistrum/services/app_orientation.dart';
 import 'package:sistrum/theme/app_motion.dart';
-import 'package:sistrum/theme/dynamic_color_wrapper.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/providers/theme_provider.dart';
+import 'package:sistrum/providers/custom_font_provider.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/l10n/supported_locales.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
@@ -265,39 +267,57 @@ class SistrumApp extends ConsumerWidget {
       disableOverscrollEffects: disableOverscrollEffects,
     );
 
+    // Lyrics size and font names live in ThemeSettings but not in ThemeData.
+    final themeSettings = ref.watch(
+      themeProvider.select(
+        (s) => (
+          themeMode: s.themeMode,
+          useSystemFont: s.useSystemFont,
+          mornyeAccent: s.mornyeAccent,
+          mornyeGlassClarity: s.mornyeGlassClarity,
+          mornyeGlassOutlines: s.mornyeGlassOutlines,
+        ),
+      ),
+    );
+    // Only the family: a rebuild while it loads would animate an equal theme.
+    final fontFamily = ref.watch(
+      customFontFamilyProvider.select((font) => font.asData?.value),
+    );
+    ThemeData themeFor(Brightness brightness) => MornyeTheme.build(
+      brightness,
+      accent: themeSettings.mornyeAccent,
+      useSystemFont: themeSettings.useSystemFont,
+      fontFamily: fontFamily,
+      glassClarity: themeSettings.mornyeGlassClarity,
+      glassOutlines: themeSettings.mornyeGlassOutlines,
+    );
+
     final locale = localeFromSetting(localeString);
 
-    return DynamicColorWrapper(
-      builder: (lightTheme, darkTheme, themeMode) {
-        return MaterialApp.router(
-          title: AppInfo.appName,
-          debugShowCheckedModeBanner: false,
-          theme: lightTheme,
-          darkTheme: darkTheme,
-          themeMode: themeMode,
-          scrollBehavior: scrollBehavior,
-          themeAnimationDuration: const Duration(milliseconds: 300),
-          themeAnimationCurve: Curves.easeInOut,
-          builder: (context, child) => buildAppContent(
-            context,
-            child,
-            heroAnimationsEnabled: heroAnimationsEnabled,
-          ),
-          routerConfig: router,
-          locale: locale,
-          localeResolutionCallback: (deviceLocale, supportedLocales) {
-            return resolveSupportedLocale(
-              locale ?? deviceLocale,
-              supportedLocales,
-            );
-          },
-          localizationsDelegates: appLocalizationsDelegates,
-          // ARB files below the translation threshold remain bundled so
-          // translators can test them, but production users should only be
-          // offered locales selected by the completion checker.
-          supportedLocales: filteredSupportedLocales,
-        );
+    return MaterialApp.router(
+      title: AppInfo.appName,
+      debugShowCheckedModeBanner: false,
+      theme: themeFor(Brightness.light),
+      darkTheme: themeFor(Brightness.dark),
+      themeMode: themeSettings.themeMode,
+      scrollBehavior: scrollBehavior,
+      themeAnimationDuration: const Duration(milliseconds: 300),
+      themeAnimationCurve: Curves.easeInOut,
+      builder: (context, child) => buildAppContent(
+        context,
+        child,
+        heroAnimationsEnabled: heroAnimationsEnabled,
+      ),
+      routerConfig: router,
+      locale: locale,
+      localeResolutionCallback: (deviceLocale, supportedLocales) {
+        return resolveSupportedLocale(locale ?? deviceLocale, supportedLocales);
       },
+      localizationsDelegates: appLocalizationsDelegates,
+      // ARB files below the translation threshold remain bundled so
+      // translators can test them, but production users should only be
+      // offered locales selected by the completion checker.
+      supportedLocales: filteredSupportedLocales,
     );
   }
 }

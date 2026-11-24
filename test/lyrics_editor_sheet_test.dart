@@ -9,7 +9,6 @@ import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/services/source_metadata_events.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
@@ -69,7 +68,6 @@ void main() {
     WidgetTester tester,
     String lyrics, {
     bool desktop = false,
-    bool mornye = false,
     MediaItem item = _item,
     Future<void> Function(PlayerMetadataController metadata)? beforeBuild,
   }) async {
@@ -100,7 +98,7 @@ void main() {
           musicPlayerControllerProvider.overrideWithValue(player),
         ],
         child: MaterialApp(
-          theme: mornye ? MornyeTheme.build(Brightness.dark) : AppTheme.dark(),
+          theme: MornyeTheme.build(Brightness.dark),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
@@ -193,55 +191,47 @@ void main() {
     expect(find.widgetWithText(TextField, 'Next lyrics'), findsNothing);
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets('sync controls only affect the edited song (Mornye: $mornye)', (
-      tester,
-    ) async {
-      final metadata = await open(
-        tester,
-        '[00:01.00]Original lyrics',
-        mornye: mornye,
-      );
-      await metadata.load(
-        _item.copyWith(
-          id: 'next',
-          title: 'Next song',
-          extras: const {'source': '/music/next.flac'},
-        ),
-      );
-      playback.add(PlaybackState(updatePosition: const Duration(seconds: 90)));
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const ValueKey('lyrics-editor-set-time')));
-      await tester.tap(find.text('00:01.00'));
-      await tester.tap(findByTooltip('Play'));
-      await tester.pump();
-      expect(find.text('00:01.00'), findsOneWidget);
-      expect(find.text('01:30.00'), findsNothing);
-      expect(player.seeks, isEmpty);
-      expect(player.playPauseCalls, 0);
-      final seek = tester.widget<PlaybackSeekSlider>(
-        find.byType(PlaybackSeekSlider),
-      );
-      expect(seek.duration, Duration.zero);
-      // A gesture that began before the change cannot seek the next song.
-      await seek.onSeek(const Duration(seconds: 25));
-      expect(player.seeks, isEmpty);
-      // Manual timestamp adjustments and text edits remain usable.
-      await tester.tap(find.text('+0.1'));
-      await tester.pump();
-      expect(find.text('00:01.10'), findsOneWidget);
-      await metadata.load(_item);
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('00:01.10'));
-      await tester.tap(find.byKey(const ValueKey('lyrics-editor-set-time')));
-      await tester.pump();
-      expect(player.seeks, [const Duration(milliseconds: 1100)]);
-      expect(find.text('01:30.00'), findsOneWidget);
-      await tester.tap(find.byKey(const ValueKey('lyrics-editor-save')));
-      await tester.pumpAndSettle();
-      expect(savedSources, [_source]);
-    });
-  }
+  testWidgets('sync controls only affect the edited song ', (tester) async {
+    final metadata = await open(tester, '[00:01.00]Original lyrics');
+    await metadata.load(
+      _item.copyWith(
+        id: 'next',
+        title: 'Next song',
+        extras: const {'source': '/music/next.flac'},
+      ),
+    );
+    playback.add(PlaybackState(updatePosition: const Duration(seconds: 90)));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('lyrics-editor-set-time')));
+    await tester.tap(find.text('00:01.00'));
+    await tester.tap(findByTooltip('Play'));
+    await tester.pump();
+    expect(find.text('00:01.00'), findsOneWidget);
+    expect(find.text('01:30.00'), findsNothing);
+    expect(player.seeks, isEmpty);
+    expect(player.playPauseCalls, 0);
+    final seek = tester.widget<PlaybackSeekSlider>(
+      find.byType(PlaybackSeekSlider),
+    );
+    expect(seek.duration, Duration.zero);
+    // A gesture that began before the change cannot seek the next song.
+    await seek.onSeek(const Duration(seconds: 25));
+    expect(player.seeks, isEmpty);
+    // Manual timestamp adjustments and text edits remain usable.
+    await tester.tap(find.text('+0.1'));
+    await tester.pump();
+    expect(find.text('00:01.10'), findsOneWidget);
+    await metadata.load(_item);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('00:01.10'));
+    await tester.tap(find.byKey(const ValueKey('lyrics-editor-set-time')));
+    await tester.pump();
+    expect(player.seeks, [const Duration(milliseconds: 1100)]);
+    expect(find.text('01:30.00'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('lyrics-editor-save')));
+    await tester.pumpAndSettle();
+    expect(savedSources, [_source]);
+  });
 
   testWidgets('a draft can be saved after the queue is cleared', (
     tester,

@@ -4,7 +4,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/track_detail_actions.dart';
 
@@ -41,11 +40,11 @@ class _Collections extends LibraryCollectionsNotifier {
   }
 }
 
-Widget _app(ProviderContainer container, Widget child, {bool mornye = false}) =>
+Widget _app(ProviderContainer container, Widget child) =>
     UncontrolledProviderScope(
       container: container,
       child: MaterialApp(
-        theme: mornye ? MornyeTheme.build(Brightness.light) : AppTheme.light(),
+        theme: MornyeTheme.build(Brightness.light),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(body: child),
@@ -53,47 +52,39 @@ Widget _app(ProviderContainer container, Widget child, {bool mornye = false}) =>
     );
 
 void main() {
-  for (final mornye in [false, true]) {
-    testWidgets(
-      'Love All action keeps its add/remove feedback in Mornye=$mornye',
-      (tester) async {
-        final collections = _Collections();
-        final container = ProviderContainer(
-          overrides: [
-            libraryCollectionsProvider.overrideWith(() => collections),
-          ],
-        );
-        addTearDown(container.dispose);
-        await tester.pumpWidget(
-          _app(
-            container,
-            Consumer(
-              builder: (context, ref, _) => TextButton(
-                onPressed: () => loveAllTracks(context, ref, [_track]),
-                child: const Text('Apply'),
-              ),
-            ),
-            mornye: mornye,
-          ),
-        );
-        await tester.tap(find.text('Apply'));
-        await tester.pumpAndSettle();
-        final context = tester.element(find.text('Apply'));
-        expect(
-          find.text(context.l10n.snackbarAddedTracksToLoved(1)),
-          findsOneWidget,
-        );
-        ScaffoldMessenger.of(context).removeCurrentSnackBar();
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Apply'));
-        await tester.pumpAndSettle();
-        expect(
-          find.text(context.l10n.snackbarRemovedTracksFromLoved(1)),
-          findsOneWidget,
-        );
-        expect(collections._batchCalls, 2);
-        expect(tester.takeException(), isNull);
-      },
+  testWidgets('Love All action keeps its add/remove feedback', (tester) async {
+    final collections = _Collections();
+    final container = ProviderContainer(
+      overrides: [libraryCollectionsProvider.overrideWith(() => collections)],
     );
-  }
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      _app(
+        container,
+        Consumer(
+          builder: (context, ref, _) => TextButton(
+            onPressed: () => loveAllTracks(context, ref, [_track]),
+            child: const Text('Apply'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Apply'));
+    await tester.pumpAndSettle();
+    final context = tester.element(find.text('Apply'));
+    expect(
+      find.text(context.l10n.snackbarAddedTracksToLoved(1)),
+      findsOneWidget,
+    );
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Apply'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text(context.l10n.snackbarRemovedTracksFromLoved(1)),
+      findsOneWidget,
+    );
+    expect(collections._batchCalls, 2);
+    expect(tester.takeException(), isNull);
+  });
 }

@@ -102,100 +102,96 @@ void main() {
     );
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets(
-      'exclusive path and bit-perfect facts stay consistent (Mornye=$mornye)',
-      (tester) async {
-        playbackExclusiveOutput.value = true;
-        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(
-              _route,
-              (call) async => {
-                'platform': 'windows',
-                'mixerSampleRate': 48000,
-                'device': {
-                  'type': 'usb',
-                  'name': 'Example DAC',
-                  'mixer': {'sampleRate': 48000, 'bitDepth': 24},
-                },
-              },
-            );
-        final metadata = PlayerMetadataController();
-        addTearDown(metadata.dispose);
-        await metadata.load(
-          const MediaItem(
-            id: 'track',
-            title: 'Track',
-            extras: {
-              'source': 'https://example.test/track.flac',
-              'format': 'flac',
-              'bit_depth': 16,
-              'sample_rate': 44100,
+  testWidgets('exclusive path and bit-perfect facts stay consistent', (
+    tester,
+  ) async {
+    playbackExclusiveOutput.value = true;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          _route,
+          (call) async => {
+            'platform': 'windows',
+            'mixerSampleRate': 48000,
+            'device': {
+              'type': 'usb',
+              'name': 'Example DAC',
+              'mixer': {'sampleRate': 48000, 'bitDepth': 24},
             },
-          ),
+          },
         );
-        await tester.pumpWidget(
-          ProviderScope(
-            child: MaterialApp(
-              theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: Builder(
-                builder: (context) => TextButton(
-                  onPressed: () =>
-                      showAudioInfoSheet(context, metadata: metadata),
-                  child: const Text('open'),
-                ),
-              ),
+    final metadata = PlayerMetadataController();
+    addTearDown(metadata.dispose);
+    await metadata.load(
+      const MediaItem(
+        id: 'track',
+        title: 'Track',
+        extras: {
+          'source': 'https://example.test/track.flac',
+          'format': 'flac',
+          'bit_depth': 16,
+          'sample_rate': 44100,
+        },
+      ),
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (context) => TextButton(
+              onPressed: () => showAudioInfoSheet(context, metadata: metadata),
+              child: const Text('open'),
             ),
           ),
-        );
-        await tester.tap(find.text('open'));
-        await tester.pumpAndSettle();
-
-        // Requesting exclusive mode is not confirmation that it opened.
-        expect(find.text('System mixer'), findsOneWidget);
-        expect(find.text('No, mixed by the system'), findsOneWidget);
-
-        playbackExclusiveStatus.value = ExclusiveOutputStatus.active;
-        await tester.pumpAndSettle();
-        expect(
-          find.text('Exclusive output, bypasses the system mixer'),
-          findsOneWidget,
-        );
-        expect(find.text('Not verified'), findsOneWidget);
-        expect(find.text('No, mixed by the system'), findsNothing);
-        expect(find.text('Yes, unaltered samples'), findsNothing);
-        expect(find.text('44.1 kHz → 48 kHz'), findsNothing);
-        expect(find.text('Output sample rate'), findsNothing);
-        expect(find.text('Output format'), findsNothing);
-
-        playbackOutputVolume.value = 0.5;
-        await tester.pumpAndSettle();
-        expect(find.text('No, audio processing is active'), findsOneWidget);
-        expect(find.text('Not verified'), findsNothing);
-
-        playbackOutputVolume.value = 1;
-        await tester.pumpAndSettle();
-        expect(find.text('Not verified'), findsOneWidget);
-
-        // A configured EQ is not telemetry proving which filters applied.
-        playbackEqualizer.value = const EqualizerSettings(enabled: true);
-        await tester.pumpAndSettle();
-        expect(find.text('Not verified'), findsOneWidget);
-        expect(find.text('Yes, unaltered samples'), findsNothing);
-
-        playbackExclusiveStatus.value = ExclusiveOutputStatus.unavailable;
-        await tester.pumpAndSettle();
-        expect(find.text('System mixer'), findsOneWidget);
-        expect(find.text('No, mixed by the system'), findsOneWidget);
-        expect(find.text('Not verified'), findsNothing);
-        expect(find.text('44.1 kHz → 48 kHz'), findsOneWidget);
-        expect(tester.takeException(), isNull);
-        await tester.pumpWidget(const SizedBox());
-      },
+        ),
+      ),
     );
-  }
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+
+    // Requesting exclusive mode is not confirmation that it opened.
+    expect(find.text('System mixer'), findsOneWidget);
+    expect(find.text('No, mixed by the system'), findsOneWidget);
+
+    playbackExclusiveStatus.value = ExclusiveOutputStatus.active;
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Exclusive output, bypasses the system mixer'),
+      findsOneWidget,
+    );
+    expect(find.text('Not verified'), findsOneWidget);
+    expect(find.text('No, mixed by the system'), findsNothing);
+    expect(find.text('Yes, unaltered samples'), findsNothing);
+    expect(find.text('44.1 kHz → 48 kHz'), findsNothing);
+    expect(find.text('Output sample rate'), findsNothing);
+    expect(find.text('Output format'), findsNothing);
+
+    playbackOutputVolume.value = 0.5;
+    await tester.pumpAndSettle();
+    expect(find.text('No, audio processing is active'), findsOneWidget);
+    expect(find.text('Not verified'), findsNothing);
+
+    playbackOutputVolume.value = 1;
+    await tester.pumpAndSettle();
+    expect(find.text('Not verified'), findsOneWidget);
+
+    // A configured EQ is not telemetry proving which filters applied.
+    playbackEqualizer.value = const EqualizerSettings(enabled: true);
+    await tester.pumpAndSettle();
+    expect(find.text('Not verified'), findsOneWidget);
+    expect(find.text('Yes, unaltered samples'), findsNothing);
+
+    playbackExclusiveStatus.value = ExclusiveOutputStatus.unavailable;
+    await tester.pumpAndSettle();
+    expect(find.text('System mixer'), findsOneWidget);
+    expect(find.text('No, mixed by the system'), findsOneWidget);
+    expect(find.text('Not verified'), findsNothing);
+    expect(find.text('44.1 kHz → 48 kHz'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+  });
 
   test('Android Bluetooth PCM properties do not report codec transport', () {
     for (final type in ['bluetooth', 'bluetooth_le', 'hearing_aid']) {
@@ -226,89 +222,82 @@ void main() {
     }
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets(
-      'Bluetooth transport is separate from PCM defaults (Mornye=$mornye)',
-      (tester) async {
-        tester.view.physicalSize = const Size(390, 844);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.resetPhysicalSize);
-        addTearDown(tester.view.resetDevicePixelRatio);
-        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(
-              _route,
-              (call) async => {
-                'platform': 'android',
-                'mixerSampleRate': 48000,
-                'framesPerBuffer': 256,
-                'device': {
-                  'type': 'bluetooth',
-                  'name': 'Example earbuds',
-                  'sampleRates': [44100, 48000],
-                  'bitDepths': [16],
-                  // A PCM preference is also not a measured codec format.
-                  'mixer': {'sampleRate': 96000, 'bitDepth': 24},
-                },
-              },
-            );
-        final metadata = PlayerMetadataController();
-        addTearDown(metadata.dispose);
-        await metadata.load(
-          const MediaItem(
-            id: 'song',
-            title: 'Song',
-            extras: {
-              'source': 'https://example.test/song.m4a',
-              'format': 'm4a',
-              'sample_rate': 44100,
-              'bitrate': 333,
+  testWidgets('Bluetooth transport is separate from PCM defaults', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          _route,
+          (call) async => {
+            'platform': 'android',
+            'mixerSampleRate': 48000,
+            'framesPerBuffer': 256,
+            'device': {
+              'type': 'bluetooth',
+              'name': 'Example earbuds',
+              'sampleRates': [44100, 48000],
+              'bitDepths': [16],
+              // A PCM preference is also not a measured codec format.
+              'mixer': {'sampleRate': 96000, 'bitDepth': 24},
             },
-          ),
+          },
         );
-        await tester.pumpWidget(
-          ProviderScope(
-            child: MaterialApp(
-              theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: Builder(
-                builder: (context) => TextButton(
-                  onPressed: () =>
-                      showAudioInfoSheet(context, metadata: metadata),
-                  child: const Text('open'),
-                ),
-              ),
+    final metadata = PlayerMetadataController();
+    addTearDown(metadata.dispose);
+    await metadata.load(
+      const MediaItem(
+        id: 'song',
+        title: 'Song',
+        extras: {
+          'source': 'https://example.test/song.m4a',
+          'format': 'm4a',
+          'sample_rate': 44100,
+          'bitrate': 333,
+        },
+      ),
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (context) => TextButton(
+              onPressed: () => showAudioInfoSheet(context, metadata: metadata),
+              child: const Text('open'),
             ),
           ),
-        );
-        await tester.tap(find.text('open'));
-        await tester.pumpAndSettle();
-        await tester.scrollUntilVisible(
-          find.text('Bluetooth codec format'),
-          200,
-        );
-        expect(find.text('Not reported by Android'), findsOneWidget);
-        expect(find.text('Unavailable to this app'), findsOneWidget);
-        expect(
-          find.textContaining('Android may show the active codec'),
-          findsOneWidget,
-        );
-        expect(find.text('44.1 kHz → 48 kHz'), findsNothing);
-        expect(find.text('44.1 kHz → 96 kHz'), findsNothing);
-        expect(find.text('Output sample rate'), findsNothing);
-        expect(find.text('Output format'), findsNothing);
-        expect(find.text('System default sample rate'), findsOneWidget);
-        expect(find.text('48 kHz'), findsOneWidget);
-        await tester.scrollUntilVisible(find.text('Android PCM formats'), 200);
-        expect(find.text('Android PCM sample rates'), findsOneWidget);
-        expect(find.text('44.1 kHz, 48 kHz'), findsOneWidget);
-        expect(find.text('16-bit'), findsOneWidget);
-        expect(find.text('24-bit'), findsNothing);
-        expect(find.text('System default buffer'), findsOneWidget);
-        expect(tester.takeException(), isNull);
-      },
+        ),
+      ),
     );
-  }
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.text('Bluetooth codec format'), 200);
+    expect(find.text('Not reported by Android'), findsOneWidget);
+    expect(find.text('Unavailable to this app'), findsOneWidget);
+    expect(
+      find.textContaining('Android may show the active codec'),
+      findsOneWidget,
+    );
+    expect(find.text('44.1 kHz → 48 kHz'), findsNothing);
+    expect(find.text('44.1 kHz → 96 kHz'), findsNothing);
+    expect(find.text('Output sample rate'), findsNothing);
+    expect(find.text('Output format'), findsNothing);
+    expect(find.text('System default sample rate'), findsOneWidget);
+    expect(find.text('48 kHz'), findsOneWidget);
+    await tester.scrollUntilVisible(find.text('Android PCM formats'), 200);
+    expect(find.text('Android PCM sample rates'), findsOneWidget);
+    expect(find.text('44.1 kHz, 48 kHz'), findsOneWidget);
+    expect(find.text('16-bit'), findsOneWidget);
+    expect(find.text('24-bit'), findsNothing);
+    expect(find.text('System default buffer'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('returning from settings refreshes the same track route', (
     tester,
@@ -341,13 +330,16 @@ void main() {
       ),
     );
     await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Builder(
-          builder: (context) => TextButton(
-            onPressed: () => showAudioInfoSheet(context, metadata: metadata),
-            child: const Text('open'),
+      ProviderScope(
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (context) => TextButton(
+              onPressed: () => showAudioInfoSheet(context, metadata: metadata),
+              child: const Text('open'),
+            ),
           ),
         ),
       ),
@@ -397,13 +389,16 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Builder(
-          builder: (context) => TextButton(
-            onPressed: () => showAudioInfoSheet(context, metadata: metadata),
-            child: const Text('open'),
+      ProviderScope(
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (context) => TextButton(
+              onPressed: () => showAudioInfoSheet(context, metadata: metadata),
+              child: const Text('open'),
+            ),
           ),
         ),
       ),
@@ -454,13 +449,16 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Builder(
-          builder: (context) => TextButton(
-            onPressed: () => showAudioInfoSheet(context, metadata: metadata),
-            child: const Text('open'),
+      ProviderScope(
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (context) => TextButton(
+              onPressed: () => showAudioInfoSheet(context, metadata: metadata),
+              child: const Text('open'),
+            ),
           ),
         ),
       ),
@@ -474,151 +472,135 @@ void main() {
     expect(find.text('44.1 kHz → 48 kHz'), findsOneWidget);
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets('USB changes refresh an open audio sheet (Mornye=$mornye)', (
-      tester,
-    ) async {
-      var device = 'First DAC';
-      var reads = 0;
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(_route, (call) async {
-            reads++;
-            return {
-              'platform': 'android',
-              'device': {'type': 'usb', 'name': device},
-            };
-          });
-      final metadata = PlayerMetadataController();
-      addTearDown(metadata.dispose);
-      await metadata.load(
-        const MediaItem(
-          id: 'track',
-          title: 'Track',
-          extras: {
-            'source': 'https://example.test/track.flac',
-            'format': 'flac',
-          },
-        ),
-      );
-      await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: Builder(
-              builder: (context) => TextButton(
-                onPressed: () =>
-                    showAudioInfoSheet(context, metadata: metadata),
-                child: const Text('open'),
-              ),
-            ),
-          ),
-        ),
-      );
-      await tester.tap(find.text('open'));
-      await tester.pumpAndSettle();
-      final before = reads;
-      device = 'Second DAC';
-      usbAudioStatus.value = const UsbAudioStatus(reason: 'route_changed');
-      await tester.pumpAndSettle();
-      expect(reads, greaterThan(before));
-      await tester.scrollUntilVisible(find.text('USB audio · Second DAC'), 200);
-      expect(find.text('USB audio · First DAC'), findsNothing);
-      await tester.pumpWidget(const SizedBox());
-    });
-  }
-
-  for (final mornye in [false, true]) {
-    testWidgets(
-      'SAF ReplayGain is loaded on opening Audio info (Mornye=$mornye)',
-      (tester) async {
-        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(_route, (call) async => null);
-        // The song has no .lrc file. An unanswered platform call never
-        // completes under fake time and would keep the tags loading.
-        const backend = MethodChannel('com.amwolfstein.sistrum/backend');
-        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-            .setMockMethodCallHandler(backend, (call) async => null);
-        addTearDown(
-          () => TestDefaultBinaryMessengerBinding
-              .instance
-              .defaultBinaryMessenger
-              .setMockMethodCallHandler(backend, null),
-        );
-        final tags = Completer<Map<String, dynamic>>();
-        var reads = 0;
-        final metadata = PlayerMetadataController(
-          readMetadata: (path) {
-            expect(path, 'content://library/Song.opus');
-            reads++;
-            return tags.future;
-          },
-        );
-        addTearDown(metadata.dispose);
-        await metadata.load(
-          const MediaItem(
-            id: 'song',
-            title: 'Song',
-            extras: {
-              'source': 'content://library/Song.opus',
-              'format': 'opus',
-              'bitrate': 380,
-            },
-          ),
-        );
-        expect(reads, 0, reason: 'Now Playing keeps SAF tag reads on demand');
-
-        await tester.pumpWidget(
-          ProviderScope(
-            child: MaterialApp(
-              theme: mornye ? MornyeTheme.build(Brightness.dark) : ThemeData(),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: Builder(
-                builder: (context) => TextButton(
-                  onPressed: () =>
-                      showAudioInfoSheet(context, metadata: metadata),
-                  child: const Text('open'),
-                ),
-              ),
-            ),
-          ),
-        );
-        await tester.tap(find.text('open'));
-        await tester.pumpAndSettle();
-        expect(reads, 1);
-        expect(find.text('Reading tags...'), findsOneWidget);
-        expect(find.text('No ReplayGain tags'), findsNothing);
-        final initialQuality = metadata.qualityLabel!;
-        expect(find.text(initialQuality), findsOneWidget);
-
-        tags.complete({
-          'format': 'opus',
-          'bitrate': 238,
-          'replaygain_track_gain': '5.00 dB',
-          'replaygain_track_peak': '0.326353',
-          'replaygain_album_gain': '5.00 dB',
-          'replaygain_album_peak': '0.326353',
+  testWidgets('USB changes refresh an open audio sheet', (tester) async {
+    var device = 'First DAC';
+    var reads = 0;
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(_route, (call) async {
+          reads++;
+          return {
+            'platform': 'android',
+            'device': {'type': 'usb', 'name': device},
+          };
         });
-        await tester.pumpAndSettle();
-        expect(find.text('No ReplayGain tags'), findsNothing);
-        expect(find.text('Reading tags...'), findsNothing);
-        expect(find.text(initialQuality), findsNothing);
-        expect(find.text(metadata.qualityLabel!), findsOneWidget);
-        expect(find.text('238 kbps'), findsOneWidget);
-        expect(find.text('+5.00 dB'), findsNWidgets(2));
-        expect(find.textContaining('0.326353'), findsNWidgets(2));
+    final metadata = PlayerMetadataController();
+    addTearDown(metadata.dispose);
+    await metadata.load(
+      const MediaItem(
+        id: 'track',
+        title: 'Track',
+        extras: {'source': 'https://example.test/track.flac', 'format': 'flac'},
+      ),
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (context) => TextButton(
+              onPressed: () => showAudioInfoSheet(context, metadata: metadata),
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    final before = reads;
+    device = 'Second DAC';
+    usbAudioStatus.value = const UsbAudioStatus(reason: 'route_changed');
+    await tester.pumpAndSettle();
+    expect(reads, greaterThan(before));
+    await tester.scrollUntilVisible(find.text('USB audio · Second DAC'), 200);
+    expect(find.text('USB audio · First DAC'), findsNothing);
+    await tester.pumpWidget(const SizedBox());
+  });
 
-        Navigator.of(tester.element(find.text('Audio info'))).pop();
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('open'));
-        await tester.pumpAndSettle();
-        expect(reads, 1, reason: 'Reopening the sheet reuses the loaded tags');
-        expect(find.text('+5.00 dB'), findsNWidgets(2));
+  testWidgets('SAF ReplayGain is loaded on opening Audio info', (tester) async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(_route, (call) async => null);
+    // The song has no .lrc file. An unanswered platform call never
+    // completes under fake time and would keep the tags loading.
+    const backend = MethodChannel('com.amwolfstein.sistrum/backend');
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(backend, (call) async => null);
+    addTearDown(
+      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(backend, null),
+    );
+    final tags = Completer<Map<String, dynamic>>();
+    var reads = 0;
+    final metadata = PlayerMetadataController(
+      readMetadata: (path) {
+        expect(path, 'content://library/Song.opus');
+        reads++;
+        return tags.future;
       },
     );
-  }
+    addTearDown(metadata.dispose);
+    await metadata.load(
+      const MediaItem(
+        id: 'song',
+        title: 'Song',
+        extras: {
+          'source': 'content://library/Song.opus',
+          'format': 'opus',
+          'bitrate': 380,
+        },
+      ),
+    );
+    expect(reads, 0, reason: 'Now Playing keeps SAF tag reads on demand');
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (context) => TextButton(
+              onPressed: () => showAudioInfoSheet(context, metadata: metadata),
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    expect(reads, 1);
+    expect(find.text('Reading tags...'), findsOneWidget);
+    expect(find.text('No ReplayGain tags'), findsNothing);
+    final initialQuality = metadata.qualityLabel!;
+    expect(find.text(initialQuality), findsOneWidget);
+
+    tags.complete({
+      'format': 'opus',
+      'bitrate': 238,
+      'replaygain_track_gain': '5.00 dB',
+      'replaygain_track_peak': '0.326353',
+      'replaygain_album_gain': '5.00 dB',
+      'replaygain_album_peak': '0.326353',
+    });
+    await tester.pumpAndSettle();
+    expect(find.text('No ReplayGain tags'), findsNothing);
+    expect(find.text('Reading tags...'), findsNothing);
+    expect(find.text(initialQuality), findsNothing);
+    expect(find.text(metadata.qualityLabel!), findsOneWidget);
+    expect(find.text('238 kbps'), findsOneWidget);
+    expect(find.text('+5.00 dB'), findsNWidgets(2));
+    expect(find.textContaining('0.326353'), findsNWidgets(2));
+
+    Navigator.of(tester.element(find.text('Audio info'))).pop();
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+    expect(reads, 1, reason: 'Reopening the sheet reuses the loaded tags');
+    expect(find.text('+5.00 dB'), findsNWidgets(2));
+  });
 
   testWidgets('late route replies cannot replace the latest track snapshot', (
     tester,
@@ -646,13 +628,16 @@ void main() {
     );
     await load('a');
     await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Builder(
-          builder: (context) => TextButton(
-            onPressed: () => showAudioInfoSheet(context, metadata: metadata),
-            child: const Text('open'),
+      ProviderScope(
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (context) => TextButton(
+              onPressed: () => showAudioInfoSheet(context, metadata: metadata),
+              child: const Text('open'),
+            ),
           ),
         ),
       ),

@@ -10,7 +10,6 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/library_scan_failure.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/services/library_database.dart';
@@ -23,7 +22,6 @@ import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:sistrum/widgets/ios_library_folder_sheet.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
@@ -235,7 +233,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
       confirmLabel: context.l10n.dialogClear,
       cancelIsDefault: true,
       destructive: true,
-      errorConfirm: true,
     );
 
     if (confirmed) {
@@ -286,7 +283,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
       confirmLabel: context.l10n.dialogRemove,
       cancelIsDefault: true,
       destructive: true,
-      errorConfirm: true,
     );
     if (!confirmed) return;
     await ref.read(localLibraryProvider.notifier).removeSource(source.id);
@@ -532,8 +528,7 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
                   ),
                   trailing: status.loading
                       ? null
-                      : ExpressiveButton(
-                          text: true,
+                      : TextButton(
                           onPressed: () => ref
                               .read(localLibraryProvider.notifier)
                               .reloadFromStorage(),
@@ -705,8 +700,7 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
                             ],
                           ),
                         ),
-                        ExpressiveButton(
-                          text: true,
+                        TextButton(
                           onPressed: _startScan,
                           child: Text(context.l10n.dialogRetry),
                         ),
@@ -845,22 +839,12 @@ class _LibrarySongTapChoice extends StatelessWidget {
       AppSettings.librarySongTapDetails: l10n.librarySongTapOpenDetails,
       AppSettings.librarySongTapPlay: l10n.librarySongTapPlaySong,
     };
-    final choice = context.isMornye
-        ? MornyeSegmentedControl(
-            labels: labels.values.toList(),
-            selectedIndex: labels.keys.toList().indexOf(selected),
-            onChanged: (index) => onChanged(labels.keys.elementAt(index)),
-            samplesBackdrop: false,
-          )
-        : SettingsSegmentedChoice<String>(
-            selected: selected,
-            onChanged: onChanged,
-            semanticLabel: title,
-            options: [
-              for (final MapEntry(:key, :value) in labels.entries)
-                SettingsSegmentOption(value: key, label: value),
-            ],
-          );
+    final choice = MornyeSegmentedControl(
+      labels: labels.values.toList(),
+      selectedIndex: labels.keys.toList().indexOf(selected),
+      onChanged: (index) => onChanged(labels.keys.elementAt(index)),
+      samplesBackdrop: false,
+    );
     final content = Padding(
       padding: EdgeInsets.symmetric(
         horizontal: context.tokens.rowPaddingH,
@@ -871,14 +855,6 @@ class _LibrarySongTapChoice extends StatelessWidget {
         children: [
           Row(
             children: [
-              if (!context.isMornye) ...[
-                AppIcon(
-                  Icons.play_circle_outline,
-                  color: colorScheme.onSurfaceVariant,
-                  size: 24,
-                ),
-                SizedBox(width: context.tokens.rowIconGap),
-              ],
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

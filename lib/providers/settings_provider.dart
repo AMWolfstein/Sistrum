@@ -189,7 +189,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
     LogBuffer.loggingEnabled = state.enableLogging;
   }
 
-
   Future<void> _runMigrations(SharedPreferences prefs) async {
     final lastMigration = prefs.getInt(_migrationVersionKey) ?? 0;
 
@@ -489,18 +488,12 @@ class SettingsNotifier extends Notifier<AppSettings> {
     state.copyWith(playerCoverStyle: playerCoverStyleFromJson(style)),
   );
 
-  void setLandscapeLyricsArtwork(bool enabled) =>
-      _commit(state.copyWith(landscapeLyricsArtwork: enabled));
-
   void setAutoHideLyricsControls(bool enabled) => _commit(
     state.copyWith(
       autoHideLyricsControls: enabled,
       autoHideLyricsControlsWithAccessibility: enabled,
     ),
   );
-
-  void setCompactPlayer(bool enabled) =>
-      _commit(state.copyWith(compactPlayer: enabled));
 
   void setUsbBitPerfect(bool enabled) =>
       _commit(state.copyWith(usbBitPerfect: enabled));

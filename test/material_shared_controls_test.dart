@@ -1,10 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_checkbox.dart';
@@ -17,7 +14,7 @@ import 'support/tooltip_finder.dart';
 Widget _host(Widget child, {ThemeData? theme, bool reduceMotion = false}) =>
     ProviderScope(
       child: MaterialApp(
-        theme: theme ?? AppTheme.light(),
+        theme: theme ?? MornyeTheme.build(Brightness.light),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         builder: (context, child) => MediaQuery(
@@ -68,93 +65,6 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('popup retains the anchor theme above a nested navigator', (
-    tester,
-  ) async {
-    final localTheme = AppTheme.dark().copyWith(
-      colorScheme: AppTheme.dark().colorScheme.copyWith(
-        primary: const Color(0xff95ed72),
-      ),
-    );
-    await tester.pumpWidget(
-      _host(
-        Theme(
-          data: localTheme,
-          child: Navigator(
-            onGenerateRoute: (_) => MaterialPageRoute<void>(
-              builder: (_) => Scaffold(body: Center(child: _menu())),
-            ),
-          ),
-        ),
-      ),
-    );
-    await tester.tap(findByTooltip('Options'));
-    await tester.pumpAndSettle();
-    final popup = find.byWidgetPredicate(
-      (widget) => widget is M3EMenuPopup<Object>,
-    );
-    expect(popup, findsOneWidget);
-    final colors = M3ETheme.of(tester.element(popup)).colorScheme;
-    expect(colors.brightness, Brightness.dark);
-    expect(colors.primary, localTheme.colorScheme.primary);
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('desktop popup keeps only its own scrollbar', (tester) async {
-    debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
-    addTearDown(() => debugDefaultTargetPlatformOverride = null);
-    await tester.pumpWidget(
-      _host(
-        AppMenuButton<String>(
-          icon: const Icon(Icons.search),
-          tooltip: 'Provider',
-          items: [
-            for (var i = 0; i < 12; i++)
-              AppMenuItem(value: '$i', label: 'Provider $i'),
-          ],
-          onSelected: (_) {},
-        ),
-      ),
-    );
-    await tester.tap(findByTooltip('Provider'));
-    await tester.pumpAndSettle();
-    final popup = find.byWidgetPredicate(
-      (widget) => widget is M3EMenuPopup<Object>,
-    );
-    expect(
-      find.descendant(of: popup, matching: find.byType(RawScrollbar)),
-      findsOneWidget,
-    );
-    expect(
-      find.descendant(of: popup, matching: find.byType(Scrollbar)),
-      findsNothing,
-    );
-    debugDefaultTargetPlatformOverride = null;
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('removing an anchor also removes its open popup', (tester) async {
-    final visible = ValueNotifier(true);
-    addTearDown(visible.dispose);
-    await tester.pumpWidget(
-      _host(
-        ValueListenableBuilder<bool>(
-          valueListenable: visible,
-          builder: (_, show, _) => show ? _menu() : const SizedBox.shrink(),
-        ),
-      ),
-    );
-    await tester.tap(findByTooltip('Options'));
-    await tester.pumpAndSettle();
-    visible.value = false;
-    await tester.pumpAndSettle();
-    expect(
-      find.byWidgetPredicate((widget) => widget is M3EMenuPopup<Object>),
-      findsNothing,
-    );
-    expect(tester.takeException(), isNull);
-  });
-
   testWidgets('popup selects once and can reopen after dismissal', (
     tester,
   ) async {
@@ -163,10 +73,7 @@ void main() {
     await tester.tap(findByTooltip('Options'));
     await tester.tap(findByTooltip('Options'), warnIfMissed: false);
     await tester.pumpAndSettle();
-    expect(
-      find.byWidgetPredicate((widget) => widget is M3EMenuPopup<Object>),
-      findsOneWidget,
-    );
+    expect(find.text('Choose item', findRichText: true), findsOneWidget);
     await tester.tap(find.text('Choose item', findRichText: true));
     await tester.pumpAndSettle();
     expect(selected, ['choose']);
@@ -264,7 +171,7 @@ void main() {
     expect(editable.scrollPadding, const EdgeInsets.only(bottom: 120));
   });
 
-  for (final variant in ['expressive', 'reduced', 'mornye']) {
+  for (final variant in ['light', 'reduced', 'mornye']) {
     testWidgets(
       'playlist dialog validates and submits with the keyboard ($variant)',
       (tester) async {
@@ -314,7 +221,7 @@ void main() {
             ),
             theme: variant == 'mornye'
                 ? MornyeTheme.build(Brightness.dark)
-                : null,
+                : MornyeTheme.build(Brightness.light),
             reduceMotion: variant == 'reduced',
           ),
         );
@@ -380,10 +287,7 @@ void main() {
       await tester.tap(find.text('Select field'));
       await tester.pumpAndSettle();
       expect(value, isTrue);
-      final control = reduced
-          ? find.byType(Checkbox)
-          : find.byType(M3ECheckbox);
-      await tester.tap(control);
+      await tester.tap(find.byType(Checkbox));
       await tester.pumpAndSettle();
       expect(value, isFalse);
       expect(changes, 2);

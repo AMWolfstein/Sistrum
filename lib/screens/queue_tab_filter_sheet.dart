@@ -14,8 +14,7 @@ extension _QueueTabFilterSheet on _QueueTabState {
         builder: (context, setSheetState) {
           return AppBottomSheet(
             title: context.l10n.libraryFilterTitle,
-            titleTrailing: ExpressiveButton(
-              text: true,
+            titleTrailing: TextButton(
               onPressed: () {
                 setSheetState(() {
                   tempSource = null;

@@ -3,12 +3,13 @@ part of 'track_metadata_screen.dart';
 /// Content width, inside the page padding, at which the cards split into two
 /// columns of about 470 or more each.
 const double _trackMetadataTwoColumnMinWidth = 960;
+const double _trackMetadataMaxWidth = 1280;
 
 /// The content width for a window [width]: the reading width on phones and
 /// small windows, wide enough for the two columns once they fit.
 double _trackMetadataContentMaxWidth(double width) =>
     width >= _trackMetadataTwoColumnMinWidth + 32
-    ? math.min(width, desktopMaterialContentMaxWidth)
+    ? math.min(width, _trackMetadataMaxWidth)
     : adaptiveContentMaxWidth(width);
 
 /// Inner padding of a section, the same as the analysis cards below them.
@@ -273,7 +274,6 @@ extension _TrackMetadataCards on _TrackMetadataScreenState {
     final tokens = context.tokens;
     return _metadataSectionSurface(
       context,
-      colorScheme,
       child: Padding(
         padding: const EdgeInsets.all(_trackMetadataSectionPadding),
         child: Column(
@@ -308,8 +308,6 @@ extension _TrackMetadataCards on _TrackMetadataScreenState {
     required List<_MetadataItem> all,
     required bool showDivider,
   }) {
-    final tokens = context.tokens;
-    final textTheme = Theme.of(context).textTheme;
     final onTap = item.copyable
         ? () => _copyToClipboard(context, item.rawValue)
         : null;
@@ -322,48 +320,13 @@ extension _TrackMetadataCards on _TrackMetadataScreenState {
             color: colorScheme.onSurfaceVariant,
           )
         : null;
-    if (context.isMornye) {
-      return MornyeMetadataRow(
-        label: item.label,
-        value: item.value,
-        showDivider: showDivider,
-        trailing: copy,
-        onTap: onTap,
-        onLongPress: onLongPress,
-      );
-    }
-    return InkWell(
+    return MornyeMetadataRow(
+      label: item.label,
+      value: item.value,
+      showDivider: showDivider,
+      trailing: copy,
       onTap: onTap,
       onLongPress: onLongPress,
-      borderRadius: tokens.borderRadiusThumb,
-      // Every row keeps the minimum touch target for its long press.
-      child: ConstrainedBox(
-        constraints: BoxConstraints(minHeight: tokens.minTouchTarget),
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: tokens.gapSm),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.baseline,
-            textBaseline: TextBaseline.alphabetic,
-            spacing: tokens.gapMd,
-            children: [
-              Expanded(
-                flex: 2,
-                child: Text(
-                  item.label,
-                  style: textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-              Expanded(
-                flex: 3,
-                child: Text(item.value, style: textTheme.bodyLarge),
-              ),
-              ?copy,
-            ],
-          ),
-        ),
-      ),
     );
   }
 
@@ -508,7 +471,6 @@ extension _TrackMetadataCards on _TrackMetadataScreenState {
 
     return _metadataSectionSurface(
       context,
-      colorScheme,
       child: Padding(
         padding: const EdgeInsets.all(_trackMetadataSectionPadding),
         child: Column(

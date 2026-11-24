@@ -34,10 +34,6 @@ void main() {
     () async {
       SharedPreferences.setMockInitialValues({
         kThemeModeKey: 'dark',
-        kThemeStyleKey: 'mornye',
-        kSeedColorKey: 0xff123456,
-        kUseDynamicColorKey: false,
-        kUseAmoledKey: true,
         kUseSystemFontKey: true,
         kMornyeAccentKey: 'blue',
         kMornyeGlassClarityKey: 0.2,
@@ -70,10 +66,6 @@ void main() {
       expect(state.themeMode, ThemeMode.system);
       expect(state.mornyeAccent, MornyeAccent.red);
       expect(state.mornyeGlassClarity, 0.8);
-      expect(state.style, AppThemeStyle.mornye);
-      expect(state.seedColorValue, 0xff123456);
-      expect(state.useDynamicColor, isFalse);
-      expect(state.useAmoled, isTrue);
       expect(state.useSystemFont, isTrue);
       expect(loadBootstrapThemeSettings(prefs), state);
     },
@@ -120,17 +112,19 @@ void main() {
         ],
       );
       addTearDown(container.dispose);
-      final saving = container.read(themeProvider.notifier).setUseAmoled(true);
+      final saving = container
+          .read(themeProvider.notifier)
+          .setUseSystemFont(true);
       releaseLoad.completeError(StateError('theme_load_failed'));
       await saving;
-      expect(container.read(themeProvider).useAmoled, isTrue);
+      expect(container.read(themeProvider).useSystemFont, isTrue);
     },
   );
 
   test(
     'disposed theme does not read state or save after delayed loading',
     () async {
-      SharedPreferences.setMockInitialValues({kUseAmoledKey: false});
+      SharedPreferences.setMockInitialValues({kUseSystemFontKey: false});
       final prefs = await SharedPreferences.getInstance();
       final releaseLoad = Completer<SharedPreferences>();
       final container = ProviderContainer(
@@ -140,11 +134,13 @@ void main() {
           ),
         ],
       );
-      final saving = container.read(themeProvider.notifier).setUseAmoled(true);
+      final saving = container
+          .read(themeProvider.notifier)
+          .setUseSystemFont(true);
       container.dispose();
       releaseLoad.complete(prefs);
       await saving;
-      expect(prefs.getBool(kUseAmoledKey), isFalse);
+      expect(prefs.getBool(kUseSystemFontKey), isFalse);
     },
   );
 }

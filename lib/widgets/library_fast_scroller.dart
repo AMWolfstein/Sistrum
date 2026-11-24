@@ -4,7 +4,6 @@ import 'dart:math' as math;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:sistrum/theme/app_motion.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 
 /// A draggable scroll thumb for long library lists, with a bubble naming the
 /// section under the thumb (a letter or a month).
@@ -209,7 +208,6 @@ class _LibraryFastScrollerState extends State<LibraryFastScroller> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final mornye = context.isMornye;
     final reduced = MediaQuery.disableAnimationsOf(context);
     final motion = AppMotion.spatialFast(
       context,
@@ -295,9 +293,7 @@ class _LibraryFastScrollerState extends State<LibraryFastScroller> {
                                         color: _dragging
                                             ? colors.primary
                                             : colors.onSurfaceVariant
-                                                  .withValues(
-                                                    alpha: mornye ? 0.45 : 0.6,
-                                                  ),
+                                                  .withValues(alpha: 0.45),
                                         shape: const StadiumBorder(),
                                       ),
                                     ),
@@ -321,7 +317,6 @@ class _LibraryFastScrollerState extends State<LibraryFastScroller> {
                                 child: _Bubble(
                                   key: const ValueKey('library-scroll-bubble'),
                                   label: label,
-                                  mornye: mornye,
                                   motion: motion,
                                 ),
                               ),
@@ -378,18 +373,11 @@ class _BubbleLayout extends SingleChildLayoutDelegate {
       rtl != oldDelegate.rtl;
 }
 
-/// The section bubble beside the thumb. Material uses a container-colored
-/// shape pointing at the thumb; Mornye a plain rounded tile.
+/// The section bubble beside the thumb: a plain rounded tile.
 class _Bubble extends StatelessWidget {
-  const _Bubble({
-    super.key,
-    required this.label,
-    required this.mornye,
-    required this.motion,
-  });
+  const _Bubble({super.key, required this.label, required this.motion});
 
   final String label;
-  final bool mornye;
   final AppMotionSpec motion;
 
   @override
@@ -409,20 +397,10 @@ class _Bubble extends StatelessWidget {
         constraints: const BoxConstraints(minWidth: 72, minHeight: 72),
         child: DecoratedBox(
           decoration: ShapeDecoration(
-            color: mornye
-                ? colors.surfaceContainerHighest
-                : colors.primaryContainer,
+            color: colors.surfaceContainerHighest,
             shadows: kElevationToShadow[2],
             shape: RoundedRectangleBorder(
-              borderRadius: mornye
-                  ? BorderRadius.circular(18)
-                  // The sharp corner points at the thumb.
-                  : const BorderRadiusDirectional.only(
-                      topStart: Radius.circular(36),
-                      topEnd: Radius.circular(36),
-                      bottomStart: Radius.circular(36),
-                      bottomEnd: Radius.circular(6),
-                    ),
+              borderRadius: BorderRadius.circular(18),
             ),
           ),
           child: Padding(
@@ -440,9 +418,7 @@ class _Bubble extends StatelessWidget {
                               : Theme.of(context).textTheme.titleMedium)
                           ?.copyWith(
                             fontWeight: FontWeight.w700,
-                            color: mornye
-                                ? colors.onSurface
-                                : colors.onPrimaryContainer,
+                            color: colors.onSurface,
                           ),
                 ),
               ),

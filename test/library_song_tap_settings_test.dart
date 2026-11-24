@@ -9,12 +9,10 @@ import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/settings/library_settings_page.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/settings_search_catalog.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
-import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/song_row_tap.dart';
 
 const _title = 'Tapping a song';
@@ -30,7 +28,6 @@ class _Library extends LocalLibraryNotifier {
 
 Future<ProviderContainer> _pumpPage(
   WidgetTester tester, {
-  bool mornye = false,
   AppSettings settings = const AppSettings(),
 }) async {
   SharedPreferences.setMockInitialValues({});
@@ -49,7 +46,7 @@ Future<ProviderContainer> _pumpPage(
     UncontrolledProviderScope(
       container: container,
       child: MaterialApp(
-        theme: mornye ? MornyeTheme.build(Brightness.dark) : AppTheme.light(),
+        theme: MornyeTheme.build(Brightness.dark),
         localizationsDelegates: appLocalizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: const LibrarySettingsPage(),
@@ -73,45 +70,36 @@ Finder _option(String label) => find.text(label).first;
 void main() {
   tearDown(() => debugDesktopPlatformOverride = null);
 
-  for (final mornye in [false, true]) {
-    testWidgets('a two-way choice that opens details by default ($mornye)', (
-      tester,
-    ) async {
-      final container = await _pumpPage(tester, mornye: mornye);
-      expect(
-        mornye
-            ? find.byType(MornyeSegmentedControl)
-            : find.byType(SettingsSegmentedChoice<String>),
-        findsOneWidget,
-      );
-      expect(find.text(_detailsDescription), findsOneWidget);
-      // The default comes first.
-      expect(
-        tester.getTopLeft(_option('Open details')).dx,
-        lessThan(tester.getTopLeft(_option('Play song')).dx),
-      );
+  testWidgets('a two-way choice that opens details by default', (tester) async {
+    final container = await _pumpPage(tester);
+    expect(find.byType(MornyeSegmentedControl), findsOneWidget);
+    expect(find.text(_detailsDescription), findsOneWidget);
+    // The default comes first.
+    expect(
+      tester.getTopLeft(_option('Open details')).dx,
+      lessThan(tester.getTopLeft(_option('Play song')).dx),
+    );
 
-      await tester.tap(_option('Play song'));
-      await tester.pumpAndSettle();
-      expect(
-        container.read(settingsProvider).librarySongTap,
-        AppSettings.librarySongTapPlay,
-      );
-      expect(find.text(_playDescription), findsOneWidget);
-      final prefs = await SharedPreferences.getInstance();
-      final saved = jsonDecode(prefs.getString('app_settings')!) as Map;
-      expect(saved['librarySongTap'], AppSettings.librarySongTapPlay);
+    await tester.tap(_option('Play song'));
+    await tester.pumpAndSettle();
+    expect(
+      container.read(settingsProvider).librarySongTap,
+      AppSettings.librarySongTapPlay,
+    );
+    expect(find.text(_playDescription), findsOneWidget);
+    final prefs = await SharedPreferences.getInstance();
+    final saved = jsonDecode(prefs.getString('app_settings')!) as Map;
+    expect(saved['librarySongTap'], AppSettings.librarySongTapPlay);
 
-      await tester.tap(_option('Open details'));
-      await tester.pumpAndSettle();
-      expect(
-        container.read(settingsProvider).librarySongTap,
-        AppSettings.librarySongTapDetails,
-      );
-      expect(find.text(_detailsDescription), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
-  }
+    await tester.tap(_option('Open details'));
+    await tester.pumpAndSettle();
+    expect(
+      container.read(settingsProvider).librarySongTap,
+      AppSettings.librarySongTapDetails,
+    );
+    expect(find.text(_detailsDescription), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('desktop shows the choice too', (tester) async {
     debugDesktopPlatformOverride = true;
@@ -221,7 +209,7 @@ void main() {
           ),
         ],
         child: MaterialApp(
-          theme: AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: appLocalizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(

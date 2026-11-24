@@ -359,7 +359,6 @@ class MainActivity: FlutterFragmentActivity() {
         AudioServicePlugin.getFlutterEngine(this)
         super.onCreate(savedInstanceState)
         requestHighestRefreshRate()
-        PlayerWidgetBridge.handleIntent(intent)
     }
 
     /**
@@ -431,7 +430,6 @@ class MainActivity: FlutterFragmentActivity() {
         AudioOpenBridge.consume(this, intent)
         super.onNewIntent(intent)
         setIntent(intent)
-        PlayerWidgetBridge.handleIntent(intent)
     }
 
     internal fun reportLibraryScanError(path: String, operation: String, message: String) {

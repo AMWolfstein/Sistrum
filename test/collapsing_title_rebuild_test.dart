@@ -14,7 +14,6 @@ import 'package:sistrum/screens/library_tracks_folder_screen.dart';
 import 'package:sistrum/screens/local_album_screen.dart';
 import 'package:sistrum/screens/playlist_screen.dart';
 import 'package:sistrum/services/library_database.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -110,120 +109,109 @@ List<double> _titleOpacities(WidgetTester tester) => [
 ];
 
 void main() {
-  for (final page in [
-    'playlist',
-    'local album',
-    'library folder',
-  ]) {
-    for (final mornye in [false, true]) {
-      testWidgets('$page title flip leaves the page unbuilt in '
-          'Mornye=$mornye', (tester) async {
-        tester.view.physicalSize = const Size(430, 1000);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.reset);
-        SharedPreferences.setMockInitialValues({});
-        const channel = MethodChannel('com.amwolfstein.sistrum/backend');
-        final messenger =
-            TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
-        messenger.setMockMethodCallHandler(channel, (_) async => null);
-        addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
-        final container = ProviderContainer(
-          overrides: [
-            settingsProvider.overrideWith(FixedSettingsNotifier.new),
-            libraryCollectionsProvider.overrideWith(_Collections.new),
-            recentAccessProvider.overrideWith(_Recent.new),
-            currentMediaItemProvider.overrideWithBuild(
-              (ref, notifier) => Stream.value(null),
-            ),
-            localLibraryProvider.overrideWith(_Library.new),
-            localLibraryCoverProvider.overrideWith(
-              (ref, request) async => null,
-            ),
-            localLibraryFirstCoverProvider.overrideWith(
-              (ref, request) async => null,
-            ),
-            playerMotionArtworkProvider.overrideWith(
-              (ref, album) async => null,
-            ),
-          ],
-        );
-        addTearDown(container.dispose);
-        final Widget screen = switch (page) {
-          'playlist' => PlaylistScreen(
-            playlistName: 'Example playlist',
-            tracks: _tracks,
+  for (final page in ['playlist', 'local album', 'library folder']) {
+    testWidgets('$page title flip leaves the page unbuilt in Mornye', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(430, 1000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      SharedPreferences.setMockInitialValues({});
+      const channel = MethodChannel('com.amwolfstein.sistrum/backend');
+      final messenger =
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+      messenger.setMockMethodCallHandler(channel, (_) async => null);
+      addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+      final container = ProviderContainer(
+        overrides: [
+          settingsProvider.overrideWith(FixedSettingsNotifier.new),
+          libraryCollectionsProvider.overrideWith(_Collections.new),
+          recentAccessProvider.overrideWith(_Recent.new),
+          currentMediaItemProvider.overrideWithBuild(
+            (ref, notifier) => Stream.value(null),
           ),
-          'local album' => LocalAlbumScreen(
-            albumName: 'Example album',
-            artistName: 'Example artist',
-            tracks: _local,
+          localLibraryProvider.overrideWith(_Library.new),
+          localLibraryCoverProvider.overrideWith((ref, request) async => null),
+          localLibraryFirstCoverProvider.overrideWith(
+            (ref, request) async => null,
           ),
-          _ => const LibraryTracksFolderScreen(
-            mode: LibraryTracksFolderMode.playlist,
-            playlistId: 'example-playlist',
+          playerMotionArtworkProvider.overrideWith((ref, album) async => null),
+        ],
+      );
+      addTearDown(container.dispose);
+      final Widget screen = switch (page) {
+        'playlist' => PlaylistScreen(
+          playlistName: 'Example playlist',
+          tracks: _tracks,
+        ),
+        'local album' => LocalAlbumScreen(
+          albumName: 'Example album',
+          artistName: 'Example artist',
+          tracks: _local,
+        ),
+        _ => const LibraryTracksFolderScreen(
+          mode: LibraryTracksFolderMode.playlist,
+          playlistId: 'example-playlist',
+        ),
+      };
+      // The Mornye folder header always shows its toolbar title.
+      final fades = page != 'library folder';
+      await tester.pumpWidget(
+        UncontrolledProviderScope(
+          container: container,
+          child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.light),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: screen,
           ),
-        };
-        // The Mornye folder header always shows its toolbar title.
-        final fades = !(mornye && page == 'library folder');
-        await tester.pumpWidget(
-          UncontrolledProviderScope(
-            container: container,
-            child: MaterialApp(
-              theme: mornye
-                  ? MornyeTheme.build(Brightness.light)
-                  : AppTheme.light(),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: screen,
-            ),
-          ),
-        );
-        await tester.pumpAndSettle();
+        ),
+      );
+      await tester.pumpAndSettle();
 
-        var pageBuilds = 0;
-        final previous = debugOnRebuildDirtyWidget;
-        debugOnRebuildDirtyWidget = (element, builtOnce) {
-          previous?.call(element, builtOnce);
-          if (element.widget.runtimeType == screen.runtimeType) pageBuilds++;
-        };
-        addTearDown(() => debugOnRebuildDirtyWidget = previous);
+      var pageBuilds = 0;
+      final previous = debugOnRebuildDirtyWidget;
+      debugOnRebuildDirtyWidget = (element, builtOnce) {
+        previous?.call(element, builtOnce);
+        if (element.widget.runtimeType == screen.runtimeType) pageBuilds++;
+      };
+      addTearDown(() => debugOnRebuildDirtyWidget = previous);
 
-        final position = tester
-            .state<ScrollableState>(find.byType(Scrollable).first)
-            .position;
-        final hidden = _titleOpacities(tester);
-        final frames = <List<double>>[];
-        Future<void> scrollTo(double offset) async {
-          position.jumpTo(offset);
-          await tester.pump();
-          for (var frame = 0; frame < 20; frame++) {
-            frames.add(_titleOpacities(tester));
-            await tester.pump(const Duration(milliseconds: 16));
-          }
+      final position = tester
+          .state<ScrollableState>(find.byType(Scrollable).first)
+          .position;
+      final hidden = _titleOpacities(tester);
+      final frames = <List<double>>[];
+      Future<void> scrollTo(double offset) async {
+        position.jumpTo(offset);
+        await tester.pump();
+        for (var frame = 0; frame < 20; frame++) {
+          frames.add(_titleOpacities(tester));
+          await tester.pump(const Duration(milliseconds: 16));
         }
+      }
 
-        await scrollTo(700);
-        final shown = _titleOpacities(tester);
-        await scrollTo(0);
-        // Mornye's effects spring settles in a long, quiet tail.
-        await tester.pump(const Duration(seconds: 1));
+      await scrollTo(700);
+      final shown = _titleOpacities(tester);
+      await scrollTo(0);
+      // Mornye's effects spring settles in a long, quiet tail.
+      await tester.pump(const Duration(seconds: 1));
 
-        expect(pageBuilds, 0);
-        expect(_titleOpacities(tester), hidden);
-        if (fades) {
-          expect(shown, isNot(equals(hidden)));
-          // The title fades through intermediate frames both ways.
-          expect(
-            frames.where(
-              (opacities) =>
-                  opacities.any((opacity) => opacity > 0 && opacity < 1),
-            ),
-            isNotEmpty,
-          );
-        }
-        expect(tester.takeException(), isNull);
-        await tester.pumpWidget(const SizedBox());
-      });
-    }
+      expect(pageBuilds, 0);
+      expect(_titleOpacities(tester), hidden);
+      if (fades) {
+        expect(shown, isNot(equals(hidden)));
+        // The title fades through intermediate frames both ways.
+        expect(
+          frames.where(
+            (opacities) =>
+                opacities.any((opacity) => opacity > 0 && opacity < 1),
+          ),
+          isNotEmpty,
+        );
+      }
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+    });
   }
 }

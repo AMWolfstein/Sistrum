@@ -7,11 +7,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/screens/settings/cache_management_page.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/string_utils.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 
 const _pathProvider = MethodChannel('plugins.flutter.io/path_provider');
@@ -51,110 +49,104 @@ void main() {
     await root.delete(recursive: true);
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets('cache rows show sizes and confirm before clearing '
-        '(Mornye: $mornye)', (tester) async {
-      tester.view.physicalSize = const Size(430, 2400);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      await tester.runAsync(() async {
-        await tester.pumpWidget(
-          ProviderScope(
-            child: MaterialApp(
-              theme: mornye
-                  ? MornyeTheme.build(Brightness.dark)
-                  : AppTheme.light(),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: const CacheManagementPage(),
-            ),
+  testWidgets('cache rows show sizes and confirm before clearing', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(430, 2400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.runAsync(() async {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.dark),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: const CacheManagementPage(),
           ),
-        );
-        for (var i = 0; i < 50; i++) {
-          await Future<void>.delayed(const Duration(milliseconds: 20));
-          await tester.pump();
-          if (find.byType(SettingsItem).evaluate().isNotEmpty) break;
-        }
-      });
-      await tester.pump();
-
-      final l10n = tester.element(find.byType(CacheManagementPage)).l10n;
-      String sized(int bytes, int files) =>
-          l10n.cacheSizeWithFiles(formatBytes(bytes), files);
-      final rows = tester
-          .widgetList<SettingsItem>(find.byType(SettingsItem))
-          .toList();
-      expect(
-        [
-          for (final row in rows)
-            (row.icon, row.title, row.subtitle, row.showDivider),
-        ],
-        [
-          (
-            Icons.folder_outlined,
-            l10n.cacheAppDirectory,
-            '${l10n.cacheAppDirectoryDesc}\n${sized(1500, 2)}',
-            true,
-          ),
-          (
-            Icons.timer_outlined,
-            l10n.cacheTempDirectory,
-            '${l10n.cacheTempDirectoryDesc}\n${sized(2048, 1)}',
-            true,
-          ),
-          (
-            Icons.library_music_outlined,
-            l10n.cacheLibraryCover,
-            '${l10n.cacheLibraryCoverDesc}\n${l10n.cacheNoData}',
-            true,
-          ),
-          (
-            Icons.graphic_eq_outlined,
-            l10n.cacheAudioAnalysis,
-            '${l10n.cacheAudioAnalysisDesc}\n${sized(300, 1)}',
-            true,
-          ),
-          (
-            Icons.video_library_outlined,
-            l10n.cacheMotionArtwork,
-            '${l10n.cacheMotionArtworkDesc}\n${formatBytes(4096)}',
-            false,
-          ),
-          (
-            Icons.cleaning_services_outlined,
-            l10n.cacheCleanupUnused,
-            '${l10n.cacheCleanupUnusedDesc}\n'
-                '${l10n.cacheCleanupUnusedSubtitle}',
-            false,
-          ),
-        ],
-      );
-      for (final row in rows) {
-        expect(row.trailing, isA<ExpressiveButton>(), reason: row.title);
-      }
-
-      // A row's clear button names that cache in the confirm dialog, and
-      // cancelling clears nothing.
-      final libraryCoverRow = find.byWidget(rows[2]);
-      await tester.tap(
-        find.descendant(
-          of: libraryCoverRow,
-          matching: find.byType(ExpressiveButton),
         ),
       );
-      await tester.pumpAndSettle();
-      final dialog = tester.widget<AppAlertDialog>(find.byType(AppAlertDialog));
-      expect((dialog.title! as Text).data, l10n.cacheClearConfirmTitle);
-      expect(
-        (dialog.content! as Text).data,
-        l10n.cacheClearConfirmMessage(l10n.cacheLibraryCover),
-      );
-      await tester.tap(find.text(l10n.dialogCancel));
-      await tester.pumpAndSettle();
-      expect(find.byType(AppAlertDialog), findsNothing);
-      expect(File('${root.path}/cache/a.bin').existsSync(), isTrue);
-
-      expect(tester.takeException(), isNull);
+      for (var i = 0; i < 50; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+        await tester.pump();
+        if (find.byType(SettingsItem).evaluate().isNotEmpty) break;
+      }
     });
-  }
+    await tester.pump();
+
+    final l10n = tester.element(find.byType(CacheManagementPage)).l10n;
+    String sized(int bytes, int files) =>
+        l10n.cacheSizeWithFiles(formatBytes(bytes), files);
+    final rows = tester
+        .widgetList<SettingsItem>(find.byType(SettingsItem))
+        .toList();
+    expect(
+      [
+        for (final row in rows)
+          (row.icon, row.title, row.subtitle, row.showDivider),
+      ],
+      [
+        (
+          Icons.folder_outlined,
+          l10n.cacheAppDirectory,
+          '${l10n.cacheAppDirectoryDesc}\n${sized(1500, 2)}',
+          true,
+        ),
+        (
+          Icons.timer_outlined,
+          l10n.cacheTempDirectory,
+          '${l10n.cacheTempDirectoryDesc}\n${sized(2048, 1)}',
+          true,
+        ),
+        (
+          Icons.library_music_outlined,
+          l10n.cacheLibraryCover,
+          '${l10n.cacheLibraryCoverDesc}\n${l10n.cacheNoData}',
+          true,
+        ),
+        (
+          Icons.graphic_eq_outlined,
+          l10n.cacheAudioAnalysis,
+          '${l10n.cacheAudioAnalysisDesc}\n${sized(300, 1)}',
+          true,
+        ),
+        (
+          Icons.video_library_outlined,
+          l10n.cacheMotionArtwork,
+          '${l10n.cacheMotionArtworkDesc}\n${formatBytes(4096)}',
+          false,
+        ),
+        (
+          Icons.cleaning_services_outlined,
+          l10n.cacheCleanupUnused,
+          '${l10n.cacheCleanupUnusedDesc}\n'
+              '${l10n.cacheCleanupUnusedSubtitle}',
+          false,
+        ),
+      ],
+    );
+    for (final row in rows) {
+      expect(row.trailing, isA<TextButton>(), reason: row.title);
+    }
+
+    // A row's clear button names that cache in the confirm dialog, and
+    // cancelling clears nothing.
+    final libraryCoverRow = find.byWidget(rows[2]);
+    await tester.tap(
+      find.descendant(of: libraryCoverRow, matching: find.byType(TextButton)),
+    );
+    await tester.pumpAndSettle();
+    final dialog = tester.widget<AppAlertDialog>(find.byType(AppAlertDialog));
+    expect((dialog.title! as Text).data, l10n.cacheClearConfirmTitle);
+    expect(
+      (dialog.content! as Text).data,
+      l10n.cacheClearConfirmMessage(l10n.cacheLibraryCover),
+    );
+    await tester.tap(find.text(l10n.dialogCancel));
+    await tester.pumpAndSettle();
+    expect(find.byType(AppAlertDialog), findsNothing);
+    expect(File('${root.path}/cache/a.bin').existsSync(), isTrue);
+
+    expect(tester.takeException(), isNull);
+  });
 }

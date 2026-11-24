@@ -7,7 +7,6 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/audio_format_utils.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 
@@ -125,7 +124,6 @@ class _DropOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final mornye = context.isMornye;
     return IgnorePointer(
       child: ColoredBox(
         color: colorScheme.surface.withValues(alpha: 0.9),
@@ -134,16 +132,14 @@ class _DropOverlay extends StatelessWidget {
           child: DecoratedBox(
             decoration: BoxDecoration(
               border: Border.all(color: colorScheme.primary, width: 2),
-              borderRadius: BorderRadius.circular(mornye ? 16 : 28),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
-                    mornye
-                        ? mornyeIconFor(Icons.library_add_outlined)
-                        : Icons.library_add_outlined,
+                    mornyeIconFor(Icons.library_add_outlined),
                     size: 48,
                     color: colorScheme.primary,
                   ),

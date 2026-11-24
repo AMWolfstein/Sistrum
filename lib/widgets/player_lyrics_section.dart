@@ -6,13 +6,11 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/lyrics_display_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/song_lyrics_offset_provider.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:sistrum/utils/playback_seek_preview.dart';
 import 'package:sistrum/utils/text_direction.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/lyrics_editor_sheet.dart';
 import 'package:sistrum/widgets/lyrics_options_activity.dart';
 import 'package:sistrum/widgets/player_lyrics.dart';
@@ -137,12 +135,11 @@ class PlayerLyricsSection extends ConsumerWidget {
         ),
         if (canEditPlayerLyrics(metadata)) ...[
           const SizedBox(height: 8),
-          ExpressiveButton(
+          TextButton.icon(
             key: const ValueKey('lyrics-write'),
-            text: true,
             onPressed: () => openLyricsEditor(context, metadata),
             icon: const Icon(Icons.edit_note),
-            child: Text(context.l10n.lyricsEditWrite),
+            label: Text(context.l10n.lyricsEditWrite),
           ),
         ],
       ],
@@ -172,7 +169,7 @@ class PlayerLyricsSection extends ConsumerWidget {
           ),
           if (options != null)
             PositionedDirectional(
-              end: context.isMornye ? mornyeLyricsContentInset : 24,
+              end: mornyeLyricsContentInset,
               bottom: 8,
               child: options!,
             ),
@@ -206,7 +203,7 @@ class PlayerLyricsSection extends ConsumerWidget {
       children: [
         plain,
         PositionedDirectional(
-          end: context.isMornye ? mornyeLyricsContentInset : 24,
+          end: mornyeLyricsContentInset,
           bottom: 8,
           child: options!,
         ),

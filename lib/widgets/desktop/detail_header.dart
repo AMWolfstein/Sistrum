@@ -2,13 +2,8 @@ import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/cover_palette.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/theme/player_artwork_theme.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
-import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/desktop/context_menu.dart';
 import 'package:sistrum/widgets/sliver_layout_info_builder.dart';
 
@@ -24,36 +19,20 @@ double desktopDetailArtworkSize(double contentWidth) =>
     (contentWidth * 0.32).clamp(200.0, 300.0);
 
 /// The artist line under a desktop detail title, large and in the accent color.
-///
-/// Pass a [context] inside the header (a `Builder` around the subtitle), so
-/// a Material header takes the accent of its artwork scheme.
-TextStyle desktopDetailSubtitleStyle(BuildContext context) {
-  final scheme = Theme.of(context).colorScheme;
-  return context.isMornye
-      ? TextStyle(
-          color: scheme.primary,
-          fontSize: 24,
-          fontWeight: FontWeight.w400,
-          height: 1.2,
-        )
-      : (Theme.of(context).textTheme.titleLarge ?? const TextStyle()).copyWith(
-          color: scheme.primary,
-          fontWeight: FontWeight.w500,
-        );
-}
+TextStyle desktopDetailSubtitleStyle(BuildContext context) => TextStyle(
+  color: Theme.of(context).colorScheme.primary,
+  fontSize: 24,
+  fontWeight: FontWeight.w400,
+  height: 1.2,
+);
 
 /// The desktop header of album, playlist, folder and artist pages.
 ///
 /// The artwork sits on the left edge of the list below, with the title,
 /// [subtitle] and [meta] centered beside it and [actions] along its bottom
-/// edge. The page background stays plain. Mornye floats a glass back button
-/// and a capsule of [appBarActions] over the pane; Material keeps a toolbar
-/// that shows the title once the header scrolls away. [moreMenu] adds a
-/// "More" button that opens those groups as a menu.
-///
-/// In Material, the artwork and details take the scheme of [paletteSource]
-/// (a cover URL or local path) through [PlayerArtworkTheme] and
-/// [HeaderPalette]; the toolbar and the page below keep the app scheme.
+/// edge. The page background stays plain. A glass back button and a capsule
+/// of [appBarActions] float over the pane. [moreMenu] adds a "More" button
+/// that opens those groups as a menu.
 List<Widget> desktopDetailHeaderSlivers(
   BuildContext context, {
   required String title,
@@ -70,7 +49,6 @@ List<Widget> desktopDetailHeaderSlivers(
   Color? backgroundColor,
 }) {
   final theme = Theme.of(context);
-  final mornye = context.isMornye;
   // Lines the artwork up with the description and track table below.
   final inset = wideListInset(context) + 20;
   final more = moreMenu == null ? null : HeaderMoreButton(groups: moreMenu);
@@ -83,9 +61,7 @@ List<Widget> desktopDetailHeaderSlivers(
       0.0,
       double.infinity,
     );
-    final radius = circularArtwork ? side / 2 : (mornye ? 12.0 : 20.0);
-    // Mornye uses continuous corners on rectangular covers.
-    final continuous = mornye && !circularArtwork;
+    final radius = circularArtwork ? side / 2 : 12.0;
     final corners = BorderRadius.circular(radius);
     final shadows = [
       BoxShadow(
@@ -102,18 +78,11 @@ List<Widget> desktopDetailHeaderSlivers(
           title,
           maxLines: 3,
           overflow: TextOverflow.ellipsis,
-          style: mornye
-              ? const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
-                  height: 1.15,
-                )
-              // The text theme keeps the app's on-surface color, so the
-              // title reads the header scheme directly.
-              : Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
-                  fontWeight: FontWeight.w600,
-                ),
+          style: const TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+            height: 1.15,
+          ),
         ),
         if (subtitle != null) ...[const SizedBox(height: 2), subtitle],
         if (meta != null) ...[const SizedBox(height: 8), meta],
@@ -127,21 +96,14 @@ List<Widget> desktopDetailHeaderSlivers(
           Container(
             width: side,
             height: side,
-            decoration: continuous
-                ? ShapeDecoration(
-                    shape: RoundedSuperellipseBorder(borderRadius: corners),
-                    shadows: shadows,
-                  )
-                : BoxDecoration(borderRadius: corners, boxShadow: shadows),
-            child: continuous
-                ? ClipRSuperellipse(
-                    borderRadius: corners,
-                    child: artwork(context, side),
-                  )
-                : ClipRRect(
-                    borderRadius: corners,
-                    child: artwork(context, side),
-                  ),
+            decoration: ShapeDecoration(
+              shape: RoundedSuperellipseBorder(borderRadius: corners),
+              shadows: shadows,
+            ),
+            child: ClipRSuperellipse(
+              borderRadius: corners,
+              child: artwork(context, side),
+            ),
           ),
           const SizedBox(width: gap),
           Expanded(
@@ -176,21 +138,11 @@ List<Widget> desktopDetailHeaderSlivers(
   final back =
       leading ??
       (Navigator.canPop(context)
-          ? (mornye
-                ? HeaderCircleButton(
-                    icon: CupertinoIcons.back,
-                    tooltip: MaterialLocalizations.of(
-                      context,
-                    ).backButtonTooltip,
-                    onPressed: () => Navigator.maybePop(context),
-                  )
-                : AppIconButton(
-                    tooltip: MaterialLocalizations.of(
-                      context,
-                    ).backButtonTooltip,
-                    icon: const AppIcon(Icons.arrow_back),
-                    onPressed: () => Navigator.maybePop(context),
-                  ))
+          ? HeaderCircleButton(
+              icon: CupertinoIcons.back,
+              tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+              onPressed: () => Navigator.maybePop(context),
+            )
           : null);
   // The bar's title fades on the fast effects spring of the style.
   final titleFade = AppMotion.effectsFast(
@@ -200,19 +152,16 @@ List<Widget> desktopDetailHeaderSlivers(
 
   return [
     SliverLayoutInfoBuilder(
-      select: (constraints) =>
-          appBarTitle != null || (!mornye && constraints.scrollOffset > 200),
+      select: (constraints) => appBarTitle != null,
       builder: (context, showTitle) {
         return SliverAppBar(
           pinned: true,
           automaticallyImplyLeading: false,
           toolbarHeight: _toolbarHeight,
-          // Mornye controls float over the pane.
-          backgroundColor: mornye
-              ? Colors.transparent
-              : backgroundColor ?? theme.colorScheme.surface,
+          // The controls float over the pane.
+          backgroundColor: Colors.transparent,
           surfaceTintColor: Colors.transparent,
-          scrolledUnderElevation: mornye ? 0 : null,
+          scrolledUnderElevation: 0,
           titleSpacing: 0,
           title: AnimatedOpacity(
             opacity: showTitle ? 1 : 0,
@@ -237,28 +186,14 @@ List<Widget> desktopDetailHeaderSlivers(
           actionsPadding: const EdgeInsetsDirectional.only(end: 16),
           actions: trailing.isEmpty
               ? null
-              : mornye
-              ? [MornyeActionCapsule(children: trailing)]
-              : trailing,
+              : [MornyeActionCapsule(children: trailing)],
         );
       },
     ),
     SliverToBoxAdapter(
       child: Padding(
         padding: EdgeInsets.fromLTRB(inset, 4, inset, 28),
-        child: mornye
-            ? LayoutBuilder(builder: details)
-            // Kept without a source too, so artwork that arrives later
-            // moves the scheme instead of rebuilding the header.
-            : PlayerArtworkTheme(
-                artUri: paletteSource,
-                child: Builder(
-                  builder: (context) => HeaderPalette(
-                    scheme: Theme.of(context).colorScheme,
-                    child: LayoutBuilder(builder: details),
-                  ),
-                ),
-              ),
+        child: LayoutBuilder(builder: details),
       ),
     ),
   ];

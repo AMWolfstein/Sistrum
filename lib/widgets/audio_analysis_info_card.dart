@@ -227,22 +227,14 @@ class _AudioInfoCard extends StatelessWidget {
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
-                child: context.isMornye
-                    ? AppActionButton(
-                        key: const ValueKey('audio-analysis-compare'),
-                        outlined: true,
-                        tonal: true,
-                        onPressed: onCompare,
-                        icon: const Icon(Icons.compare_arrows),
-                        label: Text(context.l10n.audioCompareAction),
-                      )
-                    : ExpressiveButton(
-                        key: const ValueKey('audio-analysis-compare'),
-                        tonal: true,
-                        onPressed: onCompare,
-                        icon: const Icon(Icons.compare_arrows, size: 20),
-                        child: Text(context.l10n.audioCompareAction),
-                      ),
+                child: AppActionButton(
+                  key: const ValueKey('audio-analysis-compare'),
+                  outlined: true,
+                  tonal: true,
+                  onPressed: onCompare,
+                  icon: const Icon(Icons.compare_arrows),
+                  label: Text(context.l10n.audioCompareAction),
+                ),
               ),
               const SizedBox(height: 4),
               Text(

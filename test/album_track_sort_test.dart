@@ -59,62 +59,58 @@ void main() {
     });
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets('the button offers the sorts (Mornye: $mornye)', (
-      tester,
-    ) async {
-      final container = ProviderContainer();
-      addTearDown(container.dispose);
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: MaterialApp(
-            theme: mornye ? MornyeTheme.build(Brightness.dark) : null,
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: const Scaffold(
-              body: Center(
-                child: AlbumTrackSortButton(albumKey: _album, songs: _songs),
-              ),
+  testWidgets('the button offers the sorts', (tester) async {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const Scaffold(
+            body: Center(
+              child: AlbumTrackSortButton(albumKey: _album, songs: _songs),
             ),
           ),
         ),
-      );
-      Future<void> openMenu() async {
-        await tester.tap(find.byType(AlbumTrackSortButton));
-        await tester.pumpAndSettle();
-      }
-
-      AlbumTrackSort sort() =>
-          container.read(albumTrackChoicesProvider.notifier).of(_album).sort;
-
-      await openMenu();
-      await tester.tap(find.text('Most Played'));
+      ),
+    );
+    Future<void> openMenu() async {
+      await tester.tap(find.byType(AlbumTrackSortButton));
       await tester.pumpAndSettle();
-      expect(sort(), AlbumTrackSort.mostPlayed);
+    }
 
-      await openMenu();
-      await tester.tap(find.text('Custom Order'));
-      await tester.pumpAndSettle();
-      // Opening the editor already selects the order it shows.
-      expect(sort(), AlbumTrackSort.custom);
-      for (final song in _songs) {
-        expect(find.text(song), findsOneWidget);
-      }
-      final list = tester.widget<ReorderableListView>(
-        find.byType(ReorderableListView),
-      );
-      list.onReorderItem?.call(0, 2);
-      await tester.pump();
-      expect(
-        container.read(albumTrackChoicesProvider.notifier).of(_album).custom,
-        [
-          albumTrackRankKey('Second'),
-          albumTrackRankKey('Third'),
-          albumTrackRankKey('First'),
-        ],
-      );
-      expect(tester.takeException(), isNull);
-    });
-  }
+    AlbumTrackSort sort() =>
+        container.read(albumTrackChoicesProvider.notifier).of(_album).sort;
+
+    await openMenu();
+    await tester.tap(find.text('Most Played'));
+    await tester.pumpAndSettle();
+    expect(sort(), AlbumTrackSort.mostPlayed);
+
+    await openMenu();
+    await tester.tap(find.text('Custom Order'));
+    await tester.pumpAndSettle();
+    // Opening the editor already selects the order it shows.
+    expect(sort(), AlbumTrackSort.custom);
+    for (final song in _songs) {
+      expect(find.text(song), findsOneWidget);
+    }
+    final list = tester.widget<ReorderableListView>(
+      find.byType(ReorderableListView),
+    );
+    list.onReorderItem?.call(0, 2);
+    await tester.pump();
+    expect(
+      container.read(albumTrackChoicesProvider.notifier).of(_album).custom,
+      [
+        albumTrackRankKey('Second'),
+        albumTrackRankKey('Third'),
+        albumTrackRankKey('First'),
+      ],
+    );
+    expect(tester.takeException(), isNull);
+  });
 }

@@ -17,7 +17,6 @@ import 'package:sistrum/providers/system_volume_provider.dart';
 import 'package:sistrum/services/playback_deck.dart';
 import 'package:sistrum/services/shell_navigation_service.dart';
 import 'package:sistrum/services/user_profile_store.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/app_icon.dart';
@@ -28,7 +27,6 @@ import 'package:sistrum/widgets/desktop/desktop_now_playing.dart';
 import 'package:sistrum/widgets/desktop/desktop_player_bar.dart';
 import 'package:sistrum/widgets/desktop/desktop_shortcuts.dart';
 import 'package:sistrum/widgets/desktop/desktop_window.dart';
-import 'package:sistrum/widgets/expressive_navigation_bar.dart';
 import 'package:sistrum/widgets/mini_player.dart';
 import 'package:sistrum/widgets/mornye_bottom_bar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -87,8 +85,8 @@ const _libraryLinks = [
   DesktopSidebarLink(id: 'albums', icon: Icons.album, label: 'Albums'),
 ];
 
-List<DesktopDestination> _destinations({required bool mornye}) => [
-  for (final tab in desktopDestinationTabs(mornye: mornye))
+List<DesktopDestination> _destinations() => [
+  for (final tab in desktopDestinationTabs())
     DesktopDestination(
       tab: tab,
       icon: Icons.circle_outlined,
@@ -159,7 +157,6 @@ void main() {
 
   Future<void> pumpShell(
     WidgetTester tester, {
-    required bool mornye,
     required double width,
     ShellTab selected = ShellTab.home,
     MediaItem? item = _track,
@@ -189,9 +186,7 @@ void main() {
           playerMode: playerMode,
         ),
         child: MaterialApp(
-          theme: mornye
-              ? MornyeTheme.build(Brightness.light)
-              : AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           builder: (context, child) => MediaQuery(
@@ -202,7 +197,7 @@ void main() {
           ),
           home: Scaffold(
             body: DesktopShellLayout(
-              destinations: _destinations(mornye: mornye),
+              destinations: _destinations(),
               selected: selected,
               onSelected: selections.add,
               libraryLinks: libraryLinks,
@@ -223,9 +218,6 @@ void main() {
     }
   }
 
-  /// The Material rail's selection fill.
-  final railIndicator = find.byKey(const ValueKey('desktop-rail-indicator'));
-
   /// The page shown in the content pane.
   Finder contentPage() => find
       .ancestor(of: find.text('content'), matching: find.byType(Center))
@@ -233,739 +225,215 @@ void main() {
 
   void expectNoTouchNavigation() {
     expect(find.byType(NavigationBar), findsNothing);
-    expect(find.byType(ExpressiveNavigationBar), findsNothing);
     expect(find.byType(MornyeBottomBar), findsNothing);
     expect(find.byType(MiniPlayer), findsNothing);
   }
 
-  for (final mornye in [false, true]) {
-    testWidgets('paused desktop player dismisses and returns for a new song '
-        '($mornye)', (tester) async {
-      final items = StreamController<MediaItem?>();
-      addTearDown(items.close);
-      controller.onDismiss = () => items.add(null);
+  testWidgets('paused desktop player dismisses and returns for a new song', (
+    tester,
+  ) async {
+    final items = StreamController<MediaItem?>();
+    addTearDown(items.close);
+    controller.onDismiss = () => items.add(null);
+    await pumpShell(tester, width: 900, mediaItems: items.stream);
+    items.add(_track);
+    await tester.pumpAndSettle();
+    expect(findByTooltip('Dismiss'), findsOneWidget);
+    desktopInspectorPanel.value = DesktopInspectorPanel.upNext;
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('desktop-player-dismiss')));
+    await tester.pumpAndSettle();
+
+    expect(controller.calls, ['dismiss']);
+    expect(find.byType(DesktopPlayerBar), findsNothing);
+    expect(desktopInspectorPanel.value, isNull);
+    expect(desktopNowPlayingOpen.value, isFalse);
+    expect(tester.getSize(contentPage()).height, 800);
+    expect(
+      MediaQuery.paddingOf(tester.element(find.text('content'))).bottom,
+      0,
+    );
+
+    items.add(_track.copyWith(id: 'next', title: 'Another song'));
+    await tester.pumpAndSettle();
+    expect(find.byType(DesktopPlayerBar), findsOneWidget);
+    expect(find.text('Another song'), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
+
+  for (final state in ['playing', 'loading', 'idle']) {
+    testWidgets('desktop player cannot dismiss $state playback', (
+      tester,
+    ) async {
       await pumpShell(
         tester,
-        mornye: mornye,
         width: 900,
-        mediaItems: items.stream,
+        item: state == 'idle' ? null : _track,
+        playing: state == 'playing',
+        loading: state == 'loading',
       );
-      items.add(_track);
-      await tester.pumpAndSettle();
-      expect(findByTooltip('Dismiss'), findsOneWidget);
-      desktopInspectorPanel.value = DesktopInspectorPanel.upNext;
-      await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const ValueKey('desktop-player-dismiss')));
-      await tester.pumpAndSettle();
-
-      expect(controller.calls, ['dismiss']);
-      expect(find.byType(DesktopPlayerBar), findsNothing);
-      expect(desktopInspectorPanel.value, isNull);
-      expect(desktopNowPlayingOpen.value, isFalse);
-      expect(tester.getSize(contentPage()).height, 800);
       expect(
-        MediaQuery.paddingOf(tester.element(find.text('content'))).bottom,
-        0,
+        find.byKey(const ValueKey('desktop-player-dismiss')),
+        findsNothing,
       );
-
-      items.add(_track.copyWith(id: 'next', title: 'Another song'));
-      await tester.pumpAndSettle();
-      expect(find.byType(DesktopPlayerBar), findsOneWidget);
-      expect(find.text('Another song'), findsWidgets);
+      expect(controller.calls, isEmpty);
       expect(tester.takeException(), isNull);
-    });
-
-    for (final state in ['playing', 'loading', 'idle']) {
-      testWidgets('desktop player cannot dismiss $state playback ($mornye)', (
-        tester,
-      ) async {
-        await pumpShell(
-          tester,
-          mornye: mornye,
-          width: 900,
-          item: state == 'idle' ? null : _track,
-          playing: state == 'playing',
-          loading: state == 'loading',
-        );
-        expect(
-          find.byKey(const ValueKey('desktop-player-dismiss')),
-          findsNothing,
-        );
-        expect(controller.calls, isEmpty);
-        expect(tester.takeException(), isNull);
-      });
-    }
-
-    testWidgets('external mode removes desktop player surfaces ($mornye)', (
-      tester,
-    ) async {
-      desktopNowPlayingOpen.value = true;
-      desktopInspectorPanel.value = DesktopInspectorPanel.lyrics;
-      addTearDown(() {
-        desktopNowPlayingOpen.value = false;
-        desktopInspectorPanel.value = null;
-      });
-      await pumpShell(
-        tester,
-        mornye: mornye,
-        width: 1400,
-        playerMode: 'external',
-      );
-      expect(find.byType(DesktopPlayerBar), findsNothing);
-      expect(find.byKey(const ValueKey('desktop-now-playing')), findsNothing);
-      expect(find.byType(DesktopInspector), findsNothing);
-      expect(find.text('A song'), findsNothing);
-      expect(tester.getSize(contentPage()).height, 800);
-      expect(
-        MediaQuery.paddingOf(tester.element(find.text('content'))).bottom,
-        0,
-      );
-      expect(tester.takeException(), isNull);
-    });
-
-    double nowPlayingOpacity(WidgetTester tester) => tester
-        .widget<Opacity>(find.byKey(const ValueKey('desktop-now-playing-fade')))
-        .opacity;
-
-    double nowPlayingRise(WidgetTester tester) =>
-        tester.getTopLeft(find.byKey(const ValueKey('desktop-now-playing'))).dy;
-
-    testWidgets('Now Playing fades in over the shell and out again '
-        '($mornye)', (tester) async {
-      addTearDown(() => desktopNowPlayingOpen.value = false);
-      await pumpShell(
-        tester,
-        mornye: mornye,
-        width: 1400,
-        nowPlaying: const ColoredBox(color: Colors.black),
-      );
-
-      desktopNowPlayingOpen.value = true;
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 50));
-      expect(nowPlayingOpacity(tester), greaterThan(0));
-      expect(nowPlayingOpacity(tester), lessThan(1));
-      expect(nowPlayingRise(tester), mornye ? 0 : greaterThan(0));
-      // The shell keeps painting under the entrance.
-      expect(find.text('content'), findsOneWidget);
-
-      await tester.pumpAndSettle();
-      expect(nowPlayingOpacity(tester), 1);
-      expect(nowPlayingRise(tester), 0);
-      expect(find.text('content'), findsNothing);
-
-      desktopNowPlayingOpen.value = false;
-      await tester.pump();
-      expect(find.text('content'), findsOneWidget);
-      await tester.pump(const Duration(milliseconds: 80));
-      expect(nowPlayingOpacity(tester), lessThan(1));
-      // The exit is shorter than the entrance.
-      await tester.pump(const Duration(milliseconds: 130));
-      expect(find.byKey(const ValueKey('desktop-now-playing')), findsNothing);
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('Esc during the Now Playing entrance fades out from where it '
-        'is ($mornye)', (tester) async {
-      addTearDown(() => desktopNowPlayingOpen.value = false);
-      await pumpShell(
-        tester,
-        mornye: mornye,
-        width: 1400,
-        nowPlaying: const ColoredBox(color: Colors.black),
-      );
-
-      desktopNowPlayingOpen.value = true;
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 60));
-      final opacity = nowPlayingOpacity(tester);
-      final rise = nowPlayingRise(tester);
-      expect(dismissDesktopPlayerLayer(1400, mornye: mornye), isTrue);
-      await tester.pump();
-      expect(nowPlayingOpacity(tester), closeTo(opacity, 0.01));
-      expect(nowPlayingRise(tester), rise);
-      await tester.pump(const Duration(milliseconds: 16));
-      expect(nowPlayingOpacity(tester), lessThan(opacity));
-
-      await tester.pumpAndSettle();
-      expect(find.byKey(const ValueKey('desktop-now-playing')), findsNothing);
-      expect(find.text('content'), findsOneWidget);
-    });
-
-    testWidgets('focus leaves the shell as soon as Now Playing opens '
-        '($mornye)', (tester) async {
-      addTearDown(() => desktopNowPlayingOpen.value = false);
-      await pumpShell(
-        tester,
-        mornye: mornye,
-        width: 1400,
-        nowPlaying: const ColoredBox(color: Colors.black),
-      );
-      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-      await tester.pump();
-      final shellFocus = FocusManager.instance.primaryFocus!;
-      expect(
-        shellFocus.context!.findAncestorWidgetOfExactType<DesktopShellLayout>(),
-        isNotNull,
-      );
-
-      desktopNowPlayingOpen.value = true;
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 16));
-      // Still mid-entrance, with the shell painted underneath.
-      expect(find.text('content'), findsOneWidget);
-      expect(shellFocus.hasPrimaryFocus, isFalse);
-
-      await tester.pumpAndSettle();
-      desktopNowPlayingOpen.value = false;
-      await tester.pump();
-      // The shell takes focus again while Now Playing leaves.
-      shellFocus.requestFocus();
-      await tester.pump();
-      expect(shellFocus.hasPrimaryFocus, isTrue);
-      await tester.pumpAndSettle();
-    });
-
-    testWidgets('reduced motion swaps Now Playing at once ($mornye)', (
-      tester,
-    ) async {
-      addTearDown(() => desktopNowPlayingOpen.value = false);
-      await pumpShell(
-        tester,
-        mornye: mornye,
-        width: 1400,
-        nowPlaying: const ColoredBox(color: Colors.black),
-        reducedMotion: true,
-      );
-
-      desktopNowPlayingOpen.value = true;
-      await tester.pump();
-      expect(nowPlayingOpacity(tester), 1);
-      expect(nowPlayingRise(tester), 0);
-      expect(find.text('content'), findsNothing);
-
-      desktopNowPlayingOpen.value = false;
-      await tester.pump();
-      expect(find.byKey(const ValueKey('desktop-now-playing')), findsNothing);
-      expect(find.text('content'), findsOneWidget);
     });
   }
 
-  group('Material shell', () {
-    for (final width in [800.0, 900.0]) {
-      for (final playing in [false, true]) {
-        testWidgets(
-            'player controls fit at $width (playing: $playing)',
-            (tester) async {
-              await pumpShell(
-                tester,
-                mornye: false,
-                width: width,
-                playing: playing,
-              );
-              expect(tester.takeException(), isNull);
-              final bar = tester.getRect(find.byType(DesktopPlayerBar));
-              for (final key in [
-                'desktop-player-lyrics',
-                'desktop-player-up-next',
-                'desktop-player-mini',
-                if (!playing) 'desktop-player-dismiss',
-              ]) {
-                final button = find.byKey(ValueKey(key));
-                expect(button, findsOneWidget);
-                final rect = tester.getRect(button);
-                expect(rect.left, greaterThanOrEqualTo(bar.left));
-                expect(rect.right, lessThanOrEqualTo(bar.right));
-                expect(rect.top, greaterThanOrEqualTo(bar.top));
-                expect(rect.bottom, lessThanOrEqualTo(bar.bottom));
-              }
-              await tester.tap(findByTooltip('Next track (Ctrl+Right)'));
-              expect(controller.calls, ['next']);
-              if (!playing) {
-                await tester.tap(
-                  find.byKey(const ValueKey('desktop-player-dismiss')),
-                );
-                expect(controller.calls, ['next', 'dismiss']);
-              }
-              expect(tester.takeException(), isNull);
-            },
-          );
-      }
-    }
+  testWidgets('external mode removes desktop player surfaces', (tester) async {
+    desktopNowPlayingOpen.value = true;
+    desktopInspectorPanel.value = DesktopInspectorPanel.lyrics;
+    addTearDown(() {
+      desktopNowPlayingOpen.value = false;
+      desktopInspectorPanel.value = null;
+    });
+    await pumpShell(tester, width: 1400, playerMode: 'external');
+    expect(find.byType(DesktopPlayerBar), findsNothing);
+    expect(find.byKey(const ValueKey('desktop-now-playing')), findsNothing);
+    expect(find.byType(DesktopInspector), findsNothing);
+    expect(find.text('A song'), findsNothing);
+    expect(tester.getSize(contentPage()).height, 800);
+    expect(
+      MediaQuery.paddingOf(tester.element(find.text('content'))).bottom,
+      0,
+    );
+    expect(tester.takeException(), isNull);
+  });
 
-    Future<ValueNotifier<ShellTab>> pumpRail(
-      WidgetTester tester, {
-      required bool extended,
-    }) async {
-      final selected = ValueNotifier(ShellTab.home);
-      addTearDown(selected.dispose);
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: AppTheme.light(),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: Scaffold(
-            body: Align(
-              alignment: Alignment.centerLeft,
-              child: ValueListenableBuilder<ShellTab>(
-                valueListenable: selected,
-                builder: (context, tab, _) => DesktopNavigationRail(
-                  destinations: _destinations(mornye: false),
-                  selected: tab,
-                  onSelected: (_) {},
-                  extended: extended,
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      return selected;
-    }
+  double nowPlayingOpacity(WidgetTester tester) => tester
+      .widget<Opacity>(find.byKey(const ValueKey('desktop-now-playing-fade')))
+      .opacity;
 
-    for (final extended in [true, false]) {
-      testWidgets('the rail selection grows from its centre and fades in '
-          '(${extended ? 'expanded' : 'collapsed'})', (tester) async {
-        final selected = await pumpRail(tester, extended: extended);
-        Finder indicator(ShellTab tab) => find.descendant(
-          of: find.byKey(ValueKey('desktop-rail:${tab.name}')),
-          matching: railIndicator,
-        );
-        Color fill(ShellTab tab) =>
-            (tester.widget<DecoratedBox>(indicator(tab)).decoration
-                    as ShapeDecoration)
-                .color!;
-        expect(indicator(ShellTab.home), findsOneWidget);
-        expect(indicator(ShellTab.library), findsNothing);
-        final full = tester.getRect(indicator(ShellTab.home));
+  double nowPlayingRise(WidgetTester tester) =>
+      tester.getTopLeft(find.byKey(const ValueKey('desktop-now-playing'))).dy;
 
-        selected.value = ShellTab.library;
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 16));
-        final growing = tester.getRect(indicator(ShellTab.library));
-        expect(growing.width, inExclusiveRange(full.width / 2, full.width));
-        expect(growing.height, full.height);
-        // Centred on the pill it grows into.
-        final library = tester.getRect(
-          find.byKey(const ValueKey('desktop-rail:library')),
-        );
-        expect(growing.center.dx, closeTo(full.center.dx, 0.5));
-        expect(growing.center.dy, closeTo(library.center.dy, 0.5));
-        expect(fill(ShellTab.library).a, inExclusiveRange(0, 1));
-        // The old pill keeps its width and fades out.
-        expect(tester.getRect(indicator(ShellTab.home)).width, full.width);
-        expect(fill(ShellTab.home).a, inExclusiveRange(0, 1));
-
-        await tester.pumpAndSettle();
-        expect(indicator(ShellTab.home), findsNothing);
-        expect(
-          tester.getRect(indicator(ShellTab.library)).width,
-          closeTo(full.width, 0.01),
-        );
-        expect(fill(ShellTab.library).a, 1);
-      });
-    }
-
-    testWidgets('a pill deselected mid-grow fades at its width and stops', (
+  testWidgets('Now Playing fades in over the shell and out again', (
+    tester,
+  ) async {
+    addTearDown(() => desktopNowPlayingOpen.value = false);
+    await pumpShell(
       tester,
-    ) async {
-      final selected = await pumpRail(tester, extended: true);
-      Finder indicator(ShellTab tab) => find.descendant(
-        of: find.byKey(ValueKey('desktop-rail:${tab.name}')),
-        matching: railIndicator,
-      );
-      final full = tester.getRect(indicator(ShellTab.home)).width;
+      width: 1400,
+      nowPlaying: const ColoredBox(color: Colors.black),
+    );
 
-      selected.value = ShellTab.library;
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 60));
-      final growing = tester.getRect(indicator(ShellTab.library)).width;
-      expect(growing, inExclusiveRange(full / 2, full));
+    desktopNowPlayingOpen.value = true;
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(nowPlayingOpacity(tester), greaterThan(0));
+    expect(nowPlayingOpacity(tester), lessThan(1));
+    expect(nowPlayingRise(tester), 0);
+    // The shell keeps painting under the entrance.
+    expect(find.text('content'), findsOneWidget);
 
-      // Back to Home before Library's pill has grown.
-      selected.value = ShellTab.home;
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 20));
-      expect(indicator(ShellTab.library), findsOneWidget);
-      expect(tester.getRect(indicator(ShellTab.library)).width, growing);
+    await tester.pumpAndSettle();
+    expect(nowPlayingOpacity(tester), 1);
+    expect(nowPlayingRise(tester), 0);
+    expect(find.text('content'), findsNothing);
 
-      // Once the fade ends nothing keeps animating.
-      await tester.pump(const Duration(milliseconds: 200));
-      expect(indicator(ShellTab.library), findsNothing);
-      await tester.pump(const Duration(milliseconds: 16));
-      expect(tester.binding.transientCallbackCount, 0);
-      expect(tester.getRect(indicator(ShellTab.home)).width, full);
-    });
+    desktopNowPlayingOpen.value = false;
+    await tester.pump();
+    expect(find.text('content'), findsOneWidget);
+    await tester.pump(const Duration(milliseconds: 80));
+    expect(nowPlayingOpacity(tester), lessThan(1));
+    // The exit is shorter than the entrance.
+    await tester.pump(const Duration(milliseconds: 130));
+    expect(find.byKey(const ValueKey('desktop-now-playing')), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
 
-    testWidgets('reduced motion keeps the static rail', (tester) async {
-      tester.platformDispatcher.accessibilityFeaturesTestValue =
-          const FakeAccessibilityFeatures(disableAnimations: true);
-      addTearDown(
-        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
-      );
-      final selected = await pumpRail(tester, extended: true);
-      expect(find.byType(NavigationRail), findsOneWidget);
-      expect(railIndicator, findsNothing);
-      selected.value = ShellTab.library;
-      await tester.pump();
-      expect(
-        tester
-            .widget<NavigationRail>(find.byType(NavigationRail))
-            .selectedIndex,
-        1,
-      );
-    });
-
-    testWidgets('collapses the rail at 900 and shows the player bar', (
+  testWidgets('Esc during the Now Playing entrance fades out from where it '
+      'is', (tester) async {
+    addTearDown(() => desktopNowPlayingOpen.value = false);
+    await pumpShell(
       tester,
-    ) async {
-      await pumpShell(tester, mornye: false, width: 900);
+      width: 1400,
+      nowPlaying: const ColoredBox(color: Colors.black),
+    );
 
-      expect(find.byType(DesktopNavigationRail), findsOneWidget);
-      // Narrow windows keep the rail collapsed even when it was expanded.
-      expect(
-        tester.getSize(find.byType(DesktopNavigationRail)).width,
-        closeTo(desktopCollapsedRailWidth, 0.5),
-      );
-      expect(find.byType(DesktopSidebar), findsNothing);
-      expectNoTouchNavigation();
-      expect(find.byType(DesktopPlayerBar), findsOneWidget);
-      expect(
-        tester.getSize(find.byType(DesktopPlayerBar)).height,
-        DesktopPlayerBar.materialHeight,
-      );
-      expect(find.text('A song'), findsOneWidget);
-      expect(find.text('content'), findsOneWidget);
-    });
+    desktopNowPlayingOpen.value = true;
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 60));
+    final opacity = nowPlayingOpacity(tester);
+    final rise = nowPlayingRise(tester);
+    expect(dismissDesktopPlayerLayer(1400), isTrue);
+    await tester.pump();
+    expect(nowPlayingOpacity(tester), closeTo(opacity, 0.01));
+    expect(nowPlayingRise(tester), rise);
+    await tester.pump(const Duration(milliseconds: 16));
+    expect(nowPlayingOpacity(tester), lessThan(opacity));
 
-    testWidgets('expanded rail at 1400 keeps Settings at the bottom', (
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('desktop-now-playing')), findsNothing);
+    expect(find.text('content'), findsOneWidget);
+  });
+
+  testWidgets('focus leaves the shell as soon as Now Playing opens', (
+    tester,
+  ) async {
+    addTearDown(() => desktopNowPlayingOpen.value = false);
+    await pumpShell(
       tester,
-    ) async {
-      await pumpShell(tester, mornye: false, width: 1400);
+      width: 1400,
+      nowPlaying: const ColoredBox(color: Colors.black),
+    );
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pump();
+    final shellFocus = FocusManager.instance.primaryFocus!;
+    expect(
+      shellFocus.context!.findAncestorWidgetOfExactType<DesktopShellLayout>(),
+      isNotNull,
+    );
 
-      expect(
-        tester.getSize(find.byType(DesktopNavigationRail)).width,
-        desktopSidebarWidth,
-      );
-      expectNoTouchNavigation();
-      final home = tester.getTopLeft(find.text('home'));
-      final settings = tester.getTopLeft(find.text('settings'));
-      // Settings sits at the bottom of the rail, just above the player bar,
-      // aligned with the destinations above it.
-      expect(settings.dy, greaterThan(600));
-      expect(settings.dx, closeTo(home.dx, 1));
+    desktopNowPlayingOpen.value = true;
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 16));
+    // Still mid-entrance, with the shell painted underneath.
+    expect(find.text('content'), findsOneWidget);
+    expect(shellFocus.hasPrimaryFocus, isFalse);
 
-      await tester.tap(find.text('settings'));
-      await tester.tap(find.text('library'));
-      expect(selections, [ShellTab.settings, ShellTab.library]);
-    });
+    await tester.pumpAndSettle();
+    desktopNowPlayingOpen.value = false;
+    await tester.pump();
+    // The shell takes focus again while Now Playing leaves.
+    shellFocus.requestFocus();
+    await tester.pump();
+    expect(shellFocus.hasPrimaryFocus, isTrue);
+    await tester.pumpAndSettle();
+  });
 
-    testWidgets('player bar names its shortcuts and runs the transport', (
+  testWidgets('reduced motion swaps Now Playing at once', (tester) async {
+    addTearDown(() => desktopNowPlayingOpen.value = false);
+    await pumpShell(
       tester,
-    ) async {
-      await pumpShell(tester, mornye: false, width: 1400);
+      width: 1400,
+      nowPlaying: const ColoredBox(color: Colors.black),
+      reducedMotion: true,
+    );
 
-      expect(findByTooltip('Next track (Ctrl+Right)'), findsOneWidget);
-      expect(findByTooltip('Previous track (Ctrl+Left)'), findsOneWidget);
-      expect(findByTooltip('Play (Space)'), findsOneWidget);
-      expect(findByTooltip('Lyrics (Ctrl+Shift+L)'), findsOneWidget);
-      expect(findByTooltip('Up next (Ctrl+Shift+U)'), findsOneWidget);
+    desktopNowPlayingOpen.value = true;
+    await tester.pump();
+    expect(nowPlayingOpacity(tester), 1);
+    expect(nowPlayingRise(tester), 0);
+    expect(find.text('content'), findsNothing);
 
-      await tester.tap(findByTooltip('Next track (Ctrl+Right)'));
-      await tester.tap(findByTooltip('Play (Space)'));
-      expect(controller.calls, ['next', 'play']);
-    });
-
-    testWidgets('idle player bar stays in place with disabled controls', (
-      tester,
-    ) async {
-      await pumpShell(tester, mornye: false, width: 900, item: null);
-
-      expect(find.byType(DesktopPlayerBar), findsOneWidget);
-      expect(find.text('Not playing'), findsOneWidget);
-      await tester.tap(findByTooltip('Next track (Ctrl+Right)'));
-      expect(controller.calls, isEmpty);
-    });
-
-    testWidgets('pages start at the top with no shell search bar', (
-      tester,
-    ) async {
-      await pumpShell(tester, mornye: false, width: 1400);
-
-      // Home and Library bring their own search fields, so the shell adds
-      // no second one above them.
-      expect(tester.getRect(contentPage()).top, 0);
-    });
-
-    testWidgets('the sidebar shortcut remembers the rail state', (
-      tester,
-    ) async {
-      SharedPreferences.setMockInitialValues({});
-      final prefs = await SharedPreferences.getInstance();
-      restoreDesktopSidebar(prefs);
-      // Wide windows open with the rail expanded.
-      expect(desktopSidebarCollapsed.value, isFalse);
-
-      toggleDesktopSidebar();
-      await tester.pump();
-      expect(desktopSidebarCollapsed.value, isTrue);
-      desktopSidebarCollapsed.value = false;
-      restoreDesktopSidebar(prefs);
-      expect(desktopSidebarCollapsed.value, isTrue);
-    });
-
-    testWidgets('expanded rail keeps a gap between indicators', (tester) async {
-      await pumpShell(tester, mornye: false, width: 1400);
-
-      final home = tester.getRect(find.text('home'));
-      final library = tester.getRect(find.text('library'));
-      // 56dp indicators with an 8dp gap: label centers 64dp apart.
-      expect(library.center.dy - home.center.dy, closeTo(56 + 8, 0.5));
-    });
-
-    testWidgets('collapsed rail shows icons alone and its menu expands it', (
-      tester,
-    ) async {
-      desktopSidebarCollapsed.value = true;
-      await pumpShell(tester, mornye: false, width: 1400);
-      double railWidth() =>
-          tester.getSize(find.byType(DesktopNavigationRail)).width;
-      expect(railWidth(), closeTo(desktopCollapsedRailWidth, 0.5));
-      Finder menuIcon(IconData icon) =>
-          find.byWidgetPredicate((w) => w is AppIcon && w.icon == icon);
-      expect(menuIcon(Icons.menu), findsOneWidget);
-      // The menu button sits over the destination icons.
-      expect(
-        tester.getCenter(menuIcon(Icons.menu)).dx,
-        closeTo(tester.getCenter(findByTooltip('library')).dx, 0.5),
-      );
-      // No labels under the icons: tooltips and semantics name them, and
-      // the whole 56dp square around an icon takes the click.
-      expect(find.text('library'), findsNothing);
-      expect(findByTooltip('library'), findsOneWidget);
-      final semantics = tester.ensureSemantics();
-      await tester.pump();
-      expect(
-        tester
-            .getSemantics(find.byKey(const ValueKey('desktop-rail:library')))
-            .label,
-        // The label, then the badge count.
-        'library\n2',
-      );
-      semantics.dispose();
-      final library = tester.getRect(findByTooltip('library'));
-      expect(library.size, const Size(56, 56));
-      await tester.tapAt(library.topLeft + const Offset(4, 4));
-      expect(selections, [ShellTab.library]);
-
-      // The menu button expands it; halfway, the rail is between its widths
-      // with one label showing.
-      await tester.tap(find.byKey(const ValueKey('desktop-rail-menu')));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 120));
-      expect(desktopSidebarCollapsed.value, isFalse);
-      expect(railWidth(), greaterThan(desktopCollapsedRailWidth));
-      expect(railWidth(), lessThan(desktopSidebarWidth));
-      expect(find.text('library'), findsOneWidget);
-      // The spring moves the pills, but the width stops at its ends, so the
-      // content beside it never narrows or widens past its final size.
-      final widths = <double>[];
-      for (var i = 0; i < 40; i++) {
-        await tester.pump(const Duration(milliseconds: 16));
-        widths.add(railWidth());
-      }
-      expect(widths.where((width) => width > desktopSidebarWidth), isEmpty);
-      await tester.pumpAndSettle();
-      expect(railWidth(), closeTo(desktopSidebarWidth, 0.5));
-      expect(menuIcon(Icons.menu_open), findsOneWidget);
-
-      await tester.tap(find.byKey(const ValueKey('desktop-rail-menu')));
-      widths.clear();
-      for (var i = 0; i < 40; i++) {
-        await tester.pump(const Duration(milliseconds: 16));
-        widths.add(railWidth());
-      }
-      expect(
-        widths.where((width) => width < desktopCollapsedRailWidth),
-        isEmpty,
-      );
-      await tester.pumpAndSettle();
-      expect(railWidth(), closeTo(desktopCollapsedRailWidth, 0.5));
-    });
-
-    testWidgets('reduced motion snaps the rail and keeps its focus', (
-      tester,
-    ) async {
-      // The platform flag shortens Flutter's extend controller; the harness
-      // passes the same setting on to MediaQuery, as the app does.
-      tester.platformDispatcher.accessibilityFeaturesTestValue =
-          const FakeAccessibilityFeatures(disableAnimations: true);
-      addTearDown(
-        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
-      );
-      await pumpShell(tester, mornye: false, width: 1400, reducedMotion: true);
-      double railWidth() => tester.getSize(find.byType(NavigationRail)).width;
-      final expanded = railWidth();
-      expect(expanded, greaterThan(desktopCollapsedRailWidth));
-      final rail = tester.element(find.byType(NavigationRail));
-      // Keyboard focus on an unselected destination.
-      final focus = Focus.of(
-        tester.element(
-          find
-              .byWidgetPredicate(
-                (w) => w is AppIcon && w.icon == Icons.circle_outlined,
-              )
-              .first,
-        ),
-      );
-      focus.requestFocus();
-      await tester.pump();
-      expect(focus.hasPrimaryFocus, isTrue);
-
-      desktopSidebarCollapsed.value = true;
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 16));
-      final collapsed = railWidth();
-      expect(collapsed, lessThan(expanded));
-      // Nothing is left to animate.
-      expect(tester.binding.transientCallbackCount, 0);
-      await tester.pump(const Duration(milliseconds: 100));
-      expect(railWidth(), collapsed);
-      expect(tester.element(find.byType(NavigationRail)), same(rail));
-      expect(focus.hasPrimaryFocus, isTrue);
-
-      desktopSidebarCollapsed.value = false;
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 16));
-      expect(railWidth(), expanded);
-      expect(focus.hasPrimaryFocus, isTrue);
-    });
-
-    testWidgets('narrow windows hide the rail menu button', (tester) async {
-      await pumpShell(tester, mornye: false, width: 900);
-
-      expect(find.byKey(const ValueKey('desktop-rail-menu')), findsNothing);
-    });
-
-    testWidgets('expanded rail lists the playlists under the destinations', (
-      tester,
-    ) async {
-      final opened = <String>[];
-      await pumpShell(
-        tester,
-        mornye: false,
-        width: 1400,
-        onOpenLibraryLink: opened.add,
-      );
-
-      final settings = tester.getRect(find.text('settings'));
-      final allPlaylists = tester.getRect(find.text('All Playlists'));
-      final playlist = tester.getRect(find.text('Road trip'));
-      expect(find.text('Playlists'), findsOneWidget);
-      expect(
-        allPlaylists.top,
-        greaterThan(tester.getRect(find.text('library')).bottom),
-      );
-      expect(playlist.top, greaterThan(allPlaylists.bottom));
-      expect(settings.top, greaterThan(playlist.bottom));
-      // Rows start their icons at the destination icons and fill the rail.
-      final row = tester.getRect(
-        find.byKey(const ValueKey('desktop-rail-link:playlist:mix')),
-      );
-      expect(row.height, 44);
-      expect(
-        tester
-            .getRect(find.byKey(const ValueKey('desktop-rail-link:playlists')))
-            .width,
-        row.width,
-      );
-
-      await tester.tap(find.text('Road trip'));
-      await tester.tap(find.text('All Playlists'));
-      expect(opened, ['playlist:mix', 'playlists']);
-
-      // An open playlist takes the selection from Library.
-      await pumpShell(
-        tester,
-        mornye: false,
-        width: 1400,
-        selected: ShellTab.library,
-        onOpenLibraryLink: opened.add,
-      );
-      bool selectedFill(Finder finder) =>
-          tester.any(find.descendant(of: finder, matching: railIndicator));
-      final mix = find.byKey(const ValueKey('desktop-rail-link:playlist:mix'));
-      expect(selectedFill(mix), isFalse);
-      desktopSidebarLink.value = 'playlist:mix';
-      await tester.pumpAndSettle();
-      expect(selectedFill(mix), isTrue);
-
-      // Collapsed, only the destinations show.
-      desktopSidebarCollapsed.value = true;
-      await tester.pumpAndSettle();
-      expect(find.text('Playlists'), findsNothing);
-      expect(find.text('Road trip'), findsNothing);
-    });
-
-    testWidgets('Library leaves an open playlist for the Library root', (
-      tester,
-    ) async {
-      final opened = <String>[];
-      await pumpShell(
-        tester,
-        mornye: false,
-        width: 1400,
-        onOpenLibraryLink: opened.add,
-      );
-
-      // Nothing open: Library switches tabs.
-      await tester.tap(find.text('library'));
-      expect(selections, [ShellTab.library]);
-      expect(opened, isEmpty);
-
-      // A playlist left open from another tab: Library returns to the root
-      // instead of showing the playlist again.
-      desktopSidebarLink.value = DesktopSidebarLink.allPlaylistsId;
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('library'));
-      expect(opened, [DesktopSidebarLink.libraryRootId]);
-      expect(selections, [ShellTab.library]);
-    });
-
-    testWidgets('expanded rail pills span the rail and take the clicks', (
-      tester,
-    ) async {
-      await pumpShell(tester, mornye: false, width: 1400);
-
-      final library = tester.getRect(find.text('library'));
-      final settings = tester.getRect(find.text('settings'));
-      // In the rail's margin beside a pill: nothing happens.
-      final rail = tester.getRect(find.byType(DesktopNavigationRail));
-      await tester.tapAt(Offset(rail.right - 12, library.center.dy));
-      await tester.tapAt(Offset(rail.right - 12, settings.center.dy));
-      expect(selections, isEmpty);
-
-      // Near the pill's far end, past any label: selects, as the Playlists
-      // rows do.
-      await tester.tapAt(Offset(rail.right - 28, library.center.dy));
-      await tester.tapAt(Offset(rail.right - 28, settings.center.dy));
-      expect(selections, [ShellTab.library, ShellTab.settings]);
-    });
+    desktopNowPlayingOpen.value = false;
+    await tester.pump();
+    expect(find.byKey(const ValueKey('desktop-now-playing')), findsNothing);
+    expect(find.text('content'), findsOneWidget);
   });
 
   group('Mornye shell', () {
     for (final width in [900.0, 1400.0]) {
       testWidgets('shows the sidebar and player bar at $width', (tester) async {
-        await pumpShell(tester, mornye: true, width: width);
+        await pumpShell(tester, width: width);
 
         expect(find.byType(DesktopSidebar), findsOneWidget);
         expect(
           tester.getSize(find.byType(DesktopSidebar)).width,
           DesktopSidebar.width,
         );
-        // The Material rail must not appear in the Mornye style.
-        expect(find.byType(DesktopNavigationRail), findsNothing);
         expect(find.byType(NavigationRail), findsNothing);
         expectNoTouchNavigation();
         expect(find.byType(DesktopPlayerBar), findsOneWidget);
@@ -978,7 +446,7 @@ void main() {
     testWidgets('player capsule floats centered over the content pane', (
       tester,
     ) async {
-      await pumpShell(tester, mornye: true, width: 1235);
+      await pumpShell(tester, width: 1235);
 
       final player = tester.getRect(find.byType(DesktopPlayerBar));
       final pane = tester.getRect(
@@ -1002,7 +470,7 @@ void main() {
     testWidgets(
       'capsule artwork grows and offers Now Playing under the mouse',
       (tester) async {
-        await pumpShell(tester, mornye: true, width: 1400);
+        await pumpShell(tester, width: 1400);
 
         final overlay = find.byKey(
           const ValueKey('desktop-player-artwork-overlay'),
@@ -1027,7 +495,7 @@ void main() {
     );
 
     testWidgets('player capsule keeps volume in a popover', (tester) async {
-      await pumpShell(tester, mornye: true, width: 1400);
+      await pumpShell(tester, width: 1400);
 
       expect(find.byType(Slider), findsOneWidget, reason: 'seek bar only');
       playbackOutputVolume.value = 0.5;
@@ -1058,7 +526,7 @@ void main() {
     testWidgets('idle capsule shows the glyph and dims its controls', (
       tester,
     ) async {
-      await pumpShell(tester, mornye: true, width: 1400, item: null);
+      await pumpShell(tester, width: 1400, item: null);
 
       expect(find.bySemanticsLabel('Not playing'), findsOneWidget);
       await tester.tap(find.byKey(const ValueKey('desktop-player-shuffle')));
@@ -1069,7 +537,7 @@ void main() {
     testWidgets('sidebar rows select destinations and name shortcuts', (
       tester,
     ) async {
-      await pumpShell(tester, mornye: true, width: 1400);
+      await pumpShell(tester, width: 1400);
 
       expect(findByTooltip('library (Ctrl+2)'), findsOneWidget);
       expect(findByTooltip('settings (Ctrl+4)'), findsOneWidget);
@@ -1086,7 +554,7 @@ void main() {
     });
 
     testWidgets('the sidebar is one piece with the window', (tester) async {
-      await pumpShell(tester, mornye: true, width: 1400);
+      await pumpShell(tester, width: 1400);
 
       final window = tester.getRect(find.byType(MaterialApp));
       final sidebar = tester.getRect(find.byType(DesktopSidebar));
@@ -1119,7 +587,7 @@ void main() {
       tester,
     ) async {
       addTearDown(() => ShellNavigationService.chromeBackdrop.value = null);
-      await pumpShell(tester, mornye: true, width: 1400);
+      await pumpShell(tester, width: 1400);
       const backdrop = ValueKey('desktop-sidebar-backdrop');
       expect(find.byKey(backdrop), findsNothing);
 
@@ -1149,7 +617,7 @@ void main() {
           );
         }
         addTearDown(() => ShellNavigationService.chromeSurface.value = null);
-        await pumpShell(tester, mornye: true, width: 1400);
+        await pumpShell(tester, width: 1400);
         Color panel() =>
             (tester
                         .widget<DecoratedBox>(
@@ -1190,7 +658,6 @@ void main() {
       final opened = <String>[];
       await pumpShell(
         tester,
-        mornye: true,
         width: 1400,
         libraryLinks: _libraryLinks,
         onOpenLibraryLink: opened.add,
@@ -1215,7 +682,6 @@ void main() {
       var profileOpened = 0;
       await pumpShell(
         tester,
-        mornye: true,
         width: 1400,
         onOpenProfile: () => profileOpened++,
       );
@@ -1230,12 +696,7 @@ void main() {
       tester,
     ) async {
       final semantics = tester.ensureSemantics();
-      await pumpShell(
-        tester,
-        mornye: true,
-        width: 1400,
-        profile: const UserProfile(),
-      );
+      await pumpShell(tester, width: 1400, profile: const UserProfile());
 
       expect(find.text('Profile'), findsOneWidget);
       expect(find.text('Set up your profile'), findsNothing);
@@ -1251,7 +712,7 @@ void main() {
     testWidgets('sidebar stays in narrow windows and ignores the shortcut', (
       tester,
     ) async {
-      await pumpShell(tester, mornye: true, width: 820);
+      await pumpShell(tester, width: 820);
       desktopSidebarCollapsed.value = true;
       await tester.pumpAndSettle();
 
@@ -1298,7 +759,7 @@ void main() {
           overrides: overrides(playing: playing, playerMode: playerMode),
           child: MaterialApp(
             navigatorKey: navigatorKey,
-            theme: AppTheme.light(),
+            theme: MornyeTheme.build(Brightness.light),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
             builder: (context, child) =>
@@ -1461,7 +922,7 @@ void main() {
       ProviderScope(
         overrides: overrides(),
         child: MaterialApp(
-          theme: AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: const Scaffold(body: Center(child: MiniPlayer())),

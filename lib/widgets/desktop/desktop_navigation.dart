@@ -1,5 +1,3 @@
-import 'dart:ui' show lerpDouble;
-
 import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,7 +8,6 @@ import 'package:sistrum/providers/user_profile_provider.dart';
 import 'package:sistrum/services/shell_navigation_service.dart';
 import 'package:sistrum/services/user_profile_store.dart';
 import 'package:sistrum/theme/app_motion.dart';
-import 'package:sistrum/theme/material_expressive.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
@@ -19,23 +16,9 @@ import 'package:sistrum/widgets/desktop/desktop_commands.dart';
 import 'package:sistrum/widgets/desktop/desktop_inspector.dart';
 import 'package:sistrum/widgets/desktop/desktop_now_playing.dart';
 import 'package:sistrum/widgets/desktop/desktop_player_bar.dart';
-import 'package:sistrum/widgets/desktop/desktop_row_ink.dart';
 import 'package:sistrum/widgets/desktop/desktop_window.dart';
 import 'package:sistrum/widgets/profile_avatar.dart';
 import 'package:sistrum/widgets/no_scrollbars.dart';
-
-/// Window width at which the Material rail shows labels beside its icons.
-const double desktopExpandedRailBreakpoint = 1200;
-
-/// Expanded Material rail width.
-const double desktopSidebarWidth = 220;
-
-/// Collapsed Material rail width.
-const double desktopCollapsedRailWidth = 96;
-
-/// Space between the expanded Material rail's destinations, so adjacent
-/// 56dp indicators and hover layers never touch.
-const double desktopRailItemGap = 8;
 
 /// A Library page or playlist in the Mornye sidebar.
 class DesktopSidebarLink {
@@ -59,8 +42,8 @@ class DesktopSidebarLink {
   /// The link that opens the list of every playlist.
   static const allPlaylistsId = 'playlists';
 
-  /// The Library root, which the Material rail's Library destination opens
-  /// while a link is open.
+  /// The Library root, which the sidebar's Library link opens while a link is
+  /// open.
   static const libraryRootId = 'library';
 }
 
@@ -98,10 +81,8 @@ class DesktopDestination {
 /// The desktop shell: navigation on the leading edge, the content pane and
 /// the trailing inspector.
 ///
-/// Material uses [DesktopNavigationRail] and the player bar docked across
-/// the bottom. With Mornye, [DesktopSidebar] runs the full window height, and
-/// the player floats as a glass capsule at the bottom of the content pane,
-/// which pads its pages so
+/// [DesktopSidebar] runs the full window height, and the player floats as a
+/// glass capsule at the bottom of the content pane, which pads its pages so
 /// their last rows scroll clear of it.
 ///
 /// On macOS the window content reaches under a transparent title bar
@@ -136,8 +117,7 @@ class DesktopShellLayout extends ConsumerWidget {
   /// The first stands for the Library destination itself.
   final List<DesktopSidebarLink> libraryLinks;
 
-  /// Opens a Library link or a playlist from the Mornye sidebar, or a
-  /// playlist from the expanded Material rail.
+  /// Opens a Library link or a playlist from the sidebar.
   final ValueChanged<String>? onOpenLibraryLink;
 
   /// Mornye: opens the profile from the sidebar's account row.
@@ -256,103 +236,41 @@ class DesktopShellLayout extends ConsumerWidget {
 
   Widget _shell(BuildContext context, bool showPlayer) {
     final width = MediaQuery.sizeOf(context).width;
-    if (context.isMornye) {
-      // The sidebar always shows, full height against the window's edges.
-      return ColoredBox(
-        color: Theme.of(context).colorScheme.surface,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            DesktopSidebar(
-              destinations: destinations,
-              selected: selected,
-              onSelected: onSelected,
-              libraryLinks: libraryLinks,
-              onOpenLibraryLink: onOpenLibraryLink,
-              onOpenProfile: onOpenProfile,
-            ),
-            Expanded(
-              key: const ValueKey('desktop-content'),
-              child: _DesktopContentArea(
-                windowWidth: width,
-                body: body,
-                floatingPlayer: showPlayer ? playerBar : null,
-                showPlayer: showPlayer,
-                titleBarDrag: true,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-    final railBackground = Theme.of(context).colorScheme.surfaceContainer;
-    return Column(
-      children: [
-        Expanded(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              ColoredBox(
-                color: railBackground,
-                child: Column(
-                  children: [
-                    // The traffic lights sit above the rail.
-                    if (desktopTitleBarInContentFor(context))
-                      SizedBox(
-                        height: desktopTitleBarHeightFor(context),
-                        width: desktopWindowControlsWidthFor(context),
-                        child: const DesktopWindowDragArea(
-                          zoomOnDoubleClick: true,
-                        ),
-                      ),
-                    // Expanded by default and always collapsed below
-                    // [desktopExpandedRailBreakpoint]; the rail's menu
-                    // button and the sidebar shortcut toggle it in wider
-                    // windows.
-                    Expanded(
-                      child: ValueListenableBuilder<bool>(
-                        valueListenable: desktopSidebarCollapsed,
-                        builder: (context, collapsed, _) {
-                          final wide = width >= desktopExpandedRailBreakpoint;
-                          return DesktopNavigationRail(
-                            destinations: destinations,
-                            selected: selected,
-                            onSelected: onSelected,
-                            extended: !collapsed && wide,
-                            onToggleExtended: wide
-                                ? toggleDesktopSidebar
-                                : null,
-                            onOpenLibraryLink: onOpenLibraryLink,
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: _DesktopContentArea(
-                  windowWidth: width,
-                  body: body,
-                  showPlayer: showPlayer,
-                  titleBarDrag: true,
-                ),
-              ),
-            ],
+    // The sidebar always shows, full height against the window's edges.
+    return ColoredBox(
+      color: Theme.of(context).colorScheme.surface,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          DesktopSidebar(
+            destinations: destinations,
+            selected: selected,
+            onSelected: onSelected,
+            libraryLinks: libraryLinks,
+            onOpenLibraryLink: onOpenLibraryLink,
+            onOpenProfile: onOpenProfile,
           ),
-        ),
-        if (showPlayer) playerBar,
-      ],
+          Expanded(
+            key: const ValueKey('desktop-content'),
+            child: _DesktopContentArea(
+              windowWidth: width,
+              body: body,
+              floatingPlayer: showPlayer ? playerBar : null,
+              showPlayer: showPlayer,
+              titleBarDrag: true,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
-/// Opens and closes the full-window Now Playing over [shell]. Material fades
-/// it in on the effects spring while it rises 24dp on the slow spatial
-/// spring, which is critically damped; Mornye dissolves it. Both exit with a
-/// shorter eased fade. The shell keeps painting until the entrance ends and
-/// Now Playing stays mounted until the exit ends, so either can reverse
-/// midway (Esc during the entrance). Reduced motion swaps at once.
+/// Opens and closes the full-window Now Playing over [shell]. It dissolves in
+/// on the effects spring and exits with a shorter eased fade. The shell keeps
+/// painting until the entrance ends and Now Playing stays mounted until the
+/// exit ends, so either can reverse midway (Esc during the entrance). Reduced
+/// motion swaps at once.
 class _NowPlayingTransition extends StatefulWidget {
   const _NowPlayingTransition({
     required this.open,
@@ -370,11 +288,9 @@ class _NowPlayingTransition extends StatefulWidget {
 
 class _NowPlayingTransitionState extends State<_NowPlayingTransition>
     with SingleTickerProviderStateMixin {
-  static const double _rise = 24;
-
-  /// The resting value of [_fade] and [_move] before the first entrance.
-  /// The entrances themselves are the style's springs; reduced motion
-  /// opens and closes at once.
+  /// The resting value of [_fade] before the first entrance. The entrance
+  /// itself is the style's effects spring; reduced motion opens and closes
+  /// at once.
   static const _initialEntrance = AppMotionSpec(
     Duration(milliseconds: 220),
     Curves.easeOutCubic,
@@ -385,17 +301,13 @@ class _NowPlayingTransitionState extends State<_NowPlayingTransition>
     value: widget.open ? 1 : 0,
   );
 
-  // The entrance in use: the fade covers the first [_fadeEnd] of it.
+  // The entrance in use.
   AppMotionSpec _fade = _initialEntrance;
-  AppMotionSpec _move = _initialEntrance;
-  double _fadeEnd = 1;
-  double _distance = 0;
 
   // Where the exit started, so Esc during the entrance fades out from
   // there instead of jumping to the exit's start.
   double _exitFrom = 1;
   double _exitOpacity = 1;
-  double _exitOffset = 0;
 
   @override
   void didUpdateWidget(_NowPlayingTransition oldWidget) {
@@ -407,22 +319,12 @@ class _NowPlayingTransitionState extends State<_NowPlayingTransition>
     }
     if (widget.open) {
       _fade = AppMotion.effects(context, _initialEntrance);
-      _move = AppMotion.spatialSlow(context, _initialEntrance);
-      _distance = materialExpressiveEnabled(context) ? _rise : 0;
-      // Mornye only fades, so its entrance ends with the fade.
-      final entrance = _distance == 0 || _fade.duration > _move.duration
-          ? _fade.duration
-          : _move.duration;
-      _fadeEnd = _fade.duration.inMicroseconds / entrance.inMicroseconds;
-      _controller.duration = entrance;
+      _controller.duration = _fade.duration;
       _controller.forward();
     } else {
       _exitFrom = _controller.value;
       _exitOpacity = _entranceOpacity(_exitFrom);
-      _exitOffset = _entranceOffset(_exitFrom);
-      _controller.reverseDuration = context.isMornye
-          ? const Duration(milliseconds: 160)
-          : const Duration(milliseconds: 200);
+      _controller.reverseDuration = const Duration(milliseconds: 160);
       _controller.reverse();
     }
   }
@@ -433,11 +335,7 @@ class _NowPlayingTransitionState extends State<_NowPlayingTransition>
     super.dispose();
   }
 
-  double _entranceOpacity(double t) =>
-      _fade.curve.transform((t / _fadeEnd).clamp(0.0, 1.0));
-
-  double _entranceOffset(double t) =>
-      _distance * (1 - _move.curve.transform(t));
+  double _entranceOpacity(double t) => _fade.curve.transform(t.clamp(0.0, 1.0));
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
@@ -451,7 +349,6 @@ class _NowPlayingTransitionState extends State<_NowPlayingTransition>
                 : _exitOpacity *
                       (1 - Curves.easeInCubic.transform(1 - t / _exitFrom))
           : _entranceOpacity(t);
-      final offset = exiting ? _exitOffset : _entranceOffset(t);
       final covered = widget.open && _controller.isCompleted;
       return Stack(
         fit: StackFit.expand,
@@ -472,15 +369,12 @@ class _NowPlayingTransitionState extends State<_NowPlayingTransition>
               ignoring: exiting,
               child: ExcludeFocus(
                 excluding: exiting,
-                child: Transform.translate(
-                  offset: Offset(0, offset),
-                  child: Opacity(
-                    key: const ValueKey('desktop-now-playing-fade'),
-                    opacity: opacity.clamp(0.0, 1.0),
-                    child: KeyedSubtree(
-                      key: const ValueKey('desktop-now-playing'),
-                      child: widget.nowPlaying,
-                    ),
+                child: Opacity(
+                  key: const ValueKey('desktop-now-playing-fade'),
+                  opacity: opacity.clamp(0.0, 1.0),
+                  child: KeyedSubtree(
+                    key: const ValueKey('desktop-now-playing'),
+                    child: widget.nowPlaying,
                   ),
                 ),
               ),
@@ -549,7 +443,6 @@ class _DesktopContentArea extends StatelessWidget {
   Widget build(BuildContext context) {
     final player = floatingPlayer;
     final playerInset = player == null ? 0.0 : DesktopPlayerBar.floatingInset;
-    final mornye = context.isMornye;
     return ListenableBuilder(
       listenable: Listenable.merge([
         desktopInspectorPanel,
@@ -557,16 +450,12 @@ class _DesktopContentArea extends StatelessWidget {
       ]),
       builder: (context, _) {
         final panel = showPlayer ? desktopInspectorPanel.value : null;
-        final overlayInspector = desktopInspectorOverlays(
-          windowWidth,
-          mornye: mornye,
-        );
+        final overlayInspector = desktopInspectorOverlays(windowWidth);
         final content = LayoutBuilder(
           builder: (context, pane) {
-            // Mornye's glass runs the window's height and the capsule moves
+            // The glass runs the window's height and the capsule moves
             // beside it, while the pane has room for the two.
             final beside =
-                mornye &&
                 overlayInspector &&
                 pane.maxWidth >= _capsuleBesideInspectorWidth;
             final motion = desktopInspectorMotion(context);
@@ -622,9 +511,7 @@ class _DesktopContentArea extends StatelessWidget {
                   top: 0,
                   bottom: beside ? 0 : playerInset,
                   end: 0,
-                  width: mornye
-                      ? mornyeGlassInspectorWidth
-                      : desktopInspectorWidth,
+                  width: mornyeGlassInspectorWidth,
                   child: DesktopInspectorTransition(
                     key: const ValueKey('desktop-inspector-overlay'),
                     panel: overlayInspector ? panel : null,
@@ -673,617 +560,6 @@ class _DesktopContentArea extends StatelessWidget {
 
 int _positionOf(List<DesktopDestination> destinations, ShellTab tab) =>
     destinations.indexWhere((destination) => destination.tab == tab) + 1;
-
-/// Material 3 Expressive navigation rail for desktop windows: collapsed, or
-/// expanded to [desktopSidebarWidth] when [extended], with Settings anchored
-/// at the bottom. A menu button on top toggles it when [onToggleExtended] is
-/// set. Expanded, the user's playlists follow the destinations when
-/// [onOpenLibraryLink] opens them.
-class DesktopNavigationRail extends StatelessWidget {
-  const DesktopNavigationRail({
-    super.key,
-    required this.destinations,
-    required this.selected,
-    required this.onSelected,
-    required this.extended,
-    this.onToggleExtended,
-    this.onOpenLibraryLink,
-  });
-
-  final List<DesktopDestination> destinations;
-  final ShellTab? selected;
-  final ValueChanged<ShellTab> onSelected;
-  final bool extended;
-
-  /// Collapses or expands the rail; null hides the menu button, as in
-  /// windows too narrow for the expanded rail.
-  final VoidCallback? onToggleExtended;
-
-  /// Opens a playlist ([DesktopSidebarLink.playlistId]) or the list of them
-  /// ([DesktopSidebarLink.allPlaylistsId]) in the Library tab.
-  final ValueChanged<String>? onOpenLibraryLink;
-
-  Widget _menuButton(BuildContext context) {
-    final toggle = onToggleExtended!;
-    return AppIconButton(
-      key: const ValueKey('desktop-rail-menu'),
-      tooltip: desktopTooltip(
-        context,
-        context.l10n.desktopShortcutToggleSidebar,
-        DesktopCommand.toggleSidebar,
-      ),
-      icon: AppIcon(extended ? Icons.menu_open : Icons.menu),
-      onPressed: toggle,
-    );
-  }
-
-  /// Library leaves an open playlist for the Library root, as the root link
-  /// does in the Mornye sidebar; switching tabs alone would show the
-  /// playlist again.
-  void _select(ShellTab tab) {
-    final openLink = onOpenLibraryLink;
-    if (tab == ShellTab.library &&
-        openLink != null &&
-        desktopSidebarLink.value != null) {
-      openLink(DesktopSidebarLink.libraryRootId);
-    } else {
-      onSelected(tab);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final background = colorScheme.surfaceContainer;
-    if (!materialExpressiveEnabled(context)) {
-      // Reduced motion keeps Flutter's rail; Settings stays last. Its extend
-      // controller follows the platform's reduced-motion flag, which cuts
-      // the 200 ms to a single frame, and the rail stays the same element so
-      // a focused destination keeps keyboard focus.
-      final index = destinations.indexWhere((d) => d.tab == selected);
-      return NavigationRail(
-        extended: extended,
-        minExtendedWidth: desktopSidebarWidth,
-        // Collapsed, the rail shows icons alone.
-        labelType: NavigationRailLabelType.none,
-        backgroundColor: background,
-        leading: onToggleExtended == null ? null : _menuButton(context),
-        selectedIndex: index < 0 ? null : index,
-        onDestinationSelected: (index) => _select(destinations[index].tab),
-        destinations: [
-          for (final destination in destinations)
-            NavigationRailDestination(
-              icon: Badge(
-                isLabelVisible: destination.badgeCount > 0,
-                label: Text('${destination.badgeCount}'),
-                child: AppIcon(destination.icon),
-              ),
-              selectedIcon: AppIcon(destination.selectedIcon),
-              label: Text(destination.label),
-            ),
-        ],
-      );
-    }
-    final primary = [
-      for (final destination in destinations)
-        if (destination.tab != ShellTab.settings) destination,
-    ];
-    final settings = destinations
-        .where((destination) => destination.tab == ShellTab.settings)
-        .firstOrNull;
-    // Only reached with expressive motion on; reduced motion takes the
-    // static rail above, so the fallback never animates.
-    final motion = AppMotion.spatial(
-      context,
-      const AppMotionSpec(Duration.zero, Curves.linear),
-    );
-    final openLink = onOpenLibraryLink;
-    // One expansion value drives the width, every pill and every label, so
-    // the rail morphs continuously instead of swapping layouts at the end.
-    return TweenAnimationBuilder<double>(
-      tween: Tween(end: extended ? 1 : 0),
-      duration: motion.duration,
-      curve: motion.curve,
-      builder: (context, expansion, _) => ValueListenableBuilder<String?>(
-        valueListenable: desktopSidebarLink,
-        builder: (context, openId, _) {
-          // An open playlist takes the selection from Library, as a link
-          // does in the Mornye sidebar.
-          final linkId = openLink != null && selected == ShellTab.library
-              ? openId
-              : null;
-          Widget item(DesktopDestination destination) => _RailDestination(
-            key: ValueKey('desktop-rail:${destination.tab.name}'),
-            destination: destination,
-            selected: destination.tab == selected && linkId == null,
-            expansion: expansion,
-            onTap: () => _select(destination.tab),
-          );
-          final gap = lerpDouble(4, desktopRailItemGap, expansion)!;
-          final playlistsShown = (expansion * 2 - 1).clamp(0.0, 1.0);
-          return ColoredBox(
-            color: background,
-            child: SizedBox(
-              // The width stops at its ends while the pills and labels keep
-              // the spring: a rail growing past its width would narrow the
-              // content below its final size and flip its breakpoints twice.
-              width: lerpDouble(
-                desktopCollapsedRailWidth,
-                desktopSidebarWidth,
-                expansion.clamp(0.0, 1.0),
-              ),
-              child: ClipRect(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (onToggleExtended != null)
-                      // Centered over the collapsed rail, where it stays,
-                      // in line with the destination icons.
-                      SizedBox(
-                        width: desktopCollapsedRailWidth,
-                        height: 56,
-                        child: Center(child: _menuButton(context)),
-                      ),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.only(top: 8, bottom: 8),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            for (final (index, destination)
-                                in primary.indexed) ...[
-                              if (index > 0) SizedBox(height: gap),
-                              item(destination),
-                            ],
-                            if (openLink != null && playlistsShown > 0)
-                              Opacity(
-                                opacity: playlistsShown,
-                                child: _RailPlaylists(
-                                  openId: linkId,
-                                  onOpen: openLink,
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    if (settings != null)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: item(settings),
-                      ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-/// The expanded Material rail's Playlists section: a heading, All Playlists
-/// and the user's playlists as full-width 44dp rows, the desktop list
-/// density, so the rail lists what it can open instead of leaving the space
-/// under the destinations empty.
-class _RailPlaylists extends ConsumerWidget {
-  const _RailPlaylists({required this.openId, required this.onOpen});
-
-  /// The open link, which shows as selected.
-  final String? openId;
-  final ValueChanged<String> onOpen;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = context.l10n;
-    final theme = Theme.of(context);
-    final playlists = ref.watch(desktopSidebarPlaylistsProvider);
-    Widget row(String id, IconData icon, String label) => _RailLinkRow(
-      key: ValueKey('desktop-rail-link:$id'),
-      icon: icon,
-      label: label,
-      selected: id == openId,
-      onTap: () => onOpen(id),
-    );
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          // The heading starts at the destination icons.
-          padding: const EdgeInsetsDirectional.fromSTEB(
-            _RailDestination._inset + 16,
-            24,
-            _RailDestination._inset,
-            8,
-          ),
-          child: Semantics(
-            header: true,
-            child: Text(
-              l10n.searchPlaylists,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.titleSmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ),
-        row(
-          DesktopSidebarLink.allPlaylistsId,
-          Icons.queue_music,
-          l10n.desktopAllPlaylists,
-        ),
-        for (final playlist in playlists)
-          row(
-            DesktopSidebarLink.playlistId(playlist.id),
-            Icons.playlist_play,
-            playlist.name,
-          ),
-      ],
-    );
-  }
-}
-
-/// The Material rail's selection fill: a `secondaryContainer` stadium behind
-/// [child]. On selection it grows from its centre, half to full width, on
-/// the fast spatial spring while its fill fades in on the fast effects
-/// spring; on deselection the fill fades out on the effects spring alone at
-/// the width it had, shorter than the entrance. It paints nothing and runs
-/// no animation while unselected and faded out.
-class _RailIndicator extends StatefulWidget {
-  const _RailIndicator({required this.selected, required this.child});
-
-  final bool selected;
-  final Widget child;
-
-  @override
-  State<_RailIndicator> createState() => _RailIndicatorState();
-}
-
-class _RailIndicatorState extends State<_RailIndicator>
-    with TickerProviderStateMixin {
-  // Linear progress; [_growSpec] and [_fadeSpec] shape it when read, so a
-  // stopped grow keeps the width it reached.
-  late final _grow = AnimationController(
-    vsync: this,
-    value: widget.selected ? 1 : 0,
-  );
-  late final _fade = AnimationController(
-    vsync: this,
-    value: widget.selected ? 1 : 0,
-  );
-  late final _listenable = Listenable.merge([_grow, _fade]);
-
-  AppMotionSpec get _growSpec => AppMotion.spatialFast(
-    context,
-    const AppMotionSpec(Duration(milliseconds: 200), Curves.easeOutCubic),
-  );
-
-  AppMotionSpec get _fadeSpec => AppMotion.effectsFast(
-    context,
-    const AppMotionSpec(Duration(milliseconds: 150), Curves.easeOut),
-  );
-
-  @override
-  void didUpdateWidget(_RailIndicator oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.selected == oldWidget.selected) return;
-    final fade = _fadeSpec;
-    _fade.duration = fade.duration;
-    if (widget.selected) {
-      // A pill that had faded out grows again from half width; one still
-      // fading out grows on from where it is.
-      if (_fade.value == 0) _grow.value = 0;
-      _grow.duration = _growSpec.duration;
-      _grow.forward();
-      _fade.forward();
-    } else {
-      // The outgoing pill keeps its width and only fades.
-      _grow.stop();
-      _fade.reverse();
-    }
-  }
-
-  @override
-  void dispose() {
-    _grow.dispose();
-    _fade.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final color = Theme.of(context).colorScheme.secondaryContainer;
-    final grow = _growSpec.curve;
-    final fade = _fadeSpec.curve;
-    return AnimatedBuilder(
-      animation: _listenable,
-      child: widget.child,
-      builder: (context, child) {
-        final fill = fade.transform(_fade.value).clamp(0.0, 1.0);
-        return Stack(
-          fit: StackFit.passthrough,
-          children: [
-            if (fill > 0)
-              Positioned.fill(
-                child: Center(
-                  child: FractionallySizedBox(
-                    widthFactor: 0.5 + grow.transform(_grow.value) / 2,
-                    child: DecoratedBox(
-                      key: const ValueKey('desktop-rail-indicator'),
-                      decoration: ShapeDecoration(
-                        color: color.withValues(alpha: color.a * fill),
-                        shape: const StadiumBorder(),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            child!,
-          ],
-        );
-      },
-    );
-  }
-}
-
-/// A row in the expanded Material rail's Playlists section: the icon in line
-/// with the destination icons, a stadium hover layer and the selected
-/// destination's fill.
-class _RailLinkRow extends StatelessWidget {
-  const _RailLinkRow({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final foreground = selected
-        ? colorScheme.onSecondaryContainer
-        : colorScheme.onSurfaceVariant;
-    final press = desktopRowInk(context, content: foreground);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: _RailDestination._inset),
-      // Long playlist names are cut, so the tooltip shows them whole.
-      child: Tooltip(
-        message: label,
-        waitDuration: const Duration(milliseconds: 800),
-        excludeFromSemantics: true,
-        child: Semantics(
-          button: true,
-          selected: selected,
-          label: label,
-          excludeSemantics: true,
-          child: _RailIndicator(
-            selected: selected,
-            child: Material(
-              type: MaterialType.transparency,
-              shape: const StadiumBorder(),
-              clipBehavior: Clip.antiAlias,
-              child: InkWell(
-                onTap: onTap,
-                hoverColor: foreground.withValues(alpha: 0.08),
-                splashFactory: press.splashFactory,
-                highlightColor: press.highlightColor,
-                child: SizedBox(
-                  height: 44,
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 16),
-                      AppIcon(icon, size: 24, color: foreground),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          label,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.labelLarge?.copyWith(
-                            color: foreground,
-                            fontWeight: selected
-                                ? FontWeight.w700
-                                : FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// One Material rail destination at [expansion] (0 collapsed, 1 expanded).
-///
-/// Collapsed, a 56x32 indicator holds the icon alone, named by a tooltip;
-/// a desktop rail of three or four destinations reads better without
-/// labels under the icons. Expanded, a 56dp row spans the rail with the
-/// label beside the icon, as wide as the Playlists rows below (the owner's
-/// call over M3 Expressive's pill that hugs its label). Both take the
-/// Playlists rows' fill, hover and press, and in between they cross-fade
-/// around a fixed icon while the row narrows with the rail, as the owner
-/// preferred to a morphing pill. Only the row, or the whole 56dp square
-/// while collapsed, takes clicks and hover.
-class _RailDestination extends StatelessWidget {
-  const _RailDestination({
-    super.key,
-    required this.destination,
-    required this.selected,
-    required this.expansion,
-    required this.onTap,
-  });
-
-  final DesktopDestination destination;
-  final bool selected;
-  final double expansion;
-  final VoidCallback onTap;
-
-  /// Distance from the rail's leading edge to the indicator, centering the
-  /// 56dp collapsed indicator in the 96dp collapsed rail.
-  static const double _inset = (desktopCollapsedRailWidth - 56) / 2;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final textTheme = theme.textTheme;
-    final t = expansion.clamp(0.0, 1.0);
-    const inset = _RailDestination._inset;
-
-    final expandedStyle = textTheme.labelLarge!.copyWith(
-      fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-    );
-    // The expanded pill spans the rail like the Playlists rows below, so
-    // every fill and hover lines up at both edges.
-    const expandedPillWidth = desktopSidebarWidth - inset * 2;
-
-    const height = 56.0;
-    // Like the Playlists rows, the expanded row narrows with the rail and
-    // fades, and the collapsed indicator fades in where it ends. Neither
-    // changes shape, so no long flat pill or edge crosses the label.
-    final expanded = ((t - 0.4) / 0.6).clamp(0.0, 1.0);
-    final collapsed = ((0.6 - t) / 0.6).clamp(0.0, 1.0);
-    final rowWidth = lerpDouble(56, expandedPillWidth, t)!;
-
-    final foreground = selected
-        ? colorScheme.onSecondaryContainer
-        : colorScheme.onSurfaceVariant;
-    final press = desktopRowInk(context, content: foreground);
-
-    // A stadium with the selected fill and the hover and press layers of
-    // the Playlists rows.
-    Widget surface({required bool active, Widget? child}) => _RailIndicator(
-      selected: selected,
-      child: Material(
-        type: MaterialType.transparency,
-        shape: const StadiumBorder(),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: active ? onTap : null,
-          canRequestFocus: active,
-          hoverColor: foreground.withValues(alpha: 0.08),
-          splashFactory: press.splashFactory,
-          highlightColor: press.highlightColor,
-          child: child ?? const SizedBox.expand(),
-        ),
-      ),
-    );
-
-    return Semantics(
-      container: true,
-      button: true,
-      selected: selected,
-      label: destination.label,
-      onTap: onTap,
-      child: SizedBox(
-        height: height,
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            if (collapsed > 0)
-              PositionedDirectional(
-                start: inset,
-                top: 0,
-                width: 56,
-                height: height,
-                child: IgnorePointer(
-                  ignoring: t >= 0.5,
-                  child: ExcludeSemantics(
-                    // Names the icon while the label is hidden; the whole
-                    // square around the indicator takes the click.
-                    child: Tooltip(
-                      message: destination.label,
-                      excludeFromSemantics: true,
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: onTap,
-                        child: Opacity(
-                          opacity: collapsed,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 12),
-                            child: surface(active: t < 0.5),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            if (expanded > 0)
-              PositionedDirectional(
-                start: inset,
-                top: 0,
-                width: rowWidth,
-                height: height,
-                child: IgnorePointer(
-                  ignoring: t < 0.5,
-                  child: ExcludeSemantics(
-                    child: Opacity(
-                      opacity: expanded,
-                      child: surface(
-                        active: t >= 0.5,
-                        child: Row(
-                          children: [
-                            // The icon is drawn once, above both states.
-                            const SizedBox(width: 16 + 24 + 8),
-                            Expanded(
-                              child: Text(
-                                destination.label,
-                                maxLines: 1,
-                                overflow: TextOverflow.clip,
-                                softWrap: false,
-                                style: expandedStyle.copyWith(
-                                  color: foreground,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            PositionedDirectional(
-              start: inset + 16,
-              top: (height - 24) / 2,
-              child: IgnorePointer(
-                child: IconTheme.merge(
-                  data: IconThemeData(color: foreground, size: 24),
-                  child: Badge(
-                    isLabelVisible: destination.badgeCount > 0,
-                    label: Text('${destination.badgeCount}'),
-                    child: AppIcon(
-                      selected ? destination.selectedIcon : destination.icon,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 /// The Mornye source-list sidebar: a rounded panel
 /// inset from the window edges, with the window controls and the sidebar

@@ -16,8 +16,6 @@ import 'package:sistrum/services/batch_track_actions.dart';
 import 'package:sistrum/services/library_mixes.dart';
 import 'package:sistrum/services/playable_media.dart' show PlayableMedia;
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/cover_palette.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/file_access.dart';
@@ -29,7 +27,6 @@ import 'package:sistrum/widgets/desktop/desktop_selection.dart';
 import 'package:sistrum/widgets/desktop/detail_header.dart';
 import 'package:sistrum/widgets/desktop/library_track_menu.dart';
 import 'package:sistrum/widgets/desktop/track_table.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/library_mix_cover.dart';
 import 'package:sistrum/widgets/library_selection_playback_actions.dart';
 import 'package:sistrum/widgets/library_track_selection_bar.dart';
@@ -180,14 +177,11 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
         _items = items;
       }
     }
-    if (context.isMornye) {
-      return MornyeArtistSurface(
-        imageSource: _paletteSource,
-        neutralActions: true,
-        child: Builder(builder: _buildPage),
-      );
-    }
-    return _buildPage(context);
+    return MornyeArtistSurface(
+      imageSource: _paletteSource,
+      neutralActions: true,
+      child: Builder(builder: _buildPage),
+    );
   }
 
   Widget _buildPage(BuildContext context) {
@@ -213,11 +207,10 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
             songs.hasError
                 ? SliverToBoxAdapter(
                     child: Center(
-                      child: ExpressiveButton(
-                        text: true,
+                      child: TextButton.icon(
                         icon: const Icon(Icons.refresh),
                         onPressed: () => ref.invalidate(_songsProvider!),
-                        child: Text(context.l10n.dialogRetry),
+                        label: Text(context.l10n.dialogRetry),
                       ),
                     ),
                   )
@@ -316,7 +309,7 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
     final cover = _paletteSource;
     return AlbumDetailHeader(
       title: title,
-      immersive: context.isMornye,
+      immersive: true,
       expandedHeight: calculateExpandedHeight(context),
       showTitleInAppBar: false,
       showTitleListenable: showTitleNotifier,
@@ -334,13 +327,9 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
                 style: isDesktopPlatform
                     ? desktopDetailSubtitleStyle(header)
                     : TextStyle(
-                        color: context.isMornye
-                            ? colorScheme.primary
-                            : HeaderPalette.of(header).onSurfaceVariant,
+                        color: colorScheme.primary,
                         fontSize: context.tokens.headerSubtitleSize,
-                        fontWeight: context.isMornye
-                            ? FontWeight.w400
-                            : FontWeight.w600,
+                        fontWeight: FontWeight.w400,
                       ),
                 textAlign: TextAlign.center,
                 maxLines: 2,
@@ -412,9 +401,7 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
                 mediaItemPlaybackUiProvider(_rowKey(item)),
               );
               return TrackCard(
-                style: context.isMornye
-                    ? TrackCardStyle.flat
-                    : TrackCardStyle.filled,
+                style: TrackCardStyle.flat,
                 leadingArtwork: true,
                 leading: ClipRRect(
                   borderRadius: BorderRadius.circular(tokens.radiusThumb),

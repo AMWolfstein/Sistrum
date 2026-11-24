@@ -9,7 +9,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/system_volume_provider.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/desktop/desktop_commands.dart';
@@ -221,7 +220,6 @@ void main() {
 
   Future<void> pumpApp(
     WidgetTester tester, {
-    required bool mornye,
     required Widget home,
     bool shortcuts = false,
     GlobalKey<NavigatorState>? navigator,
@@ -241,9 +239,7 @@ void main() {
         ],
         child: MaterialApp(
           navigatorKey: navigatorKey,
-          theme: mornye
-              ? MornyeTheme.build(Brightness.light)
-              : AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           builder: (context, child) => shortcuts
@@ -256,102 +252,87 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  for (final mornye in [false, true]) {
-    testWidgets(
-      'window mode changes preserve mounted content and text (Mornye: $mornye)',
-      (tester) async {
-        var mounts = 0;
-        await pumpApp(
-          tester,
-          mornye: mornye,
-          home: _MountProbe(() => mounts++),
-        );
-        await tester.enterText(find.byType(TextField), 'kept text');
-        for (final mode in [
-          DesktopWindowMode.borderless,
-          DesktopWindowMode.fullscreen,
-          DesktopWindowMode.windowed,
-        ]) {
-          await emitMode(mode);
-          await tester.pumpAndSettle();
-          expect(mounts, 1);
-          expect(find.text('kept text'), findsOneWidget);
-          expect(tester.takeException(), isNull);
-        }
-      },
-    );
+  testWidgets('window mode changes preserve mounted content and text', (
+    tester,
+  ) async {
+    var mounts = 0;
+    await pumpApp(tester, home: _MountProbe(() => mounts++));
+    await tester.enterText(find.byType(TextField), 'kept text');
+    for (final mode in [
+      DesktopWindowMode.borderless,
+      DesktopWindowMode.fullscreen,
+      DesktopWindowMode.windowed,
+    ]) {
+      await emitMode(mode);
+      await tester.pumpAndSettle();
+      expect(mounts, 1);
+      expect(find.text('kept text'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    }
+  });
 
-    testWidgets(
-      'borderless controls invoke native window actions (Mornye: $mornye)',
-      (tester) async {
-        await emitMode(DesktopWindowMode.borderless);
-        await pumpApp(
-          tester,
-          mornye: mornye,
-          home: const Scaffold(body: Text('content')),
-        );
-        for (final tooltip in [
-          'Minimize window',
-          'Maximize or restore window',
-          'Close',
-        ]) {
-          await tester.tap(findByTooltip(tooltip));
-          await tester.pump();
-        }
-        expect(
-          calls.map((call) => call.method),
-          containsAllInOrder(['minimizeWindow', 'zoomWindow', 'closeWindow']),
-        );
-        await tester.drag(
-          find.byKey(const ValueKey('desktop-window-resize')),
-          const Offset(-20, -20),
-        );
-        expect(calls.last.method, 'startResize');
-        await tester.tap(findByTooltip('Window mode'));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Full screen'));
-        await tester.pumpAndSettle();
-        expect(desktopWindowFullScreen.value, isTrue);
-        expect(find.text('content'), findsOneWidget);
-      },
+  testWidgets('borderless controls invoke native window actions', (
+    tester,
+  ) async {
+    await emitMode(DesktopWindowMode.borderless);
+    await pumpApp(tester, home: const Scaffold(body: Text('content')));
+    for (final tooltip in [
+      'Minimize window',
+      'Maximize or restore window',
+      'Close',
+    ]) {
+      await tester.tap(findByTooltip(tooltip));
+      await tester.pump();
+    }
+    expect(
+      calls.map((call) => call.method),
+      containsAllInOrder(['minimizeWindow', 'zoomWindow', 'closeWindow']),
     );
+    await tester.drag(
+      find.byKey(const ValueKey('desktop-window-resize')),
+      const Offset(-20, -20),
+    );
+    expect(calls.last.method, 'startResize');
+    await tester.tap(findByTooltip('Window mode'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Full screen'));
+    await tester.pumpAndSettle();
+    expect(desktopWindowFullScreen.value, isTrue);
+    expect(find.text('content'), findsOneWidget);
+  });
 
-    testWidgets(
-      'fullscreen fills the window and exits with F11 or Escape (Mornye: $mornye)',
-      (tester) async {
-        await pumpApp(
-          tester,
-          mornye: mornye,
-          shortcuts: true,
-          home: const Scaffold(body: DesktopWindowModeSetting()),
-        );
-        await tester.tap(find.text('Window mode'));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Full screen'));
-        await tester.pumpAndSettle();
-        expect(desktopWindowFullScreen.value, isTrue);
-        expect(findByTooltip(RegExp(r'^Exit full screen')), findsNothing);
-        expect(findByTooltip('Window mode'), findsNothing);
-        expect(tester.getTopLeft(find.byType(Scaffold)), Offset.zero);
-        expect(tester.getSize(find.byType(Scaffold)), const Size(1000, 800));
-        await tester.sendKeyEvent(LogicalKeyboardKey.f11);
-        await tester.pumpAndSettle();
-        expect(desktopWindowMode.value, DesktopWindowMode.windowed);
-        await tester.sendKeyEvent(LogicalKeyboardKey.f11);
-        await tester.pumpAndSettle();
-        expect(desktopWindowFullScreen.value, isTrue);
-        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
-        await tester.pumpAndSettle();
-        expect(desktopWindowMode.value, DesktopWindowMode.windowed);
-      },
+  testWidgets('fullscreen fills the window and exits with F11 or Escape', (
+    tester,
+  ) async {
+    await pumpApp(
+      tester,
+      shortcuts: true,
+      home: const Scaffold(body: DesktopWindowModeSetting()),
     );
-  }
+    await tester.tap(find.text('Window mode'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Full screen'));
+    await tester.pumpAndSettle();
+    expect(desktopWindowFullScreen.value, isTrue);
+    expect(findByTooltip(RegExp(r'^Exit full screen')), findsNothing);
+    expect(findByTooltip('Window mode'), findsNothing);
+    expect(tester.getTopLeft(find.byType(Scaffold)), Offset.zero);
+    expect(tester.getSize(find.byType(Scaffold)), const Size(1000, 800));
+    await tester.sendKeyEvent(LogicalKeyboardKey.f11);
+    await tester.pumpAndSettle();
+    expect(desktopWindowMode.value, DesktopWindowMode.windowed);
+    await tester.sendKeyEvent(LogicalKeyboardKey.f11);
+    await tester.pumpAndSettle();
+    expect(desktopWindowFullScreen.value, isTrue);
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(desktopWindowMode.value, DesktopWindowMode.windowed);
+  });
 
   testWidgets('Escape closes a page before leaving fullscreen', (tester) async {
     final navigator = GlobalKey<NavigatorState>();
     await pumpApp(
       tester,
-      mornye: false,
       shortcuts: true,
       navigator: navigator,
       home: const Scaffold(body: Text('home')),
@@ -385,7 +366,6 @@ void main() {
     );
     await pumpApp(
       tester,
-      mornye: true,
       shortcuts: true,
       home: const Scaffold(body: Text('content')),
     );
@@ -411,7 +391,6 @@ void main() {
     final navigator = GlobalKey<NavigatorState>();
     await pumpApp(
       tester,
-      mornye: false,
       shortcuts: true,
       navigator: navigator,
       home: const Scaffold(body: Text('home')),

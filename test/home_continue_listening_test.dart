@@ -1,6 +1,4 @@
 import 'package:audio_service/audio_service.dart' show MediaItem;
-import 'package:flutter/gestures.dart'
-    show PointerDeviceKind, kSecondaryMouseButton;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,7 +10,7 @@ import 'package:sistrum/providers/recent_access_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/home_tab.dart';
 import 'package:sistrum/services/playable_media.dart';
-import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,6 +25,8 @@ Widget _home({bool saved = true, bool card = true}) => ProviderScope(
     ),
     recentAccessProvider.overrideWith(_Recent.new),
     libraryMixesProvider.overrideWith((ref) async => const []),
+    homeRecentlyPlayedProvider.overrideWith((ref) async => const []),
+    homeOnRepeatProvider.overrideWith((ref) async => const []),
     playerUiEnabledProvider.overrideWithValue(true),
     currentMediaItemProvider.overrideWithBuild(
       (ref, notifier) => Stream<MediaItem?>.value(null),
@@ -46,7 +46,7 @@ Widget _home({bool saved = true, bool card = true}) => ProviderScope(
     ),
   ],
   child: MaterialApp(
-    theme: AppTheme.dark(),
+    theme: MornyeTheme.build(Brightness.dark),
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
     home: const HomeTab(mode: HomeTabMode.combined),
@@ -68,8 +68,8 @@ Future<void> _open(
   debugDesktopPlatformOverride = desktop;
   addTearDown(() => debugDesktopPlatformOverride = null);
   await tester.pumpWidget(_home(saved: saved, card: card));
-  await tester.pump();
-  await tester.pump();
+  await _settle(tester);
+  await _settle(tester);
 }
 
 /// Lets a menu, sheet or route finish opening. Home keeps an animation
@@ -81,96 +81,14 @@ Future<void> _settle(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('desktop Home sets the shortcuts beside Continue listening', (
+  testWidgets('desktop Home shows the saved song under Continue listening', (
     tester,
   ) async {
+    SharedPreferences.setMockInitialValues({});
     await _open(tester, desktop: true);
     expect(tester.takeException(), isNull);
-
-    final continueHeader = tester.getRect(find.text('Continue listening'));
-    final shortcutsHeader = tester.getRect(find.text('Shortcuts'));
-    expect(shortcutsHeader.top, continueHeader.top);
-    expect(shortcutsHeader.left, greaterThan(continueHeader.left + 400));
-
-    // The shortcuts stack in one list as tall as the card beside it.
-    final card = tester.getRect(
-      find
-          .ancestor(of: find.text('Saved song'), matching: find.byType(InkWell))
-          .first,
-    );
-    final first = tester.getRect(
-      find
-          .ancestor(
-            of: find.text('Shuffle library'),
-            matching: find.byType(InkWell),
-          )
-          .first,
-    );
-    final last = tester.getRect(
-      find
-          .ancestor(of: find.text('Loved'), matching: find.byType(InkWell))
-          .first,
-    );
-    expect(first.left, last.left);
-    expect(first.top, card.top);
-    expect(last.bottom, card.bottom);
-    expect(first.height, greaterThanOrEqualTo(48));
-  });
-
-  testWidgets('desktop Home stacks both sections in a narrow pane', (
-    tester,
-  ) async {
-    await _open(tester, desktop: true, width: 700);
-    expect(tester.takeException(), isNull);
-    expect(
-      tester.getRect(find.text('Shortcuts')).top,
-      greaterThan(tester.getRect(find.text('Saved song')).bottom),
-    );
-    // One row of shortcuts.
-    expect(
-      tester.getRect(find.text('Listening statistics')).top,
-      tester.getRect(find.text('Shuffle library')).top,
-    );
-  });
-
-  testWidgets('desktop Home without a session shows the shortcuts in a row', (
-    tester,
-  ) async {
-    await _open(tester, desktop: true, saved: false);
-    expect(tester.takeException(), isNull);
-    expect(find.text('Continue listening'), findsNothing);
-    // Labels may wrap; the tiles share one row and one height.
-    final tiles = {
-      for (final label in [
-        'Shuffle library',
-        'Equalizer',
-        'Listening statistics',
-        'Loved',
-      ])
-        tester.getRect(
-          find
-              .ancestor(of: find.text(label), matching: find.byType(InkWell))
-              .first,
-        ),
-    };
-    expect({for (final tile in tiles) (tile.top, tile.height)}, hasLength(1));
-  });
-
-  testWidgets('phones keep two columns of shortcuts under the card', (
-    tester,
-  ) async {
-    await _open(tester, desktop: false, width: 400);
-    expect(tester.takeException(), isNull);
-    final shuffle = tester.getRect(find.text('Shuffle library'));
-    expect(tester.getRect(find.text('Equalizer')).top, shuffle.top);
-    expect(
-      tester.getRect(find.text('Listening statistics')).top,
-      greaterThan(shuffle.bottom),
-    );
-    expect(
-      tester.getRect(find.text('Shortcuts')).top,
-      greaterThan(tester.getRect(find.text('Saved song')).bottom),
-    );
+    expect(find.text('Continue listening'), findsOneWidget);
+    expect(find.text('Saved song'), findsOneWidget);
   });
 
   for (final desktop in [false, true]) {
@@ -185,60 +103,8 @@ void main() {
       expect(tester.takeException(), isNull);
       expect(find.text('Continue listening'), findsNothing);
       expect(find.text('Saved song'), findsNothing);
-      expect(find.text('Shuffle library'), findsOneWidget);
     });
   }
-
-  testWidgets('a long press changes a shortcut and Reset restores them', (
-    tester,
-  ) async {
-    SharedPreferences.setMockInitialValues({});
-    await _open(tester, desktop: false, width: 400);
-
-    await tester.longPress(find.text('Equalizer'));
-    await _settle(tester);
-    await tester.tap(find.text('Change shortcut'));
-    await _settle(tester);
-    expect(
-      find.text('A shortcut already on Home swaps places with this one'),
-      findsOneWidget,
-    );
-    await tester.ensureVisible(find.text('Wishlist'));
-    await _settle(tester);
-    await tester.tap(find.text('Wishlist'));
-    await _settle(tester);
-
-    // Wishlist takes the Equalizer's place beside Shuffle.
-    expect(find.text('Equalizer'), findsNothing);
-    expect(
-      tester.getRect(find.text('Wishlist')).top,
-      tester.getRect(find.text('Shuffle library')).top,
-    );
-
-    await tester.longPress(find.text('Wishlist'));
-    await _settle(tester);
-    await tester.tap(find.text('Reset shortcuts'));
-    await _settle(tester);
-    expect(find.text('Wishlist'), findsNothing);
-    expect(find.text('Equalizer'), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('a right-click opens the shortcut menu on desktop', (
-    tester,
-  ) async {
-    await _open(tester, desktop: true);
-    await _settle(tester);
-    final click = await tester.startGesture(
-      tester.getCenter(find.text('Loved')),
-      kind: PointerDeviceKind.mouse,
-      buttons: kSecondaryMouseButton,
-    );
-    await click.up();
-    await _settle(tester);
-    expect(find.text('Change shortcut'), findsOneWidget);
-    expect(find.text('Reset shortcuts'), findsOneWidget);
-  });
 }
 
 class _Recent extends RecentAccessNotifier {

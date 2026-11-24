@@ -3,11 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/automix_options.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_slider.dart';
 import 'package:sistrum/widgets/settings_group.dart';
-import 'package:sistrum/widgets/slider_value_header.dart';
 
 class AutoMixSettings extends ConsumerStatefulWidget {
   const AutoMixSettings({super.key});
@@ -98,14 +96,7 @@ class _AutoMixSettingsState extends ConsumerState<AutoMixSettings> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (context.isMornye)
-              Text('$label: $valueLabel')
-            else
-              SliderValueHeader(
-                title: label,
-                value: valueLabel,
-                enabled: enabled,
-              ),
+            Text('$label: $valueLabel'),
             AppSlider(
               value: value.clamp(min, max),
               min: min,

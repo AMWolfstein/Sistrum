@@ -10,7 +10,6 @@ import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/library_tracks_folder_screen.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
@@ -82,7 +81,6 @@ class _Library extends LocalLibraryNotifier {
 Future<void> _open(
   WidgetTester tester, {
   bool desktop = false,
-  bool mornye = false,
   LibraryTracksFolderMode mode = LibraryTracksFolderMode.playlist,
 }) async {
   debugDesktopPlatformOverride = desktop;
@@ -103,7 +101,7 @@ Future<void> _open(
         ),
       ],
       child: MaterialApp(
-        theme: mornye ? MornyeTheme.build(Brightness.dark) : AppTheme.light(),
+        theme: MornyeTheme.build(Brightness.dark),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: LibraryTracksFolderScreen(
@@ -170,37 +168,35 @@ void main() {
   });
 
   for (final desktop in [false, true]) {
-    for (final mornye in [false, true]) {
-      testWidgets('a playlist lists its songs by the chosen sort and keeps '
-          'the choice (desktop: $desktop, Mornye: $mornye)', (tester) async {
-        await _open(tester, desktop: desktop, mornye: mornye);
-        expect(_shown(tester, desktop: desktop), [
-          'Zebra',
-          'apple 10',
-          'Apple 2',
-        ]);
+    testWidgets('a playlist lists its songs by the chosen sort and keeps '
+        'the choice (desktop: $desktop)', (tester) async {
+      await _open(tester, desktop: desktop);
+      expect(_shown(tester, desktop: desktop), [
+        'Zebra',
+        'apple 10',
+        'Apple 2',
+      ]);
 
-        await _pick(tester, 'Title (A-Z)');
-        expect(_shown(tester, desktop: desktop), [
-          'Apple 2',
-          'apple 10',
-          'Zebra',
-        ]);
-        final prefs = await SharedPreferences.getInstance();
-        expect(jsonDecode(prefs.getString('collection_track_sorts')!), {
-          'playlist:mix': 'title',
-        });
-
-        await _pick(tester, 'Custom Order');
-        expect(_shown(tester, desktop: desktop), [
-          'Zebra',
-          'apple 10',
-          'Apple 2',
-        ]);
-        expect(jsonDecode(prefs.getString('collection_track_sorts')!), isEmpty);
-        expect(tester.takeException(), isNull);
+      await _pick(tester, 'Title (A-Z)');
+      expect(_shown(tester, desktop: desktop), [
+        'Apple 2',
+        'apple 10',
+        'Zebra',
+      ]);
+      final prefs = await SharedPreferences.getInstance();
+      expect(jsonDecode(prefs.getString('collection_track_sorts')!), {
+        'playlist:mix': 'title',
       });
-    }
+
+      await _pick(tester, 'Custom Order');
+      expect(_shown(tester, desktop: desktop), [
+        'Zebra',
+        'apple 10',
+        'Apple 2',
+      ]);
+      expect(jsonDecode(prefs.getString('collection_track_sorts')!), isEmpty);
+      expect(tester.takeException(), isNull);
+    });
   }
 
   testWidgets('a saved choice applies when the playlist opens, and to that '

@@ -5,10 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/physics.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:material_3_expressive/material_3_expressive.dart'
-    show M3EMotion;
 import 'package:sistrum/theme/app_motion.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/swipe_commit_haptic.dart';
 
 /// Shares one horizontal gesture between artwork and metadata. Only the
@@ -88,14 +85,6 @@ class _PlayerTrackSwipeState extends State<PlayerTrackSwipe>
   /// Settled within half a pixel.
   static const _tolerance = Tolerance(distance: 0.5, velocity: 10);
 
-  /// Material's default expressive spatial spring, critically damped so the
-  /// titles never pass rest and show the neighbour on the other side.
-  static final _materialSpring = SpringDescription.withDampingRatio(
-    mass: 1,
-    stiffness: M3EMotion.expressiveSpatialDefault.stiffness,
-    ratio: 1,
-  );
-
   /// Moves the titles to [target] on the style's spring (Mornye's standard
   /// one has no bounce either), starting from the [velocity] they had when
   /// the finger let go, in pixels a second. Reduced motion puts them there
@@ -105,9 +94,7 @@ class _PlayerTrackSwipeState extends State<PlayerTrackSwipe>
       _offset.value = target;
       return TickerFuture.complete();
     }
-    final spring = context.isMornye
-        ? MornyeMotion.standardSpring
-        : _materialSpring;
+    final spring = MornyeMotion.standardSpring;
     final offset = _offset.value;
     var start = velocity;
     if (target == 0 && offset != 0 && velocity.sign != offset.sign) {

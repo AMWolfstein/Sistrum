@@ -8,3 +8,4 @@
 - M001-T004 — Make local library and phone playback self-contained
 - M001-T005 — Remove online product features and dependencies
 - M001-T006 — Remove other platforms and enforce ARM64 packaging
+- M001-TOR003 — Make Mornye the only theme and remove the Material design layer

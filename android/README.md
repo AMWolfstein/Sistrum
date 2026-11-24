@@ -160,7 +160,6 @@ Progress `EventChannel`s, registered on Android in
 | `com.amwolfstein.sistrum/usb_pcm`, `com.amwolfstein.sistrum/usb_pcm/events` (EventChannel), `com.amwolfstein.sistrum/audio_route` | `android/app/src/main/kotlin/com/amwolfstein/sistrum/UsbBitPerfectPlugin.kt` |
 | `com.amwolfstein.sistrum/media3_player`, `com.amwolfstein.sistrum/media3_player/events/<playerId>` (EventChannel) | `android/app/src/main/kotlin/com/amwolfstein/sistrum/Media3PlayerPlugin.kt` |
 | `com.amwolfstein.sistrum/haptics` | `android/app/src/main/kotlin/com/amwolfstein/sistrum/MusicHapticsPlugin.kt` |
-| `com.amwolfstein.sistrum/player_widget` | `android/app/src/main/kotlin/com/amwolfstein/sistrum/PlayerWidgetProvider.kt` |
 
 ## Foreground Services
 

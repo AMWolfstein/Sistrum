@@ -8,8 +8,8 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/theme/app_theme.dart';
-import 'package:sistrum/widgets/player_queue_sheet.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
+import 'package:sistrum/widgets/mornye_player_queue.dart';
 
 class _Settings extends SettingsNotifier {
   @override
@@ -37,12 +37,10 @@ class _CountedItem extends MediaItem {
   }
 }
 
-/// Shows the Material queue for a player on [playing]; [sheet] opens it the
-/// way Now Playing does, otherwise it fills the page like the desktop panel.
+/// Shows the Mornye queue for a player on [playing], scrolled by [scroll].
 Future<(ScrollController, StreamController<MediaItem?>)> _pump(
   WidgetTester tester, {
   required int playing,
-  bool sheet = false,
   List<MediaItem>? queue,
 }) async {
   final songs = queue ?? _defaultQueue;
@@ -65,7 +63,7 @@ Future<(ScrollController, StreamController<MediaItem?>)> _pump(
   );
   addTearDown(container.dispose);
   current.add(songs[playing]);
-  final theme = AppTheme.light();
+  final theme = MornyeTheme.build(Brightness.dark);
   await tester.pumpWidget(
     UncontrolledProviderScope(
       container: container,
@@ -75,128 +73,59 @@ Future<(ScrollController, StreamController<MediaItem?>)> _pump(
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
-          body: sheet
-              ? Builder(
-                  builder: (context) => TextButton(
-                    onPressed: () =>
-                        showPlayerQueueSheet(context, theme.colorScheme),
-                    child: const Text('Open queue'),
-                  ),
-                )
-              : PlayerQueueSheet(
-                  colorScheme: theme.colorScheme,
-                  scrollController: scroll,
-                ),
+          body: PrimaryScrollController(
+            controller: scroll,
+            child: MornyePlayerQueue(colorScheme: theme.colorScheme),
+          ),
         ),
       ),
     ),
   );
   await tester.pumpAndSettle();
-  if (sheet) {
-    await tester.tap(find.text('Open queue'));
-    await tester.pumpAndSettle();
-  }
   return (scroll, current);
 }
 
 Finder _row(int index) => find.widgetWithText(ListTile, 'Song $index');
 
-double _listTop(WidgetTester tester) =>
-    tester.getTopLeft(find.byType(ReorderableListView)).dy;
-
 void main() {
-  testWidgets('the queue opens at the playing song, one song above it', (
+  // The Mornye queue lists only the songs after the playing one.
+  testWidgets('the queue opens on the songs after the playing one', (
     tester,
   ) async {
     final (scroll, _) = await _pump(tester, playing: 20);
 
-    expect(_row(0), findsNothing);
-    expect(_row(20), findsOneWidget);
-    final rowHeight = tester.getSize(_row(20)).height;
-    expect(scroll.offset, moreOrLessEquals(19 * rowHeight));
-    expect(tester.getTopLeft(_row(19)).dy, moreOrLessEquals(_listTop(tester)));
-  });
-
-  testWidgets('a song change while open never moves the list', (tester) async {
-    final (scroll, current) = await _pump(tester, playing: 20);
-    final opened = scroll.offset;
-
-    current.add(_defaultQueue[30]);
-    await tester.pumpAndSettle();
-    expect(scroll.offset, opened);
-
-    // The user can still scroll back to the songs already played.
-    scroll.jumpTo(0);
-    await tester.pumpAndSettle();
-    expect(_row(0), findsOneWidget);
+    expect(_row(20), findsNothing);
+    expect(_row(21), findsOneWidget);
+    expect(scroll.offset, 0);
+    expect(tester.takeException(), isNull);
   });
 
   for (final playing in [0, 1]) {
     testWidgets('song ${playing + 1} opens at the top', (tester) async {
       final (scroll, _) = await _pump(tester, playing: playing);
       expect(scroll.offset, 0);
-      expect(_row(0), findsOneWidget);
+      expect(_row(playing + 1), findsOneWidget);
     });
   }
 
-  testWidgets('the last song opens at the end without overscroll', (
+  testWidgets('the last song leaves the queue empty without overscroll', (
     tester,
   ) async {
     final (scroll, _) = await _pump(tester, playing: 39);
-    expect(scroll.offset, scroll.position.maxScrollExtent);
-    expect(_row(39), findsOneWidget);
+    expect(scroll.offset, 0);
+    expect(_row(39), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('a long queue opens far down without building the songs '
-      'before the playing one', (tester) async {
+  testWidgets('a long queue builds only the songs on screen', (tester) async {
     final builds = <int>{};
     final queue = [for (var i = 0; i < 3000; i++) _CountedItem(i, builds)];
     final (scroll, _) = await _pump(tester, playing: 2500, queue: queue);
 
-    final rowHeight = tester.getSize(_row(2500)).height;
-    expect(scroll.offset, moreOrLessEquals(2499 * rowHeight));
-    expect(
-      tester.getTopLeft(_row(2499)).dy,
-      moreOrLessEquals(_listTop(tester)),
-    );
-    // Only the first screen, measured before the jump, and the screen the
-    // jump lands on.
+    expect(scroll.offset, 0);
+    expect(_row(2501), findsOneWidget);
     expect(builds.length, lessThan(80));
-    expect(builds.where((index) => index > 40 && index < 2400), isEmpty);
-
-    // No empty box stays behind: the rows kept above the viewport are real,
-    // and so are the songs before them once the user scrolls back.
-    expect(
-      find.byWidgetPredicate(
-        (widget) => widget is SizedBox && widget.key is ObjectKey,
-        skipOffstage: false,
-      ),
-      findsNothing,
-    );
-    scroll.jumpTo(scroll.offset - 6 * rowHeight);
-    await tester.pumpAndSettle();
-    expect(_row(2494), findsOneWidget);
-    expect(_row(2496), findsOneWidget);
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('the Now Playing sheet opens at the playing song and scrolls '
-      'back before it closes', (tester) async {
-    await _pump(tester, playing: 20, sheet: true);
-    expect(_row(20), findsOneWidget);
-    expect(_row(0), findsNothing);
-    final sheetTop = tester.getTopLeft(find.byType(PlayerQueueSheet)).dy;
-
-    // Dragging down first shows the songs before it, in the same sheet size.
-    await tester.drag(_row(20), const Offset(0, 200));
-    await tester.pumpAndSettle();
-    expect(find.byType(PlayerQueueSheet), findsOneWidget);
-    expect(
-      tester.getTopLeft(find.byType(PlayerQueueSheet)).dy,
-      moreOrLessEquals(sheetTop),
-    );
-    expect(_row(17), findsOneWidget);
+    expect(builds.where((index) => index <= 2500), isEmpty);
     expect(tester.takeException(), isNull);
   });
 }

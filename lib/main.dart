@@ -13,7 +13,6 @@ import 'package:sistrum/constants/app_info.dart';
 import 'package:sistrum/l10n/supported_locales.dart';
 import 'package:sistrum/models/library_database_models.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/models/theme_settings.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
@@ -22,7 +21,6 @@ import 'package:sistrum/services/notification_service.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/services/share_intent_service.dart';
 import 'package:sistrum/services/app_state_database.dart';
-import 'package:sistrum/services/app_navigation_service.dart';
 import 'package:sistrum/services/app_orientation.dart';
 import 'package:sistrum/services/activity_attachment.dart';
 import 'package:sistrum/services/app_crash_service.dart';
@@ -31,8 +29,6 @@ import 'package:sistrum/services/desktop_diagnostics.dart';
 import 'package:sistrum/services/desktop_library_watcher.dart';
 import 'package:sistrum/services/music_player_service.dart';
 import 'package:sistrum/services/playback_notification.dart';
-import 'package:sistrum/services/player_widget_service.dart';
-import 'package:sistrum/screens/now_playing_screen.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/android_tv.dart';
 import 'package:sistrum/utils/local_library_scan_prefs.dart';
@@ -94,9 +90,6 @@ void main() {
         // above the navigation bar, so no screen could reach the bottom edge.
         unawaited(SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge));
       }
-      // Asked after attachment, so an app a media browser started long
-      // before it opens still reads the current wallpaper colors.
-      final dynamicColors = DynamicColors.request();
       // Awaited before runApp, which reports a failure once.
       final orientation = _initializeOrientation()..ignore();
       // Desktop: log files and the unclean-exit marker, before the error
@@ -112,12 +105,6 @@ void main() {
         yield LicenseEntryWithLineBreaks(const [
           'Inter',
         ], await rootBundle.loadString('assets/fonts/Inter-LICENSE.txt'));
-        yield LicenseEntryWithLineBreaks(
-          const ['Google Sans Flex'],
-          await rootBundle.loadString(
-            'assets/fonts/GoogleSansFlex-LICENSE.txt',
-          ),
-        );
         yield LicenseEntryWithLineBreaks(const [
           'Material Color Utilities (native palette)',
           'Dart SDK (native Random compatibility)',
@@ -180,10 +167,6 @@ void main() {
       final runtimeProfile = await _resolveRuntimeProfile(prefs);
       _configureImageCache(runtimeProfile);
       await orientation;
-      // Usually answered by now. The first frame then has the final theme,
-      // with no fade from the seed colors; a late answer still applies.
-      await dynamicColors.settle(const Duration(milliseconds: 100));
-
       runApp(
         ProviderScope(
           overrides: [
@@ -200,7 +183,6 @@ void main() {
             ),
             initialSettingsProvider.overrideWithValue(bootstrapSettings),
             initialThemeSettingsProvider.overrideWithValue(bootstrapTheme),
-            initialDynamicColorsProvider.overrideWithValue(dynamicColors),
           ],
           child: EagerInitialization(
             child: SistrumApp(
@@ -212,28 +194,6 @@ void main() {
       // Waits until startup settles, then analyzes how songs sound for
       // Autoplay. Media browsers that start without the app shell skip it.
       musicPlayerRuntime.startSongAnalysis();
-      if (Platform.isAndroid || Platform.isIOS) {
-        unawaited(
-          PlayerWidgetService.instance.initialize((command) async {
-            await restorePersistedPlaybackSession();
-            final handler = await initMusicPlayer();
-            if (command == 'open') {
-              await WidgetsBinding.instance.endOfFrame;
-              final navigator =
-                  AppNavigationService.rootNavigatorKey.currentState;
-              if (navigator != null && handler.mediaItem.value != null) {
-                unawaited(
-                  navigator.push<void>(
-                    NowPlayingRoute(child: const NowPlayingScreen()),
-                  ),
-                );
-              }
-            } else {
-              await PlayerWidgetService.control(handler, command);
-            }
-          }),
-        );
-      }
     },
     (error, stack) {
       _log.e('Uncaught zone error: $error');
@@ -260,7 +220,6 @@ Future<void> _startBackgroundPlayback() async {
     final dependencies = runtime.dependencies;
     runtime.configureBackgroundNotification(
       presentation: PlaybackNotification(
-        mornye: loadBootstrapThemeSettings(prefs).style == AppThemeStyle.mornye,
         favoriteLabel: l10n.trackOptionAddToLoved,
         unfavoriteLabel: l10n.trackOptionRemoveFromLoved,
         shuffleOnLabel: l10n.nowPlayingShuffleOn,

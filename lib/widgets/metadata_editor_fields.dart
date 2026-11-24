@@ -3,11 +3,8 @@ import 'package:material_ui/material_ui.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/widgets/app_content_card.dart';
 import 'package:sistrum/widgets/app_switch.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/metadata_text_field.dart';
-import 'package:sistrum/widgets/settings_group.dart';
 
 /// Grouped option list used by the metadata editor pickers.
 class MetadataEditorOptions extends StatelessWidget {
@@ -17,7 +14,6 @@ class MetadataEditorOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!context.isMornye) return SettingsGroup(children: children);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Material(
@@ -45,29 +41,14 @@ class MetadataEditorQuickSelectButton extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    if (context.isMornye) {
-      return CupertinoButton(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        onPressed: fetching ? null : onTap,
-        child: Text(
-          label,
-          style: Theme.of(
-            context,
-          ).textTheme.bodySmall?.copyWith(color: cs.primary),
-        ),
-      );
-    }
-    // The shared outlined button keeps the 48dp touch target.
-    return ExpressiveButton(
-      outlined: true,
-      onPressed: fetching ? null : onTap,
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-      ),
-      child: Text(label),
-    );
-  }
+  Widget build(BuildContext context) => CupertinoButton(
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+    onPressed: fetching ? null : onTap,
+    child: Text(
+      label,
+      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: cs.primary),
+    ),
+  );
 }
 
 class MetadataEditorSwitchField extends StatelessWidget {
@@ -98,12 +79,9 @@ class MetadataEditorSwitchField extends StatelessWidget {
             borderRadius: BorderRadius.circular(14),
             clipBehavior: Clip.antiAlias,
             child: AppSwitchListTile(
-              adaptive: true,
               value: value,
               onChanged: onChanged,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: context.isMornye ? 4 : 16,
-              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 4),
               title: Text(label, style: Theme.of(context).textTheme.bodyLarge),
               subtitle: Text(
                 subtitle,
@@ -113,7 +91,7 @@ class MetadataEditorSwitchField extends StatelessWidget {
               ),
             ),
           ),
-          if (context.isMornye) const Divider(height: 0.5),
+          const Divider(height: 0.5),
         ],
       ),
     );
@@ -139,54 +117,6 @@ class MetadataEditorSelectionField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = colorScheme;
-    if (context.isMornye) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsetsDirectional.only(start: 4, bottom: 6),
-              child: Text(
-                label,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-              ),
-            ),
-            CupertinoButton(
-              color: metadataEditorFieldFill(context, cs),
-              disabledColor: Colors.transparent,
-              borderRadius: BorderRadius.circular(16),
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 14),
-              onPressed: enabled ? onTap : null,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      value,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: enabled ? cs.onSurface : cs.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Icon(
-                    CupertinoIcons.chevron_up_chevron_down,
-                    size: 16,
-                    color: cs.primary,
-                  ),
-                ],
-              ),
-            ),
-            const Divider(height: 0.5),
-          ],
-        ),
-      );
-    }
-    final radius = BorderRadius.circular(14);
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),
       child: Column(
@@ -196,43 +126,39 @@ class MetadataEditorSelectionField extends StatelessWidget {
             padding: const EdgeInsetsDirectional.only(start: 4, bottom: 6),
             child: Text(
               label,
-              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: enabled ? cs.onSurfaceVariant : cs.outline,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.1,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
             ),
           ),
-          Material(
+          CupertinoButton(
             color: metadataEditorFieldFill(context, cs),
-            borderRadius: radius,
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              onTap: enabled ? onTap : null,
-              child: Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(16, 14, 12, 14),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        value,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: enabled ? cs.onSurface : cs.outline,
-                        ),
-                      ),
+            disabledColor: Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 14),
+            onPressed: enabled ? onTap : null,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    value,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: enabled ? cs.onSurface : cs.onSurfaceVariant,
                     ),
-                    const SizedBox(width: 8),
-                    Icon(
-                      Icons.expand_more_rounded,
-                      color: enabled ? cs.onSurfaceVariant : cs.outline,
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+                const SizedBox(width: 12),
+                Icon(
+                  CupertinoIcons.chevron_up_chevron_down,
+                  size: 16,
+                  color: cs.primary,
+                ),
+              ],
             ),
           ),
+          const Divider(height: 0.5),
         ],
       ),
     );
@@ -258,13 +184,6 @@ class MetadataEditorSectionCard extends StatelessWidget {
     this.onHeaderTap,
     this.expanded = true,
   });
-
-  RoundedRectangleBorder _sectionCardShape(ColorScheme cs) {
-    return RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(20),
-      side: BorderSide(color: cs.outlineVariant.withValues(alpha: 0.5)),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -302,9 +221,7 @@ class MetadataEditorSectionCard extends StatelessWidget {
             duration: turn.duration,
             curve: turn.curve,
             child: Icon(
-              context.isMornye
-                  ? CupertinoIcons.chevron_down
-                  : Icons.expand_more,
+              CupertinoIcons.chevron_down,
               size: 22,
               color: cs.onSurfaceVariant,
             ),
@@ -350,26 +267,17 @@ class MetadataEditorSectionCard extends StatelessWidget {
           );
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: context.isMornye
-          ? Material(
-              color: MornyeTheme.controlFill(context),
-              borderRadius: BorderRadius.circular(28),
-              clipBehavior: Clip.antiAlias,
-              child: DividerTheme(
-                data: DividerTheme.of(
-                  context,
-                ).copyWith(color: MornyeTheme.metadataDividerColor(context)),
-                child: content,
-              ),
-            )
-          : AppContentCard(
-              elevation: 0,
-              margin: EdgeInsets.zero,
-              color: settingsGroupColor(context),
-              shape: _sectionCardShape(cs),
-              clipBehavior: Clip.antiAlias,
-              child: content,
-            ),
+      child: Material(
+        color: MornyeTheme.controlFill(context),
+        borderRadius: BorderRadius.circular(28),
+        clipBehavior: Clip.antiAlias,
+        child: DividerTheme(
+          data: DividerTheme.of(
+            context,
+          ).copyWith(color: MornyeTheme.metadataDividerColor(context)),
+          child: content,
+        ),
+      ),
     );
   }
 }

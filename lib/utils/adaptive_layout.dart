@@ -1,5 +1,4 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/android_tv.dart';
 
@@ -148,11 +147,9 @@ double wideInsetForWidth(
 }) => maxWidth > contentMaxWidth ? (maxWidth - contentMaxWidth) / 2 : 0;
 
 /// Horizontal inset that centers full-width list content on tablets/landscape;
-/// zero on phones, so rows stop stretching across the whole screen. Mornye
-/// desktop pages run across the whole content pane and center
-/// only past [desktopContentMaxWidth]. Material desktop pages center past
-/// [desktopMaterialContentMaxWidth], so long lists keep a reading width
-/// instead of stretching across a wide window.
+/// zero on phones, so rows stop stretching across the whole screen. Desktop
+/// pages run across the whole content pane and center only past
+/// [desktopContentMaxWidth].
 double wideListInset(BuildContext context, {double? contentMaxWidth}) =>
     wideInsetForWidth(
       // Width only, so a height change does not rebuild the caller.
@@ -160,24 +157,14 @@ double wideListInset(BuildContext context, {double? contentMaxWidth}) =>
       contentMaxWidth:
           contentMaxWidth ??
           (isDesktopPlatform
-              ? (context.isMornye
-                    ? desktopContentMaxWidth
-                    : desktopMaterialContentMaxWidth)
+              ? desktopContentMaxWidth
               : defaultWideContentMaxWidth),
     );
 
-/// The Home tab's extra side inset. Material desktop runs Home across the
-/// whole pane, as M3 panes do, with the 24dp margin of expanded and larger
-/// windows (the 16dp phone edge plus 8), so its cover shelves reach the
-/// edge; elsewhere Home centers with [wideListInset].
-double homeContentInset(BuildContext context) =>
-    isDesktopPlatform && !context.isMornye ? 8 : wideListInset(context);
+/// The Home tab's extra side inset, centered with [wideListInset].
+double homeContentInset(BuildContext context) => wideListInset(context);
 
 const double desktopContentMaxWidth = 1600;
-
-/// The M3 large window class starts at 1200dp; the extra 80dp leaves room
-/// for the navigation rail, since the inset is measured on the window width.
-const double desktopMaterialContentMaxWidth = 1280;
 
 /// Discography cover geometry shared by loaded cards and loading placeholders.
 double artistAlbumTileSize(BuildContext context) {
@@ -199,9 +186,6 @@ const double searchCoverLayoutMinWidth = 840;
 /// rather than growing covers far past it.
 const double searchCoverMinExtent = 160;
 
-/// The cover side of a search result shelf.
-const double searchCoverShelfExtent = 176;
-
 /// The space between search result covers.
 const double searchCoverGap = 16;
 
@@ -219,7 +203,6 @@ double searchShelfExtentFor(
   double paneWidth, {
   required bool round,
 }) {
-  if (!context.isMornye) return searchCoverShelfExtent;
   final content = paneWidth - 2 * searchCoverEdge(context);
   final perPane = round ? 5.2 : 4.17;
   return ((content + searchCoverGap) / perPane - searchCoverGap).clamp(
@@ -258,8 +241,7 @@ double searchCoverTextHeight(BuildContext context) {
 
 /// The side margin of search result grids and shelves: the section titles'
 /// inset, so covers line up under them.
-double searchCoverEdge(BuildContext context) =>
-    (context.isMornye ? 20 : 16) + homeContentInset(context);
+double searchCoverEdge(BuildContext context) => 20 + homeContentInset(context);
 
 /// Scales fixed sizes with the shortest screen side, clamped to [min]..[max].
 double responsiveScale({

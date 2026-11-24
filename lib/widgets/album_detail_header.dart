@@ -10,16 +10,11 @@ import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/theme/cover_palette.dart';
-import 'package:sistrum/theme/material_expressive.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/mornye_glass_press.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
-import 'package:sistrum/widgets/expressive_button_group.dart';
-import 'package:sistrum/widgets/expressive_icon_button.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/desktop/context_menu.dart';
@@ -127,8 +122,7 @@ class AlbumDetailHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (isDesktopPlatform ||
-        (context.isMornye && (coverBuilder != null || immersive))) {
+    if (isDesktopPlatform || coverBuilder != null || immersive) {
       final scheme = Theme.of(context).colorScheme;
       return HeaderPalette(
         scheme: scheme,
@@ -148,7 +142,7 @@ class AlbumDetailHeader extends StatelessWidget {
   /// after the dynamically sized artwork and metadata have scrolled away.
   List<Widget> buildSlivers(BuildContext context) {
     if (isDesktopPlatform) return _buildDesktopSlivers(context);
-    if (!context.isMornye || (coverBuilder == null && !immersive)) {
+    if (coverBuilder == null && !immersive) {
       return [this];
     }
     final scheme = Theme.of(context).colorScheme;
@@ -350,7 +344,7 @@ class AlbumDetailHeader extends StatelessWidget {
 
   Widget _buildAppBar(BuildContext context, ColorScheme headerScheme) {
     final tokens = context.tokens;
-    final plainArtworkHeader = context.isMornye && coverBuilder != null;
+    final plainArtworkHeader = coverBuilder != null;
     // iOS does not add horizontal safe-area padding in portrait. Give toolbar
     // controls and header content an explicit inset so circular actions do not
     // sit against the glass edge on either iPhone or iPad. Android uses a
@@ -361,12 +355,10 @@ class AlbumDetailHeader extends StatelessWidget {
     // keeps the familiar dark treatment — both tinted by the artwork.
     final scrimColor = headerScheme.surface;
     final onHeader = headerScheme.onSurface;
-    final expressive = materialExpressiveEnabled(context);
     final fallbackMotion = AppMotionSpec(tokens.motionFast, Curves.linear);
-    final titleSlide = AppMotion.spatial(context, fallbackMotion);
     final titleFade = AppMotion.effects(context, fallbackMotion);
     Widget toolbarTitle(bool showTitle) {
-      final fading = AnimatedOpacity(
+      return AnimatedOpacity(
         duration: titleFade.duration,
         curve: titleFade.curve,
         opacity: showTitle ? 1.0 : 0.0,
@@ -380,13 +372,6 @@ class AlbumDetailHeader extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-      );
-      if (!expressive) return fading;
-      return AnimatedSlide(
-        duration: titleSlide.duration,
-        curve: titleSlide.curve,
-        offset: showTitle ? Offset.zero : const Offset(0, 0.6),
-        child: fading,
       );
     }
 
@@ -407,11 +392,6 @@ class AlbumDetailHeader extends StatelessWidget {
               (constraints.maxHeight - kToolbarHeight) /
               (expandedHeight - kToolbarHeight);
           final showContent = collapseRatio > 0.3;
-          // Expressive headers shrink and fade the hero content with the
-          // scroll instead of hiding it at one threshold.
-          final contentProgress = Curves.easeOut.transform(
-            ((collapseRatio - 0.3) / 0.5).clamp(0.0, 1.0),
-          );
           final content = Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
@@ -439,10 +419,7 @@ class AlbumDetailHeader extends StatelessWidget {
                         expandedHeight - toolbarBottom - detailsHeight,
                       ),
                     );
-                    // Material uses the expressive extra-large corner.
-                    final coverRadius = context.isMornye
-                        ? tokens.radiusControl
-                        : 28.0;
+                    final coverRadius = tokens.radiusControl;
                     return Container(
                       width: coverSize,
                       height: coverSize,
@@ -524,24 +501,12 @@ class AlbumDetailHeader extends StatelessWidget {
                   left: 20 + iosEdgeInset,
                   right: 20 + iosEdgeInset,
                   bottom: 40,
-                  child: expressive
-                      ? IgnorePointer(
-                          ignoring: contentProgress == 0,
-                          child: Opacity(
-                            opacity: contentProgress,
-                            child: Transform.scale(
-                              scale: 0.9 + 0.1 * contentProgress,
-                              alignment: Alignment.bottomCenter,
-                              child: content,
-                            ),
-                          ),
-                        )
-                      : AnimatedOpacity(
-                          duration: titleFade.duration,
-                          curve: titleFade.curve,
-                          opacity: showContent ? 1.0 : 0.0,
-                          child: content,
-                        ),
+                  child: AnimatedOpacity(
+                    duration: titleFade.duration,
+                    curve: titleFade.curve,
+                    opacity: showContent ? 1.0 : 0.0,
+                    child: content,
+                  ),
                 ),
               ],
             ),
@@ -558,9 +523,7 @@ class AlbumDetailHeader extends StatelessWidget {
             Center(
               child: AppIconButton.filledTonal(
                 tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-                icon: AppIcon(
-                  context.isMornye ? Icons.chevron_left : Icons.arrow_back,
-                ),
+                icon: const AppIcon(Icons.chevron_left),
                 style: IconButton.styleFrom(
                   minimumSize: Size.square(tokens.minTouchTarget),
                   backgroundColor: headerScheme.surfaceContainerHigh.withValues(
@@ -723,116 +686,45 @@ class AlbumPlayActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final scheme = HeaderPalette.of(context);
-    if (isDesktopPlatform) return _buildDesktop(context, scheme);
-    if (context.isMornye) {
-      return Row(
-        children: [
-          if (onDownload != null) ...[
-            HeaderCircleButton(
-              icon: Icons.download_for_offline_outlined,
-              tooltip: context.l10n.offlineSave,
-              onPressed: onDownload,
-            ),
-            const SizedBox(width: 12),
-          ],
-          Expanded(
-            child: HeaderFilledButton(
-              icon: isPlaying
-                  ? CupertinoIcons.pause_fill
-                  : CupertinoIcons.play_fill,
-              label: playLabel,
-              onPressed: onPlay,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: _MornyeHeaderButton(
-              icon: CupertinoIcons.shuffle,
-              label: shuffleTooltip,
-              onPressed: onShuffle,
-            ),
-          ),
-        ],
-      );
-    }
-    return ExpressiveButtonGroup(
-      flexible: {onDownload == null ? 0 : 1},
-      spacing: tokens.gapMd,
-      slotWidth: tokens.minTouchTarget,
+    if (isDesktopPlatform) return _buildDesktop(context);
+    return Row(
       children: [
-        if (onDownload != null)
+        if (onDownload != null) ...[
           HeaderCircleButton(
             icon: Icons.download_for_offline_outlined,
             tooltip: context.l10n.offlineSave,
             onPressed: onDownload,
           ),
-        ExpressiveButton(
-          onPressed: onPlay,
-          icon: AppIcon(isPlaying ? Icons.pause : Icons.play_arrow, size: 20),
-          style: FilledButton.styleFrom(
-            backgroundColor: scheme.primary,
-            foregroundColor: scheme.onPrimary,
-            minimumSize: Size(0, tokens.minTouchTarget),
-            shape: const StadiumBorder(),
-          ),
-          child: Text(playLabel, maxLines: 1, overflow: TextOverflow.ellipsis),
-        ),
-        ExpressiveIconButton(
-          tooltip: shuffleTooltip,
-          onPressed: onShuffle,
-          icon: const AppIcon(Icons.shuffle),
-          size: tokens.minTouchTarget,
-          backgroundColor: scheme.secondaryContainer.withValues(alpha: 0.8),
-          foregroundColor: scheme.onSecondaryContainer,
-        ),
-      ],
-    );
-  }
-
-  /// Shuffle, Play and "+" at their own widths along the artwork's bottom
-  /// edge: round gray buttons around the Play capsule in Mornye, a filled
-  /// Play button with tonal icon buttons in Material.
-  Widget _buildDesktop(BuildContext context, ColorScheme scheme) {
-    final addLabel = context.l10n.collectionAddToPlaylist;
-    if (context.isMornye) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        spacing: 10,
-        children: [
-          if (onDownload != null)
-            HeaderCircleButton(
-              icon: Icons.download_for_offline_outlined,
-              tooltip: context.l10n.offlineSave,
-              onPressed: onDownload,
-            ),
-          HeaderCircleButton(
-            icon: CupertinoIcons.shuffle,
-            tooltip: shuffleTooltip,
-            tonal: true,
-            onPressed: onShuffle,
-          ),
-          _MornyeHeaderButton(
+          const SizedBox(width: 12),
+        ],
+        Expanded(
+          child: HeaderFilledButton(
             icon: isPlaying
                 ? CupertinoIcons.pause_fill
                 : CupertinoIcons.play_fill,
             label: playLabel,
             onPressed: onPlay,
           ),
-          if (onAddToPlaylist != null)
-            HeaderCircleButton(
-              icon: CupertinoIcons.add,
-              tooltip: addLabel,
-              tonal: true,
-              onPressed: onAddToPlaylist,
-            ),
-        ],
-      );
-    }
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _MornyeHeaderButton(
+            icon: CupertinoIcons.shuffle,
+            label: shuffleTooltip,
+            onPressed: onShuffle,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Shuffle, Play and "+" at their own widths along the artwork's bottom
+  /// edge: round gray buttons around the Play capsule.
+  Widget _buildDesktop(BuildContext context) {
+    final addLabel = context.l10n.collectionAddToPlaylist;
     return Row(
       mainAxisSize: MainAxisSize.min,
-      spacing: 8,
+      spacing: 10,
       children: [
         if (onDownload != null)
           HeaderCircleButton(
@@ -840,22 +732,25 @@ class AlbumPlayActions extends StatelessWidget {
             tooltip: context.l10n.offlineSave,
             onPressed: onDownload,
           ),
-        FilledButton.icon(
-          onPressed: onPlay,
-          icon: AppIcon(isPlaying ? Icons.pause : Icons.play_arrow, size: 20),
-          label: Text(playLabel),
-          style: FilledButton.styleFrom(minimumSize: const Size(112, 40)),
-        ),
-        IconButton.filledTonal(
+        HeaderCircleButton(
+          icon: CupertinoIcons.shuffle,
           tooltip: shuffleTooltip,
+          tonal: true,
           onPressed: onShuffle,
-          icon: const AppIcon(Icons.shuffle),
+        ),
+        _MornyeHeaderButton(
+          icon: isPlaying
+              ? CupertinoIcons.pause_fill
+              : CupertinoIcons.play_fill,
+          label: playLabel,
+          onPressed: onPlay,
         ),
         if (onAddToPlaylist != null)
-          IconButton.filledTonal(
+          HeaderCircleButton(
+            icon: CupertinoIcons.add,
             tooltip: addLabel,
+            tonal: true,
             onPressed: onAddToPlaylist,
-            icon: const AppIcon(Icons.playlist_add),
           ),
       ],
     );
@@ -880,28 +775,11 @@ class HeaderFilledButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final scheme = HeaderPalette.of(context);
-    if (context.isMornye) {
-      return _MornyeHeaderButton(
-        icon: mornyeIconFor(icon),
-        label: label,
-        onPressed: onPressed,
-        prominent: !tonal,
-      );
-    }
-    return ExpressiveButton(
+    return _MornyeHeaderButton(
+      icon: mornyeIconFor(icon),
+      label: label,
       onPressed: onPressed,
-      icon: AppIcon(icon, size: 18),
-      style: FilledButton.styleFrom(
-        backgroundColor: scheme.primary,
-        foregroundColor: scheme.onPrimary,
-        disabledBackgroundColor: scheme.primary.withValues(alpha: 0.4),
-        disabledForegroundColor: scheme.onPrimary.withValues(alpha: 0.7),
-        minimumSize: Size(0, tokens.minTouchTarget),
-        shape: const StadiumBorder(),
-      ),
-      child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+      prominent: !tonal,
     );
   }
 }
@@ -920,7 +798,6 @@ class HeaderCircleButton extends ConsumerWidget {
     this.glassTintOpacity,
     this.buttonSize,
     this.iconSize = 22,
-    this.selected,
   });
 
   final IconData icon;
@@ -929,11 +806,6 @@ class HeaderCircleButton extends ConsumerWidget {
 
   /// Overrides the palette foreground, e.g. to mark an active "loved" state.
   final Color? iconColor;
-
-  /// Makes the Material button a toggle: it morphs its shape on the
-  /// expressive toggle springs and crossfades a changed [icon]. Null keeps
-  /// a plain action. Mornye ignores it.
-  final bool? selected;
 
   /// Uses the same translucent fill as the local album's Play/Shuffle pills.
   final bool tonal;
@@ -946,19 +818,17 @@ class HeaderCircleButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final tokens = context.tokens;
     final scheme = HeaderPalette.of(context);
     // Desktop headers use pointer-sized controls.
     final desktop = isDesktopPlatform;
     // Tonal circles stay level with the action pills beside them.
-    final toolbarGlass = context.isMornye && !tonal;
+    final toolbarGlass = !tonal;
     final buttonSize =
-        this.buttonSize ??
-        (desktop ? (context.isMornye ? (tonal ? 36.0 : 44.0) : 40.0) : null);
+        this.buttonSize ?? (desktop ? (tonal ? 36.0 : 44.0) : null);
     final iconSize = desktop && this.iconSize == 22 && !toolbarGlass
         ? 18.0
         : this.iconSize;
-    if (context.isMornye && HeaderActionGroup.of(context)) {
+    if (HeaderActionGroup.of(context)) {
       return IconButton(
         onPressed: onPressed,
         tooltip: tooltip,
@@ -974,97 +844,65 @@ class HeaderCircleButton extends ConsumerWidget {
         ),
       );
     }
-    if (context.isMornye) {
-      if (tonal) {
-        return Tooltip(
-          message: tooltip,
-          child: SizedBox.square(
-            dimension: buttonSize ?? 44,
-            child: MornyeGlassPress(
-              radius: (buttonSize ?? 44) / 2,
-              enabled: onPressed != null,
-              child: CupertinoButton(
-                padding: EdgeInsets.zero,
-                minimumSize: Size.square(buttonSize ?? 44),
-                borderRadius: BorderRadius.circular((buttonSize ?? 48) / 2),
-                color: scheme.onSurface.withValues(
-                  alpha: scheme.brightness == Brightness.dark ? 0.10 : 0.06,
-                ),
-                onPressed: onPressed,
-                child: AppIcon(
-                  mornyeIconFor(icon),
-                  size: iconSize,
-                  color: onPressed == null
-                      ? scheme.onSurfaceVariant
-                      : iconColor ?? scheme.primary,
-                ),
+    if (tonal) {
+      return Tooltip(
+        message: tooltip,
+        child: SizedBox.square(
+          dimension: buttonSize ?? 44,
+          child: MornyeGlassPress(
+            radius: (buttonSize ?? 44) / 2,
+            enabled: onPressed != null,
+            child: CupertinoButton(
+              padding: EdgeInsets.zero,
+              minimumSize: Size.square(buttonSize ?? 44),
+              borderRadius: BorderRadius.circular((buttonSize ?? 48) / 2),
+              color: scheme.onSurface.withValues(
+                alpha: scheme.brightness == Brightness.dark ? 0.10 : 0.06,
+              ),
+              onPressed: onPressed,
+              child: AppIcon(
+                mornyeIconFor(icon),
+                size: iconSize,
+                color: onPressed == null
+                    ? scheme.onSurfaceVariant
+                    : iconColor ?? scheme.primary,
               ),
             ),
-          ),
-        );
-      }
-      final blurEnabled = ref.watch(mornyeBlurEnabledProvider);
-      final button = IconButton(
-        onPressed: onPressed,
-        tooltip: tooltip,
-        icon: AppIcon(mornyeIconFor(icon), size: iconSize),
-        style: IconButton.styleFrom(
-          minimumSize: Size.square(buttonSize ?? 44),
-          // Keep the glass circle at the button's size for the pointer.
-          tapTargetSize: desktop ? MaterialTapTargetSize.shrinkWrap : null,
-          foregroundColor: iconColor ?? scheme.onSurface,
-        ),
-      );
-      return Center(
-        widthFactor: 1,
-        child: MornyeGlassPress(
-          radius: (buttonSize ?? 48) / 2,
-          enabled: onPressed != null,
-          child: MornyeGlass.navigation(
-            radius: (buttonSize ?? 48) / 2,
-            tintColor:
-                glassTintColor ??
-                (scheme.brightness == Brightness.dark
-                    ? Colors.black
-                    : Colors.white),
-            tintOpacity:
-                glassTintOpacity ??
-                (scheme.brightness == Brightness.dark ? 0.45 : 0.55),
-            blurEnabled: blurEnabled,
-            child: button,
           ),
         ),
       );
     }
-    final foreground = iconColor ?? scheme.onSurfaceVariant;
-    // A toggle's glyph carries its own colour, so the outgoing one keeps
-    // the old colour while it fades instead of taking the new one.
-    final glyph = AppIcon(
-      icon,
-      key: ValueKey(icon),
-      size: iconSize,
-      color: selected == null
-          ? null
-          : onPressed == null
-          ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38)
-          : foreground,
-    );
-    return ExpressiveIconButton(
+    final blurEnabled = ref.watch(mornyeBlurEnabledProvider);
+    final button = IconButton(
       onPressed: onPressed,
-      icon: selected == null
-          ? glyph
-          : AnimatedSwitcher(
-              duration: AppMotion.effectsFast(
-                context,
-                const AppMotionSpec(Duration.zero, Curves.linear),
-              ).duration,
-              child: glyph,
-            ),
-      selected: selected,
       tooltip: tooltip,
-      size: buttonSize ?? tokens.minTouchTarget,
-      backgroundColor: scheme.surfaceContainerHighest.withValues(alpha: 0.7),
-      foregroundColor: foreground,
+      icon: AppIcon(mornyeIconFor(icon), size: iconSize),
+      style: IconButton.styleFrom(
+        minimumSize: Size.square(buttonSize ?? 44),
+        // Keep the glass circle at the button's size for the pointer.
+        tapTargetSize: desktop ? MaterialTapTargetSize.shrinkWrap : null,
+        foregroundColor: iconColor ?? scheme.onSurface,
+      ),
+    );
+    return Center(
+      widthFactor: 1,
+      child: MornyeGlassPress(
+        radius: (buttonSize ?? 48) / 2,
+        enabled: onPressed != null,
+        child: MornyeGlass.navigation(
+          radius: (buttonSize ?? 48) / 2,
+          tintColor:
+              glassTintColor ??
+              (scheme.brightness == Brightness.dark
+                  ? Colors.black
+                  : Colors.white),
+          tintOpacity:
+              glassTintOpacity ??
+              (scheme.brightness == Brightness.dark ? 0.45 : 0.55),
+          blurEnabled: blurEnabled,
+          child: button,
+        ),
+      ),
     );
   }
 }
@@ -1077,7 +915,7 @@ class HeaderMoreButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => HeaderCircleButton(
-    icon: context.isMornye ? CupertinoIcons.ellipsis : Icons.more_horiz,
+    icon: CupertinoIcons.ellipsis,
     tooltip: MaterialLocalizations.of(context).showMenuTooltip,
     onPressed: () => showContextMenu(
       context,
@@ -1207,10 +1045,8 @@ class HeaderMetaItem extends StatelessWidget {
     final scheme = HeaderPalette.of(context);
     final desktop = isDesktopPlatform;
     final textStyle = TextStyle(
-      color: context.isMornye || desktop
-          ? scheme.onSurfaceVariant
-          : scheme.onSurface,
-      fontSize: desktop && context.isMornye ? 12 : 13,
+      color: scheme.onSurfaceVariant,
+      fontSize: desktop ? 12 : 13,
       fontWeight: desktop ? FontWeight.w600 : FontWeight.w500,
     );
     if (icon == null) return Text(label, style: textStyle);

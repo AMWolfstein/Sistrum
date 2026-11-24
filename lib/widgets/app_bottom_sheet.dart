@@ -1,13 +1,10 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:cupertino_ui/cupertino_ui.dart'
     show CupertinoButton, CupertinoDynamicColor, kCupertinoModalBarrierColor;
-import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
 
@@ -83,11 +80,6 @@ class AppBottomSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final theme = Theme.of(context);
-    // Material desktop dialogs end their header with a close button for the
-    // pointer; Esc and a click outside close them too.
-    final closes =
-        titleTrailing == null && isDesktopPlatform && !context.isMornye;
-    final trailing = closes ? const _SheetDialogCloseButton() : titleTrailing;
 
     Widget content = Column(
       mainAxisSize: MainAxisSize.min,
@@ -96,12 +88,10 @@ class AppBottomSheet extends StatelessWidget {
         if (showHandle) const AppSheetHandle(),
         if (title != null)
           Padding(
-            // The close button's touch target is taller than the title, so
-            // its row starts higher to keep the title where it sat before.
             padding: EdgeInsetsDirectional.fromSTEB(
               tokens.gapXl,
-              closes ? tokens.gapXs : tokens.gapLg,
-              closes ? tokens.gapMd : tokens.gapXl,
+              tokens.gapLg,
+              tokens.gapXl,
               subtitle == null ? tokens.gapSm : tokens.gapXs,
             ),
             child: Row(
@@ -114,9 +104,9 @@ class AppBottomSheet extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (trailing != null) ...[
+                if (titleTrailing != null) ...[
                   SizedBox(width: tokens.gapSm),
-                  trailing,
+                  titleTrailing!,
                 ],
               ],
             ),
@@ -161,17 +151,6 @@ class AppBottomSheet extends StatelessWidget {
   }
 }
 
-class _SheetDialogCloseButton extends StatelessWidget {
-  const _SheetDialogCloseButton();
-
-  @override
-  Widget build(BuildContext context) => AppIconButton(
-    icon: const AppIcon(Icons.close_rounded),
-    tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-    onPressed: () => Navigator.of(context).maybePop(),
-  );
-}
-
 /// Opens a modal bottom sheet wrapped in [AppBottomSheet].
 ///
 /// The shape comes from `ThemeData.bottomSheetTheme`, which is derived from
@@ -185,14 +164,12 @@ Future<T?> showAppBottomSheet<T>({
   String? subtitle,
   double? maxHeightFactor,
   bool useRootNavigator = false,
-  Color? backgroundColor,
   AppDialogSize dialogSize = AppDialogSize.medium,
 }) {
   return showAppModalBottomSheet<T>(
     context: context,
     isScrollControlled: true,
     useRootNavigator: useRootNavigator,
-    backgroundColor: backgroundColor,
     dialogSize: dialogSize,
     builder: (sheetContext) => AppBottomSheet(
       title: title,
@@ -376,11 +353,11 @@ Future<void> showAppChoiceSheet<T>({
   ),
 );
 
-/// Adaptive surface for sheets which already supply their own header/layout.
+/// Surface for sheets which already supply their own header/layout.
 ///
 /// Desktop windows present the sheet as a centered dialog instead
 /// ([showAppSheetDialog]) of [dialogSize]; there is no edge to slide from or
-/// drag to. Mornye draws the sheet on overlay glass unless [mornyeGlass] is
+/// drag to. The sheet is drawn on overlay glass unless [mornyeGlass] is
 /// false for content that brings its own.
 Future<T?> showAppModalBottomSheet<T>({
   required BuildContext context,
@@ -393,7 +370,6 @@ Future<T?> showAppModalBottomSheet<T>({
   bool? showDragHandle,
   bool mornyeGlass = true,
   BoxConstraints? constraints,
-  Color? backgroundColor,
   AppDialogSize dialogSize = AppDialogSize.medium,
 }) {
   if (isDesktopPlatform) {
@@ -404,14 +380,11 @@ Future<T?> showAppModalBottomSheet<T>({
       isDismissible: isDismissible,
       topInset: showDragHandle == true,
       mornyeGlass: mornyeGlass,
-      backgroundColor: backgroundColor,
       dialogSize: dialogSize,
     );
   }
-  final mornye = context.isMornye;
   return showModalBottomSheet<T>(
     context: context,
-    sheetAnimationStyle: AppMotion.surfaceEntrance(context),
     isScrollControlled: isScrollControlled,
     isDismissible: isDismissible,
     enableDrag: enableDrag,
@@ -419,12 +392,13 @@ Future<T?> showAppModalBottomSheet<T>({
     useSafeArea: useSafeArea,
     showDragHandle: showDragHandle,
     constraints: constraints,
-    backgroundColor: mornye ? Colors.transparent : backgroundColor,
-    barrierColor: mornye
-        ? CupertinoDynamicColor.resolve(kCupertinoModalBarrierColor, context)
-        : null,
-    elevation: mornye ? 0 : null,
-    builder: (context) => mornye && mornyeGlass
+    backgroundColor: Colors.transparent,
+    barrierColor: CupertinoDynamicColor.resolve(
+      kCupertinoModalBarrierColor,
+      context,
+    ),
+    elevation: 0,
+    builder: (context) => mornyeGlass
         ? MornyeGlassPanel.overlay(child: Builder(builder: builder))
         : builder(context),
   );
@@ -457,9 +431,8 @@ enum AppDialogSize {
 /// [DraggableScrollableSheet], lays out unchanged: its header stays put and
 /// its body scrolls.
 ///
-/// Mornye draws the dialog on overlay glass unless [mornyeGlass] is false
-/// for content that brings its own; Material uses `surfaceContainerHigh`.
-/// [topInset] replaces the space of a drag handle the sheet would show.
+/// The dialog is drawn on overlay glass unless [mornyeGlass] is false for
+/// content that brings its own. [topInset] replaces the space of a drag handle the sheet would show.
 Future<T?> showAppSheetDialog<T>({
   required BuildContext context,
   required WidgetBuilder builder,
@@ -467,12 +440,10 @@ Future<T?> showAppSheetDialog<T>({
   bool isDismissible = true,
   bool topInset = false,
   bool mornyeGlass = true,
-  Color? backgroundColor,
   AppDialogSize dialogSize = AppDialogSize.medium,
 }) {
-  // Presented like [showAppDialog], so Mornye glass is frosted from the
-  // first frame (no opacity layer over its backdrop) and Material shares
-  // the expressive dialog motion.
+  // Presented like [showAppDialog], so glass is frosted from the first frame
+  // (no opacity layer over its backdrop).
   return showAppDialog<T>(
     context: context,
     barrierDismissible: isDismissible,
@@ -481,7 +452,6 @@ Future<T?> showAppSheetDialog<T>({
         isScrollControlled: isScrollControlled,
         topInset: topInset,
         mornyeGlass: mornyeGlass,
-        backgroundColor: backgroundColor,
         dialogSize: dialogSize,
         child: Builder(builder: builder),
       ),
@@ -497,7 +467,6 @@ class AppSheetDialog extends StatelessWidget {
     this.isScrollControlled = false,
     this.topInset = false,
     this.mornyeGlass = true,
-    this.backgroundColor,
     this.dialogSize = AppDialogSize.medium,
   });
 
@@ -505,7 +474,6 @@ class AppSheetDialog extends StatelessWidget {
   final bool isScrollControlled;
   final bool topInset;
   final bool mornyeGlass;
-  final Color? backgroundColor;
   final AppDialogSize dialogSize;
 
   /// Mornye's sheet token is the 32pt iOS sheet corner; its dialogs keep
@@ -515,8 +483,7 @@ class AppSheetDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mornye = context.isMornye;
-    final radius = mornye ? _mornyeRadius : context.tokens.radiusSheet;
+    const radius = _mornyeRadius;
     final window = MediaQuery.sizeOf(context);
     final width = (window.width - _margin * 2).clamp(0.0, dialogSize.width);
     final maxHeight =
@@ -530,27 +497,15 @@ class AppSheetDialog extends StatelessWidget {
         child: child,
       ),
     );
-    if (mornye && mornyeGlass) {
+    if (mornyeGlass) {
       content = MornyeGlassPanel.overlay(radius: radius, child: content);
-    } else if (!mornye) {
-      // Desktop scrollbars normally fade out when idle. In a dialog the
-      // body's bar stays visible, so a cut-off list reads as scrollable.
-      content = ScrollbarTheme(
-        data: ScrollbarTheme.of(
-          context,
-        ).copyWith(thumbVisibility: const WidgetStatePropertyAll(true)),
-        child: content,
-      );
     }
     return Dialog(
       key: const ValueKey('app-sheet-dialog'),
       insetPadding: const EdgeInsets.all(_margin),
-      backgroundColor: mornye
-          ? Colors.transparent
-          : backgroundColor ??
-                Theme.of(context).colorScheme.surfaceContainerHigh,
+      backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
-      elevation: mornye ? 0 : null,
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(radius),
       ),
@@ -566,7 +521,7 @@ class AppSheetDialog extends StatelessWidget {
   }
 }
 
-/// Flat rows sit directly on a sheet's glass; Material keeps its ListTile.
+/// Flat rows sit directly on a sheet's glass.
 class AppSheetOption extends StatelessWidget {
   const AppSheetOption({
     super.key,
@@ -615,21 +570,6 @@ class AppSheetOption extends StatelessWidget {
               ? AppIcon(Icons.check, color: scheme.primary)
               : null
         : this.trailing;
-    if (!context.isMornye) {
-      return ListTile(
-        title: this.title,
-        subtitle: subtitle,
-        leading: leading == null ? null : symbolIconWidget(leading!),
-        trailing: trailing == null ? null : symbolIconWidget(trailing),
-        onTap: onTap,
-        contentPadding: contentPadding,
-        enabled: enabled,
-        // The checkmark already shows the choice; selection only feeds
-        // screen readers, so the row keeps its ordinary text color.
-        selected: selected ?? false,
-        selectedColor: scheme.onSurface,
-      );
-    }
     // Annotated on the title so it merges into the option's button node.
     final title = selected == null
         ? this.title

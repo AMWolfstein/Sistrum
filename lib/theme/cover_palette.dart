@@ -6,11 +6,9 @@ import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
-import 'package:material_color_utilities/hct/hct.dart';
 import 'package:material_color_utilities/quantize/quantizer_celebi.dart';
 import 'package:material_color_utilities/score/score.dart';
 import 'package:sistrum/services/platform_bridge.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 
 Future<List<List<int>>> _quantizePaletteInIsolate(Uint8List bytes) async {
@@ -53,14 +51,7 @@ Future<(int, Color?)> _seedAndSourceColor(
 Color? _sourceColorOf(Uint8List? straight) =>
     straight == null ? null : coverSourceColor(ByteData.sublistView(straight));
 
-/// Whether a cover whose [coverSourceColor] is [source] reads as black and
-/// white: its HCT chroma is at most 12. Score would still pick a seed hue for
-/// it (or Material's blue fallback), which tints the whole scheme.
-bool isNearGrayscaleCover(Color source) =>
-    Hct.fromInt(source.toARGB32()).chroma <= 12;
-
-/// Colour scheme derived from cover art, used to theme detail-screen headers
-/// and the Material player surfaces (`PlayerArtworkTheme`).
+/// Colour scheme derived from cover art, used to theme detail-screen headers.
 ///
 /// The generated scheme follows app brightness and supplies contrasting
 /// on-colours for the artwork-derived surface.
@@ -82,10 +73,6 @@ class CoverPalette {
   static final Map<String, Color?> _coverColors = {};
   static final Map<String, String> _coverVersions = {};
   static final Map<String, Future<Color?>> _pendingCoverColors = {};
-
-  /// The neutral scheme of a near-grayscale cover, keyed by its cached tonal
-  /// scheme so both leave the cache together.
-  static final Expando<ColorScheme> _neutralSchemes = Expando();
 
   /// Every form of one cover, such as a path and its `file://` URI, shares
   /// the entries of its [coverImageSource].
@@ -111,23 +98,10 @@ class CoverPalette {
   }
 
   /// Cached scheme for [source], or null when it has not been resolved yet.
-  ///
-  /// With [neutralGrayscale], a near-grayscale cover ([isNearGrayscaleCover])
-  /// gets a monochrome scheme instead of a tinted one. Material surfaces opt
-  /// in; Mornye derives its own neutral shading from [sourceColor].
-  static ColorScheme? peek(
-    String source,
-    Brightness brightness, {
-    bool neutralGrayscale = false,
-  }) {
-    final scheme = _cache[_sourceKeys['${_source(source)}|${brightness.name}']];
-    return neutralGrayscale ? _neutralFor(scheme) : scheme;
-  }
+  static ColorScheme? peek(String source, Brightness brightness) =>
+      _cache[_sourceKeys['${_source(source)}|${brightness.name}']];
 
-  static ColorScheme? _neutralFor(ColorScheme? scheme) =>
-      scheme == null ? null : _neutralSchemes[scheme] ?? scheme;
-
-  /// Average cover colour before Material's accent selection or tonal mapping.
+  /// Average cover colour before the tonal mapping.
   /// Near-monochrome covers stay neutral instead of acquiring a seed hue.
   static Color? sourceColor(String source, Brightness brightness) =>
       _sourceColors[_sourceKeys['${_source(source)}|${brightness.name}']];
@@ -138,17 +112,9 @@ class CoverPalette {
       _coverColors[_coverVersions[_source(source)]];
 
   /// Resolves the scheme for [source], a cover string in any form
-  /// [coverImageSource] reads. Returns null when the image cannot be
-  /// decoded. [neutralGrayscale] works as in [peek] and shares the same
-  /// palette job.
-  static Future<ColorScheme?> resolve(
-    String source,
-    Brightness brightness, {
-    bool neutralGrayscale = false,
-  }) {
-    final scheme = _resolveTonal(_source(source), brightness);
-    return neutralGrayscale ? scheme.then(_neutralFor) : scheme;
-  }
+  /// [coverImageSource] reads. Returns null when the image cannot be decoded.
+  static Future<ColorScheme?> resolve(String source, Brightness brightness) =>
+      _resolveTonal(_source(source), brightness);
 
   static Future<ColorScheme?> _resolveTonal(
     String source,
@@ -294,13 +260,6 @@ class CoverPalette {
       _storeSourceColor(version, sourceColor);
       if (sourceColor != null) {
         _sourceColors[key] = sourceColor;
-        if (isNearGrayscaleCover(sourceColor)) {
-          _neutralSchemes[scheme] = ColorScheme.fromSeed(
-            seedColor: sourceColor,
-            brightness: brightness,
-            dynamicSchemeVariant: DynamicSchemeVariant.monochrome,
-          );
-        }
       }
       _cache[key] = scheme;
       _cacheOrder.add(key);
@@ -538,7 +497,6 @@ class _CoverPaletteBuilderState extends State<CoverPaletteBuilder> {
   ColorScheme? _scheme;
   String? _resolvedSource;
   Brightness? _resolvedBrightness;
-  bool? _resolvedNeutral;
   int _resolveGeneration = 0;
 
   @override
@@ -558,40 +516,24 @@ class _CoverPaletteBuilderState extends State<CoverPaletteBuilder> {
   void _maybeResolve() {
     final source = widget.imageSource;
     final brightness = Theme.of(context).brightness;
-    // Material headers give black and white covers a neutral scheme. Mornye
-    // keeps the tonal one and shades neutral covers from the source colour.
-    final neutral = !context.isMornye;
     if (source == null || source.isEmpty) {
       _resolveGeneration++;
       _resolvedSource = null;
       _resolvedBrightness = null;
-      _resolvedNeutral = null;
       _scheme = null;
       return;
     }
     final requestGeneration = ++_resolveGeneration;
-    if (_resolvedSource != source ||
-        _resolvedBrightness != brightness ||
-        _resolvedNeutral != neutral) {
+    if (_resolvedSource != source || _resolvedBrightness != brightness) {
       // Another cover in the same look keeps the scheme on screen until its
       // own arrives, so the header does not blink through the app's colours.
-      final held =
-          _resolvedBrightness == brightness && _resolvedNeutral == neutral
-          ? _scheme
-          : null;
+      final held = _resolvedBrightness == brightness ? _scheme : null;
       _resolvedSource = source;
       _resolvedBrightness = brightness;
-      _resolvedNeutral = neutral;
-      _scheme =
-          CoverPalette.peek(source, brightness, neutralGrayscale: neutral) ??
-          held;
+      _scheme = CoverPalette.peek(source, brightness) ?? held;
     }
 
-    final resolved = CoverPalette.resolve(
-      source,
-      brightness,
-      neutralGrayscale: neutral,
-    );
+    final resolved = CoverPalette.resolve(source, brightness);
     resolved.then((scheme) {
       if (!mounted) return;
       if (_resolveGeneration != requestGeneration) {

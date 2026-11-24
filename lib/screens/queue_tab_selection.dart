@@ -261,9 +261,6 @@ extension _QueueTabSelectionActions on _QueueTabState {
       confirmLabel: context.l10n.dialogDelete,
       destructive: true,
       cancelIsDefault: true,
-      confirmStyle: FilledButton.styleFrom(
-        backgroundColor: Theme.of(context).colorScheme.error,
-      ),
     );
 
     if (!confirmed || !context.mounted) return;
@@ -305,7 +302,7 @@ extension _QueueTabSelectionActions on _QueueTabState {
       children: [
         SizedBox(
           width: double.infinity,
-          child: ExpressiveButton(
+          child: FilledButton.icon(
             onPressed: selectedCount > 0
                 ? () => _deleteSelectedPlaylists(context)
                 : null,
@@ -324,7 +321,7 @@ extension _QueueTabSelectionActions on _QueueTabState {
                 borderRadius: BorderRadius.circular(16),
               ),
             ),
-            child: Text(
+            label: Text(
               selectedCount > 0
                   ? context.l10n.selectionDeletePlaylistsCount(selectedCount)
                   : context.l10n.selectionSelectPlaylistsToDelete,

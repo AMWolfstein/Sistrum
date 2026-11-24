@@ -6,10 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/system_volume_provider.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
-import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_slider.dart';
 import 'package:sistrum/widgets/desktop/desktop_volume_scroll.dart';
 import 'package:sistrum/widgets/mornye_player_slider.dart';
 import 'package:sistrum/utils/logger.dart';
@@ -18,9 +15,8 @@ import 'package:sistrum/services/music_playback_deck.dart';
 
 export 'package:sistrum/providers/system_volume_provider.dart';
 
-/// System (or USB hardware) volume slider for the player and USB settings.
-/// Mornye draws its glass slider between speaker glyphs; Material draws the
-/// expressive slider between volume icons.
+/// System (or USB hardware) volume slider for the player and USB settings,
+/// drawn as Mornye's glass slider between speaker glyphs.
 class PlayerVolumeControl extends ConsumerStatefulWidget {
   const PlayerVolumeControl({super.key, this.foreground = Colors.white});
 
@@ -157,105 +153,45 @@ class _PlayerVolumeControlState extends ConsumerState<PlayerVolumeControl> {
             },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 28),
-        child: !context.isMornye
-            ? _materialSlider(context, value, enabled: volume != null)
-            : Row(
-                children: [
-                  Icon(
-                    CupertinoIcons.speaker_fill,
-                    size: 16,
-                    color: widget.foreground.withValues(alpha: 0.54),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: LayoutBuilder(
-                      builder: (context, constraints) => IgnorePointer(
-                        ignoring: volume == null,
-                        child: Opacity(
-                          opacity: volume == null ? 0.4 : 1,
-                          child: MornyePlayerSlider(
-                            value: value,
-                            activeColor: widget.foreground.withValues(
-                              alpha: 0.70,
-                            ),
-                            inactiveColor: widget.foreground.withValues(
-                              alpha: 0.12,
-                            ),
-                            onChangeStart: (_) => _startGesture(),
-                            onChanged: _request,
-                            onChangeEnd: (value) {
-                              _dragging = false;
-                              _end(value);
-                            },
-                          ),
-                        ),
-                      ),
+        child: Row(
+          children: [
+            Icon(
+              CupertinoIcons.speaker_fill,
+              size: 16,
+              color: widget.foreground.withValues(alpha: 0.54),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: LayoutBuilder(
+                builder: (context, constraints) => IgnorePointer(
+                  ignoring: volume == null,
+                  child: Opacity(
+                    opacity: volume == null ? 0.4 : 1,
+                    child: MornyePlayerSlider(
+                      value: value,
+                      activeColor: widget.foreground.withValues(alpha: 0.70),
+                      inactiveColor: widget.foreground.withValues(alpha: 0.12),
+                      onChangeStart: (_) => _startGesture(),
+                      onChanged: _request,
+                      onChangeEnd: (value) {
+                        _dragging = false;
+                        _end(value);
+                      },
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  Icon(
-                    CupertinoIcons.speaker_3_fill,
-                    size: 16,
-                    color: widget.foreground.withValues(alpha: 0.54),
-                  ),
-                ],
-              ),
-      ),
-    );
-    return DesktopVolumeScroll(child: control);
-  }
-
-  /// The expressive slider has no drag-start callback, so the pointer marks
-  /// the drag that keeps system-volume echoes from resetting the thumb.
-  Widget _materialSlider(
-    BuildContext context,
-    double value, {
-    required bool enabled,
-  }) {
-    final colors = Theme.of(context).colorScheme;
-    void release() {
-      if (!_dragging) return;
-      _dragging = false;
-      if (!_writing && mounted) setState(() => _preview = null);
-    }
-
-    return Row(
-      children: [
-        AppIcon(
-          value <= 0 ? Icons.volume_mute_rounded : Icons.volume_down_rounded,
-          size: 20,
-          color: colors.onSurfaceVariant,
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: IgnorePointer(
-            ignoring: !enabled,
-            child: Opacity(
-              opacity: enabled ? 1 : 0.4,
-              child: Listener(
-                onPointerDown: (_) => _startGesture(),
-                onPointerUp: (_) => release(),
-                onPointerCancel: (_) => release(),
-                child: AppSlider(
-                  // As thin as the seek bar above it, with a shorter handle,
-                  // so volume stays secondary to it.
-                  trackThickness: 4,
-                  thumbLength: 20,
-                  value: value,
-                  onChanged: enabled ? _request : null,
-                  onChangeEnd: _end,
                 ),
               ),
             ),
-          ),
+            const SizedBox(width: 10),
+            Icon(
+              CupertinoIcons.speaker_3_fill,
+              size: 16,
+              color: widget.foreground.withValues(alpha: 0.54),
+            ),
+          ],
         ),
-        const SizedBox(width: 8),
-        AppIcon(
-          Icons.volume_up_rounded,
-          size: 20,
-          color: colors.onSurfaceVariant,
-        ),
-      ],
+      ),
     );
+    return DesktopVolumeScroll(child: control);
   }
 }

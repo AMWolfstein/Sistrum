@@ -10,10 +10,8 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/song_lyrics_offset_provider.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/material_expressive.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/theme/player_artwork_theme.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:sistrum/utils/lyrics_timeline.dart';
 import 'package:sistrum/utils/string_utils.dart';
@@ -24,10 +22,8 @@ import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/audio_quality_badges.dart';
 import 'package:sistrum/widgets/desktop/desktop_commands.dart';
 import 'package:sistrum/widgets/desktop/desktop_inspector.dart';
-import 'package:sistrum/widgets/desktop/desktop_row_ink.dart';
 import 'package:sistrum/widgets/desktop/desktop_window.dart';
 import 'package:sistrum/widgets/desktop/desktop_volume_scroll.dart';
-import 'package:sistrum/widgets/expressive_playback_transport.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/mornye_playback_button.dart';
 import 'package:sistrum/widgets/mornye_player_background.dart';
@@ -50,18 +46,13 @@ final desktopPlayerDismissed = ValueNotifier<bool>(false);
 /// Playing in the content pane; lyrics and Up Next toggle the trailing
 /// inspector.
 ///
-/// Material docks an 80dp bar along the bottom of the window, on the
-/// `surfaceContainer` fill of the current artwork's scheme
-/// ([PlayerArtworkTheme]). Mornye draws a glass capsule that the shell
-/// floats over the bottom of the content pane: shuffle and transport, a
-/// center display with the track and its progress, then lyrics, Up Next and
-/// volume.
+/// A glass capsule that the shell floats over the bottom of the content
+/// pane: shuffle and transport, a center display with the track and its
+/// progress, then lyrics, Up Next and volume.
 class DesktopPlayerBar extends ConsumerWidget {
   const DesktopPlayerBar({super.key});
 
-  static const double materialHeight = 80;
-
-  /// Height of the Mornye capsule.
+  /// Height of the capsule.
   static const double mornyeHeight = 56;
 
   /// Space between the Mornye capsule and the bottom of the window.
@@ -83,17 +74,7 @@ class DesktopPlayerBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (!ref.watch(playerUiEnabledProvider)) return const SizedBox.shrink();
     final mediaItem = ref.watch(currentMediaItemProvider).value;
-    return context.isMornye
-        ? _MornyePlayerBar(mediaItem: mediaItem)
-        // The bar takes the track's artwork scheme; the downloads popover
-        // it hosts keeps the app scheme.
-        : PlayerArtworkTheme(
-            artUri: mediaItem?.artUri?.toString(),
-            child: _MaterialPlayerBar(
-              mediaItem: mediaItem,
-              appTheme: Theme.of(context),
-            ),
-          );
+    return _MornyePlayerBar(mediaItem: mediaItem);
   }
 }
 
@@ -101,76 +82,6 @@ class DesktopPlayerBar extends ConsumerWidget {
 /// is already showing.
 void _toggleNowPlaying() =>
     desktopNowPlayingOpen.value = !desktopNowPlayingOpen.value;
-
-class _MaterialPlayerBar extends StatelessWidget {
-  const _MaterialPlayerBar({required this.mediaItem, required this.appTheme});
-
-  // Lyrics, queue, mini player and dismiss each keep their 48dp target. Reserve both sides equally so transport stays centered.
-  static const double _sideControlsMinWidth = 6 * 48;
-
-  final MediaItem? mediaItem;
-
-  /// The theme outside the bar's artwork scope.
-  final ThemeData appTheme;
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final loaded = mediaItem != null;
-    return Material(
-      color: colorScheme.surfaceContainer,
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          height: DesktopPlayerBar.materialHeight,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final sideWidth = math.max(
-                  _sideControlsMinWidth,
-                  (constraints.maxWidth - 32) * 0.3,
-                );
-                return Row(
-                  children: [
-                    SizedBox(
-                      width: sideWidth,
-                      child: Align(
-                        alignment: AlignmentDirectional.centerStart,
-                        child: _TrackSummary(mediaItem: mediaItem),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _Transport(enabled: loaded),
-                          SizedBox(
-                            height: 24,
-                            child: _SeekRow(mediaItem: mediaItem),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    SizedBox(
-                      width: sideWidth,
-                      child: _TrailingControls(
-                        enabled: loaded,
-                        appTheme: appTheme,
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 /// The Mornye capsule: shuffle, transport and repeat, the center display,
 /// then lyrics, Up Next and a volume button whose slider opens in
@@ -292,50 +203,6 @@ class _MornyeModeButton extends ConsumerWidget {
   }
 }
 
-/// Artwork, title and artist for the Material bar. The whole group opens
-/// Now Playing, like tapping the mobile mini player.
-class _TrackSummary extends StatelessWidget {
-  const _TrackSummary({required this.mediaItem});
-
-  final MediaItem? mediaItem;
-
-  @override
-  Widget build(BuildContext context) {
-    final item = mediaItem;
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    final content = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _Artwork(mediaItem: item, size: 56, radius: 12),
-        const SizedBox(width: 12),
-        Flexible(
-          child: item == null
-              ? Text(
-                  context.l10n.desktopPlayerIdle,
-                  style: textTheme.titleSmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                )
-              : _TitleAndArtist(mediaItem: item),
-        ),
-        const SizedBox(width: 8),
-      ],
-    );
-    if (item == null) return content;
-    final press = desktopRowInk(context);
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: _toggleNowPlaying,
-      splashFactory: press.splashFactory,
-      highlightColor: press.highlightColor,
-      child: Padding(padding: const EdgeInsets.all(4), child: content),
-    );
-  }
-}
-
 class _TitleAndArtist extends StatelessWidget {
   const _TitleAndArtist({required this.mediaItem});
 
@@ -404,8 +271,7 @@ class _Artwork extends StatelessWidget {
   }
 }
 
-/// Previous, play/pause and next. Material keeps the mini player's filled
-/// play button, round while paused and square while playing.
+/// Previous, play/pause and next.
 class _Transport extends ConsumerWidget {
   const _Transport({required this.enabled});
 
@@ -443,88 +309,37 @@ class _Transport extends ConsumerWidget {
         ? () => controller.togglePlayPause(isPlaying)
         : null;
 
-    if (context.isMornye) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          MornyePlaybackButton(
-            icon: CupertinoIcons.backward_fill,
-            tooltip: previousTooltip,
-            color: colorScheme.onSurface,
-            iconSize: 18,
-            padding: const EdgeInsets.all(7),
-            pointerPress: true,
-            onPressed: enabled ? controller.previous : null,
-          ),
-          MornyePlaybackButton(
-            icon: isPlaying
-                ? CupertinoIcons.pause_fill
-                : CupertinoIcons.play_fill,
-            tooltip: playTooltip,
-            color: colorScheme.onSurface,
-            iconSize: 22,
-            padding: const EdgeInsets.all(5),
-            loading: isLoading,
-            pointerPress: true,
-            onPressed: onPlayPause,
-          ),
-          MornyePlaybackButton(
-            icon: CupertinoIcons.forward_fill,
-            tooltip: nextTooltip,
-            color: colorScheme.onSurface,
-            iconSize: 18,
-            padding: const EdgeInsets.all(7),
-            pointerPress: true,
-            onPressed: enabled ? controller.next : null,
-          ),
-        ],
-      );
-    }
-    if (materialExpressiveEnabled(context)) {
-      return SizedBox(
-        width: 192,
-        child: ExpressivePlaybackTransport(
-          colorScheme: colorScheme,
-          playing: isPlaying,
-          loading: isLoading,
-          dense: true,
-          playTooltip: playTooltip,
-          previousTooltip: previousTooltip,
-          nextTooltip: nextTooltip,
-          onPlayPause: onPlayPause,
-          onPrevious: enabled ? controller.previous : null,
-          onNext: enabled ? controller.next : null,
-        ),
-      );
-    }
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        AppIconButton(
+        MornyePlaybackButton(
+          icon: CupertinoIcons.backward_fill,
           tooltip: previousTooltip,
-          icon: const AppIcon(Icons.skip_previous),
+          color: colorScheme.onSurface,
+          iconSize: 18,
+          padding: const EdgeInsets.all(7),
+          pointerPress: true,
           onPressed: enabled ? controller.previous : null,
         ),
-        const SizedBox(width: 8),
-        AppIconButton.filled(
+        MornyePlaybackButton(
+          icon: isPlaying
+              ? CupertinoIcons.pause_fill
+              : CupertinoIcons.play_fill,
           tooltip: playTooltip,
-          isSelected: isPlaying,
-          style: IconButton.styleFrom(
-            backgroundColor: colorScheme.primary,
-            foregroundColor: colorScheme.onPrimary,
-          ),
-          icon: isLoading
-              ? AppLoadingIndicator(size: 20, color: colorScheme.onPrimary)
-              : const AppIcon(Icons.play_arrow),
-          selectedIcon: isLoading
-              ? AppLoadingIndicator(size: 20, color: colorScheme.onPrimary)
-              : const AppIcon(Icons.pause),
+          color: colorScheme.onSurface,
+          iconSize: 22,
+          padding: const EdgeInsets.all(5),
+          loading: isLoading,
+          pointerPress: true,
           onPressed: onPlayPause,
         ),
-        const SizedBox(width: 8),
-        AppIconButton(
+        MornyePlaybackButton(
+          icon: CupertinoIcons.forward_fill,
           tooltip: nextTooltip,
-          icon: const AppIcon(Icons.skip_next),
+          color: colorScheme.onSurface,
+          iconSize: 18,
+          padding: const EdgeInsets.all(7),
+          pointerPress: true,
           onPressed: enabled ? controller.next : null,
         ),
       ],
@@ -552,7 +367,6 @@ class _SeekRow extends ConsumerWidget {
   Widget _buildRow(BuildContext context, WidgetRef ref) {
     final item = mediaItem;
     final colorScheme = Theme.of(context).colorScheme;
-    final mornye = context.isMornye;
     final duration = item?.duration ?? Duration.zero;
     final position = item == null
         ? Duration.zero
@@ -568,12 +382,8 @@ class _SeekRow extends ConsumerWidget {
     final slider = SliderTheme(
       data: SliderTheme.of(context).copyWith(
         trackHeight: dense ? 3 : 4,
-        activeTrackColor: mornye
-            ? colorScheme.onSurface.withValues(alpha: 0.85)
-            : colorScheme.primary,
-        inactiveTrackColor: mornye
-            ? colorScheme.onSurface.withValues(alpha: 0.16)
-            : colorScheme.secondaryContainer,
+        activeTrackColor: colorScheme.onSurface.withValues(alpha: 0.85),
+        inactiveTrackColor: colorScheme.onSurface.withValues(alpha: 0.16),
         thumbColor: dense ? colorScheme.onSurface : colorScheme.primary,
         thumbShape: RoundSliderThumbShape(enabledThumbRadius: dense ? 4 : 6),
         overlayShape: RoundSliderOverlayShape(overlayRadius: dense ? 8 : 12),
@@ -595,12 +405,7 @@ class _SeekRow extends ConsumerWidget {
         const SizedBox(width: 8),
         Expanded(child: slider),
         const SizedBox(width: 8),
-        Text(
-          mornye
-              ? '-${formatClock(duration.inSeconds - elapsed)}'
-              : formatClock(duration.inSeconds),
-          style: timeStyle,
-        ),
+        Text('-${formatClock(duration.inSeconds - elapsed)}', style: timeStyle),
       ],
     );
   }
@@ -804,23 +609,15 @@ class _MornyeLcdLines extends ConsumerWidget {
 }
 
 /// Lyrics and Up Next, which toggle the trailing inspector, then the volume
-/// slider. The Mornye capsule ends with a volume button whose slider opens in
-/// a popover. Paused local playback adds a dismiss button at the end in both
-/// styles.
+/// button, whose slider opens in a popover. Paused local playback adds a
+/// dismiss button at the end.
 class _TrailingControls extends ConsumerWidget {
-  const _TrailingControls({required this.enabled, this.appTheme});
-
-  /// Narrowest room in which the Material bar keeps its volume slider.
-  static const double _materialVolumeMinWidth = 140;
+  const _TrailingControls({required this.enabled});
 
   final bool enabled;
 
-  /// The Material bar's app theme, for the downloads button and popover.
-  final ThemeData? appTheme;
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final mornye = context.isMornye;
     final colorScheme = Theme.of(context).colorScheme;
     final l10n = context.l10n;
     final canDismiss =
@@ -829,7 +626,7 @@ class _TrailingControls extends ConsumerWidget {
         !ref.watch(playbackLoadingProvider);
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
-      mainAxisSize: mornye ? MainAxisSize.min : MainAxisSize.max,
+      mainAxisSize: MainAxisSize.min,
       children: [
         ValueListenableBuilder<DesktopInspectorPanel?>(
           valueListenable: desktopInspectorPanel,
@@ -846,9 +643,7 @@ class _TrailingControls extends ConsumerWidget {
                   l10n.nowPlayingTabLyrics,
                   DesktopCommand.lyrics,
                 ),
-                icon: mornye
-                    ? CupertinoIcons.quote_bubble
-                    : Icons.lyrics_outlined,
+                icon: CupertinoIcons.quote_bubble,
               ),
               _InspectorToggle(
                 key: const ValueKey('desktop-player-up-next'),
@@ -860,7 +655,7 @@ class _TrailingControls extends ConsumerWidget {
                   l10n.nowPlayingUpNext,
                   DesktopCommand.upNext,
                 ),
-                icon: mornye ? CupertinoIcons.list_bullet : Icons.queue_music,
+                icon: CupertinoIcons.list_bullet,
               ),
             ],
           ),
@@ -873,38 +668,16 @@ class _TrailingControls extends ConsumerWidget {
               l10n.desktopMenuMiniPlayer,
               DesktopCommand.miniPlayer,
             ),
-            color: mornye ? colorScheme.onSurface : null,
-            icon: AppIcon(
-              mornye
-                  ? CupertinoIcons.rectangle_on_rectangle
-                  : Icons.picture_in_picture_alt_outlined,
-            ),
+            color: colorScheme.onSurface,
+            icon: AppIcon(CupertinoIcons.rectangle_on_rectangle),
             onPressed: toggleDesktopMiniPlayer,
           ),
-        if (mornye)
-          const _MornyeVolumeButton()
-        else ...[
-          // A narrow window leaves too little room for a usable slider; the
-          // volume shortcuts still work there.
-          Flexible(
-            child: LayoutBuilder(
-              builder: (context, constraints) =>
-                  constraints.maxWidth < _materialVolumeMinWidth
-                  ? const SizedBox.shrink()
-                  : ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 220),
-                      child: PlayerVolumeControl(
-                        foreground: colorScheme.onSurface,
-                      ),
-                    ),
-            ),
-          ),
-        ],
+        const _MornyeVolumeButton(),
         if (canDismiss)
           AppIconButton(
             key: const ValueKey('desktop-player-dismiss'),
             tooltip: l10n.actionDismiss,
-            color: mornye ? colorScheme.onSurface : null,
+            color: colorScheme.onSurface,
             icon: const AppIcon.adaptive(Icons.close),
             onPressed: () async {
               await ref.read(musicPlayerControllerProvider).dismiss();
@@ -1011,9 +784,8 @@ class _MornyePopoverEntrance extends StatelessWidget {
   }
 }
 
-/// A toggle for one inspector panel. Mornye marks the open panel with a
-/// fill as well as the accent color, so the state differs by more than
-/// color; Material uses the selected standard icon button.
+/// A toggle for one inspector panel. The open panel is marked with a fill as
+/// well as the accent color, so the state differs by more than color.
 class _InspectorToggle extends StatelessWidget {
   const _InspectorToggle({
     super.key,
@@ -1032,15 +804,12 @@ class _InspectorToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mornye = context.isMornye;
     final colorScheme = Theme.of(context).colorScheme;
     return AppIconButton(
       tooltip: tooltip,
       isSelected: selected,
-      color: mornye
-          ? (selected ? colorScheme.primary : colorScheme.onSurface)
-          : null,
-      style: mornye && selected
+      color: selected ? colorScheme.primary : colorScheme.onSurface,
+      style: selected
           ? IconButton.styleFrom(
               backgroundColor: MornyeTheme.controlFill(context),
             )

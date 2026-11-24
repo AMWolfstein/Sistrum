@@ -3,14 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
-import 'package:sistrum/widgets/expressive_button_group.dart';
 
-/// Love all and add to playlist buttons of a track collection header, laid
-/// out for desktop, Mornye or Material. Both are disabled while [tracks] is
-/// empty.
+/// Love all and add to playlist buttons of a track collection header. Both
+/// are disabled while [tracks] is empty.
 class CollectionHeaderActions extends StatelessWidget {
   const CollectionHeaderActions({
     super.key,
@@ -28,7 +25,6 @@ class CollectionHeaderActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final enabled = tracks.isNotEmpty;
-    final mornye = context.isMornye;
     final love = Consumer(
       builder: (context, ref, _) {
         ref.watch(libraryCollectionsProvider.select((state) => state.loved));
@@ -37,7 +33,6 @@ class CollectionHeaderActions extends StatelessWidget {
             enabled && tracks.every((t) => collectionsState.isLoved(t));
         return HeaderCircleButton(
           icon: allLoved ? Icons.favorite : Icons.favorite_border,
-          selected: allLoved,
           tonal: true,
           iconColor: allLoved ? Theme.of(context).colorScheme.error : null,
           tooltip: allLoved
@@ -60,12 +55,9 @@ class CollectionHeaderActions extends StatelessWidget {
         children: [love, addToPlaylist],
       );
     }
-    if (mornye) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [love, const SizedBox(width: 16), addToPlaylist],
-      );
-    }
-    return ExpressiveButtonGroup(children: [love, addToPlaylist]);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [love, const SizedBox(width: 16), addToPlaylist],
+    );
   }
 }

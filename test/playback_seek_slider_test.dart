@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/playback_seek_preview.dart';
+import 'package:sistrum/widgets/mornye_player_slider.dart';
 import 'package:sistrum/widgets/playback_seek_slider.dart';
 
 void main() {
@@ -191,7 +192,17 @@ void main() {
     );
     final slider = tester.widget<Slider>(find.byType(Slider));
     expect(slider.value, 0);
-    expect(slider.onChanged, isNull);
+    // The Mornye slider takes no gestures while disabled, rather than losing
+    // its callbacks.
+    expect(
+      find.ancestor(
+        of: find.byType(MornyePlayerSlider),
+        matching: find.byWidgetPredicate(
+          (w) => w is IgnorePointer && w.ignoring,
+        ),
+      ),
+      findsOneWidget,
+    );
     await tester.tap(find.byType(Slider));
     expect(seeks, isEmpty);
   });

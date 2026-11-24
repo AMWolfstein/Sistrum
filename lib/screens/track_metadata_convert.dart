@@ -412,7 +412,7 @@ extension _TrackMetadataConvertAndCueSplit on _TrackMetadataScreenState {
                   const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
-                    child: ExpressiveButton(
+                    child: FilledButton.icon(
                       onPressed: () {
                         Navigator.pop(sheetContext);
                         _confirmAndSplitCue(
@@ -433,7 +433,7 @@ extension _TrackMetadataConvertAndCueSplit on _TrackMetadataScreenState {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: Text(sheetContext.l10n.cueSplitButton),
+                      label: Text(sheetContext.l10n.cueSplitButton),
                     ),
                   ),
                   const SizedBox(height: 8),

@@ -5,7 +5,6 @@ import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
@@ -13,24 +12,18 @@ import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/library_search_results.dart';
 import 'package:sistrum/controllers/clickable_metadata.dart' show pushPage;
 import 'package:sistrum/screens/library_artist_screen.dart';
-import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/recent_access_provider.dart';
-import 'package:sistrum/providers/user_profile_provider.dart';
 import 'package:sistrum/widgets/desktop/desktop_scroll_arrows.dart';
 import 'package:sistrum/providers/library_counts_provider.dart';
 import 'package:sistrum/providers/library_mixes_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/models/home_shortcut.dart';
-import 'package:sistrum/screens/equalizer_screen.dart';
-import 'package:sistrum/screens/favorite_artists_screen.dart';
 import 'package:sistrum/screens/library_mix_screen.dart';
-import 'package:sistrum/screens/library_tracks_folder_screen.dart';
 import 'package:sistrum/screens/listening_statistics_screen.dart';
 import 'package:sistrum/screens/now_playing_screen.dart';
 import 'package:sistrum/services/library_database.dart';
@@ -45,10 +38,7 @@ import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/desktop/desktop_commands.dart'
     show openDesktopNowPlaying;
 import 'package:sistrum/utils/file_access.dart';
-import 'package:sistrum/utils/home_greeting.dart';
-import 'package:sistrum/widgets/desktop/context_menu.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
-import 'package:sistrum/widgets/library_mix_cover.dart';
 import 'package:sistrum/widgets/mornye_mix_banner.dart';
 import 'package:sistrum/widgets/player_artwork.dart';
 import 'package:sistrum/widgets/error_card.dart';
@@ -85,7 +75,7 @@ class _HomeTabState extends ConsumerState<HomeTab>
   static const Duration _libraryQueryDelay = Duration(milliseconds: 300);
 
   /// Mornye's desktop field uses the compact toolbar size.
-  bool get _compactSearchField => context.isMornye && isDesktopPlatform;
+  bool get _compactSearchField => isDesktopPlatform;
 
   @override
   bool get wantKeepAlive => true;
@@ -162,7 +152,6 @@ class _HomeTabState extends ConsumerState<HomeTab>
     final hasSearchInput = searchText.isNotEmpty;
     final isSearchFocused = _showsSearch && _searchFocusNode.hasFocus;
     final colorScheme = Theme.of(context).colorScheme;
-    final screenHeight = MediaQuery.heightOf(context);
     // Recents show on the Search page, or while the field is focused.
     final showRecentAccess =
         _showsSearch &&
@@ -172,20 +161,8 @@ class _HomeTabState extends ConsumerState<HomeTab>
     // The Search page waits for input before showing local matches.
     final showLibraryPrompt =
         widget.mode == HomeTabMode.search && !hasSearchInput;
-    final showHomeSections = _showsHome && !hasSearchInput;
     final showSearchBar = _showsSearch;
     final sectionMotion = AppMotion.surface(context);
-    // The Material Home also greets in its header. The Mornye style keeps
-    // its navigation title.
-    final greetsInHeader = showHomeSections && !context.isMornye;
-    final greeting = greetsInHeader
-        ? homeGreeting(
-            context.l10n,
-            name: ref.watch(
-              userProfileProvider.select((p) => p.value?.name ?? ''),
-            ),
-          )
-        : null;
 
     return GestureDetector(
       onTap: () {
@@ -199,25 +176,14 @@ class _HomeTabState extends ConsumerState<HomeTab>
           slivers: [
             if (_showsSearch &&
                 widget.mode == HomeTabMode.search &&
-                context.isMornye &&
                 isDesktopPlatform)
               _buildDesktopSearchToolbarSliver()
             else
-              _buildHeaderSliver(greeting: greeting),
+              _buildHeaderSliver(),
             if (_showsHome) const SliverToBoxAdapter(child: AppCrashBanner()),
-            _buildHomeIntroSliver(
-              hasResults: hasSearchInput,
-              colorScheme: colorScheme,
-              screenHeight: screenHeight,
-            ),
             if (showSearchBar &&
-                !(widget.mode == HomeTabMode.search &&
-                    context.isMornye &&
-                    isDesktopPlatform))
-              _buildSearchBarSliver(
-                hasResults: hasSearchInput,
-                greetsInHeader: greetsInHeader,
-              ),
+                !(widget.mode == HomeTabMode.search && isDesktopPlatform))
+              _buildSearchBarSliver(hasResults: hasSearchInput),
             if (showRecentAccess)
               _buildRecentAccessSliver(colorScheme: colorScheme),
             if (showLibraryResults) _buildLibrarySearchSliver(),
@@ -295,49 +261,27 @@ class _HomeTabState extends ConsumerState<HomeTab>
     );
   }
 
-  Widget _buildHeaderSliver({required String? greeting}) {
+  Widget _buildHeaderSliver() {
     return AppSliverHeader.tabRoot(
       alignToContent: true,
       contentInset: homeContentInset(context),
       title: widget.mode == HomeTabMode.search
           ? context.l10n.mornyeSearch
-          : greeting ?? context.l10n.homeTitle,
+          : context.l10n.homeTitle,
       // The desktop sidebar's account row already opens the profile.
-      titleTrailing: context.isMornye && _showsHome && !isDesktopPlatform
+      titleTrailing: _showsHome && !isDesktopPlatform
           ? const HomeProfileButton()
           : null,
     );
   }
 
-  Widget _buildHomeIntroSliver({
-    required bool hasResults,
-    required ColorScheme colorScheme,
-    required double screenHeight,
-  }) {
-    return SliverToBoxAdapter(
-      child: _resizeSection(
-        AppMotion.surface(context),
-        hasResults || !_showsHome
-            ? const SizedBox.shrink()
-            : _buildHomeIntro(colorScheme: colorScheme),
-      ),
-    );
-  }
-
-  Widget _buildSearchBarSliver({
-    required bool hasResults,
-    required bool greetsInHeader,
-  }) {
+  Widget _buildSearchBarSliver({required bool hasResults}) {
     return SliverToBoxAdapter(
       child: Padding(
         // Centered with the search results on tablets.
         padding: EdgeInsets.fromLTRB(
           16 + homeContentInset(context),
-          hasResults
-              ? 8
-              : greetsInHeader
-              ? 20
-              : 32,
+          hasResults ? 8 : 32,
           16 + homeContentInset(context),
           hasResults ? 8 : 16,
         ),
@@ -403,19 +347,6 @@ class _HomeTabState extends ConsumerState<HomeTab>
       duration: motion.duration,
       curve: motion.curve,
       child: child,
-    );
-  }
-
-  Widget _buildHomeIntro({required ColorScheme colorScheme}) {
-    // The Mornye style uses the navigation title as the page identity.
-    if (context.isMornye) return const SizedBox.shrink();
-    // The header carries the greeting; prompts take turns beneath it.
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 24 + homeContentInset(context)),
-      child: const Align(
-        alignment: AlignmentDirectional.centerStart,
-        child: _HomeTagline(),
-      ),
     );
   }
 }

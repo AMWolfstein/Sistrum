@@ -5,17 +5,13 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart' show LogicalKeyboardKey;
-import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:sistrum/theme/app_motion.dart';
-import 'package:sistrum/theme/material_expressive.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_content_card.dart';
-import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -727,9 +723,7 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
     );
 
     final isLastStep = _currentStep >= _totalSteps - 1;
-    final nextButton = materialExpressiveEnabled(context)
-        ? _buildExpressiveFab(colorScheme)
-        : !isLastStep
+    final nextButton = !isLastStep
         ? FloatingActionButton.extended(
             onPressed: !_isLoading && _isStepCompleted(_currentStep)
                 ? _nextPage
@@ -778,15 +772,12 @@ class _SetupScreenState extends ConsumerState<SetupScreen>
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    // Expressive steps fill on a spring around a wavy
-                    // ring; the fallback jumps straight to the step.
                     TweenAnimationBuilder<double>(
                       tween: Tween(end: progress),
                       duration: stepMotion.duration,
                       curve: stepMotion.curve,
                       builder: (context, value, _) =>
                           AppProgressIndicator.circular(
-                            wavy: false,
                             value: value,
                             strokeWidth: 4,
                             trackColor: colorScheme.surfaceContainerHighest,

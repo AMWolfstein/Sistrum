@@ -1,7 +1,6 @@
 part of 'queue_tab.dart';
 
 extension _QueueTabCollectionItemWidgets on _QueueTabState {
-
   Widget _buildLibraryQualityBadge(
     BuildContext context,
     ColorScheme colorScheme,
@@ -66,18 +65,10 @@ extension _QueueTabCollectionItemWidgets on _QueueTabState {
           width: 56,
           height: 56,
           decoration: BoxDecoration(
-            color: context.isMornye
-                ? iconBgColor ?? colorScheme.surfaceContainerHighest
-                : colorScheme.secondaryContainer,
+            color: iconBgColor ?? colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: AppIcon(
-            icon ?? Icons.folder,
-            color: context.isMornye
-                ? Colors.white
-                : colorScheme.onSecondaryContainer,
-            size: 28,
-          ),
+          child: AppIcon(icon ?? Icons.folder, color: Colors.white, size: 28),
         );
 
     final card = AppContentCard(
@@ -222,18 +213,10 @@ extension _QueueTabCollectionItemWidgets on _QueueTabState {
         coverWidget ??
         Container(
           decoration: BoxDecoration(
-            color: context.isMornye
-                ? iconBgColor ?? colorScheme.surfaceContainerHighest
-                : colorScheme.secondaryContainer,
+            color: iconBgColor ?? colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: AppIcon(
-            icon ?? Icons.folder,
-            color: context.isMornye
-                ? Colors.white
-                : colorScheme.onSecondaryContainer,
-            size: 40,
-          ),
+          child: AppIcon(icon ?? Icons.folder, color: Colors.white, size: 40),
         );
 
     return DesktopContextMenuRegion(

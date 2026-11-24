@@ -2,7 +2,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:sistrum/constants/app_info.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/theme/mornye_icons.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/settings_group.dart';
@@ -139,10 +138,7 @@ class _AppHeaderCard extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    // Material sits on the settings group tier beside the groups below.
-    final cardColor = !context.isMornye
-        ? settingsGroupColor(context)
-        : isDark
+    final cardColor = isDark
         ? Color.alphaBlend(
             Colors.white.withValues(alpha: 0.08),
             colorScheme.surface,
@@ -375,9 +371,7 @@ class _TranslatorsSection extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    final cardColor = !context.isMornye
-        ? settingsGroupColor(context)
-        : isDark
+    final cardColor = isDark
         ? Color.alphaBlend(
             Colors.white.withValues(alpha: 0.08),
             colorScheme.surface,
@@ -487,9 +481,7 @@ class _AboutSettingsItem extends StatelessWidget {
                   height: 40,
                   child: AppIcon(
                     context.adaptiveIcon(icon),
-                    color: context.isMornye
-                        ? colorScheme.primary
-                        : colorScheme.onSurfaceVariant,
+                    color: colorScheme.primary,
                     size: 24,
                   ),
                 ),

@@ -14,7 +14,7 @@ extension _TrackMetadataHeader on _TrackMetadataScreenState {
     if (_service == 'local')
       HeaderMetaItem(
         context.l10n.librarySourceLocal,
-        icon: context.isMornye ? CupertinoIcons.folder : Icons.folder,
+        icon: CupertinoIcons.folder,
       )
     else if (_service.isNotEmpty)
       HeaderMetaItem(_service[0].toUpperCase() + _service.substring(1)),
@@ -105,7 +105,7 @@ extension _TrackMetadataHeader on _TrackMetadataScreenState {
     // Watched here: the header builds its actions outside this build.
     final showPlayer = ref.watch(playerUiEnabledProvider);
     final back = HeaderCircleButton(
-      icon: context.isMornye ? CupertinoIcons.back : Icons.arrow_back,
+      icon: CupertinoIcons.back,
       tooltip: MaterialLocalizations.of(context).backButtonTooltip,
       onPressed: _popWithMetadataResult,
     );
@@ -143,7 +143,7 @@ extension _TrackMetadataHeader on _TrackMetadataScreenState {
       appBarActions: [
         Builder(
           builder: (buttonContext) => HeaderCircleButton(
-            icon: context.isMornye ? CupertinoIcons.ellipsis : Icons.more_vert,
+            icon: CupertinoIcons.ellipsis,
             tooltip: MaterialLocalizations.of(context).showMenuTooltip,
             onPressed: () => _showOptionsMenu(
               context,
@@ -154,10 +154,7 @@ extension _TrackMetadataHeader on _TrackMetadataScreenState {
           ),
         ),
       ],
-      // Centered so the tight leading slot of Material cannot stretch it.
-      leading: context.isMornye || isDesktopPlatform
-          ? back
-          : Center(child: back),
+      leading: back,
     ).buildSlivers(context);
   }
 
@@ -165,14 +162,11 @@ extension _TrackMetadataHeader on _TrackMetadataScreenState {
   /// own so a long artist does not push the album out.
   Widget _buildHeaderSubtitle(BuildContext header) {
     final scheme = HeaderPalette.of(header);
-    final mornye = header.isMornye;
     final artistStyle = isDesktopPlatform
         ? desktopDetailSubtitleStyle(header)
         : Theme.of(header).textTheme.titleMedium?.copyWith(
-            color: mornye
-                ? Theme.of(header).colorScheme.primary
-                : scheme.onSurfaceVariant,
-            fontWeight: mornye ? FontWeight.w400 : FontWeight.w600,
+            color: Theme.of(header).colorScheme.primary,
+            fontWeight: FontWeight.w400,
           );
     final album = albumName.trim();
     Text line(String text, {TextStyle? style}) => Text(
@@ -245,67 +239,32 @@ extension _TrackMetadataHeader on _TrackMetadataScreenState {
         children: [play, ?edit, ?queue],
       );
     }
-    if (header.isMornye) {
-      return Row(
-        spacing: tokens.gapMd,
-        children: [
-          ?edit,
-          Expanded(child: play),
-          ?queue,
-        ],
-      );
-    }
-    // Tablets keep the row the width it has on a phone.
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 460),
-        child: ExpressiveButtonGroup(
-          flexible: {edit == null ? 0 : 1},
-          spacing: tokens.gapMd,
-          slotWidth: tokens.minTouchTarget,
-          children: [?edit, play, ?queue],
-        ),
-      ),
+    return Row(
+      spacing: tokens.gapMd,
+      children: [
+        ?edit,
+        Expanded(child: play),
+        ?queue,
+      ],
     );
   }
 
-  RoundedRectangleBorder _sectionCardShape(
-    BuildContext context,
-    ColorScheme colorScheme,
-  ) {
-    return RoundedRectangleBorder(
-      borderRadius: context.tokens.borderRadiusCard,
-      side: BorderSide(
-        color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-      ),
-    );
-  }
-
-  /// The surface of one section of the page, shared by both styles.
+  /// The surface of one section of the page.
   Widget _metadataSectionSurface(
-    BuildContext context,
-    ColorScheme scheme, {
+    BuildContext context, {
     required Widget child,
   }) {
-    if (context.isMornye) {
-      return Material(
-        color: MornyeTheme.controlFill(context),
-        // The radius of Mornye's grouped lists (see SettingsGroup).
-        borderRadius: BorderRadius.circular(28),
-        clipBehavior: Clip.antiAlias,
-        child: DividerTheme(
-          data: DividerTheme.of(
-            context,
-          ).copyWith(color: MornyeTheme.metadataDividerColor(context)),
-          child: child,
-        ),
-      );
-    }
-    return Card(
-      elevation: 0,
-      color: settingsGroupColor(context),
-      shape: _sectionCardShape(context, scheme),
-      child: child,
+    return Material(
+      color: MornyeTheme.controlFill(context),
+      // The radius of Mornye's grouped lists (see SettingsGroup).
+      borderRadius: BorderRadius.circular(28),
+      clipBehavior: Clip.antiAlias,
+      child: DividerTheme(
+        data: DividerTheme.of(
+          context,
+        ).copyWith(color: MornyeTheme.metadataDividerColor(context)),
+        child: child,
+      ),
     );
   }
 }

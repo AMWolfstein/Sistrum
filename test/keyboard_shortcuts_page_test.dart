@@ -5,7 +5,6 @@ import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/settings/keyboard_shortcuts_page.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/desktop/desktop_commands.dart';
 
@@ -15,59 +14,53 @@ class _Settings extends SettingsNotifier {
 }
 
 void main() {
-  for (final mornye in [false, true]) {
-    for (final platform in [TargetPlatform.macOS, TargetPlatform.windows]) {
-      final style = mornye ? 'Mornye' : 'Material';
-      testWidgets('$style lists every ${platform.name} shortcut', (
-        tester,
-      ) async {
-        tester.view.physicalSize = const Size(1200, 3000);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.reset);
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [settingsProvider.overrideWith(_Settings.new)],
-            child: MaterialApp(
-              theme: mornye
-                  ? MornyeTheme.build(Brightness.light)
-                  : AppTheme.light(),
-              localizationsDelegates: AppLocalizations.localizationsDelegates,
-              supportedLocales: AppLocalizations.supportedLocales,
-              home: KeyboardShortcutsPage(platform: platform),
-            ),
+  for (final platform in [TargetPlatform.macOS, TargetPlatform.windows]) {
+    final style = 'Mornye';
+    testWidgets('$style lists every ${platform.name} shortcut', (tester) async {
+      tester.view.physicalSize = const Size(1200, 3000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [settingsProvider.overrideWith(_Settings.new)],
+          child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.light),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: KeyboardShortcutsPage(platform: platform),
           ),
-        );
-        await tester.pumpAndSettle();
+        ),
+      );
+      await tester.pumpAndSettle();
 
-        final shown = tester
-            .widgetList<Text>(find.byType(Text))
-            .map((text) => text.data ?? '')
-            .join('\n');
-        final destinations = desktopDestinationTabs(mornye: mornye).length;
-        final bound = desktopShortcutBindings(platform).keys;
-        for (final activator in bound.cast<SingleActivator>()) {
-          // Unused destination numbers have no page to describe.
-          final number = int.tryParse(activator.trigger.keyLabel);
-          if (number != null && number > destinations) continue;
-          expect(
-            shown,
-            contains(desktopShortcutLabel(activator, platform)),
-            reason: '${activator.trigger.keyLabel} is not listed',
-          );
-        }
-        expect(find.text('Play/Pause'), findsOneWidget);
+      final shown = tester
+          .widgetList<Text>(find.byType(Text))
+          .map((text) => text.data ?? '')
+          .join('\n');
+      final destinations = desktopDestinationTabs().length;
+      final bound = desktopShortcutBindings(platform).keys;
+      for (final activator in bound.cast<SingleActivator>()) {
+        // Unused destination numbers have no page to describe.
+        final number = int.tryParse(activator.trigger.keyLabel);
+        if (number != null && number > destinations) continue;
         expect(
-          find.text(
-            desktopShortcutLabel(
-              desktopCommandShortcut(DesktopCommand.settings, platform)!,
-              platform,
-            ),
-          ),
-          findsNothing,
-          reason: 'Settings lists its command and destination in one row',
+          shown,
+          contains(desktopShortcutLabel(activator, platform)),
+          reason: '${activator.trigger.keyLabel} is not listed',
         );
-        expect(tester.takeException(), isNull);
-      });
-    }
+      }
+      expect(find.text('Play/Pause'), findsOneWidget);
+      expect(
+        find.text(
+          desktopShortcutLabel(
+            desktopCommandShortcut(DesktopCommand.settings, platform)!,
+            platform,
+          ),
+        ),
+        findsNothing,
+        reason: 'Settings lists its command and destination in one row',
+      );
+      expect(tester.takeException(), isNull);
+    });
   }
 }

@@ -37,8 +37,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
   Widget _buildFilterButton(BuildContext context) {
     return GestureDetector(
       onLongPress: _activeFilterCount > 0 ? _resetFilters : null,
-      child: ExpressiveButton(
-        text: true,
+      child: TextButton.icon(
         onPressed: () => _showFilterSheet(context),
         icon: Badge(
           isLabelVisible: _activeFilterCount > 0,
@@ -46,7 +45,7 @@ extension _QueueTabItemWidgets on _QueueTabState {
           child: const AppIcon(Icons.filter_list, size: 18),
         ),
         style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
-        child: Text(context.l10n.libraryFilterTitle),
+        label: Text(context.l10n.libraryFilterTitle),
       ),
     );
   }
@@ -813,23 +812,13 @@ class _LibraryPlaybackButton extends ConsumerWidget {
       );
     }
 
-    // Material draws a filled tonal icon button: a solid role pair rather
-    // than a faded primary container.
-    final material = !context.isMornye;
     return AppIconButton(
       onPressed: onPressed,
-      icon: Icon(
-        icon,
-        color: material
-            ? colorScheme.onSecondaryContainer
-            : colorScheme.primary,
-      ),
+      icon: Icon(icon, color: colorScheme.primary),
       tooltip: tooltip,
       style: IconButton.styleFrom(
         minimumSize: Size.square(context.tokens.minTouchTarget),
-        backgroundColor: material
-            ? colorScheme.secondaryContainer
-            : colorScheme.primaryContainer.withValues(alpha: 0.3),
+        backgroundColor: colorScheme.primaryContainer.withValues(alpha: 0.3),
       ),
     );
   }

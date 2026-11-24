@@ -6,15 +6,13 @@ import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:material_ui/material_ui.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
-import 'package:cupertino_ui/cupertino_ui.dart'
-    show CupertinoButton, CupertinoIcons;
+import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/services/file_access_check.dart';
@@ -68,11 +66,9 @@ import 'package:sistrum/widgets/album_detail_header.dart'
         HeaderMetaItem,
         HeaderCircleButton,
         HeaderFilledButton;
-import 'package:sistrum/widgets/desktop/context_menu.dart';
 import 'package:sistrum/widgets/desktop/detail_header.dart'
     show desktopDetailSubtitleStyle;
 import 'package:sistrum/widgets/error_card.dart';
-import 'package:sistrum/widgets/expressive_button_group.dart';
 import 'package:sistrum/widgets/mornye_context_menu.dart';
 import 'package:sistrum/widgets/mornye_metadata_row.dart';
 import 'package:sistrum/widgets/audio_analysis_widget.dart';
@@ -691,68 +687,4 @@ class _MetadataOption {
     this.destructive = false,
     this.dividerAbove = false,
   });
-}
-
-class _MetadataOptionTile extends StatelessWidget {
-  final _MetadataOption option;
-  final ColorScheme colorScheme;
-  final VoidCallback onTap;
-
-  const _MetadataOptionTile({
-    required this.option,
-    required this.colorScheme,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final iconColor = option.destructive
-        ? colorScheme.error
-        : colorScheme.onSurfaceVariant;
-    final titleColor = option.destructive ? colorScheme.error : null;
-
-    if (context.isMornye) {
-      return CupertinoButton(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        onPressed: onTap,
-        child: Row(
-          children: [
-            Expanded(
-              child: Text(
-                option.label,
-                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: titleColor ?? colorScheme.onSurface,
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Icon(mornyeIconFor(option.icon), color: iconColor, size: 22),
-          ],
-        ),
-      );
-    }
-
-    return InkWell(
-      onTap: onTap,
-      splashColor: colorScheme.primary.withValues(alpha: 0.12),
-      highlightColor: Colors.transparent,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        child: Row(
-          children: [
-            Icon(option.icon, color: iconColor, size: 24),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                option.label,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(color: titleColor),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

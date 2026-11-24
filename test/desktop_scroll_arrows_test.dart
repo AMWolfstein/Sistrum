@@ -18,30 +18,86 @@ void main() {
   Future<void> pumpShelf(WidgetTester tester) async {
     shelfBuilds = 0;
     await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Center(
-          child: SizedBox(
-            width: 300,
-            height: 100,
-            child: DesktopScrollArrows(
-              builder: (context, scrollController) {
-                controller = scrollController;
-                shelfBuilds++;
-                return ListView.builder(
-                  controller: scrollController,
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 20,
-                  itemBuilder: (_, index) =>
-                      SizedBox(width: 100, child: Text('Item $index')),
-                );
-              },
+      ProviderScope(
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Center(
+            child: SizedBox(
+              width: 300,
+              height: 100,
+              child: DesktopScrollArrows(
+                builder: (context, scrollController) {
+                  controller = scrollController;
+                  shelfBuilds++;
+                  return ListView.builder(
+                    controller: scrollController,
+                    scrollDirection: Axis.horizontal,
+                    itemCount: 20,
+                    itemBuilder: (_, index) =>
+                        SizedBox(width: 100, child: Text('Item $index')),
+                  );
+                },
+              ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  /// Hover in, check the fade, then hover out and check the exit.
+  Future<void> fadeCase(WidgetTester tester, {required bool reduced}) async {
+    if (reduced) {
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const FakeAccessibilityFeatures(disableAnimations: true);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+    }
+    debugDesktopPlatformOverride = true;
+    await pumpShelf(tester);
+    final arrow = findByTooltip('Scroll forward');
+    double opacity() => tester
+        .widget<Opacity>(
+          find.ancestor(of: arrow, matching: find.byType(Opacity)).first,
+        )
+        .opacity;
+    // At rest the shelf holds a zero-size child and no arrows.
+    expect(arrow, findsNothing);
+
+    final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    addTearDown(mouse.removePointer);
+    await mouse.addPointer(location: Offset.zero);
+    await mouse.moveTo(tester.getCenter(find.byType(ListView)));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 16));
+    if (reduced) {
+      expect(arrow, findsOneWidget);
+      expect(
+        find.ancestor(of: arrow, matching: find.byType(Opacity)),
+        findsNothing,
+      );
+    } else {
+      expect(opacity(), inExclusiveRange(0, 1));
+      await tester.pumpAndSettle();
+      expect(opacity(), 1);
+    }
+
+    await mouse.moveTo(Offset.zero);
+    await tester.pump();
+    if (reduced) {
+      await tester.pump();
+      expect(arrow, findsNothing);
+    } else {
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(opacity(), inExclusiveRange(0, 1));
+      await tester.pumpAndSettle();
+      expect(arrow, findsNothing);
+    }
+    // Hovering never rebuilt the list.
+    expect(shelfBuilds, 1);
   }
 
   Future<void> hover(WidgetTester tester) async {
@@ -113,62 +169,13 @@ void main() {
     expect(arrow, findsNothing);
   });
 
-  for (final reduced in [false, true]) {
-    testWidgets('Material fades its arrows in and out faster'
-        '${reduced ? ' (reduced motion)' : ''}', (tester) async {
-      if (reduced) {
-        tester.platformDispatcher.accessibilityFeaturesTestValue =
-            const FakeAccessibilityFeatures(disableAnimations: true);
-        addTearDown(
-          tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
-        );
-      }
-      debugDesktopPlatformOverride = true;
-      await pumpShelf(tester);
-      final arrow = findByTooltip('Scroll forward');
-      double opacity() => tester
-          .widget<Opacity>(
-            find.ancestor(of: arrow, matching: find.byType(Opacity)).first,
-          )
-          .opacity;
-      // At rest the shelf holds a zero-size child and no arrows.
-      expect(arrow, findsNothing);
+  testWidgets('arrows fade in and out on their springs', (tester) async {
+    await fadeCase(tester, reduced: false);
+  });
 
-      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
-      addTearDown(mouse.removePointer);
-      await mouse.addPointer(location: Offset.zero);
-      await mouse.moveTo(tester.getCenter(find.byType(ListView)));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 16));
-      if (reduced) {
-        expect(arrow, findsOneWidget);
-        expect(
-          find.ancestor(of: arrow, matching: find.byType(Opacity)),
-          findsNothing,
-        );
-      } else {
-        expect(opacity(), inExclusiveRange(0, 1));
-        await tester.pumpAndSettle();
-        expect(opacity(), 1);
-      }
-
-      await mouse.moveTo(Offset.zero);
-      await tester.pump();
-      if (reduced) {
-        await tester.pump();
-        expect(arrow, findsNothing);
-      } else {
-        await tester.pump(const Duration(milliseconds: 50));
-        expect(opacity(), inExclusiveRange(0, 1));
-        // The exit is shorter than the entrance.
-        await tester.pump(const Duration(milliseconds: 60));
-        await tester.pump();
-        expect(arrow, findsNothing);
-      }
-      // Hovering never rebuilt the list.
-      expect(shelfBuilds, 1);
-    });
-  }
+  testWidgets('reduced motion shows and hides arrows at once', (tester) async {
+    await fadeCase(tester, reduced: true);
+  });
 
   testWidgets('desktop shows arrows on hover in the open directions', (
     tester,
@@ -180,6 +187,7 @@ void main() {
     await hover(tester);
     expect(findByTooltip('Scroll forward'), findsOneWidget);
     expect(findByTooltip('Scroll back'), findsNothing);
+    expect(shelfBuilds, 1);
 
     await tester.tap(findByTooltip('Scroll forward'));
     await tester.pumpAndSettle();
@@ -197,24 +205,27 @@ void main() {
     var lists = 0;
     final cardBuilds = <int, int>{};
     await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Center(
-          child: SizedBox(
-            width: 300,
-            height: 100,
-            child: DesktopScrollArrows(
-              builder: (context, scrollController) {
-                lists++;
-                return ListView.builder(
-                  controller: scrollController,
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 20,
-                  itemBuilder: (_, index) =>
-                      _HoverCard(index: index, builds: cardBuilds),
-                );
-              },
+      ProviderScope(
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Center(
+            child: SizedBox(
+              width: 300,
+              height: 100,
+              child: DesktopScrollArrows(
+                builder: (context, scrollController) {
+                  lists++;
+                  return ListView.builder(
+                    controller: scrollController,
+                    scrollDirection: Axis.horizontal,
+                    itemCount: 20,
+                    itemBuilder: (_, index) =>
+                        _HoverCard(index: index, builds: cardBuilds),
+                  );
+                },
+              ),
             ),
           ),
         ),
@@ -253,7 +264,10 @@ void main() {
     await hover(tester);
     expect(findByTooltip('Scroll forward'), findsNothing);
     expect(
-      find.ancestor(of: find.byType(ListView), matching: find.byType(Stack)),
+      find.descendant(
+        of: find.byType(DesktopScrollArrows),
+        matching: find.byType(Stack),
+      ),
       findsNothing,
     );
   });

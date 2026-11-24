@@ -15,11 +15,7 @@ extension _EditMetadataSheetCover on _EditMetadataSheetState {
               sheetContext.l10n.trackConvertOriginal,
             )
           : '$value px',
-      icon: (sheetContext, value) => context.isMornye
-          ? CupertinoIcons.photo
-          : value == 0
-          ? Icons.photo_size_select_actual_outlined
-          : Icons.photo_size_select_large_outlined,
+      icon: (sheetContext, value) => CupertinoIcons.photo,
     );
 
     if (!mounted || selectedValue == null) return;
@@ -185,12 +181,6 @@ extension _EditMetadataSheetCover on _EditMetadataSheetState {
                   hasSelectedCover
                       ? context.l10n.trackCoverReplace
                       : context.l10n.trackCoverPick,
-                ),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
                 ),
               ),
             ),

@@ -11,7 +11,7 @@ import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/routes/now_playing_route.dart';
 import 'package:sistrum/utils/playback_seek_preview.dart';
 import 'package:sistrum/widgets/audio_quality_badges.dart';
-import 'package:sistrum/widgets/material_player_layout.dart';
+import 'package:sistrum/widgets/mornye_player_layout.dart';
 import 'package:sistrum/widgets/player_details_sheet.dart';
 import 'package:sistrum/widgets/player_gesture_regions.dart';
 
@@ -77,17 +77,32 @@ void main() {
           supportedLocales: AppLocalizations.supportedLocales,
           home: Builder(
             builder: (context) => Scaffold(
-              body: MaterialPlayerLayout(
+              body: MornyePlayerLayout(
                 mediaItem: item,
                 metadata: metadata,
                 seekPreview: seekPreview,
                 colorScheme: Theme.of(context).colorScheme,
-                showLyrics: true,
+                page: 1,
+                motionArtwork: const SizedBox.shrink(),
+                insetArtwork: false,
+                artworkTopInset: 0,
+                artworkKeys: (
+                  header: GlobalKey(),
+                  controls: GlobalKey(),
+                  volume: GlobalKey(),
+                  expanded: GlobalKey(),
+                  compact: GlobalKey(),
+                ),
+                lyricsControlsHidden: false,
+                lyricsOptionsOpen: false,
                 lyricsBuilder: (_) {
                   visualBuilds++;
                   return const SizedBox.expand();
                 },
-                onOpenQueue: () {},
+                lyricsOptions: null,
+                onPageChanged: (_) {},
+                onTrackNavigation: (_, _) async {},
+                onMoreActions: (_, _, _) async {},
               ),
             ),
           ),
@@ -111,9 +126,6 @@ void main() {
           .explicit,
       isTrue,
     );
-    const quality = 'FLAC  ·  24-bit  ·  48 kHz';
-    final qualityWidget = tester.widget<Text>(find.text(quality));
-
     playback.add(
       PlaybackState(
         processingState: AudioProcessingState.ready,
@@ -125,11 +137,6 @@ void main() {
     await tester.pump();
     await tester.pump();
     expect(visualBuilds, beforeMetadata);
-    expect(find.text('0:45'), findsOneWidget);
-    expect(
-      identical(tester.widget<Text>(find.text(quality)), qualityWidget),
-      isTrue,
-    );
     expect(tester.takeException(), isNull);
   });
 
@@ -146,19 +153,21 @@ void main() {
     final first = _item('First', source: 'content://library/first.flac');
     await metadata.load(first);
     await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Builder(
-          builder: (context) => Scaffold(
-            body: TextButton(
-              onPressed: () => showPlayerDetailsSheet(
-                context,
-                Theme.of(context).colorScheme,
-                metadata: metadata,
-                mediaItem: first,
+      ProviderScope(
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () => showPlayerDetailsSheet(
+                  context,
+                  Theme.of(context).colorScheme,
+                  metadata: metadata,
+                  mediaItem: first,
+                ),
+                child: const Text('Details'),
               ),
-              child: const Text('Details'),
             ),
           ),
         ),
@@ -166,7 +175,7 @@ void main() {
     );
     await tester.tap(find.text('Details'));
     await tester.pumpAndSettle();
-    expect(find.text('First'), findsOneWidget);
+    expect(find.text('First'), findsWidgets);
     await metadata.load(_item('Second'));
     read.complete({'title': 'First tags'});
     await tester.pumpAndSettle();

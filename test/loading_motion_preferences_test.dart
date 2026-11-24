@@ -1,7 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:material_3_expressive/material_3_expressive.dart';
-import 'package:sistrum/theme/app_theme.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 
@@ -14,7 +13,7 @@ void main() {
         late StateSetter update;
         await tester.pumpWidget(
           MaterialApp(
-            theme: AppTheme.light(),
+            theme: MornyeTheme.build(Brightness.light),
             home: StatefulBuilder(
               builder: (context, setState) {
                 update = setState;
@@ -44,7 +43,7 @@ void main() {
         await tester.pump();
         await tester.pump(const Duration(seconds: 2));
         expect(tester.binding.hasScheduledFrame, isFalse);
-        expect(find.byType(M3ELoadingIndicator), findsOneWidget);
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
         if (reduced) expect(find.byType(ShaderMask), findsNothing);
         update(() => stopped = false);
         await tester.pump();

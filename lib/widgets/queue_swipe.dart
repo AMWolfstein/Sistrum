@@ -7,15 +7,12 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:material_3_expressive/material_3_expressive.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/playable_media.dart';
 import 'package:sistrum/theme/app_motion.dart';
-import 'package:sistrum/theme/material_expressive.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/android_tv.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/app_icon.dart';
@@ -125,8 +122,6 @@ class QueueSwipe extends StatefulWidget {
     required this.actions,
     required this.child,
     this.enabled = true,
-    this.margin = EdgeInsets.zero,
-    this.borderRadius = BorderRadius.zero,
   });
 
   /// Null leaves the row without the swipe.
@@ -134,12 +129,6 @@ class QueueSwipe extends StatefulWidget {
 
   /// Turns the swipe off (selection mode) without rebuilding [child].
   final bool enabled;
-
-  /// The row's outer margin, which the Material strip stays inside.
-  final EdgeInsetsGeometry margin;
-
-  /// The row's corners, which the Material strip takes.
-  final BorderRadius borderRadius;
 
   final Widget child;
 
@@ -159,15 +148,6 @@ class QueueSwipe extends StatefulWidget {
 
 class _QueueSwipeState extends State<QueueSwipe>
     with SingleTickerProviderStateMixin {
-  /// Critically damped, so the row never passes its rest position and
-  /// flashes the other action. Mornye returns on its standard spring, which
-  /// has no bounce either.
-  static final _returnSpring = SpringDescription.withDampingRatio(
-    mass: 1,
-    stiffness: M3EMotion.expressiveSpatialFast.stiffness,
-    ratio: 1,
-  );
-
   late final _offset = AnimationController.unbounded(vsync: this);
   final _haptic = SwipeProgressHaptic();
   double _drag = 0;
@@ -303,9 +283,9 @@ class _QueueSwipeState extends State<QueueSwipe>
       _offset.value = 0;
       return;
     }
-    final spring = context.isMornye
-        ? MornyeMotion.standardSpring
-        : _returnSpring;
+    // Returns on Mornye's standard spring, which has no bounce either, so the
+    // row never passes its rest position and flashes the other action.
+    final spring = MornyeMotion.standardSpring;
     final offset = _offset.value;
     final limit = math.sqrt(spring.stiffness / spring.mass) * offset.abs();
     final start = velocity.sign == offset.sign || offset == 0
@@ -400,8 +380,6 @@ class _QueueSwipeState extends State<QueueSwipe>
   /// and where the row now starts, and names the action.
   Widget _strip(BuildContext context, double offset) {
     final playNext = _playsNext(offset);
-    final reached = _drag.abs() >= _threshold;
-    final progress = (_drag.abs() / _threshold).clamp(0.0, 1.0);
     final fromLeft = offset > 0;
     final label = playNext
         ? context.l10n.trackPlayNext
@@ -409,102 +387,40 @@ class _QueueSwipeState extends State<QueueSwipe>
     final icon = playNext ? Icons.playlist_play : Icons.queue_music;
     final align = fromLeft ? Alignment.centerLeft : Alignment.centerRight;
 
-    if (context.isMornye) {
-      // Mornye follows the iOS row actions: a full-height system colour
-      // with a white symbol over its title.
-      final color = CupertinoDynamicColor.resolve(
-        playNext ? CupertinoColors.systemIndigo : CupertinoColors.systemOrange,
-        context,
-      );
-      return Align(
-        alignment: align,
-        child: SizedBox(
-          width: offset.abs(),
-          child: ClipRect(
-            child: ColoredBox(
-              color: color,
-              child: OverflowBox(
-                minWidth: 0,
-                maxWidth: double.infinity,
-                alignment: align,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      AppIcon.adaptive(icon, color: CupertinoColors.white),
-                      const SizedBox(height: 2),
-                      Text(
-                        label,
-                        maxLines: 1,
-                        style: const TextStyle(
-                          color: CupertinoColors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    // Material: a tonal strip in the row's own shape, inside its margin.
-    // With expressive motion the icon grows with the swipe and the fill
-    // deepens once letting go would commit.
-    final colorScheme = Theme.of(context).colorScheme;
-    final expressive = materialExpressiveEnabled(context);
-    final fill = playNext
-        ? (reached ? colorScheme.primary : colorScheme.primaryContainer)
-        : (reached ? colorScheme.tertiary : colorScheme.tertiaryContainer);
-    final onFill = playNext
-        ? (reached ? colorScheme.onPrimary : colorScheme.onPrimaryContainer)
-        : (reached ? colorScheme.onTertiary : colorScheme.onTertiaryContainer);
-    final scale = expressive ? 0.7 + 0.45 * progress : 1.0;
-    // The fill deepens on the fast effects spring.
-    final deepen = AppMotion.effectsFast(
+    // Mornye follows the iOS row actions: a full-height system colour
+    // with a white symbol over its title.
+    final color = CupertinoDynamicColor.resolve(
+      playNext ? CupertinoColors.systemIndigo : CupertinoColors.systemOrange,
       context,
-      const AppMotionSpec(Duration.zero, Curves.linear),
     );
-    return Padding(
-      padding: widget.margin,
-      child: Align(
-        alignment: align,
-        child: SizedBox(
-          width: offset.abs(),
-          child: ClipRRect(
-            borderRadius: widget.borderRadius,
-            child: AnimatedContainer(
-              duration: deepen.duration,
-              curve: deepen.curve,
-              color: fill,
-              child: OverflowBox(
-                minWidth: 0,
-                maxWidth: double.infinity,
-                alignment: align,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Transform.scale(
-                        scale: scale,
-                        child: AppIcon(icon, color: onFill),
+    return Align(
+      alignment: align,
+      child: SizedBox(
+        width: offset.abs(),
+        child: ClipRect(
+          child: ColoredBox(
+            color: color,
+            child: OverflowBox(
+              minWidth: 0,
+              maxWidth: double.infinity,
+              alignment: align,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AppIcon.adaptive(icon, color: CupertinoColors.white),
+                    const SizedBox(height: 2),
+                    Text(
+                      label,
+                      maxLines: 1,
+                      style: const TextStyle(
+                        color: CupertinoColors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        label,
-                        maxLines: 1,
-                        style: Theme.of(
-                          context,
-                        ).textTheme.labelLarge?.copyWith(color: onFill),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),

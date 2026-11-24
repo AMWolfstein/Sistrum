@@ -16,7 +16,6 @@ import 'package:sistrum/screens/queue_tab.dart';
 import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_search.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 
 class _Settings extends SettingsNotifier {
@@ -41,7 +40,6 @@ class _Local extends LocalLibraryNotifier {
   void publishIndexChange() {
     state = state.copyWith(loadedIndexVersion: state.loadedIndexVersion + 1);
   }
-
 }
 
 class _SelectionCollections extends LibraryCollectionsNotifier {
@@ -143,66 +141,57 @@ void main() {
     addTearDown(() => messenger.setMockMethodCallHandler(sqlite, null));
   });
 
-  for (final mornye in [false, true]) {
-    testWidgets('playlist selection confirms one deletion (Mornye: $mornye)', (
-      tester,
-    ) async {
-      tester.view.physicalSize = const Size(800, 1200);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      final calls = <List<String>>[];
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            settingsProvider.overrideWith(_Settings.new),
-            localLibraryProvider.overrideWith(() => local),
-            libraryCollectionsProvider.overrideWith(
-              () => _SelectionCollections(calls.add),
-            ),
-          ],
-          child: MaterialApp(
-            theme: mornye
-                ? MornyeTheme.build(Brightness.dark)
-                : AppTheme.light(),
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: AppLocalizations.supportedLocales,
-            home: const Scaffold(body: QueueTab(librarySection: 'playlists')),
+  testWidgets('playlist selection confirms one deletion', (tester) async {
+    tester.view.physicalSize = const Size(800, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final calls = <List<String>>[];
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          settingsProvider.overrideWith(_Settings.new),
+          localLibraryProvider.overrideWith(() => local),
+          libraryCollectionsProvider.overrideWith(
+            () => _SelectionCollections(calls.add),
           ),
+        ],
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const Scaffold(body: QueueTab(librarySection: 'playlists')),
         ),
-      );
-      await tester.pumpAndSettle();
-      final l10n = AppLocalizations.of(tester.element(find.byType(QueueTab)));
-      await tester.ensureVisible(find.text('First'));
-      await tester.longPress(find.text('First'));
-      await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text('Second'));
-      await tester.tap(find.text('Second'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text(l10n.selectionDeletePlaylistsCount(2)));
-      await tester.pumpAndSettle();
-      expect(
-        find.text(l10n.collectionDeletePlaylistsMessage(2)),
-        findsOneWidget,
-      );
-      await tester.tap(find.text(l10n.dialogCancel));
-      await tester.pumpAndSettle();
-      expect(calls, isEmpty);
-      expect(find.text('First'), findsOneWidget);
-      await tester.tap(find.text(l10n.selectionDeletePlaylistsCount(2)));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text(l10n.dialogDelete));
-      await tester.pumpAndSettle();
-      expect(calls, [
-        ['First', 'Second'],
-      ]);
-      expect(find.text('First'), findsNothing);
-      expect(find.text('Second'), findsNothing);
-      expect(find.text('Keep'), findsOneWidget);
-      expect(find.text(l10n.selectionDeletePlaylistsCount(2)), findsNothing);
-      expect(find.text(l10n.collectionPlaylistsDeleted(2)), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
-  }
+      ),
+    );
+    await tester.pumpAndSettle();
+    final l10n = AppLocalizations.of(tester.element(find.byType(QueueTab)));
+    await tester.ensureVisible(find.text('First'));
+    await tester.longPress(find.text('First'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Second'));
+    await tester.tap(find.text('Second'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l10n.selectionDeletePlaylistsCount(2)));
+    await tester.pumpAndSettle();
+    expect(find.text(l10n.collectionDeletePlaylistsMessage(2)), findsOneWidget);
+    await tester.tap(find.text(l10n.dialogCancel));
+    await tester.pumpAndSettle();
+    expect(calls, isEmpty);
+    expect(find.text('First'), findsOneWidget);
+    await tester.tap(find.text(l10n.selectionDeletePlaylistsCount(2)));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(l10n.dialogDelete));
+    await tester.pumpAndSettle();
+    expect(calls, [
+      ['First', 'Second'],
+    ]);
+    expect(find.text('First'), findsNothing);
+    expect(find.text('Second'), findsNothing);
+    expect(find.text('Keep'), findsOneWidget);
+    expect(find.text(l10n.selectionDeletePlaylistsCount(2)), findsNothing);
+    expect(find.text(l10n.collectionPlaylistsDeleted(2)), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
   test(
     'search and browse stop observing the local index when disabled',

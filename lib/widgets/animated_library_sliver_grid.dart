@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:material_ui/material_ui.dart';
 import 'package:sistrum/theme/app_motion.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 
 class AnimatedLibrarySliverGrid extends StatefulWidget {
   final double maxCrossAxisExtent;
@@ -72,9 +71,7 @@ class _AnimatedLibrarySliverGridState extends State<AnimatedLibrarySliverGrid>
       // flip the columns twice: Material's standard spatial spring and
       // Mornye's fast spring both stop at it. It goes on from the extent on
       // screen.
-      final motion = context.isMornye
-          ? MornyeMotion.fast
-          : AppMotion.materialPage;
+      final motion = MornyeMotion.fast;
       _curve.curve = motion.curve;
       _controller
         ..duration = motion.duration

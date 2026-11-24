@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
@@ -15,7 +16,6 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/queue_tab.dart';
 import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_database.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/desktop/track_table.dart';
 import 'package:sistrum/widgets/now_playing_indicator.dart';
@@ -40,9 +40,8 @@ class _Local extends LocalLibraryNotifier {
   LocalLibraryState build() => LocalLibraryState();
 
   /// What a finished scan does: the Library index moves on.
-  void reloadIndex() => state = state.copyWith(
-    loadedIndexVersion: state.loadedIndexVersion + 1,
-  );
+  void reloadIndex() =>
+      state = state.copyWith(loadedIndexVersion: state.loadedIndexVersion + 1);
 }
 
 class _Collections extends LibraryCollectionsNotifier {
@@ -204,8 +203,8 @@ void main() {
           child: ValueListenableBuilder(
             valueListenable: themeMode,
             builder: (context, mode, _) => MaterialApp(
-              theme: AppTheme.light(),
-              darkTheme: AppTheme.dark(),
+              theme: MornyeTheme.build(Brightness.light),
+              darkTheme: MornyeTheme.build(Brightness.dark),
               themeMode: mode,
               localizationsDelegates: AppLocalizations.localizationsDelegates,
               supportedLocales: AppLocalizations.supportedLocales,
@@ -316,7 +315,11 @@ void main() {
       // new rows that show the changed song.
       final beforeReload = _tableRows(tester);
       _renamed[0] = 'Renamed';
-      (ProviderScope.containerOf(tester.element(find.byType(QueueTab))).read(localLibraryProvider.notifier) as _Local).reloadIndex();
+      (ProviderScope.containerOf(
+                tester.element(find.byType(QueueTab)),
+              ).read(localLibraryProvider.notifier)
+              as _Local)
+          .reloadIndex();
       await _settle(tester);
       songsPosition(tester).jumpTo(0);
       await _settle(tester);

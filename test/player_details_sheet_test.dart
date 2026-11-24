@@ -5,14 +5,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/mornye_player_details_sheet.dart';
 import 'package:sistrum/widgets/player_details_sheet.dart';
-
-import 'support/tooltip_finder.dart';
 
 const _item = MediaItem(
   id: 'song',
@@ -26,11 +23,7 @@ void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
   tearDown(() => debugDesktopPlatformOverride = null);
 
-  Future<void> open(
-    WidgetTester tester, {
-    required bool mornye,
-    MediaItem item = _item,
-  }) async {
+  Future<void> open(WidgetTester tester, {MediaItem item = _item}) async {
     final metadata = PlayerMetadataController(
       readMetadata: (_) async => const {},
     );
@@ -38,9 +31,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         child: MaterialApp(
-          theme: mornye
-              ? MornyeTheme.build(Brightness.light)
-              : AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.light),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: Builder(
@@ -63,23 +54,22 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('Material phones open the shared sheet with its handle', (
+  testWidgets('Mornye phones show the details under their handle', (
     tester,
   ) async {
-    await open(tester, mornye: false);
-    final sheet = tester.widget<BottomSheet>(find.byType(BottomSheet));
-    expect(sheet.showDragHandle, isNot(true));
+    await open(tester);
     expect(find.byType(AppSheetHandle), findsOneWidget);
-    expect(find.byType(AppBottomSheet), findsOneWidget);
     expect(find.text('Details'), findsOneWidget);
-    expect(find.text('A song · An artist'), findsOneWidget);
+    // The header and the metadata rows both name the song and artist.
+    expect(find.text('A song'), findsWidgets);
+    expect(find.text('An artist'), findsWidgets);
     expect(find.text('An album'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Material desktop opens the details as a dialog', (tester) async {
+  testWidgets('Mornye desktop shows the details as a dialog', (tester) async {
     debugDesktopPlatformOverride = true;
-    await open(tester, mornye: false);
+    await open(tester);
     final dialog = find.byKey(const ValueKey('app-sheet-dialog'));
     expect(dialog, findsOneWidget);
     expect(find.byType(BottomSheet), findsNothing);
@@ -90,7 +80,11 @@ void main() {
       findsOneWidget,
     );
     expect(tester.takeException(), isNull);
-    await tester.tap(findByTooltip('Close'));
+    // Mornye's dialog closes with its Done button.
+    final done = AppLocalizations.of(
+      tester.element(find.byType(MornyePlayerDetailsSheet)),
+    ).dialogDone;
+    await tester.tap(find.text(done));
     await tester.pumpAndSettle();
     expect(find.text('Details'), findsNothing);
   }, variant: TargetPlatformVariant.only(TargetPlatform.macOS));
@@ -100,7 +94,7 @@ void main() {
       'Mornye keeps its glass details on ${desktop ? 'desktop' : 'phones'}',
       (tester) async {
         debugDesktopPlatformOverride = desktop;
-        await open(tester, mornye: true);
+        await open(tester);
         expect(find.byType(MornyePlayerDetailsSheet), findsOneWidget);
         expect(find.byType(AppBottomSheet), findsNothing);
         expect(find.byType(AppSheetHandle), findsOneWidget);
@@ -116,7 +110,6 @@ void main() {
   testWidgets('Mornye decodes the cover at its thumbnail size', (tester) async {
     await open(
       tester,
-      mornye: true,
       item: _item.copyWith(artUri: Uri.file('/covers/song.jpg')),
     );
     final image = tester.widget<Image>(

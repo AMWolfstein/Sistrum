@@ -2,30 +2,7 @@ part of 'home_tab.dart';
 
 const _homeShelfLimit = 10;
 const _homeShelfCoverSize = 120.0;
-const _homeMixCoverSize = 152.0;
-const _homeDesktopShelfCoverSize = 168.0;
-const _homeDesktopMixCoverSize = 192.0;
 const _homeMornyeShelfGap = 16.0;
-
-/// The pane width from which the Material desktop Home sets Continue
-/// listening and Shortcuts side by side.
-const _homeDesktopColumnsMinWidth = 720.0;
-
-/// Whether Home lays out for a pointer and a wide pane rather than a phone:
-/// the Material desktop app. The Mornye style keeps its own Home.
-bool _homeDesktop(BuildContext context) =>
-    isDesktopPlatform && !context.isMornye;
-
-double _homeShelfCoverSizeOf(BuildContext context) =>
-    _homeDesktop(context) ? _homeDesktopShelfCoverSize : _homeShelfCoverSize;
-
-double _homeMixCoverSizeOf(BuildContext context) =>
-    _homeDesktop(context) ? _homeDesktopMixCoverSize : _homeMixCoverSize;
-
-double _homeShelfRadiusOf(BuildContext context) => context.isMornye ? 10 : 20;
-
-bool _homeCompactText(BuildContext context) =>
-    context.isMornye && isDesktopPlatform;
 
 typedef HomeRecentlyAdded = ({List<UnifiedLibraryItem> items, int trackCount});
 
@@ -302,21 +279,6 @@ final _homeShelfMemoProvider = Provider<_HomeShelfMemo>(
   (ref) => _HomeShelfMemo(),
 );
 
-/// The prompt under the Home greeting, picked again on each launch.
-class _HomeTagline extends StatelessWidget {
-  const _HomeTagline();
-
-  @override
-  Widget build(BuildContext context) => Text(
-    homeTagline(context.l10n),
-    maxLines: 1,
-    overflow: TextOverflow.ellipsis,
-    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-      color: Theme.of(context).colorScheme.onSurfaceVariant,
-    ),
-  );
-}
-
 /// Everything under the search bar on the Material Home. Sections without
 /// content leave no gap behind.
 class _HomeSections extends ConsumerWidget {
@@ -341,67 +303,41 @@ class _HomeSections extends ConsumerWidget {
     );
     final onRepeat =
         ref.watch(homeOnRepeatProvider.select((s) => s.value)) ?? const [];
-    final mixes =
-        ref.watch(libraryMixesProvider.select((s) => s.value)) ?? const [];
 
     final showContinue =
         (hasMediaItem || hasResume) &&
         ref.watch(settingsProvider.select((s) => s.homeContinueListening));
 
-    final mornye = context.isMornye;
-    final recentlyPlayed = mornye
-        ? ref.watch(homeRecentlyPlayedProvider.select((s) => s.value)) ??
-              const <HomeRepeatTrack>[]
-        : const <HomeRepeatTrack>[];
+    final recentlyPlayed =
+        ref.watch(homeRecentlyPlayedProvider.select((s) => s.value)) ??
+        const <HomeRepeatTrack>[];
     // The card only stands in once nothing was played: while the shelf
     // loads, it would show and then give way to Recently Played.
-    final recentlyPlayedLoading =
-        mornye &&
-        ref.watch(
-          homeRecentlyPlayedProvider.select((s) => !s.hasValue && !s.hasError),
-        );
-    final hasMixes = mornye && (ref.watch(libraryMixesProvider.select((s) => s.value?.isNotEmpty ?? false)));
+    final recentlyPlayedLoading = ref.watch(
+      homeRecentlyPlayedProvider.select((s) => !s.hasValue && !s.hasError),
+    );
+    final hasMixes = ref.watch(
+      libraryMixesProvider.select((s) => s.value?.isNotEmpty ?? false),
+    );
     final sections = <Widget>[
       if (hasMixes) _HomeMixBannersSection(inset: inset),
-      if (_homeDesktop(context))
-        _HomeDesktopTop(inset: inset, showContinue: showContinue)
-      else ...[
-        if (recentlyPlayed.isNotEmpty)
-          _HomeSection(
-            title: l10n.homeRecentlyPlayed,
-            inset: inset,
-            shelf: true,
-            onShowAll: () => pushPage<void>(
-              context,
-              (_) => const ListeningStatisticsScreen(),
-            ),
-            child: _HomeRecentlyPlayedShelf(
-              tracks: recentlyPlayed,
-              inset: inset + 8,
-            ),
-          )
-        else if (showContinue && !recentlyPlayedLoading)
-          _HomeSection(
-            title: l10n.homeContinueListening,
-            inset: inset,
-            child: const _HomeContinueListeningCard(),
-          ),
-        // Mornye exposes these tools in the player and Settings.
-        if (!mornye)
-          _HomeSection(
-            title: l10n.homeShortcuts,
-            inset: inset,
-            child: const _HomeShortcuts(),
-          ),
-      ],
-      // Built after startup settles when nothing is cached: the sections'
-      // size animation opens its space rather than letting it jump in.
-      if (!mornye && mixes.isNotEmpty)
+      if (recentlyPlayed.isNotEmpty)
         _HomeSection(
-          title: l10n.homeMixesForYou,
+          title: l10n.homeRecentlyPlayed,
           inset: inset,
           shelf: true,
-          child: _HomeMixesShelf(mixes: mixes, inset: inset),
+          onShowAll: () =>
+              pushPage<void>(context, (_) => const ListeningStatisticsScreen()),
+          child: _HomeRecentlyPlayedShelf(
+            tracks: recentlyPlayed,
+            inset: inset + 8,
+          ),
+        )
+      else if (showContinue && !recentlyPlayedLoading)
+        _HomeSection(
+          title: l10n.homeContinueListening,
+          inset: inset,
+          child: const _HomeContinueListeningCard(),
         ),
       if (recentlyAdded != null && recentlyAdded.items.isNotEmpty)
         _HomeSection(
@@ -411,7 +347,7 @@ class _HomeSections extends ConsumerWidget {
           child: _HomeRecentlyAddedShelf(
             items: recentlyAdded.items,
             trackCount: recentlyAdded.trackCount,
-            inset: mornye ? inset + 8 : inset,
+            inset: inset + 8,
           ),
         ),
       if (onRepeat.isNotEmpty)
@@ -419,17 +355,14 @@ class _HomeSections extends ConsumerWidget {
           title: l10n.homeOnRepeat,
           inset: inset,
           shelf: true,
-          child: _HomeOnRepeatShelf(
-            tracks: onRepeat,
-            inset: mornye ? inset + 8 : inset,
-          ),
+          child: _HomeOnRepeatShelf(tracks: onRepeat, inset: inset + 8),
         ),
     ];
 
     // The Material Home always has its Shortcuts. The Sistrum Home has only
     // shelves, so an empty Library with nothing played would leave the page
     // blank: say so once the Library shelves have answered.
-    if (mornye && sections.isEmpty) {
+    if (sections.isEmpty) {
       final librarySettled = ref.watch(
         homeRecentlyAddedProvider.select((s) => s.hasValue || s.hasError),
       );
@@ -462,86 +395,6 @@ class _HomeSections extends ConsumerWidget {
   }
 }
 
-/// Continue listening and Shortcuts on the Material desktop Home: side by
-/// side at one height once the pane is wide enough, the shortcuts as a list
-/// beside the player and as one row without it.
-class _HomeDesktopTop extends StatelessWidget {
-  const _HomeDesktopTop({required this.inset, required this.showContinue});
-
-  final double inset;
-  final bool showContinue;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    if (!showContinue) {
-      return _HomeSection(
-        title: l10n.homeShortcuts,
-        inset: inset,
-        child: const _HomeShortcuts(layout: _HomeShortcutsLayout.row),
-      );
-    }
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (constraints.maxWidth - 2 * inset < _homeDesktopColumnsMinWidth) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _HomeSection(
-                title: l10n.homeContinueListening,
-                inset: inset,
-                child: const _HomeContinueListeningCard(),
-              ),
-              const SizedBox(height: 28),
-              _HomeSection(
-                title: l10n.homeShortcuts,
-                inset: inset,
-                child: const _HomeShortcuts(layout: _HomeShortcutsLayout.row),
-              ),
-            ],
-          );
-        }
-        // Four shortcut rows of at least 56dp each set the shared height.
-        final textScale = MediaQuery.textScalerOf(context).scale(1);
-        final height = math.max(240.0, 4 * 56 * textScale + 3 * 4);
-        return Padding(
-          padding: EdgeInsets.symmetric(horizontal: inset),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 3,
-                child: _HomeSection(
-                  title: l10n.homeContinueListening,
-                  inset: 0,
-                  child: SizedBox(
-                    height: height,
-                    child: const _HomeContinueListeningCard(hero: true),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 24),
-              Expanded(
-                flex: 2,
-                child: _HomeSection(
-                  title: l10n.homeShortcuts,
-                  inset: 0,
-                  child: SizedBox(
-                    height: height,
-                    child: const _HomeShortcuts(
-                      layout: _HomeShortcutsLayout.list,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
 class _HomeSection extends StatelessWidget {
   const _HomeSection({
     required this.title,
@@ -568,7 +421,7 @@ class _HomeSection extends StatelessWidget {
       title,
       style: Theme.of(context).textTheme.titleMedium?.copyWith(
         color: colorScheme.onSurface,
-        fontSize: _homeCompactText(context) ? 15 : null,
+        fontSize: isDesktopPlatform ? 15 : null,
         fontWeight: FontWeight.w600,
       ),
     );
@@ -619,12 +472,7 @@ class _HomeSection extends StatelessWidget {
 
 /// The active track or the last dismissed session, with its saved progress.
 class _HomeContinueListeningCard extends ConsumerStatefulWidget {
-  const _HomeContinueListeningCard({this.hero = false});
-
-  /// The desktop card beside Shortcuts: the cover fills its height, the
-  /// title sits above, and the progress and play button run along the
-  /// bottom.
-  final bool hero;
+  const _HomeContinueListeningCard();
 
   @override
   ConsumerState<_HomeContinueListeningCard> createState() =>
@@ -676,19 +524,12 @@ class _HomeContinueListeningCardState
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final artist = mediaItem.artist ?? '';
-    final album = mediaItem.album ?? '';
-    final hero = widget.hero;
     final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
     // Mornye uses a neutral surface for the resume card.
-    final neutral = context.isMornye;
-    final onContainer = neutral
-        ? colorScheme.onSurface
-        : colorScheme.onPrimaryContainer;
-    final dimmed = neutral
-        ? colorScheme.onSurfaceVariant
-        : colorScheme.onPrimaryContainer.withValues(alpha: 0.8);
-    final playColor = neutral ? colorScheme.onSurface : colorScheme.primary;
-    final onPlayColor = neutral ? colorScheme.surface : colorScheme.onPrimary;
+    final onContainer = colorScheme.onSurface;
+    final dimmed = colorScheme.onSurfaceVariant;
+    final playColor = colorScheme.onSurface;
+    final onPlayColor = colorScheme.surface;
 
     Widget artwork(double extent) => PlayerArtwork(
       // A network cover not stored yet shows once fetched.
@@ -702,19 +543,15 @@ class _HomeContinueListeningCardState
 
     final title = Text(
       mediaItem.title,
-      maxLines: hero ? 2 : 1,
+      maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: (hero ? textTheme.headlineSmall : textTheme.titleLarge)?.copyWith(
-        color: onContainer,
-      ),
+      style: textTheme.titleLarge?.copyWith(color: onContainer),
     );
     final artistLine = Text(
       artist,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: (hero ? textTheme.titleMedium : textTheme.bodyMedium)?.copyWith(
-        color: dimmed,
-      ),
+      style: textTheme.bodyMedium?.copyWith(color: dimmed),
     );
     final progress = _HomeContinueListeningProgress(
       duration: mediaItem.duration ?? Duration.zero,
@@ -757,92 +594,37 @@ class _HomeContinueListeningCardState
       ),
     );
 
-    final Widget content;
-    if (hero) {
-      content = Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            AspectRatio(
-              aspectRatio: 1,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: LayoutBuilder(
-                  builder: (context, constraints) =>
-                      artwork(constraints.maxHeight),
-                ),
-              ),
+    final Widget content = Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 16, 12),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: SizedBox.square(
+              dimension: _coverSize,
+              child: artwork(_coverSize),
             ),
-            const SizedBox(width: 24),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(0, 8, 4, 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    title,
-                    if (artist.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      artistLine,
-                    ],
-                    if (album.isNotEmpty && album != mediaItem.title)
-                      Text(
-                        album,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: textTheme.bodyMedium?.copyWith(color: dimmed),
-                      ),
-                    const Spacer(),
-                    Row(
-                      children: [
-                        Expanded(child: progress),
-                        const SizedBox(width: 16),
-                        playButton,
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                title,
+                if (artist.isNotEmpty) artistLine,
+                const SizedBox(height: 12),
+                progress,
+              ],
             ),
-          ],
-        ),
-      );
-    } else {
-      content = Padding(
-        padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 16, 12),
-        child: Row(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: SizedBox.square(
-                dimension: _coverSize,
-                child: artwork(_coverSize),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  title,
-                  if (artist.isNotEmpty) artistLine,
-                  const SizedBox(height: 12),
-                  progress,
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            playButton,
-          ],
-        ),
-      );
-    }
+          ),
+          const SizedBox(width: 12),
+          playButton,
+        ],
+      ),
+    );
 
     return Material(
-      color: neutral
-          ? colorScheme.surfaceContainerHigh
-          : colorScheme.primaryContainer,
+      color: colorScheme.surfaceContainerHigh,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -871,7 +653,6 @@ class _HomeContinueListeningProgress extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
-    final neutral = context.isMornye;
     final durationMs = duration.inMilliseconds;
     final Duration position =
         savedPosition ?? ref.watch(playbackPositionProvider);
@@ -886,10 +667,8 @@ class _HomeContinueListeningProgress extends ConsumerWidget {
         child: LinearProgressIndicator(
           value: progress,
           minHeight: 4,
-          color: neutral ? colorScheme.onSurface : colorScheme.primary,
-          backgroundColor:
-              (neutral ? colorScheme.onSurface : colorScheme.onPrimaryContainer)
-                  .withValues(alpha: 0.16),
+          color: colorScheme.onSurface,
+          backgroundColor: colorScheme.onSurface.withValues(alpha: 0.16),
         ),
       ),
     );
@@ -915,7 +694,7 @@ class _HomeShelf extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textScale = MediaQuery.textScalerOf(context).scale(1);
-    final coverSize = this.coverSize ?? _homeShelfCoverSizeOf(context);
+    final coverSize = this.coverSize ?? _homeShelfCoverSize;
     return SizedBox(
       height: coverSize + 52 * textScale,
       child: DesktopScrollArrows(
@@ -925,7 +704,7 @@ class _HomeShelf extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: inset),
           itemCount: itemCount,
           separatorBuilder: (_, _) =>
-              SizedBox(width: context.isMornye ? _homeMornyeShelfGap : 12),
+              const SizedBox(width: _homeMornyeShelfGap),
           itemBuilder: itemBuilder,
         ),
       ),
@@ -943,9 +722,6 @@ class _HomeShelfSize extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!context.isMornye) {
-      return builder(context, _homeShelfCoverSizeOf(context));
-    }
     if (!isDesktopPlatform) return builder(context, 160);
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -983,9 +759,9 @@ class _HomeShelfTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final size = this.size ?? _homeShelfCoverSizeOf(context);
-    final radius = _homeShelfRadiusOf(context);
-    final compactText = _homeCompactText(context);
+    final size = this.size ?? _homeShelfCoverSize;
+    const radius = 10.0;
+    final compactText = isDesktopPlatform;
     return Semantics(
       button: true,
       label: semanticLabel,
@@ -1137,7 +913,7 @@ class _HomeLibraryTile extends StatelessWidget {
         child: Material(
           color: colorScheme.surfaceContainerHigh,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(_homeShelfRadiusOf(context)),
+            borderRadius: BorderRadius.circular(10),
           ),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
@@ -1293,369 +1069,6 @@ void _homePlayRepeatTracks(
           artUri: track.artwork,
         ),
 ], initialIndex: index);
-
-/// The day's mixes of the Library's own songs, larger than the other
-/// shelves' covers so the four-album collages stay legible.
-class _HomeMixesShelf extends StatelessWidget {
-  const _HomeMixesShelf({required this.mixes, required this.inset});
-
-  final List<LibraryMixView> mixes;
-  final double inset;
-
-  @override
-  Widget build(BuildContext context) {
-    final coverSize = _homeMixCoverSizeOf(context);
-    return _HomeShelf(
-      inset: inset,
-      coverSize: coverSize,
-      itemCount: mixes.length,
-      itemBuilder: (context, index) {
-        final view = mixes[index];
-        final title = libraryMixTitle(context.l10n, view.mix);
-        final subtitle = libraryMixSubtitle(context.l10n, view.mix);
-        return _HomeShelfTile(
-          size: coverSize,
-          title: title,
-          subtitle: subtitle,
-          semanticLabel: subtitle.isEmpty ? title : '$title, $subtitle',
-          cover: LibraryMixCover(items: view.items, size: coverSize),
-          onTap: () =>
-              pushPage<void>(context, (_) => LibraryMixScreen(view: view)),
-        );
-      },
-    );
-  }
-}
-
-/// Mornye's first shelf: the day's mixes as tall banners, a little over three
-/// to the pane on desktop and one with its neighbor peeking on phones.
-enum _HomeShortcutsLayout {
-  /// Two columns of tall tiles, on phones and tablets.
-  grid,
-
-  /// One connected list that fills the height it is given, beside the
-  /// desktop Continue listening card.
-  list,
-
-  /// One row of short tiles across the desktop pane.
-  row,
-}
-
-/// Quick ways into tools and collections that otherwise sit a few screens
-/// deep. The user picks them: a long press or right-click on a tile opens
-/// its menu.
-class _HomeShortcuts extends ConsumerWidget {
-  const _HomeShortcuts({this.layout = _HomeShortcutsLayout.grid});
-
-  final _HomeShortcutsLayout layout;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final shortcuts = HomeShortcut.resolve(
-      ref.watch(settingsProvider.select((s) => s.homeShortcuts)),
-    );
-
-    // The first shortcut is the one emphasized action; the others share a
-    // neutral tile so color marks importance rather than varying per tile.
-    // Mornye keeps all shortcut tiles neutral.
-    final emphasized = context.isMornye ? -1 : 0;
-    final tiles = [
-      for (final (index, shortcut) in shortcuts.indexed)
-        if (_entry(context, ref, shortcut) case final entry)
-          _HomeShortcutTile(
-            label: entry.label,
-            icon: entry.icon,
-            container: index == emphasized
-                ? colorScheme.primaryContainer
-                : colorScheme.surfaceContainerHigh,
-            onContainer: index == emphasized
-                ? colorScheme.onPrimaryContainer
-                : colorScheme.onSurface,
-            badge: index == emphasized
-                ? colorScheme.primary
-                : colorScheme.secondaryContainer,
-            onBadge: index == emphasized
-                ? colorScheme.onPrimary
-                : colorScheme.onSecondaryContainer,
-            onTap: entry.onTap,
-            onMenu: (position) =>
-                _showMenu(context, ref, shortcuts, index, position),
-            layout: layout,
-            position: (index: index, count: shortcuts.length),
-          ),
-    ];
-
-    switch (layout) {
-      case _HomeShortcutsLayout.list:
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            for (final (index, tile) in tiles.indexed) ...[
-              if (index > 0) const SizedBox(height: 4),
-              Expanded(child: tile),
-            ],
-          ],
-        );
-      case _HomeShortcutsLayout.row:
-        // A label that wraps keeps its neighbors the same height.
-        return IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              for (final (index, tile) in tiles.indexed) ...[
-                if (index > 0) const SizedBox(width: 8),
-                Expanded(child: tile),
-              ],
-            ],
-          ),
-        );
-      case _HomeShortcutsLayout.grid:
-        break;
-    }
-
-    return Column(
-      children: [
-        for (var row = 0; row < tiles.length; row += 2) ...[
-          if (row > 0) const SizedBox(height: 8),
-          // A label that wraps keeps its neighbor the same height.
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Expanded(child: tiles[row]),
-                const SizedBox(width: 8),
-                Expanded(child: tiles[row + 1]),
-              ],
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-
-  ({String label, IconData icon, VoidCallback onTap}) _entry(
-    BuildContext context,
-    WidgetRef ref,
-    HomeShortcut shortcut,
-  ) {
-    final l10n = context.l10n;
-    void open(Widget screen) => pushPage<void>(context, (_) => screen);
-    return switch (shortcut) {
-      HomeShortcut.shuffle => (
-        label: l10n.nowPlayingShuffleLibrary,
-        icon: Icons.shuffle,
-        onTap: () => _shuffle(context, ref),
-      ),
-      HomeShortcut.equalizer => (
-        label: l10n.equalizerTitle,
-        icon: Icons.graphic_eq,
-        onTap: () => open(const EqualizerScreen()),
-      ),
-      HomeShortcut.listeningStats => (
-        label: l10n.listeningStats,
-        icon: Icons.insights,
-        onTap: () => open(const ListeningStatisticsScreen()),
-      ),
-      HomeShortcut.loved => (
-        label: l10n.collectionLoved,
-        icon: Icons.favorite_border,
-        onTap: () => open(
-          const LibraryTracksFolderScreen(mode: LibraryTracksFolderMode.loved),
-        ),
-      ),
-      HomeShortcut.wishlist => (
-        label: l10n.collectionWishlist,
-        icon: Icons.add_circle_outline,
-        onTap: () => open(
-          const LibraryTracksFolderScreen(
-            mode: LibraryTracksFolderMode.wishlist,
-          ),
-        ),
-      ),
-      HomeShortcut.favoriteArtists => (
-        label: l10n.collectionFavoriteArtists,
-        icon: Icons.person_outline,
-        onTap: () => open(const FavoriteArtistsScreen()),
-      ),
-    };
-  }
-
-  void _showMenu(
-    BuildContext context,
-    WidgetRef ref,
-    List<HomeShortcut> shortcuts,
-    int slot,
-    Offset position,
-  ) {
-    final l10n = context.l10n;
-    // Read up front: the layout can rebuild this widget while the menu or
-    // the sheet is open.
-    final settings = ref.read(settingsProvider.notifier);
-    final choices = [
-      for (final shortcut in HomeShortcut.values)
-        if (_entry(context, ref, shortcut) case final entry)
-          AppChoice(shortcut, entry.icon, entry.label),
-    ];
-    showContextMenu(
-      context,
-      position: position,
-      groups: [
-        [
-          ContextMenuAction(
-            icon: Icons.swap_horiz,
-            label: l10n.homeShortcutChange,
-            onSelected: () {
-              if (!context.mounted) return;
-              showAppChoiceSheet<HomeShortcut>(
-                context: context,
-                title: l10n.homeShortcutChange,
-                subtitle: l10n.homeShortcutChangeSubtitle,
-                selected: shortcuts[slot],
-                choices: choices,
-                onSelected: (picked) => settings.setHomeShortcuts(
-                  HomeShortcut.place(shortcuts, slot, picked),
-                ),
-              );
-            },
-          ),
-          ContextMenuAction(
-            icon: Icons.restart_alt,
-            label: l10n.homeShortcutsReset,
-            onSelected: listEquals(shortcuts, HomeShortcut.defaults)
-                ? null
-                : () => settings.setHomeShortcuts(HomeShortcut.defaults),
-          ),
-        ],
-      ],
-    );
-  }
-
-  Future<void> _shuffle(BuildContext context, WidgetRef ref) async {
-    final shuffled = await ref
-        .read(musicPlayerControllerProvider)
-        .shuffleLibrary();
-    if (shuffled || !context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.l10n.nowPlayingLibraryEmpty)),
-    );
-  }
-}
-
-class _HomeShortcutTile extends StatelessWidget {
-  const _HomeShortcutTile({
-    required this.label,
-    required this.icon,
-    required this.container,
-    required this.onContainer,
-    required this.badge,
-    required this.onBadge,
-    required this.onTap,
-    required this.onMenu,
-    required this.layout,
-    required this.position,
-  });
-
-  final String label;
-  final IconData icon;
-  final Color container;
-  final Color onContainer;
-  final Color badge;
-  final Color onBadge;
-  final VoidCallback onTap;
-
-  /// Opens the tile's menu at a global position: where a right-click
-  /// landed, or the tile's center for a long press or the menu key.
-  final ValueChanged<Offset> onMenu;
-  final _HomeShortcutsLayout layout;
-
-  /// Where the tile sits among the shortcuts, for the list's corners.
-  final ({int index, int count}) position;
-
-  @override
-  Widget build(BuildContext context) {
-    final badgeWidget = _HomeIconBadge(
-      icon: icon,
-      color: badge,
-      onColor: onBadge,
-    );
-    final text = Text(
-      label,
-      maxLines: 2,
-      overflow: TextOverflow.ellipsis,
-      style: Theme.of(
-        context,
-      ).textTheme.titleSmall?.copyWith(color: onContainer),
-    );
-    final BorderRadius radius;
-    final Widget content;
-    switch (layout) {
-      case _HomeShortcutsLayout.grid:
-        radius = BorderRadius.circular(24);
-        content = Padding(
-          padding: const EdgeInsets.fromLTRB(14, 14, 14, 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [badgeWidget, const SizedBox(height: 16), text],
-          ),
-        );
-      case _HomeShortcutsLayout.list:
-        // One connected group: large outer corners, small inner ones.
-        const outer = Radius.circular(24);
-        const inner = Radius.circular(6);
-        final first = position.index == 0;
-        final last = position.index == position.count - 1;
-        radius = BorderRadius.vertical(
-          top: first ? outer : inner,
-          bottom: last ? outer : inner,
-        );
-        content = Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(12, 8, 16, 8),
-          child: Row(
-            children: [
-              badgeWidget,
-              const SizedBox(width: 16),
-              Expanded(child: text),
-              const SizedBox(width: 8),
-              AppIcon.adaptive(
-                Icons.chevron_right,
-                size: 20,
-                color: onContainer.withValues(alpha: 0.7),
-              ),
-            ],
-          ),
-        );
-      case _HomeShortcutsLayout.row:
-        radius = BorderRadius.circular(24);
-        content = Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              badgeWidget,
-              const SizedBox(width: 12),
-              Expanded(child: text),
-            ],
-          ),
-        );
-    }
-    return DesktopContextMenuRegion(
-      onContextMenu: onMenu,
-      child: Material(
-        color: container,
-        shape: RoundedRectangleBorder(borderRadius: radius),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          onLongPress: () {
-            final origin = contextMenuOriginOf(context);
-            if (origin != null) onMenu(origin);
-          },
-          child: content,
-        ),
-      ),
-    );
-  }
-}
 
 /// Circular icon container shared by the Home tiles. Interactive tiles keep
 /// one plain shape; abstract shapes stay on artwork and decorative moments.

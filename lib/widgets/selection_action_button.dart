@@ -1,9 +1,6 @@
 import 'package:material_ui/material_ui.dart';
-import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 
 /// Responsive rows shared by selection-mode action buttons.
 class SelectionActionGrid extends StatelessWidget {
@@ -59,8 +56,13 @@ class SelectionActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (context.isMornye) {
-      return AppActionButton(
+    return Semantics(
+      button: true,
+      enabled: onPressed != null,
+      label: label,
+      onTap: onPressed,
+      excludeSemantics: true,
+      child: AppActionButton(
         outlined: !destructive,
         tonal: !destructive,
         isDestructive: destructive,
@@ -68,41 +70,6 @@ class SelectionActionButton extends StatelessWidget {
         icon: Icon(icon),
         label: Text(label, maxLines: 2, overflow: TextOverflow.ellipsis),
         fontSize: 15,
-      );
-    }
-    // Desktop: the M3 Expressive small button (40dp) on one line, since the
-    // pointer needs no 48dp target and the toolbar lays actions in a row.
-    final compact = isDesktopPlatform;
-    return Semantics(
-      button: true,
-      enabled: onPressed != null,
-      label: label,
-      onTap: onPressed,
-      excludeSemantics: true,
-      child: ExpressiveButton(
-        tonal: !destructive,
-        onPressed: onPressed,
-        icon: Icon(icon, size: 18),
-        style: FilledButton.styleFrom(
-          backgroundColor: destructive
-              ? colorScheme.error
-              : colorScheme.secondaryContainer,
-          foregroundColor: destructive
-              ? colorScheme.onError
-              : colorScheme.onSecondaryContainer,
-          minimumSize: compact
-              ? const Size(0, 40)
-              : Size(48, context.tokens.minTouchTarget),
-          padding: compact
-              ? const EdgeInsets.symmetric(horizontal: 14, vertical: 6)
-              : const EdgeInsets.all(12),
-          textStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-        ),
-        child: Text(
-          label,
-          maxLines: compact ? 1 : 2,
-          overflow: TextOverflow.ellipsis,
-        ),
       ),
     );
   }

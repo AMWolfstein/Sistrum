@@ -4,7 +4,6 @@ import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/app_content_card.dart';
 import 'package:sistrum/widgets/app_crash_banner.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' show ProviderScope;
 import 'package:share_plus/share_plus.dart' show ShareParams, SharePlus;
@@ -447,15 +446,14 @@ class _LogScreenState extends State<LogScreen> {
                           ],
                         ),
                       ),
-                      ExpressiveButton(
-                        tonal: true,
+                      FilledButton.tonalIcon(
                         onPressed: () => _showLevelPicker(context),
-                        icon: const Icon(Icons.arrow_drop_down, size: 20),
+                        icon: const AppIcon(Icons.arrow_drop_down, size: 20),
                         style: FilledButton.styleFrom(
                           minimumSize: const Size(0, 40),
                           padding: const EdgeInsets.symmetric(horizontal: 14),
                         ),
-                        child: Text(
+                        label: Text(
                           _selectedLevel,
                           style: TextStyle(
                             color: _selectedLevel == 'ALL'

@@ -4,7 +4,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart' show RenderRepaintBoundary;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/widgets/decorative_phase.dart';
-import 'package:sistrum/widgets/expressive_seek_track.dart';
 import 'package:sistrum/widgets/now_playing_indicator.dart';
 
 const _vsync = Duration(microseconds: 8333);
@@ -198,42 +197,6 @@ void main() {
       expect(DecorativePhase.debugClockRunning, isTrue);
       expect(await _framesInOneSecond(tester), inInclusiveRange(29, 30));
       expect(await _pixels(tester, indicator), isNot(orderedEquals(held)));
-    });
-  });
-
-  group('ExpressiveSeekTrack', () {
-    Widget track({bool playing = true}) => ExpressiveSeekTrack(
-      playing: playing,
-      child: Slider(value: 0.5, onChanged: (_) {}),
-    );
-
-    testWidgets('waves at no more than 30 frames a second while playing', (
-      tester,
-    ) async {
-      await tester.pumpWidget(_host(track()));
-      // Let the amplitude rise, which animates at the display rate.
-      await tester.pump(const Duration(milliseconds: 400));
-      final wave = find.byType(ExpressiveSeekTrack);
-      final before = await _pixels(tester, wave);
-      expect(await _framesInOneSecond(tester), inInclusiveRange(29, 30));
-      expect(await _pixels(tester, wave), isNot(orderedEquals(before)));
-    });
-
-    testWidgets('requests no frames once paused, hidden or reduced', (
-      tester,
-    ) async {
-      for (final host in [
-        _host(track(playing: false)),
-        _host(track(), visible: false),
-        _host(track(), reduceMotion: true),
-      ]) {
-        await tester.pumpWidget(_host(track()));
-        await tester.pump(const Duration(milliseconds: 400));
-        await tester.pumpWidget(host);
-        await tester.pumpAndSettle();
-        expect(DecorativePhase.debugClockRunning, isFalse);
-        expect(await _framesInOneSecond(tester), 0);
-      }
     });
   });
 }

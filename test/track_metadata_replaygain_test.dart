@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -99,7 +100,7 @@ void main() {
         expect(find.text(text), hasTags ? findsOneWidget : findsNothing);
       }
       Future<void> openRemoval() async {
-        await tester.tap(findAppIcon(Icons.more_vert));
+        await tester.tap(findAppIcon(CupertinoIcons.ellipsis));
         await tester.pumpAndSettle();
         expect(find.text('Edit audio file'), findsNothing);
         expect(find.text('Similar songs in Library'), findsNothing);

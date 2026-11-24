@@ -8,7 +8,6 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/lyrics_display_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/song_lyrics_offset_provider.dart';
-import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/android_tv.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:sistrum/widgets/app_icon.dart';
@@ -267,46 +266,25 @@ class _LyricsOptionsButtonState extends ConsumerState<LyricsOptionsButton> {
         if (painter.width + 80 > menuWidth) menuWidth = painter.width + 80;
         painter.dispose();
       }
-      action = context.isMornye
-          ? await showMornyeContextMenu<String>(
-              context: buttonContext,
-              anchor: anchor,
-              preferAbove: true,
-              maxWidth: menuWidth,
-              builder: (menuContext) => MornyeContextMenu(
-                dense: true,
-                groups: [
-                  [
-                    for (final (value, label, icon) in actions)
-                      MornyeMenuAction(
-                        icon: icon,
-                        label: label,
-                        onPressed: () => Navigator.of(menuContext).pop(value),
-                      ),
-                  ],
-                ],
-              ),
-            )
-          : await showMenu<String>(
-              context: buttonContext,
-              position: RelativeRect.fromRect(
-                anchor ?? Rect.zero,
-                Offset.zero & MediaQuery.sizeOf(context),
-              ),
-              items: [
-                for (final (value, label, icon) in actions)
-                  PopupMenuItem(
-                    value: value,
-                    child: Row(
-                      children: [
-                        AppIcon(icon),
-                        const SizedBox(width: 12),
-                        Flexible(child: Text(label)),
-                      ],
-                    ),
-                  ),
-              ],
-            );
+      action = await showMornyeContextMenu<String>(
+        context: buttonContext,
+        anchor: anchor,
+        preferAbove: true,
+        maxWidth: menuWidth,
+        builder: (menuContext) => MornyeContextMenu(
+          dense: true,
+          groups: [
+            [
+              for (final (value, label, icon) in actions)
+                MornyeMenuAction(
+                  icon: icon,
+                  label: label,
+                  onPressed: () => Navigator.of(menuContext).pop(value),
+                ),
+            ],
+          ],
+        ),
+      );
       if (!mounted) return;
       final notifier = ref.read(settingsProvider.notifier);
       switch (action) {

@@ -9,12 +9,10 @@ import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/library_tracks_folder_screen.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/collection_reorder_sliver.dart';
-import 'package:sistrum/widgets/expressive_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/fixed_settings.dart';
@@ -100,7 +98,6 @@ void main() {
   Future<_Collections> open(
     WidgetTester tester, {
     bool desktop = false,
-    bool mornye = false,
     LibraryTracksFolderMode mode = LibraryTracksFolderMode.loved,
     bool editOrder = true,
   }) async {
@@ -123,7 +120,7 @@ void main() {
           ),
         ],
         child: MaterialApp(
-          theme: mornye ? MornyeTheme.build(Brightness.dark) : AppTheme.light(),
+          theme: MornyeTheme.build(Brightness.dark),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           home: LibraryTracksFolderScreen(
@@ -180,56 +177,34 @@ void main() {
   }
 
   for (final desktop in [false, true]) {
-    for (final mornye in [false, true]) {
-      for (final mode in LibraryTracksFolderMode.values) {
-        testWidgets(
-          'reorder ${mode.name} in place (desktop=$desktop, mornye=$mornye)',
-          (tester) async {
-            final semantics = desktop && !mornye
-                ? tester.ensureSemantics()
-                : null;
-            try {
-              final collections = await open(
-                tester,
-                desktop: desktop,
-                mornye: mornye,
-                mode: mode,
-              );
-              await moveFirstToLast(
-                tester,
-                desktop: desktop,
-                holdRow: !desktop,
-              );
-              expect(collections._writes, 0);
-              await tester.tap(
-                find.byKey(const ValueKey('collection-order-save')),
-              );
-              await tester.pumpAndSettle();
-              expect(collections._writes, 1);
-              expect(find.byType(CollectionReorderSliver), findsNothing);
-              expect(find.text('Song order saved'), findsOneWidget);
-              expect(tester.takeException(), isNull);
-            } finally {
-              semantics?.dispose();
-            }
-          },
-        );
-      }
+    for (final mode in LibraryTracksFolderMode.values) {
+      testWidgets('reorder ${mode.name} in place (desktop=$desktop)', (
+        tester,
+      ) async {
+        final semantics = desktop ? tester.ensureSemantics() : null;
+        try {
+          final collections = await open(tester, desktop: desktop, mode: mode);
+          await moveFirstToLast(tester, desktop: desktop, holdRow: !desktop);
+          expect(collections._writes, 0);
+          await tester.tap(find.byKey(const ValueKey('collection-order-save')));
+          await tester.pumpAndSettle();
+          expect(collections._writes, 1);
+          expect(find.byType(CollectionReorderSliver), findsNothing);
+          expect(find.text('Song order saved'), findsOneWidget);
+          expect(tester.takeException(), isNull);
+        } finally {
+          semantics?.dispose();
+        }
+      });
     }
   }
 
-  for (final (desktop, mornye) in [
-    (false, false),
-    (false, true),
-    (true, false),
-    (true, true),
-  ]) {
+  for (final desktop in [false, true]) {
     testWidgets('playlist actions open from one More button '
-        '(desktop: $desktop, Mornye: $mornye)', (tester) async {
+        '(desktop: $desktop)', (tester) async {
       await open(
         tester,
         desktop: desktop,
-        mornye: mornye,
         mode: LibraryTracksFolderMode.playlist,
         editOrder: false,
       );
@@ -300,7 +275,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
     expect(
       tester
-          .widget<ExpressiveButton>(
+          .widget<TextButton>(
             find.byKey(const ValueKey('collection-order-save')),
           )
           .onPressed,
@@ -310,7 +285,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(
       tester
-          .widget<ExpressiveButton>(
+          .widget<TextButton>(
             find.byKey(const ValueKey('collection-order-save')),
           )
           .onPressed,

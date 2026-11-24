@@ -108,76 +108,13 @@ extension _QueueTabSections on _QueueTabState {
     return null;
   }
 
-  List<_LibrarySection> _trackSections(
-    BuildContext context,
-    List<UnifiedLibraryItem> items,
-  ) {
-    final locale = Localizations.localeOf(context).toLanguageTag();
-    if (identical(items, _sectionItems) &&
-        _sortMode == _sectionSort &&
-        locale == _sectionLocale) {
-      return _cachedTrackSections;
-    }
-    final sections = <_LibrarySection>[];
-    // Date labels name only the month, so each month is formatted once.
-    final monthLabels = _dateSorts.contains(_sortMode) ? <int, String>{} : null;
-    String? label;
-    var start = 0;
-    for (var i = 0; i < items.length; i++) {
-      final added = items[i].addedAt;
-      final next = monthLabels != null
-          ? monthLabels.putIfAbsent(
-              added.year * 12 + added.month,
-              () => _trackSectionLabel(context, items[i]) ?? '',
-            )
-          : _trackSectionLabel(context, items[i]) ?? '';
-      if (i == 0) {
-        label = next;
-      } else if (next != label) {
-        sections.add(_LibrarySection(label!, start, i));
-        label = next;
-        start = i;
-      }
-    }
-    if (items.isNotEmpty) {
-      sections.add(_LibrarySection(label!, start, items.length));
-    }
-    _sectionItems = items;
-    _sectionSort = _sortMode;
-    _sectionLocale = locale;
-    return _cachedTrackSections = sections;
-  }
-
-  /// Track rows grouped under pinned section headers. Each section is its own
-  /// connected run of rows.
-  Widget _buildSectionedTrackSlivers({
-    required BuildContext context,
-    required List<UnifiedLibraryItem> items,
-    required Widget Function(int index) rowBuilder,
-  }) {
-    final sections = _trackSections(context, items);
-    return SliverPadding(
-      padding: EdgeInsets.symmetric(horizontal: wideListInset(context)),
-      sliver: _LibrarySectionList(
-        sections: sections,
-        rowBuilder: (index, section) => TrackCardSegment.at(
-          key: ValueKey(items[index].id),
-          index: index - section.start,
-          count: section.length,
-          child: rowBuilder(index),
-        ),
-      ),
-    );
-  }
-
   /// Quick sort control beside a page's count.
   Widget _buildSortButton(BuildContext context) => Builder(
-    builder: (context) => ExpressiveButton(
-      text: true,
+    builder: (context) => TextButton.icon(
       onPressed: () => _showSortSheet(context),
       icon: const AppIcon(Icons.sort, size: 18),
       style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
-      child: Text(_sortLabel(context, _sortMode)),
+      label: Text(_sortLabel(context, _sortMode)),
     ),
   );
 
@@ -226,96 +163,40 @@ extension _QueueTabSections on _QueueTabState {
   }
 
   /// Sort, filter and, given a [viewMode], the list/grid switch of a Library
-  /// page, led by Shuffle where [onShuffle] is given. Material 3 Expressive
-  /// joins them in one connected button group with the labels and tooltips
-  /// of the separate buttons, which Mornye and reduced motion keep.
+  /// page, led by Shuffle where [onShuffle] is given.
   List<Widget> _buildLibraryTools(
     BuildContext context, {
     String? viewMode,
     VoidCallback? onShuffle,
   }) {
-    if (!materialExpressiveEnabled(context)) {
-      return [
-        if (onShuffle != null)
-          _buildLibraryShuffleButton(context, onPressed: onShuffle),
-        _buildSortButton(context),
-        _buildFilterButton(context),
-        if (viewMode != null) _buildViewModeButton(context, viewMode),
-      ];
-    }
-    final l10n = context.l10n;
-    final filterCount = _activeFilterCount;
-    final grid = viewMode == 'grid';
     return [
-      ToolButtonGroup(
-        tools: [
-          if (onShuffle != null)
-            ToolButton(
-              icon: const AppIcon(Icons.shuffle),
-              tooltip: l10n.actionShuffle,
-              onPressed: (_) => onShuffle(),
-            ),
-          ToolButton(
-            icon: const AppIcon(Icons.sort),
-            label: _sortLabel(context, _sortMode),
-            // The menu anchors below the button but opens from the page, so
-            // it does not inherit the button's text and icon styles.
-            onPressed: (button) => _showSortSheet(context, anchor: button),
-          ),
-          ToolButton(
-            icon: Badge(
-              isLabelVisible: filterCount > 0,
-              label: Text('$filterCount'),
-              child: const AppIcon(Icons.filter_list),
-            ),
-            label: l10n.libraryFilterTitle,
-            onPressed: (_) => _showFilterSheet(context),
-            onLongPress: filterCount > 0 ? _resetFilters : null,
-          ),
-          if (viewMode != null)
-            ToolButton(
-              icon: AppIcon(grid ? Icons.view_list : Icons.grid_view),
-              tooltip: grid
-                  ? l10n.appearanceHistoryViewList
-                  : l10n.appearanceHistoryViewGrid,
-              onPressed: (_) => ref
-                  .read(settingsProvider.notifier)
-                  .setHistoryViewMode(grid ? 'list' : 'grid'),
-            ),
-        ],
-      ),
+      if (onShuffle != null)
+        _buildLibraryShuffleButton(context, onPressed: onShuffle),
+      _buildSortButton(context),
+      _buildFilterButton(context),
+      if (viewMode != null) _buildViewModeButton(context, viewMode),
     ];
   }
 
-  /// Shuffle on the Songs page. Material shows it as one of the page's
-  /// tools: the first segment of their group ([_buildLibraryTools]), or
-  /// this plain icon button where the tools are separate buttons. Mornye
-  /// uses the gray Shuffle capsule of its collection headers, across the
-  /// page on phones.
+  /// Shuffle on the Songs page: the gray Shuffle capsule of the collection
+  /// headers, across the page on phones.
   Widget _buildLibraryShuffleButton(
     BuildContext context, {
     required VoidCallback onPressed,
   }) {
     final l10n = context.l10n;
-    if (context.isMornye) {
-      final button = HeaderFilledButton(
-        icon: Icons.shuffle,
-        label: l10n.actionShuffle,
-        tonal: true,
-        onPressed: onPressed,
-      );
-      final edge = 16 + wideListInset(context);
-      return Padding(
-        padding: EdgeInsets.fromLTRB(edge, 8, edge, 0),
-        child: isDesktopPlatform
-            ? Align(alignment: AlignmentDirectional.centerStart, child: button)
-            : SizedBox(width: double.infinity, child: button),
-      );
-    }
-    return AppIconButton(
-      tooltip: l10n.actionShuffle,
+    final button = HeaderFilledButton(
+      icon: Icons.shuffle,
+      label: l10n.actionShuffle,
+      tonal: true,
       onPressed: onPressed,
-      icon: const AppIcon(Icons.shuffle),
+    );
+    final edge = 16 + wideListInset(context);
+    return Padding(
+      padding: EdgeInsets.fromLTRB(edge, 8, edge, 0),
+      child: isDesktopPlatform
+          ? Align(alignment: AlignmentDirectional.centerStart, child: button)
+          : SizedBox(width: double.infinity, child: button),
     );
   }
 
@@ -357,37 +238,18 @@ extension _QueueTabSections on _QueueTabState {
           child: SettingsGroup(
             children: [
               for (final mode in _availableLibrarySortModes)
-                if (sheetContext.isMornye)
-                  SettingsItem(
-                    title: _sortLabel(sheetContext, mode),
-                    selected: mode == _sortMode,
-                    trailing: mode == _sortMode
-                        ? AppIcon(
-                            Icons.check,
-                            color: Theme.of(sheetContext).colorScheme.primary,
-                          )
-                        : const SizedBox.shrink(),
-                    showDivider: mode != _availableLibrarySortModes.last,
-                    onTap: () => Navigator.pop(sheetContext, mode),
-                  )
-                else
-                  ListTile(
-                    dense: true,
-                    minTileHeight: sheetContext.tokens.minTouchTarget,
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: sheetContext.tokens.rowPaddingH,
-                    ),
-                    titleTextStyle: Theme.of(sheetContext).textTheme.bodyLarge,
-                    title: Text(_sortLabel(sheetContext, mode)),
-                    selected: mode == _sortMode,
-                    trailing: mode == _sortMode
-                        ? AppIcon(
-                            Icons.check,
-                            color: Theme.of(sheetContext).colorScheme.primary,
-                          )
-                        : null,
-                    onTap: () => Navigator.pop(sheetContext, mode),
-                  ),
+                SettingsItem(
+                  title: _sortLabel(sheetContext, mode),
+                  selected: mode == _sortMode,
+                  trailing: mode == _sortMode
+                      ? AppIcon(
+                          Icons.check,
+                          color: Theme.of(sheetContext).colorScheme.primary,
+                        )
+                      : const SizedBox.shrink(),
+                  showDivider: mode != _availableLibrarySortModes.last,
+                  onTap: () => Navigator.pop(sheetContext, mode),
+                ),
             ],
           ),
         ),
@@ -606,10 +468,7 @@ List<_LibrarySection> _initialSections(List<LibraryBrowseEntry> entries) {
 }
 
 class _LibrarySectionList extends StatelessWidget {
-  const _LibrarySectionList({
-    required this.sections,
-    required this.rowBuilder,
-  });
+  const _LibrarySectionList({required this.sections, required this.rowBuilder});
 
   final List<_LibrarySection> sections;
   final Widget Function(int index, _LibrarySection section) rowBuilder;
@@ -733,7 +592,7 @@ class _BrowseRow extends StatelessWidget {
             child: Row(
               children: [
                 if (artist)
-                  AppShapeClip(kind: AppShapes.artist, child: artwork)
+                  AppShapeClip(child: artwork)
                 else
                   ClipRRect(
                     borderRadius: BorderRadius.circular(

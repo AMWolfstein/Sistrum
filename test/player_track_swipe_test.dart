@@ -1,6 +1,7 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/player_queue_dismissible.dart';
 import 'package:sistrum/widgets/player_track_swipe.dart';
@@ -19,6 +20,7 @@ void main() {
         final selected = <int>[];
         await tester.pumpWidget(
           MaterialApp(
+            theme: MornyeTheme.build(Brightness.dark),
             home: MediaQuery(
               data: MediaQueryData(disableAnimations: reducedMotion),
               child: StatefulBuilder(
@@ -115,6 +117,7 @@ void main() {
     final selected = <MediaItem>[];
     await tester.pumpWidget(
       MaterialApp(
+        theme: MornyeTheme.build(Brightness.dark),
         home: Scaffold(
           body: Center(
             child: SizedBox(
@@ -189,6 +192,7 @@ void main() {
     final builds = <String, int>{};
     await tester.pumpWidget(
       MaterialApp(
+        theme: MornyeTheme.build(Brightness.dark),
         home: StatefulBuilder(
           builder: (context, setState) {
             rebuild = setState;
@@ -371,50 +375,51 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    for (final mornye in [false, true]) {
-      testWidgets('mini player titles flung away keep moving before they '
-          'return (Mornye: $mornye)', (tester) async {
-        final releases = <double>[];
-        await tester.pumpWidget(
-          MaterialApp(
-            theme: mornye ? MornyeTheme.build(Brightness.dark) : null,
-            home: Scaffold(
-              body: Center(
-                child: SizedBox(
-                  width: 300,
-                  child: PlayerTrackSwipe.follow(
-                    onRelease: (details, travel) => releases.add(travel),
-                    child: PlayerTrackSwipeTitles(
-                      current: queue[0],
-                      builder: (item) => Text(item.title),
-                    ),
+    testWidgets('mini player titles flung away keep moving before they '
+        'return', (tester) async {
+      final releases = <double>[];
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          home: Scaffold(
+            body: Center(
+              child: SizedBox(
+                width: 300,
+                child: PlayerTrackSwipe.follow(
+                  onRelease: (details, travel) => releases.add(travel),
+                  child: PlayerTrackSwipeTitles(
+                    current: queue[0],
+                    builder: (item) => Text(item.title),
                   ),
                 ),
               ),
             ),
           ),
-        );
-        final title = find.text('Song 0');
-        final rest = tester.getTopLeft(title).dx;
-        // Past the commit distance, where the titles meet resistance.
-        await tester.fling(title, const Offset(-60, 0), 1500);
-        await tester.pump();
-        final released = tester.getTopLeft(title).dx;
-        expect(released, lessThan(rest - 48));
-        await tester.pump(const Duration(milliseconds: 16));
-        expect(tester.getTopLeft(title).dx, lessThan(released));
-        await tester.pumpAndSettle();
-        expect(tester.getTopLeft(title).dx, closeTo(rest, 0.5));
-        expect(releases, hasLength(1));
-        expect(tester.takeException(), isNull);
-      });
-    }
+        ),
+      );
+      final title = find.text('Song 0');
+      final rest = tester.getTopLeft(title).dx;
+      // Past the commit distance, where the titles meet resistance.
+      await tester.fling(title, const Offset(-60, 0), 1500);
+      await tester.pump();
+      final released = tester.getTopLeft(title).dx;
+      expect(released, lessThan(rest - 48));
+      await tester.pump(const Duration(milliseconds: 16));
+      expect(tester.getTopLeft(title).dx, lessThan(released));
+      await tester.pumpAndSettle();
+      expect(tester.getTopLeft(title).dx, closeTo(rest, 0.5));
+      expect(releases, hasLength(1));
+      expect(tester.takeException(), isNull);
+    });
   });
 
   testWidgets('queue left swipe removes just that occurrence', (tester) async {
     final entries = [queue[0], queue[0].copyWith(), queue[1]];
     await tester.pumpWidget(
       MaterialApp(
+        theme: MornyeTheme.build(Brightness.dark),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: StatefulBuilder(
           builder: (context, setState) => Scaffold(
             body: Column(

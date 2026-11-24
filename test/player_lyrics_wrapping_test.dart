@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
-import 'package:sistrum/theme/app_theme.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
@@ -32,166 +31,154 @@ void main() {
   tearDown(() => debugDesktopPlatformOverride = null);
 
   for (final desktop in [false, true]) {
-    for (final mornye in [false, true]) {
-      for (final format in ['LRC', 'TTML', 'enhanced LRC']) {
-        final timed = format != 'LRC';
-        final platform = desktop ? 'desktop' : 'mobile';
-        final style = mornye ? 'Mornye' : 'Material';
-        testWidgets('$platform $style $format preserves active line wrapping', (
-          tester,
-        ) async {
-          debugDesktopPlatformOverride = desktop;
-          tester.view.physicalSize = const Size(900, 1200);
-          tester.view.devicePixelRatio = 1;
-          addTearDown(tester.view.resetPhysicalSize);
-          addTearDown(tester.view.resetDevicePixelRatio);
-          final preview = ValueNotifier<Duration?>(const Duration(seconds: 1));
-          addTearDown(preview.dispose);
-          final theme = mornye
-              ? MornyeTheme.build(Brightness.dark)
-              : AppTheme.dark();
-          final lyrics = ParsedLyrics(
-            synced: true,
-            wordSynced: timed,
-            plainText: '',
-            lines: [
-              const LyricLine(time: Duration.zero, text: 'Before'),
-              LyricLine(
-                time: const Duration(seconds: 10),
-                end: const Duration(seconds: 20),
-                text: _text,
-                words: format == 'enhanced LRC'
-                    ? LyricsParser.parse(
-                        '[00:10.00]<00:10.00>AAAA<00:12.00> '
-                        '<00:12.00>BBBB<00:14.00> '
-                        '<00:14.00>CCCC<00:20.00>',
-                      ).lines.single.words
-                    : timed
-                    ? const [
-                        LyricWord(
-                          time: Duration(seconds: 10),
-                          end: Duration(seconds: 12),
-                          text: 'AAAA ',
-                        ),
-                        LyricWord(
-                          time: Duration(seconds: 12),
-                          end: Duration(seconds: 14),
-                          text: 'BBBB ',
-                        ),
-                        LyricWord(
-                          time: Duration(seconds: 14),
-                          end: Duration(seconds: 20),
-                          text: 'CCCC',
-                        ),
-                      ]
-                    : const [],
-              ),
-              const LyricLine(time: Duration(seconds: 20), text: 'After'),
-            ],
-          );
-          for (final width in [desktop ? 328.0 : 250.0, 620.0]) {
-            preview.value = const Duration(seconds: 1);
-            await tester.pumpWidget(
-              ProviderScope(
-                overrides: [
-                  playbackStateProvider.overrideWith(
-                    (ref) => Stream.value(PlaybackState()),
-                  ),
-                ],
-                child: MaterialApp(
-                  theme: theme,
-                  home: Scaffold(
-                    body: Align(
-                      alignment: Alignment.topLeft,
-                      child: SizedBox(
-                        width: width,
-                        height: 800,
-                        child: SyncedLyricsView(
-                          lyrics: lyrics,
-                          seekPreview: preview,
-                          colorScheme: theme.colorScheme,
-                          isActive: true,
-                          showPronunciation: false,
-                          showTranslation: false,
-                        ),
+    for (final format in ['LRC', 'TTML', 'enhanced LRC']) {
+      final timed = format != 'LRC';
+      final platform = desktop ? 'desktop' : 'mobile';
+      final style = 'Mornye';
+      testWidgets('$platform $style $format preserves active line wrapping', (
+        tester,
+      ) async {
+        debugDesktopPlatformOverride = desktop;
+        tester.view.physicalSize = const Size(900, 1200);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        final preview = ValueNotifier<Duration?>(const Duration(seconds: 1));
+        addTearDown(preview.dispose);
+        final theme = MornyeTheme.build(Brightness.dark);
+        final lyrics = ParsedLyrics(
+          synced: true,
+          wordSynced: timed,
+          plainText: '',
+          lines: [
+            const LyricLine(time: Duration.zero, text: 'Before'),
+            LyricLine(
+              time: const Duration(seconds: 10),
+              end: const Duration(seconds: 20),
+              text: _text,
+              words: format == 'enhanced LRC'
+                  ? LyricsParser.parse(
+                      '[00:10.00]<00:10.00>AAAA<00:12.00> '
+                      '<00:12.00>BBBB<00:14.00> '
+                      '<00:14.00>CCCC<00:20.00>',
+                    ).lines.single.words
+                  : timed
+                  ? const [
+                      LyricWord(
+                        time: Duration(seconds: 10),
+                        end: Duration(seconds: 12),
+                        text: 'AAAA ',
+                      ),
+                      LyricWord(
+                        time: Duration(seconds: 12),
+                        end: Duration(seconds: 14),
+                        text: 'BBBB ',
+                      ),
+                      LyricWord(
+                        time: Duration(seconds: 14),
+                        end: Duration(seconds: 20),
+                        text: 'CCCC',
+                      ),
+                    ]
+                  : const [],
+            ),
+            const LyricLine(time: Duration(seconds: 20), text: 'After'),
+          ],
+        );
+        for (final width in [desktop ? 328.0 : 250.0, 620.0]) {
+          preview.value = const Duration(seconds: 1);
+          await tester.pumpWidget(
+            ProviderScope(
+              overrides: [
+                playbackStateProvider.overrideWith(
+                  (ref) => Stream.value(PlaybackState()),
+                ),
+              ],
+              child: MaterialApp(
+                theme: theme,
+                home: Scaffold(
+                  body: Align(
+                    alignment: Alignment.topLeft,
+                    child: SizedBox(
+                      width: width,
+                      height: 800,
+                      child: SyncedLyricsView(
+                        lyrics: lyrics,
+                        seekPreview: preview,
+                        colorScheme: theme.colorScheme,
+                        isActive: true,
+                        showPronunciation: false,
+                        showTranslation: false,
                       ),
                     ),
                   ),
                 ),
               ),
-            );
-            await tester.pumpAndSettle();
-            final text = find.text(_text);
-            final paragraph = tester.renderObject<RenderParagraph>(text);
-            final inactiveHeight = paragraph.size.height;
-            final inactiveRows = paragraph
-                .getBoxesForSelection(
-                  const TextSelection(
-                    baseOffset: 0,
-                    extentOffset: _text.length,
-                  ),
-                )
-                .map((box) => box.top)
-                .toSet()
-                .length;
-            preview.value = const Duration(seconds: 11);
-            await tester.pump();
-            final primary = timed ? _timedPaint() : text;
-            if (timed) {
-              expect(
-                _timedParagraph(tester, primary).text!.toPlainText(),
-                _text,
-              );
-            }
-            for (final elapsed in [32, 128]) {
-              await tester.pump(Duration(milliseconds: elapsed));
-              expect(
-                tester.getSize(primary).height,
-                closeTo(inactiveHeight, 0.01),
-                reason: 'The growing text must keep the same wrapped rows',
-              );
-            }
-            await tester.pumpAndSettle();
+            ),
+          );
+          await tester.pumpAndSettle();
+          final text = find.text(_text);
+          final paragraph = tester.renderObject<RenderParagraph>(text);
+          final inactiveHeight = paragraph.size.height;
+          final inactiveRows = paragraph
+              .getBoxesForSelection(
+                const TextSelection(baseOffset: 0, extentOffset: _text.length),
+              )
+              .map((box) => box.top)
+              .toSet()
+              .length;
+          preview.value = const Duration(seconds: 11);
+          await tester.pump();
+          final primary = timed ? _timedPaint() : text;
+          if (timed) {
+            expect(_timedParagraph(tester, primary).text!.toPlainText(), _text);
+          }
+          for (final elapsed in [32, 128]) {
+            await tester.pump(Duration(milliseconds: elapsed));
             expect(
               tester.getSize(primary).height,
               closeTo(inactiveHeight, 0.01),
-              reason: 'Activating a line must not change its text layout',
+              reason: 'The growing text must keep the same wrapped rows',
             );
-            if (!timed) {
-              final activeParagraph = tester.renderObject<RenderParagraph>(
-                text,
-              );
-              expect(
-                activeParagraph
-                    .getBoxesForSelection(
-                      const TextSelection(
-                        baseOffset: 0,
-                        extentOffset: _text.length,
-                      ),
-                    )
-                    .map((box) => box.top)
-                    .toSet()
-                    .length,
-                inactiveRows,
-              );
-            }
-            preview.value = const Duration(seconds: 1);
-            await tester.pump();
-            for (final elapsed in [32, 128]) {
-              await tester.pump(Duration(milliseconds: elapsed));
-              expect(
-                tester.getSize(text).height,
-                closeTo(inactiveHeight, 0.01),
-                reason: 'The shrinking text must keep the same wrapped rows',
-              );
-            }
-            await tester.pumpAndSettle();
-            expect(tester.getSize(text).height, closeTo(inactiveHeight, 0.01));
-            expect(tester.takeException(), isNull);
           }
-          await tester.pumpWidget(const SizedBox.shrink());
-        });
-      }
+          await tester.pumpAndSettle();
+          expect(
+            tester.getSize(primary).height,
+            closeTo(inactiveHeight, 0.01),
+            reason: 'Activating a line must not change its text layout',
+          );
+          if (!timed) {
+            final activeParagraph = tester.renderObject<RenderParagraph>(text);
+            expect(
+              activeParagraph
+                  .getBoxesForSelection(
+                    const TextSelection(
+                      baseOffset: 0,
+                      extentOffset: _text.length,
+                    ),
+                  )
+                  .map((box) => box.top)
+                  .toSet()
+                  .length,
+              inactiveRows,
+            );
+          }
+          preview.value = const Duration(seconds: 1);
+          await tester.pump();
+          for (final elapsed in [32, 128]) {
+            await tester.pump(Duration(milliseconds: elapsed));
+            expect(
+              tester.getSize(text).height,
+              closeTo(inactiveHeight, 0.01),
+              reason: 'The shrinking text must keep the same wrapped rows',
+            );
+          }
+          await tester.pumpAndSettle();
+          expect(tester.getSize(text).height, closeTo(inactiveHeight, 0.01));
+          expect(tester.takeException(), isNull);
+        }
+        await tester.pumpWidget(const SizedBox.shrink());
+      });
     }
   }
 
