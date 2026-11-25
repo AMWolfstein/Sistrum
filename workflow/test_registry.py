@@ -37,6 +37,18 @@ class RegistryTests(unittest.TestCase):
         with self.assertRaises(ValueError):r.complete(self.root,identifier,'reviewer',1,'PASS')
         r.validate(self.root)
 
+    def test_extra_review_requires_and_records_owner_approval(self):
+        identifier=r.reserve(self.root,'Extra review')['id']
+        with self.assertRaises(ValueError):r.complete(self.root,identifier,'reviewer',5,'PASS')
+        r.complete(self.root,identifier,'reviewer',5,'PASS',owner_approved_extra_review=True)
+        evidence=r.load(self.root)['tasks'][identifier]['evidence']
+        self.assertEqual(evidence['round'],5)
+        self.assertIs(evidence['owner_approved_extra_review'],True)
+        r.validate(self.root)
+        evidence.pop('owner_approved_extra_review')
+        state=r.load(self.root);state['tasks'][identifier]['evidence']=evidence
+        with self.assertRaises(ValueError):r.check_data(state)
+
     def test_final_task_waits_for_other_tasks_and_extras_are_inserted_before_it(self):
         mission=self.mission();task=r.reserve(self.root,'work',mission)['id'];final=r.reserve(self.root,'Review',mission,final=True)['id']
         extra=r.reserve(self.root,'extra',mission,tor=True)['id']

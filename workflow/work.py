@@ -16,7 +16,7 @@ def parser():
     m.add_argument('--title',required=True);m.add_argument('--path',required=True)
     task=sub.add_parser('task');ts=task.add_subparsers(dest='action',required=True)
     reserve=ts.add_parser('reserve');reserve.add_argument('--title',required=True);reserve.add_argument('--mission');reserve.add_argument('--tor',action='store_true');reserve.add_argument('--final',action='store_true')
-    complete=ts.add_parser('complete');complete.add_argument('id');complete.add_argument('--reviewer',required=True);complete.add_argument('--round',type=int,choices=[1,2,3],required=True);complete.add_argument('--checks',required=True)
+    complete=ts.add_parser('complete');complete.add_argument('id');complete.add_argument('--reviewer',required=True);complete.add_argument('--round',type=int,required=True);complete.add_argument('--owner-approved-extra-review',action='store_true');complete.add_argument('--checks',required=True)
     validate=sub.add_parser('validate');validate.add_argument('--base')
     check=sub.add_parser('commit-check',help='Enforce Conventional Commit subjects (type(scope): summary)')
     check.add_argument('--message');check.add_argument('--message-file',type=Path)
@@ -47,7 +47,7 @@ def main():
         elif a.command=='init':result=registry.initialize(root,a.migrate)
         elif a.command=='mission':result={'id':registry.new_mission(root,a.title,a.path)}
         elif a.command=='task' and a.action=='reserve':result=registry.reserve(root,a.title,a.mission,a.tor,a.final)
-        elif a.command=='task':result=registry.complete(root,a.id,a.reviewer,a.round,a.checks)
+        elif a.command=='task':result=registry.complete(root,a.id,a.reviewer,a.round,a.checks,a.owner_approved_extra_review)
         elif a.command=='validate':result=registry.validate(root,a.base)
         elif a.command=='commit-check':
             import commits

@@ -118,7 +118,7 @@ def check_data(state):
             if type(n)!=int or n<1 or n in orders:raise ValueError('Duplicate/invalid completion order')
             orders.add(n)
             evidence=task.get('evidence',{})
-            if not evidence.get('imported') and not (evidence.get('reviewer') and evidence.get('result')=='PASS' and evidence.get('round') in (1,2,3) and evidence.get('checks')):raise ValueError(f'Missing completion evidence: {identifier}')
+            if not evidence.get('imported') and not (evidence.get('reviewer') and evidence.get('result')=='PASS' and (evidence.get('round') in (1,2,3) or (type(evidence.get('round')) is int and evidence['round']>3 and evidence.get('owner_approved_extra_review') is True)) and evidence.get('checks')):raise ValueError(f'Missing completion evidence: {identifier}')
         elif task.get('completion') is not None:raise ValueError('Unfinished task has completion order')
     for key,maximum in [('next_mission',max_mission),('next_tor',max(tor,default=0)),('next_completion',max(orders,default=0))]:
         if type(state[key])!=int or state[key]<=maximum:raise ValueError(f'Counter would reuse an ID/order: {key}')
@@ -241,9 +241,9 @@ def reserve(root,name,mission=None,tor=False,final=False):
         atomic(target,content);return {'id':identifier,'record':record}
 
 
-def complete(root,identifier,reviewer,round_number,checks):
+def complete(root,identifier,reviewer,round_number,checks,owner_approved_extra_review=False):
     reviewer=title(reviewer);checks=title(checks)
-    if type(round_number)!=int or round_number not in (1,2,3):raise ValueError('Review round must be 1..3')
+    if type(round_number)!=int or round_number<1 or (round_number>3 and owner_approved_extra_review is not True):raise ValueError('Review round must be 1..3 unless the owner approved an extra review')
     with lock(root):
         state=load(root);record_rows(root,state)
         task=state['tasks'][identifier]
@@ -253,6 +253,7 @@ def complete(root,identifier,reviewer,round_number,checks):
         if task['mission']:content=content.replace(f'- [ ] {identifier} ',f'- [x] {identifier} ',1)
         else:content=content.replace('- Status: IN_PROGRESS','- Status: COMPLETE',1)
         task.update(status='complete',completion=state['next_completion'],evidence={'reviewer':reviewer,'round':round_number,'checks':checks,'result':'PASS'})
+        if round_number>3:task['evidence']['owner_approved_extra_review']=True
         state['next_completion']+=1
         save(root,state);atomic(target,content)
         return {'id':identifier,'status':'COMPLETE'}
