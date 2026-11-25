@@ -58,7 +58,6 @@ internal object RustCoreBackend : CoreBackend {
     internal var manager: ExtensionManager? = null
     private var requests: CancellationRegistry? = null
     internal var identity: Triple<String, String, List<Byte>>? = null
-    internal var loggingEnabled = false
     private var libraryCoverScope: AutoCloseable? = null
     @Volatile private var libraryCoverDirectory: File? = null
 
@@ -160,7 +159,8 @@ internal object RustCoreBackend : CoreBackend {
         try {
             created.environment().use { environment ->
                 environment.setAllowedDownloadDirectories(allowedDirectories.distinct())
-                environment.logBuffer().use { it.setEnabled(loggingEnabled) }
+                // Detailed logging is always on.
+                environment.logBuffer().use { it.setEnabled(true) }
             }
         } catch (error: Exception) {
             created.shutdown()
@@ -193,9 +193,6 @@ internal object RustCoreBackend : CoreBackend {
 
     override fun readFileMetadata(path: String, hint: String): String =
         com.amwolfstein.sistrum.backend.readFileMetadata(path, hint, null)
-
-    override fun checkHiResAuthenticity(path: String, optionsJson: String): String =
-        com.amwolfstein.sistrum.backend.checkHiresAuthenticity(path, optionsJson, null)
 
     override fun readAudioMetadata(path: String, hint: String, cacheKey: String): String {
         if (path.startsWith("/proc/self/fd/") && path.removePrefix("/proc/self/fd/").toIntOrNull() != null) {

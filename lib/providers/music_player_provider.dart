@@ -13,16 +13,10 @@ import 'package:sistrum/services/library_media_identity.dart';
 import 'package:sistrum/services/music_player_service.dart';
 import 'package:sistrum/utils/artist_utils.dart';
 
-export 'package:sistrum/services/playable_media.dart'
-    show playableFromLocal;
+export 'package:sistrum/services/playable_media.dart' show playableFromLocal;
 
 final musicPlayerRuntimeProvider = Provider<MusicPlayerRuntime>(
   (ref) => musicPlayerRuntime,
-);
-
-/// External apps own playback on this device.
-final playerUiEnabledProvider = Provider<bool>(
-  (ref) => ref.watch(settingsProvider.select((s) => s.playerMode == 'internal')),
 );
 
 /// What the player screens show: the local player's track.
@@ -34,7 +28,6 @@ final currentMediaItemProvider =
 class CurrentMediaItemNotifier extends StreamNotifier<MediaItem?> {
   @override
   Stream<MediaItem?> build() {
-    if (!ref.watch(playerUiEnabledProvider)) return Stream.value(null);
     return ref.watch(musicPlayerRuntimeProvider).mediaItemEvents();
   }
 
@@ -70,9 +63,6 @@ class LocalMediaItemNotifier extends CurrentMediaItemNotifier {
 final playbackResumeProvider = FutureProvider<PlaybackResumePreview?>((
   ref,
 ) async {
-  if (!ref.watch(settingsProvider.select((s) => s.playerMode == 'internal'))) {
-    return null;
-  }
   final localLibraryEnabled = ref.watch(
     settingsProvider.select((s) => s.localLibraryEnabled),
   );
@@ -131,7 +121,6 @@ final playerCollectionTrackProvider = FutureProvider.autoDispose
     });
 
 final playbackStateProvider = StreamProvider<PlaybackState>((ref) {
-  if (!ref.watch(playerUiEnabledProvider)) return Stream.value(PlaybackState());
   return ref.watch(musicPlayerRuntimeProvider).playbackStateEvents();
 });
 
@@ -272,11 +261,8 @@ class CurrentTrackIdentity {
       other.matchKey == matchKey;
 
   @override
-  int get hashCode => Object.hash(
-    Object.hashAllUnordered(recordIds),
-    isrc,
-    matchKey,
-  );
+  int get hashCode =>
+      Object.hash(Object.hashAllUnordered(recordIds), isrc, matchKey);
 }
 
 /// The identity of the current media item, resolved once per track change.
@@ -319,7 +305,6 @@ final catalogTrackPlaybackUiProvider = Provider.autoDispose
     });
 
 final playQueueProvider = StreamProvider<List<MediaItem>>((ref) {
-  if (!ref.watch(playerUiEnabledProvider)) return Stream.value(const []);
   return ref.watch(musicPlayerRuntimeProvider).queueEvents();
 });
 
@@ -435,9 +420,6 @@ class MusicPlayerController {
   }
 
   Future<bool> _resumeSavedSession() async {
-    if (_runtime.settings.playerMode != 'internal') {
-      return false;
-    }
     final handler = await ensureInitialized();
     if (handler == null) return false;
     final generation = handler.playbackRequestGeneration;
@@ -539,5 +521,6 @@ class MusicPlayerController {
 
 /// The controller the player screens use.
 final musicPlayerControllerProvider = Provider<MusicPlayerController>(
-  (ref) => MusicPlayerController(runtime: ref.watch(musicPlayerRuntimeProvider)),
+  (ref) =>
+      MusicPlayerController(runtime: ref.watch(musicPlayerRuntimeProvider)),
 );

@@ -20,7 +20,7 @@ import 'package:sistrum/theme/mornye_theme.dart';
 
 class _Settings extends SettingsNotifier {
   @override
-  AppSettings build() => const AppSettings(defaultLibraryView: 'all');
+  AppSettings build() => const AppSettings();
 
   @override
   void setLocalLibraryEnabled(bool enabled) {
@@ -211,8 +211,6 @@ void main() {
       ));
       final browse = libraryBrowseProvider((
         artists: false,
-        artist: null,
-        search: '',
         sort: 'latest',
         limit: 40,
         completeness: null,

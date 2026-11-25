@@ -1,6 +1,6 @@
+import 'dart:io';
 import 'dart:async';
 
-import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,10 +13,7 @@ import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
-import 'package:sistrum/widgets/app_alert_dialog.dart';
-import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/playlist_picker_sheet.dart';
-import 'package:sistrum/widgets/track_collection_quick_actions.dart';
 
 const _track = Track(
   id: 'example-track',
@@ -117,78 +114,17 @@ Widget _app(
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
   setUpAll(() async {
-    await (FontLoader(
-      'Inter',
-    )..addFont(rootBundle.load('assets/fonts/InterVariable.ttf'))).load();
+    await (FontLoader('Inter')..addFont(
+          File(
+            'test/support/fonts/InterVariable.ttf',
+          ).readAsBytes().then((b) => ByteData.sublistView(b)),
+        ))
+        .load();
     await (FontLoader('packages/cupertino_icons/CupertinoIcons')..addFont(
           rootBundle.load('packages/cupertino_icons/assets/CupertinoIcons.ttf'),
         ))
         .load();
   });
-
-  testWidgets('track menu hides the link for an unknown service', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      _app(
-        const TrackCollectionQuickActions(track: _track),
-        _Collections(),
-        brightness: Brightness.light,
-      ),
-    );
-    await tester.tap(find.byIcon(CupertinoIcons.ellipsis));
-    await tester.pumpAndSettle();
-    expect(find.textContaining('link'), findsNothing);
-  });
-
-  for (final brightness in Brightness.values) {
-    testWidgets('track menu reaches playlist creation in $brightness', (
-      tester,
-    ) async {
-      tester.view.physicalSize = const Size(320, 680);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      final collections = _Collections();
-      await tester.pumpWidget(
-        _app(
-          const TrackCollectionQuickActions(track: _track),
-          collections,
-          brightness: brightness,
-          textScale: 1.5,
-        ),
-      );
-      await tester.tap(find.byIcon(CupertinoIcons.ellipsis));
-      await tester.pumpAndSettle();
-      expect(find.byType(MornyeGlassPanel), findsOneWidget);
-      expect(find.byType(ListTile), findsNothing);
-      expect(find.byIcon(CupertinoIcons.doc_on_doc), findsNWidgets(2));
-
-      await tester.ensureVisible(find.text('Add to playlist'));
-      await tester.tap(find.text('Add to playlist'));
-      await tester.pumpAndSettle();
-      expect(find.text('No playlists yet'), findsOneWidget);
-      expect(find.byType(MornyeGlassPanel), findsOneWidget);
-      expect(find.text('Done').hitTestable(), findsOneWidget);
-
-      await tester.tap(find.text('Create playlist'));
-      await tester.pumpAndSettle();
-      expect(find.byType(AppAlertDialog), findsOneWidget);
-      await tester.tap(find.text('Create'));
-      await tester.pumpAndSettle();
-      expect(collections.createdNames, isEmpty);
-      await tester.enterText(find.byType(TextFormField), 'Evening music');
-      await tester.tap(find.text('Create'));
-      await tester.pumpAndSettle();
-      expect(collections.createdNames, ['Evening music']);
-      expect(collections.additions, ['Evening music']);
-      expect(find.byIcon(CupertinoIcons.checkmark_circle_fill), findsOneWidget);
-      await tester.tap(find.text('Done'));
-      await tester.pumpAndSettle();
-      expect(collections.additions, ['Evening music']);
-      expect(find.byType(MornyeGlassPanel), findsNothing);
-      expect(tester.takeException(), isNull);
-    });
-  }
 
   testWidgets('picker submits and closes once', (tester) async {
     final addition = Completer<void>();

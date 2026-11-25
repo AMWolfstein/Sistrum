@@ -27,12 +27,9 @@ color, seed color, AMOLED) are dropped once on load (`lib/models/theme_settings.
 ## How a Theme Is Built
 
 `MornyeTheme.build(brightness, ...)` takes the Mornye accent (`MornyeAccent`,
-red by default), the system-font and custom-font choices, glass clarity
-(default 0.75) and glass outlines. It seeds a `ColorScheme` from the accent and
+red by default), glass clarity (default 0.75) and glass outlines. It seeds a `ColorScheme` from the accent and
 overrides the roles with iOS grouped colors (for example `#F2F2F7` and
-`#1C1C1E`). Text uses Cupertino styles. The font is the custom font when one
-is set; otherwise the Cupertino system font on Apple platforms or when the
-system font is chosen, and Inter elsewhere. It registers `MornyeTheme.tokens`,
+`#1C1C1E`). Text uses the Cupertino system font on every platform. It registers `MornyeTheme.tokens`,
 a copy of `AppTokens.standard` with different radii and iOS title sizes.
 
 `MornyeTheme.build` caches up to 16 base themes; changing only glass clarity

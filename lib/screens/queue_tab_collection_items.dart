@@ -1,128 +1,6 @@
 part of 'queue_tab.dart';
 
 extension _QueueTabCollectionItemWidgets on _QueueTabState {
-  Widget _buildLibraryQualityBadge(
-    BuildContext context,
-    ColorScheme colorScheme,
-    String quality, {
-    bool listStyle = false,
-  }) {
-    final tokens = context.tokens;
-    final isHighlightedQuality = shouldHighlightAudioQualityBadge(quality);
-    final displayQuality = listStyle
-        ? quality
-        : formatLibraryGridAudioQualityLabel(quality);
-    final isDetailed = isDetailedLibraryAudioQualityLabel(displayQuality);
-    final label = Text(
-      displayQuality,
-      maxLines: 1,
-      softWrap: false,
-      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-        color: isHighlightedQuality
-            ? listStyle
-                  ? colorScheme.onPrimaryContainer
-                  : colorScheme.onPrimary
-            : colorScheme.onSurfaceVariant,
-        fontSize: isDetailed ? tokens.badgeFontSize - 1 : tokens.badgeFontSize,
-        fontWeight: listStyle ? FontWeight.w500 : FontWeight.w600,
-      ),
-    );
-    return Container(
-      padding: tokens.badgePadding,
-      decoration: BoxDecoration(
-        color: isHighlightedQuality
-            ? listStyle
-                  ? colorScheme.primaryContainer
-                  : colorScheme.primary
-            : colorScheme.surfaceContainerHighest,
-        borderRadius: tokens.borderRadiusBadge,
-      ),
-      child: !listStyle && isDetailed
-          ? FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: AlignmentDirectional.centerStart,
-              child: label,
-            )
-          : label,
-    );
-  }
-
-  Widget _buildCollectionListItem({
-    required BuildContext context,
-    required ColorScheme colorScheme,
-    IconData? icon,
-    Color? iconBgColor,
-    Widget? coverWidget,
-    required String title,
-    required String subtitle,
-    required VoidCallback onTap,
-    VoidCallback? onLongPress,
-    ValueChanged<Offset>? onContextMenu,
-  }) {
-    final cover =
-        coverWidget ??
-        Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(
-            color: iconBgColor ?? colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: AppIcon(icon ?? Icons.folder, color: Colors.white, size: 28),
-        );
-
-    final card = AppContentCard(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      mornyeSurface: false,
-      onTap: onTap,
-      onLongPress: onLongPress,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            SizedBox(width: 56, height: 56, child: cover),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            AppIcon(
-              Icons.chevron_right,
-              color: colorScheme.onSurfaceVariant,
-              size: 20,
-            ),
-          ],
-        ),
-      ),
-    );
-    return DesktopContextMenuRegion(
-      onContextMenu:
-          onContextMenu ??
-          (position) => _showOpenMenu(context, position, onTap),
-      child: card,
-    );
-  }
-
   /// The desktop menu of a folder that offers nothing beyond opening it.
   void _showOpenMenu(
     BuildContext context,
@@ -287,9 +165,6 @@ extension _QueueTabCollectionItemWidgets on _QueueTabState {
     LibraryCollectionsState collectionState,
   ) {
     final entries = <_CollectionEntry>[];
-    if (collectionState.wishlistCount > 0) {
-      entries.add(_CollectionEntry.wishlist);
-    }
     if (collectionState.lovedCount > 0) {
       entries.add(_CollectionEntry.loved);
     }
@@ -308,13 +183,6 @@ extension _QueueTabCollectionItemWidgets on _QueueTabState {
     _CollectionEntryType type,
     LibraryCollectionsState collectionState,
   ) => switch (type) {
-    _CollectionEntryType.wishlist => (
-      Icons.add_circle_outline,
-      const Color(0xFF1DB954),
-      context.l10n.collectionWishlist,
-      collectionState.wishlistCount,
-      _openWishlistFolder,
-    ),
     _CollectionEntryType.loved => (
       Icons.favorite,
       const Color(0xFF8C67AC),
@@ -462,88 +330,6 @@ extension _QueueTabCollectionItemWidgets on _QueueTabState {
                 ),
               ),
             ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAllTabListCollectionItem({
-    required BuildContext context,
-    required ColorScheme colorScheme,
-    required _CollectionEntry entry,
-    required LibraryCollectionsState collectionState,
-    List<UnifiedLibraryItem> filteredUnifiedItems = const [],
-  }) {
-    if (entry.type != _CollectionEntryType.playlist) {
-      final (icon, color, title, count, onTap) = _specialCollection(
-        context,
-        entry.type,
-        collectionState,
-      );
-      final countText = entry.type == _CollectionEntryType.favoriteArtists
-          ? context.l10n.collectionArtistCount(count)
-          : '$count ${count == 1 ? 'track' : 'tracks'}';
-      return _buildCollectionListItem(
-        context: context,
-        colorScheme: colorScheme,
-        icon: icon,
-        iconBgColor: color,
-        title: title,
-        subtitle: '${context.l10n.collectionFoldersTitle} • $countText',
-        onTap: onTap,
-      );
-    }
-    final playlist = collectionState.playlists[entry.playlistIndex];
-    final isSelected = _selectedPlaylistIds.contains(playlist.id);
-    return _playlistDropTarget(
-      context,
-      colorScheme,
-      playlist,
-      filteredUnifiedItems,
-      (context, onTap, onLongPress) => Row(
-        children: [
-          if (_isPlaylistSelectionMode)
-            Semantics(
-              button: true,
-              checked: isSelected,
-              label: playlist.name,
-              child: GestureDetector(
-                onTap: () => _togglePlaylistSelection(playlist.id),
-                behavior: HitTestBehavior.opaque,
-                child: ConstrainedBox(
-                  constraints: BoxConstraints.tightFor(
-                    width: context.tokens.minTouchTarget,
-                    height: context.tokens.minTouchTarget,
-                  ),
-                  child: Center(
-                    child: AnimatedSelectionCheckbox(
-                      selected: isSelected,
-                      colorScheme: colorScheme,
-                      size: 24,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          Expanded(
-            child: _buildCollectionListItem(
-              context: context,
-              colorScheme: colorScheme,
-              coverWidget: _buildPlaylistCover(
-                context,
-                playlist,
-                colorScheme,
-                56,
-              ),
-              title: playlist.name,
-              subtitle:
-                  '${playlist.trackCount} ${playlist.trackCount == 1 ? 'track' : 'tracks'}',
-              onTap: onTap,
-              onLongPress: onLongPress,
-              onContextMenu: (position) =>
-                  _showPlaylistMenu(context, playlist, position),
-            ),
-          ),
         ],
       ),
     );

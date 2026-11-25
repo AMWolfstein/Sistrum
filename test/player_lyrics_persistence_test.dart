@@ -43,7 +43,6 @@ void main() {
         expect(edits.single['file_path'], source);
         expect(jsonDecode(edits.single['metadata_json'] as String), {
           'lyrics': lyrics,
-          'artist_tag_mode': 'joined',
           'cover_path': '',
         });
       },

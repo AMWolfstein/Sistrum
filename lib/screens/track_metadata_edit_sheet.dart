@@ -28,7 +28,6 @@ class EditMetadataSheet extends StatefulWidget {
   final String filePath;
   final String? sourceTrackId;
   final int durationMs;
-  final String artistTagMode;
 
   /// Saves the tags somewhere other than [filePath], such as the copy on a
   /// linked computer: null once saved, else why it failed. The cover editor
@@ -42,7 +41,6 @@ class EditMetadataSheet extends StatefulWidget {
     required this.filePath,
     this.sourceTrackId,
     required this.durationMs,
-    required this.artistTagMode,
     this.saveTags,
   });
 
@@ -51,8 +49,6 @@ class EditMetadataSheet extends StatefulWidget {
 }
 
 class _EditMetadataSheetState extends State<EditMetadataSheet> {
-  static const _coverResizeDimensions = <int>[500, 1000, 1500, 2000, 3000];
-
   bool _saving = false;
   final _covers = MetadataCoverResources();
   late final _persistence = MetadataPersistenceService(covers: _covers);
@@ -63,7 +59,6 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
   String? _currentCoverPath;
   String? _currentCoverTempDir;
   bool _loadingCurrentCover = false;
-  int? _coverMaxDimension;
   final Map<String, ({int width, int height, int bytes})> _coverDetails = {};
   final Set<String> _coverDetailLoads = {};
   final GlobalKey<ScaffoldMessengerState> _sheetMessengerKey =
@@ -72,101 +67,6 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
   /// setState is @protected, so the extension part files route rebuilds
   /// through this forwarder.
   void _setState(VoidCallback fn) => setState(fn);
-
-  Future<T?> _showEditorOptionPicker<T>({
-    required String Function(BuildContext sheetContext) title,
-    required List<T> Function(BuildContext sheetContext) options,
-    required bool Function(T option) isSelected,
-    required String Function(BuildContext sheetContext, T option) label,
-    required IconData Function(BuildContext sheetContext, T option) icon,
-    bool ellipsizeLabels = false,
-  }) {
-    FocusScope.of(context).unfocus();
-    return showAppModalBottomSheet<T>(
-      context: context,
-      useRootNavigator: true,
-      isScrollControlled: true,
-      builder: (sheetContext) {
-        final cs = Theme.of(sheetContext).colorScheme;
-        final items = options(sheetContext);
-
-        return SafeArea(
-          top: false,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.sizeOf(sheetContext).height * 0.72,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // The glass carries the handle that Material's sheet draws.
-                const AppSheetHandle(),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-                  child: Text(
-                    title(sheetContext),
-                    style: Theme.of(sheetContext).textTheme.titleLarge
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                Flexible(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: MetadataEditorOptions(
-                      children: [
-                        for (var index = 0; index < items.length; index++)
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ListTile(
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 4,
-                                ),
-                                leading: Icon(
-                                  icon(sheetContext, items[index]),
-                                  color: isSelected(items[index])
-                                      ? cs.primary
-                                      : cs.onSurfaceVariant,
-                                ),
-                                title: Text(
-                                  label(sheetContext, items[index]),
-                                  maxLines: ellipsizeLabels ? 2 : null,
-                                  overflow: ellipsizeLabels
-                                      ? TextOverflow.ellipsis
-                                      : null,
-                                ),
-                                selected: isSelected(items[index]),
-                                selectedColor: cs.primary,
-                                trailing: isSelected(items[index])
-                                    ? const Icon(CupertinoIcons.checkmark)
-                                    : null,
-                                onTap: () =>
-                                    Navigator.pop(sheetContext, items[index]),
-                              ),
-                              if (index != items.length - 1)
-                                Divider(
-                                  height: 1,
-                                  indent: 60,
-                                  endIndent: 20,
-                                  color: cs.outlineVariant.withValues(
-                                    alpha: 0.3,
-                                  ),
-                                ),
-                            ],
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   void _showSheetSnackBar(String message) {
     final snackBar = SnackBar(content: Text(message));
@@ -202,10 +102,7 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
     if (_saving) return;
     if (widget.saveTags case final saveTags?) {
       setState(() => _saving = true);
-      final error = await saveTags(
-        _form.saveMetadata(artistTagMode: widget.artistTagMode)
-          ..remove('artist_tag_mode'),
-      );
+      final error = await saveTags(_form.saveMetadata());
       if (!mounted) return;
       if (error == null) {
         Navigator.pop(context, true);
@@ -220,11 +117,9 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
       final result = await _persistence.save(
         MetadataSaveRequest(
           filePath: widget.filePath,
-          metadata: _form.saveMetadata(artistTagMode: widget.artistTagMode),
-          artistTagMode: widget.artistTagMode,
+          metadata: _form.saveMetadata(),
           selectedCoverPath: _selectedCoverPath,
           currentCoverPath: _currentCoverPath,
-          coverMaxDimension: _coverMaxDimension,
         ),
       );
       if (result.failure == null) {
@@ -241,12 +136,6 @@ class _EditMetadataSheetState extends State<EditMetadataSheet> {
         ),
         MetadataSaveFailure.ffmpeg => l10n.metadataSaveFailedFfmpeg,
         MetadataSaveFailure.storage => l10n.metadataSaveFailedStorage,
-        MetadataSaveFailure.noCover => l10n.snackbarError(
-          l10n.trackCoverNoEmbeddedArt,
-        ),
-        MetadataSaveFailure.resize => l10n.snackbarError(
-          l10n.trackCoverResizeFailed,
-        ),
         MetadataSaveFailure.unexpected => l10n.snackbarError(
           context.friendlyError(result.error),
         ),

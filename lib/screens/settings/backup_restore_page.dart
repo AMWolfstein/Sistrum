@@ -192,11 +192,6 @@ class _BackupRestorePageState extends ConsumerState<BackupRestorePage> {
             ),
           if (bundle.hasCollections)
             _ContentRow(
-              icon: Icons.bookmark_outline,
-              label: l10n.backupContentsWishlist(bundle.wishlistCount),
-            ),
-          if (bundle.hasCollections)
-            _ContentRow(
               icon: Icons.queue_music_outlined,
               label: l10n.backupContentsPlaylists(bundle.playlistCount),
             ),

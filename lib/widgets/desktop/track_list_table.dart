@@ -9,8 +9,7 @@ import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/desktop/desktop_selection.dart';
 import 'package:sistrum/widgets/desktop/track_table.dart';
 import 'package:sistrum/widgets/track_card.dart';
-import 'package:sistrum/widgets/track_collection_quick_actions.dart';
-import 'package:sistrum/widgets/track_list_tile.dart';
+import 'package:sistrum/widgets/song_menu.dart';
 
 /// The desktop song table for album, playlist and folder [Track] lists, in
 /// place of
@@ -95,14 +94,8 @@ class _TrackListTableState extends ConsumerState<TrackListTable> {
   }
 
   List<TrackTableRow> _buildRows() {
-    final TrackListTable(
-      :tracks,
-      :ids,
-      :showArtwork,
-      :covers,
-      :onSaveCover,
-    ) = widget;
-    Widget badges(int i) => TrackListTileBadges(track: tracks[i]);
+    final TrackListTable(:tracks, :ids, :showArtwork, :covers, :onSaveCover) =
+        widget;
     return [
       for (var i = 0; i < tracks.length; i++)
         TrackTableRow(
@@ -125,16 +118,13 @@ class _TrackListTableState extends ConsumerState<TrackListTable> {
                       : () => widget.onSaveCover?.call(i),
                 )
               : null,
-          titleTrailing: badges(i),
+          titleTrailing: tracks[i].isExplicit ? const ExplicitChip() : null,
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               // Reads the current callback, as the rows outlive it.
               ?widget.rowAction?.call(i),
-              TrackCollectionQuickActions(
-                track: tracks[i],
-                dense: true,
-              ),
+              SongMenuButton(track: tracks[i], dense: true),
             ],
           ),
           playback: catalogTrackPlaybackUiProvider(catalogTrackKey(tracks[i])),
@@ -175,12 +165,7 @@ class _TrackListTableState extends ConsumerState<TrackListTable> {
           if (index == null) return;
           final override = widget.onContextMenu;
           if (override != null) return override(index, position);
-          TrackCollectionQuickActions.showTrackOptionsSheet(
-            context,
-            ref,
-            widget.tracks[index],
-            position: position,
-          );
+          showSongMenu(context, ref, track: widget.tracks[index]);
         },
       ),
     );

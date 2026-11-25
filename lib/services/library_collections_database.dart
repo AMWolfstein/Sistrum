@@ -20,14 +20,13 @@ final _log = AppLogger('LibraryCollectionsDb');
 const _dbFileName = 'library_collections.db';
 
 /// v3 adds Sistrum Link change tracking (tables and triggers) beside the
-/// unchanged collection tables.
-const _dbVersion = 3;
+/// unchanged collection tables. v4 drops the removed wishlist table.
+const _dbVersion = 4;
 
 /// Native jobs read and write private copies holding only the collection
-/// tables, whose schema is still the one they validate as v2.
-const _nativeSchemaVersion = 2;
+/// tables, whose schema they validate as v3.
+const _nativeSchemaVersion = 3;
 
-const _tableWishlist = 'wishlist_tracks';
 const _tableLoved = 'loved_tracks';
 const _tablePlaylists = 'playlists';
 const _tablePlaylistTracks = 'playlist_tracks';
@@ -37,7 +36,6 @@ const _legacyCollectionsStorageKey = 'library_collections_v1';
 const _migrationDoneKey = 'library_collections_migrated_to_sqlite_v1';
 
 class LibraryCollectionsSnapshot {
-  final List<Map<String, dynamic>> wishlistRows;
   final List<Map<String, dynamic>> lovedRows;
   final List<Map<String, dynamic>> playlistRows;
   final List<Map<String, dynamic>> playlistTrackRows;
@@ -47,7 +45,6 @@ class LibraryCollectionsSnapshot {
   final int? nativeRowCount;
 
   const LibraryCollectionsSnapshot({
-    required this.wishlistRows,
     required this.lovedRows,
     required this.playlistRows,
     required this.playlistTrackRows,
@@ -98,7 +95,7 @@ class LibraryCollectionsDatabase {
     if (oldId == newId) return;
     final db = await database;
     await sqlite.transactionWithBusyRetry(db, (txn) async {
-      for (final table in [_tableWishlist, _tableLoved, _tablePlaylistTracks]) {
+      for (final table in [_tableLoved, _tablePlaylistTracks]) {
         var after = 0;
         while (true) {
           final rows = await txn.query(
@@ -183,14 +180,6 @@ class LibraryCollectionsDatabase {
   /// The collection tables alone, as native jobs expect them (v2).
   static Future<void> _createCollectionTables(Database db) async {
     await db.execute('''
-      CREATE TABLE $_tableWishlist (
-        track_key TEXT PRIMARY KEY,
-        track_json TEXT NOT NULL,
-        added_at TEXT NOT NULL
-      )
-    ''');
-
-    await db.execute('''
       CREATE TABLE $_tableLoved (
         track_key TEXT PRIMARY KEY,
         track_json TEXT NOT NULL,
@@ -222,9 +211,6 @@ class LibraryCollectionsDatabase {
     await _createFavoriteArtistsTable(db);
 
     await db.execute(
-      'CREATE INDEX idx_${_tableWishlist}_added_at ON $_tableWishlist(added_at DESC)',
-    );
-    await db.execute(
       'CREATE INDEX idx_${_tableLoved}_added_at ON $_tableLoved(added_at DESC)',
     );
     await db.execute(
@@ -246,6 +232,11 @@ class LibraryCollectionsDatabase {
     _log.i('Upgrading collections database from v$oldVersion to v$newVersion');
     if (oldVersion < 2) {
       await _createFavoriteArtistsTable(db);
+    }
+    if (oldVersion < 4) {
+      // Wishlist was removed: drop its table only. Loved and playlists stay.
+      await db.execute('DROP INDEX IF EXISTS idx_wishlist_tracks_added_at');
+      await db.execute('DROP TABLE IF EXISTS wishlist_tracks');
     }
   }
 
@@ -282,26 +273,12 @@ class LibraryCollectionsDatabase {
       }
 
       final root = Map<String, dynamic>.from(decoded);
-      final wishlistRaw = (root['wishlist'] as List?) ?? const [];
       final lovedRaw = (root['loved'] as List?) ?? const [];
       final playlistsRaw = (root['playlists'] as List?) ?? const [];
       final nowIso = DateTime.now().toIso8601String();
 
       final db = await database;
       await db.transaction((txn) async {
-        for (final entry in wishlistRaw.whereType<Map<Object?, Object?>>()) {
-          final map = Map<String, dynamic>.from(entry);
-          final trackKey = map['key'] as String?;
-          final track = map['track'];
-          if (trackKey == null || track is! Map<Object?, Object?>) continue;
-          final addedAt = (map['addedAt'] as String?) ?? nowIso;
-          await txn.insert(_tableWishlist, {
-            'track_key': trackKey,
-            'track_json': jsonEncode(track),
-            'added_at': addedAt,
-          }, conflictAlgorithm: ConflictAlgorithm.replace);
-        }
-
         for (final entry in lovedRaw.whereType<Map<Object?, Object?>>()) {
           final map = Map<String, dynamic>.from(entry);
           final trackKey = map['key'] as String?;
@@ -370,7 +347,7 @@ class LibraryCollectionsDatabase {
     if (!forceLegacy &&
         (nativeJobRunner != null || PlatformBridge.supportsCoreBackend)) {
       final probe = await db.rawQuery('''
-        SELECT 1 FROM $_tableWishlist UNION ALL SELECT 1 FROM $_tableLoved
+        SELECT 1 FROM $_tableLoved
         UNION ALL SELECT 1 FROM $_tablePlaylists
         UNION ALL SELECT 1 FROM $_tablePlaylistTracks
         UNION ALL SELECT 1 FROM $_tableFavoriteArtists LIMIT 64
@@ -384,11 +361,6 @@ class LibraryCollectionsDatabase {
       }
     }
     return db.transaction((txn) async {
-      final wishlistRows = await _readDateOrderedRows(
-        txn,
-        _tableWishlist,
-        'added_at',
-      );
       final lovedRows = await _readDateOrderedRows(
         txn,
         _tableLoved,
@@ -431,7 +403,6 @@ class LibraryCollectionsDatabase {
         'added_at',
       );
       return LibraryCollectionsSnapshot(
-        wishlistRows: wishlistRows,
         lovedRows: lovedRows,
         playlistRows: playlistRows,
         playlistTrackRows: playlistTrackRows,
@@ -571,7 +542,6 @@ class LibraryCollectionsDatabase {
         total += count;
       }
       return LibraryCollectionsSnapshot(
-        wishlistRows: const [],
         lovedRows: const [],
         playlistRows: const [],
         playlistTrackRows: const [],
@@ -613,7 +583,6 @@ class LibraryCollectionsDatabase {
       attached = true;
       await db.transaction((txn) async {
         for (final table in [
-          _tableWishlist,
           _tableLoved,
           _tableFavoriteArtists,
           _tablePlaylists,
@@ -771,37 +740,6 @@ class LibraryCollectionsDatabase {
   Future<void> _deleteEntry(String table, String prefix, String key) async {
     final db = await database;
     await db.delete(table, where: '${prefix}_key = ?', whereArgs: [key]);
-  }
-
-  Future<void> upsertWishlistEntry({
-    required String trackKey,
-    required String trackJson,
-    required String addedAt,
-  }) => _upsertEntry(
-    _tableWishlist,
-    'track',
-    key: trackKey,
-    json: trackJson,
-    addedAt: addedAt,
-  );
-
-  Future<void> deleteWishlistEntry(String trackKey) =>
-      _deleteEntry(_tableWishlist, 'track', trackKey);
-
-  Future<void> deleteWishlistTracks(List<String> keys) async {
-    if (keys.isEmpty) return;
-    await deleteDatabaseWishlistTracks(await database, keys);
-  }
-
-  static Future<void> deleteDatabaseWishlistTracks(
-    Database db,
-    List<String> keys,
-  ) async {
-    if (keys.isEmpty) return;
-    await sqlite.transactionWithBusyRetry(
-      db,
-      (txn) => _deleteTrackKeys(txn, _tableWishlist, keys),
-    );
   }
 
   Future<void> upsertLovedEntry({
@@ -1140,7 +1078,6 @@ class LibraryCollectionsDatabase {
   }) async {
     final table = switch (mode) {
       LibraryTracksFolderMode.loved => _tableLoved,
-      LibraryTracksFolderMode.wishlist => _tableWishlist,
       LibraryTracksFolderMode.playlist => throw ArgumentError.value(mode),
     };
     if (addedAtByKey.isEmpty) return;
@@ -1167,7 +1104,7 @@ class LibraryCollectionsDatabase {
   /// Wipes every collection table and rewrites them from a restored backup.
   ///
   /// [collectionsJson] must use the same shape as
-  /// `LibraryCollectionsState.toJson()` (wishlist/loved/playlists/favoriteArtists).
+  /// `LibraryCollectionsState.toJson()` (loved/playlists/favoriteArtists).
   /// Track entries carry a nested `track` map (stored as `track_json`); favorite
   /// artist entries are stored whole as `artist_json`.
   Future<void> replaceAllFromBackup(
@@ -1234,14 +1171,12 @@ class LibraryCollectionsDatabase {
             for (final table in [
               _tablePlaylistTracks,
               _tablePlaylists,
-              _tableWishlist,
               _tableLoved,
               _tableFavoriteArtists,
             ]) {
               await txn.delete(table);
             }
             for (final (table, columns) in [
-              (_tableWishlist, 'track_key,track_json,added_at'),
               (_tableLoved, 'track_key,track_json,added_at'),
               (_tableFavoriteArtists, 'artist_key,artist_json,added_at'),
               (
@@ -1297,7 +1232,6 @@ class LibraryCollectionsDatabase {
     await db.transaction((txn) async {
       await txn.delete(_tablePlaylistTracks);
       await txn.delete(_tablePlaylists);
-      await txn.delete(_tableWishlist);
       await txn.delete(_tableLoved);
       await txn.delete(_tableFavoriteArtists);
 
@@ -1305,7 +1239,6 @@ class LibraryCollectionsDatabase {
       var pending = 0;
       for (final command in commands) {
         final table = switch (command['kind']) {
-          'wishlist' => _tableWishlist,
           'loved' => _tableLoved,
           'artist' => _tableFavoriteArtists,
           'playlist' => _tablePlaylists,

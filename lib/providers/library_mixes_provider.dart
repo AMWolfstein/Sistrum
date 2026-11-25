@@ -160,7 +160,7 @@ final libraryMixesProvider = FutureProvider<List<LibraryMixView>>((ref) async {
   // The Library tab and Home count the same Library; one count serves all.
   final counts = ref.watch(
     libraryCountsProvider(
-      LibraryCountsRequest.all(localLibraryEnabled: includeLocal),
+      LibraryCountsRequest(localLibraryEnabled: includeLocal),
     ).future,
   );
   final now = DateTime.now();

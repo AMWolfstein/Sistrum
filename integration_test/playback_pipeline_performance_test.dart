@@ -416,7 +416,6 @@ void main() {
       );
       runtime = MusicPlayerRuntime(
         settings: const AppSettings(
-          playerMode: 'internal',
           playbackNormalization: true,
           pauseOnMute: false,
           gaplessPlayback: false,
@@ -688,10 +687,7 @@ void main() {
           expect(delta['normalization_metadata_start'] ?? 0, 0);
           expect(delta['player_metadata_start'] ?? 0, 0);
           expect(delta['native_position'] ?? 0, 0);
-          runs.add({
-            'name': 'paused_idle',
-            'counts': delta,
-          });
+          runs.add({'name': 'paused_idle', 'counts': delta});
         },
         warmup: () async {},
         repetitions: 3,

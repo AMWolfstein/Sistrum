@@ -3,6 +3,8 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/app_content_card.dart';
+import 'package:sistrum/widgets/app_icon.dart';
+import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/desktop/context_menu.dart';
 import 'package:sistrum/widgets/queue_swipe.dart';
 import 'package:sistrum/widgets/settings_group.dart';
@@ -80,14 +82,21 @@ class TrackCardSegment extends InheritedWidget {
 
 /// The one track row in the app.
 ///
-/// Screens provide [leading], [subtitle], [trailing], and an optional
-/// [background] layer for download progress.
+/// A song row is: [leading] (track number or artwork), the title with an
+/// Explicit chip beside it when [isExplicit], the artists line, then the play
+/// circle ([onPlay]) and the song's [menu] (a `SongMenuButton`). Tapping the row
+/// plays, so callers pass [onTap] as the play action.
+///
+/// Non-song rows keep their own [trailing] and [subtitle] text.
 class TrackCard extends StatelessWidget {
   const TrackCard({
     super.key,
     required this.leading,
     required this.title,
     this.subtitle,
+    this.isExplicit = false,
+    this.onPlay,
+    this.menu,
     this.trailing,
     this.background,
     this.style = TrackCardStyle.filled,
@@ -110,12 +119,22 @@ class TrackCard extends StatelessWidget {
 
   final String title;
 
-  /// Secondary line. A widget rather than a string because callers mix in
-  /// clickable artist names, quality badges and status text. `Text` without
-  /// a colour takes the row's supporting colour: `onSurfaceVariant`, or the
-  /// content colour of a filled current or selected row, so leave text
-  /// uncoloured rather than reading a colour from outside the row.
+  /// The artists line, a single line. A widget rather than a string because
+  /// callers may link artist names. `Text` without a colour takes the row's
+  /// supporting colour: `onSurfaceVariant`, or the content colour of a filled
+  /// current or selected row, so leave text uncoloured rather than reading a
+  /// colour from outside the row.
   final Widget? subtitle;
+
+  /// Shows the Explicit chip beside the title.
+  final bool isExplicit;
+
+  /// The play circle's action, shown beside [menu]. Null hides the circle.
+  /// It shows pause while [isPlaying].
+  final VoidCallback? onPlay;
+
+  /// The song's three-dots menu, placed last. Null hides it.
+  final Widget? menu;
 
   /// Hidden while [isSelectionMode] is active, so the row cannot be acted on
   /// while the user is picking items. On a filled Material row it reads a
@@ -238,16 +257,28 @@ class TrackCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.w500,
-                          // The accent as status: Mornye's only sign of
-                          // the current track.
-                          color: isCurrent ? colorScheme.primary : null,
-                        ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Flexible(
+                            child: Text(
+                              title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                fontWeight: FontWeight.w500,
+                                // The accent as status: Mornye's only sign of
+                                // the current track.
+                                color: isCurrent ? colorScheme.primary : null,
+                              ),
+                            ),
+                          ),
+                          // The Explicit chip sits beside the title.
+                          if (isExplicit) ...[
+                            const SizedBox(width: 6),
+                            const ExplicitChip(),
+                          ],
+                        ],
                       ),
                       if (subtitle != null) ...[
                         const SizedBox(height: 2),
@@ -259,11 +290,18 @@ class TrackCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (trailing != null && !isSelectionMode) ...[
-                  SizedBox(width: tokens.gapSm),
+                if (!isSelectionMode) ...[
+                  if (onPlay != null) ...[
+                    SizedBox(width: tokens.gapXs),
+                    SongPlayButton(isPlaying: isPlaying, onPlay: onPlay),
+                  ],
                   // Mornye rows never fill with a content colour and keep
                   // their ambient theme.
-                  trailing!,
+                  if (trailing != null) ...[
+                    SizedBox(width: tokens.gapSm),
+                    trailing!,
+                  ],
+                  ?menu,
                 ],
               ],
             ),
@@ -301,175 +339,76 @@ class TrackCard extends StatelessWidget {
   }
 }
 
-/// Grid counterpart of [TrackCard]: square artwork with overlays, then the
-/// title and subtitle underneath.
-class TrackGridCard extends StatelessWidget {
-  const TrackGridCard({
-    super.key,
-    required this.cover,
-    required this.title,
-    this.subtitle,
-    this.overlays = const [],
-    this.onTap,
-    this.onLongPress,
-    this.onContextMenu,
-    this.isSelected = false,
-    this.semanticLabel,
-  });
-
-  /// Artwork, already sized to fill the square. Clipping is handled here.
-  final Widget cover;
-
-  final String title;
-
-  /// Secondary line. A widget so cells can host a clickable artist name; plain
-  /// `Text` children inherit the shared subtitle style.
-  final Widget? subtitle;
-
-  /// Progress rings, status badges and selection ticks stacked over the cover.
-  final List<Widget> overlays;
-
-  final VoidCallback? onTap;
-  final VoidCallback? onLongPress;
-
-  /// Desktop right-click, with the global pointer position.
-  final ValueChanged<Offset>? onContextMenu;
-  final bool isSelected;
-  final String? semanticLabel;
+/// The Explicit marker beside a song's title: a small light chip with a bold
+/// E. Its colours come from `onSurface`, so it reads in light and dark.
+class ExplicitChip extends StatelessWidget {
+  const ExplicitChip({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final borderRadius = tokens.borderRadiusThumb;
-
-    return DesktopContextMenuRegion(
-      onContextMenu: onContextMenu,
-      child: _buildCell(context, tokens, theme, colorScheme, borderRadius),
-    );
-  }
-
-  Widget _buildCell(
-    BuildContext context,
-    AppTokens tokens,
-    ThemeData theme,
-    ColorScheme colorScheme,
-    BorderRadius borderRadius,
-  ) {
-    return Semantics(
-      label: semanticLabel,
-      button: onTap != null,
-      selected: isSelected,
-      child: InkWell(
-        onTap: onTap,
-        onLongPress: onLongPress,
-        borderRadius: borderRadius,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AspectRatio(
-              aspectRatio: 1,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  ClipRRect(borderRadius: borderRadius, child: cover),
-                  if (isSelected)
-                    DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius: borderRadius,
-                        border: Border.all(
-                          color: colorScheme.primary,
-                          width: 2,
-                        ),
-                      ),
-                    ),
-                  ...overlays,
-                ],
-              ),
-            ),
-            SizedBox(height: tokens.gapXs + 2),
-            Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodySmall?.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            if (subtitle != null)
-              DefaultTextStyle.merge(
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.labelSmall!.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-                child: subtitle!,
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// Compact play affordance for a track cover with a full-size touch target.
-///
-/// The visible circle intentionally stays smaller than its hit box so it does
-/// not obscure the artwork while remaining accessible to touch users.
-class TrackGridPlayButton extends StatelessWidget {
-  const TrackGridPlayButton({
-    super.key,
-    required this.tooltip,
-    required this.onPressed,
-    this.icon = Icons.play_arrow,
-    this.compact = false,
-  });
-
-  static const double visualDiameter = 36;
-  static const double compactDiameter = 28;
-
-  final String tooltip;
-  final VoidCallback? onPressed;
-  final IconData icon;
-
-  /// A smaller circle, for a lesser action such as opening the details. The
-  /// touch target stays the same.
-  final bool compact;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = context.tokens;
     final colorScheme = Theme.of(context).colorScheme;
-
-    return IconButton(
-      tooltip: tooltip,
-      onPressed: onPressed,
-      padding: EdgeInsets.zero,
-      alignment: AlignmentDirectional.bottomEnd,
-      style: IconButton.styleFrom(
-        minimumSize: Size.square(tokens.minTouchTarget),
-        padding: EdgeInsets.zero,
-      ),
-      icon: Container(
-        width: compact ? compactDiameter : visualDiameter,
-        height: compact ? compactDiameter : visualDiameter,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: colorScheme.primary,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          icon,
-          size: compact ? 16 : 18,
-          color: colorScheme.onPrimary,
+    return Semantics(
+      label: context.l10n.explicitLabel,
+      child: ExcludeSemantics(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          decoration: BoxDecoration(
+            color: colorScheme.onSurface.withValues(alpha: 0.12),
+            borderRadius: context.tokens.borderRadiusBadge,
+          ),
+          child: Text(
+            'E',
+            style: TextStyle(
+              fontSize: context.tokens.badgeFontSize,
+              fontWeight: FontWeight.w800,
+              height: 1.4,
+              color: colorScheme.onSurface,
+            ),
+          ),
         ),
       ),
     );
   }
 }
 
-/// Square artwork placeholder shared by every track row and grid cell.
+/// The play circle of a song row: an outlined circle with a play triangle,
+/// or a pause bar pair while [isPlaying]. A 32dp pointer target when [dense].
+class SongPlayButton extends StatelessWidget {
+  const SongPlayButton({
+    super.key,
+    required this.isPlaying,
+    required this.onPlay,
+    this.dense = false,
+  });
+
+  final bool isPlaying;
+  final VoidCallback? onPlay;
+
+  /// A 32dp pointer target for desktop table rows.
+  final bool dense;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return AppIconButton(
+      tooltip: isPlaying ? context.l10n.actionPause : context.l10n.tooltipPlay,
+      onPressed: onPlay,
+      icon: AppIcon(
+        isPlaying ? Icons.pause_circle_outline : Icons.play_circle_outline,
+        color: colorScheme.primary,
+        size: dense ? 24 : 28,
+      ),
+      style: IconButton.styleFrom(
+        minimumSize: Size.square(dense ? 32 : context.tokens.minTouchTarget),
+        padding: dense ? EdgeInsets.zero : null,
+        tapTargetSize: dense ? MaterialTapTargetSize.shrinkWrap : null,
+        backgroundColor: Colors.transparent,
+      ),
+    );
+  }
+}
+
+/// Square artwork placeholder shared by every track row.
 class TrackCoverPlaceholder extends StatelessWidget {
   const TrackCoverPlaceholder({super.key, this.size, this.borderRadius});
 

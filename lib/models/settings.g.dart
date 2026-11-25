@@ -12,17 +12,7 @@ AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => AppSettings(
   downloadDirectoryBookmark: json['downloadDirectoryBookmark'] as String? ?? '',
   storageMode: json['storageMode'] as String? ?? 'app',
   downloadTreeUri: json['downloadTreeUri'] as String? ?? '',
-  embedMetadata: json['embedMetadata'] as bool? ?? true,
-  embeddedCoverMaxDimension:
-      (json['embeddedCoverMaxDimension'] as num?)?.toInt() ?? 0,
-  artistTagMode: json['artistTagMode'] as String? ?? artistTagModeJoined,
-  metadataSeparators: json['metadataSeparators'] == null
-      ? const MetadataSeparators()
-      : MetadataSeparators.fromJson(
-          json['metadataSeparators'] as Map<String, dynamic>,
-        ),
   embedLyrics: json['embedLyrics'] as bool? ?? true,
-  embedReplayGain: json['embedReplayGain'] as bool? ?? false,
   playbackNormalization: json['playbackNormalization'] as bool? ?? false,
   playbackNormalizationPreamp: json['playbackNormalizationPreamp'] == null
       ? 0
@@ -101,31 +91,19 @@ AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => AppSettings(
   autoHideLyricsControlsWithAccessibility:
       json['autoHideLyricsControlsWithAccessibility'] as bool? ?? false,
   isFirstLaunch: json['isFirstLaunch'] as bool? ?? true,
-  historyViewMode: json['historyViewMode'] as String? ?? 'grid',
-  historyFilterMode: json['historyFilterMode'] as String? ?? 'all',
   historySortMode: json['historySortMode'] == null
       ? 'latest'
       : librarySortModeFromJson(json['historySortMode']),
   libraryAlbumSortMode: json['libraryAlbumSortMode'] == null
       ? 'a-z'
       : libraryAlbumSortModeFromJson(json['libraryAlbumSortMode']),
-  libraryArtistShowsSongs: json['libraryArtistShowsSongs'] as bool? ?? false,
-  defaultLibraryView: json['defaultLibraryView'] as String? ?? 'last',
-  libraryQualityLabelMode:
-      json['libraryQualityLabelMode'] as String? ??
-      AppSettings.libraryQualityLabelBitDepthOnly,
   swipeToQueue: json['swipeToQueue'] as bool? ?? true,
-  librarySongTap:
-      json['librarySongTap'] as String? ?? AppSettings.librarySongTapDetails,
-  enableLogging: json['enableLogging'] as bool? ?? false,
   searchViewMode: json['searchViewMode'] as String? ?? 'list',
   homeShortcuts:
       (json['homeShortcuts'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList() ??
       const ['shuffle', 'equalizer', 'listeningStats', 'loved'],
-  homeContinueListening: json['homeContinueListening'] as bool? ?? true,
-  heroAnimationsEnabled: json['heroAnimationsEnabled'] as bool? ?? true,
   forceBackdropBlur: json['forceBackdropBlur'] as bool? ?? false,
   interfaceScale: json['interfaceScale'] == null
       ? 1
@@ -133,13 +111,7 @@ AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => AppSettings(
   locale: json['locale'] as String? ?? 'system',
   lyricsMode: json['lyricsMode'] as String? ?? 'embed',
   keepScreenOnLyrics: json['keepScreenOnLyrics'] as bool? ?? true,
-  lockScreenLyrics: json['lockScreenLyrics'] as bool? ?? false,
   motionArtworkEnabled: json['motionArtworkEnabled'] as bool? ?? true,
-  saveFolderCover: json['saveFolderCover'] as bool? ?? false,
-  removeEmptyFolders: json['removeEmptyFolders'] as bool? ?? true,
-  listeningStatisticsEnabled:
-      json['listeningStatisticsEnabled'] as bool? ?? true,
-  useAllFilesAccess: json['useAllFilesAccess'] as bool? ?? false,
   localLibraryEnabled: json['localLibraryEnabled'] as bool? ?? false,
   localLibraryPath: json['localLibraryPath'] as String? ?? '',
   localLibraryBookmark: json['localLibraryBookmark'] as String? ?? '',
@@ -149,7 +121,6 @@ AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => AppSettings(
   hasCompletedTutorial: json['hasCompletedTutorial'] as bool? ?? false,
   lyricsRomanize: readLyricsRomanize(json, 'lyricsRomanize') as bool? ?? true,
   lyricsRomanizedMainLine: json['lyricsRomanizedMainLine'] as bool? ?? false,
-  playerMode: json['playerMode'] as String? ?? 'internal',
   playerShowPronunciation: json['playerShowPronunciation'] as bool? ?? true,
   playerShowTranslation: json['playerShowTranslation'] as bool? ?? true,
   playerShowVolume: json['playerShowVolume'] as bool? ?? true,
@@ -163,12 +134,7 @@ Map<String, dynamic> _$AppSettingsToJson(AppSettings instance) =>
       'downloadDirectoryBookmark': instance.downloadDirectoryBookmark,
       'storageMode': instance.storageMode,
       'downloadTreeUri': instance.downloadTreeUri,
-      'embedMetadata': instance.embedMetadata,
-      'embeddedCoverMaxDimension': instance.embeddedCoverMaxDimension,
-      'artistTagMode': instance.artistTagMode,
-      'metadataSeparators': instance.metadataSeparators.toJson(),
       'embedLyrics': instance.embedLyrics,
-      'embedReplayGain': instance.embedReplayGain,
       'playbackNormalization': instance.playbackNormalization,
       'playbackNormalizationPreamp': instance.playbackNormalizationPreamp,
       'playbackNormalizationMode': instance.playbackNormalizationMode,
@@ -212,31 +178,17 @@ Map<String, dynamic> _$AppSettingsToJson(AppSettings instance) =>
       'autoHideLyricsControlsWithAccessibility':
           instance.autoHideLyricsControlsWithAccessibility,
       'isFirstLaunch': instance.isFirstLaunch,
-      'historyViewMode': instance.historyViewMode,
-      'historyFilterMode': instance.historyFilterMode,
       'historySortMode': instance.historySortMode,
       'libraryAlbumSortMode': instance.libraryAlbumSortMode,
-      'libraryArtistShowsSongs': instance.libraryArtistShowsSongs,
-      'defaultLibraryView': instance.defaultLibraryView,
-      'libraryQualityLabelMode': instance.libraryQualityLabelMode,
       'swipeToQueue': instance.swipeToQueue,
-      'librarySongTap': instance.librarySongTap,
-      'enableLogging': instance.enableLogging,
       'searchViewMode': instance.searchViewMode,
       'homeShortcuts': instance.homeShortcuts,
-      'homeContinueListening': instance.homeContinueListening,
-      'heroAnimationsEnabled': instance.heroAnimationsEnabled,
       'forceBackdropBlur': instance.forceBackdropBlur,
       'interfaceScale': instance.interfaceScale,
       'locale': instance.locale,
       'lyricsMode': instance.lyricsMode,
       'keepScreenOnLyrics': instance.keepScreenOnLyrics,
-      'lockScreenLyrics': instance.lockScreenLyrics,
       'motionArtworkEnabled': instance.motionArtworkEnabled,
-      'saveFolderCover': instance.saveFolderCover,
-      'removeEmptyFolders': instance.removeEmptyFolders,
-      'listeningStatisticsEnabled': instance.listeningStatisticsEnabled,
-      'useAllFilesAccess': instance.useAllFilesAccess,
       'localLibraryEnabled': instance.localLibraryEnabled,
       'localLibraryPath': instance.localLibraryPath,
       'localLibraryBookmark': instance.localLibraryBookmark,
@@ -245,7 +197,6 @@ Map<String, dynamic> _$AppSettingsToJson(AppSettings instance) =>
       'hasCompletedTutorial': instance.hasCompletedTutorial,
       'lyricsRomanize': instance.lyricsRomanize,
       'lyricsRomanizedMainLine': instance.lyricsRomanizedMainLine,
-      'playerMode': instance.playerMode,
       'playerShowPronunciation': instance.playerShowPronunciation,
       'playerShowTranslation': instance.playerShowTranslation,
       'playerShowVolume': instance.playerShowVolume,

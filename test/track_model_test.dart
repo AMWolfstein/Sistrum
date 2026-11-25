@@ -85,7 +85,6 @@ void main() {
       expect(album.isPlaylistItem, isFalse);
       expect(album.isArtistItem, isFalse);
       expect(album.isCollection, isTrue);
-      expect(album.isDolbyAtmos, isTrue);
     });
 
     test('detects singles and eps case-insensitively', () {

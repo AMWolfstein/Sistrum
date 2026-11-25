@@ -1,9 +1,6 @@
 {
   "linkFileReading": "Reading tags...",
-  "trackBpm": "BPM",
-  "trackMood": "Humeur",
   "settingsPlaybackSubtitle": "Lecteur, volume, AutoMix et sortie audio",
-  "sectionPlayer": "Lecteur",
   "sectionVolumeAndTransitions": "Volume et transitions",
   "sectionAudioOutput": "Sortie audio",
   "usbBitPerfect": "Audio haute résolution et sans perte",
@@ -81,8 +78,6 @@
       }
     }
   },
-  "appearanceUseSystemFont": "Utiliser la police système",
-  "appearanceUseSystemFontSubtitle": "Utilisez la police par défaut de votre appareil pour le texte de l'application.",
   "@@locale": "fr",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
@@ -117,42 +112,8 @@
   "@historyFilterAll": {
     "description": "Filter chip - show all items"
   },
-  "historyFilterAlbums": "Albums",
-  "@historyFilterAlbums": {
-    "description": "Filter chip - show albums only"
-  },
-  "historyFilterSingles": "Titres",
-  "@historyFilterSingles": {
-    "description": "Filter chip - show singles only"
-  },
-  "libraryRecentlyAdded": "Ajouts récents",
   "librarySearchHint": "Rechercher dans votre bibliothèque",
   "libraryEmptyCollection": "Votre musique apparaîtra ici",
-  "libraryFolders": "Folders",
-  "@libraryFolders": {
-    "description": "Library view that browses downloaded and scanned songs by the folders their files are in"
-  },
-  "libraryFolderCount": "{count, plural, =1{1 folder} other{{count} folders}}",
-  "@libraryFolderCount": {
-    "description": "Number of folders inside a Library folder",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "libraryFoldersEmptyTitle": "No folders yet",
-  "@libraryFoldersEmptyTitle": {
-    "description": "Title of the Folders view when the Library has no songs"
-  },
-  "libraryFoldersEmptyMessage": "Download songs or add a music folder in Local Library settings to browse them by folder.",
-  "@libraryFoldersEmptyMessage": {
-    "description": "Next step shown in the empty Folders view"
-  },
-  "libraryFolderMissing": "This folder is no longer in your Library",
-  "@libraryFolderMissing": {
-    "description": "Shown on an open folder page after its songs were deleted or moved"
-  },
   "libraryFoldersLoadFailed": "Couldn't read your folders",
   "@libraryFoldersLoadFailed": {
     "description": "Shown when the Folders view fails to load"
@@ -173,22 +134,6 @@
   "@downloadAskQualitySubtitle": {
     "description": "Subtitle for ask quality toggle"
   },
-  "downloadFilenameFormat": "Nom du fichier",
-  "@downloadFilenameFormat": {
-    "description": "Setting for output filename pattern"
-  },
-  "downloadSingleFilenameFormat": "Format de nom de fichier unique",
-  "@downloadSingleFilenameFormat": {
-    "description": "Setting for output filename pattern for singles/EPs"
-  },
-  "downloadFolderOrganization": "Organisation du dossier",
-  "@downloadFolderOrganization": {
-    "description": "Title of the folder organization picker bottom sheet"
-  },
-  "downloadFolderTemplate": "Custom Folder Structure",
-  "@downloadFolderTemplate": {
-    "description": "Setting for editing a relative download folder template"
-  },
   "appearanceTitle": "Apparence",
   "@appearanceTitle": {
     "description": "Appearance settings page title"
@@ -204,10 +149,6 @@
   "appearanceThemeDark": "Sombre",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceHistoryView": "Historique",
-  "@appearanceHistoryView": {
-    "description": "Layout style for history"
   },
   "appearanceHistoryViewList": "Liste",
   "@appearanceHistoryViewList": {
@@ -248,18 +189,6 @@
   "optionsEmbedLyricsSubtitle": "Enregistrez les paroles synchronisées avec vos morceaux téléchargés",
   "@optionsEmbedLyricsSubtitle": {
     "description": "Subtitle for embed lyrics"
-  },
-  "optionsReplayGain": "ReplayGain",
-  "@optionsReplayGain": {
-    "description": "Title for ReplayGain setting toggle"
-  },
-  "optionsReplayGainSubtitleOn": "Analyser le niveau sonore et intégrer des balises ReplayGain (EBU R128)",
-  "@optionsReplayGainSubtitleOn": {
-    "description": "Subtitle when ReplayGain is enabled"
-  },
-  "optionsReplayGainSubtitleOff": "Désactivé : aucune balise de normalisation du volume",
-  "@optionsReplayGainSubtitleOff": {
-    "description": "Subtitle when ReplayGain is disabled"
   },
   "trackReplayGain": "Réanalyser ReplayGain",
   "@trackReplayGain": {
@@ -348,87 +277,6 @@
       }
     }
   },
-  "optionsArtistTagMode": "Mode « Artiste »",
-  "metadataSeparators": "Metadata separators",
-  "metadataSeparatorsDescription": "Choisissez comment les valeurs séparées par des virgules ou des points-virgules seront regroupées lors des prochains téléchargements. Les séparateurs d'artistes personnalisés utilisent une balise de regroupement ; l'option « Artiste principal uniquement » reste applicable. Les noms contenant « & » ou « / » sont conservés.",
-  "metadataSeparatorSource": "Conserver la mise en forme du texte source",
-  "metadataSeparatorComma": "Comma (,)",
-  "metadataSeparatorSemicolon": "Semicolon (;)",
-  "metadataSeparatorSlash": "Slash (/)",
-  "metadataSeparatorCustom": "Séparateur personnalisé",
-  "metadataSeparatorPreview": "Aperçu",
-  "metadataSeparatorInvalid": "Utilisez entre 1 et 16 caractères, sans saut de ligne ni caractères de contrôle.",
-  "@optionsArtistTagMode": {
-    "description": "Setting title for how artist metadata is written into files"
-  },
-  "optionsArtistTagModeDescription": "Choisissez comment les noms de plusieurs artistes doivent apparaître dans les balises intégrées.",
-  "@optionsArtistTagModeDescription": {
-    "description": "Bottom-sheet description for artist tag mode setting"
-  },
-  "optionsArtistTagModeJoined": "Valeur unique combinée",
-  "@optionsArtistTagModeJoined": {
-    "description": "Artist tag mode option that joins multiple artists into one value"
-  },
-  "optionsArtistTagModeJoinedSubtitle": "Indiquez une seule valeur ARTIST, par exemple « Artiste A, Artiste B », pour garantir une compatibilité maximale avec les lecteurs.",
-  "@optionsArtistTagModeJoinedSubtitle": {
-    "description": "Subtitle for joined artist tag mode"
-  },
-  "optionsArtistTagModeSplitVorbis": "Diviser les balises pour FLAC/Opus",
-  "@optionsArtistTagModeSplitVorbis": {
-    "description": "Artist tag mode option that writes repeated ARTIST tags for Vorbis formats"
-  },
-  "optionsArtistTagModeSplitVorbisSubtitle": "Créez une balise « artiste » par artiste pour les fichiers FLAC et Opus ; les fichiers MP3 et M4A restent regroupés.",
-  "@optionsArtistTagModeSplitVorbisSubtitle": {
-    "description": "Subtitle for split Vorbis artist tag mode"
-  },
-  "optionsArtistTagModePrimary": "Artiste principal uniquement",
-  "@optionsArtistTagModePrimary": {
-    "description": "Artist tag mode option that writes only the first credited artist"
-  },
-  "optionsArtistTagModePrimarySubtitle": "Dans tous les formats, indiquez uniquement le premier artiste (par exemple « Artiste A ») dans les champs « Artiste » et « Artiste de l'album », afin que les lecteurs n'affichent qu'un seul artiste.",
-  "@optionsArtistTagModePrimarySubtitle": {
-    "description": "Subtitle for the primary-artist tag mode. Applies when downloading and re-enriching; manual edits keep what the user typed."
-  },
-  "optionsExtensionStore": "Référentiel d'extensions",
-  "@optionsExtensionStore": {
-    "description": "Show/hide repo tab"
-  },
-  "optionsExtensionStoreSubtitle": "Afficher l'onglet « Dépôt » dans le menu de navigation",
-  "@optionsExtensionStoreSubtitle": {
-    "description": "Subtitle for extension repo toggle"
-  },
-  "optionsCheckUpdates": "Vérifier les mises à jour",
-  "@optionsCheckUpdates": {
-    "description": "Auto update check toggle"
-  },
-  "optionsCheckUpdatesSubtitle": "M'avertir lorsqu'une nouvelle version est disponible",
-  "@optionsCheckUpdatesSubtitle": {
-    "description": "Subtitle for update check"
-  },
-  "optionsUpdateChannel": "Chaîne de mise à jour",
-  "@optionsUpdateChannel": {
-    "description": "Stable vs preview releases"
-  },
-  "optionsClearHistory": "Effacer l'historique des téléchargements",
-  "@optionsClearHistory": {
-    "description": "Delete all download history"
-  },
-  "optionsClearHistorySubtitle": "Supprimez tous les morceaux téléchargés de l'historique",
-  "@optionsClearHistorySubtitle": {
-    "description": "Subtitle for clear history"
-  },
-  "optionsDetailedLogging": "Journalisation détaillée",
-  "@optionsDetailedLogging": {
-    "description": "Enable verbose logs for debugging"
-  },
-  "optionsDetailedLoggingOn": "Des journaux détaillés sont enregistrés",
-  "@optionsDetailedLoggingOn": {
-    "description": "Status when logging enabled"
-  },
-  "optionsDetailedLoggingOff": "Activer pour les rapports de bogues",
-  "@optionsDetailedLoggingOff": {
-    "description": "Status when logging disabled"
-  },
   "extensionsDisabled": "Désactivée",
   "@extensionsDisabled": {
     "description": "Extension status - inactive"
@@ -436,26 +284,6 @@
   "aboutTitle": "À propos",
   "@aboutTitle": {
     "description": "About page title"
-  },
-  "aboutContributors": "Contributeurs",
-  "@aboutContributors": {
-    "description": "Section for contributors"
-  },
-  "aboutMobileDeveloper": "Développeur de la version mobile",
-  "@aboutMobileDeveloper": {
-    "description": "Role description for mobile dev"
-  },
-  "aboutLogoArtist": "Le talentueux artiste qui a créé le magnifique logo de notre application !",
-  "@aboutLogoArtist": {
-    "description": "Role description for logo artist"
-  },
-  "aboutTranslators": "Traducteurs",
-  "@aboutTranslators": {
-    "description": "Section for translators"
-  },
-  "aboutSpecialThanks": "Remerciements particuliers",
-  "@aboutSpecialThanks": {
-    "description": "Section for special thanks"
   },
   "aboutApp": "Application",
   "@aboutApp": {
@@ -465,21 +293,9 @@
   "@aboutVersion": {
     "description": "Version info label"
   },
-  "aboutBinimumDesc": "Créateur de QQDL et de l'API HiFi. Ce projet a contribué à mettre en place la prise en charge des téléchargements sans perte.",
-  "@aboutBinimumDesc": {
-    "description": "Credit description for binimum"
-  },
-  "aboutSachinsenalDesc": "Le créateur du projet HiFi original. Une base pour l'intégration de sources sans perte.",
-  "@aboutSachinsenalDesc": {
-    "description": "Credit description for sachinsenal0x64"
-  },
   "aboutAppDescription": "Recherchez des métadonnées musicales, gérez les extensions et organisez votre bibliothèque.",
   "@aboutAppDescription": {
     "description": "App description in header card"
-  },
-  "trackMetadataService": "Service",
-  "@trackMetadataService": {
-    "description": "Metadata field - download service used"
   },
   "trackMetadataPlay": "Lire",
   "@trackMetadataPlay": {
@@ -984,14 +800,6 @@
       }
     }
   },
-  "sectionDownload": "Télécharger",
-  "@sectionDownload": {
-    "description": "Settings section header"
-  },
-  "sectionDebug": "Débogage",
-  "@sectionDebug": {
-    "description": "Settings section header"
-  },
   "sectionService": "Service",
   "@sectionService": {
     "description": "Settings section header"
@@ -1075,9 +883,9 @@
       }
     }
   },
-  "trackCopyFilePath": "Copier le chemin d'accès au fichier",
-  "@trackCopyFilePath": {
-    "description": "Action - copy file path"
+  "trackAudioQualityAnalysis": "Audio quality analysis",
+  "@trackAudioQualityAnalysis": {
+    "description": "Action - opens the audio quality analysis of the song"
   },
   "trackRemoveFromDevice": "Supprimer de l'appareil",
   "@trackRemoveFromDevice": {
@@ -1087,33 +895,13 @@
   "@trackMetadata": {
     "description": "Tab title - track metadata"
   },
-  "trackFileInfo": "Informations sur le fichier",
-  "@trackFileInfo": {
-    "description": "Tab title - file information"
-  },
   "trackLyrics": "Paroles",
   "@trackLyrics": {
     "description": "Tab title - lyrics"
   },
-  "trackFileNotFound": "Fichier introuvable",
-  "@trackFileNotFound": {
-    "description": "Error - file doesn't exist"
-  },
-  "trackFileUnavailable": "File is currently unavailable. Check storage access and try again.",
-  "@trackFileUnavailable": {
-    "description": "File access failed; this does not mean the file was deleted"
-  },
-  "trackTrackName": "Nom de la piste",
-  "@trackTrackName": {
-    "description": "Metadata label - track title"
-  },
   "trackArtist": "Artiste",
   "@trackArtist": {
     "description": "Metadata label - artist name"
-  },
-  "trackAlbumArtist": "Artiste de l'album",
-  "@trackAlbumArtist": {
-    "description": "Metadata label - album artist"
   },
   "trackAlbum": "Album",
   "@trackAlbum": {
@@ -1123,90 +911,9 @@
   "@trackTrackNumber": {
     "description": "Metadata label - track number"
   },
-  "trackDiscNumber": "Numéro de disque",
-  "@trackDiscNumber": {
-    "description": "Metadata label - disc number"
-  },
   "trackDuration": "Durée",
   "@trackDuration": {
     "description": "Metadata label - track length"
-  },
-  "trackAudioQuality": "Qualité audio",
-  "@trackAudioQuality": {
-    "description": "Metadata label - audio quality"
-  },
-  "trackReplayGainTrackGain": "ReplayGain - Gain par piste",
-  "@trackReplayGainTrackGain": {
-    "description": "Metadata label - ReplayGain track gain"
-  },
-  "trackReplayGainTrackPeak": "ReplayGain – Pic de piste",
-  "@trackReplayGainTrackPeak": {
-    "description": "Metadata label - ReplayGain track peak"
-  },
-  "trackReplayGainAlbumGain": "ReplayGain - Gain de l'album",
-  "@trackReplayGainAlbumGain": {
-    "description": "Metadata label - ReplayGain album gain"
-  },
-  "trackReplayGainAlbumPeak": "ReplayGain – Valeur maximale de l'album",
-  "@trackReplayGainAlbumPeak": {
-    "description": "Metadata label - ReplayGain album peak"
-  },
-  "libraryQualityLabelFileFormat": "Format de fichier",
-  "@libraryQualityLabelFileFormat": {
-    "description": "Library audio quality label mode that shows the detected file format"
-  },
-  "trackReleaseDate": "Date de sortie",
-  "@trackReleaseDate": {
-    "description": "Metadata label - release date"
-  },
-  "trackGenre": "Genre",
-  "@trackGenre": {
-    "description": "Metadata label - music genre"
-  },
-  "trackLabel": "Label",
-  "@trackLabel": {
-    "description": "Metadata label - record label"
-  },
-  "trackCopyright": "Droits d'auteur",
-  "@trackCopyright": {
-    "description": "Metadata label - copyright information"
-  },
-  "trackDownloaded": "Téléchargé",
-  "@trackDownloaded": {
-    "description": "Metadata label - download date"
-  },
-  "trackCopyLyrics": "Copier les paroles",
-  "@trackCopyLyrics": {
-    "description": "Action - copy lyrics to clipboard"
-  },
-  "trackLyricsSource": "Source : {source}",
-  "@trackLyricsSource": {
-    "description": "Label showing the lyrics source/provider",
-    "placeholders": {
-      "source": {
-        "type": "String"
-      }
-    }
-  },
-  "trackLyricsNotInFile": "Aucune parole n'a été trouvée dans ce fichier",
-  "@trackLyricsNotInFile": {
-    "description": "Message when no embedded lyrics in audio file"
-  },
-  "trackEmbedLyrics": "Intégrer les paroles",
-  "@trackEmbedLyrics": {
-    "description": "Action - embed lyrics into audio file"
-  },
-  "trackLyricsEmbedded": "Les paroles ont été intégrées avec succès",
-  "@trackLyricsEmbedded": {
-    "description": "Snackbar - lyrics saved to file"
-  },
-  "trackInstrumental": "Morceau instrumental",
-  "@trackInstrumental": {
-    "description": "Message when track is instrumental (no lyrics)"
-  },
-  "trackCopiedToClipboard": "Copié dans le presse-papiers",
-  "@trackCopiedToClipboard": {
-    "description": "Snackbar - content copied"
   },
   "trackDeleteConfirmTitle": "Supprimer de l'appareil ?",
   "@trackDeleteConfirmTitle": {
@@ -1241,45 +948,9 @@
   "@downloadLossyFormat": {
     "description": "Setting title to pick output format for lossy downloads"
   },
-  "downloadAutoConvert": "Conversion automatique après le téléchargement",
-  "@downloadAutoConvert": {
-    "description": "Toggle for automatic post-download audio conversion"
-  },
-  "downloadAutoConvertSubtitle": "Convertissez les téléchargements terminés dans un format compressé avec perte plus léger. Le fichier d'origine n'est remplacé qu'une fois la conversion réussie.",
-  "@downloadAutoConvertSubtitle": {
-    "description": "Explanation of safe automatic post-download conversion"
-  },
   "downloadAskBeforeDownload": "Demander avant de télécharger",
   "@downloadAskBeforeDownload": {
     "description": "Setting - show quality picker"
-  },
-  "downloadDirectory": "Répertoire de téléchargement",
-  "@downloadDirectory": {
-    "description": "Setting - download folder"
-  },
-  "downloadSeparateSinglesFolder": "Dossier dédié aux titres individuels",
-  "@downloadSeparateSinglesFolder": {
-    "description": "Setting - separate folder for singles"
-  },
-  "downloadAlbumFolderStructure": "Structure du dossier de l'album",
-  "@downloadAlbumFolderStructure": {
-    "description": "Setting - album folder organization"
-  },
-  "downloadUseAlbumArtistForFolders": "Utilisez l'artiste de l'album pour les dossiers",
-  "@downloadUseAlbumArtistForFolders": {
-    "description": "Setting - choose whether artist folders use Album Artist or Track Artist"
-  },
-  "downloadUsePrimaryArtistOnly": "Artiste principal uniquement pour les dossiers",
-  "@downloadUsePrimaryArtistOnly": {
-    "description": "Setting - strip featured artists from folder name"
-  },
-  "appearanceHeroAnimations": "Animations des héros",
-  "@appearanceHeroAnimations": {
-    "description": "Toggle for shared-element (Hero) transitions"
-  },
-  "appearanceHeroAnimationsSubtitle": "Des fenêtres contextuelles apparaissent entre les écrans, par exemple lors de l'ouverture du lecteur",
-  "@appearanceHeroAnimationsSubtitle": {
-    "description": "Subtitle for the Hero animations toggle"
   },
   "appearanceForceBlur": "Utilisez toujours des effets de flou",
   "@appearanceForceBlur": {
@@ -1344,34 +1015,6 @@
         "example": "1"
       }
     }
-  },
-  "sectionStorageAccess": "Accès au stockage",
-  "@sectionStorageAccess": {
-    "description": "Section header for storage access settings"
-  },
-  "allFilesAccess": "Accès à tous les fichiers",
-  "@allFilesAccess": {
-    "description": "Toggle for MANAGE_EXTERNAL_STORAGE permission"
-  },
-  "allFilesAccessEnabledSubtitle": "Peut écrire dans n'importe quel dossier",
-  "@allFilesAccessEnabledSubtitle": {
-    "description": "Subtitle when all files access is enabled"
-  },
-  "allFilesAccessDisabledSubtitle": "Réservé aux dossiers multimédias uniquement",
-  "@allFilesAccessDisabledSubtitle": {
-    "description": "Subtitle when all files access is disabled"
-  },
-  "allFilesAccessDescription": "Activez cette option si vous rencontrez des erreurs d'écriture lors de l'enregistrement dans des dossiers personnalisés. À partir d'Android 13, l'accès à certains répertoires est restreint par défaut.",
-  "@allFilesAccessDescription": {
-    "description": "Description explaining when to enable all files access"
-  },
-  "allFilesAccessDeniedMessage": "L'autorisation a été refusée. Veuillez activer manuellement l'option « Accès à tous les fichiers » dans les paramètres système.",
-  "@allFilesAccessDeniedMessage": {
-    "description": "Message when permission is permanently denied"
-  },
-  "allFilesAccessDisabledMessage": "L'accès à tous les fichiers est désactivé. L'application disposera d'un accès limité au stockage.",
-  "@allFilesAccessDisabledMessage": {
-    "description": "Snackbar message when user disables all files access"
   },
   "settingsLocalLibrary": "Bibliothèque locale",
   "@settingsLocalLibrary": {
@@ -1625,10 +1268,6 @@
       }
     }
   },
-  "libraryInLibrary": "Dans la bibliothèque",
-  "@libraryInLibrary": {
-    "description": "Badge shown on tracks that exist in local library"
-  },
   "libraryRemovedMissingFiles": "{count} fichiers manquants ont été supprimés de la bibliothèque",
   "@libraryRemovedMissingFiles": {
     "description": "Snackbar after cleanup",
@@ -1650,14 +1289,6 @@
   "@libraryStorageAccessMessage": {
     "description": "Dialog message for storage permission"
   },
-  "librarySourceLocal": "Locale",
-  "@librarySourceLocal": {
-    "description": "Badge for tracks from local library scan"
-  },
-  "libraryFilterAll": "Tout",
-  "@libraryFilterAll": {
-    "description": "Filter chip - show all library items"
-  },
   "libraryReEnrichAll": "Re-enrich All Tracks",
   "@libraryReEnrichAll": {
     "description": "Library settings action - re-enrich the metadata of every track in the Library"
@@ -1666,69 +1297,13 @@
   "@libraryReEnrichAllSubtitle": {
     "description": "Subtitle for the Re-enrich All Tracks action"
   },
-  "libraryFilterLocal": "Locale",
-  "@libraryFilterLocal": {
-    "description": "Filter chip - show only local library items"
-  },
-  "libraryFilterTitle": "Filtres",
-  "@libraryFilterTitle": {
-    "description": "Filter bottom sheet title"
-  },
   "libraryFilterReset": "Réinitialiser",
   "@libraryFilterReset": {
     "description": "Reset all filters button"
   },
-  "libraryFilterApply": "Appliquer",
-  "@libraryFilterApply": {
-    "description": "Apply filters button"
-  },
-  "libraryFilterSource": "Source",
-  "@libraryFilterSource": {
-    "description": "Filter section - source type"
-  },
-  "libraryFilterQuality": "Qualité",
-  "@libraryFilterQuality": {
-    "description": "Filter section - audio quality"
-  },
-  "libraryFilterQualityHiRes": "Haute résolution (24 bits)",
-  "@libraryFilterQualityHiRes": {
-    "description": "Filter option - high resolution audio"
-  },
-  "libraryFilterQualityCD": "CD (16 bits)",
-  "@libraryFilterQualityCD": {
-    "description": "Filter option - CD quality audio"
-  },
-  "libraryFilterQualityLossy": "Avec perte",
-  "@libraryFilterQualityLossy": {
-    "description": "Filter option - lossy compressed audio"
-  },
   "libraryFilterFormat": "Format",
   "@libraryFilterFormat": {
     "description": "Filter section - file format"
-  },
-  "libraryFilterMetadata": "Métadonnées",
-  "@libraryFilterMetadata": {
-    "description": "Filter section - metadata completeness"
-  },
-  "libraryFilterMetadataComplete": "Métadonnées complètes",
-  "@libraryFilterMetadataComplete": {
-    "description": "Filter option - items with complete metadata"
-  },
-  "libraryFilterMetadataMissingAny": "Métadonnées manquantes",
-  "@libraryFilterMetadataMissingAny": {
-    "description": "Filter option - items missing any tracked metadata field"
-  },
-  "libraryFilterMetadataMissingYear": "Année manquante",
-  "@libraryFilterMetadataMissingYear": {
-    "description": "Filter option - items missing release year/date"
-  },
-  "libraryFilterMetadataMissingGenre": "Genre manquant",
-  "@libraryFilterMetadataMissingGenre": {
-    "description": "Filter option - items missing genre"
-  },
-  "libraryFilterMetadataMissingAlbumArtist": "Artiste d'album manquant",
-  "@libraryFilterMetadataMissingAlbumArtist": {
-    "description": "Filter option - items missing album artist"
   },
   "libraryFilterSort": "Trier",
   "@libraryFilterSort": {
@@ -2124,93 +1699,9 @@
       }
     }
   },
-  "trackConvertFormat": "Convertir le format",
-  "@trackConvertFormat": {
-    "description": "Menu item - convert audio format"
-  },
-  "trackConvertTitle": "Convertir un fichier audio",
-  "@trackConvertTitle": {
-    "description": "Title of convert bottom sheet"
-  },
-  "trackConvertTargetFormat": "Format cible",
-  "@trackConvertTargetFormat": {
-    "description": "Label for format selection"
-  },
   "trackConvertBitrate": "Débit binaire",
   "@trackConvertBitrate": {
     "description": "Label for bitrate selection"
-  },
-  "trackConvertKeepOriginal": "Conserver le fichier d'origine",
-  "@trackConvertKeepOriginal": {
-    "description": "Toggle to preserve the source file during conversion"
-  },
-  "trackConvertKeepOriginalDescription": "Ajoutez le fichier converti en tant qu'entrée distincte dans la bibliothèque",
-  "@trackConvertKeepOriginalDescription": {
-    "description": "Description for preserving the source file during conversion"
-  },
-  "trackConvertConfirmTitle": "Confirmer la conversion",
-  "@trackConvertConfirmTitle": {
-    "description": "Confirmation dialog title"
-  },
-  "trackConvertConfirmMessage": "Convertir du format {sourceFormat} au format {targetFormat} avec un débit binaire de {bitrate} ?\n\nLe fichier d'origine sera supprimé après la conversion.",
-  "@trackConvertConfirmMessage": {
-    "description": "Confirmation dialog message",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmMessageLossless": "Convertir de {sourceFormat} vers {targetFormat} ? (Sans perte — aucune perte de qualité)\n\nLe fichier d'origine sera supprimé après la conversion.",
-  "@trackConvertConfirmMessageLossless": {
-    "description": "Confirmation dialog message for lossless-to-lossless conversion",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmKeepOriginal": "Convertir du format {sourceFormat} au format {targetFormat} ?\n\nLe fichier d'origine sera conservé et le fichier converti sera ajouté en tant qu'entrée distincte dans la bibliothèque.",
-  "@trackConvertConfirmKeepOriginal": {
-    "description": "Confirmation message when the source file will be preserved",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertLosslessHint": "Conversion sans perte — aucune perte de qualité",
-  "@trackConvertLosslessHint": {
-    "description": "Hint shown when converting between lossless formats"
-  },
-  "trackConvertConverting": "Conversion audio en cours...",
-  "@trackConvertConverting": {
-    "description": "Snackbar while converting"
-  },
-  "trackConvertSuccess": "Conversion vers {format} réussie",
-  "@trackConvertSuccess": {
-    "description": "Snackbar after successful conversion",
-    "placeholders": {
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertFailed": "Échec de la conversion",
-  "@trackConvertFailed": {
-    "description": "Snackbar when conversion fails"
   },
   "cueSplitTitle": "Fiche CUE fractionnée",
   "@cueSplitTitle": {
@@ -2296,14 +1787,6 @@
   "@actionCreate": {
     "description": "Generic action button - create"
   },
-  "collectionFoldersTitle": "Mes dossiers",
-  "@collectionFoldersTitle": {
-    "description": "Library section title for custom folders"
-  },
-  "collectionWishlist": "Liste de souhaits",
-  "@collectionWishlist": {
-    "description": "Custom folder for saved tracks to download later"
-  },
   "collectionLoved": "Favoris",
   "@collectionLoved": {
     "description": "Custom folder for favorite tracks"
@@ -2331,15 +1814,6 @@
   "collectionPlaylistTracks": "{count, plural, =1{1 titre} other{{count} titres}}",
   "@collectionPlaylistTracks": {
     "description": "Track count label for custom playlists",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "collectionArtistCount": "{count, plural, =1{1 artiste} other{{count} artistes}}",
-  "@collectionArtistCount": {
-    "description": "Artist count label for favorite artists",
     "placeholders": {
       "count": {
         "type": "int"
@@ -2384,14 +1858,6 @@
   "@collectionPlaylistRenamed": {
     "description": "Snackbar after renaming playlist"
   },
-  "collectionWishlistEmptyTitle": "La liste de souhaits est vide",
-  "@collectionWishlistEmptyTitle": {
-    "description": "Wishlist empty state title"
-  },
-  "collectionWishlistEmptySubtitle": "Appuyez sur le signe « + » à côté des morceaux pour enregistrer ceux que vous souhaitez télécharger plus tard",
-  "@collectionWishlistEmptySubtitle": {
-    "description": "Wishlist empty state subtitle"
-  },
   "collectionLovedEmptyTitle": "Le dossier « Favoris » est vide",
   "@collectionLovedEmptyTitle": {
     "description": "Loved empty state title"
@@ -2422,43 +1888,7 @@
   },
   "collectionRemoveFromFolder": "Supprimer du dossier",
   "@collectionRemoveFromFolder": {
-    "description": "Tooltip for removing track from wishlist/loved folder"
-  },
-  "collectionAddedToLoved": "\"{trackName}\" ajouté aux Favoris",
-  "@collectionAddedToLoved": {
-    "description": "Snackbar after adding track to loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionRemovedFromLoved": "\"{trackName}\" supprimé des Favoris",
-  "@collectionRemovedFromLoved": {
-    "description": "Snackbar after removing track from loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionAddedToWishlist": "« {trackName} » a été ajouté à la liste de souhaits",
-  "@collectionAddedToWishlist": {
-    "description": "Snackbar after adding track to wishlist",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionRemovedFromWishlist": "« {trackName} » a été supprimé de la liste de souhaits",
-  "@collectionRemovedFromWishlist": {
-    "description": "Snackbar after removing track from wishlist",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
+    "description": "Tooltip for removing track from loved folder"
   },
   "collectionRemovedFromFavoriteArtists": "« {artistName} » a été supprimé de vos artistes favoris",
   "@collectionRemovedFromFavoriteArtists": {
@@ -2477,14 +1907,6 @@
   "@trackOptionRemoveFromLoved": {
     "description": "Bottom sheet action label - remove track from loved folder"
   },
-  "trackOptionAddToWishlist": "Ajouter à la liste de souhaits",
-  "@trackOptionAddToWishlist": {
-    "description": "Bottom sheet action label - add track to wishlist"
-  },
-  "trackOptionRemoveFromWishlist": "Supprimer de la liste de souhaits",
-  "@trackOptionRemoveFromWishlist": {
-    "description": "Bottom sheet action label - remove track from wishlist"
-  },
   "artistOptionRemoveFromFavorites": "Supprimer des Artistes Favoris",
   "@artistOptionRemoveFromFavorites": {
     "description": "Action label - remove artist from favorite artists"
@@ -2496,77 +1918,6 @@
   "collectionPlaylistRemoveCover": "Supprimer l'image de couverture",
   "@collectionPlaylistRemoveCover": {
     "description": "Bottom sheet action to remove custom cover image from a playlist"
-  },
-  "selectionConvertCount": "Convertir {count} {count, plural, =1{titre} other{titres}}",
-  "@selectionConvertCount": {
-    "description": "Convert button text with count in selection mode",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "selectionConvertNoConvertible": "Aucune piste convertible sélectionnée",
-  "@selectionConvertNoConvertible": {
-    "description": "Snackbar when no selected tracks support conversion"
-  },
-  "selectionBatchConvertConfirmTitle": "Conversion par lots",
-  "@selectionBatchConvertConfirmTitle": {
-    "description": "Confirmation dialog title for batch conversion"
-  },
-  "selectionBatchConvertConfirmMessage": "Convertir {count} {count, plural, =1{titre} other{titres}} au format {format} avec un débit binaire de {bitrate} ?\n\nLes fichiers d'origine seront supprimés après la conversion.",
-  "@selectionBatchConvertConfirmMessage": {
-    "description": "Confirmation dialog message for batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmMessageLossless": "Convertir {count} {count, plural, =1{titre} other{titres}} au format {format} ? (Sans perte — aucune perte de qualité)\n\nLes fichiers d'origine seront supprimés après la conversion.",
-  "@selectionBatchConvertConfirmMessageLossless": {
-    "description": "Confirmation dialog message for lossless batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmKeepOriginal": "Convertir {count} {count, plural, =1{titre} other{titres}} au format {format} ?\n\nLes fichiers d'origine seront conservés et les fichiers convertis seront ajoutés sous forme d'entrées distinctes dans la bibliothèque.",
-  "@selectionBatchConvertConfirmKeepOriginal": {
-    "description": "Batch conversion confirmation when source files will be preserved",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertSuccess": "{success} pistes sur {total} ont été converties au format {format}",
-  "@selectionBatchConvertSuccess": {
-    "description": "Snackbar after batch conversion completes",
-    "placeholders": {
-      "success": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
   },
   "settingsBackup": "Sauvegarde & Restauration",
   "@settingsBackup": {
@@ -2584,7 +1935,7 @@
   "@backupExportSectionTitle": {
     "description": "Section title for the export/backup card"
   },
-  "backupExportSectionDescription": "Enregistrez vos paramètres, votre historique de téléchargement, les titres que vous avez aimés, votre liste de souhaits, vos artistes préférés et vos playlists dans un seul fichier que vous pourrez conserver ou transférer vers un autre téléphone.",
+  "backupExportSectionDescription": "Enregistrez vos paramètres, votre historique de téléchargement, les titres que vous avez aimés, votre vos artistes préférés et vos playlists dans un seul fichier que vous pourrez conserver ou transférer vers un autre téléphone.",
   "@backupExportSectionDescription": {
     "description": "Description of what a backup contains"
   },
@@ -2642,7 +1993,7 @@
   },
   "backupSettingsOnly": "Paramètres uniquement",
   "backupSelectCollections": "Fonds de la bibliothèque",
-  "backupSelectCollectionsDescription": "Titres appréciés, liste de souhaits, artistes préférés, playlists et pochettes de playlists.",
+  "backupSelectCollectionsDescription": "Titres appréciés, artistes préférés, playlists et pochettes de playlists.",
   "backupSelectedExportDescription": "Enregistrez les catégories sélectionnées dans un fichier de sauvegarde. Les fichiers audio ne sont pas inclus.",
   "backupSelectAtLeastOne": "Sélectionnez au moins une catégorie pour créer une sauvegarde.",
   "backupSelectedRestoreMessage": "Seules les catégories répertoriées ci-dessous seront restaurées. Les catégories non incluses dans cette sauvegarde resteront inchangées. La restauration peut remplacer les données existantes et ne peut pas être annulée.",
@@ -2653,15 +2004,6 @@
   "backupContentsLiked": "{count} favoris {count, plural, one {}=1{titre} other{titres}}",
   "@backupContentsLiked": {
     "description": "Backup contents row for liked tracks count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "backupContentsWishlist": "{count} liste de souhaits {count, plural, one {}=1{titre} other{titres}}",
-  "@backupContentsWishlist": {
-    "description": "Backup contents row for wishlist tracks count",
     "placeholders": {
       "count": {
         "type": "int"
@@ -2698,10 +2040,6 @@
   "@tooltipLoveAll": {
     "description": "Tooltip for the Love All button on album/playlist screens"
   },
-  "tooltipAddToPlaylist": "Ajouter à la playlist",
-  "@tooltipAddToPlaylist": {
-    "description": "Tooltip for the Add to Playlist button"
-  },
   "snackbarRemovedTracksFromLoved": "{count} titres supprimés des Favoris",
   "@snackbarRemovedTracksFromLoved": {
     "description": "Snackbar after removing multiple tracks from Loved folder",
@@ -2732,14 +2070,6 @@
   "@snackbarMetadataSaved": {
     "description": "Snackbar after successfully saving track metadata"
   },
-  "snackbarFailedToEmbedLyrics": "Impossible d'intégrer les paroles",
-  "@snackbarFailedToEmbedLyrics": {
-    "description": "Snackbar when lyrics embedding fails"
-  },
-  "snackbarFailedToWriteStorage": "Échec de l'écriture sur le support de stockage",
-  "@snackbarFailedToWriteStorage": {
-    "description": "Snackbar when writing metadata back to file fails"
-  },
   "snackbarError": "Erreur : {error}",
   "@snackbarError": {
     "description": "Generic error snackbar with error detail",
@@ -2754,14 +2084,6 @@
     "description": "Empty state message when an album has no tracks"
   },
   "storageDownloadFolderHint": "Dans le sélecteur de dossiers Android, ouvrez le dossier « Téléchargements » et sélectionnez « Sistrum ». S'il n'existe pas, créez-le à l'aide de l'option « Nouveau dossier », puis appuyez sur « Utiliser ce dossier » pour autoriser l'accès.",
-  "downloadArtistNameFilters": "Filtres par nom d'artiste",
-  "@downloadArtistNameFilters": {
-    "description": "Setting title for artist folder filter options"
-  },
-  "downloadCreatePlaylistSourceFolder": "Dossier source de la playlist",
-  "@downloadCreatePlaylistSourceFolder": {
-    "description": "Setting to create a subfolder per playlist source"
-  },
   "downloadSongLinkRegion": "Région SongLink",
   "@downloadSongLinkRegion": {
     "description": "Setting for SongLink region used during fallback resolution"
@@ -2773,10 +2095,6 @@
   "downloadAllowLocalNetwork": "Autoriser l'accès au réseau local",
   "@downloadAllowLocalNetwork": {
     "description": "Setting title for allowing requests to private/local network targets"
-  },
-  "downloadEmbedLyricsDisabled": "Activez d'abord l'intégration des métadonnées",
-  "@downloadEmbedLyricsDisabled": {
-    "description": "Subtitle when lyrics embedding is blocked by metadata toggle"
   },
   "downloadNeteaseIncludeTranslation": "Netease : inclure la traduction",
   "@downloadNeteaseIncludeTranslation": {
@@ -2797,10 +2115,6 @@
   "downloadMusixmatchLanguage": "Langue Musixmatch",
   "@downloadMusixmatchLanguage": {
     "description": "Setting for Musixmatch lyrics translation language"
-  },
-  "downloadFilterContributing": "Filtrer les artistes participants",
-  "@downloadFilterContributing": {
-    "description": "Setting to strip contributing artists from Album Artist folder name"
   },
   "snackbarUnsupportedAudioFormat": "Format audio non pris en charge",
   "@snackbarUnsupportedAudioFormat": {
@@ -2888,14 +2202,6 @@
   "@queueEmptyAlbumsSubtitle": {
     "description": "Empty state subtitle for album downloads"
   },
-  "queueEmptySingles": "Pas de téléchargement individuel",
-  "@queueEmptySingles": {
-    "description": "Empty state title when no single track downloads exist"
-  },
-  "queueEmptySinglesSubtitle": "Les téléchargements de titres individuels apparaîtront ici",
-  "@queueEmptySinglesSubtitle": {
-    "description": "Empty state subtitle for single track downloads"
-  },
   "queuePlaylistCount": "{count, plural, =1{1 playlist} other{{count} playlists}}",
   "@queuePlaylistCount": {
     "description": "Playlist count label with plural support",
@@ -2908,14 +2214,6 @@
   "queueEmptyPlaylistsSubtitle": "Créez une playlist pour organiser vos morceaux",
   "@queueEmptyPlaylistsSubtitle": {
     "description": "Empty state subtitle for the playlists library view"
-  },
-  "libraryDefaultView": "Affichage par défaut",
-  "@libraryDefaultView": {
-    "description": "Setting title - which library view opens when switching to the Library tab"
-  },
-  "libraryDefaultViewLastUsed": "Dernière utilisation",
-  "@libraryDefaultViewLastUsed": {
-    "description": "Default view option - keep the last used library view"
   },
   "queueEmptyHistory": "Aucun historique de téléchargement",
   "@queueEmptyHistory": {
@@ -3043,105 +2341,6 @@
     "placeholders": {
       "fileName": {
         "type": "String"
-      }
-    }
-  },
-  "downloadRedownloadFakeHiRes": "Télécharger à nouveau la fausse version haute résolution",
-  "@downloadRedownloadFakeHiRes": {
-    "description": "Setting title: automatically replace downloads that measure as fake Hi-Res"
-  },
-  "downloadRedownloadFakeHiResSubtitle": "Désactivé par défaut. Cochez « Téléchargements haute résolution » et ne remplacez les fichiers que si tous les échantillons audio sont conservés. Conservez l'original en cas d'échec de la vérification ou du traitement.",
-  "@downloadRedownloadFakeHiResSubtitle": {
-    "description": "Setting subtitle for the fake Hi-Res re-download toggle"
-  },
-  "hiResCheckVerdictFakeCertain": "Fausse haute résolution",
-  "@hiResCheckVerdictFakeCertain": {
-    "description": "Verdict: an exact fingerprint (padded bits or upsampling pattern) proves the file is not real Hi-Res"
-  },
-  "hiResCheckReasonSampleHold": "Chaque échantillon est répété : suréchantillonné par duplication",
-  "@hiResCheckReasonSampleHold": {
-    "description": "Reason: sample-and-hold upsampling detected"
-  },
-  "hiResCheckReasonInterpolation": "Les échantillons intermédiaires sont interpolés de manière linéaire",
-  "@hiResCheckReasonInterpolation": {
-    "description": "Reason: linear-interpolation upsampling detected"
-  },
-  "hiResCheckTitle": "Authenticité haute résolution",
-  "@hiResCheckTitle": {
-    "description": "Title of the fake Hi-Res check card"
-  },
-  "hiResCheckLimitedBandwidth": "Bande passante limitée",
-  "@hiResCheckLimitedBandwidth": {
-    "description": "Neutral finding: a limited spectrum alone does not prove upsampling"
-  },
-  "hiResCheckEstimatedCutoff": "Seuil estimé",
-  "@hiResCheckEstimatedCutoff": {
-    "description": "Estimated upper spectral edge at the analysis threshold"
-  },
-  "hiResCheckActiveBits": "Bits actifs / stockés",
-  "@hiResCheckActiveBits": {
-    "description": "Active integer bit depth versus the container depth in the sampled segment"
-  },
-  "hiResCheckBandwidthExplanation": "Une fréquence de coupure inférieure peut résulter du mastering. Elle ne prouve pas, en soi, qu'il y a eu suréchantillonnage.",
-  "@hiResCheckBandwidthExplanation": {
-    "description": "Explains why the limited-bandwidth finding is neutral"
-  },
-  "hiResCheckImagingEvidence": "Le spectre présente des bandes symétriques, ce qui correspond à un suréchantillonnage.",
-  "@hiResCheckImagingEvidence": {
-    "description": "Spectral imaging is suggestive evidence rather than proof"
-  },
-  "hiResCheckRateEvidence": "Une forte atténuation en proximité de {cutoff} et le niveau de bruit de fond mesuré laissent supposer une source à faible débit.",
-  "@hiResCheckRateEvidence": {
-    "description": "Heuristic evidence from both a brickwall and a 16-bit-like noise floor",
-    "placeholders": {
-      "cutoff": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResCheckSteadyEnergy": "L'énergie au-dessus de {cutoff} est globalement stable dans le segment analysé et pourrait correspondre à du bruit.",
-  "@hiResCheckSteadyEnergy": {
-    "description": "An observation about ultrasonic energy, not proof that removing it is safe",
-    "placeholders": {
-      "cutoff": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResCheckRun": "Vérifier",
-  "@hiResCheckRun": {
-    "description": "Button that starts the Hi-Res authenticity check"
-  },
-  "hiResCheckVerdictFake": "Probablement une fausse image haute résolution",
-  "@hiResCheckVerdictFake": {
-    "description": "Verdict: the file claims Hi-Res but does not measure as it"
-  },
-  "hiResCheckVerdictInconclusive": "Résultat non concluant : le segment analysé est trop silencieux ou trop court",
-  "@hiResCheckVerdictInconclusive": {
-    "description": "Verdict: analysis could not reach a reliable conclusion"
-  },
-  "hiResCheckUnsupported": "Seuls les fichiers FLAC et WAV peuvent être vérifiés",
-  "@hiResCheckUnsupported": {
-    "description": "Shown when the file format cannot be decoded by the Hi-Res check"
-  },
-  "hiResCheckFailed": "Échec de la vérification haute résolution : {error}",
-  "@hiResCheckFailed": {
-    "description": "Error shown when the Hi-Res check fails",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResCheckReasonDepth": "Déclare {declared} bits, mais seuls les {effective} bits contiennent des données",
-  "@hiResCheckReasonDepth": {
-    "description": "Reason for a fake verdict caused by padded bit depth",
-    "placeholders": {
-      "declared": {
-        "type": "int"
-      },
-      "effective": {
-        "type": "int"
       }
     }
   },
@@ -3427,18 +2626,6 @@
   "@tutorialStartDownloadSemantics": {
     "description": "Accessibility label for idle download button in tutorial demo"
   },
-  "optionsEmbedMetadata": "Intégrer des métadonnées",
-  "@optionsEmbedMetadata": {
-    "description": "Settings toggle title for writing metadata into downloaded files"
-  },
-  "optionsEmbedMetadataSubtitleOn": "Ajouter des métadonnées, des pochettes et des paroles intégrées aux fichiers",
-  "@optionsEmbedMetadataSubtitleOn": {
-    "description": "Subtitle when metadata embedding is enabled"
-  },
-  "optionsEmbedMetadataSubtitleOff": "Désactivé (avancé) : ignorer l'intégration de toutes les métadonnées",
-  "@optionsEmbedMetadataSubtitleOff": {
-    "description": "Subtitle when metadata embedding is disabled"
-  },
   "trackCoverNoEmbeddedArt": "Aucune pochette d'album n'a été trouvée",
   "@trackCoverNoEmbeddedArt": {
     "description": "Message shown when a track file has no embedded cover art"
@@ -3466,18 +2653,6 @@
   "trackCoverReplaceNotice": "La pochette sélectionnée remplacera la pochette actuellement intégrée lorsque vous appuierez sur « Enregistrer ».",
   "@trackCoverReplaceNotice": {
     "description": "Notice shown when a new cover has been selected but not saved yet"
-  },
-  "trackCoverResolution": "Résolution de la couverture",
-  "@trackCoverResolution": {
-    "description": "Label for selecting the embedded cover art resolution"
-  },
-  "trackCoverResolutionHint": "Définit la longueur maximale de l'image lors de l'enregistrement. L'agrandissement n'apporte pas davantage de détails à l'image.",
-  "@trackCoverResolutionHint": {
-    "description": "Explanation below the embedded cover art resolution selector"
-  },
-  "trackCoverResizeFailed": "L'image de couverture n'a pas pu être redimensionnée. Veuillez essayer une autre taille ou une autre image.",
-  "@trackCoverResizeFailed": {
-    "description": "Error shown when resizing cover art before saving metadata fails"
   },
   "queueMoveUp": "Remonter",
   "@queueMoveUp": {
@@ -3626,22 +2801,6 @@
       }
     }
   },
-  "settingsFiles": "Fichiers & Dossiers",
-  "@settingsFiles": {
-    "description": "Settings menu item - file and folder settings"
-  },
-  "settingsFilesSubtitle": "Emplacement de téléchargement, nom de fichier, structure des dossiers",
-  "@settingsFilesSubtitle": {
-    "description": "Subtitle for files & folders settings"
-  },
-  "settingsMetadata": "Métadonnées",
-  "@settingsMetadata": {
-    "description": "Settings menu item - metadata settings"
-  },
-  "settingsMetadataSubtitle": "Pochettes, balises, ReplayGain, fournisseurs",
-  "@settingsMetadataSubtitle": {
-    "description": "Subtitle for metadata settings"
-  },
   "settingsLyrics": "Paroles",
   "@settingsLyrics": {
     "description": "Settings menu item - lyrics settings"
@@ -3649,34 +2808,6 @@
   "settingsLyricsSubtitle": "Intégration, mode, fournisseurs, options linguistiques",
   "@settingsLyricsSubtitle": {
     "description": "Subtitle for lyrics settings"
-  },
-  "settingsApp": "Application",
-  "@settingsApp": {
-    "description": "Settings menu item - app settings"
-  },
-  "settingsAppSubtitle": "Mises à jour, données, dépôt d'extension, débogage",
-  "@settingsAppSubtitle": {
-    "description": "Subtitle for app settings"
-  },
-  "metadataProvidersTitle": "Priorité des fournisseurs de métadonnées",
-  "@metadataProvidersTitle": {
-    "description": "Settings item title for metadata provider order"
-  },
-  "metadataProvidersSubtitle": "Faites glisser pour définir l'ordre des sources de recherche et de métadonnées",
-  "@metadataProvidersSubtitle": {
-    "description": "Subtitle for metadata provider priority item"
-  },
-  "downloadDeduplication": "Éviter les téléchargements en double",
-  "@downloadDeduplication": {
-    "description": "Setting - skip tracks already in download history"
-  },
-  "downloadQualityVariants": "Autoriser différentes versions de qualité",
-  "@downloadQualityVariants": {
-    "description": "Setting to retain multiple quality versions of the same track"
-  },
-  "downloadQualityVariantsDescription": "Conserver toutes les versions de qualité ; n'ajouter la note de qualité au nom de fichier que si ce nom est déjà utilisé",
-  "@downloadQualityVariantsDescription": {
-    "description": "Description for retaining multiple quality versions"
   },
   "downloadFallbackExtensions": "Extensions de secours",
   "@downloadFallbackExtensions": {
@@ -3737,30 +2868,6 @@
   "editMetadataAdvanced": "Avancé",
   "@editMetadataAdvanced": {
     "description": "Expandable section label for advanced metadata fields"
-  },
-  "libraryFilterMetadataMissingTrackNumber": "Numéro de piste manquant",
-  "@libraryFilterMetadataMissingTrackNumber": {
-    "description": "Filter option - items missing track number"
-  },
-  "libraryFilterMetadataMissingDiscNumber": "Numéro de disque manquant",
-  "@libraryFilterMetadataMissingDiscNumber": {
-    "description": "Filter option - items missing disc number"
-  },
-  "libraryFilterMetadataMissingArtist": "Artiste manquant",
-  "@libraryFilterMetadataMissingArtist": {
-    "description": "Filter option - items missing artist"
-  },
-  "libraryFilterMetadataIncorrectIsrcFormat": "Format ISRC incorrect",
-  "@libraryFilterMetadataIncorrectIsrcFormat": {
-    "description": "Filter option - items with an invalid ISRC format"
-  },
-  "libraryFilterMetadataMissingIsrc": "ISRC manquant",
-  "@libraryFilterMetadataMissingIsrc": {
-    "description": "Filter option - items without any ISRC tag"
-  },
-  "libraryFilterMetadataMissingLabel": "Label manquant",
-  "@libraryFilterMetadataMissingLabel": {
-    "description": "Filter option - items missing record label"
   },
   "collectionDeletePlaylistsMessage": "Supprimer {count} {count, plural, =1{playlist} other{playlists}}?",
   "@collectionDeletePlaylistsMessage": {
@@ -3900,10 +3007,6 @@
   "@audioAnalysisMono": {
     "description": "Audio channel layout label - mono"
   },
-  "trackLyricsEmbeddedSource": "Intégré",
-  "@trackLyricsEmbeddedSource": {
-    "description": "Lyrics source label for embedded lyrics"
-  },
   "unknownAlbum": "Album inconnu",
   "@unknownAlbum": {
     "description": "Fallback album name when metadata is missing"
@@ -3928,33 +3031,9 @@
   "@errorInvalidFolderSelected": {
     "description": "Error when the selected folder is invalid"
   },
-  "settingsSaveDownloadHistory": "Enregistrer l'historique des téléchargements",
-  "@settingsSaveDownloadHistory": {
-    "description": "Settings switch title for storing completed downloads in history"
-  },
-  "settingsSaveDownloadHistorySubtitle": "Conserver les téléchargements terminés dans l'historique et la bibliothèque",
-  "@settingsSaveDownloadHistorySubtitle": {
-    "description": "Settings switch subtitle for storing completed downloads in history"
-  },
   "libraryPlayback": "Lecture",
   "@libraryPlayback": {
     "description": "Section header for playback settings in library settings"
-  },
-  "libraryExternalPlayer": "Lecteur externe",
-  "@libraryExternalPlayer": {
-    "description": "Setting option to use an external music player"
-  },
-  "libraryExternalPlayerSubtitle": "Recommandé pour l'écoute, la meilleure qualité, la lecture en continu, l'égaliseur et la prise en charge d'un plus grand nombre de formats",
-  "@libraryExternalPlayerSubtitle": {
-    "description": "Subtitle for external player option"
-  },
-  "libraryBuiltInPreviewPlayer": "Lecteur intégré",
-  "@libraryBuiltInPreviewPlayer": {
-    "description": "Setting option to use the built-in preview player"
-  },
-  "libraryBuiltInPreviewPlayerSubtitle": "Écoutez votre musique directement dans Sistrum",
-  "@libraryBuiltInPreviewPlayerSubtitle": {
-    "description": "Subtitle for built-in preview player option"
   },
   "nowPlayingTitle": "En cours de lecture",
   "@nowPlayingTitle": {
@@ -4041,10 +3120,6 @@
   "@nowPlayingSleepTimerCancelled": {
     "description": "Confirmation after cancelling the playback sleep timer"
   },
-  "nowPlayingOpenInExternalPlayer": "Ouvrir dans un lecteur externe",
-  "@nowPlayingOpenInExternalPlayer": {
-    "description": "Menu item to open the current track in an external player"
-  },
   "nowPlayingHideVolume": "Hide volume",
   "@nowPlayingHideVolume": {
     "description": "Now Playing menu item that removes the volume slider from the player"
@@ -4127,75 +3202,6 @@
       }
     }
   },
-  "trackConvertLosslessOutputWithCap": "Sortie sans perte avec une limite de {quality}",
-  "@trackConvertLosslessOutputWithCap": {
-    "description": "Hint shown when lossless conversion will cap bit depth or sample rate",
-    "placeholders": {
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmMessageLosslessCapped": "Convertir du format {sourceFormat} au format {targetFormat} ({quality}) ?\n\nLe fichier de sortie conservera un codec sans perte, mais la profondeur de bits et la fréquence d'échantillonnage seront limitées. Le fichier d'origine sera supprimé après la conversion.",
-  "@trackConvertConfirmMessageLosslessCapped": {
-    "description": "Confirmation dialog message for capped lossless conversion of a single file",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmMessageLosslessCapped": "Convertir {count} {count, plural, =1{titre} other{titres}} en {format} ({quality}) ?\n\nLe fichier de sortie conservera un codec sans perte, mais la profondeur de bits et la fréquence d'échantillonnage seront limitées. Les fichiers d'origine seront supprimés après la conversion.",
-  "@selectionBatchConvertConfirmMessageLosslessCapped": {
-    "description": "Confirmation dialog message for capped lossless batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertActionLabelLossless": "{sourceFormat} → {targetFormat} ({quality})",
-  "@trackConvertActionLabelLossless": {
-    "description": "Convert button label for lossless conversion with quality cap",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertActionLabelLossy": "{sourceFormat} → {targetFormat} @ {bitrate}",
-  "@trackConvertActionLabelLossy": {
-    "description": "Convert button label for lossy conversion",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
   "snackbarPlayingNext": "Prochainement",
   "@snackbarPlayingNext": {
     "description": "Snackbar when a track is inserted as the next queue item"
@@ -4217,46 +3223,6 @@
   "@actionShuffle": {
     "description": "Tooltip for shuffle playback action"
   },
-  "trackConvertOriginal": "Original",
-  "@trackConvertOriginal": {
-    "description": "Label for keeping original bit depth or sample rate during conversion"
-  },
-  "trackConvertOriginalQuality": "Qualité d'origine",
-  "@trackConvertOriginalQuality": {
-    "description": "Label when no bit depth or sample rate cap is applied during lossless conversion"
-  },
-  "trackConvertLosslessSuffix": "Sans perte",
-  "@trackConvertLosslessSuffix": {
-    "description": "Suffix used in converted lossless quality labels"
-  },
-  "trackConvertDithering": "Hésitation",
-  "@trackConvertDithering": {
-    "description": "Section label for lossless conversion dithering options"
-  },
-  "trackConvertResampler": "Rééchantillonneur",
-  "@trackConvertResampler": {
-    "description": "Section label for lossless conversion resampler options"
-  },
-  "trackConvertDitherNone": "Aucun",
-  "@trackConvertDitherNone": {
-    "description": "Lossless conversion dither option with no dithering applied"
-  },
-  "trackConvertDitherTriangular": "TPDF",
-  "@trackConvertDitherTriangular": {
-    "description": "Lossless conversion triangular probability density function dither option"
-  },
-  "trackConvertDitherTriangularHp": "HP triangulaire",
-  "@trackConvertDitherTriangularHp": {
-    "description": "Lossless conversion high-pass triangular dither option"
-  },
-  "trackConvertResamplerSwr": "SWR",
-  "@trackConvertResamplerSwr": {
-    "description": "Lossless conversion default FFmpeg swresample resampler option"
-  },
-  "trackConvertResamplerSoxr": "SoXr",
-  "@trackConvertResamplerSoxr": {
-    "description": "Lossless conversion SoX resampler option"
-  },
   "unknownTitle": "Titre inconnu",
   "@unknownTitle": {
     "description": "Fallback track title when metadata is missing"
@@ -4273,10 +3239,6 @@
   "@trackCoverOnline": {
     "description": "Label shown when metadata autofill downloaded cover art from the internet"
   },
-  "extensionVerificationBrowserTitle": "Navigateur de vérification",
-  "@extensionVerificationBrowserTitle": {
-    "description": "Settings option title for extension verification browser preference"
-  },
   "settingsSearchHint": "Paramètres de recherche",
   "@settingsSearchHint": {
     "description": "Placeholder of the search field on the Settings tab"
@@ -4289,18 +3251,6 @@
         "type": "String"
       }
     }
-  },
-  "libraryFilterMetadataMissingLyrics": "Paroles manquantes",
-  "@libraryFilterMetadataMissingLyrics": {
-    "description": "Filter option for tracks without embedded or sidecar lyrics"
-  },
-  "libraryFilterMetadataMissingReplayGain": "ReplayGain manquant",
-  "@libraryFilterMetadataMissingReplayGain": {
-    "description": "Filter option for scanned tracks without ReplayGain gain tags"
-  },
-  "libraryFilterMetadataHasReplayGain": "Prend en charge ReplayGain",
-  "@libraryFilterMetadataHasReplayGain": {
-    "description": "Filter option for tracks with indexed ReplayGain track or album gain tags"
   },
   "libraryFilterIncompleteAlbums": "Album incomplet",
   "@libraryFilterIncompleteAlbums": {
@@ -4325,40 +3275,8 @@
       }
     }
   },
-  "trackOptionCopyTrackName": "Copier le titre de la piste",
-  "@trackOptionCopyTrackName": {
-    "description": "Track menu action that copies the track title"
-  },
-  "trackOptionCopyArtist": "Copier l'artiste",
-  "@trackOptionCopyArtist": {
-    "description": "Track menu action that copies the artist name"
-  },
-  "trackOptionCopyTrackAndArtist": "Copier le titre et l'interprète",
-  "@trackOptionCopyTrackAndArtist": {
-    "description": "Track menu action that copies the track title and artist"
-  },
-  "metadataCopyValue": "Copier la valeur",
-  "@metadataCopyValue": {
-    "description": "Metadata menu action that copies only the selected value"
-  },
-  "metadataCopyField": "Copier le champ et la valeur",
-  "@metadataCopyField": {
-    "description": "Metadata menu action that copies the selected key and value"
-  },
   "mornyeSearch": "Rechercher",
   "mornyeContinuePlaying": "Continuer à lire",
-  "metadataCopyAll": "Copier toutes les métadonnées",
-  "@metadataCopyAll": {
-    "description": "Metadata menu action that copies every visible key and value"
-  },
-  "optionsEmbeddedCoverSize": "Dimensions de la pochette intégrée",
-  "@optionsEmbeddedCoverSize": {
-    "description": "Metadata setting that limits downloaded artwork resolution before it is embedded"
-  },
-  "optionsEmbeddedCoverSizeDescription": "Réduire la taille des pochettes téléchargées à distance avant de les intégrer. Les images qui respectent déjà la limite restent inchangées.",
-  "@optionsEmbeddedCoverSizeDescription": {
-    "description": "Description shown in the embedded cover size picker"
-  },
   "mornyeFavorite": "Favoris",
   "mornyeGoToArtist": "Aller à la page de l'artiste",
   "@mornyeFavorite": {
@@ -4731,9 +3649,7 @@
     "description": "Action that saves a daily mix's songs into one of the user's playlists"
   },
   "motionArtwork": "Animated artwork",
-  "listeningStats": "Listening statistics",
-  "listeningStatsRecord": "Record listening",
-  "listeningStatsDescription": "Stored only on this device, starting now. Records the built-in player only; pauses, buffering and seeking add no listening time. A play counts after 30 seconds.",
+  "navInsights": "Insights",
   "listeningStatsEmpty": "Play music with the built-in player to start your listening recap. Earlier listening cannot be recovered.",
   "listeningStatsDays": "{days} days",
   "@listeningStatsDays": {
@@ -4774,7 +3690,6 @@
   "listeningStatsClear": "Clear listening statistics",
   "listeningStatsClearError": "Could not clear listening statistics. Please try again.",
   "listeningStatsClearDescription": "Delete all listening statistics on this device? Your music and playlists will be kept.",
-  "libraryArtistsEmpty": "Artists appear here once you download music or scan a local library.",
   "listeningRewind": "Rewind",
   "listeningRewindDescription": "Relive the highlights of your recent weeks and months",
   "listeningRewindChoosePeriod": "Choose a period",
@@ -5012,11 +3927,7 @@
   },
   "playbackPauseOnMuteDescription": "Pause at zero media volume and resume when raised. Manual pauses stay paused. Standard audio output only.",
   "playbackOnHeadphonesConnected": "Play when headphones connect",
-  "playbackOnHeadphonesConnectedDescription": "Resume the current song when wired or Bluetooth headphones connect. Disconnecting pauses playback. Built-in player only.",
-  "appearanceCustomFont": "Custom font",
-  "appearanceCustomFontSubtitle": "Import a TTF or OTF file (up to 10 MB). Overrides the theme and system font.",
-  "appearanceCustomFontInvalid": "Could not load this font. Choose a valid TTF or OTF file up to 10 MB.",
-  "appearanceCustomFontReset": "Use theme font",
+  "playbackOnHeadphonesConnectedDescription": "Resume the current song when wired or Bluetooth headphones connect. Disconnecting pauses playback.",
   "equalizerTitle": "Equalizer",
   "equalizerDescription": "5–31 bands, tone controls, preamp and dynamics",
   "equalizerEnable": "Enable equalizer",
@@ -5046,7 +3957,7 @@
   "equalizerSaved": "Preset saved",
   "equalizerResetTitle": "Reset equalizer?",
   "equalizerResetDescription": "Restore a flat curve, default tone and dynamics settings. Saved presets are kept.",
-  "equalizerBypass": "Bit-perfect, Direct USB and exclusive Hi-Res outputs bypass EQ. Disable bit-perfect output to use EQ. External players manage their own effects.",
+  "equalizerBypass": "Bit-perfect, Direct USB and exclusive Hi-Res outputs bypass EQ. Disable bit-perfect output to use EQ.",
   "equalizerCurve": "EQ curve (estimated)",
   "equalizerCurveDescription": "The curve shows band gains; the exact response depends on the output engine.",
   "equalizerEffectivePreamp": "Input gain after headroom",
@@ -5261,10 +4172,6 @@
   "appCrashDismiss": "Ignorer",
   "appCrashCopyFailed": "Could not copy the crash report. Please try again.",
   "appCrashDismissFailed": "Impossible de fermer le rapport d'erreur. Veuillez réessayer.",
-  "optionsEmbeddedCoverSizeOriginal": "Résolution originale",
-  "@optionsEmbeddedCoverSizeOriginal": {
-    "description": "Option that preserves the provider artwork at its original resolution"
-  },
   "desktopShortcutTooltip": "{action} ({shortcut})",
   "@desktopShortcutTooltip": {
     "description": "Desktop tooltip that names an action and its keyboard shortcut, for example 'Next track (Ctrl+Right)'",
@@ -5304,10 +4211,6 @@
   "desktopMenuOpen": "Ouvrir",
   "@desktopMenuOpen": {
     "description": "Context menu item that opens an album, artist, playlist or folder"
-  },
-  "desktopMenuShowDetails": "Afficher les détails",
-  "@desktopMenuShowDetails": {
-    "description": "Context menu item that opens a track's metadata page"
   },
   "desktopDropToImport": "Faites-y glisser pour l'ajouter à votre bibliothèque",
   "@desktopDropToImport": {
@@ -5483,16 +4386,51 @@
   "@playlistImportFailed": {
     "description": "Snackbar when reading or parsing an imported playlist file fails"
   },
-  "sectionExistingDownloads": "Existing Files",
-  "@sectionExistingDownloads": {
-    "description": "Files settings section header for actions on already-downloaded files"
+  "explicitLabel": "Explicit",
+  "@explicitLabel": {
+    "description": "Semantics label and chip text for an explicit song marker in a song row"
   },
-  "reorganizeLibraryTitle": "Apply Rules to Existing Files",
-  "@reorganizeLibraryTitle": {
-    "description": "Files settings action that moves and renames already-downloaded tracks to match the current folder and filename rules"
+  "libraryFolders": "Folders",
+  "@libraryFolders": {
+    "description": "Library view that browses downloaded and scanned songs by the folders their files are in"
   },
-  "reorganizeLibrarySubtitle": "Move and rename downloads and Local Library files in your download folder so they follow the folder and filename rules above",
-  "@reorganizeLibrarySubtitle": {
-    "description": "Subtitle of the apply-rules-to-existing-files action"
+  "libraryFolderCount": "{count, plural, =1{1 folder} other{{count} folders}}",
+  "@libraryFolderCount": {
+    "description": "Number of folders inside a Library folder",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryFoldersEmptyTitle": "No folders yet",
+  "@libraryFoldersEmptyTitle": {
+    "description": "Title of the Folders view when the Library has no songs"
+  },
+  "libraryFoldersEmptyMessage": "Download songs or add a music folder in Local Library settings to browse them by folder.",
+  "@libraryFoldersEmptyMessage": {
+    "description": "Next step shown in the empty Folders view"
+  },
+  "libraryFolderMissing": "This folder is no longer in your Library",
+  "@libraryFolderMissing": {
+    "description": "Shown on an open folder page after its songs were deleted or moved"
+  },
+  "collectionAddedToLoved": "\"{trackName}\" ajouté aux Favoris",
+  "@collectionAddedToLoved": {
+    "description": "Snackbar after adding track to loved folder",
+    "placeholders": {
+      "trackName": {
+        "type": "String"
+      }
+    }
+  },
+  "collectionRemovedFromLoved": "\"{trackName}\" supprimé des Favoris",
+  "@collectionRemovedFromLoved": {
+    "description": "Snackbar after removing track from loved folder",
+    "placeholders": {
+      "trackName": {
+        "type": "String"
+      }
+    }
   }
 }

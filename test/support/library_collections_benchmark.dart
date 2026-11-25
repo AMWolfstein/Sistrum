@@ -12,7 +12,7 @@ import 'package:sistrum/services/library_playlist_search.dart';
 import 'package:sistrum/services/library_search.dart';
 
 LibraryCollectionsSnapshot _fixture(int count) => LibraryCollectionsSnapshot(
-  wishlistRows: [
+  lovedRows: [
     for (var index = 0; index < count; index++)
       {
         'track_key': 'example:$index',
@@ -31,7 +31,6 @@ LibraryCollectionsSnapshot _fixture(int count) => LibraryCollectionsSnapshot(
         'added_at': '2026-10-07T00:00:00Z',
       },
   ],
-  lovedRows: const [],
   favoriteArtistRows: const [],
   playlistRows: [
     for (var index = 0; index < 4; index++)
@@ -233,7 +232,6 @@ Future<Map<String, dynamic>> benchmarkPlaylistMetadataCopy({
           updated = reuse
               ? state.copyWith(playlists: renamed)
               : LibraryCollectionsState(
-                  wishlist: state.wishlist,
                   loved: state.loved,
                   favoriteArtists: state.favoriteArtists,
                   playlists: renamed,

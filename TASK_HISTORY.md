@@ -9,3 +9,4 @@
 - M001-T005 — Remove online product features and dependencies
 - M001-T006 — Remove other platforms and enforce ARM64 packaging
 - M001-TOR003 — Make Mornye the only theme and remove the Material design layer
+- M001-TOR005 — Rework the offline Library, collection screens, song rows, menus and settings

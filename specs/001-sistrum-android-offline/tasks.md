@@ -44,6 +44,10 @@ Run sequentially after implementation is authorized. Each task starts with `pyth
   - Run the `audit` skill (dead code, optimization, simplifier, test quality, coverage gaps) over code and over every test file. Classify each finding CONFIRMED, PROBABLE or UNCERTAIN. Fix the CONFIRMED ones; verify each PROBABLE/UNCERTAIN one first, then fix it only if it becomes confirmed; record the rest as retained with the missing evidence.
   - Checks: audit reports under `.work/audit/`, `flutter analyze`, chunked `flutter test` compared with the TOR003 run, `cargo clippy/test`, `:app:compileReleaseKotlin`, workflow tests.
 
+- [x] M001-TOR005 Rework the offline Library, collection screens, song rows, menus and settings
+  - Run after M001-TOR003 and before M001-TOR004, as one TOR, one reviewed commit. Plan, owner decisions and scope: [tor005-offline-ui-rework.md](tor005-offline-ui-rework.md).
+  - Paths: `lib/screens/`, `lib/widgets/`, `lib/models/`, `lib/providers/`, `lib/services/`, `lib/l10n/arb/`, `rust_backend/crates/core/src/tags/` and library database, Android lyrics/notification code, `test/`, docs.
+  - Checks: `flutter analyze`, chunked `flutter test` compared with the TOR003 run, Rust tag/database tests, `:app:compileReleaseKotlin`, grep proofs per removed feature.
 - [ ] M001-T007 [FINAL] Verify Sistrum Android offline release
   - Paths: cumulative diff, retained integration tests and task records.
   - Validate clean install, local backup/restore, sustained offline playback with background controls, Bluetooth/headset and focus handling, and representative 4 KB/16 KB ARM64 environments. Check that restored playback state and Mornye theme persist. Verify no release network capability, no obsolete platform artifacts, and required upstream notices.

@@ -100,7 +100,6 @@ void main() {
       storageMode: 'saf',
       downloadTreeUri: 'content://tree/old',
       isFirstLaunch: false,
-      useAllFilesAccess: true,
       localLibraryEnabled: true,
       localLibraryPath: 'content://tree/library',
       localLibraryBookmark: 'library-bookmark',
@@ -117,7 +116,6 @@ void main() {
       expect(sanitized.downloadTreeUri, isEmpty);
       expect(sanitized.downloadDirectory, isEmpty);
       expect(sanitized.downloadDirectoryBookmark, isEmpty);
-      expect(sanitized.useAllFilesAccess, isFalse);
       expect(sanitized.localLibraryEnabled, isFalse);
       expect(sanitized.localLibraryPath, isEmpty);
       expect(sanitized.localLibraryBookmark, isEmpty);

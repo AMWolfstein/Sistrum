@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/android_tv.dart';
@@ -86,7 +85,6 @@ void main() {
           settingsProvider.overrideWith(
             () => FixedSettingsNotifier(AppSettings(swipeToQueue: enabled)),
           ),
-          playerUiEnabledProvider.overrideWith((ref) => true),
         ],
         child: MaterialApp(
           theme: MornyeTheme.build(Brightness.light),

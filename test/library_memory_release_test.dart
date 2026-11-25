@@ -15,12 +15,10 @@ class _Local extends LocalLibraryNotifier {
   LocalLibraryState build() => LocalLibraryState();
 }
 
-Future<void> _browseAndClose(ProviderContainer container, String search) async {
+Future<void> _browseAndClose(ProviderContainer container, String sort) async {
   final provider = libraryBrowseProvider((
     artists: false,
-    artist: null,
-    search: search,
-    sort: 'a-z',
+    sort: sort,
     limit: 40,
     completeness: null,
   ));
@@ -72,8 +70,8 @@ Future<void> main() async {
       // that history to measure the application-owned lifecycle as in release.
       container.observers.clear();
       addTearDown(container.dispose);
-      for (var i = 0; i < 5; i++) {
-        await _browseAndClose(container, 'filter $i');
+      for (final sort in ['a-z', 'z-a', 'latest', 'size-desc', 'size-asc']) {
+        await _browseAndClose(container, sort);
       }
       expect(entries, hasLength(2000));
       await collectTestGarbage(service!);

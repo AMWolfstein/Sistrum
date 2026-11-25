@@ -329,7 +329,9 @@ class MornyeArtistHeader extends StatelessWidget {
             leading: back,
             actions: toolbarActions.isEmpty
                 ? null
-                : [MornyeActionCapsule(children: toolbarActions)],
+                : toolbarActions.length > 1
+                ? [MornyeActionCapsule(children: toolbarActions)]
+                : toolbarActions,
             actionsPadding: EdgeInsetsDirectional.only(
               end: isDesktopPlatform ? 8 : 12,
             ),

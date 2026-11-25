@@ -14,13 +14,12 @@ impl Fixture {
         let path = directory.path().join("library_collections.db");
         let db = Connection::open(&path).unwrap();
         db.execute_batch(
-            "PRAGMA user_version=2; PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON;
-             CREATE TABLE wishlist_tracks(track_key TEXT PRIMARY KEY,track_json TEXT NOT NULL,added_at TEXT NOT NULL);
+            "PRAGMA user_version=3; PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON;
              CREATE TABLE loved_tracks(track_key TEXT PRIMARY KEY,track_json TEXT NOT NULL,added_at TEXT NOT NULL);
              CREATE TABLE favorite_artists(artist_key TEXT PRIMARY KEY,artist_json TEXT NOT NULL,added_at TEXT NOT NULL);
              CREATE TABLE playlists(id TEXT PRIMARY KEY,name TEXT NOT NULL,cover_image_path TEXT,created_at TEXT NOT NULL,updated_at TEXT NOT NULL);
              CREATE TABLE playlist_tracks(playlist_id TEXT NOT NULL,track_key TEXT NOT NULL,track_json TEXT NOT NULL,added_at TEXT NOT NULL,PRIMARY KEY(playlist_id,track_key),FOREIGN KEY(playlist_id) REFERENCES playlists(id) ON DELETE CASCADE);
-             INSERT INTO wishlist_tracks VALUES('kept','{}','old');
+             INSERT INTO loved_tracks VALUES('kept','{}','old');
              CREATE TABLE unrelated(value TEXT); INSERT INTO unrelated VALUES('kept');",
         ).unwrap();
         let fixture: Value = serde_json::from_str(include_str!(
@@ -45,7 +44,7 @@ impl Fixture {
 
     fn keys(&self) -> Vec<String> {
         self.db
-            .prepare("SELECT track_key FROM wishlist_tracks ORDER BY rowid")
+            .prepare("SELECT track_key FROM loved_tracks ORDER BY rowid")
             .unwrap()
             .query_map([], |row| row.get(0))
             .unwrap()
@@ -60,7 +59,7 @@ fn dart_codec_duplicates_dates_artwork_and_cascades_survive_native_restore() {
     let result = import(&fixture.request, &|| Ok(())).unwrap();
     assert_eq!(result["committed"], true);
     assert_eq!(result["command_count"], 9);
-    assert_eq!(fixture.keys(), ["example:1"]);
+    assert_eq!(fixture.keys(), ["example:1", "example:2"]);
     let playlist: (String, String, String, String) = fixture
         .db
         .query_row(
@@ -156,7 +155,7 @@ fn truncated_malformed_unknown_and_orphaned_commands_never_wipe_live_rows() {
             3 => {
                 std::fs::write(
                     path,
-                    "{\"kind\":\"wishlist\",\"values\":{\"track_key\":null}}\n",
+                    "{\"kind\":\"loved\",\"values\":{\"track_key\":null}}\n",
                 )
                 .unwrap();
                 fixture.request["expected_count"] = json!(1);
@@ -174,10 +173,10 @@ fn truncated_malformed_unknown_and_orphaned_commands_never_wipe_live_rows() {
 #[test]
 fn empty_restore_clears_categories_and_wrong_schema_is_rejected() {
     let mut fixture = Fixture::new();
-    fixture.db.execute_batch("PRAGMA user_version=3").unwrap();
+    fixture.db.execute_batch("PRAGMA user_version=2").unwrap();
     assert!(import(&fixture.request, &|| Ok(())).is_err());
     assert_eq!(fixture.keys(), ["kept"]);
-    fixture.db.execute_batch("PRAGMA user_version=2").unwrap();
+    fixture.db.execute_batch("PRAGMA user_version=3").unwrap();
     std::fs::write(fixture.request["ndjson_path"].as_str().unwrap(), "").unwrap();
     fixture.request["expected_count"] = json!(0);
     assert_eq!(

@@ -447,7 +447,7 @@ class SettingsItem extends StatelessWidget {
                       AppIcon(
                         CupertinoIcons.forward,
                         size: context.tokens.rowChevronSize,
-                        color: colorScheme.onSurfaceVariant,
+                        color: colorScheme.primary,
                       ),
                     ],
                   ],

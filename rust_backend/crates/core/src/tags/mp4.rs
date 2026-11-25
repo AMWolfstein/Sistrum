@@ -42,7 +42,8 @@ pub(super) fn read(file: &mut (impl Read + Seek)) -> Result<AudioMetadata, Strin
                 if let Ok(data) = reader.data(atom)
                     && let Some(value) = data.last()
                 {
-                    metadata.explicit = *value == 1;
+                    // iTunes writes 1 or 4 for explicit and 2 for clean.
+                    metadata.explicit = matches!(*value, 1 | 4);
                 }
             }
             b"cpil" => {

@@ -184,8 +184,8 @@ void main() {
     expect(counts.allTrackCount, 5);
   });
 
-  test('a tag lists genres with semicolons, commas, NUL and the user\'s '
-      'separator, and keeps slashes and ampersands', () {
+  test('a tag lists genres with semicolons, commas and NUL, and keeps '
+      'slashes and ampersands', () {
     expect(splitGenreTag(' Rock; Pop ,  Jazz\u0000Blues '), [
       'Rock',
       'Pop',
@@ -194,7 +194,6 @@ void main() {
     ]);
     expect(splitGenreTag('Hip-Hop/Rap; R&B'), ['Hip-Hop/Rap', 'R&B']);
     expect(splitGenreTag('Rock; rock;; ROCK'), ['Rock']);
-    expect(splitGenreTag('Rock / Pop', separator: ' / '), ['Rock', 'Pop']);
     expect(splitGenreTag('Rock / Pop'), ['Rock / Pop']);
     expect(splitGenreTag(null), isEmpty);
     expect(splitGenreTag(' ; '), isEmpty);
@@ -204,8 +203,8 @@ void main() {
     final genres = libraryGenresFromRows([
       {'genre_key': 'rock', 'genre_name': 'rock', 'track_count': 2},
       {'genre_key': 'rock; pop', 'genre_name': 'Rock; Pop', 'track_count': 3},
-      {'genre_key': 'pop / soul', 'genre_name': 'Pop / Soul', 'track_count': 1},
-    ], separator: ' / ');
+      {'genre_key': 'pop; soul', 'genre_name': 'Pop; Soul', 'track_count': 1},
+    ]);
     expect(
       [for (final genre in genres) (genre.key, genre.name, genre.trackCount)],
       [('pop', 'Pop', 4), ('rock', 'Rock', 5), ('soul', 'Soul', 1)],

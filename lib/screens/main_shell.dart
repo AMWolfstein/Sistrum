@@ -14,7 +14,8 @@ import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/providers/user_profile_provider.dart';
 import 'package:sistrum/screens/home_tab.dart';
 import 'package:sistrum/screens/library_directory_screen.dart';
-import 'package:sistrum/screens/library_tracks_folder_screen.dart';
+import 'package:sistrum/screens/collection_detail_screen.dart';
+import 'package:sistrum/screens/listening_statistics_screen.dart';
 import 'package:sistrum/screens/mornye_library_screen.dart';
 import 'package:sistrum/screens/queue_tab.dart';
 import 'package:sistrum/screens/settings/profile_settings_page.dart';
@@ -22,7 +23,6 @@ import 'package:sistrum/screens/settings/settings_tab.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/services/shell_navigation_service.dart';
 import 'package:sistrum/services/music_playback_deck.dart';
-import 'package:sistrum/services/listening_statistics.dart';
 import 'package:sistrum/services/notification_service.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
@@ -66,6 +66,8 @@ class _MainShellState extends ConsumerState<MainShell>
       ShellNavigationService.homeTabNavigatorKey;
   final GlobalKey<NavigatorState> _libraryTabNavigatorKey =
       ShellNavigationService.libraryTabNavigatorKey;
+  final GlobalKey<NavigatorState> _statisticsTabNavigatorKey =
+      ShellNavigationService.statisticsTabNavigatorKey;
   final GlobalKey<NavigatorState> _searchTabNavigatorKey =
       ShellNavigationService.searchTabNavigatorKey;
 
@@ -99,7 +101,6 @@ class _MainShellState extends ConsumerState<MainShell>
     );
     final settings = ref.read(settingsProvider);
     playback.configure(settings);
-    listeningRecorder.setEnabled(settings.listeningStatisticsEnabled);
   }
 
   @override
@@ -112,7 +113,7 @@ class _MainShellState extends ConsumerState<MainShell>
       handler: _onShellTabRequested,
       libraryLinkHandler: _requestDesktopLibraryLink,
     );
-    ShellNavigationService.syncState(currentTabIndex: _currentIndex);
+    ShellNavigationService.syncState(tab: _tabForIndex(_currentIndex));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       unawaited(_restorePlayback());
@@ -210,13 +211,7 @@ class _MainShellState extends ConsumerState<MainShell>
       unawaited(_openProfileSettings());
       return;
     }
-    final index = switch (tab) {
-      ShellTab.home => 0,
-      ShellTab.search => 2,
-      ShellTab.library => 1,
-      ShellTab.settings => 3,
-    };
-    _onNavTap(index, resetHome: tab != ShellTab.search);
+    _onNavTap(_shellTabs().indexOf(tab), resetHome: tab != ShellTab.search);
   }
 
   bool _settingsPageOpen = false;
@@ -248,10 +243,7 @@ class _MainShellState extends ConsumerState<MainShell>
     if (_currentIndex != index) {
       HapticFeedback.selectionClick();
       setState(() => _currentIndex = index);
-      ShellNavigationService.syncState(
-        currentTabIndex: _currentIndex,
-        showSearchTab: true,
-      );
+      ShellNavigationService.syncState(tab: _tabForIndex(_currentIndex));
       if (!isAndroidTv) FocusManager.instance.primaryFocus?.unfocus();
     }
   }
@@ -294,7 +286,7 @@ class _MainShellState extends ConsumerState<MainShell>
 
     if (!mounted) return;
 
-    final isSearchTab = _currentIndex == 2;
+    final isSearchTab = _tabForIndex(_currentIndex) == ShellTab.search;
 
     if (isSearchTab && _keyboardVisible) {
       FocusManager.instance.primaryFocus?.unfocus();
@@ -329,13 +321,19 @@ class _MainShellState extends ConsumerState<MainShell>
     }
   }
 
+  /// The destinations in bottom bar, rail and tab order. Settings is a tab
+  /// only where it is shown in the shell.
+  List<ShellTab> _shellTabs() => [
+    ShellTab.home,
+    ShellTab.statistics,
+    ShellTab.library,
+    ShellTab.search,
+    if (_mornyeSettingsTab) ShellTab.settings,
+  ];
+
   ShellTab _tabForIndex(int index) {
-    if (index == 0) return ShellTab.home;
-    if (index == 1) return ShellTab.library;
-    if (_mornyeSettingsTab && index == 3) {
-      return ShellTab.settings;
-    }
-    return ShellTab.search;
+    final tabs = _shellTabs();
+    return tabs[index.clamp(0, tabs.length - 1)];
   }
 
   List<DesktopDestination> _desktopDestinations() {
@@ -348,6 +346,12 @@ class _MainShellState extends ConsumerState<MainShell>
             icon: CupertinoIcons.house,
             selectedIcon: CupertinoIcons.house_fill,
             label: l10n.navHome,
+          ),
+          ShellTab.statistics => DesktopDestination(
+            tab: tab,
+            icon: CupertinoIcons.chart_bar,
+            selectedIcon: CupertinoIcons.chart_bar_fill,
+            label: l10n.navInsights,
           ),
           ShellTab.library => DesktopDestination(
             tab: tab,
@@ -371,16 +375,11 @@ class _MainShellState extends ConsumerState<MainShell>
     ];
   }
 
-  /// The pages under the Mornye desktop sidebar's Library heading.
-  /// Recently Added is the Library root.
+  /// The pages under the Mornye desktop sidebar's Library heading. The
+  /// Library root is the overview they open from.
   List<DesktopSidebarLink> _desktopLibraryLinks() {
     final l10n = context.l10n;
     return [
-      DesktopSidebarLink(
-        id: 'recent',
-        icon: CupertinoIcons.clock,
-        label: l10n.libraryRecentlyAdded,
-      ),
       DesktopSidebarLink(
         id: 'artists',
         icon: CupertinoIcons.music_mic,
@@ -414,8 +413,7 @@ class _MainShellState extends ConsumerState<MainShell>
   Widget? _desktopLibraryPage(String id) {
     const playlistPrefix = 'playlist:';
     if (id.startsWith(playlistPrefix)) {
-      return LibraryTracksFolderScreen(
-        mode: LibraryTracksFolderMode.playlist,
+      return CollectionDetailScreen.playlist(
         playlistId: id.substring(playlistPrefix.length),
       );
     }
@@ -515,14 +513,13 @@ class _MainShellState extends ConsumerState<MainShell>
     WidgetsBinding.instance.ensureVisualUpdate();
   }
 
-  NavigatorState? _navigatorForTab(int index) {
-    if (index == 0) return _homeTabNavigatorKey.currentState;
-    if (index == 1) return _libraryTabNavigatorKey.currentState;
-    if (index == 2) {
-      return _searchTabNavigatorKey.currentState;
-    }
-    return null;
-  }
+  NavigatorState? _navigatorForTab(int index) => switch (_tabForIndex(index)) {
+    ShellTab.home => _homeTabNavigatorKey.currentState,
+    ShellTab.statistics => _statisticsTabNavigatorKey.currentState,
+    ShellTab.library => _libraryTabNavigatorKey.currentState,
+    ShellTab.search => _searchTabNavigatorKey.currentState,
+    ShellTab.settings => null,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -537,39 +534,28 @@ class _MainShellState extends ConsumerState<MainShell>
     ref.listen(settingsProvider, (_, settings) {
       ref.read(musicPlayerRuntimeProvider).configure(settings);
     });
-    ref.listen(
-      settingsProvider.select((s) => s.listeningStatisticsEnabled),
-      (_, enabled) => listeningRecorder.setEnabled(enabled),
-    );
-    final heroAnimationsEnabled = ref.watch(
-      settingsProvider.select((s) => s.heroAnimationsEnabled),
-    );
-    ShellNavigationService.syncState(
-      currentTabIndex: _currentIndex,
-      showSearchTab: true,
-    );
+    ShellNavigationService.syncState(tab: _tabForIndex(_currentIndex));
 
     final tabs = <Widget>[
       _TabNavigator(
         key: const ValueKey('tab-home'),
         navigatorKey: _homeTabNavigatorKey,
-        heroAnimationsEnabled: heroAnimationsEnabled,
         child: const _HomeTabRoot(),
       ),
-      _TabShown(
+      _TabNavigator(
+        key: const ValueKey('tab-statistics'),
+        navigatorKey: _statisticsTabNavigatorKey,
+        child: const ListeningStatisticsScreen(),
+      ),
+      _TabNavigator(
         key: const ValueKey('tab-library'),
-        shown: _currentIndex == 1,
-        child: _TabNavigator(
-          navigatorKey: _libraryTabNavigatorKey,
-          observers: [if (isDesktopPlatform) _libraryDepthObserver],
-          heroAnimationsEnabled: heroAnimationsEnabled,
-          child: const _LibraryTabRoot(),
-        ),
+        navigatorKey: _libraryTabNavigatorKey,
+        observers: [if (isDesktopPlatform) _libraryDepthObserver],
+        child: const _LibraryTabRoot(),
       ),
       _TabNavigator(
         key: const ValueKey('tab-search'),
         navigatorKey: _searchTabNavigatorKey,
-        heroAnimationsEnabled: heroAnimationsEnabled,
         child: const HomeTab(mode: HomeTabMode.search),
       ),
       if (_mornyeSettingsTab) const SettingsTab(key: ValueKey('tab-settings')),
@@ -688,6 +674,11 @@ class _MainShellState extends ConsumerState<MainShell>
         icon: const AppIcon(CupertinoIcons.house_fill),
         selectedIcon: BouncingIcon(child: const AppIcon(Icons.home)),
         label: l10n.navHome,
+      ),
+      NavigationDestination(
+        icon: const AppIcon(CupertinoIcons.chart_bar_fill),
+        selectedIcon: BouncingIcon(child: const AppIcon(Icons.insights)),
+        label: l10n.navInsights,
       ),
       NavigationDestination(
         icon: const MornyeNavigationIcon(
@@ -853,14 +844,12 @@ class _TabNavigator extends StatefulWidget {
   final GlobalKey<NavigatorState> navigatorKey;
   final Widget child;
   final List<NavigatorObserver> observers;
-  final bool heroAnimationsEnabled;
 
   const _TabNavigator({
     super.key,
     required this.navigatorKey,
     required this.child,
     this.observers = const [],
-    required this.heroAnimationsEnabled,
   });
 
   @override
@@ -888,7 +877,6 @@ class _TabNavigatorState extends State<_TabNavigator> {
     super.didUpdateWidget(oldWidget);
     if (!identical(widget.child, oldWidget.child) ||
         widget.navigatorKey != oldWidget.navigatorKey ||
-        widget.heroAnimationsEnabled != oldWidget.heroAnimationsEnabled ||
         !listEquals(widget.observers, oldWidget.observers)) {
       _navigator = null;
     }
@@ -916,7 +904,7 @@ class _TabNavigatorState extends State<_TabNavigator> {
           : TraversalEdgeBehavior.stop,
       observers: [
         _chromeObserver,
-        if (widget.heroAnimationsEnabled) _heroController,
+        _heroController,
         if (isDesktopPlatform) _nowPlayingCloser,
         ...widget.observers,
       ],
@@ -980,21 +968,6 @@ class _PageDepthObserver extends NavigatorObserver {
   }
 }
 
-/// Whether a tab is the one on screen, for the tab's root page. It reaches
-/// the page from above the tab's navigator: handed down as a parameter it
-/// would build the navigator again, and every page on it.
-class _TabShown extends InheritedWidget {
-  const _TabShown({super.key, required this.shown, required super.child});
-
-  final bool shown;
-
-  static bool of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<_TabShown>()?.shown ?? true;
-
-  @override
-  bool updateShouldNotify(_TabShown oldWidget) => shown != oldWidget.shown;
-}
-
 class _HomeTabRoot extends StatelessWidget {
   const _HomeTabRoot();
 
@@ -1004,29 +977,9 @@ class _HomeTabRoot extends StatelessWidget {
 
 /// Library's root page: one [QueueTab] for the life of the tab. A switch of
 /// tab changes what it listens to and builds nothing of the Library again.
-class _LibraryTabRoot extends StatefulWidget {
+class _LibraryTabRoot extends StatelessWidget {
   const _LibraryTabRoot();
 
   @override
-  State<_LibraryTabRoot> createState() => _LibraryTabRootState();
-}
-
-class _LibraryTabRootState extends State<_LibraryTabRoot> {
-  final _shown = ValueNotifier(false);
-  late final _tab = QueueTab(tabActive: _shown);
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _shown.value = _TabShown.of(context);
-  }
-
-  @override
-  void dispose() {
-    _shown.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => _tab;
+  Widget build(BuildContext context) => const QueueTab();
 }

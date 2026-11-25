@@ -41,7 +41,9 @@ void main() {
   test(
     'ZIP backup pages history and streams cover files during restore',
     () async {
-      final root = await Directory.systemTemp.createTemp('sistrum-backup-test-');
+      final root = await Directory.systemTemp.createTemp(
+        'sistrum-backup-test-',
+      );
       addTearDown(() async {
         if (await root.exists()) await root.delete(recursive: true);
       });
@@ -67,11 +69,7 @@ void main() {
           final end = (offset + limit).clamp(0, history.length);
           return history.sublist(offset, end);
         },
-        collections: const {
-          'loved': <dynamic>[],
-          'wishlist': <dynamic>[],
-          'playlists': <dynamic>[],
-        },
+        collections: const {'loved': <dynamic>[], 'playlists': <dynamic>[]},
         playlistCoverFiles: {
           'playlist-1': {'ext': '.jpg', 'path': cover.path},
         },

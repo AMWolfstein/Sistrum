@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-enum ShellTab { home, library, settings, search }
+enum ShellTab { home, statistics, library, search, settings }
 
 class ShellNavigationService {
   static final searchRequests = ValueNotifier<int>(0);
@@ -97,13 +97,10 @@ class ShellNavigationService {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (generation != _searchGeneration ||
           !identical(owner, _tabSelectionOwner) ||
-          _currentTabIndex != (_showSearchTab ? 2 : 0)) {
+          _visibleTab != ShellTab.search) {
         return;
       }
-      final navigatorKey = _showSearchTab
-          ? searchTabNavigatorKey
-          : homeTabNavigatorKey;
-      navigatorKey.currentState?.popUntil((route) => route.isFirst);
+      searchTabNavigatorKey.currentState?.popUntil((route) => route.isFirst);
       searchRequests.value++;
       // Search scrolls to its field and requests focus after layout.
       // Scheduling that frame avoids waiting for another tap to wake it up.
@@ -114,13 +111,14 @@ class ShellNavigationService {
 
   static final GlobalKey<NavigatorState> homeTabNavigatorKey =
       GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> statisticsTabNavigatorKey =
+      GlobalKey<NavigatorState>();
   static final GlobalKey<NavigatorState> libraryTabNavigatorKey =
       GlobalKey<NavigatorState>();
   static final GlobalKey<NavigatorState> searchTabNavigatorKey =
       GlobalKey<NavigatorState>();
 
-  static int _currentTabIndex = 0;
-  static bool _showSearchTab = false;
+  static ShellTab _visibleTab = ShellTab.home;
   static Object? _tabSelectionOwner;
   static ValueChanged<ShellTab>? _tabSelectionHandler;
   static bool Function(String id)? _libraryLinkHandler;
@@ -156,31 +154,25 @@ class ShellNavigationService {
   static bool requestLibraryLink(String id) =>
       _libraryLinkHandler?.call(id) ?? false;
 
-  static void syncState({
-    required int currentTabIndex,
-    bool showSearchTab = false,
-  }) {
-    if (_currentTabIndex == currentTabIndex &&
-        _showSearchTab == showSearchTab) {
-      return;
-    }
-    _currentTab ??= _tabAtCurrentIndex();
-    _currentTabIndex = currentTabIndex;
-    _showSearchTab = showSearchTab;
+  /// Records the destination the shell shows.
+  static void syncState({required ShellTab tab}) {
+    if (_visibleTab == tab) return;
+    _currentTab ??= _visibleTab;
+    _visibleTab = tab;
     // Every destination change reaches the shell here, whether it came from
     // the sidebar, a shortcut or a link, so history records it here too.
-    recordTabVisit(_tabAtCurrentIndex());
+    recordTabVisit(tab);
     _scheduleChromeUpdate();
   }
 
-  static GlobalKey<NavigatorState>? _activeTabNavigatorKey() {
-    if (_currentTabIndex == 0) return homeTabNavigatorKey;
-    if (_currentTabIndex == 1) return libraryTabNavigatorKey;
-    if (_showSearchTab && _currentTabIndex == 2) {
-      return searchTabNavigatorKey;
-    }
-    return null;
-  }
+  static GlobalKey<NavigatorState>? _activeTabNavigatorKey() =>
+      switch (_visibleTab) {
+        ShellTab.home => homeTabNavigatorKey,
+        ShellTab.statistics => statisticsTabNavigatorKey,
+        ShellTab.library => libraryTabNavigatorKey,
+        ShellTab.search => searchTabNavigatorKey,
+        ShellTab.settings => null,
+      };
 
   static Object? _settingsDetailOwner;
   static ValueGetter<NavigatorState?>? _settingsDetailNavigator;
@@ -216,15 +208,6 @@ class ShellNavigationService {
   static final List<ShellTab> _forwardHistory = <ShellTab>[];
   static ShellTab? _currentTab;
   static bool _isNavigatingHistory = false;
-
-  static ShellTab _tabAtCurrentIndex() {
-    if (_currentTabIndex == 0) return ShellTab.home;
-    if (_currentTabIndex == 1) return ShellTab.library;
-    if (_showSearchTab && _currentTabIndex == 2) {
-      return ShellTab.search;
-    }
-    return ShellTab.settings;
-  }
 
   static void recordTabVisit(ShellTab tab) {
     if (_isNavigatingHistory) return;

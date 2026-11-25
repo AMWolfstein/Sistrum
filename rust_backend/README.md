@@ -36,8 +36,8 @@ workspace crate.
 **core.** Shared backend logic, independent of mobile bindings and UI
 runtimes. Modules cover filenames, tags and metadata, covers and palette
 extraction, CUE sheets, lyrics, ISRC, matching, download progress state,
-Hi-Res analysis and JSON or XML helpers. It uses `image`, `claxon` (FLAC
-decoding for the Hi-Res check), `roxmltree` and pinned Unicode tables.
+audio analysis and JSON or XML helpers. It uses `image`, `roxmltree` and pinned
+Unicode tables.
 
 **network.** Shared, cancellable HTTP transport for the embedded backend: the
 client, cookies, DNS lookup, TLS roots, request policy, query and URL

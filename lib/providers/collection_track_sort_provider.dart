@@ -1,32 +1,28 @@
-import 'dart:async';
-import 'dart:convert';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sistrum/models/library_collections.dart';
-import 'package:sistrum/services/library_directory_index.dart'
-    show compareNaturally;
-import 'package:sistrum/utils/logger.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sistrum/models/collection_row.dart';
+import 'package:sistrum/providers/persisted_sort_choices.dart';
+import 'package:sistrum/services/listening_statistics.dart';
+import 'package:sistrum/utils/natural_compare.dart';
 
-final _log = AppLogger('CollectionTrackSort');
+/// How a playlist, Loved or a genre lists its songs. [custom] is the saved
+/// order of a playlist or Loved, the one Custom order changes.
+enum CollectionTrackSort { custom, title, artist, album, mostPlayed }
 
-/// How a playlist, Liked Songs or the Wishlist lists its songs. [custom] is
-/// the saved order, the one Edit order changes.
-enum CollectionTrackSort { custom, title, artist, album, latest }
-
-/// The key of a user playlist in [collectionTrackSortsProvider]; Liked Songs
-/// and the Wishlist use `loved` and `wishlist`.
+/// The key of a user playlist in [collectionTrackSortsProvider]; Loved uses
+/// `loved` and a genre `genre:<key>`.
 String playlistTrackSortKey(String playlistId) => 'playlist:$playlistId';
 
-/// [entries] as [sort] lists them. Names compare as a file manager does and
-/// ties keep the saved order. An album lists its songs by disc and number.
-List<CollectionTrackEntry> sortCollectionEntries(
-  List<CollectionTrackEntry> entries,
+/// [rows] as [sort] lists them. Names compare as a file manager does and
+/// ties keep the given order. An album lists its songs by disc and number,
+/// and most played by the plays in [plays] (see [playCountKey]).
+List<CollectionRow> sortCollectionRows(
+  List<CollectionRow> rows,
   CollectionTrackSort sort,
+  Map<String, int> plays,
 ) {
-  if (sort == CollectionTrackSort.custom || entries.length < 2) return entries;
+  if (sort == CollectionTrackSort.custom || rows.length < 2) return rows;
   int byName(String a, String b) => compareNaturally(a.trim(), b.trim());
-  int compare(CollectionTrackEntry a, CollectionTrackEntry b) {
+  int compare(CollectionRow a, CollectionRow b) {
     final x = a.track;
     final y = b.track;
     switch (sort) {
@@ -43,73 +39,40 @@ List<CollectionTrackEntry> sortCollectionEntries(
         final disc = (x.discNumber ?? 1).compareTo(y.discNumber ?? 1);
         if (disc != 0) return disc;
         return (x.trackNumber ?? 999).compareTo(y.trackNumber ?? 999);
-      case CollectionTrackSort.latest:
-        return b.addedAt.compareTo(a.addedAt);
+      case CollectionTrackSort.mostPlayed:
+        final played = (plays[playCountKey(y.name, y.artistName)] ?? 0)
+            .compareTo(plays[playCountKey(x.name, x.artistName)] ?? 0);
+        return played != 0 ? played : byName(x.name, y.name);
     }
   }
 
-  final indexed = entries.indexed.toList()
+  final indexed = rows.indexed.toList()
     ..sort((a, b) {
       final order = compare(a.$2, b.$2);
       return order != 0 ? order : a.$1.compareTo(b.$1);
     });
-  return [for (final (_, entry) in indexed) entry];
+  return [for (final (_, row) in indexed) row];
 }
 
-final collectionTrackSortsProvider =
-    NotifierProvider<CollectionTrackSorts, Map<String, CollectionTrackSort>>(
-      CollectionTrackSorts.new,
-    );
+/// Plays of every song, for [CollectionTrackSort.mostPlayed]. Read once each
+/// time the page opens, after pending listening is written.
+final collectionSongPlaysProvider =
+    FutureProvider.autoDispose<Map<String, int>>((ref) async {
+      await listeningRecorder.flush();
+      return ListeningStatisticsStore.instance.read(readSongPlays);
+    });
 
 /// The collections whose songs are not listed in their saved order.
-class CollectionTrackSorts extends Notifier<Map<String, CollectionTrackSort>> {
-  static const _prefsKey = 'collection_track_sorts';
-  Future<void>? _loading;
-
-  @override
-  Map<String, CollectionTrackSort> build() {
-    _loading = _load();
-    return const {};
-  }
-
-  Future<void> _load() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final json = jsonDecode(prefs.getString(_prefsKey) ?? '{}');
-      if (json is! Map || json.isEmpty || !ref.mounted) return;
-      final sorts = CollectionTrackSort.values.asNameMap();
-      state = {
-        for (final entry in json.entries)
-          if (entry.key is String && sorts[entry.value] != null)
-            entry.key as String: sorts[entry.value]!,
-        ...state,
-      };
-    } catch (error) {
-      _log.w('Ignoring saved collection sorts: ${error.runtimeType}');
-    }
-  }
-
-  void setSort(String key, CollectionTrackSort sort) {
-    if ((state[key] ?? CollectionTrackSort.custom) == sort) return;
-    state = {
-      for (final entry in state.entries)
-        if (entry.key != key) entry.key: entry.value,
-      if (sort != CollectionTrackSort.custom) key: sort,
-    };
-    unawaited(_save());
-  }
-
-  Future<void> _save() async {
-    try {
-      await _loading;
-      if (!ref.mounted) return;
-      final saved = jsonEncode({
-        for (final entry in state.entries) entry.key: entry.value.name,
-      });
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_prefsKey, saved);
-    } catch (error) {
-      _log.w('Could not save the collection sort: ${error.runtimeType}');
-    }
-  }
-}
+final collectionTrackSortsProvider =
+    NotifierProvider<
+      SortChoices<CollectionTrackSort>,
+      Map<String, CollectionTrackSort>
+    >(
+      () => SortChoices(
+        const SortChoiceStore(
+          prefsKey: 'collection_track_sorts',
+          values: CollectionTrackSort.values,
+          fallback: CollectionTrackSort.custom,
+        ),
+      ),
+    );

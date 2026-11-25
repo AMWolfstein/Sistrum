@@ -104,9 +104,6 @@ void main() {
         value,
       );
 
-      container.read(settingsProvider.notifier).setPlayerMode('external');
-      await tester.pump();
-      expect(tester.widget<AppSlider>(slider).onChanged, isNull);
       expect(tester.takeException(), isNull);
     });
   }

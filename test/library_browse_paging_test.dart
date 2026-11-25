@@ -36,14 +36,7 @@ LibraryBrowseEntry _entry(int index, {String prefix = ''}) =>
       trackCount: 1,
     );
 
-const _request = (
-  artists: false,
-  artist: null,
-  search: '',
-  sort: 'a-z',
-  limit: 40,
-  completeness: null,
-);
+const _request = (artists: false, sort: 'a-z', limit: 40, completeness: null);
 
 void main() {
   late ProviderContainer container;
@@ -225,8 +218,6 @@ void main() {
       count = 299;
       const request = (
         artists: false,
-        artist: null,
-        search: '',
         sort: 'a-z',
         limit: 60,
         completeness: null,
@@ -314,35 +305,13 @@ void main() {
     },
   );
 
-  test('artists use bounded offsets and new search resets paging', () async {
-    const artists = (
-      artists: true,
-      artist: null,
-      search: 'Artist',
-      sort: 'a-z',
-      limit: 40,
-      completeness: null,
-    );
+  test('artists use bounded offsets', () async {
+    const artists = (artists: true, sort: 'a-z', limit: 40, completeness: null);
     final provider = libraryBrowseProvider(artists);
     container.listen(provider, (_, _) {});
     await container.read(provider.future);
     await container.read(provider.notifier).loadMore();
     expect(requests.last.offset, 40);
     expect(requests.last.cursor, isNull);
-    expect(requests.last.browse.search, 'Artist');
-    const search = (
-      artists: false,
-      artist: 'Artist 1',
-      search: 'New query',
-      sort: 'latest',
-      limit: 40,
-      completeness: 'album-incomplete',
-    );
-    final searched = libraryBrowseProvider(search);
-    container.listen(searched, (_, _) {});
-    expect((await container.read(searched.future)).entries, hasLength(40));
-    expect(requests.last.offset, 0);
-    expect(requests.last.cursor, isNull);
-    expect(requests.last.browse, search);
   });
 }

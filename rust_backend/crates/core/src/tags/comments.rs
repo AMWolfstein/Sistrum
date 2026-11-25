@@ -108,7 +108,9 @@ pub(super) fn flac(metadata: &mut AudioMetadata, items: &[(String, String)]) {
     metadata.copyright = get("COPYRIGHT");
     metadata.composer = get("COMPOSER");
     metadata.comment = get("COMMENT");
-    metadata.explicit = truthy(&get("ITUNESADVISORY"));
+    metadata.explicit = ["ITUNESADVISORY", "EXPLICIT"]
+        .into_iter()
+        .any(|name| all(name).any(truthy));
     metadata.album_type = get("RELEASETYPE");
     if metadata.album_type.is_empty() && truthy(&get("COMPILATION")) {
         metadata.album_type = "compilation".into();
@@ -181,7 +183,7 @@ pub(super) fn apply(metadata: &mut AudioMetadata, key: &str, value: &str, ape: b
         "LABEL" | "PUBLISHER" => metadata.label = value.into(),
         "ORGANIZATION" if !ape => metadata.label = value.into(),
         "COPYRIGHT" => metadata.copyright = value.into(),
-        "ITUNESADVISORY" => metadata.explicit = truthy(value),
+        "ITUNESADVISORY" | "EXPLICIT" => metadata.explicit |= truthy(value),
         "RELEASETYPE" => metadata.album_type = value.into(),
         "BARCODE" | "UPC" => metadata.upc = value.into(),
         "COMPILATION" if truthy(value) && metadata.album_type.is_empty() => {

@@ -11,7 +11,7 @@ import 'package:sistrum/providers/library_browse_provider.dart';
 import 'package:sistrum/providers/library_genres_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/screens/library_mix_screen.dart';
+import 'package:sistrum/screens/collection_detail_screen.dart';
 import 'package:sistrum/screens/mornye_library_screen.dart';
 import 'package:sistrum/services/playable_media.dart' show PlayableMedia;
 import 'package:sistrum/theme/mornye_theme.dart';
@@ -99,9 +99,7 @@ Future<_Player> _pump(
     ProviderScope(
       overrides: [
         settingsProvider.overrideWith(
-          () => FixedSettingsNotifier(
-            const AppSettings(listeningStatisticsEnabled: false),
-          ),
+          () => FixedSettingsNotifier(const AppSettings()),
         ),
         libraryBrowsePageLoaderProvider.overrideWithValue(
           (_) async => const LibraryBrowsePage([]),
@@ -164,7 +162,7 @@ void main() {
 
       await tester.tap(find.text('Jazz'));
       await _settle(tester);
-      expect(find.byType(LibraryMixScreen), findsOneWidget);
+      expect(find.byType(CollectionDetailScreen), findsOneWidget);
       expect(find.text('Song j1'), findsOneWidget);
       expect(find.text('Song r1'), findsNothing);
       expect(tester.takeException(), isNull);
@@ -194,7 +192,7 @@ void main() {
         'queue them (desktop: $desktop)', (tester) async {
       final player = await _pump(
         tester,
-        const LibraryMixScreen.genre(genre: _rock),
+        const CollectionDetailScreen.genre(genre: _rock),
         desktop: desktop,
       );
       await _settle(tester);

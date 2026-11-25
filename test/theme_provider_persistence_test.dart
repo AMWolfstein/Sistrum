@@ -34,7 +34,6 @@ void main() {
     () async {
       SharedPreferences.setMockInitialValues({
         kThemeModeKey: 'dark',
-        kUseSystemFontKey: true,
         kMornyeAccentKey: 'blue',
         kMornyeGlassClarityKey: 0.2,
       });
@@ -66,7 +65,6 @@ void main() {
       expect(state.themeMode, ThemeMode.system);
       expect(state.mornyeAccent, MornyeAccent.red);
       expect(state.mornyeGlassClarity, 0.8);
-      expect(state.useSystemFont, isTrue);
       expect(loadBootstrapThemeSettings(prefs), state);
     },
   );
@@ -114,17 +112,17 @@ void main() {
       addTearDown(container.dispose);
       final saving = container
           .read(themeProvider.notifier)
-          .setUseSystemFont(true);
+          .setMornyeGlassOutlines(false);
       releaseLoad.completeError(StateError('theme_load_failed'));
       await saving;
-      expect(container.read(themeProvider).useSystemFont, isTrue);
+      expect(container.read(themeProvider).mornyeGlassOutlines, isFalse);
     },
   );
 
   test(
     'disposed theme does not read state or save after delayed loading',
     () async {
-      SharedPreferences.setMockInitialValues({kUseSystemFontKey: false});
+      SharedPreferences.setMockInitialValues({kThemeModeKey: 'system'});
       final prefs = await SharedPreferences.getInstance();
       final releaseLoad = Completer<SharedPreferences>();
       final container = ProviderContainer(
@@ -136,11 +134,11 @@ void main() {
       );
       final saving = container
           .read(themeProvider.notifier)
-          .setUseSystemFont(true);
+          .setThemeMode(ThemeMode.dark);
       container.dispose();
       releaseLoad.complete(prefs);
       await saving;
-      expect(prefs.getBool(kUseSystemFontKey), isFalse);
+      expect(prefs.getString(kThemeModeKey), 'system');
     },
   );
 }

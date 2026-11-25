@@ -1,5 +1,3 @@
-import 'package:sistrum/utils/artist_utils.dart';
-
 /// Pure metadata-key conversion used by the different audio containers.
 ///
 /// Keeping these mappings independent from FFmpeg execution makes the tag
@@ -23,95 +21,6 @@ class AudioMetadataMapper {
     }
 
     return fallback;
-  }
-
-  /// Maps Vorbis-comment keys to the fields consumed by the native WAV/AIFF
-  /// metadata writer.
-  static Map<String, String> vorbisToNativeChunkFields(
-    Map<String, String> metadata,
-  ) {
-    final fields = <String, String>{};
-
-    void setIndexPair(String numberKey, String totalKey, String value) {
-      final normalized = value.trim();
-      if (normalized.isEmpty || normalized == '0') return;
-      if (normalized.contains('/')) {
-        final parts = normalized.split('/');
-        fields[numberKey] = parts[0].trim();
-        if (parts.length > 1 && parts[1].trim().isNotEmpty) {
-          fields[totalKey] = parts[1].trim();
-        }
-      } else {
-        fields[numberKey] = normalized;
-      }
-    }
-
-    for (final entry in metadata.entries) {
-      final key = _normalizeKey(entry.key);
-      final value = entry.value;
-      if (value.trim().isEmpty) continue;
-
-      switch (key) {
-        case 'TITLE':
-          fields['title'] = value;
-        case 'ARTIST':
-          fields['artist'] = value;
-        case 'ALBUM':
-          fields['album'] = value;
-        case 'ALBUMARTIST':
-          fields['album_artist'] = value;
-        case 'TRACKNUMBER':
-        case 'TRACK':
-        case 'TRCK':
-          setIndexPair('track_number', 'track_total', value);
-        case 'TRACKTOTAL':
-        case 'TOTALTRACKS':
-          if (value.trim() != '0') fields['track_total'] = value.trim();
-        case 'DISCNUMBER':
-        case 'DISC':
-        case 'TPOS':
-          setIndexPair('disc_number', 'disc_total', value);
-        case 'DISCTOTAL':
-        case 'TOTALDISCS':
-          if (value.trim() != '0') fields['disc_total'] = value.trim();
-        case 'DATE':
-          fields['date'] = value;
-        case 'YEAR':
-          if ((fields['date'] ?? '').isEmpty) fields['date'] = value;
-        case 'ISRC':
-          fields['isrc'] = value;
-        case 'GENRE':
-          fields['genre'] = value;
-        case 'COMPOSER':
-          fields['composer'] = value;
-        case 'ORGANIZATION':
-        case 'LABEL':
-        case 'PUBLISHER':
-          fields['label'] = value;
-        case 'COPYRIGHT':
-          fields['copyright'] = value;
-        case 'COMMENT':
-        case 'DESCRIPTION':
-          fields['comment'] = value;
-        case 'ITUNESADVISORY':
-        case 'EXPLICIT':
-        case 'ISEXPLICIT':
-          fields['explicit'] = _normalizeAdvisoryValue(value);
-        case 'LYRICS':
-        case 'UNSYNCEDLYRICS':
-          fields['lyrics'] = value;
-        case 'REPLAYGAINTRACKGAIN':
-          fields['replaygain_track_gain'] = value;
-        case 'REPLAYGAINTRACKPEAK':
-          fields['replaygain_track_peak'] = value;
-        case 'REPLAYGAINALBUMGAIN':
-          fields['replaygain_album_gain'] = value;
-        case 'REPLAYGAINALBUMPEAK':
-          fields['replaygain_album_peak'] = value;
-      }
-    }
-
-    return fields;
   }
 
   static Map<String, String> normalizeToVorbisComments(
@@ -194,13 +103,9 @@ class AudioMetadataMapper {
 
   static void appendVorbisMetadataArguments(
     List<String> arguments,
-    Map<String, String> metadata, {
-    String artistTagMode = artistTagModeJoined,
-  }) {
-    for (final entry in buildVorbisMetadataEntries(
-      metadata,
-      artistTagMode: artistTagMode,
-    )) {
+    Map<String, String> metadata,
+  ) {
+    for (final entry in buildVorbisMetadataEntries(metadata)) {
       arguments
         ..add('-metadata')
         ..add('${entry.key}=${entry.value}');
@@ -219,9 +124,8 @@ class AudioMetadataMapper {
   }
 
   static List<MapEntry<String, String>> buildVorbisMetadataEntries(
-    Map<String, String> metadata, {
-    String artistTagMode = artistTagModeJoined,
-  }) {
+    Map<String, String> metadata,
+  ) {
     final vorbis = normalizeToVorbisComments(metadata);
     final entries = <MapEntry<String, String>>[];
 
@@ -232,22 +136,8 @@ class AudioMetadataMapper {
       entries.add(entry);
     }
 
-    _appendVorbisArtistEntries(
-      entries,
-      'ARTIST',
-      vorbis['ARTIST'],
-      artistTagMode: (metadata['artist_separator'] ?? '').isEmpty
-          ? artistTagMode
-          : artistTagModeJoined,
-    );
-    _appendVorbisArtistEntries(
-      entries,
-      'ALBUMARTIST',
-      vorbis['ALBUMARTIST'],
-      artistTagMode: (metadata['album_artist_separator'] ?? '').isEmpty
-          ? artistTagMode
-          : artistTagModeJoined,
-    );
+    _appendVorbisArtistEntries(entries, 'ARTIST', vorbis['ARTIST']);
+    _appendVorbisArtistEntries(entries, 'ALBUMARTIST', vorbis['ALBUMARTIST']);
 
     return entries;
   }
@@ -399,9 +289,8 @@ class AudioMetadataMapper {
   static void _appendVorbisArtistEntries(
     List<MapEntry<String, String>> entries,
     String key,
-    String? rawValue, {
-    String artistTagMode = artistTagModeJoined,
-  }) {
+    String? rawValue,
+  ) {
     if (rawValue == null) return;
     final value = rawValue.trim();
     if (value.isEmpty) {
@@ -410,14 +299,7 @@ class AudioMetadataMapper {
       return;
     }
 
-    if (!shouldSplitVorbisArtistTags(artistTagMode)) {
-      entries.add(MapEntry(key, artistTagValueForMode(value, artistTagMode)));
-      return;
-    }
-
-    for (final artist in splitArtistTagValues(value)) {
-      entries.add(MapEntry(key, artist));
-    }
+    entries.add(MapEntry(key, value));
   }
 
   static String _normalizeKey(String key) =>

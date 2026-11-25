@@ -9,7 +9,6 @@ mod cancellation;
 mod data_jobs;
 mod extensions;
 mod filename;
-mod hires;
 mod library_metadata;
 mod logging;
 mod lyrics;
@@ -33,7 +32,6 @@ pub use cancellation::{CancellationDomain, CancellationError, CancellationRegist
 pub use data_jobs::run_native_data_job;
 pub use extensions::{BackendError, DownloadDirectoryScope, ExtensionEnvironment};
 pub use filename::build_filename;
-pub use hires::check_hires_authenticity;
 pub use logging::LogBuffer;
 pub use manager::{ExtensionManager, ExtensionManagerError};
 pub use tags::read_file_metadata;

@@ -164,7 +164,7 @@ class DownloadedEmbeddedCoverResolver {
 
     // A downloaded file is the source of truth for its artwork. Start the
     // extraction on a cold cache so Library does not remain stuck on the
-    // metadata provider's online cover until Metadata Screen is opened.
+    // metadata provider's online cover.
     unawaited(_ensureCover(cleanPath, onChanged: onChanged));
     return null;
   }

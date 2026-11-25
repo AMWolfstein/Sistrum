@@ -5,7 +5,6 @@ enum HomeShortcut {
   equalizer,
   listeningStats,
   loved,
-  wishlist,
   favoriteArtists;
 
   /// How many shortcuts Home shows: two rows of two on phones and the four

@@ -34,14 +34,6 @@ internal fun RustCoreBackend.dispatchApplication(method: String, arguments: Any?
             manager?.environment()?.use { environment -> environment.logBuffer().use { it.clear() } }
             null
         }
-        "setLoggingEnabled" -> return synchronized(this) {
-            val enabled = args["enabled"] as? Boolean ?: false
-            manager?.environment()?.use { environment ->
-                environment.logBuffer().use { it.setEnabled(enabled) }
-            }
-            loggingEnabled = enabled
-            null
-        }
         // Local tag reads and lyrics embedding only: the Rust side must not
         // consult online lyrics providers for these.
         "getLyricsLRCWithSource" -> return withMediaFiles(listOf(string("file_path"))) {

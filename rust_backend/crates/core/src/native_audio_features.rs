@@ -3,7 +3,7 @@
 //! decodes one or two short mono windows; whole files never come here, and
 //! no model or network is involved.
 
-use crate::media::hires::fft::Radix2Fft;
+use crate::media::fft::Radix2Fft;
 use crate::native_audio_analysis::{analyze_automix_pcm, read_bounded};
 use serde::Serialize;
 

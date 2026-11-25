@@ -4,14 +4,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/library_browse_provider.dart';
-import 'package:sistrum/providers/library_search_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/mornye_library_screen.dart';
-import 'package:sistrum/services/album_completeness.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
-import 'package:sistrum/widgets/app_search_field.dart';
-import 'package:sistrum/widgets/library_search_results.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/tooltip_finder.dart';
@@ -104,7 +100,7 @@ void main() {
   }
 
   testWidgets(
-    'Mornye albums filter incomplete and unknown tags without losing search',
+    'Mornye albums header has a sort button and no completeness filter',
     (tester) async {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1;
@@ -115,27 +111,14 @@ void main() {
           overrides: [
             settingsProvider.overrideWith(_Settings.new),
             libraryBrowsePageLoaderProvider.overrideWithValue((page) async {
-              final request = page.browse;
-              requests.add(request);
-              final filter = request.completeness;
+              requests.add(page.browse);
               return LibraryBrowsePage([
                 LibraryBrowseEntry.fromRow({
                   'queue_source': 'downloaded',
                   'album_key': 'album',
-                  'album_name': filter == unknownAlbumCompletenessFilter
-                      ? 'Unknown'
-                      : 'Album',
+                  'album_name': 'Album',
                   'artist_name': 'Artist',
                   'track_count': 8,
-                  if (filter != null) ...{
-                    'album_completeness': filter == incompleteAlbumFilter
-                        ? 'incomplete'
-                        : 'unknown',
-                    'album_present_tracks': 8,
-                    'album_expected_tracks': filter == incompleteAlbumFilter
-                        ? 12
-                        : null,
-                  },
                 }, isArtist: false),
               ]);
             }),
@@ -154,160 +137,15 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.tap(findByTooltip('Filters'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Incomplete albums'));
-      await tester.pumpAndSettle();
-      expect(requests.last.completeness, incompleteAlbumFilter);
-      expect(find.text('8/12'), findsOneWidget);
-      expect(findByTooltip('8/12 tracks · 4 missing'), findsOneWidget);
-      await tester.tap(findByTooltip('Search your library'));
-      await tester.pumpAndSettle();
-      await tester.enterText(find.byType(TextField), 'My album');
-      await tester.pump(const Duration(milliseconds: 350));
-      await tester.pumpAndSettle();
-      expect(requests.last.search, 'My album');
-      expect(requests.last.completeness, incompleteAlbumFilter);
-      await tester.tap(findByTooltip('Filters'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Album completeness unknown'));
-      await tester.pumpAndSettle();
-      expect(requests.last.completeness, unknownAlbumCompletenessFilter);
-      expect(find.text('?'), findsOneWidget);
-      await tester.tap(findByTooltip('Filters'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('All'));
-      await tester.pumpAndSettle();
+
+      final l10n = AppLocalizations.of(
+        tester.element(find.byType(MornyeLibraryScreen)),
+      );
+      expect(findByTooltip(l10n.searchSortTitle), findsOneWidget);
+      expect(findByTooltip('Filters'), findsNothing);
+      expect(find.text('Album'), findsOneWidget);
       expect(requests.last.completeness, isNull);
-      expect(find.text('?'), findsNothing);
-      expect(find.text('8/12'), findsNothing);
       expect(tester.takeException(), isNull);
     },
   );
-
-  testWidgets('Library search is local and album pages load on scroll', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(390, 844);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
-    final requests = <LibraryBrowseRequest>[];
-    final offsets = <int>[];
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          settingsProvider.overrideWith(_Settings.new),
-          libraryBrowsePageLoaderProvider.overrideWithValue((page) async {
-            final request = page.browse;
-            requests.add(request);
-            offsets.add(page.offset);
-            return LibraryBrowsePage(
-              List.generate(request.limit, (i) => _album(page.offset + i)),
-            );
-          }),
-        ],
-        child: MaterialApp(
-          theme: MornyeTheme.build(Brightness.dark),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: Scaffold(
-            body: MornyeLibraryScreen(
-              page: MornyeLibraryPage.albums,
-              onOpenSection: (_) {},
-            ),
-          ),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    final scroll = tester.widget<CustomScrollView>(
-      find.byType(CustomScrollView),
-    );
-    scroll.controller!.jumpTo(scroll.controller!.position.maxScrollExtent);
-    await tester.pumpAndSettle();
-    expect(requests.last.limit, 40);
-    expect(offsets, [0, 40]);
-    expect(
-      tester
-          .widget<SliverGrid>(find.byType(SliverGrid))
-          .delegate
-          .estimatedChildCount,
-      80,
-    );
-    scroll.controller!.jumpTo(0);
-    await tester.pumpAndSettle();
-    await tester.tap(findByTooltip('Search your library'));
-    await tester.pumpAndSettle();
-    expect(tester.testTextInput.isVisible, isTrue);
-    // The field scrolls with the page over its plain background.
-    expect(
-      find.descendant(
-        of: find.byType(AppSearchField),
-        matching: find.byType(BackdropFilter),
-      ),
-      findsNothing,
-    );
-    await tester.enterText(find.byType(TextField), 'My album');
-    await tester.pump(const Duration(milliseconds: 350));
-    await tester.pumpAndSettle();
-    expect(requests.last.search, 'My album');
-    expect(requests.last.limit, 40);
-    expect(offsets.last, 0);
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('a song from the Library search plays on in the Songs sort', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(390, 844);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          settingsProvider.overrideWith(
-            () => _Settings(
-              const AppSettings(
-                localLibraryEnabled: true,
-                historySortMode: 'oldest',
-              ),
-            ),
-          ),
-          libraryBrowsePageLoaderProvider.overrideWithValue(
-            (page) async => const LibraryBrowsePage([]),
-          ),
-          librarySearchProvider.overrideWith((ref, request) async => []),
-        ],
-        child: MaterialApp(
-          theme: MornyeTheme.build(Brightness.light),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: Scaffold(body: MornyeLibraryScreen(onOpenSection: (_) {})),
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(findByTooltip('Search your library'));
-    await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField), 'green lilac');
-    await tester.pump(const Duration(milliseconds: 350));
-    await tester.pumpAndSettle();
-    // The overview has no filters of its own; the Songs page's last only
-    // while that page is open.
-    expect(
-      tester
-          .widget<LibrarySearchResults>(find.byType(LibrarySearchResults))
-          .songList,
-      (
-        filterMode: 'all',
-        sortMode: 'oldest',
-        source: null,
-        quality: null,
-        format: null,
-        metadata: null,
-        includeLocal: true,
-      ),
-    );
-    expect(tester.takeException(), isNull);
-  });
 }

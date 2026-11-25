@@ -24,12 +24,6 @@
       <img alt="Download the latest release" src="assets/readme/badges/badge-release-light.svg" height="56">
     </picture>
   </a>
-  <a href="https://crowdin.com/project/mornye">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="assets/readme/badges/badge-crowdin-dark.svg">
-      <img alt="Help translate on Crowdin" src="assets/readme/badges/badge-crowdin-light.svg" height="56">
-    </picture>
-  </a>
 </p>
 
 <p align="center">
@@ -309,8 +303,7 @@ still require SMB or WebDAV.
 
 Bit-perfect, Direct USB and exclusive Hi-Res outputs bypass the equalizer so
 the audio reaches your DAC untouched. Turn bit-perfect output off to use the
-equalizer. External players also apply their own effects instead. The
-equalizer lives in **Settings > Playback** and in the Now Playing menu.
+equalizer. The equalizer lives in **Settings > Playback** and in the Now Playing menu.
 
 </details>
 
@@ -342,9 +335,9 @@ If a file has none, tap **Search online** on the player's lyrics page.
 <summary><b>Where are my listening statistics stored?</b></summary>
 <br>
 
-Only on your device. Listening statistics and Rewind record plays from the
+Only on your device. Listening statistics and Rewind record plays in the
 built-in player; pauses, buffering and seeking add no listening time, and a
-play counts after 30 seconds.
+play counts after 30 seconds. Statistics is a tab in the bottom bar.
 
 </details>
 
@@ -383,20 +376,6 @@ another country's recommendations without a VPN.
 > If Sistrum is useful to you, consider supporting development:
 >
 > [![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/zarzet)
-
----
-
-## <picture><source media="(prefers-color-scheme: dark)" srcset="assets/readme/sections/section-contributors-dark.svg"><img src="assets/readme/sections/section-contributors-light.svg" height="32" align="top" alt=""></picture> Contributors
-
-Thanks to everyone who has contributed to Sistrum!
-
-<a href="https://github.com/mornyeapp/Mornye/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=mornyeapp/Mornye" />
-</a>
-
-We also appreciate everyone who helped with [translations on Crowdin](https://crowdin.com/project/mornye), reported bugs, suggested features, and spread the word.
-
-Interested in contributing? Check out the [Contributing Guide](CONTRIBUTING.md) to get started!
 
 ---
 

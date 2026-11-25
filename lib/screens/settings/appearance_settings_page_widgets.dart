@@ -1,67 +1,5 @@
 part of 'appearance_settings_page.dart';
 
-class _ThemePreviewCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return ExcludeSemantics(
-      child: IgnorePointer(
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: colorScheme.surfaceContainer,
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                context.l10n.navLibrary,
-                style: Theme.of(context).textTheme.headlineLarge,
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  AppIcon(
-                    Icons.library_music_outlined,
-                    color: colorScheme.primary,
-                  ),
-                  const SizedBox(width: 16),
-                  Text(
-                    context.l10n.appName,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              MornyeTabBar(
-                destinations: [
-                  NavigationDestination(
-                    icon: const AppIcon(Icons.home_outlined),
-                    label: context.l10n.navHome,
-                  ),
-                  NavigationDestination(
-                    icon: const AppIcon(Icons.library_music_outlined),
-                    label: context.l10n.navLibrary,
-                  ),
-                  NavigationDestination(
-                    icon: const AppIcon(Icons.settings_outlined),
-                    label: context.l10n.navSettings,
-                  ),
-                ],
-                selectedIndex: 1,
-                onSelected: (_) {},
-                blurEnabled: false,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _MornyeGlassClaritySlider extends ConsumerWidget {
   const _MornyeGlassClaritySlider();
 
@@ -363,58 +301,6 @@ class _InterfaceSizeSliderState extends ConsumerState<_InterfaceSizeSlider> {
   }
 }
 
-class _HistoryViewSelector extends StatelessWidget {
-  final String currentMode;
-  final ValueChanged<String> onChanged;
-  const _HistoryViewSelector({
-    required this.currentMode,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final content = Padding(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsetsDirectional.only(start: 8, bottom: 8),
-            child: Text(
-              context.l10n.appearanceHistoryView,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-          SettingsSegmentedChoice<String>(
-            selected: currentMode,
-            onChanged: onChanged,
-            semanticLabel: context.l10n.appearanceHistoryView,
-            options: [
-              SettingsSegmentOption(
-                value: 'list',
-                icon: Icons.view_list,
-                label: context.l10n.appearanceHistoryViewList,
-              ),
-              SettingsSegmentOption(
-                value: 'grid',
-                icon: Icons.grid_view,
-                label: context.l10n.appearanceHistoryViewGrid,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-    return SettingsSearchTarget(
-      label: context.l10n.appearanceHistoryView,
-      child: content,
-    );
-  }
-}
-
 class _LanguageSelector extends StatelessWidget {
   final String currentLocale;
   final ValueChanged<String> onChanged;
@@ -436,10 +322,7 @@ class _LanguageSelector extends StatelessWidget {
     final content = ListTile(
       title: Text(context.l10n.appearanceLanguage),
       subtitle: Text(_getLanguageName(currentLocale)),
-      trailing: AppIcon(
-        Icons.chevron_right,
-        color: colorScheme.onSurfaceVariant,
-      ),
+      trailing: AppIcon(Icons.chevron_right, color: colorScheme.primary),
       onTap: () => _showLanguagePicker(context),
     );
     return SettingsSearchTarget(

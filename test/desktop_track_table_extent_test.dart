@@ -7,13 +7,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/desktop/track_table.dart';
-import 'package:sistrum/widgets/track_list_tile.dart';
+import 'package:sistrum/widgets/track_card.dart';
 
 import 'support/fixed_settings.dart';
 
@@ -172,17 +171,7 @@ void main() {
                     child: ColoredBox(color: Colors.blue),
                   )
                 : null,
-            titleTrailing: TrackListTileBadges(
-              track: Track(
-                id: '$i',
-                name: 'Track $i',
-                artistName: 'Artist',
-                albumName: 'Album',
-                duration: 180,
-                explicit: i == 1 || i == 4,
-                audioModes: i == 2 || i == 4 ? 'DOLBY_ATMOS' : null,
-              ),
-            ),
+            titleTrailing: i == 1 || i == 4 ? const ExplicitChip() : null,
             trailing: i.isEven
                 ? const SizedBox.square(
                     dimension: 32,

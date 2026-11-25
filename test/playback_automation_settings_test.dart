@@ -64,18 +64,6 @@ void main() {
     expect(saved.pauseOnMute, isTrue);
     expect(saved.headphoneResume, 'always');
 
-    container.read(settingsProvider.notifier).setPlayerMode('external');
-    await tester.pump();
-    final muteSwitch = tester.widget<SettingsSwitchItem>(
-      find.byWidgetPredicate(
-        (widget) =>
-            widget is SettingsSwitchItem && widget.title == 'Pause when muted',
-      ),
-    );
-    expect(muteSwitch.enabled, isFalse);
-    await tester.tap(find.text('Off').first, warnIfMissed: false);
-    await tester.pumpAndSettle();
-    expect(container.read(settingsProvider).headphoneResume, 'always');
     expect(tester.takeException(), isNull);
 
     final l10n = AppLocalizations.of(tester.element(connected));

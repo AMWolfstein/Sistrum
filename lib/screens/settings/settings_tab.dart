@@ -8,16 +8,13 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/user_profile_provider.dart';
 import 'package:sistrum/screens/settings/profile_settings_page.dart';
 import 'package:sistrum/screens/settings/about_page.dart';
-import 'package:sistrum/screens/settings/app_settings_page.dart';
 import 'package:sistrum/screens/settings/appearance_settings_page.dart';
 import 'package:sistrum/screens/settings/backup_restore_page.dart';
 import 'package:sistrum/screens/settings/cache_management_page.dart';
-import 'package:sistrum/screens/settings/files_settings_page.dart';
 import 'package:sistrum/screens/settings/keyboard_shortcuts_page.dart';
 import 'package:sistrum/screens/settings/library_settings_page.dart';
 import 'package:sistrum/screens/settings/log_screen.dart';
 import 'package:sistrum/screens/settings/lyrics_settings_page.dart';
-import 'package:sistrum/screens/settings/metadata_settings_page.dart';
 import 'package:sistrum/screens/settings/playback_settings_page.dart';
 import 'package:sistrum/utils/settings_search_catalog.dart';
 import 'package:sistrum/services/shell_navigation_service.dart';
@@ -158,7 +155,6 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
               'language',
               'locale',
               'layout',
-              'grid',
             ],
             searchEntries: searchCatalog.appearance,
             pageBuilder: () => const AppearanceSettingsPage(),
@@ -198,44 +194,6 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
       ),
       _Group(
         destinations: [
-          _Destination(
-            icon: Icons.folder_outlined,
-            iconColor: Colors.orange,
-            title: l10n.settingsFiles,
-            subtitle: l10n.settingsFilesSubtitle,
-            keywords: const [
-              'saf',
-              'storage',
-              'folder',
-              'filename',
-              'path',
-              'permission',
-            ],
-            searchEntries: searchCatalog.files,
-            pageBuilder: () => const FilesSettingsPage(),
-          ),
-          _Destination(
-            icon: Icons.sell_outlined,
-            iconColor: Colors.amber,
-            title: l10n.settingsMetadata,
-            subtitle: l10n.settingsMetadataSubtitle,
-            keywords: const ['tag', 'cover', 'artwork', 'isrc', 'provider'],
-            searchEntries: searchCatalog.metadata,
-            pageBuilder: () => const MetadataSettingsPage(),
-          ),
-        ],
-      ),
-      _Group(
-        destinations: [
-          _Destination(
-            icon: Icons.tune_outlined,
-            iconColor: Colors.blueGrey,
-            title: l10n.settingsApp,
-            subtitle: l10n.settingsAppSubtitle,
-            keywords: const ['update', 'channel', 'debug', 'logging'],
-            searchEntries: searchCatalog.app,
-            pageBuilder: () => const AppSettingsPage(),
-          ),
           if (isDesktopPlatform)
             _Destination(
               icon: Icons.keyboard_outlined,

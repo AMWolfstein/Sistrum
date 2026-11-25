@@ -1,9 +1,6 @@
 {
   "linkFileReading": "Reading tags...",
-  "trackBpm": "BPM",
-  "trackMood": "Mood",
   "settingsPlaybackSubtitle": "播放器、音量、AutoMix和音频输出",
-  "sectionPlayer": "播放器",
   "sectionVolumeAndTransitions": "音量和过渡",
   "sectionAudioOutput": "音频输出",
   "usbBitPerfect": "高解析和比特完美音频",
@@ -81,8 +78,6 @@
       }
     }
   },
-  "appearanceUseSystemFont": "使用系统字体",
-  "appearanceUseSystemFontSubtitle": "应用文本使用设备默认字体。",
   "@@locale": "zh_CN",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
@@ -117,42 +112,8 @@
   "@historyFilterAll": {
     "description": "Filter chip - show all items"
   },
-  "historyFilterAlbums": "专辑",
-  "@historyFilterAlbums": {
-    "description": "Filter chip - show albums only"
-  },
-  "historyFilterSingles": "单曲",
-  "@historyFilterSingles": {
-    "description": "Filter chip - show singles only"
-  },
-  "libraryRecentlyAdded": "最近添加",
   "librarySearchHint": "搜索你的乐库",
   "libraryEmptyCollection": "你的音乐将显示在这里",
-  "libraryFolders": "Folders",
-  "@libraryFolders": {
-    "description": "Library view that browses downloaded and scanned songs by the folders their files are in"
-  },
-  "libraryFolderCount": "{count, plural, =1{1 folder} other{{count} folders}}",
-  "@libraryFolderCount": {
-    "description": "Number of folders inside a Library folder",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "libraryFoldersEmptyTitle": "No folders yet",
-  "@libraryFoldersEmptyTitle": {
-    "description": "Title of the Folders view when the Library has no songs"
-  },
-  "libraryFoldersEmptyMessage": "Download songs or add a music folder in Local Library settings to browse them by folder.",
-  "@libraryFoldersEmptyMessage": {
-    "description": "Next step shown in the empty Folders view"
-  },
-  "libraryFolderMissing": "This folder is no longer in your Library",
-  "@libraryFolderMissing": {
-    "description": "Shown on an open folder page after its songs were deleted or moved"
-  },
   "libraryFoldersLoadFailed": "Couldn't read your folders",
   "@libraryFoldersLoadFailed": {
     "description": "Shown when the Folders view fails to load"
@@ -173,22 +134,6 @@
   "@downloadAskQualitySubtitle": {
     "description": "Subtitle for ask quality toggle"
   },
-  "downloadFilenameFormat": "文件名格式",
-  "@downloadFilenameFormat": {
-    "description": "Setting for output filename pattern"
-  },
-  "downloadSingleFilenameFormat": "单曲文件名格式",
-  "@downloadSingleFilenameFormat": {
-    "description": "Setting for output filename pattern for singles/EPs"
-  },
-  "downloadFolderOrganization": "文件夹结构",
-  "@downloadFolderOrganization": {
-    "description": "Title of the folder organization picker bottom sheet"
-  },
-  "downloadFolderTemplate": "Custom Folder Structure",
-  "@downloadFolderTemplate": {
-    "description": "Setting for editing a relative download folder template"
-  },
   "appearanceTitle": "外观",
   "@appearanceTitle": {
     "description": "Appearance settings page title"
@@ -204,10 +149,6 @@
   "appearanceThemeDark": "深色",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceHistoryView": "历史记录",
-  "@appearanceHistoryView": {
-    "description": "Layout style for history"
   },
   "appearanceHistoryViewList": "列表",
   "@appearanceHistoryViewList": {
@@ -248,18 +189,6 @@
   "optionsEmbedLyricsSubtitle": "将同步的歌词与你下载的音轨一起保存",
   "@optionsEmbedLyricsSubtitle": {
     "description": "Subtitle for embed lyrics"
-  },
-  "optionsReplayGain": "回放增益",
-  "@optionsReplayGain": {
-    "description": "Title for ReplayGain setting toggle"
-  },
-  "optionsReplayGainSubtitleOn": "扫描响度并嵌入 ReplayGain 标签（EBU R128）",
-  "@optionsReplayGainSubtitleOn": {
-    "description": "Subtitle when ReplayGain is enabled"
-  },
-  "optionsReplayGainSubtitleOff": "已禁用：不添加响度标准化标签",
-  "@optionsReplayGainSubtitleOff": {
-    "description": "Subtitle when ReplayGain is disabled"
   },
   "trackReplayGain": "重新扫描ReplayGain ",
   "@trackReplayGain": {
@@ -348,87 +277,6 @@
       }
     }
   },
-  "optionsArtistTagMode": "艺术家标签模式",
-  "metadataSeparators": "元数据分隔符",
-  "metadataSeparatorsDescription": "选择逗号或分号分隔的值在未来下载中如何连接。现有文件不受影响。",
-  "metadataSeparatorSource": "保持源格式",
-  "metadataSeparatorComma": "逗号（,）",
-  "metadataSeparatorSemicolon": "分号（;）",
-  "metadataSeparatorSlash": "斜杠（/）",
-  "metadataSeparatorCustom": "自定义分隔符",
-  "metadataSeparatorPreview": "预览",
-  "metadataSeparatorInvalid": "使用1–16个字符，不含换行或控制字符。",
-  "@optionsArtistTagMode": {
-    "description": "Setting title for how artist metadata is written into files"
-  },
-  "optionsArtistTagModeDescription": "选择将多位艺人写入嵌入标签的方式",
-  "@optionsArtistTagModeDescription": {
-    "description": "Bottom-sheet description for artist tag mode setting"
-  },
-  "optionsArtistTagModeJoined": "合并为单个值",
-  "@optionsArtistTagModeJoined": {
-    "description": "Artist tag mode option that joins multiple artists into one value"
-  },
-  "optionsArtistTagModeJoinedSubtitle": "写一个ARTIST 值，如“艺术家A，艺人B”，以实现最大兼容性。",
-  "@optionsArtistTagModeJoinedSubtitle": {
-    "description": "Subtitle for joined artist tag mode"
-  },
-  "optionsArtistTagModeSplitVorbis": "用于 FLAC/Opus 的拆分标签",
-  "@optionsArtistTagModeSplitVorbis": {
-    "description": "Artist tag mode option that writes repeated ARTIST tags for Vorbis formats"
-  },
-  "optionsArtistTagModeSplitVorbisSubtitle": "为 FLAC 和 Opus 的每位艺人各写入一个艺人标签；MP3 和 M4A 保持合并",
-  "@optionsArtistTagModeSplitVorbisSubtitle": {
-    "description": "Subtitle for split Vorbis artist tag mode"
-  },
-  "optionsArtistTagModePrimary": "仅主要艺术家",
-  "@optionsArtistTagModePrimary": {
-    "description": "Artist tag mode option that writes only the first credited artist"
-  },
-  "optionsArtistTagModePrimarySubtitle": "仅将第一位艺术家写入所有下载的艺术家和专辑艺术家字段，例如「艺术家A」。",
-  "@optionsArtistTagModePrimarySubtitle": {
-    "description": "Subtitle for the primary-artist tag mode. Applies when downloading and re-enriching; manual edits keep what the user typed."
-  },
-  "optionsExtensionStore": "扩展仓库",
-  "@optionsExtensionStore": {
-    "description": "Show/hide repo tab"
-  },
-  "optionsExtensionStoreSubtitle": "在导航中显示仓库标签页",
-  "@optionsExtensionStoreSubtitle": {
-    "description": "Subtitle for extension repo toggle"
-  },
-  "optionsCheckUpdates": "检查更新",
-  "@optionsCheckUpdates": {
-    "description": "Auto update check toggle"
-  },
-  "optionsCheckUpdatesSubtitle": "当有新版本可用时通知",
-  "@optionsCheckUpdatesSubtitle": {
-    "description": "Subtitle for update check"
-  },
-  "optionsUpdateChannel": "更新频道",
-  "@optionsUpdateChannel": {
-    "description": "Stable vs preview releases"
-  },
-  "optionsClearHistory": "清除下载历史记录",
-  "@optionsClearHistory": {
-    "description": "Delete all download history"
-  },
-  "optionsClearHistorySubtitle": "从历史记录中清除所有已下载的曲目",
-  "@optionsClearHistorySubtitle": {
-    "description": "Subtitle for clear history"
-  },
-  "optionsDetailedLogging": "详细日志",
-  "@optionsDetailedLogging": {
-    "description": "Enable verbose logs for debugging"
-  },
-  "optionsDetailedLoggingOn": "正在记录详细日志",
-  "@optionsDetailedLoggingOn": {
-    "description": "Status when logging enabled"
-  },
-  "optionsDetailedLoggingOff": "为错误报告启用",
-  "@optionsDetailedLoggingOff": {
-    "description": "Status when logging disabled"
-  },
   "extensionsDisabled": "禁用",
   "@extensionsDisabled": {
     "description": "Extension status - inactive"
@@ -436,26 +284,6 @@
   "aboutTitle": "关于",
   "@aboutTitle": {
     "description": "About page title"
-  },
-  "aboutContributors": "贡献者",
-  "@aboutContributors": {
-    "description": "Section for contributors"
-  },
-  "aboutMobileDeveloper": "移动版本开发者",
-  "@aboutMobileDeveloper": {
-    "description": "Role description for mobile dev"
-  },
-  "aboutLogoArtist": "有才华的艺术家创建了我们美丽的应用图标！",
-  "@aboutLogoArtist": {
-    "description": "Role description for logo artist"
-  },
-  "aboutTranslators": "译者",
-  "@aboutTranslators": {
-    "description": "Section for translators"
-  },
-  "aboutSpecialThanks": "特别鸣谢",
-  "@aboutSpecialThanks": {
-    "description": "Section for special thanks"
   },
   "aboutApp": "应用",
   "@aboutApp": {
@@ -465,21 +293,9 @@
   "@aboutVersion": {
     "description": "Version info label"
   },
-  "aboutBinimumDesc": "QQDL 和 HiFi API 的创建者。本项目帮助完善了无损下载支持。",
-  "@aboutBinimumDesc": {
-    "description": "Credit description for binimum"
-  },
-  "aboutSachinsenalDesc": "原 HiFi 项目创建者，为无损来源集成奠定了基础。",
-  "@aboutSachinsenalDesc": {
-    "description": "Credit description for sachinsenal0x64"
-  },
   "aboutAppDescription": "搜索音乐元数据、管理扩展并整理你的乐库。",
   "@aboutAppDescription": {
     "description": "App description in header card"
-  },
-  "trackMetadataService": "服务商",
-  "@trackMetadataService": {
-    "description": "Metadata field - download service used"
   },
   "trackMetadataPlay": "播放",
   "@trackMetadataPlay": {
@@ -984,14 +800,6 @@
       }
     }
   },
-  "sectionDownload": "下载",
-  "@sectionDownload": {
-    "description": "Settings section header"
-  },
-  "sectionDebug": "调试",
-  "@sectionDebug": {
-    "description": "Settings section header"
-  },
   "sectionService": "服务",
   "@sectionService": {
     "description": "Settings section header"
@@ -1075,9 +883,9 @@
       }
     }
   },
-  "trackCopyFilePath": "复制文件路径",
-  "@trackCopyFilePath": {
-    "description": "Action - copy file path"
+  "trackAudioQualityAnalysis": "Audio quality analysis",
+  "@trackAudioQualityAnalysis": {
+    "description": "Action - opens the audio quality analysis of the song"
   },
   "trackRemoveFromDevice": "从设备移除",
   "@trackRemoveFromDevice": {
@@ -1087,33 +895,13 @@
   "@trackMetadata": {
     "description": "Tab title - track metadata"
   },
-  "trackFileInfo": "文件信息",
-  "@trackFileInfo": {
-    "description": "Tab title - file information"
-  },
   "trackLyrics": "歌词",
   "@trackLyrics": {
     "description": "Tab title - lyrics"
   },
-  "trackFileNotFound": "文件未找到",
-  "@trackFileNotFound": {
-    "description": "Error - file doesn't exist"
-  },
-  "trackFileUnavailable": "文件当前不可用。检查存储访问并重试。",
-  "@trackFileUnavailable": {
-    "description": "File access failed; this does not mean the file was deleted"
-  },
-  "trackTrackName": "曲目标题",
-  "@trackTrackName": {
-    "description": "Metadata label - track title"
-  },
   "trackArtist": "艺术家",
   "@trackArtist": {
     "description": "Metadata label - artist name"
-  },
-  "trackAlbumArtist": "专辑艺术家",
-  "@trackAlbumArtist": {
-    "description": "Metadata label - album artist"
   },
   "trackAlbum": "专辑",
   "@trackAlbum": {
@@ -1123,90 +911,9 @@
   "@trackTrackNumber": {
     "description": "Metadata label - track number"
   },
-  "trackDiscNumber": "碟片编号",
-  "@trackDiscNumber": {
-    "description": "Metadata label - disc number"
-  },
   "trackDuration": "时长",
   "@trackDuration": {
     "description": "Metadata label - track length"
-  },
-  "trackAudioQuality": "音频质量",
-  "@trackAudioQuality": {
-    "description": "Metadata label - audio quality"
-  },
-  "trackReplayGainTrackGain": "ReplayGain 曲目增益",
-  "@trackReplayGainTrackGain": {
-    "description": "Metadata label - ReplayGain track gain"
-  },
-  "trackReplayGainTrackPeak": "ReplayGain 曲目峰值",
-  "@trackReplayGainTrackPeak": {
-    "description": "Metadata label - ReplayGain track peak"
-  },
-  "trackReplayGainAlbumGain": "ReplayGain 专辑增益",
-  "@trackReplayGainAlbumGain": {
-    "description": "Metadata label - ReplayGain album gain"
-  },
-  "trackReplayGainAlbumPeak": "ReplayGain 专辑峰值",
-  "@trackReplayGainAlbumPeak": {
-    "description": "Metadata label - ReplayGain album peak"
-  },
-  "libraryQualityLabelFileFormat": "文件格式",
-  "@libraryQualityLabelFileFormat": {
-    "description": "Library audio quality label mode that shows the detected file format"
-  },
-  "trackReleaseDate": "发行日期",
-  "@trackReleaseDate": {
-    "description": "Metadata label - release date"
-  },
-  "trackGenre": "流派",
-  "@trackGenre": {
-    "description": "Metadata label - music genre"
-  },
-  "trackLabel": "厂牌",
-  "@trackLabel": {
-    "description": "Metadata label - record label"
-  },
-  "trackCopyright": "版权",
-  "@trackCopyright": {
-    "description": "Metadata label - copyright information"
-  },
-  "trackDownloaded": "已下载",
-  "@trackDownloaded": {
-    "description": "Metadata label - download date"
-  },
-  "trackCopyLyrics": "复制歌词",
-  "@trackCopyLyrics": {
-    "description": "Action - copy lyrics to clipboard"
-  },
-  "trackLyricsSource": "来源：{source}",
-  "@trackLyricsSource": {
-    "description": "Label showing the lyrics source/provider",
-    "placeholders": {
-      "source": {
-        "type": "String"
-      }
-    }
-  },
-  "trackLyricsNotInFile": "此文件中未找到歌词",
-  "@trackLyricsNotInFile": {
-    "description": "Message when no embedded lyrics in audio file"
-  },
-  "trackEmbedLyrics": "嵌入歌词",
-  "@trackEmbedLyrics": {
-    "description": "Action - embed lyrics into audio file"
-  },
-  "trackLyricsEmbedded": "歌词嵌入成功",
-  "@trackLyricsEmbedded": {
-    "description": "Snackbar - lyrics saved to file"
-  },
-  "trackInstrumental": "纯音乐曲目",
-  "@trackInstrumental": {
-    "description": "Message when track is instrumental (no lyrics)"
-  },
-  "trackCopiedToClipboard": "已复制到剪贴板",
-  "@trackCopiedToClipboard": {
-    "description": "Snackbar - content copied"
   },
   "trackDeleteConfirmTitle": "从设备移除？",
   "@trackDeleteConfirmTitle": {
@@ -1241,45 +948,9 @@
   "@downloadLossyFormat": {
     "description": "Setting title to pick output format for lossy downloads"
   },
-  "downloadAutoConvert": "下载后自动转换",
-  "@downloadAutoConvert": {
-    "description": "Toggle for automatic post-download audio conversion"
-  },
-  "downloadAutoConvertSubtitle": "将完成的下载转换为更小的有损格式。仅在转换成功后替换原文件。",
-  "@downloadAutoConvertSubtitle": {
-    "description": "Explanation of safe automatic post-download conversion"
-  },
   "downloadAskBeforeDownload": "下载前询问",
   "@downloadAskBeforeDownload": {
     "description": "Setting - show quality picker"
-  },
-  "downloadDirectory": "下载目录",
-  "@downloadDirectory": {
-    "description": "Setting - download folder"
-  },
-  "downloadSeparateSinglesFolder": "单独单曲文件夹",
-  "@downloadSeparateSinglesFolder": {
-    "description": "Setting - separate folder for singles"
-  },
-  "downloadAlbumFolderStructure": "专辑文件夹结构",
-  "@downloadAlbumFolderStructure": {
-    "description": "Setting - album folder organization"
-  },
-  "downloadUseAlbumArtistForFolders": "文件夹使用专辑艺术家",
-  "@downloadUseAlbumArtistForFolders": {
-    "description": "Setting - choose whether artist folders use Album Artist or Track Artist"
-  },
-  "downloadUsePrimaryArtistOnly": "文件夹仅使用主要艺术家",
-  "@downloadUsePrimaryArtistOnly": {
-    "description": "Setting - strip featured artists from folder name"
-  },
-  "appearanceHeroAnimations": "Hero动画",
-  "@appearanceHeroAnimations": {
-    "description": "Toggle for shared-element (Hero) transitions"
-  },
-  "appearanceHeroAnimationsSubtitle": "打开播放器等页面时，封面会\"嗖\"一下飞过去。",
-  "@appearanceHeroAnimationsSubtitle": {
-    "description": "Subtitle for the Hero animations toggle"
   },
   "appearanceForceBlur": "始终使用模糊效果",
   "@appearanceForceBlur": {
@@ -1344,34 +1015,6 @@
         "example": "1"
       }
     }
-  },
-  "sectionStorageAccess": "存储访问",
-  "@sectionStorageAccess": {
-    "description": "Section header for storage access settings"
-  },
-  "allFilesAccess": "所有文件访问",
-  "@allFilesAccess": {
-    "description": "Toggle for MANAGE_EXTERNAL_STORAGE permission"
-  },
-  "allFilesAccessEnabledSubtitle": "可写入任何文件夹",
-  "@allFilesAccessEnabledSubtitle": {
-    "description": "Subtitle when all files access is enabled"
-  },
-  "allFilesAccessDisabledSubtitle": "仅限媒体文件夹",
-  "@allFilesAccessDisabledSubtitle": {
-    "description": "Subtitle when all files access is disabled"
-  },
-  "allFilesAccessDescription": "如果在保存到自定义文件夹时遇到写入错误，请启用此选项。Android 13+默认限制对某些目录的访问。",
-  "@allFilesAccessDescription": {
-    "description": "Description explaining when to enable all files access"
-  },
-  "allFilesAccessDeniedMessage": "权限被拒绝。请在系统设置中手动启用「所有文件访问」。",
-  "@allFilesAccessDeniedMessage": {
-    "description": "Message when permission is permanently denied"
-  },
-  "allFilesAccessDisabledMessage": "所有文件访问已禁用。应用将使用受限存储访问。",
-  "@allFilesAccessDisabledMessage": {
-    "description": "Snackbar message when user disables all files access"
   },
   "settingsLocalLibrary": "本地乐库",
   "@settingsLocalLibrary": {
@@ -1625,10 +1268,6 @@
       }
     }
   },
-  "libraryInLibrary": "在乐库中",
-  "@libraryInLibrary": {
-    "description": "Badge shown on tracks that exist in local library"
-  },
   "libraryRemovedMissingFiles": "已从乐库中移除 {count} 个缺失文件",
   "@libraryRemovedMissingFiles": {
     "description": "Snackbar after cleanup",
@@ -1650,14 +1289,6 @@
   "@libraryStorageAccessMessage": {
     "description": "Dialog message for storage permission"
   },
-  "librarySourceLocal": "本地",
-  "@librarySourceLocal": {
-    "description": "Badge for tracks from local library scan"
-  },
-  "libraryFilterAll": "全部",
-  "@libraryFilterAll": {
-    "description": "Filter chip - show all library items"
-  },
   "libraryReEnrichAll": "Re-enrich All Tracks",
   "@libraryReEnrichAll": {
     "description": "Library settings action - re-enrich the metadata of every track in the Library"
@@ -1666,69 +1297,13 @@
   "@libraryReEnrichAllSubtitle": {
     "description": "Subtitle for the Re-enrich All Tracks action"
   },
-  "libraryFilterLocal": "本地",
-  "@libraryFilterLocal": {
-    "description": "Filter chip - show only local library items"
-  },
-  "libraryFilterTitle": "过滤器",
-  "@libraryFilterTitle": {
-    "description": "Filter bottom sheet title"
-  },
   "libraryFilterReset": "重置",
   "@libraryFilterReset": {
     "description": "Reset all filters button"
   },
-  "libraryFilterApply": "应用",
-  "@libraryFilterApply": {
-    "description": "Apply filters button"
-  },
-  "libraryFilterSource": "来源",
-  "@libraryFilterSource": {
-    "description": "Filter section - source type"
-  },
-  "libraryFilterQuality": "质量",
-  "@libraryFilterQuality": {
-    "description": "Filter section - audio quality"
-  },
-  "libraryFilterQualityHiRes": "高解析（24bit）",
-  "@libraryFilterQualityHiRes": {
-    "description": "Filter option - high resolution audio"
-  },
-  "libraryFilterQualityCD": "CD（16bit）",
-  "@libraryFilterQualityCD": {
-    "description": "Filter option - CD quality audio"
-  },
-  "libraryFilterQualityLossy": "有损",
-  "@libraryFilterQualityLossy": {
-    "description": "Filter option - lossy compressed audio"
-  },
   "libraryFilterFormat": "格式",
   "@libraryFilterFormat": {
     "description": "Filter section - file format"
-  },
-  "libraryFilterMetadata": "元数据",
-  "@libraryFilterMetadata": {
-    "description": "Filter section - metadata completeness"
-  },
-  "libraryFilterMetadataComplete": "完整元数据",
-  "@libraryFilterMetadataComplete": {
-    "description": "Filter option - items with complete metadata"
-  },
-  "libraryFilterMetadataMissingAny": "缺少任何元数据",
-  "@libraryFilterMetadataMissingAny": {
-    "description": "Filter option - items missing any tracked metadata field"
-  },
-  "libraryFilterMetadataMissingYear": "缺少年份",
-  "@libraryFilterMetadataMissingYear": {
-    "description": "Filter option - items missing release year/date"
-  },
-  "libraryFilterMetadataMissingGenre": "缺少流派",
-  "@libraryFilterMetadataMissingGenre": {
-    "description": "Filter option - items missing genre"
-  },
-  "libraryFilterMetadataMissingAlbumArtist": "缺少专辑艺术家",
-  "@libraryFilterMetadataMissingAlbumArtist": {
-    "description": "Filter option - items missing album artist"
   },
   "libraryFilterSort": "排序",
   "@libraryFilterSort": {
@@ -2124,93 +1699,9 @@
       }
     }
   },
-  "trackConvertFormat": "转换格式",
-  "@trackConvertFormat": {
-    "description": "Menu item - convert audio format"
-  },
-  "trackConvertTitle": "转换音频",
-  "@trackConvertTitle": {
-    "description": "Title of convert bottom sheet"
-  },
-  "trackConvertTargetFormat": "目标格式",
-  "@trackConvertTargetFormat": {
-    "description": "Label for format selection"
-  },
   "trackConvertBitrate": "比特率",
   "@trackConvertBitrate": {
     "description": "Label for bitrate selection"
-  },
-  "trackConvertKeepOriginal": "保留原文件",
-  "@trackConvertKeepOriginal": {
-    "description": "Toggle to preserve the source file during conversion"
-  },
-  "trackConvertKeepOriginalDescription": "将转换后的文件作为单独的乐库条目添加",
-  "@trackConvertKeepOriginalDescription": {
-    "description": "Description for preserving the source file during conversion"
-  },
-  "trackConvertConfirmTitle": "确认转换",
-  "@trackConvertConfirmTitle": {
-    "description": "Confirmation dialog title"
-  },
-  "trackConvertConfirmMessage": "以 {bitrate} 从 {sourceFormat} 转换为 {targetFormat}？\n\n转换后将删除原文件。",
-  "@trackConvertConfirmMessage": {
-    "description": "Confirmation dialog message",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmMessageLossless": "从 {sourceFormat} 转换为 {targetFormat}？（无损 — 无质量损失）\n\n转换后将删除原文件。",
-  "@trackConvertConfirmMessageLossless": {
-    "description": "Confirmation dialog message for lossless-to-lossless conversion",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmKeepOriginal": "从 {sourceFormat} 转换为 {targetFormat}？\n\n原文件将保留，转换后的文件将作为单独的乐库条目添加。",
-  "@trackConvertConfirmKeepOriginal": {
-    "description": "Confirmation message when the source file will be preserved",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertLosslessHint": "无损转换 — 无质量损失",
-  "@trackConvertLosslessHint": {
-    "description": "Hint shown when converting between lossless formats"
-  },
-  "trackConvertConverting": "正在转换音频……",
-  "@trackConvertConverting": {
-    "description": "Snackbar while converting"
-  },
-  "trackConvertSuccess": "成功转换为 {format}",
-  "@trackConvertSuccess": {
-    "description": "Snackbar after successful conversion",
-    "placeholders": {
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertFailed": "转换失败",
-  "@trackConvertFailed": {
-    "description": "Snackbar when conversion fails"
   },
   "cueSplitTitle": "分轨CUE表",
   "@cueSplitTitle": {
@@ -2296,14 +1787,6 @@
   "@actionCreate": {
     "description": "Generic action button - create"
   },
-  "collectionFoldersTitle": "我的文件夹",
-  "@collectionFoldersTitle": {
-    "description": "Library section title for custom folders"
-  },
-  "collectionWishlist": "心愿单",
-  "@collectionWishlist": {
-    "description": "Custom folder for saved tracks to download later"
-  },
   "collectionLoved": "收藏",
   "@collectionLoved": {
     "description": "Custom folder for favorite tracks"
@@ -2331,15 +1814,6 @@
   "collectionPlaylistTracks": "{count, plural, =1{1首曲目} other{{count} 首曲目}}",
   "@collectionPlaylistTracks": {
     "description": "Track count label for custom playlists",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "collectionArtistCount": "{count, plural, =1{1位艺术家} other{{count} 位艺术家}}",
-  "@collectionArtistCount": {
-    "description": "Artist count label for favorite artists",
     "placeholders": {
       "count": {
         "type": "int"
@@ -2384,14 +1858,6 @@
   "@collectionPlaylistRenamed": {
     "description": "Snackbar after renaming playlist"
   },
-  "collectionWishlistEmptyTitle": "心愿单为空",
-  "@collectionWishlistEmptyTitle": {
-    "description": "Wishlist empty state title"
-  },
-  "collectionWishlistEmptySubtitle": "在曲目上点击 + 以保存稍后想下载的内容",
-  "@collectionWishlistEmptySubtitle": {
-    "description": "Wishlist empty state subtitle"
-  },
   "collectionLovedEmptyTitle": "收藏文件夹为空",
   "@collectionLovedEmptyTitle": {
     "description": "Loved empty state title"
@@ -2422,43 +1888,7 @@
   },
   "collectionRemoveFromFolder": "从文件夹移除",
   "@collectionRemoveFromFolder": {
-    "description": "Tooltip for removing track from wishlist/loved folder"
-  },
-  "collectionAddedToLoved": "「{trackName}」已添加到收藏",
-  "@collectionAddedToLoved": {
-    "description": "Snackbar after adding track to loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionRemovedFromLoved": "「{trackName}」已从收藏中移除",
-  "@collectionRemovedFromLoved": {
-    "description": "Snackbar after removing track from loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionAddedToWishlist": "「{trackName}」已添加到心愿单",
-  "@collectionAddedToWishlist": {
-    "description": "Snackbar after adding track to wishlist",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionRemovedFromWishlist": "「{trackName}」已从心愿单中移除",
-  "@collectionRemovedFromWishlist": {
-    "description": "Snackbar after removing track from wishlist",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
+    "description": "Tooltip for removing track from loved folder"
   },
   "collectionRemovedFromFavoriteArtists": "「{artistName}」已从收藏艺术家中移除",
   "@collectionRemovedFromFavoriteArtists": {
@@ -2477,14 +1907,6 @@
   "@trackOptionRemoveFromLoved": {
     "description": "Bottom sheet action label - remove track from loved folder"
   },
-  "trackOptionAddToWishlist": "添加到心愿单",
-  "@trackOptionAddToWishlist": {
-    "description": "Bottom sheet action label - add track to wishlist"
-  },
-  "trackOptionRemoveFromWishlist": "从心愿单移除",
-  "@trackOptionRemoveFromWishlist": {
-    "description": "Bottom sheet action label - remove track from wishlist"
-  },
   "artistOptionRemoveFromFavorites": "从收藏艺术家中移除",
   "@artistOptionRemoveFromFavorites": {
     "description": "Action label - remove artist from favorite artists"
@@ -2496,77 +1918,6 @@
   "collectionPlaylistRemoveCover": "删除封面图片",
   "@collectionPlaylistRemoveCover": {
     "description": "Bottom sheet action to remove custom cover image from a playlist"
-  },
-  "selectionConvertCount": "转换 {count} {count, plural, =1{首曲目} other{首曲目}}",
-  "@selectionConvertCount": {
-    "description": "Convert button text with count in selection mode",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "selectionConvertNoConvertible": "未选择可转换的曲目",
-  "@selectionConvertNoConvertible": {
-    "description": "Snackbar when no selected tracks support conversion"
-  },
-  "selectionBatchConvertConfirmTitle": "批量转换",
-  "@selectionBatchConvertConfirmTitle": {
-    "description": "Confirmation dialog title for batch conversion"
-  },
-  "selectionBatchConvertConfirmMessage": "将 {count} {count, plural, =1{首曲目} other{首曲目}} 以 {bitrate} 转换为 {format}？\n\n转换后将删除原文件。",
-  "@selectionBatchConvertConfirmMessage": {
-    "description": "Confirmation dialog message for batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmMessageLossless": "将 {count} {count, plural, =1{首曲目} other{首曲目}} 转换为 {format}？（无损 — 无质量损失）\n\n转换后将删除原文件。",
-  "@selectionBatchConvertConfirmMessageLossless": {
-    "description": "Confirmation dialog message for lossless batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmKeepOriginal": "将 {count} {count, plural, =1{首曲目} other{首曲目}} 转换为 {format}？\n\n原文件将保留，转换后的文件将作为单独的乐库条目添加。",
-  "@selectionBatchConvertConfirmKeepOriginal": {
-    "description": "Batch conversion confirmation when source files will be preserved",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertSuccess": "已将 {total} 首曲目中的 {success} 首转换为 {format}",
-  "@selectionBatchConvertSuccess": {
-    "description": "Snackbar after batch conversion completes",
-    "placeholders": {
-      "success": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
   },
   "settingsBackup": "备份与恢复",
   "@settingsBackup": {
@@ -2584,7 +1935,7 @@
   "@backupExportSectionTitle": {
     "description": "Section title for the export/backup card"
   },
-  "backupExportSectionDescription": "将你的设置、下载历史、收藏曲目、心愿单、收藏艺术家和播放列表保存到一个文件中，可保留或转移到其他手机。",
+  "backupExportSectionDescription": "将你的设置、下载历史、收藏曲目、收藏艺术家和播放列表保存到一个文件中，可保留或转移到其他手机。",
   "@backupExportSectionDescription": {
     "description": "Description of what a backup contains"
   },
@@ -2642,7 +1993,7 @@
   },
   "backupSettingsOnly": "仅设置",
   "backupSelectCollections": "乐库收藏",
-  "backupSelectCollectionsDescription": "喜欢的曲目、心愿单、收藏的艺术家、播放列表和播放列表封面。",
+  "backupSelectCollectionsDescription": "喜欢的曲目、收藏的艺术家、播放列表和播放列表封面。",
   "backupSelectedExportDescription": "将选定的类别保存到备份文件。不包含音频文件。",
   "backupSelectAtLeastOne": "至少选择一个类别以创建备份。",
   "backupSelectedRestoreMessage": "仅恢复下面列出的类别。备份中不包含的类别不会被更改。",
@@ -2653,15 +2004,6 @@
   "backupContentsLiked": "{count} 首收藏 {count, plural, =1{曲目} other{曲目}}",
   "@backupContentsLiked": {
     "description": "Backup contents row for liked tracks count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "backupContentsWishlist": "{count} 首心愿单 {count, plural, =1{曲目} other{曲目}}",
-  "@backupContentsWishlist": {
-    "description": "Backup contents row for wishlist tracks count",
     "placeholders": {
       "count": {
         "type": "int"
@@ -2698,10 +2040,6 @@
   "@tooltipLoveAll": {
     "description": "Tooltip for the Love All button on album/playlist screens"
   },
-  "tooltipAddToPlaylist": "添加到播放列表",
-  "@tooltipAddToPlaylist": {
-    "description": "Tooltip for the Add to Playlist button"
-  },
   "snackbarRemovedTracksFromLoved": "已从收藏中移除 {count} 首曲目",
   "@snackbarRemovedTracksFromLoved": {
     "description": "Snackbar after removing multiple tracks from Loved folder",
@@ -2732,14 +2070,6 @@
   "@snackbarMetadataSaved": {
     "description": "Snackbar after successfully saving track metadata"
   },
-  "snackbarFailedToEmbedLyrics": "嵌入歌词失败",
-  "@snackbarFailedToEmbedLyrics": {
-    "description": "Snackbar when lyrics embedding fails"
-  },
-  "snackbarFailedToWriteStorage": "写回存储失败",
-  "@snackbarFailedToWriteStorage": {
-    "description": "Snackbar when writing metadata back to file fails"
-  },
   "snackbarError": "错误：{error}",
   "@snackbarError": {
     "description": "Generic error snackbar with error detail",
@@ -2754,14 +2084,6 @@
     "description": "Empty state message when an album has no tracks"
   },
   "storageDownloadFolderHint": "In the Android folder picker, open Download and select Sistrum. If it does not exist, create it using New folder, then tap Use this folder to grant access.",
-  "downloadArtistNameFilters": "艺术家名称过滤器",
-  "@downloadArtistNameFilters": {
-    "description": "Setting title for artist folder filter options"
-  },
-  "downloadCreatePlaylistSourceFolder": "播放列表源文件夹",
-  "@downloadCreatePlaylistSourceFolder": {
-    "description": "Setting to create a subfolder per playlist source"
-  },
   "downloadSongLinkRegion": "SongLink地区",
   "@downloadSongLinkRegion": {
     "description": "Setting for SongLink region used during fallback resolution"
@@ -2773,10 +2095,6 @@
   "downloadAllowLocalNetwork": "允许本地网络访问",
   "@downloadAllowLocalNetwork": {
     "description": "Setting title for allowing requests to private/local network targets"
-  },
-  "downloadEmbedLyricsDisabled": "请先启用元数据嵌入",
-  "@downloadEmbedLyricsDisabled": {
-    "description": "Subtitle when lyrics embedding is blocked by metadata toggle"
   },
   "downloadNeteaseIncludeTranslation": "网易云：包含翻译",
   "@downloadNeteaseIncludeTranslation": {
@@ -2797,10 +2115,6 @@
   "downloadMusixmatchLanguage": "Musixmatch语言",
   "@downloadMusixmatchLanguage": {
     "description": "Setting for Musixmatch lyrics translation language"
-  },
-  "downloadFilterContributing": "过滤参与艺术家",
-  "@downloadFilterContributing": {
-    "description": "Setting to strip contributing artists from Album Artist folder name"
   },
   "snackbarUnsupportedAudioFormat": "不支持的音频格式",
   "@snackbarUnsupportedAudioFormat": {
@@ -2888,14 +2202,6 @@
   "@queueEmptyAlbumsSubtitle": {
     "description": "Empty state subtitle for album downloads"
   },
-  "queueEmptySingles": "无单曲下载",
-  "@queueEmptySingles": {
-    "description": "Empty state title when no single track downloads exist"
-  },
-  "queueEmptySinglesSubtitle": "单曲目下载将显示在这里",
-  "@queueEmptySinglesSubtitle": {
-    "description": "Empty state subtitle for single track downloads"
-  },
   "queuePlaylistCount": "{count, plural, =1{1个播放列表} other{{count} 个播放列表}}",
   "@queuePlaylistCount": {
     "description": "Playlist count label with plural support",
@@ -2908,14 +2214,6 @@
   "queueEmptyPlaylistsSubtitle": "创建播放列表以整理你的曲目",
   "@queueEmptyPlaylistsSubtitle": {
     "description": "Empty state subtitle for the playlists library view"
-  },
-  "libraryDefaultView": "默认视图",
-  "@libraryDefaultView": {
-    "description": "Setting title - which library view opens when switching to the Library tab"
-  },
-  "libraryDefaultViewLastUsed": "上次使用",
-  "@libraryDefaultViewLastUsed": {
-    "description": "Default view option - keep the last used library view"
   },
   "queueEmptyHistory": "无下载历史",
   "@queueEmptyHistory": {
@@ -3043,105 +2341,6 @@
     "placeholders": {
       "fileName": {
         "type": "String"
-      }
-    }
-  },
-  "downloadRedownloadFakeHiRes": "重新下载假高解析",
-  "@downloadRedownloadFakeHiRes": {
-    "description": "Setting title: automatically replace downloads that measure as fake Hi-Res"
-  },
-  "downloadRedownloadFakeHiResSubtitle": "默认关闭。检查高解析下载，仅当每个音频样本都匹配时才替换。",
-  "@downloadRedownloadFakeHiResSubtitle": {
-    "description": "Setting subtitle for the fake Hi-Res re-download toggle"
-  },
-  "hiResCheckVerdictFakeCertain": "假高解析",
-  "@hiResCheckVerdictFakeCertain": {
-    "description": "Verdict: an exact fingerprint (padded bits or upsampling pattern) proves the file is not real Hi-Res"
-  },
-  "hiResCheckReasonSampleHold": "每个样本被重复：通过复制上采样",
-  "@hiResCheckReasonSampleHold": {
-    "description": "Reason: sample-and-hold upsampling detected"
-  },
-  "hiResCheckReasonInterpolation": "中间样本为线性插值",
-  "@hiResCheckReasonInterpolation": {
-    "description": "Reason: linear-interpolation upsampling detected"
-  },
-  "hiResCheckTitle": "高解析真实性",
-  "@hiResCheckTitle": {
-    "description": "Title of the fake Hi-Res check card"
-  },
-  "hiResCheckLimitedBandwidth": "带宽受限",
-  "@hiResCheckLimitedBandwidth": {
-    "description": "Neutral finding: a limited spectrum alone does not prove upsampling"
-  },
-  "hiResCheckEstimatedCutoff": "估算截止频率",
-  "@hiResCheckEstimatedCutoff": {
-    "description": "Estimated upper spectral edge at the analysis threshold"
-  },
-  "hiResCheckActiveBits": "有效/存储位",
-  "@hiResCheckActiveBits": {
-    "description": "Active integer bit depth versus the container depth in the sampled segment"
-  },
-  "hiResCheckBandwidthExplanation": "较低的截止频率可能来自母带处理。它本身不能证明上采样。",
-  "@hiResCheckBandwidthExplanation": {
-    "description": "Explains why the limited-bandwidth finding is neutral"
-  },
-  "hiResCheckImagingEvidence": "频谱包含与上采样一致的镜像频段。",
-  "@hiResCheckImagingEvidence": {
-    "description": "Spectral imaging is suggestive evidence rather than proof"
-  },
-  "hiResCheckRateEvidence": "{cutoff} 附近的陡峭滚降和测得的本底噪声表明原始采样率较低。",
-  "@hiResCheckRateEvidence": {
-    "description": "Heuristic evidence from both a brickwall and a 16-bit-like noise floor",
-    "placeholders": {
-      "cutoff": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResCheckSteadyEnergy": "{cutoff} 以上的能量在分析片段中基本稳定，可能是噪声。",
-  "@hiResCheckSteadyEnergy": {
-    "description": "An observation about ultrasonic energy, not proof that removing it is safe",
-    "placeholders": {
-      "cutoff": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResCheckRun": "检查",
-  "@hiResCheckRun": {
-    "description": "Button that starts the Hi-Res authenticity check"
-  },
-  "hiResCheckVerdictFake": "可能是假高解析",
-  "@hiResCheckVerdictFake": {
-    "description": "Verdict: the file claims Hi-Res but does not measure as it"
-  },
-  "hiResCheckVerdictInconclusive": "不确定：分析片段太安静或太短",
-  "@hiResCheckVerdictInconclusive": {
-    "description": "Verdict: analysis could not reach a reliable conclusion"
-  },
-  "hiResCheckUnsupported": "仅支持FLAC和WAV文件",
-  "@hiResCheckUnsupported": {
-    "description": "Shown when the file format cannot be decoded by the Hi-Res check"
-  },
-  "hiResCheckFailed": "高解析检查失败：{error}",
-  "@hiResCheckFailed": {
-    "description": "Error shown when the Hi-Res check fails",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResCheckReasonDepth": "声明为 {declared} 位，但只有 {effective} 位携带数据",
-  "@hiResCheckReasonDepth": {
-    "description": "Reason for a fake verdict caused by padded bit depth",
-    "placeholders": {
-      "declared": {
-        "type": "int"
-      },
-      "effective": {
-        "type": "int"
       }
     }
   },
@@ -3427,18 +2626,6 @@
   "@tutorialStartDownloadSemantics": {
     "description": "Accessibility label for idle download button in tutorial demo"
   },
-  "optionsEmbedMetadata": "嵌入元数据",
-  "@optionsEmbedMetadata": {
-    "description": "Settings toggle title for writing metadata into downloaded files"
-  },
-  "optionsEmbedMetadataSubtitleOn": "将元数据、封面和嵌入歌词写入文件",
-  "@optionsEmbedMetadataSubtitleOn": {
-    "description": "Subtitle when metadata embedding is enabled"
-  },
-  "optionsEmbedMetadataSubtitleOff": "已禁用（高级）：跳过所有元数据嵌入",
-  "@optionsEmbedMetadataSubtitleOff": {
-    "description": "Subtitle when metadata embedding is disabled"
-  },
   "trackCoverNoEmbeddedArt": "未找到嵌入的专辑封面",
   "@trackCoverNoEmbeddedArt": {
     "description": "Message shown when a track file has no embedded cover art"
@@ -3466,18 +2653,6 @@
   "trackCoverReplaceNotice": "点击保存时，所选封面将替换当前嵌入封面。",
   "@trackCoverReplaceNotice": {
     "description": "Notice shown when a new cover has been selected but not saved yet"
-  },
-  "trackCoverResolution": "封面分辨率",
-  "@trackCoverResolution": {
-    "description": "Label for selecting the embedded cover art resolution"
-  },
-  "trackCoverResolutionHint": "设置保存时的最长边。放大不会增加图像细节。",
-  "@trackCoverResolutionHint": {
-    "description": "Explanation below the embedded cover art resolution selector"
-  },
-  "trackCoverResizeFailed": "无法调整封面图片大小。请尝试其他大小或图片。",
-  "@trackCoverResizeFailed": {
-    "description": "Error shown when resizing cover art before saving metadata fails"
   },
   "queueMoveUp": "上移",
   "@queueMoveUp": {
@@ -3626,22 +2801,6 @@
       }
     }
   },
-  "settingsFiles": "文件和文件夹",
-  "@settingsFiles": {
-    "description": "Settings menu item - file and folder settings"
-  },
-  "settingsFilesSubtitle": "下载位置、文件名、文件夹结构",
-  "@settingsFilesSubtitle": {
-    "description": "Subtitle for files & folders settings"
-  },
-  "settingsMetadata": "元数据",
-  "@settingsMetadata": {
-    "description": "Settings menu item - metadata settings"
-  },
-  "settingsMetadataSubtitle": "封面、标签、ReplayGain、提供商",
-  "@settingsMetadataSubtitle": {
-    "description": "Subtitle for metadata settings"
-  },
   "settingsLyrics": "歌词",
   "@settingsLyrics": {
     "description": "Settings menu item - lyrics settings"
@@ -3649,34 +2808,6 @@
   "settingsLyricsSubtitle": "嵌入、模式、提供商、语言选项",
   "@settingsLyricsSubtitle": {
     "description": "Subtitle for lyrics settings"
-  },
-  "settingsApp": "应用",
-  "@settingsApp": {
-    "description": "Settings menu item - app settings"
-  },
-  "settingsAppSubtitle": "更新、数据、扩展仓库、调试",
-  "@settingsAppSubtitle": {
-    "description": "Subtitle for app settings"
-  },
-  "metadataProvidersTitle": "元数据提供商优先级",
-  "@metadataProvidersTitle": {
-    "description": "Settings item title for metadata provider order"
-  },
-  "metadataProvidersSubtitle": "拖动设置搜索和元数据源顺序",
-  "@metadataProvidersSubtitle": {
-    "description": "Subtitle for metadata provider priority item"
-  },
-  "downloadDeduplication": "跳过重复下载",
-  "@downloadDeduplication": {
-    "description": "Setting - skip tracks already in download history"
-  },
-  "downloadQualityVariants": "允许不同质量版本",
-  "@downloadQualityVariants": {
-    "description": "Setting to retain multiple quality versions of the same track"
-  },
-  "downloadQualityVariantsDescription": "保留每个质量版本；仅当名称已被使用时，将其测量质量添加到文件名",
-  "@downloadQualityVariantsDescription": {
-    "description": "Description for retaining multiple quality versions"
   },
   "downloadFallbackExtensions": "回退扩展",
   "@downloadFallbackExtensions": {
@@ -3737,30 +2868,6 @@
   "editMetadataAdvanced": "高级",
   "@editMetadataAdvanced": {
     "description": "Expandable section label for advanced metadata fields"
-  },
-  "libraryFilterMetadataMissingTrackNumber": "缺少曲目编号",
-  "@libraryFilterMetadataMissingTrackNumber": {
-    "description": "Filter option - items missing track number"
-  },
-  "libraryFilterMetadataMissingDiscNumber": "缺少碟片编号",
-  "@libraryFilterMetadataMissingDiscNumber": {
-    "description": "Filter option - items missing disc number"
-  },
-  "libraryFilterMetadataMissingArtist": "缺少艺术家",
-  "@libraryFilterMetadataMissingArtist": {
-    "description": "Filter option - items missing artist"
-  },
-  "libraryFilterMetadataIncorrectIsrcFormat": "ISRC格式不正确",
-  "@libraryFilterMetadataIncorrectIsrcFormat": {
-    "description": "Filter option - items with an invalid ISRC format"
-  },
-  "libraryFilterMetadataMissingIsrc": "缺少ISRC",
-  "@libraryFilterMetadataMissingIsrc": {
-    "description": "Filter option - items without any ISRC tag"
-  },
-  "libraryFilterMetadataMissingLabel": "缺少厂牌",
-  "@libraryFilterMetadataMissingLabel": {
-    "description": "Filter option - items missing record label"
   },
   "collectionDeletePlaylistsMessage": "删除 {count} {count, plural, =1{个播放列表} other{个播放列表}}？",
   "@collectionDeletePlaylistsMessage": {
@@ -3900,10 +3007,6 @@
   "@audioAnalysisMono": {
     "description": "Audio channel layout label - mono"
   },
-  "trackLyricsEmbeddedSource": "已嵌入",
-  "@trackLyricsEmbeddedSource": {
-    "description": "Lyrics source label for embedded lyrics"
-  },
   "unknownAlbum": "未知专辑",
   "@unknownAlbum": {
     "description": "Fallback album name when metadata is missing"
@@ -3928,33 +3031,9 @@
   "@errorInvalidFolderSelected": {
     "description": "Error when the selected folder is invalid"
   },
-  "settingsSaveDownloadHistory": "保存下载历史",
-  "@settingsSaveDownloadHistory": {
-    "description": "Settings switch title for storing completed downloads in history"
-  },
-  "settingsSaveDownloadHistorySubtitle": "在历史和乐库视图中保留已完成的下载",
-  "@settingsSaveDownloadHistorySubtitle": {
-    "description": "Settings switch subtitle for storing completed downloads in history"
-  },
   "libraryPlayback": "播放",
   "@libraryPlayback": {
     "description": "Section header for playback settings in library settings"
-  },
-  "libraryExternalPlayer": "外部播放器",
-  "@libraryExternalPlayer": {
-    "description": "Setting option to use an external music player"
-  },
-  "libraryExternalPlayerSubtitle": "Recommended for listening, best quality, gapless playback, EQ, and wider format support",
-  "@libraryExternalPlayerSubtitle": {
-    "description": "Subtitle for external player option"
-  },
-  "libraryBuiltInPreviewPlayer": "内置播放器",
-  "@libraryBuiltInPreviewPlayer": {
-    "description": "Setting option to use the built-in preview player"
-  },
-  "libraryBuiltInPreviewPlayerSubtitle": "Play your music right inside Sistrum",
-  "@libraryBuiltInPreviewPlayerSubtitle": {
-    "description": "Subtitle for built-in preview player option"
   },
   "nowPlayingTitle": "正在播放",
   "@nowPlayingTitle": {
@@ -4041,10 +3120,6 @@
   "@nowPlayingSleepTimerCancelled": {
     "description": "Confirmation after cancelling the playback sleep timer"
   },
-  "nowPlayingOpenInExternalPlayer": "在外部播放器中打开",
-  "@nowPlayingOpenInExternalPlayer": {
-    "description": "Menu item to open the current track in an external player"
-  },
   "nowPlayingHideVolume": "Hide volume",
   "@nowPlayingHideVolume": {
     "description": "Now Playing menu item that removes the volume slider from the player"
@@ -4127,75 +3202,6 @@
       }
     }
   },
-  "trackConvertLosslessOutputWithCap": "无损输出，限制 {quality}",
-  "@trackConvertLosslessOutputWithCap": {
-    "description": "Hint shown when lossless conversion will cap bit depth or sample rate",
-    "placeholders": {
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmMessageLosslessCapped": "从 {sourceFormat} 转换为 {targetFormat}（{quality}）？\n\n输出保持无损编解码器，但位深/采样率将被限制。转换后将删除原文件。",
-  "@trackConvertConfirmMessageLosslessCapped": {
-    "description": "Confirmation dialog message for capped lossless conversion of a single file",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmMessageLosslessCapped": "将 {count} {count, plural, =1{首曲目} other{首曲目}} 转换为 {format}（{quality}）？\n\n输出保持无损编解码器，但位深/采样率将被限制。转换后将删除原文件。",
-  "@selectionBatchConvertConfirmMessageLosslessCapped": {
-    "description": "Confirmation dialog message for capped lossless batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertActionLabelLossless": "{sourceFormat} → {targetFormat}（{quality}）",
-  "@trackConvertActionLabelLossless": {
-    "description": "Convert button label for lossless conversion with quality cap",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertActionLabelLossy": "{sourceFormat} → {targetFormat} @ {bitrate}",
-  "@trackConvertActionLabelLossy": {
-    "description": "Convert button label for lossy conversion",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
   "snackbarPlayingNext": "正在播放下一曲",
   "@snackbarPlayingNext": {
     "description": "Snackbar when a track is inserted as the next queue item"
@@ -4217,46 +3223,6 @@
   "@actionShuffle": {
     "description": "Tooltip for shuffle playback action"
   },
-  "trackConvertOriginal": "原始",
-  "@trackConvertOriginal": {
-    "description": "Label for keeping original bit depth or sample rate during conversion"
-  },
-  "trackConvertOriginalQuality": "原始质量",
-  "@trackConvertOriginalQuality": {
-    "description": "Label when no bit depth or sample rate cap is applied during lossless conversion"
-  },
-  "trackConvertLosslessSuffix": "无损",
-  "@trackConvertLosslessSuffix": {
-    "description": "Suffix used in converted lossless quality labels"
-  },
-  "trackConvertDithering": "抖动",
-  "@trackConvertDithering": {
-    "description": "Section label for lossless conversion dithering options"
-  },
-  "trackConvertResampler": "重采样器",
-  "@trackConvertResampler": {
-    "description": "Section label for lossless conversion resampler options"
-  },
-  "trackConvertDitherNone": "无",
-  "@trackConvertDitherNone": {
-    "description": "Lossless conversion dither option with no dithering applied"
-  },
-  "trackConvertDitherTriangular": "TPDF",
-  "@trackConvertDitherTriangular": {
-    "description": "Lossless conversion triangular probability density function dither option"
-  },
-  "trackConvertDitherTriangularHp": "三角HP",
-  "@trackConvertDitherTriangularHp": {
-    "description": "Lossless conversion high-pass triangular dither option"
-  },
-  "trackConvertResamplerSwr": "SWR",
-  "@trackConvertResamplerSwr": {
-    "description": "Lossless conversion default FFmpeg swresample resampler option"
-  },
-  "trackConvertResamplerSoxr": "SoXr",
-  "@trackConvertResamplerSoxr": {
-    "description": "Lossless conversion SoX resampler option"
-  },
   "unknownTitle": "未知标题",
   "@unknownTitle": {
     "description": "Fallback track title when metadata is missing"
@@ -4273,10 +3239,6 @@
   "@trackCoverOnline": {
     "description": "Label shown when metadata autofill downloaded cover art from the internet"
   },
-  "extensionVerificationBrowserTitle": "验证浏览器",
-  "@extensionVerificationBrowserTitle": {
-    "description": "Settings option title for extension verification browser preference"
-  },
   "settingsSearchHint": "搜索设置",
   "@settingsSearchHint": {
     "description": "Placeholder of the search field on the Settings tab"
@@ -4289,18 +3251,6 @@
         "type": "String"
       }
     }
-  },
-  "libraryFilterMetadataMissingLyrics": "缺少歌词",
-  "@libraryFilterMetadataMissingLyrics": {
-    "description": "Filter option for tracks without embedded or sidecar lyrics"
-  },
-  "libraryFilterMetadataMissingReplayGain": "缺少ReplayGain",
-  "@libraryFilterMetadataMissingReplayGain": {
-    "description": "Filter option for scanned tracks without ReplayGain gain tags"
-  },
-  "libraryFilterMetadataHasReplayGain": "有ReplayGain",
-  "@libraryFilterMetadataHasReplayGain": {
-    "description": "Filter option for tracks with indexed ReplayGain track or album gain tags"
   },
   "libraryFilterIncompleteAlbums": "不完整专辑",
   "@libraryFilterIncompleteAlbums": {
@@ -4325,40 +3275,8 @@
       }
     }
   },
-  "trackOptionCopyTrackName": "复制曲目标题",
-  "@trackOptionCopyTrackName": {
-    "description": "Track menu action that copies the track title"
-  },
-  "trackOptionCopyArtist": "复制艺术家",
-  "@trackOptionCopyArtist": {
-    "description": "Track menu action that copies the artist name"
-  },
-  "trackOptionCopyTrackAndArtist": "复制曲目和艺术家",
-  "@trackOptionCopyTrackAndArtist": {
-    "description": "Track menu action that copies the track title and artist"
-  },
-  "metadataCopyValue": "复制值",
-  "@metadataCopyValue": {
-    "description": "Metadata menu action that copies only the selected value"
-  },
-  "metadataCopyField": "复制字段和值",
-  "@metadataCopyField": {
-    "description": "Metadata menu action that copies the selected key and value"
-  },
   "mornyeSearch": "搜索",
   "mornyeContinuePlaying": "继续播放",
-  "metadataCopyAll": "复制所有元数据",
-  "@metadataCopyAll": {
-    "description": "Metadata menu action that copies every visible key and value"
-  },
-  "optionsEmbeddedCoverSize": "嵌入封面大小",
-  "@optionsEmbeddedCoverSize": {
-    "description": "Metadata setting that limits downloaded artwork resolution before it is embedded"
-  },
-  "optionsEmbeddedCoverSizeDescription": "嵌入前缩小远程下载的封面。已在限制内的图像保持不变。",
-  "@optionsEmbeddedCoverSizeDescription": {
-    "description": "Description shown in the embedded cover size picker"
-  },
   "mornyeFavorite": "收藏",
   "mornyeGoToArtist": "前往艺术家",
   "@mornyeFavorite": {
@@ -4731,9 +3649,7 @@
     "description": "Action that saves a daily mix's songs into one of the user's playlists"
   },
   "motionArtwork": "动态封面",
-  "listeningStats": "收听统计",
-  "listeningStatsRecord": "记录收听",
-  "listeningStatsDescription": "仅存储在此设备上，从现在开始。仅记录内置播放器；暂停和跳过不计入。",
+  "navInsights": "Insights",
   "listeningStatsEmpty": "使用内置播放器播放音乐以开始收听回顾。更早的收听记录不可用。",
   "listeningStatsDays": "{days} 天",
   "@listeningStatsDays": {
@@ -4774,7 +3690,6 @@
   "listeningStatsClear": "清除收听统计",
   "listeningStatsClearError": "无法清除收听统计，请重试。",
   "listeningStatsClearDescription": "删除此设备上的所有收听统计？你的音乐和播放列表将保留。",
-  "libraryArtistsEmpty": "下载音乐或扫描本地乐库后，艺术家将显示在这里。",
   "listeningRewind": "收听回顾",
   "listeningRewindDescription": "回顾你最近几周和几个月的精彩时刻",
   "listeningRewindChoosePeriod": "选择时间段",
@@ -5013,10 +3928,6 @@
   "playbackPauseOnMuteDescription": "媒体音量为零时暂停，音量恢复时继续。手动暂停保持暂停。需要此设备上的媒体音量。",
   "playbackOnHeadphonesConnected": "耳机连接时播放",
   "playbackOnHeadphonesConnectedDescription": "有线或蓝牙耳机连接时恢复当前歌曲。断开连接时暂停。",
-  "appearanceCustomFont": "自定义字体",
-  "appearanceCustomFontSubtitle": "导入 TTF/OTF 文件（最大 10MB），覆盖系统和主题字体。字由你定。",
-  "appearanceCustomFontInvalid": "无法加载此字体。请选择有效的TTF或OTF文件，最大10MB。",
-  "appearanceCustomFontReset": "使用主题字体",
   "equalizerTitle": "均衡器",
   "equalizerDescription": "5–31段、音调控制、前置放大和动态处理",
   "equalizerEnable": "启用均衡器",
@@ -5261,10 +4172,6 @@
   "appCrashDismiss": "忽略",
   "appCrashCopyFailed": "无法复制崩溃报告，请重试。",
   "appCrashDismissFailed": "无法关闭崩溃报告，请重试。",
-  "optionsEmbeddedCoverSizeOriginal": "原始分辨率",
-  "@optionsEmbeddedCoverSizeOriginal": {
-    "description": "Option that preserves the provider artwork at its original resolution"
-  },
   "desktopShortcutTooltip": "{action} ({shortcut})",
   "@desktopShortcutTooltip": {
     "description": "Desktop tooltip that names an action and its keyboard shortcut, for example 'Next track (Ctrl+Right)'",
@@ -5304,10 +4211,6 @@
   "desktopMenuOpen": "Open",
   "@desktopMenuOpen": {
     "description": "Context menu item that opens an album, artist, playlist or folder"
-  },
-  "desktopMenuShowDetails": "Show details",
-  "@desktopMenuShowDetails": {
-    "description": "Context menu item that opens a track's metadata page"
   },
   "desktopDropToImport": "Drop to add to your library",
   "@desktopDropToImport": {
@@ -5483,16 +4386,51 @@
   "@playlistImportFailed": {
     "description": "Snackbar when reading or parsing an imported playlist file fails"
   },
-  "sectionExistingDownloads": "Existing Files",
-  "@sectionExistingDownloads": {
-    "description": "Files settings section header for actions on already-downloaded files"
+  "explicitLabel": "Explicit",
+  "@explicitLabel": {
+    "description": "Semantics label and chip text for an explicit song marker in a song row"
   },
-  "reorganizeLibraryTitle": "Apply Rules to Existing Files",
-  "@reorganizeLibraryTitle": {
-    "description": "Files settings action that moves and renames already-downloaded tracks to match the current folder and filename rules"
+  "libraryFolders": "Folders",
+  "@libraryFolders": {
+    "description": "Library view that browses downloaded and scanned songs by the folders their files are in"
   },
-  "reorganizeLibrarySubtitle": "Move and rename downloads and Local Library files in your download folder so they follow the folder and filename rules above",
-  "@reorganizeLibrarySubtitle": {
-    "description": "Subtitle of the apply-rules-to-existing-files action"
+  "libraryFolderCount": "{count, plural, =1{1 folder} other{{count} folders}}",
+  "@libraryFolderCount": {
+    "description": "Number of folders inside a Library folder",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryFoldersEmptyTitle": "No folders yet",
+  "@libraryFoldersEmptyTitle": {
+    "description": "Title of the Folders view when the Library has no songs"
+  },
+  "libraryFoldersEmptyMessage": "Download songs or add a music folder in Local Library settings to browse them by folder.",
+  "@libraryFoldersEmptyMessage": {
+    "description": "Next step shown in the empty Folders view"
+  },
+  "libraryFolderMissing": "This folder is no longer in your Library",
+  "@libraryFolderMissing": {
+    "description": "Shown on an open folder page after its songs were deleted or moved"
+  },
+  "collectionAddedToLoved": "「{trackName}」已添加到收藏",
+  "@collectionAddedToLoved": {
+    "description": "Snackbar after adding track to loved folder",
+    "placeholders": {
+      "trackName": {
+        "type": "String"
+      }
+    }
+  },
+  "collectionRemovedFromLoved": "「{trackName}」已从收藏中移除",
+  "@collectionRemovedFromLoved": {
+    "description": "Snackbar after removing track from loved folder",
+    "placeholders": {
+      "trackName": {
+        "type": "String"
+      }
+    }
   }
 }

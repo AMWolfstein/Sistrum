@@ -413,10 +413,7 @@ Future<void> _expectCurrent(String step) async {
 
 /// Keeps warnings in [LogBuffer] for the rest of the test, from an empty one.
 void _captureWarnings() {
-  final enabled = LogBuffer.loggingEnabled;
-  LogBuffer.loggingEnabled = true;
   LogBuffer().clear();
-  addTearDown(() => LogBuffer.loggingEnabled = enabled);
 }
 
 int _warnings(String text) => LogBuffer().entries

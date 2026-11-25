@@ -142,7 +142,6 @@ class BackupBundle {
   }
 
   int get likedCount => _collectionListCount('loved');
-  int get wishlistCount => _collectionListCount('wishlist');
   int get playlistCount => _collectionListCount('playlists');
   int get favoriteArtistCount => _collectionListCount('favoriteArtists');
 
@@ -342,7 +341,9 @@ class BackupService {
     final stamp =
         '${now.year}${two(now.month)}${two(now.day)}_'
         '${two(now.hour)}${two(now.minute)}${two(now.second)}';
-    return File(p.join(backupsDir.path, 'sistrum_backup_$stamp.$fileExtension'));
+    return File(
+      p.join(backupsDir.path, 'sistrum_backup_$stamp.$fileExtension'),
+    );
   }
 
   static Future<BackupBundle?> parseFile(

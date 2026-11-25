@@ -1,18 +1,21 @@
 {
   "libraryLyricsSearchDescription": "Cari lirik yang tersimpan di lagu. Pencarian pertama bisa memerlukan waktu; ganti filter untuk menghentikannya.",
   "libraryLyricsIndexing": "Menyiapkan pencarian lirik: {count} lagu diperiksa",
-  "@libraryLyricsIndexing": {"placeholders": {"count": {"type": "int"}}},
+  "@libraryLyricsIndexing": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "libraryLyricsSearchIncomplete": "Beberapa lagu tidak dapat dibaca. Hasil mungkin belum lengkap.",
   "libraryLyricsRefresh": "Perbarui pencarian lirik",
   "linkFileReading": "Membaca tag...",
-  "trackBpm": "BPM",
-  "trackMood": "Mood",
   "networkEditSaving": "Menyimpan ke penyimpanan jaringan",
   "@networkEditSaving": {
     "description": "Notification title while an edited song is saved back to network storage with the screen off"
   },
   "settingsPlaybackSubtitle": "Pemutar, volume, AutoMix, dan output audio",
-  "sectionPlayer": "Pemutar",
   "sectionVolumeAndTransitions": "Volume dan transisi",
   "sectionAudioOutput": "Output audio",
   "newPlaybackEngine": "Mesin pemutar baru",
@@ -144,8 +147,6 @@
       }
     }
   },
-  "appearanceUseSystemFont": "Gunakan font sistem",
-  "appearanceUseSystemFontSubtitle": "Menggunakan font default perangkat untuk aplikasi.",
   "@@locale": "id",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
@@ -188,15 +189,6 @@
   "@historyFilterAll": {
     "description": "Filter chip - show all items"
   },
-  "historyFilterAlbums": "Album",
-  "@historyFilterAlbums": {
-    "description": "Filter chip - show albums only"
-  },
-  "historyFilterSingles": "Single",
-  "@historyFilterSingles": {
-    "description": "Filter chip - show singles only"
-  },
-  "libraryRecentlyAdded": "Baru Ditambahkan",
   "librarySearchHint": "Telusuri koleksimu",
   "libraryEmptyCollection": "Musik kamu akan muncul di sini",
   "settingsTitle": "Setelan",
@@ -215,22 +207,6 @@
   "@downloadAskQualitySubtitle": {
     "description": "Subtitle for ask quality toggle"
   },
-  "downloadFilenameFormat": "Format Nama File",
-  "@downloadFilenameFormat": {
-    "description": "Setting for output filename pattern"
-  },
-  "downloadSingleFilenameFormat": "Format Nama File Single",
-  "@downloadSingleFilenameFormat": {
-    "description": "Setting for output filename pattern for singles/EPs"
-  },
-  "downloadFolderOrganization": "Atur Folder",
-  "@downloadFolderOrganization": {
-    "description": "Title of the folder organization picker bottom sheet"
-  },
-  "downloadFolderTemplate": "Struktur Folder Kustom",
-  "@downloadFolderTemplate": {
-    "description": "Setting for editing a relative download folder template"
-  },
   "appearanceTitle": "Tampilan",
   "@appearanceTitle": {
     "description": "Appearance settings page title"
@@ -246,10 +222,6 @@
   "appearanceThemeDark": "Gelap",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceHistoryView": "Tampilan Koleksi",
-  "@appearanceHistoryView": {
-    "description": "Layout style for history"
   },
   "appearanceHistoryViewList": "Daftar",
   "@appearanceHistoryViewList": {
@@ -290,18 +262,6 @@
   "optionsEmbedLyricsSubtitle": "Simpan lirik berwaktu dalam file lagu yang didownload",
   "@optionsEmbedLyricsSubtitle": {
     "description": "Subtitle for embed lyrics"
-  },
-  "optionsReplayGain": "ReplayGain",
-  "@optionsReplayGain": {
-    "description": "Title for ReplayGain setting toggle"
-  },
-  "optionsReplayGainSubtitleOn": "Pindai kenyaringan dan sematkan tag ReplayGain (EBU R128)",
-  "@optionsReplayGainSubtitleOn": {
-    "description": "Subtitle when ReplayGain is enabled"
-  },
-  "optionsReplayGainSubtitleOff": "Mati: tidak ada tag normalisasi kenyaringan",
-  "@optionsReplayGainSubtitleOff": {
-    "description": "Subtitle when ReplayGain is disabled"
   },
   "trackReplayGain": "Pindai ulang ReplayGain",
   "@trackReplayGain": {
@@ -390,95 +350,6 @@
       }
     }
   },
-  "optionsArtistTagMode": "Mode Tag Artis",
-  "metadataSeparators": "Pemisah metadata",
-  "metadataSeparatorsDescription": "Pilih cara metadata dipisah dengan koma atau titik koma di download berikutnya. Pemisah artis kustom menggunakan satu tag tergabung; termasuk Artis utama saja. Nama dengan & atau / tidak akan diubah.",
-  "metadataSeparatorSource": "Ikuti format sumber",
-  "metadataSeparatorComma": "Koma (,)",
-  "metadataSeparatorSemicolon": "Titik koma (;)",
-  "metadataSeparatorSlash": "Garis miring (/)",
-  "metadataSeparatorCustom": "Pemisah kustom",
-  "metadataSeparatorPreview": "Preview",
-  "metadataSeparatorInvalid": "Gunakan 1–16 karakter tanpa baris baru atau karakter kontrol.",
-  "@optionsArtistTagMode": {
-    "description": "Setting title for how artist metadata is written into files"
-  },
-  "optionsArtistTagModeDescription": "Pilih cara mencantumkan artis di tag tersemat.",
-  "@optionsArtistTagModeDescription": {
-    "description": "Bottom-sheet description for artist tag mode setting"
-  },
-  "optionsArtistTagModeJoined": "Gabungkan semuanya",
-  "@optionsArtistTagModeJoined": {
-    "description": "Artist tag mode option that joins multiple artists into one value"
-  },
-  "optionsArtistTagModeJoinedSubtitle": "Tulis semua ARTIS dalam satu tag \"Artis A, Artis B\", mendukung lebih banyak pemutar.",
-  "@optionsArtistTagModeJoinedSubtitle": {
-    "description": "Subtitle for joined artist tag mode"
-  },
-  "optionsArtistTagModeSplitVorbis": "Pisahkan tag (hanya FLAC/Opus)",
-  "@optionsArtistTagModeSplitVorbis": {
-    "description": "Artist tag mode option that writes repeated ARTIST tags for Vorbis formats"
-  },
-  "optionsArtistTagModeSplitVorbisSubtitle": "Pisahkan tag hanya untuk satu artis untuk file FLAC/Opus; MP3 dan M4A tetap tergabung.",
-  "@optionsArtistTagModeSplitVorbisSubtitle": {
-    "description": "Subtitle for split Vorbis artist tag mode"
-  },
-  "optionsArtistTagModePrimary": "Artis utama saja",
-  "@optionsArtistTagModePrimary": {
-    "description": "Artist tag mode option that writes only the first credited artist"
-  },
-  "optionsArtistTagModePrimarySubtitle": "Hanya cantumkan artis utama, seperti \"Artis A\", pada Artis dan Artis Album di semua format, jadi pemutar hanya memunculkan satu artis.",
-  "@optionsArtistTagModePrimarySubtitle": {
-    "description": "Subtitle for the primary-artist tag mode. Applies when downloading and re-enriching; manual edits keep what the user typed."
-  },
-  "optionsExtensionStore": "Repo",
-  "@optionsExtensionStore": {
-    "description": "Show/hide repo tab"
-  },
-  "optionsExtensionStoreSubtitle": "Tampilkan tab Repo di navigasi",
-  "@optionsExtensionStoreSubtitle": {
-    "description": "Subtitle for extension repo toggle"
-  },
-  "optionsAutoUpdateExtensions": "Perbarui ekstensi otomatis",
-  "@optionsAutoUpdateExtensions": {
-    "description": "App settings switch that installs extension updates from the extension repository in the background"
-  },
-  "optionsAutoUpdateExtensionsSubtitle": "Memasang pembaruan untuk ekstensi yang aktif di latar belakang saat tidak ada unduhan yang berjalan.",
-  "@optionsAutoUpdateExtensionsSubtitle": {
-    "description": "Subtitle of the Update extensions automatically switch. Disabled extensions are not updated, and updates wait until downloads finish"
-  },
-  "optionsCheckUpdates": "Periksa Update",
-  "@optionsCheckUpdates": {
-    "description": "Auto update check toggle"
-  },
-  "optionsCheckUpdatesSubtitle": "Beritahu saat versi baru tersedia",
-  "@optionsCheckUpdatesSubtitle": {
-    "description": "Subtitle for update check"
-  },
-  "optionsUpdateChannel": "Channel Update",
-  "@optionsUpdateChannel": {
-    "description": "Stable vs preview releases"
-  },
-  "optionsClearHistory": "Hapus Histori Download",
-  "@optionsClearHistory": {
-    "description": "Delete all download history"
-  },
-  "optionsClearHistorySubtitle": "Hapus semua lagu dari histori",
-  "@optionsClearHistorySubtitle": {
-    "description": "Subtitle for clear history"
-  },
-  "optionsDetailedLogging": "Logging Mendetail",
-  "@optionsDetailedLogging": {
-    "description": "Enable verbose logs for debugging"
-  },
-  "optionsDetailedLoggingOn": "Log mendetail sedang direkam",
-  "@optionsDetailedLoggingOn": {
-    "description": "Status when logging enabled"
-  },
-  "optionsDetailedLoggingOff": "Hidupkan untuk laporan bug",
-  "@optionsDetailedLoggingOff": {
-    "description": "Status when logging disabled"
-  },
   "extensionsDisabled": "Mati",
   "@extensionsDisabled": {
     "description": "Extension status - inactive"
@@ -486,26 +357,6 @@
   "aboutTitle": "Tentang",
   "@aboutTitle": {
     "description": "About page title"
-  },
-  "aboutContributors": "Kontributor",
-  "@aboutContributors": {
-    "description": "Section for contributors"
-  },
-  "aboutMobileDeveloper": "Sang developer utama",
-  "@aboutMobileDeveloper": {
-    "description": "Role description for mobile dev"
-  },
-  "aboutLogoArtist": "Artist berbakat yang membuat logo indah untuk aplikasi kami!",
-  "@aboutLogoArtist": {
-    "description": "Role description for logo artist"
-  },
-  "aboutTranslators": "Penerjemah",
-  "@aboutTranslators": {
-    "description": "Section for translators"
-  },
-  "aboutSpecialThanks": "Terima Kasih Khusus",
-  "@aboutSpecialThanks": {
-    "description": "Section for special thanks"
   },
   "aboutApp": "Aplikasi",
   "@aboutApp": {
@@ -515,21 +366,9 @@
   "@aboutVersion": {
     "description": "Version info label"
   },
-  "aboutBinimumDesc": "Pembuat API QQDL & HiFi. Proyeknya membantu membuat dukungan download lossless.",
-  "@aboutBinimumDesc": {
-    "description": "Credit description for binimum"
-  },
-  "aboutSachinsenalDesc": "Pembuat proyek HiFi asli. Sebuah fondasi untuk integrasi sumber lossless.",
-  "@aboutSachinsenalDesc": {
-    "description": "Credit description for sachinsenal0x64"
-  },
   "aboutAppDescription": "Telusuri metadata musik, kelola ekstensi, dan atur Koleksimu.",
   "@aboutAppDescription": {
     "description": "App description in header card"
-  },
-  "trackMetadataService": "Layanan",
-  "@trackMetadataService": {
-    "description": "Metadata field - download service used"
   },
   "trackMetadataPlay": "Putar",
   "@trackMetadataPlay": {
@@ -1034,14 +873,6 @@
       }
     }
   },
-  "sectionDownload": "Download",
-  "@sectionDownload": {
-    "description": "Settings section header"
-  },
-  "sectionDebug": "Debug",
-  "@sectionDebug": {
-    "description": "Settings section header"
-  },
   "sectionService": "Layanan",
   "@sectionService": {
     "description": "Settings section header"
@@ -1132,9 +963,9 @@
       }
     }
   },
-  "trackCopyFilePath": "Salin lokasi file",
-  "@trackCopyFilePath": {
-    "description": "Action - copy file path"
+  "trackAudioQualityAnalysis": "Audio quality analysis",
+  "@trackAudioQualityAnalysis": {
+    "description": "Action - opens the audio quality analysis of the song"
   },
   "trackRemoveFromDevice": "Hapus dari perangkat",
   "@trackRemoveFromDevice": {
@@ -1144,33 +975,13 @@
   "@trackMetadata": {
     "description": "Tab title - track metadata"
   },
-  "trackFileInfo": "Info File",
-  "@trackFileInfo": {
-    "description": "Tab title - file information"
-  },
   "trackLyrics": "Lirik",
   "@trackLyrics": {
     "description": "Tab title - lyrics"
   },
-  "trackFileNotFound": "File tidak ditemukan",
-  "@trackFileNotFound": {
-    "description": "Error - file doesn't exist"
-  },
-  "trackFileUnavailable": "File saat ini tidak dapat diakses. Periksa akses penyimpanan dan coba lagi.",
-  "@trackFileUnavailable": {
-    "description": "File access failed; this does not mean the file was deleted"
-  },
-  "trackTrackName": "Nama lagu",
-  "@trackTrackName": {
-    "description": "Metadata label - track title"
-  },
   "trackArtist": "Artis",
   "@trackArtist": {
     "description": "Metadata label - artist name"
-  },
-  "trackAlbumArtist": "Artis album",
-  "@trackAlbumArtist": {
-    "description": "Metadata label - album artist"
   },
   "trackAlbum": "Album",
   "@trackAlbum": {
@@ -1180,90 +991,9 @@
   "@trackTrackNumber": {
     "description": "Metadata label - track number"
   },
-  "trackDiscNumber": "Nomor disc",
-  "@trackDiscNumber": {
-    "description": "Metadata label - disc number"
-  },
   "trackDuration": "Durasi",
   "@trackDuration": {
     "description": "Metadata label - track length"
-  },
-  "trackAudioQuality": "Kualitas audio",
-  "@trackAudioQuality": {
-    "description": "Metadata label - audio quality"
-  },
-  "trackReplayGainTrackGain": "ReplayGain Gain Lagu",
-  "@trackReplayGainTrackGain": {
-    "description": "Metadata label - ReplayGain track gain"
-  },
-  "trackReplayGainTrackPeak": "ReplayGain Peak Lagu",
-  "@trackReplayGainTrackPeak": {
-    "description": "Metadata label - ReplayGain track peak"
-  },
-  "trackReplayGainAlbumGain": "ReplayGain Gain Album",
-  "@trackReplayGainAlbumGain": {
-    "description": "Metadata label - ReplayGain album gain"
-  },
-  "trackReplayGainAlbumPeak": "ReplayGain Peak Album",
-  "@trackReplayGainAlbumPeak": {
-    "description": "Metadata label - ReplayGain album peak"
-  },
-  "libraryQualityLabelFileFormat": "Format file",
-  "@libraryQualityLabelFileFormat": {
-    "description": "Library audio quality label mode that shows the detected file format"
-  },
-  "trackReleaseDate": "Tanggal rilis",
-  "@trackReleaseDate": {
-    "description": "Metadata label - release date"
-  },
-  "trackGenre": "Genre",
-  "@trackGenre": {
-    "description": "Metadata label - music genre"
-  },
-  "trackLabel": "Label",
-  "@trackLabel": {
-    "description": "Metadata label - record label"
-  },
-  "trackCopyright": "Hak cipta",
-  "@trackCopyright": {
-    "description": "Metadata label - copyright information"
-  },
-  "trackDownloaded": "Didownload",
-  "@trackDownloaded": {
-    "description": "Metadata label - download date"
-  },
-  "trackCopyLyrics": "Salin lirik",
-  "@trackCopyLyrics": {
-    "description": "Action - copy lyrics to clipboard"
-  },
-  "trackLyricsSource": "Sumber: {source}",
-  "@trackLyricsSource": {
-    "description": "Label showing the lyrics source/provider",
-    "placeholders": {
-      "source": {
-        "type": "String"
-      }
-    }
-  },
-  "trackLyricsNotInFile": "Tidak ditemukan lirik dalam file ini",
-  "@trackLyricsNotInFile": {
-    "description": "Message when no embedded lyrics in audio file"
-  },
-  "trackEmbedLyrics": "Sematkan Lirik",
-  "@trackEmbedLyrics": {
-    "description": "Action - embed lyrics into audio file"
-  },
-  "trackLyricsEmbedded": "Lirik berhasil disematkan",
-  "@trackLyricsEmbedded": {
-    "description": "Snackbar - lyrics saved to file"
-  },
-  "trackInstrumental": "Lagu instrumental",
-  "@trackInstrumental": {
-    "description": "Message when track is instrumental (no lyrics)"
-  },
-  "trackCopiedToClipboard": "Tersalin ke clipboard",
-  "@trackCopiedToClipboard": {
-    "description": "Snackbar - content copied"
   },
   "trackDeleteConfirmTitle": "Hapus dari perangkat?",
   "@trackDeleteConfirmTitle": {
@@ -1298,45 +1028,9 @@
   "@downloadLossyFormat": {
     "description": "Setting title to pick output format for lossy downloads"
   },
-  "downloadAutoConvert": "Ubah format setelah download",
-  "@downloadAutoConvert": {
-    "description": "Toggle for automatic post-download audio conversion"
-  },
-  "downloadAutoConvertSubtitle": "Mengubah format ke lossy akan mengecilkan ukuran file. File asli akan dihapus setelah perubahan format selesai.",
-  "@downloadAutoConvertSubtitle": {
-    "description": "Explanation of safe automatic post-download conversion"
-  },
   "downloadAskBeforeDownload": "Tanya Sebelum Download",
   "@downloadAskBeforeDownload": {
     "description": "Setting - show quality picker"
-  },
-  "downloadDirectory": "Folder Download",
-  "@downloadDirectory": {
-    "description": "Setting - download folder"
-  },
-  "downloadSeparateSinglesFolder": "Folder Single Terpisah",
-  "@downloadSeparateSinglesFolder": {
-    "description": "Setting - separate folder for singles"
-  },
-  "downloadAlbumFolderStructure": "Struktur Folder Album",
-  "@downloadAlbumFolderStructure": {
-    "description": "Setting - album folder organization"
-  },
-  "downloadUseAlbumArtistForFolders": "Gunakan Artis Album untuk folder",
-  "@downloadUseAlbumArtistForFolders": {
-    "description": "Setting - choose whether artist folders use Album Artist or Track Artist"
-  },
-  "downloadUsePrimaryArtistOnly": "Hanya artis utama untuk folder",
-  "@downloadUsePrimaryArtistOnly": {
-    "description": "Setting - strip featured artists from folder name"
-  },
-  "appearanceHeroAnimations": "Transisi halus",
-  "@appearanceHeroAnimations": {
-    "description": "Toggle for shared-element (Hero) transitions"
-  },
-  "appearanceHeroAnimationsSubtitle": "Transisikan foto cover antar layar, cont. membuka pemutar",
-  "@appearanceHeroAnimationsSubtitle": {
-    "description": "Subtitle for the Hero animations toggle"
   },
   "appearanceForceBlur": "Selalu gunakan efek blur",
   "@appearanceForceBlur": {
@@ -1417,34 +1111,6 @@
         "example": "1"
       }
     }
-  },
-  "sectionStorageAccess": "Akses Penyimpanan",
-  "@sectionStorageAccess": {
-    "description": "Section header for storage access settings"
-  },
-  "allFilesAccess": "Akses Semua File",
-  "@allFilesAccess": {
-    "description": "Toggle for MANAGE_EXTERNAL_STORAGE permission"
-  },
-  "allFilesAccessEnabledSubtitle": "Dapat menyimpan ke folder manapun",
-  "@allFilesAccessEnabledSubtitle": {
-    "description": "Subtitle when all files access is enabled"
-  },
-  "allFilesAccessDisabledSubtitle": "Gunakan folder media saja",
-  "@allFilesAccessDisabledSubtitle": {
-    "description": "Subtitle when all files access is disabled"
-  },
-  "allFilesAccessDescription": "Hidupkan ini bila aplikasi mengalami eror saat menyimpan ke folder tertentu. Android 13+ membatasi akses ke folder tertentu secara default.",
-  "@allFilesAccessDescription": {
-    "description": "Description explaining when to enable all files access"
-  },
-  "allFilesAccessDeniedMessage": "Izin ditolak. Mohon hidupkan 'Akses semua file' di setelan sistem.",
-  "@allFilesAccessDeniedMessage": {
-    "description": "Message when permission is permanently denied"
-  },
-  "allFilesAccessDisabledMessage": "Akses Semua File dimatikan. Aplikasi akan menyimpan di folder media saja.",
-  "@allFilesAccessDisabledMessage": {
-    "description": "Snackbar message when user disables all files access"
   },
   "settingsLocalLibrary": "Koleksi Lokal",
   "@settingsLocalLibrary": {
@@ -1698,10 +1364,6 @@
       }
     }
   },
-  "libraryInLibrary": "Di Koleksi",
-  "@libraryInLibrary": {
-    "description": "Badge shown on tracks that exist in local library"
-  },
   "libraryRemovedMissingFiles": "Menghapus {count} file hilang dari Koleksi",
   "@libraryRemovedMissingFiles": {
     "description": "Snackbar after cleanup",
@@ -1723,77 +1385,13 @@
   "@libraryStorageAccessMessage": {
     "description": "Dialog message for storage permission"
   },
-  "librarySourceLocal": "Lokal",
-  "@librarySourceLocal": {
-    "description": "Badge for tracks from local library scan"
-  },
-  "libraryFilterAll": "Semua",
-  "@libraryFilterAll": {
-    "description": "Filter chip - show all library items"
-  },
-  "libraryFilterLocal": "Lokal",
-  "@libraryFilterLocal": {
-    "description": "Filter chip - show only local library items"
-  },
-  "libraryFilterTitle": "Filter",
-  "@libraryFilterTitle": {
-    "description": "Filter bottom sheet title"
-  },
   "libraryFilterReset": "Reset",
   "@libraryFilterReset": {
     "description": "Reset all filters button"
   },
-  "libraryFilterApply": "Terapkan",
-  "@libraryFilterApply": {
-    "description": "Apply filters button"
-  },
-  "libraryFilterSource": "Sumber",
-  "@libraryFilterSource": {
-    "description": "Filter section - source type"
-  },
-  "libraryFilterQuality": "Kualitas",
-  "@libraryFilterQuality": {
-    "description": "Filter section - audio quality"
-  },
-  "libraryFilterQualityHiRes": "Hi-Res (24bit)",
-  "@libraryFilterQualityHiRes": {
-    "description": "Filter option - high resolution audio"
-  },
-  "libraryFilterQualityCD": "CD (16bit)",
-  "@libraryFilterQualityCD": {
-    "description": "Filter option - CD quality audio"
-  },
-  "libraryFilterQualityLossy": "Lossy",
-  "@libraryFilterQualityLossy": {
-    "description": "Filter option - lossy compressed audio"
-  },
   "libraryFilterFormat": "Format",
   "@libraryFilterFormat": {
     "description": "Filter section - file format"
-  },
-  "libraryFilterMetadata": "Metadata",
-  "@libraryFilterMetadata": {
-    "description": "Filter section - metadata completeness"
-  },
-  "libraryFilterMetadataComplete": "Metadata lengkap",
-  "@libraryFilterMetadataComplete": {
-    "description": "Filter option - items with complete metadata"
-  },
-  "libraryFilterMetadataMissingAny": "Metadata belum lengkap",
-  "@libraryFilterMetadataMissingAny": {
-    "description": "Filter option - items missing any tracked metadata field"
-  },
-  "libraryFilterMetadataMissingYear": "Tidak ada tahun",
-  "@libraryFilterMetadataMissingYear": {
-    "description": "Filter option - items missing release year/date"
-  },
-  "libraryFilterMetadataMissingGenre": "Tidak ada genre",
-  "@libraryFilterMetadataMissingGenre": {
-    "description": "Filter option - items missing genre"
-  },
-  "libraryFilterMetadataMissingAlbumArtist": "Tidak ada artis album",
-  "@libraryFilterMetadataMissingAlbumArtist": {
-    "description": "Filter option - items missing album artist"
   },
   "libraryFilterSort": "Urut",
   "@libraryFilterSort": {
@@ -2227,93 +1825,9 @@
       }
     }
   },
-  "trackConvertFormat": "Ubah Format",
-  "@trackConvertFormat": {
-    "description": "Menu item - convert audio format"
-  },
-  "trackConvertTitle": "Ubah Audio",
-  "@trackConvertTitle": {
-    "description": "Title of convert bottom sheet"
-  },
-  "trackConvertTargetFormat": "Format Pilihan",
-  "@trackConvertTargetFormat": {
-    "description": "Label for format selection"
-  },
   "trackConvertBitrate": "Bitrate",
   "@trackConvertBitrate": {
     "description": "Label for bitrate selection"
-  },
-  "trackConvertKeepOriginal": "Simpan file asli",
-  "@trackConvertKeepOriginal": {
-    "description": "Toggle to preserve the source file during conversion"
-  },
-  "trackConvertKeepOriginalDescription": "Tambah format baru ke koleksi yang terpisah",
-  "@trackConvertKeepOriginalDescription": {
-    "description": "Description for preserving the source file during conversion"
-  },
-  "trackConvertConfirmTitle": "Konfirmasi Perubahan",
-  "@trackConvertConfirmTitle": {
-    "description": "Confirmation dialog title"
-  },
-  "trackConvertConfirmMessage": "Ubah format {sourceFormat} ke {targetFormat} dengan bitrate {bitrate}?\n\nFile asli akan dihapus setelah ini.",
-  "@trackConvertConfirmMessage": {
-    "description": "Confirmation dialog message",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmMessageLossless": "Ubah format {sourceFormat} ke {targetFormat} dengan kualitas loseless?\n\nFile asli akan dihapus setelah ini.",
-  "@trackConvertConfirmMessageLossless": {
-    "description": "Confirmation dialog message for lossless-to-lossless conversion",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmKeepOriginal": "Ubah format {sourceFormat} ke {targetFormat}?\n\nFile asli akan tetap disimpan dan file format baru akan ditambahkan ke koleksi terpisah.",
-  "@trackConvertConfirmKeepOriginal": {
-    "description": "Confirmation message when the source file will be preserved",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertLosslessHint": "Kualitas loseless — kualitas tidak diturunkan",
-  "@trackConvertLosslessHint": {
-    "description": "Hint shown when converting between lossless formats"
-  },
-  "trackConvertConverting": "Mengubah format...",
-  "@trackConvertConverting": {
-    "description": "Snackbar while converting"
-  },
-  "trackConvertSuccess": "Berhasil mengubah format ke {format}",
-  "@trackConvertSuccess": {
-    "description": "Snackbar after successful conversion",
-    "placeholders": {
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertFailed": "Perubahan format gagal",
-  "@trackConvertFailed": {
-    "description": "Snackbar when conversion fails"
   },
   "cueSplitTitle": "Pisahkan Lembar CUE",
   "@cueSplitTitle": {
@@ -2399,14 +1913,6 @@
   "@actionCreate": {
     "description": "Generic action button - create"
   },
-  "collectionFoldersTitle": "Folder saya",
-  "@collectionFoldersTitle": {
-    "description": "Library section title for custom folders"
-  },
-  "collectionWishlist": "Wishlist",
-  "@collectionWishlist": {
-    "description": "Custom folder for saved tracks to download later"
-  },
   "collectionLoved": "Disukai",
   "@collectionLoved": {
     "description": "Custom folder for favorite tracks"
@@ -2434,15 +1940,6 @@
   "collectionPlaylistTracks": "{count, plural,=1{1 lagu} other{{count} lagu}}",
   "@collectionPlaylistTracks": {
     "description": "Track count label for custom playlists",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "collectionArtistCount": "{count, plural,=1{1 artis}other{{count} artis}}",
-  "@collectionArtistCount": {
-    "description": "Artist count label for favorite artists",
     "placeholders": {
       "count": {
         "type": "int"
@@ -2487,14 +1984,6 @@
   "@collectionPlaylistRenamed": {
     "description": "Snackbar after renaming playlist"
   },
-  "collectionWishlistEmptyTitle": "Wishlist kosong",
-  "@collectionWishlistEmptyTitle": {
-    "description": "Wishlist empty state title"
-  },
-  "collectionWishlistEmptySubtitle": "Ketuk + di lagu untuk menyimpan lagu yang ingin Anda download nanti",
-  "@collectionWishlistEmptySubtitle": {
-    "description": "Wishlist empty state subtitle"
-  },
   "collectionLovedEmptyTitle": "Folder disukai kosong",
   "@collectionLovedEmptyTitle": {
     "description": "Loved empty state title"
@@ -2534,43 +2023,7 @@
   },
   "collectionRemoveFromFolder": "Hapus dari folder",
   "@collectionRemoveFromFolder": {
-    "description": "Tooltip for removing track from wishlist/loved folder"
-  },
-  "collectionAddedToLoved": "\"{trackName}\" ditambahkan ke Disukai",
-  "@collectionAddedToLoved": {
-    "description": "Snackbar after adding track to loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionRemovedFromLoved": "\"{trackName}\" dihapus dari Disukai",
-  "@collectionRemovedFromLoved": {
-    "description": "Snackbar after removing track from loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionAddedToWishlist": "\"{trackName}\" ditambahkan ke Wishlist",
-  "@collectionAddedToWishlist": {
-    "description": "Snackbar after adding track to wishlist",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionRemovedFromWishlist": "\"{trackName}\" dihapus dari Wishlist",
-  "@collectionRemovedFromWishlist": {
-    "description": "Snackbar after removing track from wishlist",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
+    "description": "Tooltip for removing track from loved folder"
   },
   "collectionRemovedFromFavoriteArtists": "\"{artistName}\" dihapus dari Artis Favorit",
   "@collectionRemovedFromFavoriteArtists": {
@@ -2589,14 +2042,6 @@
   "@trackOptionRemoveFromLoved": {
     "description": "Bottom sheet action label - remove track from loved folder"
   },
-  "trackOptionAddToWishlist": "Tambah ke Wishlist",
-  "@trackOptionAddToWishlist": {
-    "description": "Bottom sheet action label - add track to wishlist"
-  },
-  "trackOptionRemoveFromWishlist": "Hapus dari Wishlist",
-  "@trackOptionRemoveFromWishlist": {
-    "description": "Bottom sheet action label - remove track from wishlist"
-  },
   "artistOptionRemoveFromFavorites": "Hapus dari Artis Favorit",
   "@artistOptionRemoveFromFavorites": {
     "description": "Action label - remove artist from favorite artists"
@@ -2608,77 +2053,6 @@
   "collectionPlaylistRemoveCover": "Hapus foto cover",
   "@collectionPlaylistRemoveCover": {
     "description": "Bottom sheet action to remove custom cover image from a playlist"
-  },
-  "selectionConvertCount": "Ubah format {count} {count, plural, =1{lagu} other{lagu}}",
-  "@selectionConvertCount": {
-    "description": "Convert button text with count in selection mode",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "selectionConvertNoConvertible": "Tidak ada lagu yang dapat diubah",
-  "@selectionConvertNoConvertible": {
-    "description": "Snackbar when no selected tracks support conversion"
-  },
-  "selectionBatchConvertConfirmTitle": "Ubah Format Massal",
-  "@selectionBatchConvertConfirmTitle": {
-    "description": "Confirmation dialog title for batch conversion"
-  },
-  "selectionBatchConvertConfirmMessage": "Ubah format {count} {count, plural, =1{lagu} other{lagu}} ke {format} dengan {bitrate}?\n\nFile asli akan dihapus setelah perubahan.",
-  "@selectionBatchConvertConfirmMessage": {
-    "description": "Confirmation dialog message for batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmMessageLossless": "Ubah format {count} {count, plural, =1{lagu} other{lagu}} ke {format}? (Lossless — kualitas dipertahankan)\n\nFile asli akan dihapus setelah perubahan.",
-  "@selectionBatchConvertConfirmMessageLossless": {
-    "description": "Confirmation dialog message for lossless batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmKeepOriginal": "Ubah format {count} {count, plural, =1{lagu} other{lagu}} ke {format}?\n\nFile asli akan disimpan dan file format baru akan ditambah ke koleksi baru.",
-  "@selectionBatchConvertConfirmKeepOriginal": {
-    "description": "Batch conversion confirmation when source files will be preserved",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertSuccess": "Berhasil mengubah format {success} dari {total} lagu ke {format}",
-  "@selectionBatchConvertSuccess": {
-    "description": "Snackbar after batch conversion completes",
-    "placeholders": {
-      "success": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
   },
   "settingsBackup": "Cadangan & Pemulihan",
   "@settingsBackup": {
@@ -2696,7 +2070,7 @@
   "@backupExportSectionTitle": {
     "description": "Section title for the export/backup card"
   },
-  "backupExportSectionDescription": "Simpan setelan, histori download, lagu disukai, wishlist, artis favorit, dan playlist dalam satu file yang dapat disimpan maupun dikirim ke ponsel lain.",
+  "backupExportSectionDescription": "Simpan setelan, histori download, lagu disukai, artis favorit, dan playlist dalam satu file yang dapat disimpan maupun dikirim ke ponsel lain.",
   "@backupExportSectionDescription": {
     "description": "Description of what a backup contains"
   },
@@ -2754,7 +2128,7 @@
   },
   "backupSettingsOnly": "Setelan saja",
   "backupSelectCollections": "Koleksi saya",
-  "backupSelectCollectionsDescription": "Lagu, wishlist, artis favorit, playlist, dan cover playlist yang disukai.",
+  "backupSelectCollectionsDescription": "Lagu, artis favorit, playlist, dan cover playlist yang disukai.",
   "backupSelectedExportDescription": "Buat file cadangan dari kategori terpilih. Tidak termasuk file audio.",
   "backupSelectAtLeastOne": "Pilih setidaknya satu kategori untuk dicadangkan.",
   "backupSelectedRestoreMessage": "Hanya kategori di bawah yang akan dipulihkan. Yang tidak ada di daftar tidak akan diubah. Pemulihan akan mengganti data yang sudah ada dan tidak dapat diurungkan.",
@@ -2765,15 +2139,6 @@
   "backupContentsLiked": "{count} lagu {count, plural, =1{disukai} other{disukai}}",
   "@backupContentsLiked": {
     "description": "Backup contents row for liked tracks count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "backupContentsWishlist": "{count} lagu di {count, plural, =1{wishlist} other{wishlist}}",
-  "@backupContentsWishlist": {
-    "description": "Backup contents row for wishlist tracks count",
     "placeholders": {
       "count": {
         "type": "int"
@@ -2810,10 +2175,6 @@
   "@tooltipLoveAll": {
     "description": "Tooltip for the Love All button on album/playlist screens"
   },
-  "tooltipAddToPlaylist": "Tambah ke Playlist",
-  "@tooltipAddToPlaylist": {
-    "description": "Tooltip for the Add to Playlist button"
-  },
   "snackbarRemovedTracksFromLoved": "Menghapus {count} lagu dari Disukai",
   "@snackbarRemovedTracksFromLoved": {
     "description": "Snackbar after removing multiple tracks from Loved folder",
@@ -2844,14 +2205,6 @@
   "@snackbarMetadataSaved": {
     "description": "Snackbar after successfully saving track metadata"
   },
-  "snackbarFailedToEmbedLyrics": "Gagal menyematkan lirik",
-  "@snackbarFailedToEmbedLyrics": {
-    "description": "Snackbar when lyrics embedding fails"
-  },
-  "snackbarFailedToWriteStorage": "Gagal memodifikasi file",
-  "@snackbarFailedToWriteStorage": {
-    "description": "Snackbar when writing metadata back to file fails"
-  },
   "snackbarError": "Eror: {error}",
   "@snackbarError": {
     "description": "Generic error snackbar with error detail",
@@ -2866,14 +2219,6 @@
     "description": "Empty state message when an album has no tracks"
   },
   "storageDownloadFolderHint": "Begitu pemilih folder Android terbuka, buka folder Download dan pilih Sistrum. Jika belum ada, buat folder baru, lalu ketuk Gunakan folder ini untuk memberi akses.",
-  "downloadArtistNameFilters": "Filter Nama Artis",
-  "@downloadArtistNameFilters": {
-    "description": "Setting title for artist folder filter options"
-  },
-  "downloadCreatePlaylistSourceFolder": "Folder Sumber Playlist",
-  "@downloadCreatePlaylistSourceFolder": {
-    "description": "Setting to create a subfolder per playlist source"
-  },
   "downloadSongLinkRegion": "Wilayah SongLink",
   "@downloadSongLinkRegion": {
     "description": "Setting for SongLink region used during fallback resolution"
@@ -2885,10 +2230,6 @@
   "downloadAllowLocalNetwork": "Izinkan Akses Koneksi Lokal",
   "@downloadAllowLocalNetwork": {
     "description": "Setting title for allowing requests to private/local network targets"
-  },
-  "downloadEmbedLyricsDisabled": "Hidupkan penyematan metadata dulu",
-  "@downloadEmbedLyricsDisabled": {
-    "description": "Subtitle when lyrics embedding is blocked by metadata toggle"
   },
   "downloadNeteaseIncludeTranslation": "NetEase: Termasuk Terjemahan",
   "@downloadNeteaseIncludeTranslation": {
@@ -2909,10 +2250,6 @@
   "downloadMusixmatchLanguage": "Bahasa Musixmatch",
   "@downloadMusixmatchLanguage": {
     "description": "Setting for Musixmatch lyrics translation language"
-  },
-  "downloadFilterContributing": "Filter Artis Kontributor",
-  "@downloadFilterContributing": {
-    "description": "Setting to strip contributing artists from Album Artist folder name"
   },
   "snackbarUnsupportedAudioFormat": "Format audio tidak didukung",
   "@snackbarUnsupportedAudioFormat": {
@@ -3000,14 +2337,6 @@
   "@queueEmptyAlbumsSubtitle": {
     "description": "Empty state subtitle for album downloads"
   },
-  "queueEmptySingles": "Tidak ada hasil download single",
-  "@queueEmptySingles": {
-    "description": "Empty state title when no single track downloads exist"
-  },
-  "queueEmptySinglesSubtitle": "Hasil download single akan muncul di sini",
-  "@queueEmptySinglesSubtitle": {
-    "description": "Empty state subtitle for single track downloads"
-  },
   "queuePlaylistCount": "{count, plural, =1{1 playlist} other{{count} playlist}}",
   "@queuePlaylistCount": {
     "description": "Playlist count label with plural support",
@@ -3020,14 +2349,6 @@
   "queueEmptyPlaylistsSubtitle": "Buat playlist untuk menata lagu Anda",
   "@queueEmptyPlaylistsSubtitle": {
     "description": "Empty state subtitle for the playlists library view"
-  },
-  "libraryDefaultView": "Tampilan default",
-  "@libraryDefaultView": {
-    "description": "Setting title - which library view opens when switching to the Library tab"
-  },
-  "libraryDefaultViewLastUsed": "Terakhir digunakan",
-  "@libraryDefaultViewLastUsed": {
-    "description": "Default view option - keep the last used library view"
   },
   "queueEmptyHistory": "Tidak ada histori download",
   "@queueEmptyHistory": {
@@ -3154,457 +2475,6 @@
     "description": "Snackbar after the spectrogram image was saved",
     "placeholders": {
       "fileName": {
-        "type": "String"
-      }
-    }
-  },
-  "downloadRedownloadFakeHiRes": "Download ulang Hi-Res palsu",
-  "@downloadRedownloadFakeHiRes": {
-    "description": "Setting title: automatically replace downloads that measure as fake Hi-Res"
-  },
-  "downloadRedownloadFakeHiResSubtitle": "Dimatikan secara default. Memeriksa download Hi-Res dan menggantinya bila terdeteksi bukan kualitas Hi-Res. Tidak menghapus lagu bila verifikasi atau pemrosesan gagal",
-  "@downloadRedownloadFakeHiResSubtitle": {
-    "description": "Setting subtitle for the fake Hi-Res re-download toggle"
-  },
-  "hiResCheckVerdictFakeCertain": "Hi-Res Palsu",
-  "@hiResCheckVerdictFakeCertain": {
-    "description": "Verdict: an exact fingerprint (padded bits or upsampling pattern) proves the file is not real Hi-Res"
-  },
-  "hiResCheckReasonSampleHold": "Data suara terulang: diupsample dengan menggandakan data",
-  "@hiResCheckReasonSampleHold": {
-    "description": "Reason: sample-and-hold upsampling detected"
-  },
-  "hiResCheckReasonInterpolation": "Data antar suara diinterpolasi secara linear",
-  "@hiResCheckReasonInterpolation": {
-    "description": "Reason: linear-interpolation upsampling detected"
-  },
-  "hiResCheckTitle": "Keaslian Hi-Res",
-  "@hiResCheckTitle": {
-    "description": "Title of the fake Hi-Res check card"
-  },
-  "hiResCheckLimitedBandwidth": "Bandwidth terbatas",
-  "@hiResCheckLimitedBandwidth": {
-    "description": "Neutral finding: a limited spectrum alone does not prove upsampling"
-  },
-  "hiResCheckEstimatedCutoff": "Cutoff terestimasi",
-  "@hiResCheckEstimatedCutoff": {
-    "description": "Estimated upper spectral edge at the analysis threshold"
-  },
-  "hiResCheckActiveBits": "Bit aktif/tersimpan",
-  "@hiResCheckActiveBits": {
-    "description": "Active integer bit depth versus the container depth in the sampled segment"
-  },
-  "hiResCheckBandwidthExplanation": "Cutoff rendah juga dapat berasal dari mastering. Bukan selalu hasil upsampling.",
-  "@hiResCheckBandwidthExplanation": {
-    "description": "Explains why the limited-bandwidth finding is neutral"
-  },
-  "hiResCheckImagingEvidence": "Ada spektrum band yang saling berbalik yang mungkin ini hasil upsampling.",
-  "@hiResCheckImagingEvidence": {
-    "description": "Spectral imaging is suggestive evidence rather than proof"
-  },
-  "hiResCheckRateEvidence": "Ada frekuensi yang terputus di {cutoff} dan desis yang berarti ini berkualitas rendah.",
-  "@hiResCheckRateEvidence": {
-    "description": "Heuristic evidence from both a brickwall and a 16-bit-like noise floor",
-    "placeholders": {
-      "cutoff": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResCheckSteadyEnergy": "Energi di atas {cutoff} terlalu stabil di bagian teranalisis dan kemungkinan itu desisan.",
-  "@hiResCheckSteadyEnergy": {
-    "description": "An observation about ultrasonic energy, not proof that removing it is safe",
-    "placeholders": {
-      "cutoff": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResCheckRun": "Periksa",
-  "@hiResCheckRun": {
-    "description": "Button that starts the Hi-Res authenticity check"
-  },
-  "hiResCheckVerdictFake": "Sepertinya Hi-Res palsu",
-  "@hiResCheckVerdictFake": {
-    "description": "Verdict: the file claims Hi-Res but does not measure as it"
-  },
-  "hiResCheckVerdictInconclusive": "Tidak yakin: bagian teranalisis terlalu diam atau pendek",
-  "@hiResCheckVerdictInconclusive": {
-    "description": "Verdict: analysis could not reach a reliable conclusion"
-  },
-  "hiResCheckUnsupported": "Hanya file FLAC dan WAV yang dapat diperiksa",
-  "@hiResCheckUnsupported": {
-    "description": "Shown when the file format cannot be decoded by the Hi-Res check"
-  },
-  "hiResCheckFailed": "Pemeriksaan Hi-Res gagal: {error}",
-  "@hiResCheckFailed": {
-    "description": "Error shown when the Hi-Res check fails",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResCheckReasonDepth": "Tertulis {declared}-bit tapi hanya {effective} bit yang berdata",
-  "@hiResCheckReasonDepth": {
-    "description": "Reason for a fake verdict caused by padded bit depth",
-    "placeholders": {
-      "declared": {
-        "type": "int"
-      },
-      "effective": {
-        "type": "int"
-      }
-    }
-  },
-  "hiResReportSummary": "Membaca seluruh file lalu memeriksa keutuhan, bit depth asli, rentang frekuensi, dan jejak kompresi lossy.",
-  "@hiResReportSummary": {
-    "description": "What the Hi-Res authenticity inspection does, shown before it runs"
-  },
-  "hiResReportChecking": "Membaca seluruh file. Lagu yang panjang butuh waktu sedikit lebih lama.",
-  "@hiResReportChecking": {
-    "description": "Loading text while the whole-file inspection runs"
-  },
-  "hiResReportGradeCorrupt": "File rusak",
-  "@hiResReportGradeCorrupt": {
-    "description": "Inspection outcome: the audio fails its checksum or cannot be decoded in full"
-  },
-  "hiResReportGradeCorruptBody": "Audio di file ini tidak sama dengan yang ditulis saat file dibuat. Ambil salinan baru.",
-  "@hiResReportGradeCorruptBody": {
-    "description": "Explains the damaged-file outcome"
-  },
-  "hiResReportGradeLossy": "Dibuat dari file lossy",
-  "@hiResReportGradeLossy": {
-    "description": "Inspection outcome: a lossless file whose audio went through a lossy codec"
-  },
-  "hiResReportGradeLossyBody": "Audio ini membawa pola frame kompresi {codec}. Audio ini pernah lossy sebelum disimpan sebagai lossless, dan detail yang hilang tidak kembali.",
-  "@hiResReportGradeLossyBody": {
-    "description": "Explains the lossy-source outcome; codec is a format name such as AAC",
-    "placeholders": {
-      "codec": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResReportGradeUpscaledBody": "File ini mengaku punya resolusi lebih tinggi daripada audionya.",
-  "@hiResReportGradeUpscaledBody": {
-    "description": "Explains the fake Hi-Res outcome"
-  },
-  "hiResReportGradeSuspect": "Ada tanda sumber berkualitas lebih rendah",
-  "@hiResReportGradeSuspect": {
-    "description": "Inspection outcome: evidence of a lossy or lower-resolution source that falls short of proof"
-  },
-  "hiResReportGradeSuspectBody": "Sebagian bukti mengarah ke sumber lossy atau beresolusi lebih rendah, tetapi belum cukup untuk memastikannya.",
-  "@hiResReportGradeSuspectBody": {
-    "description": "Explains the suspect outcome"
-  },
-  "hiResReportGradeClean": "Tidak ada masalah",
-  "@hiResReportGradeClean": {
-    "description": "Inspection outcome: nothing was flagged"
-  },
-  "hiResReportGradeCleanBody": "Tidak ada tanda kerusakan, upscaling, atau kompresi lossy pada audio ini.",
-  "@hiResReportGradeCleanBody": {
-    "description": "Explains the clean outcome"
-  },
-  "hiResReportIntegrity": "Keutuhan",
-  "@hiResReportIntegrity": {
-    "description": "Report section: whether the file's audio is intact"
-  },
-  "hiResReportIntegrityVerified": "Audio cocok dengan checksum yang tersimpan di file.",
-  "@hiResReportIntegrityVerified": {
-    "description": "Integrity finding: checksum verified"
-  },
-  "hiResReportIntegrityUnverified": "File ini tidak menyimpan checksum untuk dibandingkan. Seluruh audio terbaca tanpa galat.",
-  "@hiResReportIntegrityUnverified": {
-    "description": "Integrity finding: no checksum available, decoding succeeded"
-  },
-  "hiResReportIntegrityMismatch": "Audio yang terbaca tidak cocok dengan checksum yang tersimpan di file.",
-  "@hiResReportIntegrityMismatch": {
-    "description": "Integrity finding: checksum mismatch"
-  },
-  "hiResReportIntegrityLength": "File ini berisi {decoded} dari {declared} yang tertulis.",
-  "@hiResReportIntegrityLength": {
-    "description": "Integrity finding: the audio is shorter or longer than declared; both are formatted durations",
-    "placeholders": {
-      "decoded": {
-        "type": "String"
-      },
-      "declared": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResReportIntegrityDecodeError": "Pembacaan berhenti di {position}. File terpotong atau rusak.",
-  "@hiResReportIntegrityDecodeError": {
-    "description": "Integrity finding: a decode error; position is a formatted time",
-    "placeholders": {
-      "position": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResReportChecksum": "Checksum (MD5)",
-  "@hiResReportChecksum": {
-    "description": "Label of the audio checksum row"
-  },
-  "hiResReportBitDepth": "Bit depth",
-  "@hiResReportBitDepth": {
-    "description": "Report section: the real resolution of the samples"
-  },
-  "hiResReportBitDepthFull": "Seluruh {bits} bit berisi audio.",
-  "@hiResReportBitDepthFull": {
-    "description": "Bit depth finding: the declared depth is real",
-    "placeholders": {
-      "bits": {
-        "type": "int"
-      }
-    }
-  },
-  "hiResReportBitDepthCoarse": "Semua bit terpakai, tetapi jarak antarsampel yang pelan seperti audio {bits}-bit. Kemungkinan file ini diperbesar dari resolusi yang lebih rendah.",
-  "@hiResReportBitDepthCoarse": {
-    "description": "Bit depth finding: the samples lie further apart than the declared depth allows; bits is a formatted number",
-    "placeholders": {
-      "bits": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResReportBitDepthNear16": "Sampel berada di kisi 16-bit dengan noise halus di atasnya: sumber 16-bit yang disimpan sebagai {declared}-bit.",
-  "@hiResReportBitDepthNear16": {
-    "description": "Bit depth finding: 16-bit audio with dither in a wider word",
-    "placeholders": {
-      "declared": {
-        "type": "int"
-      }
-    }
-  },
-  "hiResReportBitDepthFloat": "Audio floating-point tidak punya bit depth tetap untuk diperiksa.",
-  "@hiResReportBitDepthFloat": {
-    "description": "Bit depth finding for floating-point files"
-  },
-  "hiResReportBitDepthUnmeasured": "Sampel pelan terlalu sedikit untuk mengukur resolusi aslinya.",
-  "@hiResReportBitDepthUnmeasured": {
-    "description": "Bit depth finding when the resolution could not be measured"
-  },
-  "hiResReportMeasuredResolution": "Resolusi terukur",
-  "@hiResReportMeasuredResolution": {
-    "description": "Label of the measured bit resolution row"
-  },
-  "hiResReportBitsValue": "{bits} bit",
-  "@hiResReportBitsValue": {
-    "description": "A bit count; bits is a formatted number",
-    "placeholders": {
-      "bits": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResReportFrequency": "Rentang frekuensi",
-  "@hiResReportFrequency": {
-    "description": "Report section: how far up the audio reaches"
-  },
-  "hiResReportLowpass": "Low-pass",
-  "@hiResReportLowpass": {
-    "description": "Label of the low-pass filter row"
-  },
-  "hiResReportLowpassValue": "{frequency}, turun {drop} dB",
-  "@hiResReportLowpassValue": {
-    "description": "Where the spectrum is cut and by how much",
-    "placeholders": {
-      "frequency": {
-        "type": "String"
-      },
-      "drop": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResReportLowpassNone": "Tidak ada potongan tajam yang menonjol di spektrum.",
-  "@hiResReportLowpassNone": {
-    "description": "Frequency finding: no low-pass filter"
-  },
-  "hiResReportLowpassFormat": "Terpotong di {frequency}, tepat di bawah batas sample rate ini: filter bawaan formatnya.",
-  "@hiResReportLowpassFormat": {
-    "description": "Frequency finding: the normal anti-alias filter",
-    "placeholders": {
-      "frequency": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResReportLowpassSourceRate": "Terpotong di {frequency}, batas rekaman 44,1 atau 48 kHz. Sample rate yang lebih tinggi ini tidak berisi musik di atasnya.",
-  "@hiResReportLowpassSourceRate": {
-    "description": "Frequency finding: a Hi-Res file with the bandwidth of a lower sample rate",
-    "placeholders": {
-      "frequency": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResReportLowpassHigh": "Terpotong di {frequency}. Filter mastering bisa menghasilkan ini, begitu juga MP3 320 kbps dan Opus.",
-  "@hiResReportLowpassHigh": {
-    "description": "Frequency finding: a cut that is not evidence by itself",
-    "placeholders": {
-      "frequency": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResReportLowpassMedium": "Terpotong di {frequency}, tempat encoder lossy sekitar 192 kbps memotong. Master berkualitas penuh jarang berhenti serendah ini.",
-  "@hiResReportLowpassMedium": {
-    "description": "Frequency finding: a cut typical of mid-bitrate lossy encoders",
-    "placeholders": {
-      "frequency": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResReportLowpassLow": "Terpotong di {frequency}, tempat encoder lossy sekitar 128 kbps memotong.",
-  "@hiResReportLowpassLow": {
-    "description": "Frequency finding: a cut typical of low-bitrate lossy encoders",
-    "placeholders": {
-      "frequency": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResReportLossy": "Kompresi lossy",
-  "@hiResReportLossy": {
-    "description": "Report section: traces of a lossy codec in the audio"
-  },
-  "hiResReportLossyFound": "Ditemukan pola frame {codec}: satu blok setiap {samples} sampel, seirama di sepanjang file. Audio yang tidak pernah dikompresi tidak memilikinya.",
-  "@hiResReportLossyFound": {
-    "description": "Lossy finding: a codec frame grid was detected; codec is a format name",
-    "placeholders": {
-      "codec": {
-        "type": "String"
-      },
-      "samples": {
-        "type": "int"
-      }
-    }
-  },
-  "hiResReportLossySuspectedPattern": "Terlihat pola frame MP3 yang samar, terlalu lemah untuk dipastikan.",
-  "@hiResReportLossySuspectedPattern": {
-    "description": "Lossy finding: weak evidence of an MP3 frame grid"
-  },
-  "hiResReportLossySuspectedLowpass": "Pola frame tidak ditemukan, tetapi low-pass di atas berada di tempat encoder lossy biasa memotong.",
-  "@hiResReportLossySuspectedLowpass": {
-    "description": "Lossy finding: only the low-pass points to a lossy source"
-  },
-  "hiResReportLossyNotFound": "Tidak ditemukan pola frame AAC, Vorbis, atau MP3. Opus tidak meninggalkan pola, dan resampling setelah decoding menghapus pola lainnya, jadi hasil ini tidak menyingkirkan sumber lossy.",
-  "@hiResReportLossyNotFound": {
-    "description": "Lossy finding: nothing detected, with the limits of the test"
-  },
-  "hiResReportLossyHighRate": "Tidak diperiksa. Di atas 48 kHz sumber lossy pasti sudah di-resample, sehingga pola framenya tersamar.",
-  "@hiResReportLossyHighRate": {
-    "description": "Lossy finding: the test does not apply to high sample rates"
-  },
-  "hiResReportLossyTooShort": "Tidak diperiksa: audionya terlalu sedikit untuk diukur.",
-  "@hiResReportLossyTooShort": {
-    "description": "Lossy finding: the file is too short or too quiet for the test"
-  },
-  "hiResReportPatternStrength": "Kekuatan pola",
-  "@hiResReportPatternStrength": {
-    "description": "Label of the codec frame pattern score row"
-  },
-  "hiResReportPatternStrengthValue": "{score} (terdeteksi mulai {threshold})",
-  "@hiResReportPatternStrengthValue": {
-    "description": "The frame pattern score next to the score that counts as found",
-    "placeholders": {
-      "score": {
-        "type": "String"
-      },
-      "threshold": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResReportSpectrum": "Spektrum rata-rata",
-  "@hiResReportSpectrum": {
-    "description": "Caption of the spectrum chart"
-  },
-  "hiResReportSpectrumSemantics": "Spektrum rata-rata, berisi hingga {frequency}",
-  "@hiResReportSpectrumSemantics": {
-    "description": "Screen reader description of the spectrum chart",
-    "placeholders": {
-      "frequency": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResReportWholeFile": "Seluruh {duration} audio dibaca. Tidak ada analisis yang bisa menjamin master aslinya.",
-  "@hiResReportWholeFile": {
-    "description": "Scope and limits of the inspection; duration is a formatted time",
-    "placeholders": {
-      "duration": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResReportShare": "Bagikan laporan",
-  "@hiResReportShare": {
-    "description": "Button that shares the Hi-Res authenticity report as text"
-  },
-  "hiResBatchAction": "Cek keaslian",
-  "@hiResBatchAction": {
-    "description": "Menu action that runs the Hi-Res authenticity check on an album or on several selected songs"
-  },
-  "hiResBatchProgress": "Membaca lagu {current} dari {total}",
-  "@hiResBatchProgress": {
-    "description": "Progress of the authenticity check of several songs",
-    "placeholders": {
-      "current": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "hiResBatchWaiting": "Menunggu",
-  "@hiResBatchWaiting": {
-    "description": "Status of a song the authenticity check has not reached yet"
-  },
-  "hiResBatchReading": "Membaca seluruh file",
-  "@hiResBatchReading": {
-    "description": "Status of the song the authenticity check is reading now"
-  },
-  "hiResBatchSummary": "{flagged, plural, =0{Tidak ada masalah di {total} lagu.} other{{flagged} dari {total} lagu perlu dilihat.}}",
-  "@hiResBatchSummary": {
-    "description": "Result of the authenticity check of several songs: how many showed a warning or a problem",
-    "placeholders": {
-      "flagged": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      }
-    }
-  },
-  "hiResBatchFailed": "{count, plural, other{{count} lagu tidak bisa dibaca.}}",
-  "@hiResBatchFailed": {
-    "description": "How many songs the authenticity check could not read",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "hiResBatchSkipped": "{count, plural, other{{count} lagu berformat lain dilewati.}} Hanya FLAC dan WAV yang bisa diperiksa.",
-  "@hiResBatchSkipped": {
-    "description": "How many songs were not checked because of their format",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "hiResBatchMixedFormats": "Lagu-lagu ini tidak berformat sama: {formats}. Album dari satu master biasanya sama.",
-  "@hiResBatchMixedFormats": {
-    "description": "Note that the checked songs differ in bit depth or sample rate; formats is a list such as 24-bit/96kHz (8), 16-bit/44.1kHz (4)",
-    "placeholders": {
-      "formats": {
         "type": "String"
       }
     }
@@ -3891,18 +2761,6 @@
   "@tutorialStartDownloadSemantics": {
     "description": "Accessibility label for idle download button in tutorial demo"
   },
-  "optionsEmbedMetadata": "Metadata Tersemat",
-  "@optionsEmbedMetadata": {
-    "description": "Settings toggle title for writing metadata into downloaded files"
-  },
-  "optionsEmbedMetadataSubtitleOn": "Edit metadata, foto cover, dan lirik tersemat ke file",
-  "@optionsEmbedMetadataSubtitleOn": {
-    "description": "Subtitle when metadata embedding is enabled"
-  },
-  "optionsEmbedMetadataSubtitleOff": "Mati (lanjutan): lewati semua penyematan metadata",
-  "@optionsEmbedMetadataSubtitleOff": {
-    "description": "Subtitle when metadata embedding is disabled"
-  },
   "trackCoverNoEmbeddedArt": "Tidak ada foto cover tersemat",
   "@trackCoverNoEmbeddedArt": {
     "description": "Message shown when a track file has no embedded cover art"
@@ -3930,18 +2788,6 @@
   "trackCoverReplaceNotice": "Cover terpilih akan mengganti cover tersemat bila Anda mengetuk Simpan.",
   "@trackCoverReplaceNotice": {
     "description": "Notice shown when a new cover has been selected but not saved yet"
-  },
-  "trackCoverResolution": "Resolusi cover",
-  "@trackCoverResolution": {
-    "description": "Label for selecting the embedded cover art resolution"
-  },
-  "trackCoverResolutionHint": "Atur sudut terpanjang saat disimpan. Melebarkan tidak menambah detail foto.",
-  "@trackCoverResolutionHint": {
-    "description": "Explanation below the embedded cover art resolution selector"
-  },
-  "trackCoverResizeFailed": "Tidak dapat mengatur ukuran cover. Harap gunakan ukuran atau foto lain.",
-  "@trackCoverResizeFailed": {
-    "description": "Error shown when resizing cover art before saving metadata fails"
   },
   "queueMoveUp": "Pindah ke atas",
   "@queueMoveUp": {
@@ -4090,22 +2936,6 @@
       }
     }
   },
-  "settingsFiles": "File & Folder",
-  "@settingsFiles": {
-    "description": "Settings menu item - file and folder settings"
-  },
-  "settingsFilesSubtitle": "Folder download, nama file, struktur folder",
-  "@settingsFilesSubtitle": {
-    "description": "Subtitle for files & folders settings"
-  },
-  "settingsMetadata": "Metadata",
-  "@settingsMetadata": {
-    "description": "Settings menu item - metadata settings"
-  },
-  "settingsMetadataSubtitle": "Foto cover, tag, ReplayGain, provider",
-  "@settingsMetadataSubtitle": {
-    "description": "Subtitle for metadata settings"
-  },
   "settingsLyrics": "Lirik",
   "@settingsLyrics": {
     "description": "Settings menu item - lyrics settings"
@@ -4113,34 +2943,6 @@
   "settingsLyricsSubtitle": "Tersemat, mode, provider, opsi bahasa",
   "@settingsLyricsSubtitle": {
     "description": "Subtitle for lyrics settings"
-  },
-  "settingsApp": "Aplikasi",
-  "@settingsApp": {
-    "description": "Settings menu item - app settings"
-  },
-  "settingsAppSubtitle": "Update, data, repo, debug",
-  "@settingsAppSubtitle": {
-    "description": "Subtitle for app settings"
-  },
-  "metadataProvidersTitle": "Prioritas Provider Metadata",
-  "@metadataProvidersTitle": {
-    "description": "Settings item title for metadata provider order"
-  },
-  "metadataProvidersSubtitle": "Geser untuk mengatur urutan sumber penelusuran dan metadata",
-  "@metadataProvidersSubtitle": {
-    "description": "Subtitle for metadata provider priority item"
-  },
-  "downloadDeduplication": "Lewati Lagu yang Sudah Ada",
-  "@downloadDeduplication": {
-    "description": "Setting - skip tracks already in download history"
-  },
-  "downloadQualityVariants": "Izinkan kualitas berbeda",
-  "@downloadQualityVariants": {
-    "description": "Setting to retain multiple quality versions of the same track"
-  },
-  "downloadQualityVariantsDescription": "Simpan versi setiap kualitas; tambahkan akhiran kualitas di nama file jika namanya sudah digunakan",
-  "@downloadQualityVariantsDescription": {
-    "description": "Description for retaining multiple quality versions"
   },
   "downloadFallbackExtensions": "Ekstensi Cadangan",
   "@downloadFallbackExtensions": {
@@ -4201,30 +3003,6 @@
   "editMetadataAdvanced": "Lanjutan",
   "@editMetadataAdvanced": {
     "description": "Expandable section label for advanced metadata fields"
-  },
-  "libraryFilterMetadataMissingTrackNumber": "Nomor lagu hilang",
-  "@libraryFilterMetadataMissingTrackNumber": {
-    "description": "Filter option - items missing track number"
-  },
-  "libraryFilterMetadataMissingDiscNumber": "Nomor disk hilang",
-  "@libraryFilterMetadataMissingDiscNumber": {
-    "description": "Filter option - items missing disc number"
-  },
-  "libraryFilterMetadataMissingArtist": "Nama artis hilang",
-  "@libraryFilterMetadataMissingArtist": {
-    "description": "Filter option - items missing artist"
-  },
-  "libraryFilterMetadataIncorrectIsrcFormat": "Format ISRC salah",
-  "@libraryFilterMetadataIncorrectIsrcFormat": {
-    "description": "Filter option - items with an invalid ISRC format"
-  },
-  "libraryFilterMetadataMissingIsrc": "ISRC hilang",
-  "@libraryFilterMetadataMissingIsrc": {
-    "description": "Filter option - items without any ISRC tag"
-  },
-  "libraryFilterMetadataMissingLabel": "Nama label hilang",
-  "@libraryFilterMetadataMissingLabel": {
-    "description": "Filter option - items missing record label"
   },
   "collectionDeletePlaylistsMessage": "Hapus {count} {count, plural, =1{playlist} other{playlist}}?",
   "@collectionDeletePlaylistsMessage": {
@@ -4364,10 +3142,6 @@
   "@audioAnalysisMono": {
     "description": "Audio channel layout label - mono"
   },
-  "trackLyricsEmbeddedSource": "Tersemat",
-  "@trackLyricsEmbeddedSource": {
-    "description": "Lyrics source label for embedded lyrics"
-  },
   "unknownAlbum": "Album Tak Dikenal",
   "@unknownAlbum": {
     "description": "Fallback album name when metadata is missing"
@@ -4392,33 +3166,9 @@
   "@errorInvalidFolderSelected": {
     "description": "Error when the selected folder is invalid"
   },
-  "settingsSaveDownloadHistory": "Simpan histori download",
-  "@settingsSaveDownloadHistory": {
-    "description": "Settings switch title for storing completed downloads in history"
-  },
-  "settingsSaveDownloadHistorySubtitle": "Simpan download selesai di tampilan histori dan koleksi",
-  "@settingsSaveDownloadHistorySubtitle": {
-    "description": "Settings switch subtitle for storing completed downloads in history"
-  },
   "libraryPlayback": "Pemutaran",
   "@libraryPlayback": {
     "description": "Section header for playback settings in library settings"
-  },
-  "libraryExternalPlayer": "Pemutar eksternal",
-  "@libraryExternalPlayer": {
-    "description": "Setting option to use an external music player"
-  },
-  "libraryExternalPlayerSubtitle": "Buka lagu di aplikasi musik lain di perangkatmu",
-  "@libraryExternalPlayerSubtitle": {
-    "description": "Subtitle for external player option"
-  },
-  "libraryBuiltInPreviewPlayer": "Pemutar bawaan",
-  "@libraryBuiltInPreviewPlayer": {
-    "description": "Setting option to use the built-in preview player"
-  },
-  "libraryBuiltInPreviewPlayerSubtitle": "Putar musik langsung di Sistrum",
-  "@libraryBuiltInPreviewPlayerSubtitle": {
-    "description": "Subtitle for built-in preview player option"
   },
   "nowPlayingTitle": "Sedang Memutar",
   "@nowPlayingTitle": {
@@ -4508,12 +3258,8 @@
   "nowPlayingSleepTimerEndOfSong": "Akhir lagu",
   "nowPlayingSleepTimerEndOfSongActive": "Berhenti setelah lagu ini",
   "nowPlayingSleepTimerEndOfSongSet": "Pemutaran dijeda saat lagu ini selesai",
-  "nowPlayingOpenInExternalPlayer": "Buka di pemutar eksternal",
   "nowPlayingHideVolume": "Sembunyikan volume",
   "nowPlayingShowVolume": "Tampilkan volume",
-  "@nowPlayingOpenInExternalPlayer": {
-    "description": "Menu item to open the current track in an external player"
-  },
   "nowPlayingTabPlayer": "Pemutar",
   "@nowPlayingTabPlayer": {
     "description": "Tab label for the player view"
@@ -4572,75 +3318,6 @@
     "description": "Empty state when track metadata cannot be loaded"
   },
   "linkHandoffSending": "Mengirim lagu ini ke {name}...",
-  "trackConvertLosslessOutputWithCap": "Output loseless dengan batas {quality}",
-  "@trackConvertLosslessOutputWithCap": {
-    "description": "Hint shown when lossless conversion will cap bit depth or sample rate",
-    "placeholders": {
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmMessageLosslessCapped": "Ubah format {sourceFormat} ke {targetFormat} ({quality})?\n\nOutput tetap menggunakan codec loseless, tapi bit depth/laju sampel akan dibatasi. File asli akan dihapus setelah diubah.",
-  "@trackConvertConfirmMessageLosslessCapped": {
-    "description": "Confirmation dialog message for capped lossless conversion of a single file",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmMessageLosslessCapped": "Ubah format {count} {count, plural, =1{lagu} other{lagu}} ke {format} ({quality})?\n\nOutput tetap menggunakan codec loseless, tapi bit depth/laju sampel akan dibatasi. File asli akan dihapus setelah diubah.",
-  "@selectionBatchConvertConfirmMessageLosslessCapped": {
-    "description": "Confirmation dialog message for capped lossless batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertActionLabelLossless": "{sourceFormat} → {targetFormat} ({quality})",
-  "@trackConvertActionLabelLossless": {
-    "description": "Convert button label for lossless conversion with quality cap",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertActionLabelLossy": "{sourceFormat} → {targetFormat} @ {bitrate}",
-  "@trackConvertActionLabelLossy": {
-    "description": "Convert button label for lossy conversion",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
   "snackbarPlayingNext": "Memutar lagu berikutnya",
   "@snackbarPlayingNext": {
     "description": "Snackbar when a track is inserted as the next queue item"
@@ -4662,124 +3339,6 @@
   "@actionShuffle": {
     "description": "Tooltip for shuffle playback action"
   },
-  "trackConvertOriginal": "Asli",
-  "@trackConvertOriginal": {
-    "description": "Label for keeping original bit depth or sample rate during conversion"
-  },
-  "trackConvertOriginalQuality": "Kualitas asli",
-  "@trackConvertOriginalQuality": {
-    "description": "Label when no bit depth or sample rate cap is applied during lossless conversion"
-  },
-  "trackConvertLosslessSuffix": "Loseless",
-  "@trackConvertLosslessSuffix": {
-    "description": "Suffix used in converted lossless quality labels"
-  },
-  "trackConvertDithering": "Dithering",
-  "@trackConvertDithering": {
-    "description": "Section label for lossless conversion dithering options"
-  },
-  "trackConvertResampler": "Resampler",
-  "@trackConvertResampler": {
-    "description": "Section label for lossless conversion resampler options"
-  },
-  "trackConvertDitherSmart": "Smart",
-  "@trackConvertDitherSmart": {
-    "description": "Automatic dither option for lossless file conversion"
-  },
-  "trackConvertDitherSmartDescription": "Otomatis memakai dither hanya saat menurunkan bit depth.",
-  "@trackConvertDitherSmartDescription": {
-    "description": "Explains when Smart Dither adds dither during file conversion"
-  },
-  "trackConvertDitherSmartType": "Jenis Smart Dither",
-  "@trackConvertDitherSmartType": {
-    "description": "Label of the choice between plain TPDF and high-pass TPDF for Smart Dither"
-  },
-  "trackConvertDitherPlainDescription": "Smart Dither memakai TPDF biasa, yang menyebarkan derau tambahan merata di semua frekuensi.",
-  "@trackConvertDitherPlainDescription": {
-    "description": "Explains the plain TPDF option of Smart Dither"
-  },
-  "trackConvertDitherHighPassDescription": "Smart Dither memakai TPDF high-pass, yang memindahkan derau tambahan ke frekuensi tinggi sehingga lebih sulit terdengar.",
-  "@trackConvertDitherHighPassDescription": {
-    "description": "Explains the high-pass option of Smart Dither"
-  },
-  "trackConvertDitherNone": "Tidak Ada",
-  "@trackConvertDitherNone": {
-    "description": "Lossless conversion dither option with no dithering applied"
-  },
-  "trackConvertDitherTriangular": "TPDF",
-  "@trackConvertDitherTriangular": {
-    "description": "Lossless conversion triangular probability density function dither option"
-  },
-  "trackConvertDitherTriangularHp": "TPDF HP",
-  "@trackConvertDitherTriangularHp": {
-    "description": "Lossless conversion high-pass triangular dither option"
-  },
-  "trackConvertResamplerSwr": "SWR",
-  "@trackConvertResamplerSwr": {
-    "description": "Lossless conversion default FFmpeg swresample resampler option"
-  },
-  "trackConvertResamplerSoxr": "SoXR",
-  "@trackConvertResamplerSoxr": {
-    "description": "Lossless conversion SoX resampler option"
-  },
-  "trackConvertResamplerQuality": "Kualitas",
-  "@trackConvertResamplerQuality": {
-    "description": "Title of the resampler quality slider in the convert sheet"
-  },
-  "trackConvertResamplerQualityFast": "Cepat",
-  "@trackConvertResamplerQualityFast": {
-    "description": "Lowest resampler quality level"
-  },
-  "trackConvertResamplerQualityMedium": "Sedang",
-  "@trackConvertResamplerQualityMedium": {
-    "description": "Resampler quality level"
-  },
-  "trackConvertResamplerQualityHigh": "Tinggi",
-  "@trackConvertResamplerQualityHigh": {
-    "description": "Resampler quality level"
-  },
-  "trackConvertResamplerQualityVeryHigh": "Sangat tinggi",
-  "@trackConvertResamplerQualityVeryHigh": {
-    "description": "Resampler quality level"
-  },
-  "trackConvertResamplerQualityBest": "Terbaik",
-  "@trackConvertResamplerQualityBest": {
-    "description": "Highest resampler quality level"
-  },
-  "trackConvertResamplerQualityDescription": "Tingkat yang lebih tinggi lebih akurat, tetapi konversinya lebih lama.",
-  "@trackConvertResamplerQualityDescription": {
-    "description": "Explains the resampler quality slider"
-  },
-  "trackConvertResamplerSwrDetail": "Filter {taps} tap",
-  "@trackConvertResamplerSwrDetail": {
-    "description": "What the chosen SWR quality level uses: the length of its filter",
-    "placeholders": {
-      "taps": {
-        "type": "int"
-      }
-    }
-  },
-  "trackConvertResamplerSoxrDetail": "Presisi {bits} bit",
-  "@trackConvertResamplerSoxrDetail": {
-    "description": "What the chosen SoXR quality level uses: its calculation precision",
-    "placeholders": {
-      "bits": {
-        "type": "int"
-      }
-    }
-  },
-  "trackConvertResamplerSoxrPresetDetail": "Presisi {bits} bit, SoX {preset}",
-  "@trackConvertResamplerSoxrPresetDetail": {
-    "description": "What the chosen SoXR quality level uses, with the SoX name of that preset (HQ or VHQ)",
-    "placeholders": {
-      "bits": {
-        "type": "int"
-      },
-      "preset": {
-        "type": "String"
-      }
-    }
-  },
   "unknownTitle": "Judul tidak diketahui",
   "@unknownTitle": {
     "description": "Fallback track title when metadata is missing"
@@ -4800,33 +3359,9 @@
   "@swipeToQueueSubtitle": {
     "description": "Subtitle of the swipe songs to queue setting"
   },
-  "librarySongTap": "Mengetuk lagu",
-  "@librarySongTap": {
-    "description": "Library setting choosing whether a tap on a song row plays it or opens its details"
-  },
-  "librarySongTapOpenDetails": "Buka detail",
-  "@librarySongTapOpenDetails": {
-    "description": "Choice of the tapping a song setting: a tap on the song opens its details. Name the action of the tap, not the button on the row. Keep it short: it shares one segmented control with the other choice"
-  },
-  "librarySongTapPlaySong": "Putar lagu",
-  "@librarySongTapPlaySong": {
-    "description": "Choice of the tapping a song setting: a tap on the song plays it. Name the action of the tap, not the button on the row. Keep it short: it shares one segmented control with the other choice"
-  },
-  "librarySongTapPlayDescription": "Ketuk untuk memutar lagu. Tombol di sampingnya membuka detailnya.",
-  "@librarySongTapPlayDescription": {
-    "description": "Description of the tapping a song setting while a tap plays"
-  },
-  "librarySongTapDetailsDescription": "Ketuk untuk membuka detail lagu. Tombol putar memutarnya.",
-  "@librarySongTapDetailsDescription": {
-    "description": "Description of the tapping a song setting while a tap opens the details"
-  },
   "trackCoverOnline": "Cover internet",
   "@trackCoverOnline": {
     "description": "Label shown when metadata autofill downloaded cover art from the internet"
-  },
-  "extensionVerificationBrowserTitle": "Browser verifikasi",
-  "@extensionVerificationBrowserTitle": {
-    "description": "Settings option title for extension verification browser preference"
   },
   "settingsSearchHint": "Telusuri setelan",
   "@settingsSearchHint": {
@@ -4840,18 +3375,6 @@
         "type": "String"
       }
     }
-  },
-  "libraryFilterMetadataMissingLyrics": "Lirik hilang",
-  "@libraryFilterMetadataMissingLyrics": {
-    "description": "Filter option for tracks without embedded or sidecar lyrics"
-  },
-  "libraryFilterMetadataMissingReplayGain": "ReplayGain Hilang",
-  "@libraryFilterMetadataMissingReplayGain": {
-    "description": "Filter option for scanned tracks without ReplayGain gain tags"
-  },
-  "libraryFilterMetadataHasReplayGain": "Memiliki ReplayGain",
-  "@libraryFilterMetadataHasReplayGain": {
-    "description": "Filter option for tracks with indexed ReplayGain track or album gain tags"
   },
   "libraryFilterIncompleteAlbums": "Album belum lengkap",
   "@libraryFilterIncompleteAlbums": {
@@ -4876,40 +3399,8 @@
       }
     }
   },
-  "trackOptionCopyTrackName": "Salin nama lagu",
-  "@trackOptionCopyTrackName": {
-    "description": "Track menu action that copies the track title"
-  },
-  "trackOptionCopyArtist": "Salin artis",
-  "@trackOptionCopyArtist": {
-    "description": "Track menu action that copies the artist name"
-  },
-  "trackOptionCopyTrackAndArtist": "Salin lagu dan artis",
-  "@trackOptionCopyTrackAndArtist": {
-    "description": "Track menu action that copies the track title and artist"
-  },
-  "metadataCopyValue": "Salin isi",
-  "@metadataCopyValue": {
-    "description": "Metadata menu action that copies only the selected value"
-  },
-  "metadataCopyField": "Salin isi kolom",
-  "@metadataCopyField": {
-    "description": "Metadata menu action that copies the selected key and value"
-  },
   "mornyeSearch": "Telusuri",
   "mornyeContinuePlaying": "Lanjut Memutar",
-  "metadataCopyAll": "Salin semua metadata",
-  "@metadataCopyAll": {
-    "description": "Metadata menu action that copies every visible key and value"
-  },
-  "optionsEmbeddedCoverSize": "Ukuran Cover Tersemat",
-  "@optionsEmbeddedCoverSize": {
-    "description": "Metadata setting that limits downloaded artwork resolution before it is embedded"
-  },
-  "optionsEmbeddedCoverSizeDescription": "Turunkan kualitas foto cover sebelum menyematkannya. Foto yang berada di batas ukuran tidak akan dimodifikasi.",
-  "@optionsEmbeddedCoverSizeDescription": {
-    "description": "Description shown in the embedded cover size picker"
-  },
   "mornyeFavorite": "Favorit",
   "mornyeGoToArtist": "Buka Artis",
   "@mornyeFavorite": {
@@ -5073,9 +3564,7 @@
     "description": "Menu item that restores the default Home shortcuts"
   },
   "motionArtwork": "Artwork bergerak",
-  "listeningStats": "Statistik mendengarkan",
-  "listeningStatsRecord": "Catat waktu mendengarkan",
-  "listeningStatsDescription": "Disimpan hanya di perangkat ini, mulai sekarang. Hanya mencatat player bawaan; pause, buffering, dan seek tidak menambah waktu dengar. Pemutaran dihitung setelah 30 detik.",
+  "navInsights": "Insights",
   "listeningStatsEmpty": "Putar musik dengan player bawaan untuk memulai ringkasan mendengarkan. Riwayat sebelumnya tidak dapat dipulihkan.",
   "listeningStatsDays": "{days} hari",
   "@listeningStatsDays": {
@@ -5116,7 +3605,6 @@
   "listeningStatsClear": "Hapus statistik mendengarkan",
   "listeningStatsClearError": "Statistik mendengarkan tidak dapat dihapus. Silakan coba lagi.",
   "listeningStatsClearDescription": "Hapus semua statistik mendengarkan di perangkat ini? Musik dan playlist tetap tersimpan.",
-  "libraryArtistsEmpty": "Artis muncul di sini setelah kamu mengunduh musik atau memindai library lokal.",
   "listeningRewind": "Rewind",
   "listeningRewindDescription": "Lihat lagi momen menarik dari minggu dan bulan terakhir",
   "listeningRewindChoosePeriod": "Pilih periode",
@@ -5354,17 +3842,13 @@
   },
   "playbackPauseOnMuteDescription": "Jeda saat volume media nol dan lanjutkan saat dinaikkan. Jeda manual tetap dihormati. Hanya untuk keluaran audio standar.",
   "playbackOnHeadphonesConnected": "Putar saat earphone atau mobil terhubung",
-  "playbackOnHeadphonesConnectedDescription": "Lanjutkan lagu saat earphone kabel atau Bluetooth, atau mobil lewat Bluetooth, terhubung. Pemutaran dijeda saat dilepas. Hanya untuk pemutar bawaan.",
-  "playbackResumeOnReconnectDescription": "Jika earphone, mobil, atau perangkat Bluetooth lain terputus saat musik diputar, pemutaran berlanjut saat perangkat terhubung lagi dalam 30 menit. Lagu yang Anda jeda tetap dijeda. Hanya untuk pemutar bawaan.",
+  "playbackOnHeadphonesConnectedDescription": "Lanjutkan lagu saat earphone kabel atau Bluetooth, atau mobil lewat Bluetooth, terhubung. Pemutaran dijeda saat dilepas.",
+  "playbackResumeOnReconnectDescription": "Jika earphone, mobil, atau perangkat Bluetooth lain terputus saat musik diputar, pemutaran berlanjut saat perangkat terhubung lagi dalam 30 menit. Lagu yang Anda jeda tetap dijeda.",
   "playbackHeadphonesOff": "Mati",
   "playbackHeadphonesAfterDisconnect": "Sambung lagi",
   "playbackHeadphonesAlways": "Selalu",
   "playbackHeadphonesOffDescription": "Menghubungkan earphone atau mobil tidak memulai pemutaran.",
   "playbackHeadphonesChoices": "Mati, setelah terputus, atau setiap kali earphone atau mobil terhubung.",
-  "appearanceCustomFont": "Font kustom",
-  "appearanceCustomFontSubtitle": "Impor file TTF atau OTF (maksimal 10 MB). Menggantikan font tema dan sistem.",
-  "appearanceCustomFontInvalid": "Font tidak dapat dimuat. Pilih file TTF atau OTF yang valid, maksimal 10 MB.",
-  "appearanceCustomFontReset": "Gunakan font tema",
   "equalizerTitle": "Equalizer",
   "equalizerDescription": "5–31 band, kontrol nada, preamp, dan dinamika",
   "equalizerEnable": "Aktifkan equalizer",
@@ -5394,7 +3878,7 @@
   "equalizerSaved": "Preset disimpan",
   "equalizerResetTitle": "Reset equalizer?",
   "equalizerResetDescription": "Kembalikan kurva datar serta pengaturan nada dan dinamika bawaan. Preset tersimpan tetap disimpan.",
-  "equalizerBypass": "Output bit-perfect, Direct USB, dan Hi-Res eksklusif melewati EQ. Nonaktifkan output bit-perfect untuk memakai EQ. Player eksternal mengatur efeknya sendiri.",
+  "equalizerBypass": "Output bit-perfect, Direct USB, dan Hi-Res eksklusif melewati EQ. Nonaktifkan output bit-perfect untuk memakai EQ.",
   "equalizerCurve": "Kurva EQ (perkiraan)",
   "equalizerCurveDescription": "Kurva menunjukkan gain tiap band; respons pastinya bergantung pada mesin output.",
   "equalizerEffectivePreamp": "Gain input setelah headroom",
@@ -5644,10 +4128,6 @@
   "appCrashDismiss": "Tutup",
   "appCrashCopyFailed": "Laporan crash belum bisa disalin. Silakan coba lagi.",
   "appCrashDismissFailed": "Laporan crash belum bisa ditutup. Silakan coba lagi.",
-  "optionsEmbeddedCoverSizeOriginal": "Resolusi asli",
-  "@optionsEmbeddedCoverSizeOriginal": {
-    "description": "Option that preserves the provider artwork at its original resolution"
-  },
   "desktopShortcutTooltip": "{action} ({shortcut})",
   "@desktopShortcutTooltip": {
     "description": "Desktop tooltip that names an action and its keyboard shortcut, for example 'Next track (Ctrl+Right)'",
@@ -5687,10 +4167,6 @@
   "desktopMenuOpen": "Buka",
   "@desktopMenuOpen": {
     "description": "Context menu item that opens an album, artist, playlist or folder"
-  },
-  "desktopMenuShowDetails": "Lihat detail",
-  "@desktopMenuShowDetails": {
-    "description": "Context menu item that opens a track's metadata page"
   },
   "desktopDropToImport": "Lepaskan untuk menambahkan ke perpustakaan",
   "@desktopDropToImport": {
@@ -5775,14 +4251,8 @@
   "@desktopShortcutToggleSidebar": {
     "description": "Keyboard Shortcuts row for the shortcut that collapses or expands the desktop sidebar"
   },
-  "libraryFolders": "Folder",
-  "libraryFolderCount": "{count, plural, =1{1 folder} other{{count} folder}}",
-  "libraryFoldersEmptyTitle": "Belum ada folder",
-  "libraryFoldersEmptyMessage": "Unduh lagu atau tambahkan folder musik di setelan Koleksi Lokal untuk menjelajahinya per folder.",
-  "libraryFolderMissing": "Folder ini tidak ada lagi di Koleksi",
   "libraryFoldersLoadFailed": "Tidak dapat membaca folder",
   "libraryGenres": "Genre",
-  "libraryGenresEmpty": "Genre muncul di sini setelah lagu yang kamu unduh atau pindai memiliki tag genre.",
   "linkPaired": "Terpasang dengan {name}. Musiknya sedang ditambahkan ke Pustaka.",
   "playlistEditOrder": "Ubah urutan",
   "playlistEditOrderDescription": "Seret lagu lewat pegangannya, atau sentuh lama, untuk memindahkannya.",
@@ -5808,5 +4278,32 @@
   "playlistImportFailed": "File playlist ini tidak dapat dibaca",
   "lastfmDescription": "Catat aktivitas mendengarkan dan tampilkan lagu yang diputar di Last.fm.",
   "scrobbleServiceDescription": "Catat aktivitas mendengarkan dan tampilkan lagu yang diputar di {service}.",
-  "offlineSave": "Simpan offline"
+  "offlineSave": "Simpan offline",
+  "explicitLabel": "Explicit",
+  "@explicitLabel": {
+    "description": "Semantics label and chip text for an explicit song marker in a song row"
+  },
+  "libraryFolders": "Folder",
+  "libraryFolderCount": "{count, plural, =1{1 folder} other{{count} folder}}",
+  "libraryFoldersEmptyTitle": "Belum ada folder",
+  "libraryFoldersEmptyMessage": "Unduh lagu atau tambahkan folder musik di setelan Koleksi Lokal untuk menjelajahinya per folder.",
+  "libraryFolderMissing": "Folder ini tidak ada lagi di Koleksi",
+  "collectionAddedToLoved": "\"{trackName}\" ditambahkan ke Disukai",
+  "@collectionAddedToLoved": {
+    "description": "Snackbar after adding track to loved folder",
+    "placeholders": {
+      "trackName": {
+        "type": "String"
+      }
+    }
+  },
+  "collectionRemovedFromLoved": "\"{trackName}\" dihapus dari Disukai",
+  "@collectionRemovedFromLoved": {
+    "description": "Snackbar after removing track from loved folder",
+    "placeholders": {
+      "trackName": {
+        "type": "String"
+      }
+    }
+  }
 }

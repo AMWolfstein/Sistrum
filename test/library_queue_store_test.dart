@@ -90,6 +90,7 @@ void main() {
     String source = 'legacy',
     String album = 'Local',
     String artist = 'Artist',
+    bool explicit = false,
   }) async {
     final file = path ?? '/$id.flac';
     final track = LocalLibraryItem(
@@ -109,6 +110,7 @@ void main() {
       genre: 'Pop',
       releaseDate: '2026',
       hasReplayGain: number == 1,
+      isExplicit: explicit,
     );
     await db.insert('library', LibraryRowMapper.encode(track.toJson()));
     await db.insert('library_path_keys', {'item_id': id, 'path_key': file});
@@ -148,6 +150,29 @@ void main() {
     store = LibraryQueueStore(db, historyFts: false, localFts: false);
   });
   tearDown(() => db.close());
+
+  test(
+    'explicit flag reaches song rows from local and downloaded tracks',
+    () async {
+      await addLocal(
+        'explicit-local',
+        1,
+        path: '/explicit.flac',
+        explicit: true,
+      );
+      await addLocal('clean-local', 2, path: '/clean.flac');
+      await addHistory('downloaded', 'Local', 3);
+      final page = await store.trackPage(const QueueLibraryDbQuery());
+      final explicit = {
+        for (final row in page.rows)
+          (row['item'] as Map)['id']: (row['item'] as Map)['explicit'],
+      };
+      // setUp seeds other rows; check only the three created here.
+      expect(explicit['explicit-local'], isTrue);
+      expect(explicit['clean-local'], isFalse);
+      expect(explicit['downloaded'], isFalse);
+    },
+  );
 
   test(
     'offline originals stay indexed, one row plays locally, removal reveals server',

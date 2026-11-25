@@ -26,7 +26,6 @@ class _Collections extends LibraryCollectionsNotifier {
     addedAt: DateTime.utc(2026),
   );
 
-  void publishWishlist() => state = state.copyWith(wishlist: [_entry]);
   void publishLoved() => state = state.copyWith(loved: [_entry]);
 
   @override

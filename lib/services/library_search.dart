@@ -80,6 +80,8 @@ class LibrarySearchHit {
     this.cover,
     this.samplePath = '',
     this.trackCount = 0,
+    this.album = '',
+    this.explicit = false,
   });
 
   final LibrarySearchKind kind;
@@ -90,6 +92,8 @@ class LibrarySearchHit {
   final String? cover;
   final String samplePath;
   final int trackCount;
+  final String album;
+  final bool explicit;
 
   factory LibrarySearchHit.fromRow(
     LibrarySearchKind kind,
@@ -103,6 +107,8 @@ class LibrarySearchHit {
     cover: row['cover'] as String?,
     samplePath: row['sample_path'] as String? ?? '',
     trackCount: (row['track_count'] as num?)?.toInt() ?? 0,
+    album: row['album'] as String? ?? '',
+    explicit: (row['explicit'] as num?) == 1,
   );
 }
 
@@ -171,7 +177,7 @@ class LibrarySearchStore {
           $alias.album_key, $alias.$title AS title_key,
           $alias.$album AS album_sort, $alias.$artist AS artist_key,
           ${local ? '$alias.cover_path' : '$alias.cover_url'} AS cover,
-          $alias.file_path AS sample_path
+          $alias.file_path AS sample_path, $alias.explicit AS explicit
         FROM $table $alias WHERE ${where.join(' AND ')}
       ''');
     }

@@ -374,12 +374,32 @@ class _LyricPreviewLineState extends ConsumerState<_LyricPreviewLine> {
             position: position,
             advancing: advancing,
             speed: speed,
-            child: WordTimedLyricLine(
-              line: line,
-              initialPosition: position,
-              seekPreview: widget.seekPreview,
-              style: style,
-              maxLines: 1,
+            // The sweep fills the width it is given, so this hidden copy of
+            // the text sizes the row to its words, as a plain line is sized.
+            child: Stack(
+              children: [
+                ExcludeSemantics(
+                  child: Opacity(
+                    opacity: 0,
+                    child: Text(
+                      text,
+                      maxLines: 1,
+                      softWrap: false,
+                      overflow: TextOverflow.ellipsis,
+                      style: style,
+                    ),
+                  ),
+                ),
+                Positioned.fill(
+                  child: WordTimedLyricLine(
+                    line: line,
+                    initialPosition: position,
+                    seekPreview: widget.seekPreview,
+                    style: style,
+                    maxLines: 1,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

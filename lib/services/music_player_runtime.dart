@@ -20,7 +20,6 @@ import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_collections_database.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/listening_statistics.dart';
-import 'package:sistrum/services/lock_screen_lyrics.dart';
 import 'package:sistrum/services/media3_playback_deck.dart';
 import 'package:sistrum/services/media_kit_playback_deck.dart';
 import 'package:sistrum/services/media_library_browser.dart';
@@ -210,8 +209,6 @@ class PlaybackDependencies {
     // MPRIS on Linux and SMTC on Windows; other OSes keep the plugin and
     // send it only the states their sessions cannot advance themselves.
     installDesktopMediaSession();
-    // Under the filter, so lyrics replace the title for the system alone.
-    installLockScreenLyrics();
     installMediaSessionFilter();
     late final MusicPlayerHandler handler;
     await AudioService.init(
@@ -364,24 +361,8 @@ class MusicPlayerRuntime {
       semitones: settings.playbackPitch,
       followsRate: !settings.playbackKeepPitch,
     );
-    configureLockScreenLyrics(enabled: settings.lockScreenLyrics);
     _songAnalysis?.configure(settings);
     _handler?.applySettings(previous);
-    if (previous.playerMode == 'internal' &&
-        settings.playerMode != 'internal') {
-      _restoreFuture = null;
-      final handler = _handler;
-      if (handler != null) {
-        unawaited(
-          handler.stop(keepResume: true).catchError((
-            Object error,
-            StackTrace stack,
-          ) {
-            _log.e('Failed to stop the internal player', error, stack);
-          }),
-        );
-      }
-    }
   }
 
   /// Starts analyzing Library songs in the background, and the song playing
@@ -541,7 +522,6 @@ class MusicPlayerRuntime {
   }
 
   Future<void> restoreSession() {
-    if (_settings.playerMode != 'internal') return Future.value();
     return _restoreFuture ??= restorePlaybackSession(this).then<void>((_) {});
   }
 

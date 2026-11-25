@@ -30,6 +30,23 @@ void main() {
 
     final preferences = await SharedPreferences.getInstance();
     expect(preferences.containsKey('upgrade_intro_sistrum_seen'), isFalse);
-    expect(preferences.getInt('settings_migration_version'), 15);
+    expect(preferences.getInt('settings_migration_version'), 16);
+  });
+
+  test('the removed artist album sort is dropped from version 15', () async {
+    SharedPreferences.setMockInitialValues({
+      'app_settings': jsonEncode(const AppSettings().toJson()),
+      'settings_migration_version': 15,
+      'artist_release_sorts': '{"artist-1":"year-desc"}',
+      'unrelated_preference': 'kept',
+    });
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    await container.read(settingsProvider.notifier).ensureLoaded();
+
+    final preferences = await SharedPreferences.getInstance();
+    expect(preferences.containsKey('artist_release_sorts'), isFalse);
+    expect(preferences.getString('unrelated_preference'), 'kept');
+    expect(preferences.getInt('settings_migration_version'), 16);
   });
 }

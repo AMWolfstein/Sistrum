@@ -186,7 +186,9 @@ List<Widget> desktopDetailHeaderSlivers(
           actionsPadding: const EdgeInsetsDirectional.only(end: 16),
           actions: trailing.isEmpty
               ? null
-              : [MornyeActionCapsule(children: trailing)],
+              : trailing.length > 1
+              ? [MornyeActionCapsule(children: trailing)]
+              : trailing,
         );
       },
     ),

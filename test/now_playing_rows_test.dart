@@ -8,18 +8,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/widgets/album_track_tile.dart';
 import 'package:sistrum/widgets/app_content_card.dart';
 import 'package:sistrum/widgets/decorative_phase.dart';
 import 'package:sistrum/widgets/desktop/track_table.dart';
 import 'package:sistrum/widgets/now_playing_indicator.dart';
-import 'package:sistrum/widgets/song_row_tap.dart';
 import 'package:sistrum/widgets/track_card.dart';
-
-import 'support/tooltip_finder.dart';
-
-/// Long enough for the effect and spatial springs to settle.
-const _settle = Duration(seconds: 1);
 
 Widget _app(
   Widget child, {
@@ -27,11 +20,9 @@ Widget _app(
   String? artUri,
   bool playing = true,
   bool reduceMotion = false,
-  bool? tapPlays,
 }) => ProviderScope(
   overrides: [
     // Without a choice these tests play songs with a tap on the row.
-    librarySongTapPlaysProvider.overrideWithValue(tapPlays ?? true),
     currentMediaItemProvider.overrideWithBuild(
       (ref, notifier) => Stream.value(
         currentId == null
@@ -57,15 +48,6 @@ Widget _app(
     home: Scaffold(body: child),
   ),
 );
-
-/// Pumps in bounded steps: a playing indicator loops, so the tree never
-/// settles.
-Future<void> _pumpFor(WidgetTester tester, Duration duration) async {
-  const step = Duration(milliseconds: 50);
-  for (var elapsed = Duration.zero; elapsed < duration; elapsed += step) {
-    await tester.pump(step);
-  }
-}
 
 ColorScheme _scheme(WidgetTester tester, Finder finder) =>
     Theme.of(tester.element(finder)).colorScheme;
@@ -305,65 +287,5 @@ void main() {
       }
       expect(fill(), target);
     });
-  });
-
-  group('AlbumTrackTile', () {
-    Widget tile({required bool current}) => AlbumTrackTile(
-      trackNumber: 1,
-      trackName: 'Song',
-      subtitle: const Text('Artist'),
-      isSelectionMode: false,
-      isSelected: false,
-      onToggleSelection: () {},
-      onOpen: () {},
-      onEnterSelectionMode: () {},
-      onPlay: () {},
-      isCurrent: current,
-      isPlaying: current,
-    );
-
-    testWidgets('marks the current track in its title colour and offers pause', (
-      tester,
-    ) async {
-      await tester.pumpWidget(_app(tile(current: true), tapPlays: false));
-      await _pumpFor(tester, _settle);
-
-      // Mornye marks the current row by its title colour alone, with no glyph.
-      expect(find.byType(NowPlayingIndicator), findsNothing);
-      expect(
-        _textStyle(tester, 'Song')?.color,
-        _scheme(tester, find.text('Song')).primary,
-      );
-      expect(findByTooltip('Pause'), findsOneWidget);
-      final button = tester.widget<IconButton>(find.byType(IconButton));
-      expect(
-        button.style?.backgroundColor?.resolve(const {}),
-        Colors.transparent,
-      );
-    });
-
-    testWidgets('other tracks show no glyph', (tester) async {
-      await tester.pumpWidget(_app(tile(current: false), tapPlays: false));
-      await tester.pump();
-
-      expect(find.byType(NowPlayingIndicator), findsNothing);
-      expect(findByTooltip('Play'), findsOneWidget);
-    });
-
-    testWidgets(
-      'a tap that plays keeps the current track in its title colour',
-      (tester) async {
-        await tester.pumpWidget(_app(tile(current: true)));
-        await _pumpFor(tester, _settle);
-
-        expect(find.byType(NowPlayingIndicator), findsNothing);
-        expect(
-          _textStyle(tester, 'Song')?.color,
-          _scheme(tester, find.text('Song')).primary,
-        );
-        expect(findByTooltip('Show details'), findsOneWidget);
-        expect(findByTooltip('Pause'), findsNothing);
-      },
-    );
   });
 }

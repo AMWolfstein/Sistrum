@@ -217,7 +217,7 @@ PlayableMedia playableFromLocal(LocalLibraryItem item) {
     sampleRate: item.sampleRate,
     bitrate: item.bitrate,
     format: item.format,
-    explicit: item.explicit,
+    explicit: item.isExplicit,
     genre: item.genre,
   );
 }

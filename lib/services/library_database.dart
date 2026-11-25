@@ -3,7 +3,6 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:sistrum/utils/logger.dart';
 import 'package:sistrum/utils/audio_format_utils.dart';
-import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/services/album_completeness.dart';
 import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/library_queue_store.dart';
@@ -894,87 +893,6 @@ class LibraryDatabase {
     });
   }
 
-  Future<void> replaceWithConvertedItem({
-    required LocalLibraryItem item,
-    required String newFilePath,
-    required String targetFormat,
-    required String bitrate,
-    int? bitDepth,
-    int? sampleRate,
-    bool keepOriginal = false,
-  }) async {
-    final db = await database;
-    final stat = await fileStat(newFilePath);
-    final now = DateTime.now();
-    final normalizedFormat = _normalizeConvertedFormat(targetFormat);
-    final convertedBitrate =
-        _convertedBitrate(targetFormat: targetFormat, bitrate: bitrate) ??
-        estimateAverageBitrateKbps(
-          fileSizeBytes: stat?.size,
-          durationSeconds: item.duration,
-        );
-    final updated = item.toJson()
-      ..['id'] = _generateLibraryId(newFilePath)
-      ..['filePath'] = newFilePath
-      ..['scannedAt'] = now.toIso8601String()
-      ..['fileModTime'] = stat?.modified?.millisecondsSinceEpoch
-      ..['format'] = normalizedFormat
-      ..['bitrate'] = convertedBitrate
-      // Conversion may rewrite gain tags; rescan the resulting file.
-      ..['hasReplayGain'] = false
-      ..['audioMetadataScanVersion'] = 0;
-
-    if (normalizedFormat == 'mp3' ||
-        normalizedFormat == 'opus' ||
-        normalizedFormat == 'aac') {
-      updated['bitDepth'] = null;
-      updated['sampleRate'] = null;
-    } else {
-      updated['bitDepth'] = bitDepth ?? item.bitDepth;
-      updated['sampleRate'] = sampleRate ?? item.sampleRate;
-    }
-
-    await sqlite.transactionWithBusyRetry(db, (txn) async {
-      // A song opened from a list does not carry its folder. Filed under
-      // the default one, the converted file would stay hidden wherever that
-      // folder is gone, so it joins the folder its original is stored in.
-      final stored = await txn.query(
-        'library',
-        columns: ['source_id'],
-        where: 'id = ? OR file_path = ?',
-        whereArgs: [item.id, item.filePath],
-        limit: 1,
-      );
-      if (stored.isNotEmpty) {
-        updated['sourceId'] = stored.first['source_id'];
-      }
-      if (!keepOriginal) {
-        await txn.delete(
-          'library_path_keys',
-          where: 'item_id = ?',
-          whereArgs: [item.id],
-        );
-        await txn.delete(
-          'library',
-          where: 'id = ? OR file_path = ?',
-          whereArgs: [item.id, item.filePath],
-        );
-      }
-      await txn.insert(
-        'library',
-        LibraryRowMapper.encode(updated),
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
-      final batch = txn.batch();
-      _putPathKeysInBatch(
-        batch,
-        updated['id'] as String,
-        updated['filePath'] as String?,
-      );
-      await batch.commit(noResult: true);
-    });
-  }
-
   Future<void> updateAudioMetadata(
     String id, {
     int? duration,
@@ -1173,25 +1091,6 @@ class LibraryDatabase {
       _log.i('Deleted $totalDeleted items from library');
     }
     return totalDeleted;
-  }
-
-  String _normalizeConvertedFormat(String targetFormat) {
-    return normalizeAudioFormatValue(targetFormat) ?? 'mp3';
-  }
-
-  int? _convertedBitrate({
-    required String targetFormat,
-    required String bitrate,
-  }) {
-    switch (targetFormat.trim().toLowerCase()) {
-      case 'mp3':
-      case 'opus':
-      case 'aac':
-        final match = RegExp(r'(\d+)').firstMatch(bitrate);
-        return match != null ? int.tryParse(match.group(1)!) : null;
-      default:
-        return null;
-    }
   }
 
   String _generateLibraryId(String filePath) {

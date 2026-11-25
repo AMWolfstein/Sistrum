@@ -6,6 +6,7 @@ import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/cover_palette.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
@@ -169,6 +170,8 @@ void main() {
           ProviderScope(
             child: MaterialApp(
               theme: MornyeTheme.build(Brightness.light),
+              localizationsDelegates: appLocalizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
               home: MornyeArtistSurface(
                 imageSource: cover.path,
                 neutralActions: true,
@@ -472,6 +475,8 @@ void main() {
             ProviderScope(
               child: MaterialApp(
                 theme: MornyeTheme.build(Brightness.dark),
+                localizationsDelegates: appLocalizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
                 scrollBehavior: const MaterialScrollBehavior().copyWith(
                   physics: const BouncingScrollPhysics(
                     parent: AlwaysScrollableScrollPhysics(),
@@ -573,6 +578,8 @@ void main() {
             ProviderScope(
               child: MaterialApp(
                 theme: MornyeTheme.build(brightness),
+                localizationsDelegates: appLocalizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
                 builder: (context, child) => MediaQuery(
                   data: MediaQuery.of(
                     context,

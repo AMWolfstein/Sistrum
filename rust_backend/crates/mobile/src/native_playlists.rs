@@ -1,8 +1,8 @@
 //! The existing playlist import contract, executed on the native data worker.
 //! CSV remains line-based for compatibility with existing exports/imports.
 use crate::native_library::path_keys::dart_trim as trim;
-use sistrum_core::fs::write_atomic;
 use serde_json::{Value, json};
+use sistrum_core::fs::write_atomic;
 use std::{
     collections::HashMap,
     io::{self, BufWriter, Write},

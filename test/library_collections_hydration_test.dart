@@ -32,9 +32,8 @@ Map<String, dynamic> trackRow(int index) => {
 
 LibraryCollectionsSnapshot collectionFixture(int count) =>
     LibraryCollectionsSnapshot(
-      wishlistRows: List.generate(count, trackRow),
       lovedRows: [
-        trackRow(2),
+        ...List.generate(count, trackRow),
         {'track_key': 'bad', 'track_json': '{'},
       ],
       favoriteArtistRows: [
@@ -87,7 +86,6 @@ void main() {
     await file.writeAsBytes(bytes);
     return hydrateLibraryCollectionsSnapshot(
       LibraryCollectionsSnapshot(
-        wishlistRows: const [],
         lovedRows: const [],
         playlistRows: const [],
         playlistTrackRows: const [],
@@ -102,55 +100,41 @@ void main() {
   String nativeLine(String kind, Map<String, dynamic> row) =>
       jsonEncode({'kind': kind, 'row': row});
 
-  test(
-    'native chunked reader retains interleaved group order across 256-row batches',
-    () async {
-      final directory = await Directory.systemTemp.createTemp(
-        'collection-row-groups-',
-      );
-      final wishlist = List.generate(513, trackRow);
-      final loved = List.generate(3, (index) => trackRow(900 + index));
-      final snapshot = LibraryCollectionsSnapshot(
-        wishlistRows: wishlist,
-        lovedRows: loved,
-        favoriteArtistRows: const [],
-        playlistRows: const [],
-        playlistTrackRows: const [],
-      );
-      final lines = [
-        for (final row in wishlist.take(257)) nativeLine('wishlist', row),
-        nativeLine('loved', loved[0]),
-        for (final row in wishlist.skip(257)) nativeLine('wishlist', row),
-        for (final row in loved.skip(1)) nativeLine('loved', row),
-      ];
-      // Include LF, CRLF and lone CR; the last row intentionally has no newline.
-      final text = StringBuffer();
-      for (var index = 0; index < lines.length; index++) {
-        text.write(lines[index]);
-        if (index + 1 != lines.length) {
-          text.write(['\n', '\r\n', '\r'][index % 3]);
-        }
+  test('native chunked reader keeps row order across 256-row batches', () async {
+    final directory = await Directory.systemTemp.createTemp(
+      'collection-row-groups-',
+    );
+    final loved = List.generate(516, trackRow);
+    final snapshot = LibraryCollectionsSnapshot(
+      lovedRows: loved,
+      favoriteArtistRows: const [],
+      playlistRows: const [],
+      playlistTrackRows: const [],
+    );
+    final lines = [for (final row in loved) nativeLine('loved', row)];
+    // Include LF, CRLF and lone CR; the last row intentionally has no newline.
+    final text = StringBuffer();
+    for (var index = 0; index < lines.length; index++) {
+      text.write(lines[index]);
+      if (index + 1 != lines.length) {
+        text.write(['\n', '\r\n', '\r'][index % 3]);
       }
-      final actual = await nativeBytes(
-        utf8.encode(text.toString()),
-        lines.length,
-        directory,
-      );
-      expect(
-        jsonEncode(actual.toJson()),
-        jsonEncode(decodeLibraryCollectionsSnapshot(snapshot).toJson()),
-      );
-      expect(
-        actual.wishlist.map((entry) => entry.key),
-        wishlist.map((row) => row['track_key']),
-      );
-      expect(
-        actual.loved.map((entry) => entry.key),
-        loved.map((row) => row['track_key']),
-      );
-      expect(await directory.exists(), isFalse);
-    },
-  );
+    }
+    final actual = await nativeBytes(
+      utf8.encode(text.toString()),
+      lines.length,
+      directory,
+    );
+    expect(
+      jsonEncode(actual.toJson()),
+      jsonEncode(decodeLibraryCollectionsSnapshot(snapshot).toJson()),
+    );
+    expect(
+      actual.loved.map((entry) => entry.key),
+      loved.map((row) => row['track_key']),
+    );
+    expect(await directory.exists(), isFalse);
+  });
 
   test(
     'native UTF-8 and CRLF survive exact file chunk boundaries and unterminated tail',
@@ -163,12 +147,12 @@ void main() {
             ..['comment'] = comment,
         ),
       };
-      final initial = nativeLine('wishlist', commentRow(0, '🎵終わり'));
+      final initial = nativeLine('loved', commentRow(0, '🎵終わり'));
       final emojiPrefix = utf8
           .encode(initial.substring(0, initial.indexOf('🎵')))
           .length;
       final unicodeRow = commentRow(0, '${'x' * (65535 - emojiPrefix)}🎵終わり');
-      final unicodeLine = nativeLine('wishlist', unicodeRow);
+      final unicodeLine = nativeLine('loved', unicodeRow);
       final unicodeBytes = utf8.encode(unicodeLine);
       expect(unicodeBytes[65535], 0xf0);
       expect(unicodeBytes[65536], 0x9f);
@@ -177,28 +161,25 @@ void main() {
       );
       final unicode = await nativeBytes(unicodeBytes, 1, unicodeDirectory);
       expect(
-        unicode.wishlist.single.track.comment,
+        unicode.loved.single.track.comment,
         (jsonDecode(unicodeRow['track_json'] as String) as Map)['comment'],
       );
       expect(await unicodeDirectory.exists(), isFalse);
 
-      final unpadded = nativeLine('wishlist', commentRow(1, ''));
+      final unpadded = nativeLine('loved', commentRow(1, ''));
       final crRow = commentRow(1, 'y' * (65535 - utf8.encode(unpadded).length));
-      final crLine = nativeLine('wishlist', crRow);
+      final crLine = nativeLine('loved', crRow);
       final tail = trackRow(2);
-      final crBytes = utf8.encode('$crLine\r\n${nativeLine('wishlist', tail)}');
+      final crBytes = utf8.encode('$crLine\r\n${nativeLine('loved', tail)}');
       expect(crBytes[65535], 13);
       expect(crBytes[65536], 10);
       final crDirectory = await Directory.systemTemp.createTemp(
         'collection-crlf-boundary-',
       );
       final crlf = await nativeBytes(crBytes, 2, crDirectory);
-      expect(crlf.wishlist.map((entry) => entry.key), [
-        'example:1',
-        'example:2',
-      ]);
+      expect(crlf.loved.map((entry) => entry.key), ['example:1', 'example:2']);
       expect(
-        crlf.wishlist.first.track.comment,
+        crlf.loved.first.track.comment,
         'y' * (65535 - utf8.encode(unpadded).length),
       );
       expect(await crDirectory.exists(), isFalse);
@@ -208,16 +189,14 @@ void main() {
   test(
     'native malformed bytes/envelopes and row-count mismatch always remove staging',
     () async {
-      final valid = nativeLine('wishlist', trackRow(1));
+      final valid = nativeLine('loved', trackRow(1));
       final invalid = <({List<int> bytes, int count})>[
         (bytes: [...utf8.encode('$valid\n'), 0xc3, 0x28], count: 2),
         (bytes: utf8.encode('$valid\n{"kind":'), count: 2),
         (bytes: utf8.encode('$valid\n\n'), count: 2),
         (bytes: utf8.encode(nativeLine('unknown', {})), count: 1),
         (
-          bytes: utf8.encode(
-            jsonEncode({'kind': 'wishlist', 'row': <dynamic>[]}),
-          ),
+          bytes: utf8.encode(jsonEncode({'kind': 'loved', 'row': <dynamic>[]})),
           count: 1,
         ),
         (bytes: utf8.encode(valid), count: 0),
@@ -245,8 +224,6 @@ void main() {
       );
       final file = File('${temporary.path}/rows.ndjson');
       final rows = [
-        for (final row in snapshot.wishlistRows)
-          {'kind': 'wishlist', 'row': row},
         for (final row in snapshot.lovedRows) {'kind': 'loved', 'row': row},
         for (final row in snapshot.playlistRows)
           {'kind': 'playlist', 'row': row},
@@ -257,7 +234,6 @@ void main() {
       ];
       await file.writeAsString(rows.map(jsonEncode).join('\n'));
       final native = LibraryCollectionsSnapshot(
-        wishlistRows: const [],
         lovedRows: const [],
         playlistRows: const [],
         playlistTrackRows: const [],
@@ -289,7 +265,6 @@ void main() {
         await expectLater(
           hydrateLibraryCollectionsSnapshot(
             LibraryCollectionsSnapshot(
-              wishlistRows: const [],
               lovedRows: const [],
               playlistRows: const [],
               playlistTrackRows: const [],
@@ -340,7 +315,7 @@ void main() {
     'export worker keeps category/playlist/track order and original snapshot',
     () async {
       final base = decodeLibraryCollectionsSnapshot(collectionFixture(20000));
-      final entries = base.wishlist.take(80).toList();
+      final entries = base.loved.take(80).toList();
       final state = base.copyWith(
         playlists: [
           base.playlists.first.copyWith(
@@ -357,12 +332,12 @@ void main() {
         (_) => ticks++,
       );
       final pending = exportLibraryCollectionsJson(state);
-      final newer = state.copyWith(wishlist: const [], playlists: const []);
+      final newer = state.copyWith(loved: const [], playlists: const []);
       final json = await pending;
       timer.cancel();
       expect(json, expected);
       expect(jsonDecode(json), jsonDecode(expected));
-      expect(newer.wishlistCount, 0);
+      expect(newer.lovedCount, 0);
       expect(ticks, greaterThan(1));
     },
   );
@@ -371,7 +346,7 @@ void main() {
     'JSON fragment worker preserves escaping and small empty categories',
     () async {
       final state = LibraryCollectionsState(
-        wishlist: [
+        loved: [
           CollectionTrackEntry(
             key: 'example:escaped',
             addedAt: DateTime.utc(2026),
@@ -389,7 +364,7 @@ void main() {
       );
       final json = await exportLibraryCollectionsJson(state);
       expect(json, jsonEncode(state.toJson()));
-      expect((jsonDecode(json) as Map)['loved'], isEmpty);
+      expect((jsonDecode(json) as Map)['loved'], hasLength(1));
       expect(
         await exportLibraryCollectionsJson(LibraryCollectionsState()),
         jsonEncode(LibraryCollectionsState().toJson()),
@@ -406,10 +381,9 @@ void main() {
         final actual = await hydrateLibraryCollectionsSnapshot(snapshot);
         expect(jsonEncode(actual.toJson()), jsonEncode(expected.toJson()));
         expect(
-          actual.wishlist.map((entry) => entry.track.id),
+          actual.loved.map((entry) => entry.track.id),
           List.generate(count, (index) => '$index'),
         );
-        expect(actual.loved.map((entry) => entry.key), ['example:2']);
         expect(actual.favoriteArtists.single.addedAt, DateTime.utc(2025, 12));
         expect(actual.containsFavoriteArtistKey('example:artist'), isTrue);
         final playlist = actual.playlistById('playlist')!;
@@ -477,8 +451,8 @@ void main() {
     );
     final loaded = await hydrateLibraryCollectionsSnapshot(snapshot);
     timer.cancel();
-    expect(loaded.wishlistCount, 20000);
-    expect(loaded.containsWishlistKey('example:19999'), isTrue);
+    expect(loaded.lovedCount, 20000);
+    expect(loaded.containsLovedKey('example:19999'), isTrue);
     // The old synchronous parsing path cannot service this timer while parsing.
     expect(ticks, greaterThan(1));
   });
@@ -488,7 +462,6 @@ void main() {
     () async {
       final valid = collectionFixture(80);
       final invalid = LibraryCollectionsSnapshot(
-        wishlistRows: valid.wishlistRows,
         lovedRows: valid.lovedRows,
         favoriteArtistRows: valid.favoriteArtistRows,
         playlistRows: valid.playlistRows,
@@ -501,7 +474,7 @@ void main() {
         throwsA(isA<Error>()),
       );
       final subsequent = await hydrateLibraryCollectionsSnapshot(valid);
-      expect(subsequent.wishlistCount, 80);
+      expect(subsequent.lovedCount, 80);
       expect(subsequent.playlistById('playlist')!.trackCount, 2);
     },
   );

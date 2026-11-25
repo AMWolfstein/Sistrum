@@ -1,7 +1,6 @@
 import 'package:path/path.dart' as p;
 import 'package:sistrum/services/metadata_cover_resources.dart';
 import 'package:sistrum/services/metadata_persistence_service.dart';
-import 'package:sistrum/utils/artist_utils.dart';
 
 /// Writes to the owning source, never to a resolved playback cache or stream.
 Future<void> persistPlayerLyrics(String source, String lyrics) async {
@@ -19,7 +18,6 @@ Future<void> persistPlayerLyrics(String source, String lyrics) async {
       MetadataSaveRequest(
         filePath: localPath,
         metadata: {'lyrics': lyrics},
-        artistTagMode: artistTagModeJoined,
         preserveUnspecifiedTags: true,
       ),
     );

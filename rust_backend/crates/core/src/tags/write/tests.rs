@@ -22,51 +22,6 @@ impl Seek for CountingReader {
     }
 }
 
-/// Shared with the Dart and Kotlin primary-artist tests; keep in sync.
-#[test]
-fn split_artist_credits_recognize_variants_without_splitting_band_words() {
-    assert_eq!(
-        split_artists("One Featured Two; Three"),
-        vec!["One", "Two", "Three"]
-    );
-    assert_eq!(split_artists("One feature Two"), vec!["One", "Two"]);
-    assert_eq!(
-        split_artists("Florence and the Machine"),
-        vec!["Florence and the Machine"]
-    );
-    assert_eq!(
-        split_artists("Artist Without Fear"),
-        vec!["Artist Without Fear"]
-    );
-}
-
-#[test]
-fn primary_artist_uses_the_shared_separator_set() {
-    for (input, expected) in [
-        ("Calle 24, Chino Pacas", "Calle 24"),
-        ("Calle 24 & Chino Pacas", "Calle 24"),
-        ("Artist A; Artist B", "Artist A"),
-        ("Artist A feat. Artist B", "Artist A"),
-        ("Artist A Feat Artist B", "Artist A"),
-        ("Artist A ft. Artist B", "Artist A"),
-        ("Artist A featuring Artist B", "Artist A"),
-        ("Artist A featured Artist B", "Artist A"),
-        ("Artist A feature Artist B", "Artist A"),
-        ("Artist A with Artist B", "Artist A"),
-        ("Artist A x Artist B", "Artist A"),
-        ("Artist A X Artist B", "Artist A"),
-        (" , Artist A, Artist B", "Artist A"),
-        ("Malcolm X", "Malcolm X"),
-        ("Artist Without Fear", "Artist Without Fear"),
-        ("Maxx", "Maxx"),
-        ("AC/DC", "AC/DC"),
-        ("  Various Artists  ", "Various Artists"),
-        ("", ""),
-    ] {
-        assert_eq!(primary_artist(input), expected, "{input:?}");
-    }
-}
-
 fn editable_flac() -> (Vec<u8>, usize, Fields) {
     let mut comments = Vec::new();
     put_string(&mut comments, b"Sistrum");
@@ -202,7 +157,6 @@ fn flac_downloads_write_totals_in_their_own_comments() {
         &mut Cursor::new(&input),
         &mut output,
         &fields,
-        "",
         None,
         &|| Ok(()),
     )
@@ -230,7 +184,6 @@ fn flac_downloads_write_totals_in_their_own_comments() {
         &mut Cursor::new(&input),
         &mut output,
         &fields,
-        "",
         None,
         &|| Ok(()),
     )
@@ -352,7 +305,6 @@ fn id3_prefixed_flac_writers_preserve_prefix_audio_and_unedited_metadata() {
                                 &mut source,
                                 &mut output,
                                 &canonical,
-                                "",
                                 cover,
                                 &|| Ok(()),
                             )
@@ -530,14 +482,9 @@ fn replacement_flac_artwork_preserves_other_blocks_and_audio() {
         let rewrite = |data: &[u8], cover| {
             let mut output = Vec::new();
             if embed {
-                embed_flac_metadata(
-                    &mut Cursor::new(data),
-                    &mut output,
-                    &fields,
-                    "",
-                    cover,
-                    &|| Ok(()),
-                )
+                embed_flac_metadata(&mut Cursor::new(data), &mut output, &fields, cover, &|| {
+                    Ok(())
+                })
                 .unwrap();
             } else {
                 rewrite_audio_tags(

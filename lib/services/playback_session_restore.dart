@@ -67,7 +67,13 @@ Future<PlaybackResumePreview?> resumePreviewForLibrary(
 /// Resolve a saved queue in bounded groups, retaining its original order even
 /// when later file checks finish first. File existence is shared across tracks
 /// with the same artwork for this restore only, with a bounded LRU cache.
-Future<({List<PlayableMedia> items, List<int> keptOriginalIndices, bool artworkRelocated})>
+Future<
+  ({
+    List<PlayableMedia> items,
+    List<int> keptOriginalIndices,
+    bool artworkRelocated,
+  })
+>
 prepareRestoredPlaybackMedia(
   List<Object?> rawMedia, {
   String? iosDocumentsPath,
@@ -163,7 +169,6 @@ Future<bool> restorePlaybackSession(
   bool fromResume = false,
   int? expectedPlaybackGeneration,
 }) async {
-  if (runtime.settings.playerMode != 'internal') return false;
   try {
     final database = runtime.dependencies.sessionDatabase;
     final session = fromResume
@@ -223,11 +228,9 @@ Future<bool> restorePlaybackSession(
       position = Duration.zero;
     }
 
-    if (runtime.settings.playerMode != 'internal') return false;
     final handler = await runtime.initialize();
-    if (runtime.settings.playerMode != 'internal' ||
-        expectedPlaybackGeneration != null &&
-            handler.playbackRequestGeneration != expectedPlaybackGeneration) {
+    if (expectedPlaybackGeneration != null &&
+        handler.playbackRequestGeneration != expectedPlaybackGeneration) {
       return false;
     }
     await handler.restoreSession(

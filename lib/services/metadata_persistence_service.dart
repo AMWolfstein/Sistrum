@@ -4,16 +4,8 @@ import 'package:sistrum/services/ffmpeg_metadata.dart';
 import 'package:sistrum/services/metadata_cover_resources.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/services/source_metadata_events.dart';
-import 'package:sistrum/utils/artist_utils.dart';
 
-enum MetadataSaveFailure {
-  backend,
-  ffmpeg,
-  storage,
-  noCover,
-  resize,
-  unexpected,
-}
+enum MetadataSaveFailure { backend, ffmpeg, storage, unexpected }
 
 class MetadataSaveResult {
   final MetadataSaveFailure? failure;
@@ -29,19 +21,15 @@ class MetadataSaveResult {
 class MetadataSaveRequest {
   final String filePath;
   final Map<String, String> metadata;
-  final String artistTagMode;
   final String? selectedCoverPath;
   final String? currentCoverPath;
-  final int? coverMaxDimension;
   final bool preserveUnspecifiedTags;
 
   MetadataSaveRequest({
     required this.filePath,
     required Map<String, String> metadata,
-    required this.artistTagMode,
     this.selectedCoverPath,
     this.currentCoverPath,
-    this.coverMaxDimension,
     this.preserveUnspecifiedTags = false,
   }) : metadata = Map.unmodifiable(metadata);
 }
@@ -54,7 +42,6 @@ typedef MetadataEmbed =
       String path,
       String? coverPath,
       Map<String, String> metadata,
-      String artistTagMode,
     );
 
 /// Writes tags without widget state, and owns resources until every writer ends.
@@ -89,30 +76,11 @@ class MetadataPersistenceService {
   }
 
   Future<MetadataSaveResult> _saveLocal(MetadataSaveRequest request) async {
-    String? resizedCoverDir;
     String? extractedCoverDir;
     String? stagedPath;
     try {
-      var coverPath = request.selectedCoverPath;
-      if (request.coverMaxDimension case final dimension?) {
-        final source = coverPath ?? request.currentCoverPath;
-        if (source == null || source.trim().isEmpty) {
-          return const MetadataSaveResult.failed(MetadataSaveFailure.noCover);
-        }
-        try {
-          final resized = await covers.resize(source, dimension);
-          resizedCoverDir = resized.tempDir;
-          coverPath = resized.path;
-        } catch (error) {
-          return MetadataSaveResult.failed(MetadataSaveFailure.resize, error);
-        }
-      }
-
-      final metadata = {
-        ...request.metadata,
-        'artist_tag_mode': request.artistTagMode,
-        'cover_path': coverPath ?? '',
-      };
+      final coverPath = request.selectedCoverPath;
+      final metadata = {...request.metadata, 'cover_path': coverPath ?? ''};
       final result = await edit(request.filePath, metadata);
       stagedPath = result['temp_path'] as String?;
       if (result['error'] case final error?) {
@@ -154,15 +122,7 @@ class MetadataPersistenceService {
       final codec = _codec(request.filePath);
       final output = codec == null
           ? null
-          : await embed(
-              codec,
-              target,
-              existingCover,
-              tags,
-              codec == MetadataSaveCodec.opus
-                  ? request.artistTagMode
-                  : artistTagModeJoined,
-            );
+          : await embed(codec, target, existingCover, tags);
       if (output == null) {
         return const MetadataSaveResult.failed(MetadataSaveFailure.ffmpeg);
       }
@@ -183,7 +143,6 @@ class MetadataPersistenceService {
         } catch (_) {}
       }
       await covers.release(extractedCoverDir);
-      await covers.release(resizedCoverDir);
     }
   }
 
@@ -245,7 +204,6 @@ class MetadataPersistenceService {
     String path,
     String? coverPath,
     Map<String, String> metadata,
-    String artistTagMode,
   ) => switch (codec) {
     MetadataSaveCodec.mp3 => FFmpegMetadata.embedMetadataToMp3(
       mp3Path: path,
@@ -263,7 +221,6 @@ class MetadataPersistenceService {
       opusPath: path,
       coverPath: coverPath,
       metadata: metadata,
-      artistTagMode: artistTagMode,
       preserveMetadata: true,
     ),
   };

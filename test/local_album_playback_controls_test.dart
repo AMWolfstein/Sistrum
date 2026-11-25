@@ -13,8 +13,7 @@ import 'package:sistrum/screens/local_album_screen.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
-import 'package:sistrum/widgets/album_track_tile.dart';
-import 'package:sistrum/widgets/song_row_tap.dart';
+import 'package:sistrum/widgets/track_card.dart';
 
 import 'support/app_icon_finder.dart';
 import 'support/tooltip_finder.dart';
@@ -62,14 +61,19 @@ class _Playback extends PlaybackController {
 
 /// The current row's equalizer glyph loops while playing, so this settles
 /// with bounded pumps instead of waiting for an idle frame.
+/// Settles frames and lets real time pass, since a play checks the file
+/// through the platform channel before it starts.
 Future<void> _settle(WidgetTester tester) async {
   for (var i = 0; i < 20; i++) {
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 5)),
+    );
     await tester.pump(const Duration(milliseconds: 50));
   }
 }
 
 void main() {
-  for (final tapPlays in [false, true]) {
+  for (final tapPlays in [true]) {
     testWidgets(
       'local album controls pause and resume without restarting '
       '(tapPlays: $tapPlays)',
@@ -78,8 +82,7 @@ void main() {
   }
 }
 
-/// With [tapPlays] the row tap does what the row's Play button does
-/// otherwise, and the row shows a details button instead of a play glyph.
+/// With [tapPlays] the row tap does what the row's play circle does.
 Future<void> _pauseAndResume(
   WidgetTester tester, {
   required bool tapPlays,
@@ -127,7 +130,6 @@ Future<void> _pauseAndResume(
         ),
         musicPlayerControllerProvider.overrideWithValue(player),
         playbackProvider.overrideWith(() => playback),
-        librarySongTapPlaysProvider.overrideWithValue(tapPlays),
       ],
       child: MaterialApp(
         theme: MornyeTheme.build(Brightness.light),
@@ -147,18 +149,14 @@ Future<void> _pauseAndResume(
   await _settle(tester);
   final header = find.byType(AlbumPlayActions);
   Finder row(int number) => find.byWidgetPredicate(
-    (widget) => widget is AlbumTrackTile && widget.trackName == 'Song $number',
+    (widget) => widget is TrackCard && widget.title == 'Song $number',
   );
   Finder rowButton(int number) => tapPlays
       ? find.text('Song $number')
       : find.descendant(of: row(number), matching: find.byType(IconButton));
-  final rowGlyph = tapPlays ? findsNothing : findsOneWidget;
-  expect(
-    findByTooltip('Show details'),
-    tapPlays ? findsNWidgets(2) : findsNothing,
-  );
+  // Every row keeps its play circle, which names the action in its tooltip.
+  const rowGlyph = findsOneWidget;
   const pauseIcon = CupertinoIcons.pause_fill;
-  const playIcon = CupertinoIcons.play_fill;
 
   await tester.tap(find.descendant(of: header, matching: find.text('Play')));
   await _settle(tester);
@@ -172,11 +170,11 @@ Future<void> _pauseAndResume(
     findsOneWidget,
   );
   expect(
-    find.descendant(of: row(1), matching: findAppIcon(pauseIcon)),
+    find.descendant(of: row(1), matching: findByTooltip('Pause')),
     rowGlyph,
   );
   expect(
-    find.descendant(of: row(2), matching: findAppIcon(playIcon)),
+    find.descendant(of: row(2), matching: findByTooltip('Play')),
     rowGlyph,
   );
 
@@ -207,11 +205,11 @@ Future<void> _pauseAndResume(
   await _settle(tester);
   expect(playback._started, ['1', '2']);
   expect(
-    find.descendant(of: row(1), matching: findAppIcon(playIcon)),
+    find.descendant(of: row(1), matching: findByTooltip('Play')),
     rowGlyph,
   );
   expect(
-    find.descendant(of: row(2), matching: findAppIcon(pauseIcon)),
+    find.descendant(of: row(2), matching: findByTooltip('Pause')),
     rowGlyph,
   );
   await tester.tap(rowButton(2));
@@ -224,7 +222,7 @@ Future<void> _pauseAndResume(
   emitPlaying(true);
   await _settle(tester);
   expect(
-    find.descendant(of: row(1), matching: findAppIcon(pauseIcon)),
+    find.descendant(of: row(1), matching: findByTooltip('Pause')),
     rowGlyph,
   );
   await tester.tap(rowButton(1));

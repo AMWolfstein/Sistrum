@@ -1,9 +1,6 @@
 {
   "linkFileReading": "Reading tags...",
-  "trackBpm": "BPM",
-  "trackMood": "분위기",
   "settingsPlaybackSubtitle": "플레이어, 볼륨, AutoMix, 및 오디오 출력",
-  "sectionPlayer": "플레이어",
   "sectionVolumeAndTransitions": "볼륨 및 전환",
   "sectionAudioOutput": "오디오 출력",
   "usbBitPerfect": "Hi-res 및 bit-perfect 오디오",
@@ -81,8 +78,6 @@
       }
     }
   },
-  "appearanceUseSystemFont": "시스템 글꼴 사용",
-  "appearanceUseSystemFontSubtitle": "앱 텍스트에 기기 기본 글꼴을 사용합니다",
   "@@locale": "ko",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
@@ -117,42 +112,8 @@
   "@historyFilterAll": {
     "description": "Filter chip - show all items"
   },
-  "historyFilterAlbums": "앨범",
-  "@historyFilterAlbums": {
-    "description": "Filter chip - show albums only"
-  },
-  "historyFilterSingles": "싱글",
-  "@historyFilterSingles": {
-    "description": "Filter chip - show singles only"
-  },
-  "libraryRecentlyAdded": "최근 추가됨",
   "librarySearchHint": "라이브러리 검색",
   "libraryEmptyCollection": "음악이 여기에 표시됩니다",
-  "libraryFolders": "Folders",
-  "@libraryFolders": {
-    "description": "Library view that browses downloaded and scanned songs by the folders their files are in"
-  },
-  "libraryFolderCount": "{count, plural, =1{1 folder} other{{count} folders}}",
-  "@libraryFolderCount": {
-    "description": "Number of folders inside a Library folder",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "libraryFoldersEmptyTitle": "아직 폴더가 없습니다",
-  "@libraryFoldersEmptyTitle": {
-    "description": "Title of the Folders view when the Library has no songs"
-  },
-  "libraryFoldersEmptyMessage": "Download songs or add a music folder in Local Library settings to browse them by folder.",
-  "@libraryFoldersEmptyMessage": {
-    "description": "Next step shown in the empty Folders view"
-  },
-  "libraryFolderMissing": "This folder is no longer in your Library",
-  "@libraryFolderMissing": {
-    "description": "Shown on an open folder page after its songs were deleted or moved"
-  },
   "libraryFoldersLoadFailed": "폴더를 읽을 수 없습니다",
   "@libraryFoldersLoadFailed": {
     "description": "Shown when the Folders view fails to load"
@@ -173,22 +134,6 @@
   "@downloadAskQualitySubtitle": {
     "description": "Subtitle for ask quality toggle"
   },
-  "downloadFilenameFormat": "파일 이름 형식",
-  "@downloadFilenameFormat": {
-    "description": "Setting for output filename pattern"
-  },
-  "downloadSingleFilenameFormat": "싱글 파일 이름 형식",
-  "@downloadSingleFilenameFormat": {
-    "description": "Setting for output filename pattern for singles/EPs"
-  },
-  "downloadFolderOrganization": "폴더 분류 형식",
-  "@downloadFolderOrganization": {
-    "description": "Title of the folder organization picker bottom sheet"
-  },
-  "downloadFolderTemplate": "사용자 정의 폴더 구조",
-  "@downloadFolderTemplate": {
-    "description": "Setting for editing a relative download folder template"
-  },
   "appearanceTitle": "디자인",
   "@appearanceTitle": {
     "description": "Appearance settings page title"
@@ -204,10 +149,6 @@
   "appearanceThemeDark": "어두운",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceHistoryView": "기록 정렬 방식",
-  "@appearanceHistoryView": {
-    "description": "Layout style for history"
   },
   "appearanceHistoryViewList": "리스트",
   "@appearanceHistoryViewList": {
@@ -248,18 +189,6 @@
   "optionsEmbedLyricsSubtitle": "다운로드된 트랙과 함께 동기화된 가사를 저장합니다",
   "@optionsEmbedLyricsSubtitle": {
     "description": "Subtitle for embed lyrics"
-  },
-  "optionsReplayGain": "리플레이게인",
-  "@optionsReplayGain": {
-    "description": "Title for ReplayGain setting toggle"
-  },
-  "optionsReplayGainSubtitleOn": "음량 및 삽입된 리플레이게인 태그 스캔 (EBU R128)",
-  "@optionsReplayGainSubtitleOn": {
-    "description": "Subtitle when ReplayGain is enabled"
-  },
-  "optionsReplayGainSubtitleOff": "비활성화됨: 음량 정규화 태그 없음",
-  "@optionsReplayGainSubtitleOff": {
-    "description": "Subtitle when ReplayGain is disabled"
   },
   "trackReplayGain": "리플레이게인 다시 스캔",
   "@trackReplayGain": {
@@ -348,87 +277,6 @@
       }
     }
   },
-  "optionsArtistTagMode": "아티스트 태그 모드",
-  "metadataSeparators": "메타데이터 구분 기호",
-  "metadataSeparatorsDescription": "향후 다운로드에서 쉼표 또는 세미콜론으로 구분된 값을 어떻게 결합할지 선택합니다. 사용자 정의 아티스트 구분자는 결합된 태그를 사용하며, '주요 아티스트만' 설정은 계속 적용됩니다. & 또는 /가 포함된 이름은 그대로 유지됩니다",
-  "metadataSeparatorSource": "소스 서식 유지",
-  "metadataSeparatorComma": "콤마 (,)",
-  "metadataSeparatorSemicolon": "세미콜론 (;)",
-  "metadataSeparatorSlash": "슬래시 (/)",
-  "metadataSeparatorCustom": "사용자 정의 구분 기호",
-  "metadataSeparatorPreview": "미리보기",
-  "metadataSeparatorInvalid": "줄 바꿈이나 제어 문자 없이 1~16자를 사용하세요",
-  "@optionsArtistTagMode": {
-    "description": "Setting title for how artist metadata is written into files"
-  },
-  "optionsArtistTagModeDescription": "여러 아티스트를 삽입된 태그에 작성하는 방법을 선택하세요",
-  "@optionsArtistTagModeDescription": {
-    "description": "Bottom-sheet description for artist tag mode setting"
-  },
-  "optionsArtistTagModeJoined": "단일 결합 값",
-  "@optionsArtistTagModeJoined": {
-    "description": "Artist tag mode option that joins multiple artists into one value"
-  },
-  "optionsArtistTagModeJoinedSubtitle": "플레이어 호환성을 최대화하려면 '아티스트 A, 아티스트 B'와 같이 하나의 아티스트 값을 입력하세요",
-  "@optionsArtistTagModeJoinedSubtitle": {
-    "description": "Subtitle for joined artist tag mode"
-  },
-  "optionsArtistTagModeSplitVorbis": "FLAC/Opus용 태그 분할",
-  "@optionsArtistTagModeSplitVorbis": {
-    "description": "Artist tag mode option that writes repeated ARTIST tags for Vorbis formats"
-  },
-  "optionsArtistTagModeSplitVorbisSubtitle": "FLAC 및 Opus의 경우 아티스트당 하나의 아티스트 태그를 작성하세요. MP3 및 M4A는 병합된 상태로 유지됩니다",
-  "@optionsArtistTagModeSplitVorbisSubtitle": {
-    "description": "Subtitle for split Vorbis artist tag mode"
-  },
-  "optionsArtistTagModePrimary": "주요 아티스트만",
-  "@optionsArtistTagModePrimary": {
-    "description": "Artist tag mode option that writes only the first credited artist"
-  },
-  "optionsArtistTagModePrimarySubtitle": "모든 형식에서 아티스트 및 앨범 아티스트 필드에 '아티스트 A'와 같은 첫 번째 아티스트만 입력하여, 플레이어에 하나의 아티스트만 표시되도록 합니다",
-  "@optionsArtistTagModePrimarySubtitle": {
-    "description": "Subtitle for the primary-artist tag mode. Applies when downloading and re-enriching; manual edits keep what the user typed."
-  },
-  "optionsExtensionStore": "확장 기능 레포",
-  "@optionsExtensionStore": {
-    "description": "Show/hide repo tab"
-  },
-  "optionsExtensionStoreSubtitle": "하단바에서 레포 탭 표시",
-  "@optionsExtensionStoreSubtitle": {
-    "description": "Subtitle for extension repo toggle"
-  },
-  "optionsCheckUpdates": "업데이트 확인",
-  "@optionsCheckUpdates": {
-    "description": "Auto update check toggle"
-  },
-  "optionsCheckUpdatesSubtitle": "새 버전이 출시되면 알림",
-  "@optionsCheckUpdatesSubtitle": {
-    "description": "Subtitle for update check"
-  },
-  "optionsUpdateChannel": "업데이트 채널",
-  "@optionsUpdateChannel": {
-    "description": "Stable vs preview releases"
-  },
-  "optionsClearHistory": "다운로드 기록 지우기",
-  "@optionsClearHistory": {
-    "description": "Delete all download history"
-  },
-  "optionsClearHistorySubtitle": "기록에서 모든 다운로드된 트랙을 제거합니다",
-  "@optionsClearHistorySubtitle": {
-    "description": "Subtitle for clear history"
-  },
-  "optionsDetailedLogging": "상세 로깅",
-  "@optionsDetailedLogging": {
-    "description": "Enable verbose logs for debugging"
-  },
-  "optionsDetailedLoggingOn": "상세한 로그가 기록되고 있습니다",
-  "@optionsDetailedLoggingOn": {
-    "description": "Status when logging enabled"
-  },
-  "optionsDetailedLoggingOff": "버그 보고서 활성화",
-  "@optionsDetailedLoggingOff": {
-    "description": "Status when logging disabled"
-  },
   "extensionsDisabled": "비활성화됨",
   "@extensionsDisabled": {
     "description": "Extension status - inactive"
@@ -436,26 +284,6 @@
   "aboutTitle": "정보",
   "@aboutTitle": {
     "description": "About page title"
-  },
-  "aboutContributors": "개발에 힘써주신 분들",
-  "@aboutContributors": {
-    "description": "Section for contributors"
-  },
-  "aboutMobileDeveloper": "모바일 버전 개발자",
-  "@aboutMobileDeveloper": {
-    "description": "Role description for mobile dev"
-  },
-  "aboutLogoArtist": "아름다운 로고를 만들어주신 재능 있는 아티스트!",
-  "@aboutLogoArtist": {
-    "description": "Role description for logo artist"
-  },
-  "aboutTranslators": "번역에 도움주신 분들",
-  "@aboutTranslators": {
-    "description": "Section for translators"
-  },
-  "aboutSpecialThanks": "특별히 감사드리는 분들",
-  "@aboutSpecialThanks": {
-    "description": "Section for special thanks"
   },
   "aboutApp": "앱 정보",
   "@aboutApp": {
@@ -465,21 +293,9 @@
   "@aboutVersion": {
     "description": "Version info label"
   },
-  "aboutBinimumDesc": "QQDL 및 HiFi API 개발자입니다. 이 프로젝트는 무손실 다운로드 지원을 형성하는 데 도움을 주셨습니다",
-  "@aboutBinimumDesc": {
-    "description": "Credit description for binimum"
-  },
-  "aboutSachinsenalDesc": "HiFi 프로젝트의 원작자이자, 무손실 음원 소스 연동 기능의 토대를 구축한 개발자입니다",
-  "@aboutSachinsenalDesc": {
-    "description": "Credit description for sachinsenal0x64"
-  },
   "aboutAppDescription": "음악 메타데이터를 검색하고, 확장 기능을 관리하고, 라이브러리를 정리하세요",
   "@aboutAppDescription": {
     "description": "App description in header card"
-  },
-  "trackMetadataService": "제공자",
-  "@trackMetadataService": {
-    "description": "Metadata field - download service used"
   },
   "trackMetadataPlay": "재생",
   "@trackMetadataPlay": {
@@ -984,14 +800,6 @@
       }
     }
   },
-  "sectionDownload": "다운로드",
-  "@sectionDownload": {
-    "description": "Settings section header"
-  },
-  "sectionDebug": "디버그",
-  "@sectionDebug": {
-    "description": "Settings section header"
-  },
   "sectionService": "서비스",
   "@sectionService": {
     "description": "Settings section header"
@@ -1075,9 +883,9 @@
       }
     }
   },
-  "trackCopyFilePath": "파일 경로 복사",
-  "@trackCopyFilePath": {
-    "description": "Action - copy file path"
+  "trackAudioQualityAnalysis": "Audio quality analysis",
+  "@trackAudioQualityAnalysis": {
+    "description": "Action - opens the audio quality analysis of the song"
   },
   "trackRemoveFromDevice": "기기에서 제거",
   "@trackRemoveFromDevice": {
@@ -1087,33 +895,13 @@
   "@trackMetadata": {
     "description": "Tab title - track metadata"
   },
-  "trackFileInfo": "파일 정보",
-  "@trackFileInfo": {
-    "description": "Tab title - file information"
-  },
   "trackLyrics": "가사",
   "@trackLyrics": {
     "description": "Tab title - lyrics"
   },
-  "trackFileNotFound": "파일을 찾을 수 없음",
-  "@trackFileNotFound": {
-    "description": "Error - file doesn't exist"
-  },
-  "trackFileUnavailable": "파일을 현재 사용할 수 없습니다. 저장소 접근 권한을 확인하고 다시 시도하세요",
-  "@trackFileUnavailable": {
-    "description": "File access failed; this does not mean the file was deleted"
-  },
-  "trackTrackName": "트랙 제목",
-  "@trackTrackName": {
-    "description": "Metadata label - track title"
-  },
   "trackArtist": "아티스트",
   "@trackArtist": {
     "description": "Metadata label - artist name"
-  },
-  "trackAlbumArtist": "앨범 아티스트",
-  "@trackAlbumArtist": {
-    "description": "Metadata label - album artist"
   },
   "trackAlbum": "앨범",
   "@trackAlbum": {
@@ -1123,90 +911,9 @@
   "@trackTrackNumber": {
     "description": "Metadata label - track number"
   },
-  "trackDiscNumber": "디스크 번호",
-  "@trackDiscNumber": {
-    "description": "Metadata label - disc number"
-  },
   "trackDuration": "재생시간",
   "@trackDuration": {
     "description": "Metadata label - track length"
-  },
-  "trackAudioQuality": "오디오 음질",
-  "@trackAudioQuality": {
-    "description": "Metadata label - audio quality"
-  },
-  "trackReplayGainTrackGain": "리플레이게인 트랙 게인",
-  "@trackReplayGainTrackGain": {
-    "description": "Metadata label - ReplayGain track gain"
-  },
-  "trackReplayGainTrackPeak": "리플레이게인 트랙 피크",
-  "@trackReplayGainTrackPeak": {
-    "description": "Metadata label - ReplayGain track peak"
-  },
-  "trackReplayGainAlbumGain": "리플레이게인 앨범 게인",
-  "@trackReplayGainAlbumGain": {
-    "description": "Metadata label - ReplayGain album gain"
-  },
-  "trackReplayGainAlbumPeak": "리플레이게인 앨범 피크",
-  "@trackReplayGainAlbumPeak": {
-    "description": "Metadata label - ReplayGain album peak"
-  },
-  "libraryQualityLabelFileFormat": "파일 형식",
-  "@libraryQualityLabelFileFormat": {
-    "description": "Library audio quality label mode that shows the detected file format"
-  },
-  "trackReleaseDate": "발매일자",
-  "@trackReleaseDate": {
-    "description": "Metadata label - release date"
-  },
-  "trackGenre": "장르",
-  "@trackGenre": {
-    "description": "Metadata label - music genre"
-  },
-  "trackLabel": "레이블",
-  "@trackLabel": {
-    "description": "Metadata label - record label"
-  },
-  "trackCopyright": "저작권",
-  "@trackCopyright": {
-    "description": "Metadata label - copyright information"
-  },
-  "trackDownloaded": "다운로드됨",
-  "@trackDownloaded": {
-    "description": "Metadata label - download date"
-  },
-  "trackCopyLyrics": "가사 복사",
-  "@trackCopyLyrics": {
-    "description": "Action - copy lyrics to clipboard"
-  },
-  "trackLyricsSource": "출처: {source}",
-  "@trackLyricsSource": {
-    "description": "Label showing the lyrics source/provider",
-    "placeholders": {
-      "source": {
-        "type": "String"
-      }
-    }
-  },
-  "trackLyricsNotInFile": "이 파일에서 가사를 찾을 수 없음",
-  "@trackLyricsNotInFile": {
-    "description": "Message when no embedded lyrics in audio file"
-  },
-  "trackEmbedLyrics": "가사 삽입",
-  "@trackEmbedLyrics": {
-    "description": "Action - embed lyrics into audio file"
-  },
-  "trackLyricsEmbedded": "가사 삽입 성공",
-  "@trackLyricsEmbedded": {
-    "description": "Snackbar - lyrics saved to file"
-  },
-  "trackInstrumental": "반주 트랙",
-  "@trackInstrumental": {
-    "description": "Message when track is instrumental (no lyrics)"
-  },
-  "trackCopiedToClipboard": "클립보드에 복사됨",
-  "@trackCopiedToClipboard": {
-    "description": "Snackbar - content copied"
   },
   "trackDeleteConfirmTitle": "기기에서 제거하시겠습니까?",
   "@trackDeleteConfirmTitle": {
@@ -1241,45 +948,9 @@
   "@downloadLossyFormat": {
     "description": "Setting title to pick output format for lossy downloads"
   },
-  "downloadAutoConvert": "다운로드 후 자동 변환",
-  "@downloadAutoConvert": {
-    "description": "Toggle for automatic post-download audio conversion"
-  },
-  "downloadAutoConvertSubtitle": "다운로드가 완료되면 더 작은 손실 압축 형식으로 변환합니다. 원본은 변환이 성공한 후에만 교체됩니다",
-  "@downloadAutoConvertSubtitle": {
-    "description": "Explanation of safe automatic post-download conversion"
-  },
   "downloadAskBeforeDownload": "다운로드 전 확인",
   "@downloadAskBeforeDownload": {
     "description": "Setting - show quality picker"
-  },
-  "downloadDirectory": "다운로드 디렉토리",
-  "@downloadDirectory": {
-    "description": "Setting - download folder"
-  },
-  "downloadSeparateSinglesFolder": "싱글 폴더 별도 다운로드",
-  "@downloadSeparateSinglesFolder": {
-    "description": "Setting - separate folder for singles"
-  },
-  "downloadAlbumFolderStructure": "앨범 폴더 구조",
-  "@downloadAlbumFolderStructure": {
-    "description": "Setting - album folder organization"
-  },
-  "downloadUseAlbumArtistForFolders": "폴더에 앨범 아티스트 사용",
-  "@downloadUseAlbumArtistForFolders": {
-    "description": "Setting - choose whether artist folders use Album Artist or Track Artist"
-  },
-  "downloadUsePrimaryArtistOnly": "폴더에 기본 아티스트만 사용",
-  "@downloadUsePrimaryArtistOnly": {
-    "description": "Setting - strip featured artists from folder name"
-  },
-  "appearanceHeroAnimations": "히어로 애니메이션",
-  "@appearanceHeroAnimations": {
-    "description": "Toggle for shared-element (Hero) transitions"
-  },
-  "appearanceHeroAnimationsSubtitle": "화면 간 이동 시 앨범 커버가 날아가는 애니메이션을 표시합니다 (예시: 플레이어를 실행할 경우)",
-  "@appearanceHeroAnimationsSubtitle": {
-    "description": "Subtitle for the Hero animations toggle"
   },
   "appearanceForceBlur": "항상 블러 효과 사용",
   "@appearanceForceBlur": {
@@ -1344,34 +1015,6 @@
         "example": "1"
       }
     }
-  },
-  "sectionStorageAccess": "저장소 접근",
-  "@sectionStorageAccess": {
-    "description": "Section header for storage access settings"
-  },
-  "allFilesAccess": "모든 파일 접근",
-  "@allFilesAccess": {
-    "description": "Toggle for MANAGE_EXTERNAL_STORAGE permission"
-  },
-  "allFilesAccessEnabledSubtitle": "모든 폴더에 쓰기 가능",
-  "@allFilesAccessEnabledSubtitle": {
-    "description": "Subtitle when all files access is enabled"
-  },
-  "allFilesAccessDisabledSubtitle": "미디어 폴더에만 제한됨",
-  "@allFilesAccessDisabledSubtitle": {
-    "description": "Subtitle when all files access is disabled"
-  },
-  "allFilesAccessDescription": "사용자 정의 폴더에 저장할 경우에 쓰기 오류가 발생하면 이 옵션을 활성화하세요. Android 13 이상에서는 기본적으로 특정 디렉터리에 대한 접근이 제한됩니다",
-  "@allFilesAccessDescription": {
-    "description": "Description explaining when to enable all files access"
-  },
-  "allFilesAccessDeniedMessage": "권한이 거부되었습니다. 시스템 설정에서 '모든 파일 접근'를 수동으로 활성화하세요",
-  "@allFilesAccessDeniedMessage": {
-    "description": "Message when permission is permanently denied"
-  },
-  "allFilesAccessDisabledMessage": "모든 파일 접근을 비활성화하였습니다. 앱은 제한된 저장소 접근을 사용합니다",
-  "@allFilesAccessDisabledMessage": {
-    "description": "Snackbar message when user disables all files access"
   },
   "settingsLocalLibrary": "로컬 라이브러리",
   "@settingsLocalLibrary": {
@@ -1625,10 +1268,6 @@
       }
     }
   },
-  "libraryInLibrary": "in 라이브러리",
-  "@libraryInLibrary": {
-    "description": "Badge shown on tracks that exist in local library"
-  },
   "libraryRemovedMissingFiles": "라이브러리에서 {count} 개의 누락된 파일이 삭제됨",
   "@libraryRemovedMissingFiles": {
     "description": "Snackbar after cleanup",
@@ -1650,14 +1289,6 @@
   "@libraryStorageAccessMessage": {
     "description": "Dialog message for storage permission"
   },
-  "librarySourceLocal": "로컬",
-  "@librarySourceLocal": {
-    "description": "Badge for tracks from local library scan"
-  },
-  "libraryFilterAll": "모두",
-  "@libraryFilterAll": {
-    "description": "Filter chip - show all library items"
-  },
   "libraryReEnrichAll": "Re-enrich All Tracks",
   "@libraryReEnrichAll": {
     "description": "Library settings action - re-enrich the metadata of every track in the Library"
@@ -1666,69 +1297,13 @@
   "@libraryReEnrichAllSubtitle": {
     "description": "Subtitle for the Re-enrich All Tracks action"
   },
-  "libraryFilterLocal": "로컬",
-  "@libraryFilterLocal": {
-    "description": "Filter chip - show only local library items"
-  },
-  "libraryFilterTitle": "필터",
-  "@libraryFilterTitle": {
-    "description": "Filter bottom sheet title"
-  },
   "libraryFilterReset": "초기화",
   "@libraryFilterReset": {
     "description": "Reset all filters button"
   },
-  "libraryFilterApply": "적용",
-  "@libraryFilterApply": {
-    "description": "Apply filters button"
-  },
-  "libraryFilterSource": "출처",
-  "@libraryFilterSource": {
-    "description": "Filter section - source type"
-  },
-  "libraryFilterQuality": "음질",
-  "@libraryFilterQuality": {
-    "description": "Filter section - audio quality"
-  },
-  "libraryFilterQualityHiRes": "Hi-Res (24bit)",
-  "@libraryFilterQualityHiRes": {
-    "description": "Filter option - high resolution audio"
-  },
-  "libraryFilterQualityCD": "CD (16bit)",
-  "@libraryFilterQualityCD": {
-    "description": "Filter option - CD quality audio"
-  },
-  "libraryFilterQualityLossy": "손실 압축",
-  "@libraryFilterQualityLossy": {
-    "description": "Filter option - lossy compressed audio"
-  },
   "libraryFilterFormat": "형식",
   "@libraryFilterFormat": {
     "description": "Filter section - file format"
-  },
-  "libraryFilterMetadata": "메타데이터",
-  "@libraryFilterMetadata": {
-    "description": "Filter section - metadata completeness"
-  },
-  "libraryFilterMetadataComplete": "전체 메타데이터",
-  "@libraryFilterMetadataComplete": {
-    "description": "Filter option - items with complete metadata"
-  },
-  "libraryFilterMetadataMissingAny": "메타데이터 누락",
-  "@libraryFilterMetadataMissingAny": {
-    "description": "Filter option - items missing any tracked metadata field"
-  },
-  "libraryFilterMetadataMissingYear": "연도 누락",
-  "@libraryFilterMetadataMissingYear": {
-    "description": "Filter option - items missing release year/date"
-  },
-  "libraryFilterMetadataMissingGenre": "장르 누락",
-  "@libraryFilterMetadataMissingGenre": {
-    "description": "Filter option - items missing genre"
-  },
-  "libraryFilterMetadataMissingAlbumArtist": "앨범 아티스트 누락",
-  "@libraryFilterMetadataMissingAlbumArtist": {
-    "description": "Filter option - items missing album artist"
   },
   "libraryFilterSort": "정렬",
   "@libraryFilterSort": {
@@ -2124,93 +1699,9 @@
       }
     }
   },
-  "trackConvertFormat": "형식 변환",
-  "@trackConvertFormat": {
-    "description": "Menu item - convert audio format"
-  },
-  "trackConvertTitle": "오디오 변환",
-  "@trackConvertTitle": {
-    "description": "Title of convert bottom sheet"
-  },
-  "trackConvertTargetFormat": "변경될 형식",
-  "@trackConvertTargetFormat": {
-    "description": "Label for format selection"
-  },
   "trackConvertBitrate": "비트레이트",
   "@trackConvertBitrate": {
     "description": "Label for bitrate selection"
-  },
-  "trackConvertKeepOriginal": "원본 파일 유지",
-  "@trackConvertKeepOriginal": {
-    "description": "Toggle to preserve the source file during conversion"
-  },
-  "trackConvertKeepOriginalDescription": "변환된 파일을 별도의 라이브러리 항목으로 추가합니다",
-  "@trackConvertKeepOriginalDescription": {
-    "description": "Description for preserving the source file during conversion"
-  },
-  "trackConvertConfirmTitle": "변환 확인",
-  "@trackConvertConfirmTitle": {
-    "description": "Confirmation dialog title"
-  },
-  "trackConvertConfirmMessage": "{bitrate} 비트레이트로 {sourceFormat}에서 {targetFormat}으로 변환하시겠습니까?\n\n변환 후 원본 파일이 삭제됩니다",
-  "@trackConvertConfirmMessage": {
-    "description": "Confirmation dialog message",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmMessageLossless": "{sourceFormat}에서 {targetFormat}으로 변환하시겠습니까? (무손실 — 음질 손실 없음)\n\n변환 후에 원본 파일이 삭제됩니다",
-  "@trackConvertConfirmMessageLossless": {
-    "description": "Confirmation dialog message for lossless-to-lossless conversion",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmKeepOriginal": "{sourceFormat}에서 {targetFormat}으로 변환하시겠습니까?\n\n원본 파일은 유지되고 변환된 파일은 별도의 라이브러리 항목으로 추가됩니다",
-  "@trackConvertConfirmKeepOriginal": {
-    "description": "Confirmation message when the source file will be preserved",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertLosslessHint": "무손실 변환 — 음질 손실 없음",
-  "@trackConvertLosslessHint": {
-    "description": "Hint shown when converting between lossless formats"
-  },
-  "trackConvertConverting": "오디오를 변환하는 중...",
-  "@trackConvertConverting": {
-    "description": "Snackbar while converting"
-  },
-  "trackConvertSuccess": "{format}으로 변환 성공",
-  "@trackConvertSuccess": {
-    "description": "Snackbar after successful conversion",
-    "placeholders": {
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertFailed": "변환 실패",
-  "@trackConvertFailed": {
-    "description": "Snackbar when conversion fails"
   },
   "cueSplitTitle": "CUE 시트 분할",
   "@cueSplitTitle": {
@@ -2296,14 +1787,6 @@
   "@actionCreate": {
     "description": "Generic action button - create"
   },
-  "collectionFoldersTitle": "내 폴더",
-  "@collectionFoldersTitle": {
-    "description": "Library section title for custom folders"
-  },
-  "collectionWishlist": "위시리스트",
-  "@collectionWishlist": {
-    "description": "Custom folder for saved tracks to download later"
-  },
   "collectionLoved": "좋아요 표시한 음악",
   "@collectionLoved": {
     "description": "Custom folder for favorite tracks"
@@ -2331,15 +1814,6 @@
   "collectionPlaylistTracks": "{count, plural, =1{1 개의 트랙} other{{count} 개의 트랙}}",
   "@collectionPlaylistTracks": {
     "description": "Track count label for custom playlists",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "collectionArtistCount": "{count, plural, =1{1 명의 아티스트} other{{count} 명의 아티스트}}",
-  "@collectionArtistCount": {
-    "description": "Artist count label for favorite artists",
     "placeholders": {
       "count": {
         "type": "int"
@@ -2384,14 +1858,6 @@
   "@collectionPlaylistRenamed": {
     "description": "Snackbar after renaming playlist"
   },
-  "collectionWishlistEmptyTitle": "위시리스트가 비어 있음",
-  "@collectionWishlistEmptyTitle": {
-    "description": "Wishlist empty state title"
-  },
-  "collectionWishlistEmptySubtitle": "나중에 다운로드할 트랙을 저장하려면 트랙에서 +를 탭하세요",
-  "@collectionWishlistEmptySubtitle": {
-    "description": "Wishlist empty state subtitle"
-  },
   "collectionLovedEmptyTitle": "'좋아요 표시한 음악' 폴더가 비어 있음",
   "@collectionLovedEmptyTitle": {
     "description": "Loved empty state title"
@@ -2422,43 +1888,7 @@
   },
   "collectionRemoveFromFolder": "폴더에서 제거",
   "@collectionRemoveFromFolder": {
-    "description": "Tooltip for removing track from wishlist/loved folder"
-  },
-  "collectionAddedToLoved": "'{trackName}'이 '좋아요 표시한 음악'에 추가됨",
-  "@collectionAddedToLoved": {
-    "description": "Snackbar after adding track to loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionRemovedFromLoved": "'{trackName}'이 '좋아요 표시한 음악'에서 제거됨",
-  "@collectionRemovedFromLoved": {
-    "description": "Snackbar after removing track from loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionAddedToWishlist": "'{trackName}'가 위시리스트에 추가됨",
-  "@collectionAddedToWishlist": {
-    "description": "Snackbar after adding track to wishlist",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionRemovedFromWishlist": "'{trackName}'가 위시리스트에서 제거됨",
-  "@collectionRemovedFromWishlist": {
-    "description": "Snackbar after removing track from wishlist",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
+    "description": "Tooltip for removing track from loved folder"
   },
   "collectionRemovedFromFavoriteArtists": "'{artistName}'가 좋아하는 아티스트에서 제거됨",
   "@collectionRemovedFromFavoriteArtists": {
@@ -2477,14 +1907,6 @@
   "@trackOptionRemoveFromLoved": {
     "description": "Bottom sheet action label - remove track from loved folder"
   },
-  "trackOptionAddToWishlist": "위시리스트에 추가",
-  "@trackOptionAddToWishlist": {
-    "description": "Bottom sheet action label - add track to wishlist"
-  },
-  "trackOptionRemoveFromWishlist": "위시리스트에서 제거",
-  "@trackOptionRemoveFromWishlist": {
-    "description": "Bottom sheet action label - remove track from wishlist"
-  },
   "artistOptionRemoveFromFavorites": "즐겨찾는 아티스트에서 제거",
   "@artistOptionRemoveFromFavorites": {
     "description": "Action label - remove artist from favorite artists"
@@ -2496,77 +1918,6 @@
   "collectionPlaylistRemoveCover": "앨범 커버 제거",
   "@collectionPlaylistRemoveCover": {
     "description": "Bottom sheet action to remove custom cover image from a playlist"
-  },
-  "selectionConvertCount": "{count} 개의 {count, plural, =1{트랙} other{트랙}} 변환",
-  "@selectionConvertCount": {
-    "description": "Convert button text with count in selection mode",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "selectionConvertNoConvertible": "선택된 변환할 수 있는 트랙이 없음",
-  "@selectionConvertNoConvertible": {
-    "description": "Snackbar when no selected tracks support conversion"
-  },
-  "selectionBatchConvertConfirmTitle": "일괄 변환",
-  "@selectionBatchConvertConfirmTitle": {
-    "description": "Confirmation dialog title for batch conversion"
-  },
-  "selectionBatchConvertConfirmMessage": "{count} 개의 {count, plural, =1{트랙} other{트랙}}을 {bitrate} 비트레이트로 {format}으로 변환하시겠습니까?\n\n변환 후 원본 파일이 삭제됩니다",
-  "@selectionBatchConvertConfirmMessage": {
-    "description": "Confirmation dialog message for batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmMessageLossless": "{count} 개의 {count, plural, =1{트랙} other{트랙}}을 {format}으로 변환하시겠습니까? (무손실 — 음질 손실 없음)\n\n변환 후 원본 파일이 삭제됩니다",
-  "@selectionBatchConvertConfirmMessageLossless": {
-    "description": "Confirmation dialog message for lossless batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmKeepOriginal": "{count} 개의 {count, plural, =1{트랙} other{트랙}}을 {format}으로 변환하시겠습니까?\n\n원본 파일은 유지되고 변환된 파일은 별도의 라이브러리 항목으로 추가됩니다",
-  "@selectionBatchConvertConfirmKeepOriginal": {
-    "description": "Batch conversion confirmation when source files will be preserved",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertSuccess": "{total} 개 중 {success} 개를 {format}로 변환 완료",
-  "@selectionBatchConvertSuccess": {
-    "description": "Snackbar after batch conversion completes",
-    "placeholders": {
-      "success": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
   },
   "settingsBackup": "백업 및 복원",
   "@settingsBackup": {
@@ -2584,7 +1935,7 @@
   "@backupExportSectionTitle": {
     "description": "Section title for the export/backup card"
   },
-  "backupExportSectionDescription": "설정, 다운로드 기록, 좋아요 표시한 음악, 위시리스트, 즐겨찾는 아티스트 및 재생목록을 하나의 파일로 저장하여 보관하거나 다른 휴대전화로 옮길 수 있습니다",
+  "backupExportSectionDescription": "설정, 다운로드 기록, 좋아요 표시한 음악, 즐겨찾는 아티스트 및 재생목록을 하나의 파일로 저장하여 보관하거나 다른 휴대전화로 옮길 수 있습니다",
   "@backupExportSectionDescription": {
     "description": "Description of what a backup contains"
   },
@@ -2642,7 +1993,7 @@
   },
   "backupSettingsOnly": "설정 만",
   "backupSelectCollections": "라이브러리 컬렉션",
-  "backupSelectCollectionsDescription": "좋아요 표시한 음악, 위시리스트, 즐겨찾는 아티스트, 재생목록 및 재생목록 커버",
+  "backupSelectCollectionsDescription": "좋아요 표시한 음악, 즐겨찾는 아티스트, 재생목록 및 재생목록 커버",
   "backupSelectedExportDescription": "선택한 카테고리를 백업 파일에 저장합니다. 오디오 파일은 포함되지 않습니다",
   "backupSelectAtLeastOne": "백업을 생성하려면 최소 하나 이상의 카테고리를 선택하세요",
   "backupSelectedRestoreMessage": "아래 나열된 카테고리만 복원됩니다. 이 백업에 포함되지 않은 카테고리는 변경되지 않습니다. 복원하면 기존 데이터가 덮어쓰여질 수 있으며 되돌릴 수 없습니다",
@@ -2653,15 +2004,6 @@
   "backupContentsLiked": "{count} 개의 좋아요 표시한 {count, plural, =1{음악} other{음악}}",
   "@backupContentsLiked": {
     "description": "Backup contents row for liked tracks count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "backupContentsWishlist": "{count} 개의 위시리스트 {count, plural, =1{트랙} other{트랙}}",
-  "@backupContentsWishlist": {
-    "description": "Backup contents row for wishlist tracks count",
     "placeholders": {
       "count": {
         "type": "int"
@@ -2698,10 +2040,6 @@
   "@tooltipLoveAll": {
     "description": "Tooltip for the Love All button on album/playlist screens"
   },
-  "tooltipAddToPlaylist": "재생목록에 추가",
-  "@tooltipAddToPlaylist": {
-    "description": "Tooltip for the Add to Playlist button"
-  },
   "snackbarRemovedTracksFromLoved": "'좋아요 표시한 음악'에서 {count} 개의 트랙이 제거됨",
   "@snackbarRemovedTracksFromLoved": {
     "description": "Snackbar after removing multiple tracks from Loved folder",
@@ -2732,14 +2070,6 @@
   "@snackbarMetadataSaved": {
     "description": "Snackbar after successfully saving track metadata"
   },
-  "snackbarFailedToEmbedLyrics": "가사 삽입 실패",
-  "@snackbarFailedToEmbedLyrics": {
-    "description": "Snackbar when lyrics embedding fails"
-  },
-  "snackbarFailedToWriteStorage": "저장소 다시 쓰기 실패",
-  "@snackbarFailedToWriteStorage": {
-    "description": "Snackbar when writing metadata back to file fails"
-  },
   "snackbarError": "오류: {error}",
   "@snackbarError": {
     "description": "Generic error snackbar with error detail",
@@ -2754,14 +2084,6 @@
     "description": "Empty state message when an album has no tracks"
   },
   "storageDownloadFolderHint": "안드로이드 폴더 선택기에서 Download 폴더를 열고 Sistrum을 선택하세요.\n해당 폴더가 없다면 '새 폴더'를 사용해 만든 다음, '이 폴더 사용'을 탭하여 접근 권한을 허용하세요",
-  "downloadArtistNameFilters": "아티스트 이름 필터",
-  "@downloadArtistNameFilters": {
-    "description": "Setting title for artist folder filter options"
-  },
-  "downloadCreatePlaylistSourceFolder": "재생목록 소스 폴더",
-  "@downloadCreatePlaylistSourceFolder": {
-    "description": "Setting to create a subfolder per playlist source"
-  },
   "downloadSongLinkRegion": "SongLink 지역",
   "@downloadSongLinkRegion": {
     "description": "Setting for SongLink region used during fallback resolution"
@@ -2773,10 +2095,6 @@
   "downloadAllowLocalNetwork": "로컬 네트워크 접근 허용",
   "@downloadAllowLocalNetwork": {
     "description": "Setting title for allowing requests to private/local network targets"
-  },
-  "downloadEmbedLyricsDisabled": "먼저 메타데이터 삽입을 활성화하세요",
-  "@downloadEmbedLyricsDisabled": {
-    "description": "Subtitle when lyrics embedding is blocked by metadata toggle"
   },
   "downloadNeteaseIncludeTranslation": "Netease: 번역 포함",
   "@downloadNeteaseIncludeTranslation": {
@@ -2797,10 +2115,6 @@
   "downloadMusixmatchLanguage": "Musixmatch 언어",
   "@downloadMusixmatchLanguage": {
     "description": "Setting for Musixmatch lyrics translation language"
-  },
-  "downloadFilterContributing": "참여 아티스트 필터",
-  "@downloadFilterContributing": {
-    "description": "Setting to strip contributing artists from Album Artist folder name"
   },
   "snackbarUnsupportedAudioFormat": "지원되지 않는 오디오 형식",
   "@snackbarUnsupportedAudioFormat": {
@@ -2888,14 +2202,6 @@
   "@queueEmptyAlbumsSubtitle": {
     "description": "Empty state subtitle for album downloads"
   },
-  "queueEmptySingles": "싱글 다운로드가 없음",
-  "@queueEmptySingles": {
-    "description": "Empty state title when no single track downloads exist"
-  },
-  "queueEmptySinglesSubtitle": "싱글 트랙 다운로드는 여기에 표시됩니다",
-  "@queueEmptySinglesSubtitle": {
-    "description": "Empty state subtitle for single track downloads"
-  },
   "queuePlaylistCount": "{count, plural, =1{1 개의 재생목록} other{{count} 개의 재생목록}}",
   "@queuePlaylistCount": {
     "description": "Playlist count label with plural support",
@@ -2908,14 +2214,6 @@
   "queueEmptyPlaylistsSubtitle": "트랙을 정리하려면 재생목록을 만드세요",
   "@queueEmptyPlaylistsSubtitle": {
     "description": "Empty state subtitle for the playlists library view"
-  },
-  "libraryDefaultView": "기본 보기",
-  "@libraryDefaultView": {
-    "description": "Setting title - which library view opens when switching to the Library tab"
-  },
-  "libraryDefaultViewLastUsed": "최근 사용",
-  "@libraryDefaultViewLastUsed": {
-    "description": "Default view option - keep the last used library view"
   },
   "queueEmptyHistory": "다운로드 기록이 없음",
   "@queueEmptyHistory": {
@@ -3043,105 +2341,6 @@
     "placeholders": {
       "fileName": {
         "type": "String"
-      }
-    }
-  },
-  "downloadRedownloadFakeHiRes": "가짜 Hi-Res 다시 다운로드",
-  "@downloadRedownloadFakeHiRes": {
-    "description": "Setting title: automatically replace downloads that measure as fake Hi-Res"
-  },
-  "downloadRedownloadFakeHiResSubtitle": "기본적으로 비활성화되어 있습니다. Hi-Res 다운로드를 확인하고, 모든 오디오 샘플이 그대로 보존된 것이 확인될 때만 교체합니다. 검증이나 처리에 실패하면 원본을 그대로 유지합니다",
-  "@downloadRedownloadFakeHiResSubtitle": {
-    "description": "Setting subtitle for the fake Hi-Res re-download toggle"
-  },
-  "hiResCheckVerdictFakeCertain": "가짜 Hi-Res",
-  "@hiResCheckVerdictFakeCertain": {
-    "description": "Verdict: an exact fingerprint (padded bits or upsampling pattern) proves the file is not real Hi-Res"
-  },
-  "hiResCheckReasonSampleHold": "모든 샘플이 반복됨: 복제 방식으로 업샘플링됨",
-  "@hiResCheckReasonSampleHold": {
-    "description": "Reason: sample-and-hold upsampling detected"
-  },
-  "hiResCheckReasonInterpolation": "샘플 사이의 값이 선형 보간됨",
-  "@hiResCheckReasonInterpolation": {
-    "description": "Reason: linear-interpolation upsampling detected"
-  },
-  "hiResCheckTitle": "Hi-Res 진위 여부",
-  "@hiResCheckTitle": {
-    "description": "Title of the fake Hi-Res check card"
-  },
-  "hiResCheckLimitedBandwidth": "대역폭이 제한됨",
-  "@hiResCheckLimitedBandwidth": {
-    "description": "Neutral finding: a limited spectrum alone does not prove upsampling"
-  },
-  "hiResCheckEstimatedCutoff": "추정되는 컷오프 주파수",
-  "@hiResCheckEstimatedCutoff": {
-    "description": "Estimated upper spectral edge at the analysis threshold"
-  },
-  "hiResCheckActiveBits": "활성화된 / 저장된 비트",
-  "@hiResCheckActiveBits": {
-    "description": "Active integer bit depth versus the container depth in the sampled segment"
-  },
-  "hiResCheckBandwidthExplanation": "더 낮은 컷오프는 마스터링 과정에서 발생할 수 있습니다. 이것만으로 업샘플링이라고 단정할 수는 없습니다",
-  "@hiResCheckBandwidthExplanation": {
-    "description": "Explains why the limited-bandwidth finding is neutral"
-  },
-  "hiResCheckImagingEvidence": "스펙트럼에 업샘플링과 일치하는 미러링된 대역이 나타납니다",
-  "@hiResCheckImagingEvidence": {
-    "description": "Spectral imaging is suggestive evidence rather than proof"
-  },
-  "hiResCheckRateEvidence": "{cutoff} 부근에서 급격한 롤오프가 나타나며, 측정된 노이즈 플로어를 고려하면 더 낮은 샘플레이트의 소스에서 비롯되었을 가능성이 있습니다",
-  "@hiResCheckRateEvidence": {
-    "description": "Heuristic evidence from both a brickwall and a 16-bit-like noise floor",
-    "placeholders": {
-      "cutoff": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResCheckSteadyEnergy": "{cutoff} 이상의 에너지는 분석 구간에서 대부분 일정하며, 노이즈일 가능성이 있습니다",
-  "@hiResCheckSteadyEnergy": {
-    "description": "An observation about ultrasonic energy, not proof that removing it is safe",
-    "placeholders": {
-      "cutoff": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResCheckRun": "검사",
-  "@hiResCheckRun": {
-    "description": "Button that starts the Hi-Res authenticity check"
-  },
-  "hiResCheckVerdictFake": "가짜 Hi-Res일 가능성이 높음",
-  "@hiResCheckVerdictFake": {
-    "description": "Verdict: the file claims Hi-Res but does not measure as it"
-  },
-  "hiResCheckVerdictInconclusive": "판단할 수 없음: 분석한 구간의 음량이 너무 작거나 길이가 너무 짧음",
-  "@hiResCheckVerdictInconclusive": {
-    "description": "Verdict: analysis could not reach a reliable conclusion"
-  },
-  "hiResCheckUnsupported": "FLAC 및 WAV 파일만 확인할 수 있음",
-  "@hiResCheckUnsupported": {
-    "description": "Shown when the file format cannot be decoded by the Hi-Res check"
-  },
-  "hiResCheckFailed": "Hi-Res 검사 실패: {error}",
-  "@hiResCheckFailed": {
-    "description": "Error shown when the Hi-Res check fails",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResCheckReasonDepth": "{declared}-비트를 선언했지만 실제 데이터는 {effective} 비트만 전달합니다",
-  "@hiResCheckReasonDepth": {
-    "description": "Reason for a fake verdict caused by padded bit depth",
-    "placeholders": {
-      "declared": {
-        "type": "int"
-      },
-      "effective": {
-        "type": "int"
       }
     }
   },
@@ -3427,18 +2626,6 @@
   "@tutorialStartDownloadSemantics": {
     "description": "Accessibility label for idle download button in tutorial demo"
   },
-  "optionsEmbedMetadata": "메타데이터 삽입",
-  "@optionsEmbedMetadata": {
-    "description": "Settings toggle title for writing metadata into downloaded files"
-  },
-  "optionsEmbedMetadataSubtitleOn": "메타데이터, 앨범 커버 및 삽입된 가사를 파일에 기록",
-  "@optionsEmbedMetadataSubtitleOn": {
-    "description": "Subtitle when metadata embedding is enabled"
-  },
-  "optionsEmbedMetadataSubtitleOff": "비활성화됨 (고급): 모든 메타데이터 삽입 건너뛰기",
-  "@optionsEmbedMetadataSubtitleOff": {
-    "description": "Subtitle when metadata embedding is disabled"
-  },
   "trackCoverNoEmbeddedArt": "삽입된 앨범 커버가 없음",
   "@trackCoverNoEmbeddedArt": {
     "description": "Message shown when a track file has no embedded cover art"
@@ -3466,18 +2653,6 @@
   "trackCoverReplaceNotice": "저장을 탭하면 선택한 표지가 현재 삽입된 표지를 대체합니다",
   "@trackCoverReplaceNotice": {
     "description": "Notice shown when a new cover has been selected but not saved yet"
-  },
-  "trackCoverResolution": "커버 해상도",
-  "@trackCoverResolution": {
-    "description": "Label for selecting the embedded cover art resolution"
-  },
-  "trackCoverResolutionHint": "저장할 때 이미지의 긴 변 길이를 설정합니다. 확대해도 이미지의 세부 정보는 늘어나지 않습니다",
-  "@trackCoverResolutionHint": {
-    "description": "Explanation below the embedded cover art resolution selector"
-  },
-  "trackCoverResizeFailed": "앨범 커버를 원하는 크기로 조정할 수 없습니다. 다른 크기나 이미지를 사용해 보세요",
-  "@trackCoverResizeFailed": {
-    "description": "Error shown when resizing cover art before saving metadata fails"
   },
   "queueMoveUp": "위로 이동",
   "@queueMoveUp": {
@@ -3626,22 +2801,6 @@
       }
     }
   },
-  "settingsFiles": "파일 및 폴더",
-  "@settingsFiles": {
-    "description": "Settings menu item - file and folder settings"
-  },
-  "settingsFilesSubtitle": "다운로드 위치, 파일 이름, 폴더 구조",
-  "@settingsFilesSubtitle": {
-    "description": "Subtitle for files & folders settings"
-  },
-  "settingsMetadata": "메타데이터",
-  "@settingsMetadata": {
-    "description": "Settings menu item - metadata settings"
-  },
-  "settingsMetadataSubtitle": "앨범 커버, 태그, 리플레이게인, 제공자",
-  "@settingsMetadataSubtitle": {
-    "description": "Subtitle for metadata settings"
-  },
   "settingsLyrics": "가사",
   "@settingsLyrics": {
     "description": "Settings menu item - lyrics settings"
@@ -3649,34 +2808,6 @@
   "settingsLyricsSubtitle": "삽입, 모드, 제공자, 언어 옵션",
   "@settingsLyricsSubtitle": {
     "description": "Subtitle for lyrics settings"
-  },
-  "settingsApp": "앱",
-  "@settingsApp": {
-    "description": "Settings menu item - app settings"
-  },
-  "settingsAppSubtitle": "업데이트, 데이터, 확장 기능 레포, 디버그",
-  "@settingsAppSubtitle": {
-    "description": "Subtitle for app settings"
-  },
-  "metadataProvidersTitle": "메타데이터 제공자 우선순위",
-  "@metadataProvidersTitle": {
-    "description": "Settings item title for metadata provider order"
-  },
-  "metadataProvidersSubtitle": "드래그하여 검색 및 메타데이터 출처 순서를 설정하세요",
-  "@metadataProvidersSubtitle": {
-    "description": "Subtitle for metadata provider priority item"
-  },
-  "downloadDeduplication": "중복 다운로드 건너뛰기",
-  "@downloadDeduplication": {
-    "description": "Setting - skip tracks already in download history"
-  },
-  "downloadQualityVariants": "다양한 음질 버전 허용",
-  "@downloadQualityVariants": {
-    "description": "Setting to retain multiple quality versions of the same track"
-  },
-  "downloadQualityVariantsDescription": "모든 화질 버전을 유지하고, 같은 파일 이름이 이미 있는 경우에만 측정된 화질을 파일 이름에 추가합니다",
-  "@downloadQualityVariantsDescription": {
-    "description": "Description for retaining multiple quality versions"
   },
   "downloadFallbackExtensions": "대체 확장 기능",
   "@downloadFallbackExtensions": {
@@ -3737,30 +2868,6 @@
   "editMetadataAdvanced": "고급",
   "@editMetadataAdvanced": {
     "description": "Expandable section label for advanced metadata fields"
-  },
-  "libraryFilterMetadataMissingTrackNumber": "트랙 번호 누락",
-  "@libraryFilterMetadataMissingTrackNumber": {
-    "description": "Filter option - items missing track number"
-  },
-  "libraryFilterMetadataMissingDiscNumber": "디스크 번호 누락",
-  "@libraryFilterMetadataMissingDiscNumber": {
-    "description": "Filter option - items missing disc number"
-  },
-  "libraryFilterMetadataMissingArtist": "아티스트 누락",
-  "@libraryFilterMetadataMissingArtist": {
-    "description": "Filter option - items missing artist"
-  },
-  "libraryFilterMetadataIncorrectIsrcFormat": "ISRC 형식이 잘못됨",
-  "@libraryFilterMetadataIncorrectIsrcFormat": {
-    "description": "Filter option - items with an invalid ISRC format"
-  },
-  "libraryFilterMetadataMissingIsrc": "ISRC 누락",
-  "@libraryFilterMetadataMissingIsrc": {
-    "description": "Filter option - items without any ISRC tag"
-  },
-  "libraryFilterMetadataMissingLabel": "레이블 누락",
-  "@libraryFilterMetadataMissingLabel": {
-    "description": "Filter option - items missing record label"
   },
   "collectionDeletePlaylistsMessage": "{count} 개의 {count, plural, =1{재생목록} other{재생목록}}을 삭제하시겠습니까?",
   "@collectionDeletePlaylistsMessage": {
@@ -3900,10 +3007,6 @@
   "@audioAnalysisMono": {
     "description": "Audio channel layout label - mono"
   },
-  "trackLyricsEmbeddedSource": "삽입",
-  "@trackLyricsEmbeddedSource": {
-    "description": "Lyrics source label for embedded lyrics"
-  },
   "unknownAlbum": "알 수 없는 앨범",
   "@unknownAlbum": {
     "description": "Fallback album name when metadata is missing"
@@ -3928,33 +3031,9 @@
   "@errorInvalidFolderSelected": {
     "description": "Error when the selected folder is invalid"
   },
-  "settingsSaveDownloadHistory": "다운로드 기록 저장",
-  "@settingsSaveDownloadHistory": {
-    "description": "Settings switch title for storing completed downloads in history"
-  },
-  "settingsSaveDownloadHistorySubtitle": "완료된 다운로드를 기록 및 라이브러리 보기에 유지합니다",
-  "@settingsSaveDownloadHistorySubtitle": {
-    "description": "Settings switch subtitle for storing completed downloads in history"
-  },
   "libraryPlayback": "재생",
   "@libraryPlayback": {
     "description": "Section header for playback settings in library settings"
-  },
-  "libraryExternalPlayer": "외부 플레이어",
-  "@libraryExternalPlayer": {
-    "description": "Setting option to use an external music player"
-  },
-  "libraryExternalPlayerSubtitle": "감상용으로 권장됩니다. 최고 음질, 갭리스 재생, EQ 및 다양한 오디오 형식을 지원합니다",
-  "@libraryExternalPlayerSubtitle": {
-    "description": "Subtitle for external player option"
-  },
-  "libraryBuiltInPreviewPlayer": "내부 플레이어",
-  "@libraryBuiltInPreviewPlayer": {
-    "description": "Setting option to use the built-in preview player"
-  },
-  "libraryBuiltInPreviewPlayerSubtitle": "Sistrum에서 바로 음악을 재생합니다",
-  "@libraryBuiltInPreviewPlayerSubtitle": {
-    "description": "Subtitle for built-in preview player option"
   },
   "nowPlayingTitle": "현재 재생 중",
   "@nowPlayingTitle": {
@@ -4041,10 +3120,6 @@
   "@nowPlayingSleepTimerCancelled": {
     "description": "Confirmation after cancelling the playback sleep timer"
   },
-  "nowPlayingOpenInExternalPlayer": "외부 플레이어에서 열기",
-  "@nowPlayingOpenInExternalPlayer": {
-    "description": "Menu item to open the current track in an external player"
-  },
   "nowPlayingHideVolume": "볼륨 숨기기",
   "@nowPlayingHideVolume": {
     "description": "Now Playing menu item that removes the volume slider from the player"
@@ -4127,75 +3202,6 @@
       }
     }
   },
-  "trackConvertLosslessOutputWithCap": "{quality} 제한이 있는 무손실 출력",
-  "@trackConvertLosslessOutputWithCap": {
-    "description": "Hint shown when lossless conversion will cap bit depth or sample rate",
-    "placeholders": {
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmMessageLosslessCapped": "{sourceFormat}에서 {targetFormat}({quality})으로 변환하시겠습니까?\n\n출력은 무손실 코덱을 유지하지만 비트 심도/샘플 속도가 제한됩니다. 변환 후 원본 파일이 삭제됩니다",
-  "@trackConvertConfirmMessageLosslessCapped": {
-    "description": "Confirmation dialog message for capped lossless conversion of a single file",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmMessageLosslessCapped": "{count} 개의 {count, plural, =1{트랙} other{트랙}}을 {format}({quality})으로 변환하시겠습니까?\n\n출력은 무손실 코덱을 유지하지만 비트 심도/샘플 속도가 제한됩니다. 변환 후 원본 파일이 삭제됩니다",
-  "@selectionBatchConvertConfirmMessageLosslessCapped": {
-    "description": "Confirmation dialog message for capped lossless batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertActionLabelLossless": "{sourceFormat} → {targetFormat} ({quality})",
-  "@trackConvertActionLabelLossless": {
-    "description": "Convert button label for lossless conversion with quality cap",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertActionLabelLossy": "{sourceFormat} → {targetFormat} @ {bitrate}",
-  "@trackConvertActionLabelLossy": {
-    "description": "Convert button label for lossy conversion",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
   "snackbarPlayingNext": "다음 곡 재생",
   "@snackbarPlayingNext": {
     "description": "Snackbar when a track is inserted as the next queue item"
@@ -4217,46 +3223,6 @@
   "@actionShuffle": {
     "description": "Tooltip for shuffle playback action"
   },
-  "trackConvertOriginal": "원본",
-  "@trackConvertOriginal": {
-    "description": "Label for keeping original bit depth or sample rate during conversion"
-  },
-  "trackConvertOriginalQuality": "원본 음질",
-  "@trackConvertOriginalQuality": {
-    "description": "Label when no bit depth or sample rate cap is applied during lossless conversion"
-  },
-  "trackConvertLosslessSuffix": "무손실",
-  "@trackConvertLosslessSuffix": {
-    "description": "Suffix used in converted lossless quality labels"
-  },
-  "trackConvertDithering": "디더링",
-  "@trackConvertDithering": {
-    "description": "Section label for lossless conversion dithering options"
-  },
-  "trackConvertResampler": "리샘플러",
-  "@trackConvertResampler": {
-    "description": "Section label for lossless conversion resampler options"
-  },
-  "trackConvertDitherNone": "없음",
-  "@trackConvertDitherNone": {
-    "description": "Lossless conversion dither option with no dithering applied"
-  },
-  "trackConvertDitherTriangular": "TPDF",
-  "@trackConvertDitherTriangular": {
-    "description": "Lossless conversion triangular probability density function dither option"
-  },
-  "trackConvertDitherTriangularHp": "삼각형 HP",
-  "@trackConvertDitherTriangularHp": {
-    "description": "Lossless conversion high-pass triangular dither option"
-  },
-  "trackConvertResamplerSwr": "SWR",
-  "@trackConvertResamplerSwr": {
-    "description": "Lossless conversion default FFmpeg swresample resampler option"
-  },
-  "trackConvertResamplerSoxr": "SoXr",
-  "@trackConvertResamplerSoxr": {
-    "description": "Lossless conversion SoX resampler option"
-  },
   "unknownTitle": "알 수 없는 제목",
   "@unknownTitle": {
     "description": "Fallback track title when metadata is missing"
@@ -4273,10 +3239,6 @@
   "@trackCoverOnline": {
     "description": "Label shown when metadata autofill downloaded cover art from the internet"
   },
-  "extensionVerificationBrowserTitle": "인증 브라우저",
-  "@extensionVerificationBrowserTitle": {
-    "description": "Settings option title for extension verification browser preference"
-  },
   "settingsSearchHint": "설정 검색",
   "@settingsSearchHint": {
     "description": "Placeholder of the search field on the Settings tab"
@@ -4289,18 +3251,6 @@
         "type": "String"
       }
     }
-  },
-  "libraryFilterMetadataMissingLyrics": "가사 누락",
-  "@libraryFilterMetadataMissingLyrics": {
-    "description": "Filter option for tracks without embedded or sidecar lyrics"
-  },
-  "libraryFilterMetadataMissingReplayGain": "리플레이게인 누락",
-  "@libraryFilterMetadataMissingReplayGain": {
-    "description": "Filter option for scanned tracks without ReplayGain gain tags"
-  },
-  "libraryFilterMetadataHasReplayGain": "리플레이게인 있음",
-  "@libraryFilterMetadataHasReplayGain": {
-    "description": "Filter option for tracks with indexed ReplayGain track or album gain tags"
   },
   "libraryFilterIncompleteAlbums": "불완전한 앨범",
   "@libraryFilterIncompleteAlbums": {
@@ -4325,40 +3275,8 @@
       }
     }
   },
-  "trackOptionCopyTrackName": "트랙 제목 복사",
-  "@trackOptionCopyTrackName": {
-    "description": "Track menu action that copies the track title"
-  },
-  "trackOptionCopyArtist": "아티스트 복사",
-  "@trackOptionCopyArtist": {
-    "description": "Track menu action that copies the artist name"
-  },
-  "trackOptionCopyTrackAndArtist": "트랙 및 아티스트 복사",
-  "@trackOptionCopyTrackAndArtist": {
-    "description": "Track menu action that copies the track title and artist"
-  },
-  "metadataCopyValue": "값 복사",
-  "@metadataCopyValue": {
-    "description": "Metadata menu action that copies only the selected value"
-  },
-  "metadataCopyField": "필드 및 값 복사",
-  "@metadataCopyField": {
-    "description": "Metadata menu action that copies the selected key and value"
-  },
   "mornyeSearch": "검색",
   "mornyeContinuePlaying": "계속 재생",
-  "metadataCopyAll": "모든 메타데이터 복사",
-  "@metadataCopyAll": {
-    "description": "Metadata menu action that copies every visible key and value"
-  },
-  "optionsEmbeddedCoverSize": "내장된 앨범 커버 크기",
-  "@optionsEmbeddedCoverSize": {
-    "description": "Metadata setting that limits downloaded artwork resolution before it is embedded"
-  },
-  "optionsEmbeddedCoverSizeDescription": "원격으로 다운로드된 앨범 커버를 삽입하기 전에 크기를 줄입니다. 이미 제한 내에 있는 이미지는 변경되지 않습니다",
-  "@optionsEmbeddedCoverSizeDescription": {
-    "description": "Description shown in the embedded cover size picker"
-  },
   "mornyeFavorite": "즐겨찾기",
   "mornyeGoToArtist": "아티스트로 이동",
   "@mornyeFavorite": {
@@ -4731,9 +3649,7 @@
     "description": "Action that saves a daily mix's songs into one of the user's playlists"
   },
   "motionArtwork": "애니메이션 아트워크",
-  "listeningStats": "청취 통계",
-  "listeningStatsRecord": "청취 기록",
-  "listeningStatsDescription": "지금부터 이 기기에만 저장됩니다. 내부 플레이어의 재생 기록만 기록하며, 일시정지, 버퍼링 및 탐색은 청취 시간에 포함되지 않습니다. 30초 이상 재생하면 한 번의 재생으로 기록됩니다",
+  "navInsights": "Insights",
   "listeningStatsEmpty": "내부 플레이어로 음악을 재생하여 청취 기록 요약을 시작하세요. 이전에 들은 기록은 복구할 수 없습니다",
   "listeningStatsDays": "{days} 일",
   "@listeningStatsDays": {
@@ -4774,7 +3690,6 @@
   "listeningStatsClear": "청취 통계 지우기",
   "listeningStatsClearError": "청취 통계 지울 수 없습니다. 다시 시도하세요",
   "listeningStatsClearDescription": "이 기기에서 모든 청취 통계를 삭제하시겠습니까? 음악과 재생목록은 유지됩니다",
-  "libraryArtistsEmpty": "음악을 다운로드하거나 로컬 라이브러리를 검색하면 여기에 아티스트가 표시됩니다",
   "listeningRewind": "되감기",
   "listeningRewindDescription": "최근 몇 주, 몇 달 동안의 하이라이트를 다시 경험하세요",
   "listeningRewindChoosePeriod": "기간 선택",
@@ -5012,11 +3927,7 @@
   },
   "playbackPauseOnMuteDescription": "미디어 음량이 0이 되면 일시 정지하고, 음량을 높이면 재생을 다시 시작합니다. 수동으로 일시 정지한 경우에는 일시 정지 상태를 유지합니다. 일반 오디오 출력에서만 작동합니다",
   "playbackOnHeadphonesConnected": "헤드폰 연결 시 재생",
-  "playbackOnHeadphonesConnectedDescription": "유선 또는 Bluetooth 헤드폰이 연결되면 현재 재생 중인 곡을 이어서 재생합니다. 연결이 해제되면 재생이 일시 정지됩니다. 내부 플레이어에서만 작동합니다",
-  "appearanceCustomFont": "사용자 정의 글꼴",
-  "appearanceCustomFontSubtitle": "TTF 또는 OTF 파일을 가져옵니다 (최대 10MB). 테마 및 시스템 글꼴을 덮어씁니다",
-  "appearanceCustomFontInvalid": "이 글꼴을 불러올 수 없습니다. 10MB 이하의 유효한 TTF 또는 OTF 파일을 선택하세요",
-  "appearanceCustomFontReset": "테마 글꼴 사용",
+  "playbackOnHeadphonesConnectedDescription": "유선 또는 Bluetooth 헤드폰이 연결되면 현재 재생 중인 곡을 이어서 재생합니다. 연결이 해제되면 재생이 일시 정지됩니다.",
   "equalizerTitle": "이퀄라이저",
   "equalizerDescription": "5–31 밴드, 음색 조절, 프리앰프 및 다이내믹스",
   "equalizerEnable": "이퀄라이저 활성화",
@@ -5046,7 +3957,7 @@
   "equalizerSaved": "프리셋이 저장됨",
   "equalizerResetTitle": "이퀄라이저를 초기화하시겠습니까?",
   "equalizerResetDescription": "평탄한 이퀄라이저 곡선과 기본 음색 및 다이내믹 설정으로 복원합니다. 저장된 프리셋은 유지됩니다",
-  "equalizerBypass": "비트 퍼펙트, 다이렉트 USB 및 독점 Hi-Res 출력에서는 이퀄라이저가 적용되지 않습니다. 이퀄라이저를 사용하려면 비트 퍼펙트 출력을 비활성화하세요. 외부 플레이어는 자체 효과를 관리합니다",
+  "equalizerBypass": "비트 퍼펙트, 다이렉트 USB 및 독점 Hi-Res 출력에서는 이퀄라이저가 적용되지 않습니다. 이퀄라이저를 사용하려면 비트 퍼펙트 출력을 비활성화하세요.",
   "equalizerCurve": "EQ 곡선 (예상됨)",
   "equalizerCurveDescription": "곡선은 각 밴드의 게인 값을 나타냅니다. 실제 주파수 응답은 출력 엔진에 따라 달라집니다",
   "equalizerEffectivePreamp": "헤드룸 후 입력 게인",
@@ -5261,10 +4172,6 @@
   "appCrashDismiss": "닫기",
   "appCrashCopyFailed": "충돌 보고서를 복사할 수 없습니다. 다시 시도하세요",
   "appCrashDismissFailed": "충돌 보고서를 해제할 수 없습니다. 다시 시도하세요",
-  "optionsEmbeddedCoverSizeOriginal": "원본 해상도",
-  "@optionsEmbeddedCoverSizeOriginal": {
-    "description": "Option that preserves the provider artwork at its original resolution"
-  },
   "desktopShortcutTooltip": "{action} ({shortcut})",
   "@desktopShortcutTooltip": {
     "description": "Desktop tooltip that names an action and its keyboard shortcut, for example 'Next track (Ctrl+Right)'",
@@ -5304,10 +4211,6 @@
   "desktopMenuOpen": "열기",
   "@desktopMenuOpen": {
     "description": "Context menu item that opens an album, artist, playlist or folder"
-  },
-  "desktopMenuShowDetails": "세부 정보 표시",
-  "@desktopMenuShowDetails": {
-    "description": "Context menu item that opens a track's metadata page"
   },
   "desktopDropToImport": "드롭하여 라이브러리에 추가",
   "@desktopDropToImport": {
@@ -5483,16 +4386,51 @@
   "@playlistImportFailed": {
     "description": "Snackbar when reading or parsing an imported playlist file fails"
   },
-  "sectionExistingDownloads": "Existing Files",
-  "@sectionExistingDownloads": {
-    "description": "Files settings section header for actions on already-downloaded files"
+  "explicitLabel": "Explicit",
+  "@explicitLabel": {
+    "description": "Semantics label and chip text for an explicit song marker in a song row"
   },
-  "reorganizeLibraryTitle": "Apply Rules to Existing Files",
-  "@reorganizeLibraryTitle": {
-    "description": "Files settings action that moves and renames already-downloaded tracks to match the current folder and filename rules"
+  "libraryFolders": "Folders",
+  "@libraryFolders": {
+    "description": "Library view that browses downloaded and scanned songs by the folders their files are in"
   },
-  "reorganizeLibrarySubtitle": "Move and rename downloads and Local Library files in your download folder so they follow the folder and filename rules above",
-  "@reorganizeLibrarySubtitle": {
-    "description": "Subtitle of the apply-rules-to-existing-files action"
+  "libraryFolderCount": "{count, plural, =1{1 folder} other{{count} folders}}",
+  "@libraryFolderCount": {
+    "description": "Number of folders inside a Library folder",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryFoldersEmptyTitle": "아직 폴더가 없습니다",
+  "@libraryFoldersEmptyTitle": {
+    "description": "Title of the Folders view when the Library has no songs"
+  },
+  "libraryFoldersEmptyMessage": "Download songs or add a music folder in Local Library settings to browse them by folder.",
+  "@libraryFoldersEmptyMessage": {
+    "description": "Next step shown in the empty Folders view"
+  },
+  "libraryFolderMissing": "This folder is no longer in your Library",
+  "@libraryFolderMissing": {
+    "description": "Shown on an open folder page after its songs were deleted or moved"
+  },
+  "collectionAddedToLoved": "'{trackName}'이 '좋아요 표시한 음악'에 추가됨",
+  "@collectionAddedToLoved": {
+    "description": "Snackbar after adding track to loved folder",
+    "placeholders": {
+      "trackName": {
+        "type": "String"
+      }
+    }
+  },
+  "collectionRemovedFromLoved": "'{trackName}'이 '좋아요 표시한 음악'에서 제거됨",
+  "@collectionRemovedFromLoved": {
+    "description": "Snackbar after removing track from loved folder",
+    "placeholders": {
+      "trackName": {
+        "type": "String"
+      }
+    }
   }
 }

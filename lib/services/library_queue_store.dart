@@ -135,8 +135,8 @@ class LibraryQueueStore {
     ''' : ''}
   ''');
 
-  /// The path and duration in seconds of every Library song, the same set
-  /// as [directoryEntries], for analyzing how each sounds.
+  /// The path and duration in seconds of every Library song, for analyzing how
+  /// each sounds.
   Future<List<Map<String, Object?>>> songFiles() => _db.rawQuery('''
     SELECT 'downloaded' AS source, h.file_path, h.duration
     FROM history_db.history h
@@ -148,7 +148,7 @@ class LibraryQueueStore {
   ''');
 
   /// One page of the metadata Home mixes group songs by, over the same set
-  /// as [directoryEntries]: only the columns ranking, decades and the New
+  /// as the Songs list: only the columns ranking, decades and the New
   /// Additions mix read, so a large Library arrives in small rows. Pages of
   /// [source] ('downloaded' or 'local') run by id after [afterId], so each
   /// seeks its primary key; downloads, then scanned files, each by id, is
@@ -462,6 +462,7 @@ class LibraryQueueStore {
           NULL AS file_mod_time,
           h.bitrate,
           h.format,
+          h.explicit,
           h.has_replaygain,
           h.replaygain_metadata_scan_version,
           h.sort_track,
@@ -541,6 +542,7 @@ class LibraryQueueStore {
           l.file_mod_time,
           l.bitrate,
           l.format,
+          l.explicit,
           l.has_replaygain,
           CASE WHEN l.audio_metadata_scan_version >= $libraryAudioMetadataScanVersion
             THEN 1 ELSE 0 END AS replaygain_metadata_scan_version,
@@ -607,6 +609,7 @@ class LibraryQueueStore {
           NULL AS file_mod_time,
           NULL AS bitrate,
           NULL AS format,
+          NULL AS explicit,
           NULL AS has_replaygain,
           NULL AS replaygain_metadata_scan_version,
           NULL AS sort_track,
@@ -1318,6 +1321,7 @@ class LibraryQueueStore {
       'sampleRate': row['sample_rate'],
       'bitrate': row['bitrate'],
       'format': row['format'],
+      'explicit': row['explicit'] == 1 || row['explicit'] == true,
       'hasReplayGain':
           row['has_replaygain'] == 1 || row['has_replaygain'] == true,
       'genre': row['genre'],

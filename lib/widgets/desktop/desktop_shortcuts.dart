@@ -77,22 +77,7 @@ class _DesktopShortcutsState extends ConsumerState<DesktopShortcuts> {
     return focus == null || focus is FocusScopeNode || focus == _idleFocus;
   }
 
-  bool _playerCommand(DesktopCommand command) => switch (command) {
-    DesktopCommand.playPause ||
-    DesktopCommand.next ||
-    DesktopCommand.previous ||
-    DesktopCommand.volumeUp ||
-    DesktopCommand.volumeDown ||
-    DesktopCommand.lyrics ||
-    DesktopCommand.upNext ||
-    DesktopCommand.miniPlayer => true,
-    _ => false,
-  };
-
   bool _canRun(DesktopCommand command) {
-    if (_playerCommand(command) && !ref.read(playerUiEnabledProvider)) {
-      return false;
-    }
     return switch (command) {
       DesktopCommand.openAudioFiles ||
       DesktopCommand.openAudioFolder => !ref.read(openAudioControllerProvider),
@@ -114,7 +99,6 @@ class _DesktopShortcutsState extends ConsumerState<DesktopShortcuts> {
   }
 
   void _run(DesktopCommand command) {
-    if (_playerCommand(command) && !ref.read(playerUiEnabledProvider)) return;
     final controller = ref.read(musicPlayerControllerProvider);
     switch (command) {
       case DesktopCommand.openAudioFiles:
@@ -270,14 +254,6 @@ class _DesktopShortcutsState extends ConsumerState<DesktopShortcuts> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(playerUiEnabledProvider, (_, enabled) {
-      if (enabled) return;
-      desktopNowPlayingOpen.value = false;
-      desktopInspectorPanel.value = null;
-      if (desktopMiniPlayerOpen.value) {
-        unawaited(setDesktopMiniPlayer(open: false));
-      }
-    });
     // Keeps the playback and volume streams alive so the shortcuts read
     // current values even while no player surface is visible.
     ref.listen(playbackPlayingProvider, (_, _) {});
@@ -396,14 +372,12 @@ class _DesktopMenuBarState extends ConsumerState<_DesktopMenuBar> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     final material = MaterialLocalizations.of(context);
-    final showPlayer = ref.watch(playerUiEnabledProvider);
     final fullScreen = desktopWindowFullScreen.value;
     final mode = desktopWindowMode.value;
     final shown = (
       widget.state,
       l10n,
       material,
-      showPlayer,
       fullScreen,
       mode,
       desktopMiniPlayerSupported,
@@ -414,7 +388,6 @@ class _DesktopMenuBarState extends ConsumerState<_DesktopMenuBar> {
         l10n: l10n,
         material: material,
         tabs: desktopDestinationTabs(),
-        showPlayer: showPlayer,
         fullScreen: fullScreen,
         mode: mode,
       );
@@ -426,13 +399,13 @@ class _DesktopMenuBarState extends ConsumerState<_DesktopMenuBar> {
     required AppLocalizations l10n,
     required MaterialLocalizations material,
     required List<ShellTab> tabs,
-    required bool showPlayer,
     required bool fullScreen,
     required DesktopWindowMode mode,
   }) {
     final state = widget.state;
     String tabLabel(ShellTab tab) => switch (tab) {
       ShellTab.home => l10n.navHome,
+      ShellTab.statistics => l10n.navInsights,
       ShellTab.library => l10n.navLibrary,
       ShellTab.search => l10n.mornyeSearch,
       ShellTab.settings => l10n.navSettings,
@@ -519,10 +492,8 @@ class _DesktopMenuBarState extends ConsumerState<_DesktopMenuBar> {
               _command(material.backButtonTooltip, DesktopCommand.back),
               _command(l10n.desktopShortcutForward, DesktopCommand.forward),
               _command(l10n.desktopMenuRefresh, DesktopCommand.refresh),
-              if (showPlayer)
-                _command(l10n.nowPlayingTabLyrics, DesktopCommand.lyrics),
-              if (showPlayer)
-                _command(l10n.nowPlayingUpNext, DesktopCommand.upNext),
+              _command(l10n.nowPlayingTabLyrics, DesktopCommand.lyrics),
+              _command(l10n.nowPlayingUpNext, DesktopCommand.upNext),
             ],
           ),
           PlatformMenuItemGroup(
@@ -543,25 +514,24 @@ class _DesktopMenuBarState extends ConsumerState<_DesktopMenuBar> {
           ),
         ],
       ),
-      if (showPlayer)
-        PlatformMenu(
-          label: l10n.desktopMenuControls,
-          menus: [
-            PlatformMenuItemGroup(
-              members: [
-                _command(l10n.desktopMenuPlayPause, DesktopCommand.playPause),
-                _command(l10n.nowPlayingNextTrack, DesktopCommand.next),
-                _command(l10n.nowPlayingPreviousTrack, DesktopCommand.previous),
-              ],
-            ),
-            PlatformMenuItemGroup(
-              members: [
-                _command(l10n.desktopVolumeUp, DesktopCommand.volumeUp),
-                _command(l10n.desktopVolumeDown, DesktopCommand.volumeDown),
-              ],
-            ),
-          ],
-        ),
+      PlatformMenu(
+        label: l10n.desktopMenuControls,
+        menus: [
+          PlatformMenuItemGroup(
+            members: [
+              _command(l10n.desktopMenuPlayPause, DesktopCommand.playPause),
+              _command(l10n.nowPlayingNextTrack, DesktopCommand.next),
+              _command(l10n.nowPlayingPreviousTrack, DesktopCommand.previous),
+            ],
+          ),
+          PlatformMenuItemGroup(
+            members: [
+              _command(l10n.desktopVolumeUp, DesktopCommand.volumeUp),
+              _command(l10n.desktopVolumeDown, DesktopCommand.volumeDown),
+            ],
+          ),
+        ],
+      ),
       PlatformMenu(
         label: l10n.desktopMenuWindow,
         menus: [
@@ -569,7 +539,7 @@ class _DesktopMenuBarState extends ConsumerState<_DesktopMenuBar> {
             PlatformProvidedMenuItemType.minimizeWindow,
             PlatformProvidedMenuItemType.zoomWindow,
           ]),
-          if (showPlayer && desktopMiniPlayerSupported)
+          if (desktopMiniPlayerSupported)
             PlatformMenuItemGroup(
               members: [
                 _command(l10n.desktopMenuMiniPlayer, DesktopCommand.miniPlayer),

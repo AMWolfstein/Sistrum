@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:sistrum/controllers/clickable_metadata.dart';
 import 'package:sistrum/controllers/player_track_navigation.dart';
+import 'package:sistrum/controllers/song_file_actions.dart';
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
@@ -18,13 +19,11 @@ import 'package:sistrum/routes/now_playing_route.dart';
 import 'package:sistrum/screens/equalizer_screen.dart';
 import 'package:sistrum/screens/lyrics_share_screen.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/utils/logger.dart';
 import 'package:sistrum/utils/lyrics_parser.dart';
 import 'package:sistrum/utils/playback_seek_preview.dart';
 import 'package:sistrum/utils/synced_lyrics_scroll.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
-import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/audio_output_button.dart';
@@ -319,14 +318,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (!ref.watch(playerUiEnabledProvider)) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && ModalRoute.of(context)?.isCurrent == true) {
-          Navigator.of(context).maybePop();
-        }
-      });
-      return const SizedBox.shrink();
-    }
     final mediaItem = ref.watch(currentMediaItemProvider).value;
     final fullScreenCover = ref.watch(
       settingsProvider.select((s) => s.playerCoverStyleFor() == 'fullscreen'),
@@ -1029,16 +1020,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
     if (!open) _scheduleLyricsControlsHide();
   }
 
-  Future<void> _openExternally(String source) async {
-    if (source.isEmpty) return;
-    try {
-      await openFile(source);
-    } catch (e) {
-      if (!mounted) return;
-      showCannotOpenFileSnackBar(context, e);
-    }
-  }
-
   Future<void> _showTrackNavigationMenu(
     BuildContext titleContext,
     MediaItem mediaItem,
@@ -1121,10 +1102,14 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
         sleepTimerSubtitle: sleepTimerSubtitle,
         tempoSubtitle: tempoSubtitle,
         volumeShown: volumeShown,
+        deletable: isLocalPlayingSong(mediaItem),
       ),
     );
     if (!mounted || !context.mounted) return;
     switch (action) {
+      case 'delete':
+        await deletePlayingSongFromDevice(context, ref, mediaItem);
+        break;
       case 'favorite':
         await _updatePlayerCollection(mediaItem, favorite: true);
         break;
@@ -1175,9 +1160,6 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
         break;
       case 'volume':
         ref.read(settingsProvider.notifier).setPlayerShowVolume(!volumeShown);
-        break;
-      case 'external':
-        await _openExternally(source);
         break;
     }
   }

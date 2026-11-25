@@ -410,7 +410,7 @@ fn apply(
                 *user_text_lyrics = true;
             }
             match uppercase(&description).as_str() {
-                "ITUNESADVISORY" => metadata.explicit = truthy(&value),
+                "ITUNESADVISORY" | "EXPLICIT" => metadata.explicit |= truthy(&value),
                 "RELEASETYPE" => metadata.album_type = value,
                 "BARCODE" | "UPC" => metadata.upc = value,
                 "REPLAYGAIN_TRACK_GAIN" if version != 2 => metadata.replay_gain_track_gain = value,

@@ -8,8 +8,6 @@ import 'package:sistrum/services/library_database.dart';
 
 typedef LibraryBrowseRequest = ({
   bool artists,
-  String? artist,
-  String search,
   String sort,
   int limit,
   String? completeness,
@@ -102,8 +100,6 @@ QueueLibraryDbQuery libraryBrowseQuery(LibraryBrowsePageRequest request) =>
       offset: request.offset,
       cursor: request.cursor,
       includeSingleTrackAlbums: true,
-      albumArtist: request.browse.artist,
-      searchQuery: request.browse.search,
       sortMode: request.browse.sort,
       includeLocal: request.includeLocal,
       metadata: request.browse.completeness,
@@ -158,8 +154,6 @@ class LibraryBrowseNotifier extends AsyncNotifier<LibraryBrowseState> {
         ? request
         : (
             artists: request.artists,
-            artist: request.artist,
-            search: request.search,
             sort: request.sort,
             limit: limit,
             completeness: request.completeness,

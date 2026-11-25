@@ -4980,7 +4980,7 @@ void main() {
     await settlePlayer(tester);
     expect(tester.takeException(), isNull);
 
-    final last = find.text('Open in external player');
+    final last = find.text('Sleep timer');
     await tester.scrollUntilVisible(
       last,
       100,

@@ -5,7 +5,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/services/audio_metadata_mapper.dart';
 import 'package:sistrum/services/ffmpeg_models.dart';
 import 'package:sistrum/services/id3v23_lyrics.dart';
-import 'package:sistrum/utils/artist_utils.dart';
 
 void main() {
   group('FFmpeg value models', () {
@@ -69,29 +68,12 @@ void main() {
         'BIT_DEPTH': '24',
       };
 
-      final native = AudioMetadataMapper.vorbisToNativeChunkFields(metadata);
       final m4a = AudioMetadataMapper.convertToM4aTags(metadata);
       final m4aIdentity = AudioMetadataMapper.m4aReleaseIdentityFields(
         metadata,
       );
       final id3 = AudioMetadataMapper.convertToId3Tags(metadata);
 
-      expect(native['title'], 'Track');
-      expect(native['artist'], 'Artist');
-      expect(native['album'], 'Album');
-      expect(native['album_artist'], 'Album Artist');
-      expect(native['track_number'], '3');
-      expect(native['track_total'], '12');
-      expect(native['disc_number'], '1');
-      expect(native['disc_total'], '2');
-      expect(native['replaygain_track_gain'], '-5.00 dB');
-      expect(native['date'], '2026-08-01');
-      expect(native['genre'], 'Pop');
-      expect(native['label'], 'Label');
-      expect(native['copyright'], 'Copyright');
-      expect(native['composer'], 'Composer');
-      expect(native['comment'], 'Comment');
-      expect(native['explicit'], '1');
       expect(m4a['isrc'], 'TEST12345678');
       expect(m4a['lyrics'], 'Lyrics');
       expect(m4aIdentity['explicit'], '1');
@@ -103,37 +85,21 @@ void main() {
       expect(id3['album'], 'Album');
       expect(id3['track'], '3/12');
       expect(id3['disc'], '1/2');
-      expect(native, isNot(contains('bit_depth')));
     });
 
-    test('builds split Vorbis artist entries without losing other tags', () {
+    test('builds joined Vorbis artist entries without losing other tags', () {
       final entries = AudioMetadataMapper.buildVorbisMetadataEntries({
         'ARTIST': 'First & Second',
         'TITLE': 'Track',
-      }, artistTagMode: artistTagModeSplitVorbis);
+      });
 
       expect(
         entries.where((entry) => entry.key == 'ARTIST').map((e) => e.value),
-        ['First', 'Second'],
+        ['First & Second'],
       );
       expect(
         entries.where((entry) => entry.key == 'TITLE').single.value,
         'Track',
-      );
-      final primary = AudioMetadataMapper.buildVorbisMetadataEntries({
-        'ARTIST': 'First & Second',
-        'ALBUMARTIST': 'First, Second',
-        'TITLE': 'Track',
-      }, artistTagMode: artistTagModePrimary);
-      expect(
-        primary.where((entry) => entry.key == 'ARTIST').map((e) => e.value),
-        ['First'],
-      );
-      expect(
-        primary
-            .where((entry) => entry.key == 'ALBUMARTIST')
-            .map((e) => e.value),
-        ['First'],
       );
       final advisory = AudioMetadataMapper.buildVorbisMetadataEntries({
         'EXPLICIT': 'true',

@@ -5,67 +5,44 @@ import 'package:sistrum/services/shell_navigation_service.dart';
 import 'package:sistrum/widgets/view_queue_snackbar_action.dart';
 
 void main() {
-  for (final separateSearch in [false, true]) {
-    testWidgets(
-      'first search request reaches the lazy page (separate=$separateSearch)',
-      (tester) async {
-        await tester.pumpWidget(
-          MaterialApp(
-            home: _SearchShell(
-              separateSearch: separateSearch,
-            ),
-          ),
-        );
-        await tester.pumpAndSettle();
-        expect(find.byType(TextField), findsNothing);
+  testWidgets('first search request reaches the lazy page', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: _SearchShell()));
+    await tester.pumpAndSettle();
+    expect(find.byType(TextField), findsNothing);
 
-        await tester.tap(find.text('Search'));
-        await tester.pumpAndSettle();
-        final field = tester.widget<TextField>(find.byType(TextField));
-        expect(field.focusNode!.hasFocus, isTrue);
-        expect(tester.testTextInput.isVisible, isTrue);
-      },
-    );
+    await tester.tap(find.text('Search'));
+    await tester.pumpAndSettle();
+    final field = tester.widget<TextField>(find.byType(TextField));
+    expect(field.focusNode!.hasFocus, isTrue);
+    expect(tester.testTextInput.isVisible, isTrue);
+  });
 
-    testWidgets(
-      'search returns from an album to its own tab (separate=$separateSearch)',
-      (tester) async {
-        await tester.pumpWidget(
-          MaterialApp(
-            home: _SearchShell(
-              separateSearch: separateSearch,
-            ),
-          ),
-        );
-        await tester.tap(find.text('Search'));
-        await tester.pumpAndSettle();
-        final navigator =
-            (separateSearch
-                    ? ShellNavigationService.searchTabNavigatorKey
-                    : ShellNavigationService.homeTabNavigatorKey)
-                .currentState!;
-        expect(ShellNavigationService.activeTabNavigator(), same(navigator));
-        navigator.push(
-          MaterialPageRoute<void>(
-            builder: (_) => const Scaffold(body: Text('Album')),
-          ),
-        );
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Search'));
-        await tester.pumpAndSettle();
-        expect(find.text('Album'), findsNothing);
-        final field = tester.widget<TextField>(find.byType(TextField));
-        expect(field.focusNode!.hasFocus, isTrue);
-        expect(tester.testTextInput.isVisible, isTrue);
-      },
+  testWidgets('search returns from an album to its own tab', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: _SearchShell()));
+    await tester.tap(find.text('Search'));
+    await tester.pumpAndSettle();
+    final navigator =
+        ShellNavigationService.searchTabNavigatorKey.currentState!;
+    expect(ShellNavigationService.activeTabNavigator(), same(navigator));
+    navigator.push(
+      MaterialPageRoute<void>(
+        builder: (_) => const Scaffold(body: Text('Album')),
+      ),
     );
-  }
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Search'));
+    await tester.pumpAndSettle();
+    expect(find.text('Album'), findsNothing);
+    final field = tester.widget<TextField>(find.byType(TextField));
+    expect(field.focusNode!.hasFocus, isTrue);
+    expect(tester.testTextInput.isVisible, isTrue);
+  });
 
   testWidgets(
     'search selects its tab before requesting focus and stops when shell is absent',
     (tester) async {
       final owner = Object();
-      ShellNavigationService.syncState(currentTabIndex: 0);
+      ShellNavigationService.syncState(tab: ShellTab.home);
       var selectedSearch = false;
       var focusRequests = 0;
       void onSearch() {
@@ -80,7 +57,10 @@ void main() {
       });
       ShellNavigationService.registerTabSelectionHandler(
         owner: owner,
-        handler: (tab) => selectedSearch = tab == ShellTab.search,
+        handler: (tab) {
+          selectedSearch = tab == ShellTab.search;
+          ShellNavigationService.syncState(tab: tab);
+        },
       );
       ShellNavigationService.requestSearch();
       expect(focusRequests, 0);
@@ -177,9 +157,7 @@ void main() {
 }
 
 class _SearchShell extends StatefulWidget {
-  const _SearchShell({required this.separateSearch});
-
-  final bool separateSearch;
+  const _SearchShell();
 
   @override
   State<_SearchShell> createState() => _SearchShellState();
@@ -187,26 +165,19 @@ class _SearchShell extends StatefulWidget {
 
 class _SearchShellState extends State<_SearchShell> {
   final _pages = PageController(initialPage: 1);
-  GlobalKey<NavigatorState> get _navigatorKey => widget.separateSearch
-      ? ShellNavigationService.searchTabNavigatorKey
-      : ShellNavigationService.homeTabNavigatorKey;
-  int get _searchIndex => widget.separateSearch ? 2 : 0;
+  GlobalKey<NavigatorState> get _navigatorKey =>
+      ShellNavigationService.searchTabNavigatorKey;
+  int get _searchIndex => 2;
   late final _observer = ShellChromeObserver(_navigatorKey);
 
   @override
   void initState() {
     super.initState();
-    ShellNavigationService.syncState(
-      currentTabIndex: 1,
-      showSearchTab: widget.separateSearch,
-    );
+    ShellNavigationService.syncState(tab: ShellTab.library);
     ShellNavigationService.registerTabSelectionHandler(
       owner: this,
       handler: (_) {
-        ShellNavigationService.syncState(
-          currentTabIndex: _searchIndex,
-              showSearchTab: widget.separateSearch,
-        );
+        ShellNavigationService.syncState(tab: ShellTab.search);
         _pages.jumpToPage(_searchIndex);
       },
     );
@@ -231,7 +202,7 @@ class _SearchShellState extends State<_SearchShell> {
         Expanded(
           child: PageView.builder(
             controller: _pages,
-            itemCount: widget.separateSearch ? _searchIndex + 1 : 2,
+            itemCount: _searchIndex + 1,
             itemBuilder: (_, index) => index != _searchIndex
                 ? const Text('Library')
                 : Navigator(

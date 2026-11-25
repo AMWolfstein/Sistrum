@@ -230,8 +230,7 @@ class MusicPlayerHandler extends BaseAudioHandler
   /// Reconcile only the playback fields affected by the new settings snapshot.
   void applySettings(AppSettings previous) {
     final settings = _settings;
-    if (previous.autoplayPersonalization != settings.autoplayPersonalization ||
-        previous.playerMode != settings.playerMode) {
+    if (previous.autoplayPersonalization != settings.autoplayPersonalization) {
       _configurePersonalization();
     }
     if (previous.playbackNormalization != settings.playbackNormalization ||
@@ -266,17 +265,14 @@ class MusicPlayerHandler extends BaseAudioHandler
       unawaited(AudioplayersPlaybackDeck.forgetUsbPermissionDenial());
     }
     // USB changes apply at the next source boundary, without raising volume.
-    if ((previous.playerMode == 'internal') !=
-            (settings.playerMode == 'internal') ||
-        previous.pauseOnMute != settings.pauseOnMute ||
+    if (previous.pauseOnMute != settings.pauseOnMute ||
         previous.headphoneResume != settings.headphoneResume ||
         previous.usbBitPerfect != settings.usbBitPerfect) {
       _refreshPlaybackAutomation();
     }
     if (previous.musicHaptics != settings.musicHaptics ||
         previous.musicHapticsSensitivity != settings.musicHapticsSensitivity ||
-        previous.musicHapticsStrength != settings.musicHapticsStrength ||
-        previous.playerMode != settings.playerMode) {
+        previous.musicHapticsStrength != settings.musicHapticsStrength) {
       _updateHaptics();
     }
     if (previous.autoplay != settings.autoplay ||
@@ -485,8 +481,7 @@ class MusicPlayerHandler extends BaseAudioHandler
         !isDesktopPlatform &&
         path.isNotEmpty &&
         (document || !path.contains('://')) &&
-        _settings.musicHaptics &&
-        _settings.playerMode == 'internal';
+        _settings.musicHaptics;
     _haptics.configure(
       sensitivity: _settings.musicHapticsSensitivity,
       strength: _settings.musicHapticsStrength,
@@ -495,8 +490,7 @@ class MusicPlayerHandler extends BaseAudioHandler
   }
 
   void _configurePersonalization() {
-    final enabled =
-        _settings.autoplayPersonalization && _settings.playerMode == 'internal';
+    final enabled = _settings.autoplayPersonalization;
     _runtime.personalization.setEnabled(enabled);
     if (enabled && _index >= 0 && _index < _media.length) {
       _runtime.personalization.begin(_learningTrack(_media[_index]));
@@ -735,17 +729,12 @@ class MusicPlayerHandler extends BaseAudioHandler
     // Both follow mobile system volume and audio_session routes, which
     // desktop does not use.
     final pauseOnMute =
-        !isDesktopPlatform &&
-        _settings.playerMode == 'internal' &&
-        _settings.pauseOnMute &&
-        !_settings.usbBitPerfect;
+        !isDesktopPlatform && _settings.pauseOnMute && !_settings.usbBitPerfect;
     // Android and iOS, Android TV included: TVs pair Bluetooth or USB
     // headphones too.
-    final headphoneResume =
-            !isDesktopPlatform &&
-            _settings.playerMode == 'internal'
-        ? _settings.headphoneResume
-        : 'off';
+    final headphoneResume = isDesktopPlatform
+        ? 'off'
+        : _settings.headphoneResume;
     final playOnHeadphonesConnected = headphoneResume == 'always';
     final resumeAfterNoisyPause = headphoneResume == 'after_disconnect';
     final watchDevices = playOnHeadphonesConnected || resumeAfterNoisyPause;
@@ -2027,7 +2016,8 @@ class MusicPlayerHandler extends BaseAudioHandler
     final artwork = await resolveEmbeddedArtworkUri(
       media.source,
       media.artUri,
-      extract: (source) => DownloadedEmbeddedCoverResolver.resolveOrExtract(source),
+      extract: (source) =>
+          DownloadedEmbeddedCoverResolver.resolveOrExtract(source),
     );
     if (artwork == null || !_isCurrentPlayRequest(generation, media)) return;
     final current = mediaItem.value;
@@ -2621,8 +2611,7 @@ class MusicPlayerHandler extends BaseAudioHandler
   /// retain the source in AVPlayer/MediaPlayer, so retire the owning deck.
   /// Keep the queue until deletion succeeds; a failed delete remains resumable.
   Future<void> prepareSourceDeletion(String source) async {
-    if (_disposed ||
-        !_media.any((item) => item.source == source)) {
+    if (_disposed || !_media.any((item) => item.source == source)) {
       return;
     }
     final isCurrent =

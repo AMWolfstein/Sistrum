@@ -6,9 +6,7 @@ import 'package:sistrum/widgets/app_slider.dart';
 
 /// Sensitivity and strength sliders shown under the music haptics switch.
 class MusicHapticsSettings extends ConsumerStatefulWidget {
-  const MusicHapticsSettings({super.key, required this.enabled});
-
-  final bool enabled;
+  const MusicHapticsSettings({super.key});
 
   @override
   ConsumerState<MusicHapticsSettings> createState() =>
@@ -42,8 +40,8 @@ class _MusicHapticsSettingsState extends ConsumerState<MusicHapticsSettings> {
               divisions: 20,
               label: percent,
               semanticLabel: label,
-              onChanged: widget.enabled ? draft : null,
-              onChangeEnd: widget.enabled ? save : null,
+              onChanged: draft,
+              onChangeEnd: save,
             ),
           ],
         ),

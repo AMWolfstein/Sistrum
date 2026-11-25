@@ -58,16 +58,18 @@ class UnifiedLibraryItem {
     );
   }
 
-  String? qualityForMode(String mode) {
+  /// The audio file's advisory tag marks the song explicit.
+  bool get isExplicit => localItem?.isExplicit ?? false;
+
+  /// The Library badge text of this song.
+  String? get badgeQuality {
     final local = localItem;
     if (local != null) {
       return buildLibraryAudioQualityLabel(
-        mode: mode,
         format: local.format,
         filePath: local.filePath,
         bitrateKbps: local.bitrate,
         bitDepth: local.bitDepth,
-        sampleRate: local.sampleRate,
         storedQuality: quality,
       );
     }
@@ -103,6 +105,7 @@ class UnifiedLibraryItem {
         trackNumber: l.trackNumber,
         discNumber: l.discNumber,
         releaseDate: l.releaseDate,
+        explicit: l.isExplicit,
         source: 'local',
       );
     }

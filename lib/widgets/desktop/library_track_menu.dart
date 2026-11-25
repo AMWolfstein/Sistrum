@@ -4,7 +4,6 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/widgets/desktop/context_menu.dart';
-import 'package:sistrum/widgets/hires_batch_check_sheet.dart';
 import 'package:sistrum/widgets/playlist_picker_sheet.dart';
 
 /// Context menu groups for library files (downloaded or scanned), acting on
@@ -14,23 +13,20 @@ import 'package:sistrum/widgets/playlist_picker_sheet.dart';
 /// the screen passes its own selection-bar callbacks for the rest, and omits
 /// those it does not offer. Sistrum Link adds "Send to (phone)" and "Save to
 /// this computer" while a phone is connected. Actions that finish with the
-/// menu (play, queue, playlist, transfers, details) call [onDone] to end the
+/// menu (play, queue, playlist, transfers) call [onDone] to end the
 /// selection; the bulk actions keep it and end it themselves.
 List<List<ContextMenuAction>> libraryTrackMenuGroups(
   BuildContext context,
   WidgetRef ref, {
   required List<UnifiedLibraryItem> items,
   VoidCallback? onPlay,
-  VoidCallback? onOpenDetails,
   VoidCallback? onDone,
-  VoidCallback? onConvert,
   VoidCallback? onDelete,
 }) {
   if (items.isEmpty) return const [];
   final l10n = context.l10n;
   final root = Navigator.of(context, rootNavigator: true).context;
   final count = items.length;
-  final showPlayer = ref.read(playerUiEnabledProvider);
 
   Future<void> enqueue({required bool playNext}) async {
     await ref
@@ -50,18 +46,16 @@ List<List<ContextMenuAction>> libraryTrackMenuGroups(
             onPlay();
           },
         ),
-      if (showPlayer)
-        ContextMenuAction(
-          icon: Icons.playlist_play,
-          label: l10n.trackPlayNext,
-          onSelected: () => enqueue(playNext: true),
-        ),
-      if (showPlayer)
-        ContextMenuAction(
-          icon: Icons.queue_music,
-          label: l10n.trackAddToQueue,
-          onSelected: () => enqueue(playNext: false),
-        ),
+      ContextMenuAction(
+        icon: Icons.playlist_play,
+        label: l10n.trackPlayNext,
+        onSelected: () => enqueue(playNext: true),
+      ),
+      ContextMenuAction(
+        icon: Icons.queue_music,
+        label: l10n.trackAddToQueue,
+        onSelected: () => enqueue(playNext: false),
+      ),
     ],
     [
       ContextMenuAction(
@@ -73,32 +67,6 @@ List<List<ContextMenuAction>> libraryTrackMenuGroups(
           showAddTracksToPlaylistSheet(root, ref, tracks);
         },
       ),
-    ],
-    [
-      if (onOpenDetails != null && count == 1)
-        ContextMenuAction(
-          icon: Icons.info_outline,
-          label: l10n.desktopMenuShowDetails,
-          onSelected: () {
-            onDone?.call();
-            onOpenDetails();
-          },
-        ),
-      if (onConvert != null)
-        ContextMenuAction(
-          icon: Icons.swap_horiz,
-          label: l10n.selectionConvertCount(count),
-          onSelected: onConvert,
-        ),
-      if (count > 1 && hiResCheckableItems(items).isNotEmpty)
-        ContextMenuAction(
-          icon: Icons.verified_outlined,
-          label: l10n.hiResBatchAction,
-          onSelected: () {
-            onDone?.call();
-            showHiResBatchCheckSheet(root, items);
-          },
-        ),
     ],
     [
       if (onDelete != null)

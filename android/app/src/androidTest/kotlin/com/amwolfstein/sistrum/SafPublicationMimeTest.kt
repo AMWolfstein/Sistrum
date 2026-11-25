@@ -34,12 +34,11 @@ class SafPublicationMimeTest {
         val source = File(context.cacheDir, "publish-mime-${System.nanoTime()}.tmp").apply { writeBytes(bytes) }
         try {
             for ((extension, mime) in listOf("flac" to "audio/flac", "mp3" to "audio/mpeg", "m4a" to "audio/mp4", "opus" to "audio/opus")) {
-                for (mode in 0..3) {
+                for (mode in listOf(0, 2, 3)) {
                     val parent = reset()
                     val name = "EjAj - Lej Mi Pół.$extension"
                     val uri = requireNotNull(when (mode) {
                         0 -> SafDownloadHandler.writeFileToSaf(context, treeUri.toString(), "", name, mime, source.path)
-                        1 -> SafDownloadHandler.writeFileToSafUnique(context, treeUri.toString(), "", name, mime, source.path)?.uri
                         2 -> SafDownloadHandler.writeFileToSafCollisionAware(context, treeUri.toString(), "", name, "Variant.$extension", mime, source.path)?.uri
                         else -> SafDownloadHandler.writeFileToSafIfAbsent(context, treeUri.toString(), "", name, mime, source.path)?.uri
                     })

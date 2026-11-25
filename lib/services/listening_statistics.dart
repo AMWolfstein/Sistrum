@@ -158,7 +158,6 @@ class ListeningRecorder {
   Duration? _lastElapsed;
   DateTime? _lastDate;
   bool _playing = false;
-  bool _enabled = true;
   bool _clearing = false;
   int _sessionMilliseconds = 0;
   bool _counted = false;
@@ -183,13 +182,6 @@ class ListeningRecorder {
     _lastDate = now();
   }
 
-  void setEnabled(bool enabled) {
-    checkpoint();
-    _enabled = enabled;
-    _lastElapsed = elapsed();
-    _lastDate = now();
-  }
-
   void checkpoint() {
     final end = elapsed();
     final date = now();
@@ -198,11 +190,7 @@ class ListeningRecorder {
     _lastElapsed = end;
     _lastDate = date;
     final track = _track;
-    if (!_enabled ||
-        _clearing ||
-        !_playing ||
-        track == null ||
-        previous == null) {
+    if (_clearing || !_playing || track == null || previous == null) {
       return;
     }
     var time = (end - previous).inMilliseconds;
@@ -546,6 +534,27 @@ Future<Map<String, int>> readAlbumPlays(
   );
   return {for (final row in rows) row['title'] as String: row['plays'] as int};
 }
+
+/// Plays of every song recorded, by [playCountKey] of its title and artist.
+Future<Map<String, int>> readSongPlays(DatabaseExecutor db) async {
+  final rows = await db.rawQuery('''
+    SELECT trim(lower(title)) AS title, trim(lower(artist)) AS artist,
+      SUM(plays) AS plays
+    FROM listening
+    GROUP BY trim(lower(title)), trim(lower(artist))
+    HAVING SUM(plays) > 0
+    ''');
+  return {
+    for (final row in rows)
+      playCountKey(row['title'] as String, row['artist'] as String):
+          row['plays'] as int,
+  };
+}
+
+/// The key of a song's plays in [readSongPlays], spelled without case or
+/// padding as the tags and catalogs differ in them.
+String playCountKey(String title, String artist) =>
+    '${title.trim().toLowerCase()}|${artist.trim().toLowerCase()}';
 
 final _listeningClock = Stopwatch()..start();
 final listeningRecorder = ListeningRecorder(

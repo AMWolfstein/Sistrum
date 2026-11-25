@@ -12,10 +12,6 @@ type Check<'a> = &'a dyn Fn() -> Result<(), String>;
 
 const SNAPSHOT_QUERIES: &[(&str, &str)] = &[
     (
-        "wishlist",
-        "SELECT * FROM wishlist_tracks ORDER BY added_at DESC,rowid DESC",
-    ),
-    (
         "loved",
         "SELECT * FROM loved_tracks ORDER BY added_at DESC,rowid DESC",
     ),
@@ -113,9 +109,9 @@ pub(crate) fn execute(request: &Value, check: Check<'_>) -> Result<Value, String
     let version: i64 = transaction
         .pragma_query_value(None, "user_version", |row| row.get(0))
         .map_err(|e| e.to_string())?;
-    if version != 2 {
+    if version != 3 {
         return Err(format!(
-            "Collection schema v{version} is incompatible with native v2"
+            "Collection schema v{version} is incompatible with native v3"
         ));
     }
     let mut staged = tempfile::NamedTempFile::new_in(

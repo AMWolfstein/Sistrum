@@ -76,7 +76,6 @@ void main() {
               AppSettings(queueLocked: locked, swipeToQueue: swipeToQueue),
             ),
           ),
-          playerUiEnabledProvider.overrideWith((ref) => true),
           musicPlayerControllerProvider.overrideWithValue(player),
           currentMediaItemProvider.overrideWithBuild(
             (ref, notifier) => Stream.value(_queue.first),

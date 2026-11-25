@@ -44,7 +44,7 @@ class LocalLibraryItem {
   final String? composer;
   final String? label;
   final String? copyright;
-  final bool explicit;
+  final bool isExplicit;
   final bool hasLyrics;
   final bool hasReplayGain;
   final String? format; // flac, alac, eac3, ac3, ac4, mp3, opus, m4a
@@ -75,7 +75,7 @@ class LocalLibraryItem {
     this.composer,
     this.label,
     this.copyright,
-    this.explicit = false,
+    this.isExplicit = false,
     this.hasLyrics = false,
     this.hasReplayGain = false,
     this.format,
@@ -107,7 +107,7 @@ class LocalLibraryItem {
     'composer': composer,
     'label': label,
     'copyright': copyright,
-    'explicit': explicit,
+    'explicit': isExplicit,
     'hasLyrics': hasLyrics,
     'hasReplayGain': hasReplayGain,
     'format': format,
@@ -140,7 +140,7 @@ class LocalLibraryItem {
         composer: json['composer'] as String?,
         label: json['label'] as String?,
         copyright: json['copyright'] as String?,
-        explicit: json['explicit'] == true || json['explicit'] == 1,
+        isExplicit: json['explicit'] == true || json['explicit'] == 1,
         hasLyrics: json['hasLyrics'] == true || json['hasLyrics'] == 1,
         // Scan results carry the raw replaygain_* tags; stored rows the flag.
         hasReplayGain: metadataHasReplayGain(json),
@@ -152,7 +152,7 @@ class LocalLibraryItem {
     int? bitDepth,
     int? sampleRate,
     int? bitrate,
-    bool? explicit,
+    bool? isExplicit,
     bool? hasLyrics,
     bool? hasReplayGain,
     String? format,
@@ -183,7 +183,7 @@ class LocalLibraryItem {
       composer: composer,
       label: label,
       copyright: copyright,
-      explicit: explicit ?? this.explicit,
+      isExplicit: isExplicit ?? this.isExplicit,
       hasLyrics: hasLyrics ?? this.hasLyrics,
       hasReplayGain: hasReplayGain ?? this.hasReplayGain,
       format: format ?? this.format,

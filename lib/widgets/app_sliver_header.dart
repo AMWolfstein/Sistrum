@@ -2,8 +2,8 @@ import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
 import 'package:sistrum/theme/app_tokens.dart';
-import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
+import 'package:sistrum/widgets/album_detail_header.dart'
+    show HeaderCircleButton, MornyeActionCapsule;
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/app_bar_layout.dart';
 
@@ -120,6 +120,7 @@ class AppSliverHeader extends StatelessWidget {
     final maxHeight = expandedHeight + topPadding;
     final edgeInset = detailHeaderEdgeInset(context);
 
+    final trailing = actions ?? const <Widget>[];
     return SliverAppBar(
       expandedHeight: maxHeight,
       collapsedHeight: kToolbarHeight,
@@ -134,17 +135,20 @@ class AppSliverHeader extends StatelessWidget {
               padding: EdgeInsetsDirectional.only(start: edgeInset),
               child:
                   leading ??
-                  AppIconButton(
+                  HeaderCircleButton(
                     tooltip: MaterialLocalizations.of(
                       context,
                     ).backButtonTooltip,
-                    icon: const AppIcon(Icons.chevron_left),
+                    icon: Icons.chevron_left,
                     onPressed: () => Navigator.pop(context),
                   ),
             )
           : null,
       actionsPadding: EdgeInsetsDirectional.only(end: edgeInset),
-      actions: actions,
+      // Two or more trailing icons share one glass pill, as in the online pages.
+      actions: trailing.length > 1
+          ? [MornyeActionCapsule(children: trailing)]
+          : actions,
       flexibleSpace: LayoutBuilder(
         builder: (context, constraints) {
           // SliverAppBar adds the platform's actual top safe-area inset to its

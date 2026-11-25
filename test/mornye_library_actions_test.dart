@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:convert';
 
 import 'package:cupertino_ui/cupertino_ui.dart';
@@ -11,17 +12,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/models/library_database_models.dart';
-import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/services/batch_track_actions.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_action_button.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
-import 'package:sistrum/widgets/app_switch.dart';
-import 'package:sistrum/widgets/batch_convert_sheet.dart';
 import 'package:sistrum/widgets/mornye_context_menu.dart';
-import 'package:sistrum/widgets/selection_action_button.dart';
 import 'package:sistrum/widgets/selection_bottom_bar.dart';
 import 'package:sistrum/widgets/destructive_selection_button.dart';
+
+import 'support/song_menu_harness.dart';
 
 Widget _app(
   Widget child, {
@@ -62,9 +61,12 @@ void _mockMetadataFile(WidgetTester tester) {
 
 void main() {
   setUpAll(() async {
-    await (FontLoader(
-      'Inter',
-    )..addFont(rootBundle.load('assets/fonts/InterVariable.ttf'))).load();
+    await (FontLoader('Inter')..addFont(
+          File(
+            'test/support/fonts/InterVariable.ttf',
+          ).readAsBytes().then((b) => ByteData.sublistView(b)),
+        ))
+        .load();
     await (FontLoader('packages/cupertino_icons/CupertinoIcons')..addFont(
           rootBundle.load('packages/cupertino_icons/assets/CupertinoIcons.ttf'),
         ))
@@ -83,7 +85,6 @@ void main() {
     var selectedAll = false;
     var closed = false;
     var deleted = false;
-    var converted = false;
     await tester.pumpWidget(
       _app(
         Builder(
@@ -96,13 +97,6 @@ void main() {
               onToggleSelectAll: () => selectedAll = true,
               bottomPadding: 0,
               children: [
-                SelectionActionButton(
-                  icon: Icons.swap_horiz,
-                  label: 'Convert 1 track',
-                  onPressed: () => converted = true,
-                  colorScheme: Theme.of(context).colorScheme,
-                ),
-                const SizedBox(height: 8),
                 DestructiveSelectionButton(
                   count: 1,
 
@@ -116,52 +110,11 @@ void main() {
     );
     await tester.pumpAndSettle();
     await _tapVisible(tester, find.text('Select All'));
-    await _tapVisible(tester, find.text('Convert 1 track'));
     await _tapVisible(tester, find.byIcon(CupertinoIcons.trash));
     await _tapVisible(tester, find.byIcon(CupertinoIcons.xmark));
-    expect((selectedAll, converted, deleted, closed), (true, true, true, true));
+    expect((selectedAll, deleted, closed), (true, true, true));
     expect(tester.takeException(), isNull);
   });
-
-  for (final brightness in Brightness.values) {
-    testWidgets('Mornye conversion preserves selected options ($brightness)', (
-      tester,
-    ) async {
-      await tester.binding.setSurfaceSize(const Size(390, 844));
-      addTearDown(() => tester.binding.setSurfaceSize(null));
-      (String, String, bool)? result;
-      await tester.pumpWidget(
-        _app(
-          BatchConvertSheet(
-            formats: const [
-              'ALAC',
-              'FLAC',
-              'WAV',
-              'AIFF',
-              'AAC',
-              'MP3',
-              'Opus',
-            ],
-            title: 'Batch Convert',
-            confirmLabel: 'Convert tracks',
-            sourceBitDepth: 24,
-            sourceSampleRate: 48000,
-            onConvert: (format, bitrate, quality, processing, keepOriginal) {
-              result = (format, bitrate, keepOriginal);
-            },
-          ),
-          brightness: brightness,
-        ),
-      );
-      await tester.pumpAndSettle();
-      await _tapVisible(tester, find.text('Opus'));
-      await _tapVisible(tester, find.text('160k'));
-      await _tapVisible(tester, find.byType(AppSwitch));
-      await _tapVisible(tester, find.text('Convert tracks'));
-      expect(result, ('Opus', '160k', true));
-      expect(tester.takeException(), isNull);
-    });
-  }
 
   testWidgets(
     'Mornye ReplayGain cancellation restores selection without analysis',
@@ -203,7 +156,7 @@ void main() {
   );
 
   for (final platform in [TargetPlatform.iOS, TargetPlatform.android]) {
-    testWidgets('Metadata menu scroll reaches the last action ($platform)', (
+    testWidgets('Song menu scroll reaches the last action ($platform)', (
       tester,
     ) async {
       await tester.binding.setSurfaceSize(const Size(390, 540));
@@ -211,8 +164,8 @@ void main() {
       _mockMetadataFile(tester);
       await tester.pumpWidget(
         _app(
-          TrackMetadataScreen(
-            localItem: LocalLibraryItem(
+          songMenuButton(
+            LocalLibraryItem(
               id: 'menu-track',
               trackName: 'Track',
               artistName: 'Artist',
@@ -268,8 +221,8 @@ void main() {
     _mockMetadataFile(tester);
     await tester.pumpWidget(
       _app(
-        TrackMetadataScreen(
-          localItem: LocalLibraryItem(
+        songMenuButton(
+          LocalLibraryItem(
             id: 'edit-track',
             trackName: 'Track',
             artistName: 'Artist',

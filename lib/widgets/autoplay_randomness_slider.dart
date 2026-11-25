@@ -24,7 +24,6 @@ class _AutoplayRandomnessSliderState
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(settingsProvider);
-    final enabled = settings.playerMode == 'internal';
     final value = autoplayRandomnessFromJson(
       _draft ?? settings.autoplayRandomness,
     );
@@ -41,28 +40,18 @@ class _AutoplayRandomnessSliderState
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SliderValueHeader(
-            title: l10n.autoplayRandomness,
-            value: label,
-            enabled: enabled,
-          ),
+          SliderValueHeader(title: l10n.autoplayRandomness, value: label),
           AppSlider(
             value: value,
             divisions: 20,
             label: label,
             semanticLabel: l10n.autoplayRandomness,
             semanticFormatterCallback: format.format,
-            onChanged: enabled
-                ? (value) => setState(() => _draft = value)
-                : null,
-            onChangeEnd: enabled
-                ? (value) {
-                    ref
-                        .read(settingsProvider.notifier)
-                        .setAutoplayRandomness(value);
-                    setState(() => _draft = null);
-                  }
-                : null,
+            onChanged: (value) => setState(() => _draft = value),
+            onChangeEnd: (value) {
+              ref.read(settingsProvider.notifier).setAutoplayRandomness(value);
+              setState(() => _draft = null);
+            },
           ),
           DefaultTextStyle(
             style: theme.textTheme.bodySmall!.copyWith(

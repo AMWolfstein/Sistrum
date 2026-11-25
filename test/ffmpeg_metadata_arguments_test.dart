@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sistrum/services/ffmpeg_conversion.dart';
 import 'package:sistrum/services/ffmpeg_desktop.dart';
 import 'package:sistrum/services/ffmpeg_metadata.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
@@ -52,38 +51,11 @@ void main() {
     await root.delete(recursive: true);
   });
 
-  test(
-    'metadata staging failure retains the source and removes reserved output',
-    () async {
-      messenger.setMockMethodCallHandler(
-        paths,
-        (_) async => Directory.fromUri(root.uri.resolve('missing/')).path,
-      );
-      final source = File.fromUri(root.uri.resolve('Song.flac'));
-      final result = await FFmpegConversion.convertAudioFormat(
-        inputPath: source.path,
-        targetFormat: 'flac',
-        bitrate: '128k',
-        metadata: {'lyrics': List.filled(4000, 'Lyrics line\n').join()},
-        sourceBitDepth: 16,
-        deleteOriginal: false,
-      );
-      expect(result, isNull);
-      expect(commands, isEmpty);
-      expect(await source.readAsBytes(), [1, 2, 3, 4]);
-      expect(await root.list().length, 4);
-    },
-  );
-
   for (final format in [
     'FLAC embed',
     'MP3 embed',
     'AAC/M4A embed',
     'Opus embed',
-    'flac conversion',
-    'alac conversion',
-    'wav conversion',
-    'aiff conversion',
   ]) {
     test('$format keeps long lyrics out of the Windows command line', () async {
       String source(String extension) =>
@@ -107,14 +79,7 @@ void main() {
           opusPath: source('opus'),
           metadata: tags,
         ),
-        _ => await FFmpegConversion.convertAudioFormat(
-          inputPath: source('flac'),
-          targetFormat: format.split(' ').first,
-          bitrate: '128k',
-          metadata: tags,
-          sourceBitDepth: 16,
-          deleteOriginal: false,
-        ),
+        _ => throw StateError('Unknown embed format $format'),
       };
       expect(result, isNull);
       expect(commands, hasLength(1));

@@ -5,14 +5,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/track.dart';
+import 'package:sistrum/models/collection_row.dart';
 import 'package:sistrum/providers/collection_track_sort_provider.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/screens/library_tracks_folder_screen.dart';
+import 'package:sistrum/screens/collection_detail_screen.dart';
+import 'package:sistrum/services/listening_statistics.dart' show playCountKey;
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
-import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/collection_reorder_sliver.dart';
 import 'package:sistrum/widgets/desktop/track_list_table.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -48,8 +49,13 @@ final _entries = [
   _entry('c', 'Apple 2', 'Ben', 'Red', 3),
 ];
 
-List<String> _keys(Iterable<CollectionTrackEntry> entries) => [
-  for (final entry in entries) entry.key,
+List<CollectionRow> _rows(Iterable<CollectionTrackEntry> entries) => [
+  for (final entry in entries)
+    CollectionRow(key: entry.key, track: entry.track),
+];
+
+List<String> _keys(Iterable<CollectionRow> rows) => [
+  for (final row in rows) row.key,
 ];
 
 class _Collections extends LibraryCollectionsNotifier {
@@ -57,7 +63,6 @@ class _Collections extends LibraryCollectionsNotifier {
   LibraryCollectionsState build() => LibraryCollectionsState(
     isLoaded: true,
     loved: _entries,
-    wishlist: _entries,
     playlists: [
       UserPlaylistCollection(
         id: 'mix',
@@ -81,7 +86,7 @@ class _Library extends LocalLibraryNotifier {
 Future<void> _open(
   WidgetTester tester, {
   bool desktop = false,
-  LibraryTracksFolderMode mode = LibraryTracksFolderMode.playlist,
+  CollectionDetailKind kind = CollectionDetailKind.playlist,
 }) async {
   debugDesktopPlatformOverride = desktop;
   tester.view.physicalSize = desktop
@@ -104,10 +109,9 @@ Future<void> _open(
         theme: MornyeTheme.build(Brightness.dark),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
-        home: LibraryTracksFolderScreen(
-          mode: mode,
-          playlistId: mode == LibraryTracksFolderMode.playlist ? 'mix' : null,
-        ),
+        home: kind == CollectionDetailKind.playlist
+            ? CollectionDetailScreen.playlist(playlistId: 'mix')
+            : const CollectionDetailScreen.loved(),
       ),
     ),
   );
@@ -144,8 +148,13 @@ void main() {
   tearDown(() => debugDesktopPlatformOverride = null);
 
   test('each sort orders the songs and ties keep the saved order', () {
+    // Plays by song: "Apple 2" twice as often as "Zebra", "apple 10" unplayed.
+    final plays = {
+      playCountKey('Apple 2', 'Ben'): 5,
+      playCountKey('Zebra', 'Cara'): 1,
+    };
     List<String> sorted(CollectionTrackSort sort) =>
-        _keys(sortCollectionEntries(_entries, sort));
+        _keys(sortCollectionRows(_rows(_entries), sort, plays));
 
     expect(sorted(CollectionTrackSort.custom), ['a', 'b', 'c']);
     // Case is ignored and "2" comes before "10".
@@ -153,18 +162,18 @@ void main() {
     expect(sorted(CollectionTrackSort.artist), ['b', 'c', 'a']);
     // An album lists its songs by number.
     expect(sorted(CollectionTrackSort.album), ['b', 'a', 'c']);
-    expect(sorted(CollectionTrackSort.latest), ['c', 'a', 'b']);
+    expect(sorted(CollectionTrackSort.mostPlayed), ['c', 'a', 'b']);
 
-    final same = [
+    final same = _rows([
       _entry('x', 'Same', 'One', 'Album', 1),
       _entry('y', 'Same', 'One', 'Album', 1),
       _entry('z', 'Same', 'One', 'Album', 1),
-    ];
+    ]);
     for (final sort in CollectionTrackSort.values) {
-      expect(_keys(sortCollectionEntries(same, sort)), ['x', 'y', 'z']);
+      expect(_keys(sortCollectionRows(same, sort, const {})), ['x', 'y', 'z']);
     }
     // The saved list itself is never reordered.
-    expect(_keys(_entries), ['a', 'b', 'c']);
+    expect(_keys(_rows(_entries)), ['a', 'b', 'c']);
   });
 
   for (final desktop in [false, true]) {
@@ -188,13 +197,18 @@ void main() {
         'playlist:mix': 'title',
       });
 
+      // Custom Order opens the drag order, which starts from the saved order.
       await _pick(tester, 'Custom Order');
-      expect(_shown(tester, desktop: desktop), [
-        'Zebra',
-        'apple 10',
-        'Apple 2',
-      ]);
-      expect(jsonDecode(prefs.getString('collection_track_sorts')!), isEmpty);
+      expect(
+        _keys(
+          tester
+              .widget<CollectionReorderSliver>(
+                find.byType(CollectionReorderSliver),
+              )
+              .entries,
+        ),
+        ['a', 'b', 'c'],
+      );
       expect(tester.takeException(), isNull);
     });
   }
@@ -207,7 +221,7 @@ void main() {
     await _open(tester);
     expect(_shown(tester), ['apple 10', 'Apple 2', 'Zebra']);
 
-    await _open(tester, mode: LibraryTracksFolderMode.loved);
+    await _open(tester, kind: CollectionDetailKind.loved);
     expect(_shown(tester), ['Zebra', 'apple 10', 'Apple 2']);
   });
 
@@ -217,10 +231,7 @@ void main() {
     await _open(tester);
     await _pick(tester, 'Title (A-Z)');
 
-    await tester.tap(find.byType(HeaderMoreButton));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Edit order'));
-    await tester.pumpAndSettle();
+    await _pick(tester, 'Custom Order');
 
     expect(
       _keys(

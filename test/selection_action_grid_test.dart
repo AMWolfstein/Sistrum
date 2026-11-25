@@ -64,38 +64,6 @@ void main() {
     });
   }
 
-  testWidgets('selection grid retains conditional actions', (tester) async {
-    var converted = false;
-    for (final selectedCount in [0, 1, 0]) {
-      converted = false;
-      await tester.pumpWidget(
-        _app(
-          LibraryTrackSelectionBar(
-            selectedCount: selectedCount,
-            allSelected: false,
-            onClose: () {},
-            onToggleSelectAll: () {},
-            bottomPadding: 0,
-            onConvert: () => converted = true,
-            onReplayGain: ({required remove}) {},
-            onDelete: () {},
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-      expect(find.byType(SelectionActionButton), findsNWidgets(3));
-      await tester.tap(
-        find.byWidgetPredicate(
-          (widget) =>
-              widget is SelectionActionButton &&
-              widget.icon == Icons.swap_horiz,
-        ),
-      );
-      expect(converted, selectedCount > 0);
-      expect(tester.takeException(), isNull);
-    }
-  });
-
   testWidgets('desktop delete leads the Remove RG row', (tester) async {
     debugDesktopPlatformOverride = true;
     addTearDown(() => debugDesktopPlatformOverride = null);
@@ -113,7 +81,6 @@ void main() {
             onClose: () {},
             onToggleSelectAll: () {},
             bottomPadding: 0,
-            onConvert: () {},
             onReplayGain: ({required remove}) {},
             onDelete: () => deleted = true,
           ),

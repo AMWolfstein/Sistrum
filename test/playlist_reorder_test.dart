@@ -113,10 +113,7 @@ void main() {
     final container = _container(LibraryCollectionsDatabase.withDatabase(db));
     final notifier = container.read(libraryCollectionsProvider.notifier);
     final id = await notifier.createPlaylist('Mix');
-    await notifier.addTracksToPlaylist(id, [
-      _track('a'),
-      _track('b'),
-    ]);
+    await notifier.addTracksToPlaylist(id, [_track('a'), _track('b')]);
     final keys = [
       for (final entry
           in container
@@ -137,10 +134,7 @@ void main() {
     expect(_order(container, id), ['a', 'b']);
   });
 
-  for (final mode in [
-    LibraryTracksFolderMode.loved,
-    LibraryTracksFolderMode.wishlist,
-  ]) {
+  for (final mode in [LibraryTracksFolderMode.loved]) {
     test(
       '${mode.name} order survives reload and keeps new songs first',
       () async {
@@ -152,17 +146,9 @@ void main() {
         final tracks = [
           for (final id in ['a', 'b', 'c', 'd']) _track(id),
         ];
-        if (mode == LibraryTracksFolderMode.loved) {
-          await notifier.toggleLovedTracks(tracks);
-        } else {
-          for (final track in tracks) {
-            await notifier.toggleWishlist(track);
-          }
-        }
+        await notifier.toggleLovedTracks(tracks);
         List<CollectionTrackEntry> entries(ProviderContainer c) =>
-            mode == LibraryTracksFolderMode.loved
-            ? c.read(libraryCollectionsProvider).loved
-            : c.read(libraryCollectionsProvider).wishlist;
+            c.read(libraryCollectionsProvider).loved;
         final byId = {
           for (final entry in entries(container)) entry.track.id: entry,
         };
@@ -173,11 +159,7 @@ void main() {
           isTrue,
         );
         expect(entries(container).map((e) => e.track.id), ['c', 'a', 'd', 'b']);
-        if (mode == LibraryTracksFolderMode.loved) {
-          await notifier.toggleLovedTracks([_track('e')]);
-        } else {
-          await notifier.toggleWishlist(_track('e'));
-        }
+        await notifier.toggleLovedTracks([_track('e')]);
         final reloaded = _container(database);
         await reloaded
             .read(libraryCollectionsProvider.notifier)

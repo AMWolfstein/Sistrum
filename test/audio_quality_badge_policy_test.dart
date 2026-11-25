@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/utils/audio_quality_badge_policy.dart';
@@ -16,14 +15,7 @@ void main() {
         scannedAt: DateTime(2026),
       ),
     );
-    expect(
-      local.qualityForMode(AppSettings.libraryQualityLabelBitDepth),
-      'OPUS',
-    );
-    expect(
-      local.qualityForMode(AppSettings.libraryQualityLabelBitrate),
-      'OPUS',
-    );
+    expect(local.badgeQuality, 'OPUS');
   });
 
   group('Library audio quality badge color', () {
@@ -47,33 +39,21 @@ void main() {
     });
   });
 
-  group('Library audio quality label mode', () {
+  group('Library audio quality badge', () {
     test('keeps an Opus badge when bitrate has not been backfilled', () {
-      for (final mode in [
-        AppSettings.libraryQualityLabelBitrate,
-        AppSettings.libraryQualityLabelBitDepth,
-        AppSettings.libraryQualityLabelBitDepthOnly,
-        AppSettings.libraryQualityLabelBitDepthBitrate,
-        AppSettings.libraryQualityLabelFileFormat,
-      ]) {
-        expect(
-          buildLibraryAudioQualityLabel(
-            mode: mode,
-            format: 'opus',
-            bitDepth: 16,
-            sampleRate: 44100,
-            storedQuality: '16-bit/44.1kHz',
-          ),
-          'OPUS',
-          reason: mode,
-        );
-      }
+      expect(
+        buildLibraryAudioQualityLabel(
+          format: 'opus',
+          bitDepth: 16,
+          storedQuality: '16-bit/44.1kHz',
+        ),
+        'OPUS',
+      );
     });
 
     test('uses stored Opus bitrate until measured bitrate is available', () {
       expect(
         buildLibraryAudioQualityLabel(
-          mode: AppSettings.libraryQualityLabelBitDepth,
           format: 'opus',
           storedQuality: 'OPUS 320kbps',
         ),
@@ -81,7 +61,6 @@ void main() {
       );
       expect(
         buildLibraryAudioQualityLabel(
-          mode: AppSettings.libraryQualityLabelBitDepth,
           format: 'opus',
           bitrateKbps: 256,
           storedQuality: 'OPUS 320kbps',
@@ -95,7 +74,6 @@ void main() {
     test('uses the path or SAF name when a legacy row has no format', () {
       expect(
         buildLibraryAudioQualityLabel(
-          mode: AppSettings.libraryQualityLabelBitDepth,
           filePath: '/music/Song.opus',
           storedQuality: '16-bit/44.1kHz',
         ),
@@ -103,113 +81,25 @@ void main() {
       );
       expect(
         buildLibraryAudioQualityLabel(
-          mode: AppSettings.libraryQualityLabelBitrate,
           filePath: 'content://music/document/42',
           fileName: 'Song.OPUS',
         ),
         'OPUS',
       );
-      expect(
-        buildLibraryAudioQualityLabel(
-          mode: AppSettings.libraryQualityLabelFileFormat,
-          format: 'alac',
-          filePath: '/music/Song.m4a',
-        ),
-        'ALAC',
-      );
     });
 
-    test('defaults to bit depth and keeps the bitrate mode', () {
+    test('shows only the bit depth of lossless audio', () {
       expect(
         buildLibraryAudioQualityLabel(
-          mode: AppSettings.libraryQualityLabelBitrate,
-          format: 'flac',
-          bitrateKbps: 1760,
-          bitDepth: 24,
-          sampleRate: 48000,
-        ),
-        'FLAC 1760kbps',
-      );
-      expect(
-        normalizeLibraryQualityLabelMode('unsupported'),
-        AppSettings.libraryQualityLabelBitDepthOnly,
-      );
-      expect(
-        normalizeLibraryQualityLabelMode(
-          AppSettings.libraryQualityLabelBitrate,
-        ),
-        AppSettings.libraryQualityLabelBitrate,
-      );
-      expect(
-        normalizeLibraryQualityLabelMode(
-          AppSettings.libraryQualityLabelBitDepthBitrate,
-        ),
-        AppSettings.libraryQualityLabelBitDepthBitrate,
-      );
-      expect(
-        normalizeLibraryQualityLabelMode(
-          AppSettings.libraryQualityLabelBitDepthOnly,
-        ),
-        AppSettings.libraryQualityLabelBitDepthOnly,
-      );
-    });
-
-    test('shows detected file format without quality metrics', () {
-      expect(
-        normalizeLibraryQualityLabelMode(
-          AppSettings.libraryQualityLabelFileFormat,
-        ),
-        AppSettings.libraryQualityLabelFileFormat,
-      );
-      expect(
-        buildLibraryAudioQualityLabel(
-          mode: AppSettings.libraryQualityLabelFileFormat,
-          format: 'flac',
-          bitrateKbps: 1760,
-          bitDepth: 24,
-          sampleRate: 96000,
-        ),
-        'FLAC',
-      );
-      expect(
-        buildLibraryAudioQualityLabel(
-          mode: AppSettings.libraryQualityLabelFileFormat,
-          format: 'm4a',
-          bitrateKbps: 256,
-        ),
-        'M4A',
-      );
-      expect(
-        buildLibraryAudioQualityLabel(
-          mode: AppSettings.libraryQualityLabelFileFormat,
-          format: 'mp3',
-          bitrateKbps: 320,
-        ),
-        'MP3',
-      );
-      expect(
-        buildLibraryAudioQualityLabel(
-          mode: AppSettings.libraryQualityLabelFileFormat,
-          format: 'ape',
-        ),
-        'APE',
-      );
-    });
-
-    test('shows only bit depth when requested', () {
-      expect(
-        buildLibraryAudioQualityLabel(
-          mode: AppSettings.libraryQualityLabelBitDepthOnly,
           format: 'flac',
           bitrateKbps: 1411,
           bitDepth: 16,
-          sampleRate: 44100,
+          storedQuality: '16-bit/44.1kHz',
         ),
         '16-bit',
       );
       expect(
         buildLibraryAudioQualityLabel(
-          mode: AppSettings.libraryQualityLabelBitDepthOnly,
           format: 'flac',
           storedQuality: '24-bit/96kHz',
         ),
@@ -217,62 +107,28 @@ void main() {
       );
     });
 
-    test('restores legacy bit depth and sample rate labels', () {
-      expect(
-        buildLibraryAudioQualityLabel(
-          mode: AppSettings.libraryQualityLabelBitDepth,
-          format: 'flac',
-          bitrateKbps: 1760,
-          bitDepth: 24,
-          sampleRate: 48000,
-        ),
-        '24-bit/48kHz',
-      );
-    });
-
     test('keeps bitrate meaningful for lossy formats', () {
       expect(
         buildLibraryAudioQualityLabel(
-          mode: AppSettings.libraryQualityLabelBitDepth,
           format: 'mp3',
           bitrateKbps: 320,
           bitDepth: 16,
-          sampleRate: 44100,
         ),
         'MP3 320kbps',
       );
-    });
-
-    test('combines bit depth and measured bitrate for lossless audio', () {
       expect(
         buildLibraryAudioQualityLabel(
-          mode: AppSettings.libraryQualityLabelBitDepthBitrate,
-          format: 'flac',
-          bitrateKbps: 1760,
-          bitDepth: 24,
-          sampleRate: 48000,
-        ),
-        '24-bit/1760kbps',
-      );
-    });
-
-    test('keeps lossy audio on bitrate in the combined mode', () {
-      expect(
-        buildLibraryAudioQualityLabel(
-          mode: AppSettings.libraryQualityLabelBitDepthBitrate,
           format: 'aac',
           bitrateKbps: 256,
           bitDepth: 16,
-          sampleRate: 44100,
         ),
         'AAC 256kbps',
       );
     });
 
-    test('falls back when the preferred metadata is unavailable', () {
+    test('falls back to the measured bitrate when bit depth is unknown', () {
       expect(
         buildLibraryAudioQualityLabel(
-          mode: AppSettings.libraryQualityLabelBitDepth,
           format: 'flac',
           bitrateKbps: 950,
           storedQuality: 'LOSSLESS',
@@ -281,27 +137,10 @@ void main() {
       );
       expect(
         buildLibraryAudioQualityLabel(
-          mode: AppSettings.libraryQualityLabelBitrate,
-          storedQuality: '24-bit/96kHz',
-        ),
-        isNull,
-      );
-      expect(
-        buildLibraryAudioQualityLabel(
-          mode: AppSettings.libraryQualityLabelBitrate,
           format: 'flac',
           storedQuality: 'FLAC 1411kbps',
         ),
         'FLAC 1411kbps',
-      );
-      expect(
-        buildLibraryAudioQualityLabel(
-          mode: AppSettings.libraryQualityLabelBitDepthBitrate,
-          format: 'flac',
-          bitDepth: 24,
-          storedQuality: 'FLAC 1411kbps',
-        ),
-        '24-bit/1411kbps',
       );
     });
   });

@@ -1,12 +1,9 @@
-import 'dart:async';
-
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
-import 'package:sistrum/widgets/hires_batch_check_sheet.dart';
 import 'package:sistrum/widgets/playlist_picker_sheet.dart';
 import 'package:sistrum/widgets/selection_action_button.dart';
 
@@ -24,7 +21,6 @@ class LibrarySelectionPlaybackActions extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
-    final showPlayer = ref.watch(playerUiEnabledProvider);
     final actions = <Widget>[
       SelectionActionButton(
         icon: Icons.playlist_add,
@@ -42,7 +38,7 @@ class LibrarySelectionPlaybackActions extends ConsumerWidget {
                 showAddTracksToPlaylistSheet(navigatorContext, ref, tracks);
               },
       ),
-      for (final next in showPlayer ? [true, false] : const <bool>[])
+      for (final next in [true, false])
         SelectionActionButton(
           icon: next ? Icons.playlist_play : Icons.queue_music,
           label: next
@@ -56,17 +52,6 @@ class LibrarySelectionPlaybackActions extends ConsumerWidget {
                   await controller.enqueueLibraryItems(items, playNext: next);
                   if (context.mounted) onClose();
                 },
-        ),
-      if (hiResCheckableItems(items).isNotEmpty)
-        SelectionActionButton(
-          icon: Icons.verified_outlined,
-          label: context.l10n.hiResBatchAction,
-          colorScheme: colors,
-          onPressed: () {
-            final root = Navigator.of(context, rootNavigator: true).context;
-            onClose();
-            unawaited(showHiResBatchCheckSheet(root, items));
-          },
         ),
     ];
     return LayoutBuilder(

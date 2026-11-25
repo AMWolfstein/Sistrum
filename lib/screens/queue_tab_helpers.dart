@@ -63,11 +63,6 @@ class _QueueLibraryPageRequest
   final int limit;
   @override
   final int offset;
-  final String searchQuery;
-  final String? filterSource;
-  final String? filterQuality;
-  final String? filterFormat;
-  final String? filterMetadata;
   final String sortMode;
   final bool localLibraryEnabled;
   final QueueLibraryDbCursor? cursor;
@@ -76,11 +71,6 @@ class _QueueLibraryPageRequest
     required this.filterMode,
     required this.limit,
     required this.offset,
-    required this.searchQuery,
-    required this.filterSource,
-    required this.filterQuality,
-    required this.filterFormat,
-    required this.filterMetadata,
     required this.sortMode,
     required this.localLibraryEnabled,
     this.cursor,
@@ -90,11 +80,6 @@ class _QueueLibraryPageRequest
     limit: limit,
     offset: offset,
     filterMode: filterMode,
-    searchQuery: searchQuery,
-    source: filterSource,
-    quality: filterQuality,
-    format: filterFormat,
-    metadata: filterMetadata,
     sortMode: sortMode,
     includeLocal: localLibraryEnabled,
     cursor: cursor,
@@ -104,11 +89,6 @@ class _QueueLibraryPageRequest
   bool hasSamePageScope(_QueueLibraryPageRequest other) =>
       filterMode == other.filterMode &&
       limit == other.limit &&
-      searchQuery == other.searchQuery &&
-      filterSource == other.filterSource &&
-      filterQuality == other.filterQuality &&
-      filterFormat == other.filterFormat &&
-      filterMetadata == other.filterMetadata &&
       sortMode == other.sortMode &&
       localLibraryEnabled == other.localLibraryEnabled;
 
@@ -119,11 +99,6 @@ class _QueueLibraryPageRequest
           filterMode == other.filterMode &&
           limit == other.limit &&
           offset == other.offset &&
-          searchQuery == other.searchQuery &&
-          filterSource == other.filterSource &&
-          filterQuality == other.filterQuality &&
-          filterFormat == other.filterFormat &&
-          filterMetadata == other.filterMetadata &&
           sortMode == other.sortMode &&
           localLibraryEnabled == other.localLibraryEnabled &&
           cursor == other.cursor;
@@ -133,11 +108,6 @@ class _QueueLibraryPageRequest
     filterMode,
     limit,
     offset,
-    searchQuery,
-    filterSource,
-    filterQuality,
-    filterFormat,
-    filterMetadata,
     sortMode,
     localLibraryEnabled,
     cursor,
@@ -161,9 +131,7 @@ class _QueueLibraryPageData implements QueueLibraryPageContent {
 
   @override
   bool get isEmpty =>
-      items.isEmpty &&
-      localItems.isEmpty &&
-      groupedLocalAlbums.isEmpty;
+      items.isEmpty && localItems.isEmpty && groupedLocalAlbums.isEmpty;
 
   factory _QueueLibraryPageData.combine(List<_QueueLibraryPageData> pages) {
     if (pages.isEmpty) return const _QueueLibraryPageData();
@@ -261,9 +229,7 @@ final _queueLibraryPageProvider = FutureProvider.autoDispose
         );
       }
 
-      final page = await ref.read(queueLibraryTrackPageReaderProvider)(
-        dbQuery,
-      );
+      final page = await ref.read(queueLibraryTrackPageReaderProvider)(dbQuery);
       final rows = page.rows;
       final items = <UnifiedLibraryItem>[];
       final localItems = <LocalLibraryItem>[];

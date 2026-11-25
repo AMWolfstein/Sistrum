@@ -31,6 +31,7 @@ class KeyboardShortcutsPage extends ConsumerWidget {
     ];
     String tabLabel(ShellTab tab) => switch (tab) {
       ShellTab.home => l10n.navHome,
+      ShellTab.statistics => l10n.navInsights,
       ShellTab.library => l10n.navLibrary,
       ShellTab.search => l10n.mornyeSearch,
       ShellTab.settings => l10n.navSettings,

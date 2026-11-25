@@ -12,14 +12,11 @@ impl Fixture {
         let directory = tempfile::tempdir().unwrap();
         let path = directory.path().join("library_collections.db");
         let db = Connection::open(&path).unwrap();
-        db.execute_batch(r#"PRAGMA user_version=2; PRAGMA journal_mode=WAL;
-          CREATE TABLE wishlist_tracks(track_key TEXT PRIMARY KEY,track_json TEXT NOT NULL,added_at TEXT NOT NULL);
+        db.execute_batch(r#"PRAGMA user_version=3; PRAGMA journal_mode=WAL;
           CREATE TABLE loved_tracks(track_key TEXT PRIMARY KEY,track_json TEXT NOT NULL,added_at TEXT NOT NULL);
           CREATE TABLE favorite_artists(artist_key TEXT PRIMARY KEY,artist_json TEXT NOT NULL,added_at TEXT NOT NULL);
           CREATE TABLE playlists(id TEXT PRIMARY KEY,name TEXT NOT NULL,cover_image_path TEXT,created_at TEXT NOT NULL,updated_at TEXT NOT NULL);
           CREATE TABLE playlist_tracks(playlist_id TEXT NOT NULL,track_key TEXT NOT NULL,track_json TEXT NOT NULL,added_at TEXT NOT NULL,PRIMARY KEY(playlist_id,track_key));
-          INSERT INTO wishlist_tracks VALUES('first','{"id":"a"}','date');
-          INSERT INTO wishlist_tracks VALUES('second','corrupt json','date');
           INSERT INTO loved_tracks VALUES('loved','[]','date');
           INSERT INTO favorite_artists VALUES('artist','{}','date');
           INSERT INTO playlists VALUES('p','音楽 🎵',NULL,'date','date');
@@ -60,14 +57,14 @@ fn snapshot_preserves_nulls_previews_unicode_and_all_five_query_orders() {
     let result = execute(&fixture.request, &|| Ok(())).unwrap();
     assert_eq!(
         result["counts"],
-        json!({"wishlist":2,"loved":1,"playlist":3,
+        json!({"loved":1,"playlist":3,
         "membership":3,"artist":1})
     );
     assert_eq!(result["published"], true);
     assert_eq!(result["committed"], true);
     let rows = fixture.rows();
-    assert_eq!(rows[0]["row"]["track_key"], "second");
-    assert_eq!(rows[1]["row"]["track_key"], "first");
+    assert_eq!(rows[0]["kind"], "loved");
+    assert_eq!(rows[0]["row"]["track_key"], "loved");
     let playlists = rows
         .iter()
         .filter(|row| row["kind"] == "playlist")
@@ -147,10 +144,10 @@ fn cancellation_every_checkpoint_removes_staging_and_preserves_database() {
         assert_eq!(
             fixture
                 .db
-                .query_row("SELECT COUNT(*) FROM wishlist_tracks", [], |row| row
+                .query_row("SELECT COUNT(*) FROM loved_tracks", [], |row| row
                     .get::<_, i64>(0))
                 .unwrap(),
-            2
+            1
         );
     }
 }
@@ -160,7 +157,7 @@ fn schema_missing_database_and_existing_output_never_publish_or_overwrite() {
     for kind in 0..3 {
         let mut fixture = Fixture::new();
         match kind {
-            0 => fixture.db.execute_batch("PRAGMA user_version=3").unwrap(),
+            0 => fixture.db.execute_batch("PRAGMA user_version=2").unwrap(),
             1 => {
                 fixture.request["collections_path"] = Value::from(
                     fixture

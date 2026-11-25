@@ -21,7 +21,6 @@ internal object SharedEngineChannels {
         engine.plugins.add(UsbBitPerfectPlugin())
         engine.plugins.add(Media3PlayerPlugin())
         engine.plugins.add(MusicHapticsPlugin())
-        engine.plugins.add(LockScreenStatePlugin())
         registerPlaybackBackend(context, MethodChannel(engine.dartExecutor.binaryMessenger, BACKEND_CHANNEL))
         MethodChannel(engine.dartExecutor.binaryMessenger, COVERS_CHANNEL).setMethodCallHandler { call, result ->
             if (call.method == "provider") {

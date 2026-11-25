@@ -1,4 +1,3 @@
-import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/utils/audio_format_utils.dart';
 import 'package:sistrum/utils/string_utils.dart';
 
@@ -26,22 +25,6 @@ final RegExp _highlightBitDepthPattern = RegExp(r'\b24(?:\s*[- ]?\s*bit|/)');
 final RegExp _highlightKbpsPattern = RegExp(r'\b(\d+(?:\.\d+)?)\s*k(?:bps)?\b');
 final RegExp _highlightMbpsPattern = RegExp(r'\b(\d+(?:\.\d+)?)\s*mbps\b');
 
-String normalizeLibraryQualityLabelMode(String? mode) {
-  return switch (mode) {
-    AppSettings.libraryQualityLabelFileFormat =>
-      AppSettings.libraryQualityLabelFileFormat,
-    AppSettings.libraryQualityLabelBitDepthOnly =>
-      AppSettings.libraryQualityLabelBitDepthOnly,
-    AppSettings.libraryQualityLabelBitDepth =>
-      AppSettings.libraryQualityLabelBitDepth,
-    AppSettings.libraryQualityLabelBitDepthBitrate =>
-      AppSettings.libraryQualityLabelBitDepthBitrate,
-    AppSettings.libraryQualityLabelBitrate =>
-      AppSettings.libraryQualityLabelBitrate,
-    _ => AppSettings.libraryQualityLabelBitDepthOnly,
-  };
-}
-
 String? _libraryFileFormatLabel(String? format) {
   final rawFormat = normalizeOptionalString(format);
   if (rawFormat == null) return null;
@@ -62,17 +45,15 @@ String? _libraryFileFormatLabel(String? format) {
   };
 }
 
-/// Builds a Library label from metadata already held in memory. Lossy formats
-/// keep their bitrate label in quality modes because bit depth is not a useful
-/// quality signal for encoded MP3/AAC/Opus audio.
+/// Builds the Library badge from metadata already held in memory: the bit
+/// depth for lossless audio, the bitrate for lossy formats, whose bit depth is
+/// not a useful quality signal.
 String? buildLibraryAudioQualityLabel({
-  required String mode,
   String? format,
   String? filePath,
   String? fileName,
   int? bitrateKbps,
   int? bitDepth,
-  int? sampleRate,
   String? storedQuality,
 }) {
   final effectiveFormat =
@@ -93,19 +74,9 @@ String? buildLibraryAudioQualityLabel({
           format: effectiveFormat,
         )
       : null;
-  final bitDepthLabel =
-      bitDepth != null && bitDepth > 0 && sampleRate != null && sampleRate > 0
-      ? buildDisplayAudioQuality(bitDepth: bitDepth, sampleRate: sampleRate)
-      : null;
   final bitDepthOnlyLabel = effectiveBitDepth != null
       ? '$effectiveBitDepth-bit'
       : null;
-  final normalizedMode = normalizeLibraryQualityLabelMode(mode);
-
-  if (normalizedMode == AppSettings.libraryQualityLabelFileFormat) {
-    return _libraryFileFormatLabel(effectiveFormat);
-  }
-
   if (isLossyAudioFormat(effectiveFormat)) {
     // Older rows may know the codec before their bitrate has been backfilled.
     // Keep a useful badge without showing stale lossless specs or inventing a
@@ -113,24 +84,7 @@ String? buildLibraryAudioQualityLabel({
     return bitrateLabel ?? _libraryFileFormatLabel(effectiveFormat);
   }
 
-  return switch (normalizedMode) {
-    AppSettings.libraryQualityLabelBitDepthOnly =>
-      bitDepthOnlyLabel ?? bitrateLabel ?? stored,
-    AppSettings.libraryQualityLabelBitDepth =>
-      bitDepthLabel ?? bitrateLabel ?? stored,
-    AppSettings.libraryQualityLabelBitDepthBitrate =>
-      _buildBitDepthBitrateLabel(
-            bitDepth: effectiveBitDepth,
-            bitrateKbps: effectiveBitrate,
-          ) ??
-          bitrateLabel ??
-          bitDepthLabel ??
-          stored,
-    // Do not display bit depth/sample rate while the user selected bitrate.
-    // Legacy rows are backfilled separately; a stored measured bitrate remains
-    // usable while that migration completes.
-    _ => bitrateLabel,
-  };
+  return bitDepthOnlyLabel ?? bitrateLabel ?? stored;
 }
 
 int? _bitrateFromStoredQuality(String? quality) {
@@ -145,16 +99,6 @@ int? _bitDepthFromStoredQuality(String? quality) {
   final match = _storedBitDepthPattern.firstMatch(quality ?? '');
   final value = int.tryParse(match?.group(1) ?? '');
   return value != null && value > 0 ? value : null;
-}
-
-String? _buildBitDepthBitrateLabel({int? bitDepth, int? bitrateKbps}) {
-  if (bitDepth == null ||
-      bitDepth <= 0 ||
-      bitrateKbps == null ||
-      bitrateKbps <= 0) {
-    return null;
-  }
-  return '$bitDepth-bit/${bitrateKbps}kbps';
 }
 
 /// Keeps detailed bit-depth labels intact in Library grid badges while

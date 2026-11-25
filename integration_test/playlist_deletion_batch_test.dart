@@ -79,7 +79,6 @@ void main() {
             expect(state.playlists.single.tracksLoaded, false);
             expect(state.playlists.single.trackCount, 20);
             expect(state.loved, initial.loved);
-            expect(state.wishlist, initial.wishlist);
             final after = await playlistDeletionSnapshot(db);
             expect(
               after['playlists'],
@@ -91,7 +90,7 @@ void main() {
                 (p) => p['playlist_id'] == "keep'quoted",
               ),
             );
-            for (final table in ['wishlist_tracks', 'loved_tracks']) {
+            for (final table in ['loved_tracks']) {
               expect(after[table], before[table]);
             }
             expect(await db.rawQuery('PRAGMA foreign_key_check'), isEmpty);

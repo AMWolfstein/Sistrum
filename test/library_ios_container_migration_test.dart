@@ -221,7 +221,15 @@ void main() {
           onUpgrade: LibrarySchema.upgrade,
         ),
       );
-      expect(await db.query('library'), rows);
+      // v23 asks for a rescan of local lossless rows, for their explicit tag,
+      // keeping their lyrics knowledge: the scan version drops to lyrics.
+      expect(await db.query('library'), [
+        for (final row in rows)
+          {
+            ...row,
+            'audio_metadata_scan_version': libraryLyricsMetadataScanVersion,
+          },
+      ]);
       reads.clear();
       expect(
         await LibrarySchema.rebaseContainerPaths(db, '$_currentRoot/Documents'),

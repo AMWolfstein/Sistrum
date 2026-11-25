@@ -18,7 +18,13 @@ import 'package:sistrum/widgets/player_lyrics.dart';
 import 'support/tooltip_finder.dart';
 
 void main() {
-  setUp(() => SharedPreferences.setMockInitialValues({}));
+  // The one-time retired-font cleanup does real file IO, which never completes
+  // under testWidgets' fake async; mark it done so the theme loads synchronously.
+  setUp(
+    () => SharedPreferences.setMockInitialValues({
+      kRetiredThemePrefsRemovedKey: true,
+    }),
+  );
 
   test('lyric scaling respects accessibility and validates stored bounds', () {
     const scale = LyricsTextScaler(TextScaler.linear(1.5), 1.2);
@@ -268,7 +274,10 @@ void main() {
     testWidgets('Mornye lyrics blur nearby lines at strength $strength', (
       tester,
     ) async {
-      SharedPreferences.setMockInitialValues({kLyricsBlurKey: strength});
+      SharedPreferences.setMockInitialValues({
+        kLyricsBlurKey: strength,
+        kRetiredThemePrefsRemovedKey: true,
+      });
       final preview = ValueNotifier<Duration?>(const Duration(seconds: 1));
       addTearDown(preview.dispose);
       final theme = MornyeTheme.build(Brightness.dark);

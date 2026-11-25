@@ -1,9 +1,6 @@
 {
   "linkFileReading": "Зчитування тегів...",
-  "trackBpm": "BPM",
-  "trackMood": "За настроєм",
   "settingsPlaybackSubtitle": "Плеєр, гучність, автомікшування та аудіовихід",
-  "sectionPlayer": "Програвач",
   "sectionVolumeAndTransitions": "Гучність та переходи",
   "sectionAudioOutput": "Аудіо вихід",
   "usbBitPerfect": "Hi-Res та Bit-Perfect аудіо",
@@ -81,8 +78,6 @@
       }
     }
   },
-  "appearanceUseSystemFont": "Використовувати системний шрифт",
-  "appearanceUseSystemFontSubtitle": "Використовуйте стандартний шрифт вашого пристрою для тексту в додатку.",
   "@@locale": "uk",
   "@@last_modified": "2026-04-28",
   "appName": "Sistrum",
@@ -117,42 +112,8 @@
   "@historyFilterAll": {
     "description": "Filter chip - show all items"
   },
-  "historyFilterAlbums": "Альбоми",
-  "@historyFilterAlbums": {
-    "description": "Filter chip - show albums only"
-  },
-  "historyFilterSingles": "Сингли",
-  "@historyFilterSingles": {
-    "description": "Filter chip - show singles only"
-  },
-  "libraryRecentlyAdded": "Нещодавно додані",
   "librarySearchHint": "Пошук у вашій бібліотеці",
   "libraryEmptyCollection": "Ваша музика з’явиться тут",
-  "libraryFolders": "Теки",
-  "@libraryFolders": {
-    "description": "Library view that browses downloaded and scanned songs by the folders their files are in"
-  },
-  "libraryFolderCount": "{count, plural, =1{1 тека} one{{count} тека} few{{count} теки} many{{count} тек} other{{count} тек}}",
-  "@libraryFolderCount": {
-    "description": "Number of folders inside a Library folder",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "libraryFoldersEmptyTitle": "Теки не додано",
-  "@libraryFoldersEmptyTitle": {
-    "description": "Title of the Folders view when the Library has no songs"
-  },
-  "libraryFoldersEmptyMessage": "Завантажте пісні або додайте теку з музикою в налаштуваннях, щоб переглядати файли за теками.",
-  "@libraryFoldersEmptyMessage": {
-    "description": "Next step shown in the empty Folders view"
-  },
-  "libraryFolderMissing": "Цієї теки більше немає у вашому списку відтворення",
-  "@libraryFolderMissing": {
-    "description": "Shown on an open folder page after its songs were deleted or moved"
-  },
   "libraryFoldersLoadFailed": "Не вдалося прочитати ваші теки",
   "@libraryFoldersLoadFailed": {
     "description": "Shown when the Folders view fails to load"
@@ -173,22 +134,6 @@
   "@downloadAskQualitySubtitle": {
     "description": "Subtitle for ask quality toggle"
   },
-  "downloadFilenameFormat": "Формат імені файлу",
-  "@downloadFilenameFormat": {
-    "description": "Setting for output filename pattern"
-  },
-  "downloadSingleFilenameFormat": "Формат імені одного файлу",
-  "@downloadSingleFilenameFormat": {
-    "description": "Setting for output filename pattern for singles/EPs"
-  },
-  "downloadFolderOrganization": "Організація теки",
-  "@downloadFolderOrganization": {
-    "description": "Title of the folder organization picker bottom sheet"
-  },
-  "downloadFolderTemplate": "Налаштування структури тек",
-  "@downloadFolderTemplate": {
-    "description": "Setting for editing a relative download folder template"
-  },
   "appearanceTitle": "Зовнішній вигляд",
   "@appearanceTitle": {
     "description": "Appearance settings page title"
@@ -204,10 +149,6 @@
   "appearanceThemeDark": "Темна",
   "@appearanceThemeDark": {
     "description": "Dark theme"
-  },
-  "appearanceHistoryView": "Історія переглядів",
-  "@appearanceHistoryView": {
-    "description": "Layout style for history"
   },
   "appearanceHistoryViewList": "Список",
   "@appearanceHistoryViewList": {
@@ -248,18 +189,6 @@
   "optionsEmbedLyricsSubtitle": "Зберігайте синхронізовані тексти пісень разом із завантаженими треками",
   "@optionsEmbedLyricsSubtitle": {
     "description": "Subtitle for embed lyrics"
-  },
-  "optionsReplayGain": "ReplayGain",
-  "@optionsReplayGain": {
-    "description": "Title for ReplayGain setting toggle"
-  },
-  "optionsReplayGainSubtitleOn": "Аналізувати гучність та вбудувати теги ReplayGain (EBU R128)",
-  "@optionsReplayGainSubtitleOn": {
-    "description": "Subtitle when ReplayGain is enabled"
-  },
-  "optionsReplayGainSubtitleOff": "Вимкнено: немає тегів нормалізації гучності",
-  "@optionsReplayGainSubtitleOff": {
-    "description": "Subtitle when ReplayGain is disabled"
   },
   "trackReplayGain": "Повторне сканування ReplayGain",
   "@trackReplayGain": {
@@ -348,87 +277,6 @@
       }
     }
   },
-  "optionsArtistTagMode": "Режим тегу виконавця",
-  "metadataSeparators": "Розділювачі метаданих",
-  "metadataSeparatorsDescription": "Виберіть, як об’єднувати значення, розділені комою або крапкою з комою, у майбутніх завантаженнях. Для власних роздільників виконавців використовується об’єднаний тег; правило «Тільки головний виконавець» залишається в силі. Імена, що містять & або /, зберігаються.",
-  "metadataSeparatorSource": "Зберегти формат оригіналу",
-  "metadataSeparatorComma": "Кома ()",
-  "metadataSeparatorSemicolon": "Крапка з комою (;)",
-  "metadataSeparatorSlash": "Слеш (/)",
-  "metadataSeparatorCustom": "Користувацький розділювач",
-  "metadataSeparatorPreview": "Перед перегляд",
-  "metadataSeparatorInvalid": "Використовуйте від 1 до 16 символів без розділів і керівних символів.",
-  "@optionsArtistTagMode": {
-    "description": "Setting title for how artist metadata is written into files"
-  },
-  "optionsArtistTagModeDescription": "Виберіть, як будуть записуватися кілька виконавців у вбудовані теги.",
-  "@optionsArtistTagModeDescription": {
-    "description": "Bottom-sheet description for artist tag mode setting"
-  },
-  "optionsArtistTagModeJoined": "Одне об'єднане значення",
-  "@optionsArtistTagModeJoined": {
-    "description": "Artist tag mode option that joins multiple artists into one value"
-  },
-  "optionsArtistTagModeJoinedSubtitle": "Для максимальної сумісності програвача напишіть одне значення ARTIST, наприклад, «Виконавець A, Виконавець B».",
-  "@optionsArtistTagModeJoinedSubtitle": {
-    "description": "Subtitle for joined artist tag mode"
-  },
-  "optionsArtistTagModeSplitVorbis": "Розділені теги для FLAC/Opus",
-  "@optionsArtistTagModeSplitVorbis": {
-    "description": "Artist tag mode option that writes repeated ARTIST tags for Vorbis formats"
-  },
-  "optionsArtistTagModeSplitVorbisSubtitle": "Для FLAC та Opus на кожного виконавця додати окремий тег виконавця; MP3 та M4A залишаються об’єднаними.",
-  "@optionsArtistTagModeSplitVorbisSubtitle": {
-    "description": "Subtitle for split Vorbis artist tag mode"
-  },
-  "optionsArtistTagModePrimary": "Тільки основний виконавець",
-  "@optionsArtistTagModePrimary": {
-    "description": "Artist tag mode option that writes only the first credited artist"
-  },
-  "optionsArtistTagModePrimarySubtitle": "Вказуйте лише першого виконавця наприклад, «Artist A» у полях «Виконавець» та «Виконавець альбому» для всіх форматів, щоб програвачі показувати лише одного виконавця.",
-  "@optionsArtistTagModePrimarySubtitle": {
-    "description": "Subtitle for the primary-artist tag mode. Applies when downloading and re-enriching; manual edits keep what the user typed."
-  },
-  "optionsExtensionStore": "Репозиторій розширень",
-  "@optionsExtensionStore": {
-    "description": "Show/hide repo tab"
-  },
-  "optionsExtensionStoreSubtitle": "Показати вкладку «Репозиторій» у навігації",
-  "@optionsExtensionStoreSubtitle": {
-    "description": "Subtitle for extension repo toggle"
-  },
-  "optionsCheckUpdates": "Перевірити наявність оновлень",
-  "@optionsCheckUpdates": {
-    "description": "Auto update check toggle"
-  },
-  "optionsCheckUpdatesSubtitle": "Повідомити, коли буде доступна нова версія",
-  "@optionsCheckUpdatesSubtitle": {
-    "description": "Subtitle for update check"
-  },
-  "optionsUpdateChannel": "Канал оновлень",
-  "@optionsUpdateChannel": {
-    "description": "Stable vs preview releases"
-  },
-  "optionsClearHistory": "Очистити історію завантажень",
-  "@optionsClearHistory": {
-    "description": "Delete all download history"
-  },
-  "optionsClearHistorySubtitle": "Видалити всі завантажені треки з історії",
-  "@optionsClearHistorySubtitle": {
-    "description": "Subtitle for clear history"
-  },
-  "optionsDetailedLogging": "Детальне журналювання",
-  "@optionsDetailedLogging": {
-    "description": "Enable verbose logs for debugging"
-  },
-  "optionsDetailedLoggingOn": "Ведеться детальний журнал",
-  "@optionsDetailedLoggingOn": {
-    "description": "Status when logging enabled"
-  },
-  "optionsDetailedLoggingOff": "Увімкнути для звітів про помилки",
-  "@optionsDetailedLoggingOff": {
-    "description": "Status when logging disabled"
-  },
   "extensionsDisabled": "Вимкнені",
   "@extensionsDisabled": {
     "description": "Extension status - inactive"
@@ -436,26 +284,6 @@
   "aboutTitle": "Про нас",
   "@aboutTitle": {
     "description": "About page title"
-  },
-  "aboutContributors": "Автори",
-  "@aboutContributors": {
-    "description": "Section for contributors"
-  },
-  "aboutMobileDeveloper": "Розробник мобільної версії",
-  "@aboutMobileDeveloper": {
-    "description": "Role description for mobile dev"
-  },
-  "aboutLogoArtist": "Талановитий художник, який створив чудовий логотип нашого додатку!",
-  "@aboutLogoArtist": {
-    "description": "Role description for logo artist"
-  },
-  "aboutTranslators": "Перекладачі",
-  "@aboutTranslators": {
-    "description": "Section for translators"
-  },
-  "aboutSpecialThanks": "Особлива подяка",
-  "@aboutSpecialThanks": {
-    "description": "Section for special thanks"
   },
   "aboutApp": "Додаток",
   "@aboutApp": {
@@ -465,21 +293,9 @@
   "@aboutVersion": {
     "description": "Version info label"
   },
-  "aboutBinimumDesc": "Розробник QQDL та HiFi API. Цей проєкт допоміг сформувати підтримку завантаження формату lossless.",
-  "@aboutBinimumDesc": {
-    "description": "Credit description for binimum"
-  },
-  "aboutSachinsenalDesc": "Автор оригінального проєкту HiFi. Основа для інтеграції джерел формату lossless.",
-  "@aboutSachinsenalDesc": {
-    "description": "Credit description for sachinsenal0x64"
-  },
   "aboutAppDescription": "Шукайте музичні метадані, керуйте розширеннями та впорядковуйте свою бібліотеку.",
   "@aboutAppDescription": {
     "description": "App description in header card"
-  },
-  "trackMetadataService": "Сервіс",
-  "@trackMetadataService": {
-    "description": "Metadata field - download service used"
   },
   "trackMetadataPlay": "Прослухати",
   "@trackMetadataPlay": {
@@ -984,14 +800,6 @@
       }
     }
   },
-  "sectionDownload": "Завантажити",
-  "@sectionDownload": {
-    "description": "Settings section header"
-  },
-  "sectionDebug": "Налагодження",
-  "@sectionDebug": {
-    "description": "Settings section header"
-  },
   "sectionService": "Сервіс",
   "@sectionService": {
     "description": "Settings section header"
@@ -1075,9 +883,9 @@
       }
     }
   },
-  "trackCopyFilePath": "Копіювати шлях до файлу",
-  "@trackCopyFilePath": {
-    "description": "Action - copy file path"
+  "trackAudioQualityAnalysis": "Audio quality analysis",
+  "@trackAudioQualityAnalysis": {
+    "description": "Action - opens the audio quality analysis of the song"
   },
   "trackRemoveFromDevice": "Видалити з пристрою",
   "@trackRemoveFromDevice": {
@@ -1087,33 +895,13 @@
   "@trackMetadata": {
     "description": "Tab title - track metadata"
   },
-  "trackFileInfo": "Інформація про файл",
-  "@trackFileInfo": {
-    "description": "Tab title - file information"
-  },
   "trackLyrics": "Тексти пісень",
   "@trackLyrics": {
     "description": "Tab title - lyrics"
   },
-  "trackFileNotFound": "Файл не знайдено",
-  "@trackFileNotFound": {
-    "description": "Error - file doesn't exist"
-  },
-  "trackFileUnavailable": "Файл наразі недоступний. Перевірте доступ до сховища та спробуйте ще раз.",
-  "@trackFileUnavailable": {
-    "description": "File access failed; this does not mean the file was deleted"
-  },
-  "trackTrackName": "Назва треку",
-  "@trackTrackName": {
-    "description": "Metadata label - track title"
-  },
   "trackArtist": "Артист",
   "@trackArtist": {
     "description": "Metadata label - artist name"
-  },
-  "trackAlbumArtist": "Виконавець альбому",
-  "@trackAlbumArtist": {
-    "description": "Metadata label - album artist"
   },
   "trackAlbum": "Альбом",
   "@trackAlbum": {
@@ -1123,90 +911,9 @@
   "@trackTrackNumber": {
     "description": "Metadata label - track number"
   },
-  "trackDiscNumber": "Номер диска",
-  "@trackDiscNumber": {
-    "description": "Metadata label - disc number"
-  },
   "trackDuration": "Тривалість",
   "@trackDuration": {
     "description": "Metadata label - track length"
-  },
-  "trackAudioQuality": "Якість звуку",
-  "@trackAudioQuality": {
-    "description": "Metadata label - audio quality"
-  },
-  "trackReplayGainTrackGain": "ReplayGain: посилення для треку",
-  "@trackReplayGainTrackGain": {
-    "description": "Metadata label - ReplayGain track gain"
-  },
-  "trackReplayGainTrackPeak": "Піковий рівень треку ReplayGain",
-  "@trackReplayGainTrackPeak": {
-    "description": "Metadata label - ReplayGain track peak"
-  },
-  "trackReplayGainAlbumGain": "ReplayGain: посилення для альбому",
-  "@trackReplayGainAlbumGain": {
-    "description": "Metadata label - ReplayGain album gain"
-  },
-  "trackReplayGainAlbumPeak": "Піковий рівень альбому ReplayGain",
-  "@trackReplayGainAlbumPeak": {
-    "description": "Metadata label - ReplayGain album peak"
-  },
-  "libraryQualityLabelFileFormat": "Формат файлу",
-  "@libraryQualityLabelFileFormat": {
-    "description": "Library audio quality label mode that shows the detected file format"
-  },
-  "trackReleaseDate": "Дата випуску",
-  "@trackReleaseDate": {
-    "description": "Metadata label - release date"
-  },
-  "trackGenre": "Жанр",
-  "@trackGenre": {
-    "description": "Metadata label - music genre"
-  },
-  "trackLabel": "Обкладинка",
-  "@trackLabel": {
-    "description": "Metadata label - record label"
-  },
-  "trackCopyright": "Авторське право",
-  "@trackCopyright": {
-    "description": "Metadata label - copyright information"
-  },
-  "trackDownloaded": "Завантажено",
-  "@trackDownloaded": {
-    "description": "Metadata label - download date"
-  },
-  "trackCopyLyrics": "Скопіювати тексти пісень",
-  "@trackCopyLyrics": {
-    "description": "Action - copy lyrics to clipboard"
-  },
-  "trackLyricsSource": "Джерело {source}",
-  "@trackLyricsSource": {
-    "description": "Label showing the lyrics source/provider",
-    "placeholders": {
-      "source": {
-        "type": "String"
-      }
-    }
-  },
-  "trackLyricsNotInFile": "У цьому файлі не знайдено тексту пісні",
-  "@trackLyricsNotInFile": {
-    "description": "Message when no embedded lyrics in audio file"
-  },
-  "trackEmbedLyrics": "Вбудувати текст пісні",
-  "@trackEmbedLyrics": {
-    "description": "Action - embed lyrics into audio file"
-  },
-  "trackLyricsEmbedded": "Текст пісні успішно вбудовано в пісню",
-  "@trackLyricsEmbedded": {
-    "description": "Snackbar - lyrics saved to file"
-  },
-  "trackInstrumental": "Інструментальний трек",
-  "@trackInstrumental": {
-    "description": "Message when track is instrumental (no lyrics)"
-  },
-  "trackCopiedToClipboard": "Скопійовано в буфер обміну",
-  "@trackCopiedToClipboard": {
-    "description": "Snackbar - content copied"
   },
   "trackDeleteConfirmTitle": "Видалити з пристрою?",
   "@trackDeleteConfirmTitle": {
@@ -1241,45 +948,9 @@
   "@downloadLossyFormat": {
     "description": "Setting title to pick output format for lossy downloads"
   },
-  "downloadAutoConvert": "Автоматично конвертувати після завантаження",
-  "@downloadAutoConvert": {
-    "description": "Toggle for automatic post-download audio conversion"
-  },
-  "downloadAutoConvertSubtitle": "Конвертуйте завершені завантаження у компактніший формат із втратою якості. Оригінал замінюється лише після успішного завершення конвертації.",
-  "@downloadAutoConvertSubtitle": {
-    "description": "Explanation of safe automatic post-download conversion"
-  },
   "downloadAskBeforeDownload": "Запитувати перед завантаженням",
   "@downloadAskBeforeDownload": {
     "description": "Setting - show quality picker"
-  },
-  "downloadDirectory": "Каталог завантажень",
-  "@downloadDirectory": {
-    "description": "Setting - download folder"
-  },
-  "downloadSeparateSinglesFolder": "Окрема тека для синглів",
-  "@downloadSeparateSinglesFolder": {
-    "description": "Setting - separate folder for singles"
-  },
-  "downloadAlbumFolderStructure": "Структура альбому в теці",
-  "@downloadAlbumFolderStructure": {
-    "description": "Setting - album folder organization"
-  },
-  "downloadUseAlbumArtistForFolders": "Використовувати виконавця альбому для тек",
-  "@downloadUseAlbumArtistForFolders": {
-    "description": "Setting - choose whether artist folders use Album Artist or Track Artist"
-  },
-  "downloadUsePrimaryArtistOnly": "Тільки основний виконавець для тек",
-  "@downloadUsePrimaryArtistOnly": {
-    "description": "Setting - strip featured artists from folder name"
-  },
-  "appearanceHeroAnimations": "Анімації головного елемента",
-  "@appearanceHeroAnimations": {
-    "description": "Toggle for shared-element (Hero) transitions"
-  },
-  "appearanceHeroAnimationsSubtitle": "Анімація переходу між екранами, наприклад, під час відкриття плеєра",
-  "@appearanceHeroAnimationsSubtitle": {
-    "description": "Subtitle for the Hero animations toggle"
   },
   "appearanceForceBlur": "Завжди використовуйте ефекти розмиття",
   "@appearanceForceBlur": {
@@ -1344,34 +1015,6 @@
         "example": "1"
       }
     }
-  },
-  "sectionStorageAccess": "Доступ до сховища",
-  "@sectionStorageAccess": {
-    "description": "Section header for storage access settings"
-  },
-  "allFilesAccess": "Доступ до всіх файлів",
-  "@allFilesAccess": {
-    "description": "Toggle for MANAGE_EXTERNAL_STORAGE permission"
-  },
-  "allFilesAccessEnabledSubtitle": "Можна записувати в будь-яку теку",
-  "@allFilesAccessEnabledSubtitle": {
-    "description": "Subtitle when all files access is enabled"
-  },
-  "allFilesAccessDisabledSubtitle": "Обмежено лише теками з медіафайлами",
-  "@allFilesAccessDisabledSubtitle": {
-    "description": "Subtitle when all files access is disabled"
-  },
-  "allFilesAccessDescription": "Увімкніть цю опцію, якщо під час збереження у власній теці виникають помилки запису. Android 13+ за замовчуванням обмежує доступ до певних каталогів.",
-  "@allFilesAccessDescription": {
-    "description": "Description explaining when to enable all files access"
-  },
-  "allFilesAccessDeniedMessage": "У дозволі відмовлено. Будь ласка, увімкніть «Доступ до всіх файлів» вручну в налаштуваннях системи.",
-  "@allFilesAccessDeniedMessage": {
-    "description": "Message when permission is permanently denied"
-  },
-  "allFilesAccessDisabledMessage": "У дозволі відмовлено. Будь ласка, увімкніть «Доступ до всіх файлів» вручну в налаштуваннях системи.",
-  "@allFilesAccessDisabledMessage": {
-    "description": "Snackbar message when user disables all files access"
   },
   "settingsLocalLibrary": "Локальна бібліотека",
   "@settingsLocalLibrary": {
@@ -1625,10 +1268,6 @@
       }
     }
   },
-  "libraryInLibrary": "У бібліотеці",
-  "@libraryInLibrary": {
-    "description": "Badge shown on tracks that exist in local library"
-  },
   "libraryRemovedMissingFiles": "Видалено {count} відсутніх файлів з бібліотеки",
   "@libraryRemovedMissingFiles": {
     "description": "Snackbar after cleanup",
@@ -1650,14 +1289,6 @@
   "@libraryStorageAccessMessage": {
     "description": "Dialog message for storage permission"
   },
-  "librarySourceLocal": "Локальні",
-  "@librarySourceLocal": {
-    "description": "Badge for tracks from local library scan"
-  },
-  "libraryFilterAll": "Усі",
-  "@libraryFilterAll": {
-    "description": "Filter chip - show all library items"
-  },
   "libraryReEnrichAll": "Оновити метадані всіх треків",
   "@libraryReEnrichAll": {
     "description": "Library settings action - re-enrich the metadata of every track in the Library"
@@ -1666,69 +1297,13 @@
   "@libraryReEnrichAllSubtitle": {
     "description": "Subtitle for the Re-enrich All Tracks action"
   },
-  "libraryFilterLocal": "Локальні",
-  "@libraryFilterLocal": {
-    "description": "Filter chip - show only local library items"
-  },
-  "libraryFilterTitle": "Фільтри",
-  "@libraryFilterTitle": {
-    "description": "Filter bottom sheet title"
-  },
   "libraryFilterReset": "Скинути",
   "@libraryFilterReset": {
     "description": "Reset all filters button"
   },
-  "libraryFilterApply": "Застосувати",
-  "@libraryFilterApply": {
-    "description": "Apply filters button"
-  },
-  "libraryFilterSource": "Джерело",
-  "@libraryFilterSource": {
-    "description": "Filter section - source type"
-  },
-  "libraryFilterQuality": "Якість",
-  "@libraryFilterQuality": {
-    "description": "Filter section - audio quality"
-  },
-  "libraryFilterQualityHiRes": "Hi-Res (24bit)",
-  "@libraryFilterQualityHiRes": {
-    "description": "Filter option - high resolution audio"
-  },
-  "libraryFilterQualityCD": "CD (16bit)",
-  "@libraryFilterQualityCD": {
-    "description": "Filter option - CD quality audio"
-  },
-  "libraryFilterQualityLossy": "Lossy",
-  "@libraryFilterQualityLossy": {
-    "description": "Filter option - lossy compressed audio"
-  },
   "libraryFilterFormat": "Формат",
   "@libraryFilterFormat": {
     "description": "Filter section - file format"
-  },
-  "libraryFilterMetadata": "Метадані",
-  "@libraryFilterMetadata": {
-    "description": "Filter section - metadata completeness"
-  },
-  "libraryFilterMetadataComplete": "Повні метадані",
-  "@libraryFilterMetadataComplete": {
-    "description": "Filter option - items with complete metadata"
-  },
-  "libraryFilterMetadataMissingAny": "Відсутні будь-які метадані",
-  "@libraryFilterMetadataMissingAny": {
-    "description": "Filter option - items missing any tracked metadata field"
-  },
-  "libraryFilterMetadataMissingYear": "Відсутній рік",
-  "@libraryFilterMetadataMissingYear": {
-    "description": "Filter option - items missing release year/date"
-  },
-  "libraryFilterMetadataMissingGenre": "Відсутній жанр",
-  "@libraryFilterMetadataMissingGenre": {
-    "description": "Filter option - items missing genre"
-  },
-  "libraryFilterMetadataMissingAlbumArtist": "Відсутній виконавець альбому",
-  "@libraryFilterMetadataMissingAlbumArtist": {
-    "description": "Filter option - items missing album artist"
   },
   "libraryFilterSort": "Сортувати",
   "@libraryFilterSort": {
@@ -2124,93 +1699,9 @@
       }
     }
   },
-  "trackConvertFormat": "Конвертувати формат",
-  "@trackConvertFormat": {
-    "description": "Menu item - convert audio format"
-  },
-  "trackConvertTitle": "Конвертувати аудіо",
-  "@trackConvertTitle": {
-    "description": "Title of convert bottom sheet"
-  },
-  "trackConvertTargetFormat": "Цільовий формат",
-  "@trackConvertTargetFormat": {
-    "description": "Label for format selection"
-  },
   "trackConvertBitrate": "Бітрейт",
   "@trackConvertBitrate": {
     "description": "Label for bitrate selection"
-  },
-  "trackConvertKeepOriginal": "Зберегти оригінальний файл",
-  "@trackConvertKeepOriginal": {
-    "description": "Toggle to preserve the source file during conversion"
-  },
-  "trackConvertKeepOriginalDescription": "Додати конвертований файл як окремий запис в бібліотеці",
-  "@trackConvertKeepOriginalDescription": {
-    "description": "Description for preserving the source file during conversion"
-  },
-  "trackConvertConfirmTitle": "Підтвердити конверсію",
-  "@trackConvertConfirmTitle": {
-    "description": "Confirmation dialog title"
-  },
-  "trackConvertConfirmMessage": "Конвертувати з {sourceFormat} в {targetFormat} зі швидкістю {bitrate}?\n\nОригінальний файл буде видалено після конвертації.",
-  "@trackConvertConfirmMessage": {
-    "description": "Confirmation dialog message",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmMessageLossless": "Конвертувати з {sourceFormat} у {targetFormat}? (Lossless — без втрати якості)\n\nОригінальний файл буде видалено після конвертації.",
-  "@trackConvertConfirmMessageLossless": {
-    "description": "Confirmation dialog message for lossless-to-lossless conversion",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmKeepOriginal": "Конвертувати з {sourceFormat} в {targetFormat}?\n\nОригінальний файл буде збережений, а конвертований файл буде додано як окремий запис у бібліотеці.",
-  "@trackConvertConfirmKeepOriginal": {
-    "description": "Confirmation message when the source file will be preserved",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertLosslessHint": "Lossless конвертація — без втрати якості",
-  "@trackConvertLosslessHint": {
-    "description": "Hint shown when converting between lossless formats"
-  },
-  "trackConvertConverting": "Конвертування аудіо...",
-  "@trackConvertConverting": {
-    "description": "Snackbar while converting"
-  },
-  "trackConvertSuccess": "Конвертовано в {format} успішно",
-  "@trackConvertSuccess": {
-    "description": "Snackbar after successful conversion",
-    "placeholders": {
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertFailed": "Конвертація не вдалася",
-  "@trackConvertFailed": {
-    "description": "Snackbar when conversion fails"
   },
   "cueSplitTitle": "Розділений аркуш CUE",
   "@cueSplitTitle": {
@@ -2296,14 +1787,6 @@
   "@actionCreate": {
     "description": "Generic action button - create"
   },
-  "collectionFoldersTitle": "Мої теки",
-  "@collectionFoldersTitle": {
-    "description": "Library section title for custom folders"
-  },
-  "collectionWishlist": "Список бажань",
-  "@collectionWishlist": {
-    "description": "Custom folder for saved tracks to download later"
-  },
   "collectionLoved": "Вподобані",
   "@collectionLoved": {
     "description": "Custom folder for favorite tracks"
@@ -2331,15 +1814,6 @@
   "collectionPlaylistTracks": "{count, plural, =1{1 трек} other{{count} треків}}",
   "@collectionPlaylistTracks": {
     "description": "Track count label for custom playlists",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "collectionArtistCount": "{count, plural, =1{1 виконавець} other{{count} виконавці}}",
-  "@collectionArtistCount": {
-    "description": "Artist count label for favorite artists",
     "placeholders": {
       "count": {
         "type": "int"
@@ -2384,14 +1858,6 @@
   "@collectionPlaylistRenamed": {
     "description": "Snackbar after renaming playlist"
   },
-  "collectionWishlistEmptyTitle": "Список бажань порожній",
-  "@collectionWishlistEmptyTitle": {
-    "description": "Wishlist empty state title"
-  },
-  "collectionWishlistEmptySubtitle": "Натисніть + на треках, щоб зберегти те, що ви хочете завантажити пізніше",
-  "@collectionWishlistEmptySubtitle": {
-    "description": "Wishlist empty state subtitle"
-  },
   "collectionLovedEmptyTitle": "Тека \"Улюблені\" порожня",
   "@collectionLovedEmptyTitle": {
     "description": "Loved empty state title"
@@ -2422,43 +1888,7 @@
   },
   "collectionRemoveFromFolder": "Видалити з теки",
   "@collectionRemoveFromFolder": {
-    "description": "Tooltip for removing track from wishlist/loved folder"
-  },
-  "collectionAddedToLoved": "\"{trackName}\" додано до списку улюблених",
-  "@collectionAddedToLoved": {
-    "description": "Snackbar after adding track to loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionRemovedFromLoved": "\"{trackName}\" видалено з уподобань",
-  "@collectionRemovedFromLoved": {
-    "description": "Snackbar after removing track from loved folder",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionAddedToWishlist": "\"{trackName}\" додано до списку бажань",
-  "@collectionAddedToWishlist": {
-    "description": "Snackbar after adding track to wishlist",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
-  },
-  "collectionRemovedFromWishlist": "\"{trackName}\" видалено зі списку бажань",
-  "@collectionRemovedFromWishlist": {
-    "description": "Snackbar after removing track from wishlist",
-    "placeholders": {
-      "trackName": {
-        "type": "String"
-      }
-    }
+    "description": "Tooltip for removing track from loved folder"
   },
   "collectionRemovedFromFavoriteArtists": "\"{artistName}\" видалено з улюблених Виконавців",
   "@collectionRemovedFromFavoriteArtists": {
@@ -2477,14 +1907,6 @@
   "@trackOptionRemoveFromLoved": {
     "description": "Bottom sheet action label - remove track from loved folder"
   },
-  "trackOptionAddToWishlist": "Додати до списку бажань",
-  "@trackOptionAddToWishlist": {
-    "description": "Bottom sheet action label - add track to wishlist"
-  },
-  "trackOptionRemoveFromWishlist": "Видалити зі списку бажань",
-  "@trackOptionRemoveFromWishlist": {
-    "description": "Bottom sheet action label - remove track from wishlist"
-  },
   "artistOptionRemoveFromFavorites": "Видалено з улюблених Виконавців",
   "@artistOptionRemoveFromFavorites": {
     "description": "Action label - remove artist from favorite artists"
@@ -2496,77 +1918,6 @@
   "collectionPlaylistRemoveCover": "Видалити зображення обкладинки",
   "@collectionPlaylistRemoveCover": {
     "description": "Bottom sheet action to remove custom cover image from a playlist"
-  },
-  "selectionConvertCount": "Конвертувати {count} {count, plural, =1{трек} other{треків}}",
-  "@selectionConvertCount": {
-    "description": "Convert button text with count in selection mode",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "selectionConvertNoConvertible": "Трансформованих треків не вибрано",
-  "@selectionConvertNoConvertible": {
-    "description": "Snackbar when no selected tracks support conversion"
-  },
-  "selectionBatchConvertConfirmTitle": "Пакетне конвертування",
-  "@selectionBatchConvertConfirmTitle": {
-    "description": "Confirmation dialog title for batch conversion"
-  },
-  "selectionBatchConvertConfirmMessage": "Конвертувати {count} {count, plural, =1{трек} other{треків}} у {format} з {bitrate}?\n\nОригінальні файли будуть видалені після конвертації.",
-  "@selectionBatchConvertConfirmMessage": {
-    "description": "Confirmation dialog message for batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmMessageLossless": "Конвертувати {count} {count, plural, =1{трек} other{треків}} у {format}? (Lossless — без втрати якості)\n\nОригінальні файли будуть видалені після конвертації.",
-  "@selectionBatchConvertConfirmMessageLossless": {
-    "description": "Confirmation dialog message for lossless batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmKeepOriginal": "Конвертувати {count} {count, plural, =1{трек} few{треки} other{треків}} у {format}?\n\nОригінальні файли буде збережено, а конвертовані — додано як окремі записи до медіатеки.",
-  "@selectionBatchConvertConfirmKeepOriginal": {
-    "description": "Batch conversion confirmation when source files will be preserved",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertSuccess": "Конвертовано {success} з {total} треків у {format}",
-  "@selectionBatchConvertSuccess": {
-    "description": "Snackbar after batch conversion completes",
-    "placeholders": {
-      "success": {
-        "type": "int"
-      },
-      "total": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      }
-    }
   },
   "settingsBackup": "Резервування та відновлення",
   "@settingsBackup": {
@@ -2584,7 +1935,7 @@
   "@backupExportSectionTitle": {
     "description": "Section title for the export/backup card"
   },
-  "backupExportSectionDescription": "Збережіть свої налаштування, історію завантажень, вподобані треки, список бажань, улюблених виконавців і список треків в один файл, який можна зберегти або перенести на інший телефон.",
+  "backupExportSectionDescription": "Збережіть свої налаштування, історію завантажень, вподобані треки, улюблених виконавців і список треків в один файл, який можна зберегти або перенести на інший телефон.",
   "@backupExportSectionDescription": {
     "description": "Description of what a backup contains"
   },
@@ -2642,7 +1993,7 @@
   },
   "backupSettingsOnly": "Тільки налаштування",
   "backupSelectCollections": "Колекції бібліотек",
-  "backupSelectCollectionsDescription": "Вподобані треки, список бажань, улюблені виконавці, списки відтворення та обкладинки списку треків.",
+  "backupSelectCollectionsDescription": "Вподобані треки, улюблені виконавці, списки відтворення та обкладинки списку треків.",
   "backupSelectedExportDescription": "Зберегти вибрані категорії в файл резервної копії. Аудіофайли не включені.",
   "backupSelectAtLeastOne": "Виберіть принаймні одну категорію, для створення резервної копії.",
   "backupSelectedRestoreMessage": "Буде відновлено лише категорії, перелічені нижче. Категорії, не включені до цієї резервної копії, залишаться без змін. Процес відновлення може замінити наявні дані; скасувати цю дію неможливо.",
@@ -2653,15 +2004,6 @@
   "backupContentsLiked": "{count} вподобали {count, plural, =1{трек} other{треків}}",
   "@backupContentsLiked": {
     "description": "Backup contents row for liked tracks count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "backupContentsWishlist": "{count} список бажань {count, plural, =1{трек} other{треків}}",
-  "@backupContentsWishlist": {
-    "description": "Backup contents row for wishlist tracks count",
     "placeholders": {
       "count": {
         "type": "int"
@@ -2698,10 +2040,6 @@
   "@tooltipLoveAll": {
     "description": "Tooltip for the Love All button on album/playlist screens"
   },
-  "tooltipAddToPlaylist": "Додати до списку відтворення",
-  "@tooltipAddToPlaylist": {
-    "description": "Tooltip for the Add to Playlist button"
-  },
   "snackbarRemovedTracksFromLoved": "Видалено {count} треків з уподобань",
   "@snackbarRemovedTracksFromLoved": {
     "description": "Snackbar after removing multiple tracks from Loved folder",
@@ -2732,14 +2070,6 @@
   "@snackbarMetadataSaved": {
     "description": "Snackbar after successfully saving track metadata"
   },
-  "snackbarFailedToEmbedLyrics": "Не вдалося вставити текст пісні",
-  "@snackbarFailedToEmbedLyrics": {
-    "description": "Snackbar when lyrics embedding fails"
-  },
-  "snackbarFailedToWriteStorage": "Не вдалося перезаписати у сховище",
-  "@snackbarFailedToWriteStorage": {
-    "description": "Snackbar when writing metadata back to file fails"
-  },
   "snackbarError": "Помилка: {error}",
   "@snackbarError": {
     "description": "Generic error snackbar with error detail",
@@ -2754,14 +2084,6 @@
     "description": "Empty state message when an album has no tracks"
   },
   "storageDownloadFolderHint": "У засобі вибору тек Android відкрийте теку Завантаження і виберіть Sistrum. Якщо її немає, створіть її за допомогою опції «Нова тека», а потім натисніть «Використовувати цю теку», щоб надати доступ.",
-  "downloadArtistNameFilters": "Фільтри імені виконавця",
-  "@downloadArtistNameFilters": {
-    "description": "Setting title for artist folder filter options"
-  },
-  "downloadCreatePlaylistSourceFolder": "Вихідна тека списку відтворення",
-  "@downloadCreatePlaylistSourceFolder": {
-    "description": "Setting to create a subfolder per playlist source"
-  },
   "downloadSongLinkRegion": "Регіон SongLink",
   "@downloadSongLinkRegion": {
     "description": "Setting for SongLink region used during fallback resolution"
@@ -2773,10 +2095,6 @@
   "downloadAllowLocalNetwork": "Дозволити доступ до локальної мережі",
   "@downloadAllowLocalNetwork": {
     "description": "Setting title for allowing requests to private/local network targets"
-  },
-  "downloadEmbedLyricsDisabled": "Увімкнути метаданні спочатку",
-  "@downloadEmbedLyricsDisabled": {
-    "description": "Subtitle when lyrics embedding is blocked by metadata toggle"
   },
   "downloadNeteaseIncludeTranslation": "Netease: Включити переклад",
   "@downloadNeteaseIncludeTranslation": {
@@ -2797,10 +2115,6 @@
   "downloadMusixmatchLanguage": "Мова Musixmatch",
   "@downloadMusixmatchLanguage": {
     "description": "Setting for Musixmatch lyrics translation language"
-  },
-  "downloadFilterContributing": "Поки що немає постачальників послуг пошуку",
-  "@downloadFilterContributing": {
-    "description": "Setting to strip contributing artists from Album Artist folder name"
   },
   "snackbarUnsupportedAudioFormat": "Непідтримуваний аудіоформат",
   "@snackbarUnsupportedAudioFormat": {
@@ -2888,14 +2202,6 @@
   "@queueEmptyAlbumsSubtitle": {
     "description": "Empty state subtitle for album downloads"
   },
-  "queueEmptySingles": "Без окремих завантажень",
-  "@queueEmptySingles": {
-    "description": "Empty state title when no single track downloads exist"
-  },
-  "queueEmptySinglesSubtitle": "Завантаження окремих треків з’являться тут",
-  "@queueEmptySinglesSubtitle": {
-    "description": "Empty state subtitle for single track downloads"
-  },
   "queuePlaylistCount": "{count, plural, =1{1 список треків} other{{count} списки треків}}",
   "@queuePlaylistCount": {
     "description": "Playlist count label with plural support",
@@ -2908,14 +2214,6 @@
   "queueEmptyPlaylistsSubtitle": "Створіть списки треків, щоб упорядкувати свої треки",
   "@queueEmptyPlaylistsSubtitle": {
     "description": "Empty state subtitle for the playlists library view"
-  },
-  "libraryDefaultView": "Вигляд за замовчуванням",
-  "@libraryDefaultView": {
-    "description": "Setting title - which library view opens when switching to the Library tab"
-  },
-  "libraryDefaultViewLastUsed": "Останнє використання",
-  "@libraryDefaultViewLastUsed": {
-    "description": "Default view option - keep the last used library view"
   },
   "queueEmptyHistory": "Немає історії завантажень",
   "@queueEmptyHistory": {
@@ -3043,105 +2341,6 @@
     "placeholders": {
       "fileName": {
         "type": "String"
-      }
-    }
-  },
-  "downloadRedownloadFakeHiRes": "Повторно завантажити підроблений Hi-Res",
-  "@downloadRedownloadFakeHiRes": {
-    "description": "Setting title: automatically replace downloads that measure as fake Hi-Res"
-  },
-  "downloadRedownloadFakeHiResSubtitle": "Вимкнено за замовчуванням. Перевіряйте завантаження у високій якості Hi-Res і замінюйте файл лише за умови збереження всіх аудіосемплів. Зберігайте оригінал, якщо перевірка або обробка не вдалися",
-  "@downloadRedownloadFakeHiResSubtitle": {
-    "description": "Setting subtitle for the fake Hi-Res re-download toggle"
-  },
-  "hiResCheckVerdictFakeCertain": "Підроблений Hi-Res",
-  "@hiResCheckVerdictFakeCertain": {
-    "description": "Verdict: an exact fingerprint (padded bits or upsampling pattern) proves the file is not real Hi-Res"
-  },
-  "hiResCheckReasonSampleHold": "Кожен відлік повторюється: підвищення частоти дискретизації шляхом дублювання\n",
-  "@hiResCheckReasonSampleHold": {
-    "description": "Reason: sample-and-hold upsampling detected"
-  },
-  "hiResCheckReasonInterpolation": "Проміжні відліки лінійно інтерполюються",
-  "@hiResCheckReasonInterpolation": {
-    "description": "Reason: linear-interpolation upsampling detected"
-  },
-  "hiResCheckTitle": "Автентичність Hi-Res",
-  "@hiResCheckTitle": {
-    "description": "Title of the fake Hi-Res check card"
-  },
-  "hiResCheckLimitedBandwidth": "Обмежена пропускна здатність",
-  "@hiResCheckLimitedBandwidth": {
-    "description": "Neutral finding: a limited spectrum alone does not prove upsampling"
-  },
-  "hiResCheckEstimatedCutoff": "Орієнтовне обмеження",
-  "@hiResCheckEstimatedCutoff": {
-    "description": "Estimated upper spectral edge at the analysis threshold"
-  },
-  "hiResCheckActiveBits": "Активні / збережені біти",
-  "@hiResCheckActiveBits": {
-    "description": "Active integer bit depth versus the container depth in the sampled segment"
-  },
-  "hiResCheckBandwidthExplanation": "Нижча межа відсікання може бути обумовлена освоєнням. Саме по собі це не доводить наявність підвищеної частоти дискретизації.",
-  "@hiResCheckBandwidthExplanation": {
-    "description": "Explains why the limited-bandwidth finding is neutral"
-  },
-  "hiResCheckImagingEvidence": "Спектр містить дзеркальні смуги, характерні для підвищення частоти дискретизації.",
-  "@hiResCheckImagingEvidence": {
-    "description": "Spectral imaging is suggestive evidence rather than proof"
-  },
-  "hiResCheckRateEvidence": "Різкий спад поблизу {cutoff} і виміряний рівень шуму вказують на джерело з нижчою частотою дискретизації.",
-  "@hiResCheckRateEvidence": {
-    "description": "Heuristic evidence from both a brickwall and a 16-bit-like noise floor",
-    "placeholders": {
-      "cutoff": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResCheckSteadyEnergy": "Енергія вище рівня відсікання {cutoff} в аналізованому сегменті здебільшого стабільна і може бути зумовлена ​​шумом.",
-  "@hiResCheckSteadyEnergy": {
-    "description": "An observation about ultrasonic energy, not proof that removing it is safe",
-    "placeholders": {
-      "cutoff": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResCheckRun": "Перевірити",
-  "@hiResCheckRun": {
-    "description": "Button that starts the Hi-Res authenticity check"
-  },
-  "hiResCheckVerdictFake": "Ймовірно підробка Hi-Res",
-  "@hiResCheckVerdictFake": {
-    "description": "Verdict: the file claims Hi-Res but does not measure as it"
-  },
-  "hiResCheckVerdictInconclusive": "Невизначений результат: проаналізований фрагмент занадто тихий або короткий",
-  "@hiResCheckVerdictInconclusive": {
-    "description": "Verdict: analysis could not reach a reliable conclusion"
-  },
-  "hiResCheckUnsupported": "Можна перевірити лише файли у форматах FLAC і WAV",
-  "@hiResCheckUnsupported": {
-    "description": "Shown when the file format cannot be decoded by the Hi-Res check"
-  },
-  "hiResCheckFailed": "Помилка перевірки Hi-Res: {error}",
-  "@hiResCheckFailed": {
-    "description": "Error shown when the Hi-Res check fails",
-    "placeholders": {
-      "error": {
-        "type": "String"
-      }
-    }
-  },
-  "hiResCheckReasonDepth": "Заявлено {declared} біт, але тільки {effective} біти передають дані",
-  "@hiResCheckReasonDepth": {
-    "description": "Reason for a fake verdict caused by padded bit depth",
-    "placeholders": {
-      "declared": {
-        "type": "int"
-      },
-      "effective": {
-        "type": "int"
       }
     }
   },
@@ -3427,18 +2626,6 @@
   "@tutorialStartDownloadSemantics": {
     "description": "Accessibility label for idle download button in tutorial demo"
   },
-  "optionsEmbedMetadata": "Вбудувати метадані",
-  "@optionsEmbedMetadata": {
-    "description": "Settings toggle title for writing metadata into downloaded files"
-  },
-  "optionsEmbedMetadataSubtitleOn": "Записуйте метадані, обкладинки та вбудовані тексти пісень у файли",
-  "@optionsEmbedMetadataSubtitleOn": {
-    "description": "Subtitle when metadata embedding is enabled"
-  },
-  "optionsEmbedMetadataSubtitleOff": "Вимкнено (розширений режим): пропустити вбудовування всіх метаданих",
-  "@optionsEmbedMetadataSubtitleOff": {
-    "description": "Subtitle when metadata embedding is disabled"
-  },
   "trackCoverNoEmbeddedArt": "Вбудованих обкладинок альбому не знайдено",
   "@trackCoverNoEmbeddedArt": {
     "description": "Message shown when a track file has no embedded cover art"
@@ -3466,18 +2653,6 @@
   "trackCoverReplaceNotice": "Вибрана обкладинка замінить поточну вбудовану обкладинку, коли ви натиснете «Зберегти».",
   "@trackCoverReplaceNotice": {
     "description": "Notice shown when a new cover has been selected but not saved yet"
-  },
-  "trackCoverResolution": "Розмір обкладинки",
-  "@trackCoverResolution": {
-    "description": "Label for selecting the embedded cover art resolution"
-  },
-  "trackCoverResolutionHint": "Визначає розмір найдовшого краю під час збереження. Збільшення не додає зображенню деталей.",
-  "@trackCoverResolutionHint": {
-    "description": "Explanation below the embedded cover art resolution selector"
-  },
-  "trackCoverResizeFailed": "Не вдалося змінити розмір зображення обкладинки. Будь ласка, спробуйте інший розмір або зображення.",
-  "@trackCoverResizeFailed": {
-    "description": "Error shown when resizing cover art before saving metadata fails"
   },
   "queueMoveUp": "Перемістити вверх",
   "@queueMoveUp": {
@@ -3626,22 +2801,6 @@
       }
     }
   },
-  "settingsFiles": "Файли та теки",
-  "@settingsFiles": {
-    "description": "Settings menu item - file and folder settings"
-  },
-  "settingsFilesSubtitle": "Місце завантаження, ім'я файлу, структура тек",
-  "@settingsFilesSubtitle": {
-    "description": "Subtitle for files & folders settings"
-  },
-  "settingsMetadata": "Метадані",
-  "@settingsMetadata": {
-    "description": "Settings menu item - metadata settings"
-  },
-  "settingsMetadataSubtitle": "Обкладинки, теги, ReplayGain, провайдери",
-  "@settingsMetadataSubtitle": {
-    "description": "Subtitle for metadata settings"
-  },
   "settingsLyrics": "Тексти пісень",
   "@settingsLyrics": {
     "description": "Settings menu item - lyrics settings"
@@ -3649,34 +2808,6 @@
   "settingsLyricsSubtitle": "Вбудовувати, режим, провайдери, параметри мови",
   "@settingsLyricsSubtitle": {
     "description": "Subtitle for lyrics settings"
-  },
-  "settingsApp": "Застосунок",
-  "@settingsApp": {
-    "description": "Settings menu item - app settings"
-  },
-  "settingsAppSubtitle": "Оновлення, дані, репозиторій розширень, налагодження",
-  "@settingsAppSubtitle": {
-    "description": "Subtitle for app settings"
-  },
-  "metadataProvidersTitle": "Пріоритет провайдера метаданих",
-  "@metadataProvidersTitle": {
-    "description": "Settings item title for metadata provider order"
-  },
-  "metadataProvidersSubtitle": "Встановити порядок пошуку та джерел метаданих",
-  "@metadataProvidersSubtitle": {
-    "description": "Subtitle for metadata provider priority item"
-  },
-  "downloadDeduplication": "Пропустити повторення завантажень",
-  "@downloadDeduplication": {
-    "description": "Setting - skip tracks already in download history"
-  },
-  "downloadQualityVariants": "Дозволити версії різної якості",
-  "@downloadQualityVariants": {
-    "description": "Setting to retain multiple quality versions of the same track"
-  },
-  "downloadQualityVariantsDescription": "Зберігайте всі якісні версії; додавайте показник якості до імені файлу лише тоді, коли таке ім’я вже використовується",
-  "@downloadQualityVariantsDescription": {
-    "description": "Description for retaining multiple quality versions"
   },
   "downloadFallbackExtensions": "Резервні розширення",
   "@downloadFallbackExtensions": {
@@ -3737,30 +2868,6 @@
   "editMetadataAdvanced": "Додатково",
   "@editMetadataAdvanced": {
     "description": "Expandable section label for advanced metadata fields"
-  },
-  "libraryFilterMetadataMissingTrackNumber": "Відсутній номер треку",
-  "@libraryFilterMetadataMissingTrackNumber": {
-    "description": "Filter option - items missing track number"
-  },
-  "libraryFilterMetadataMissingDiscNumber": "Відсутній номер диску",
-  "@libraryFilterMetadataMissingDiscNumber": {
-    "description": "Filter option - items missing disc number"
-  },
-  "libraryFilterMetadataMissingArtist": "Відсутній виконавець",
-  "@libraryFilterMetadataMissingArtist": {
-    "description": "Filter option - items missing artist"
-  },
-  "libraryFilterMetadataIncorrectIsrcFormat": "Неправильний формат ISRC",
-  "@libraryFilterMetadataIncorrectIsrcFormat": {
-    "description": "Filter option - items with an invalid ISRC format"
-  },
-  "libraryFilterMetadataMissingIsrc": "Відсутній код ISRC",
-  "@libraryFilterMetadataMissingIsrc": {
-    "description": "Filter option - items without any ISRC tag"
-  },
-  "libraryFilterMetadataMissingLabel": "Відсутній ярлик",
-  "@libraryFilterMetadataMissingLabel": {
-    "description": "Filter option - items missing record label"
   },
   "collectionDeletePlaylistsMessage": "Видалити {count} {count, plural, =1{список треків} other{списки треків}}?",
   "@collectionDeletePlaylistsMessage": {
@@ -3900,10 +3007,6 @@
   "@audioAnalysisMono": {
     "description": "Audio channel layout label - mono"
   },
-  "trackLyricsEmbeddedSource": "Вбудовано",
-  "@trackLyricsEmbeddedSource": {
-    "description": "Lyrics source label for embedded lyrics"
-  },
   "unknownAlbum": "Невідомий альбом",
   "@unknownAlbum": {
     "description": "Fallback album name when metadata is missing"
@@ -3928,33 +3031,9 @@
   "@errorInvalidFolderSelected": {
     "description": "Error when the selected folder is invalid"
   },
-  "settingsSaveDownloadHistory": "Зберігати історію завантажень",
-  "@settingsSaveDownloadHistory": {
-    "description": "Settings switch title for storing completed downloads in history"
-  },
-  "settingsSaveDownloadHistorySubtitle": "Зберігати завершені завантаження в історії та бібліотеці",
-  "@settingsSaveDownloadHistorySubtitle": {
-    "description": "Settings switch subtitle for storing completed downloads in history"
-  },
   "libraryPlayback": "Відтворення",
   "@libraryPlayback": {
     "description": "Section header for playback settings in library settings"
-  },
-  "libraryExternalPlayer": "Зовнішній програвач",
-  "@libraryExternalPlayer": {
-    "description": "Setting option to use an external music player"
-  },
-  "libraryExternalPlayerSubtitle": "Відкривайте треки в інших музичних застосунках на вашому пристрої",
-  "@libraryExternalPlayerSubtitle": {
-    "description": "Subtitle for external player option"
-  },
-  "libraryBuiltInPreviewPlayer": "Вбудований програвач",
-  "@libraryBuiltInPreviewPlayer": {
-    "description": "Setting option to use the built-in preview player"
-  },
-  "libraryBuiltInPreviewPlayerSubtitle": "Відтворюйте свою музику прямо в Sistrum",
-  "@libraryBuiltInPreviewPlayerSubtitle": {
-    "description": "Subtitle for built-in preview player option"
   },
   "nowPlayingTitle": "Зараз відтворюється",
   "@nowPlayingTitle": {
@@ -4041,10 +3120,6 @@
   "@nowPlayingSleepTimerCancelled": {
     "description": "Confirmation after cancelling the playback sleep timer"
   },
-  "nowPlayingOpenInExternalPlayer": "Відкрити в зовнішньому програвачі",
-  "@nowPlayingOpenInExternalPlayer": {
-    "description": "Menu item to open the current track in an external player"
-  },
   "nowPlayingHideVolume": "Hide volume",
   "@nowPlayingHideVolume": {
     "description": "Now Playing menu item that removes the volume slider from the player"
@@ -4127,75 +3202,6 @@
       }
     }
   },
-  "trackConvertLosslessOutputWithCap": "Вивід Lossless з обмеженням якості {quality}",
-  "@trackConvertLosslessOutputWithCap": {
-    "description": "Hint shown when lossless conversion will cap bit depth or sample rate",
-    "placeholders": {
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertConfirmMessageLosslessCapped": "Конвертувати з {sourceFormat} в {targetFormat} ({quality})?\n\nВихідний файл зберігається у форматі lossless, але розрядність і частота дискретизації будуть обмежені. Оригінальний файл буде видалено після конвертації.",
-  "@trackConvertConfirmMessageLosslessCapped": {
-    "description": "Confirmation dialog message for capped lossless conversion of a single file",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "selectionBatchConvertConfirmMessageLosslessCapped": "Конвертувати {count} {count, plural, =1{трек} few{треки} other{треків}} у {format} ({quality})?\n\nВихідний файл зберігається у форматі lossless, але розрядність і частота дискретизації будуть обмежені. Оригінальний файл буде видалено після конвертації.",
-  "@selectionBatchConvertConfirmMessageLosslessCapped": {
-    "description": "Confirmation dialog message for capped lossless batch conversion",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      },
-      "format": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertActionLabelLossless": "{sourceFormat} → {targetFormat} ({quality})",
-  "@trackConvertActionLabelLossless": {
-    "description": "Convert button label for lossless conversion with quality cap",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "quality": {
-        "type": "String"
-      }
-    }
-  },
-  "trackConvertActionLabelLossy": "{sourceFormat} → {targetFormat} @ {bitrate}",
-  "@trackConvertActionLabelLossy": {
-    "description": "Convert button label for lossy conversion",
-    "placeholders": {
-      "sourceFormat": {
-        "type": "String"
-      },
-      "targetFormat": {
-        "type": "String"
-      },
-      "bitrate": {
-        "type": "String"
-      }
-    }
-  },
   "snackbarPlayingNext": "Відтворити далі",
   "@snackbarPlayingNext": {
     "description": "Snackbar when a track is inserted as the next queue item"
@@ -4217,46 +3223,6 @@
   "@actionShuffle": {
     "description": "Tooltip for shuffle playback action"
   },
-  "trackConvertOriginal": "Оригінал",
-  "@trackConvertOriginal": {
-    "description": "Label for keeping original bit depth or sample rate during conversion"
-  },
-  "trackConvertOriginalQuality": "Якість оригіналу",
-  "@trackConvertOriginalQuality": {
-    "description": "Label when no bit depth or sample rate cap is applied during lossless conversion"
-  },
-  "trackConvertLosslessSuffix": "Lossless",
-  "@trackConvertLosslessSuffix": {
-    "description": "Suffix used in converted lossless quality labels"
-  },
-  "trackConvertDithering": "Згладжування",
-  "@trackConvertDithering": {
-    "description": "Section label for lossless conversion dithering options"
-  },
-  "trackConvertResampler": "Ре семплер",
-  "@trackConvertResampler": {
-    "description": "Section label for lossless conversion resampler options"
-  },
-  "trackConvertDitherNone": "Нічого",
-  "@trackConvertDitherNone": {
-    "description": "Lossless conversion dither option with no dithering applied"
-  },
-  "trackConvertDitherTriangular": "TPDF",
-  "@trackConvertDitherTriangular": {
-    "description": "Lossless conversion triangular probability density function dither option"
-  },
-  "trackConvertDitherTriangularHp": "Одиниця вимірювання ширини модуля",
-  "@trackConvertDitherTriangularHp": {
-    "description": "Lossless conversion high-pass triangular dither option"
-  },
-  "trackConvertResamplerSwr": "SWR",
-  "@trackConvertResamplerSwr": {
-    "description": "Lossless conversion default FFmpeg swresample resampler option"
-  },
-  "trackConvertResamplerSoxr": "SoXr",
-  "@trackConvertResamplerSoxr": {
-    "description": "Lossless conversion SoX resampler option"
-  },
   "unknownTitle": "Невідома назва",
   "@unknownTitle": {
     "description": "Fallback track title when metadata is missing"
@@ -4273,10 +3239,6 @@
   "@trackCoverOnline": {
     "description": "Label shown when metadata autofill downloaded cover art from the internet"
   },
-  "extensionVerificationBrowserTitle": "Браузер для перевірки",
-  "@extensionVerificationBrowserTitle": {
-    "description": "Settings option title for extension verification browser preference"
-  },
   "settingsSearchHint": "Пошук налаштувань",
   "@settingsSearchHint": {
     "description": "Placeholder of the search field on the Settings tab"
@@ -4289,18 +3251,6 @@
         "type": "String"
       }
     }
-  },
-  "libraryFilterMetadataMissingLyrics": "Відсутній текст пісні",
-  "@libraryFilterMetadataMissingLyrics": {
-    "description": "Filter option for tracks without embedded or sidecar lyrics"
-  },
-  "libraryFilterMetadataMissingReplayGain": "Відсутній ReplayGain",
-  "@libraryFilterMetadataMissingReplayGain": {
-    "description": "Filter option for scanned tracks without ReplayGain gain tags"
-  },
-  "libraryFilterMetadataHasReplayGain": "Вирівнювання гучності",
-  "@libraryFilterMetadataHasReplayGain": {
-    "description": "Filter option for tracks with indexed ReplayGain track or album gain tags"
   },
   "libraryFilterIncompleteAlbums": "Неповні альбоми",
   "@libraryFilterIncompleteAlbums": {
@@ -4325,40 +3275,8 @@
       }
     }
   },
-  "trackOptionCopyTrackName": "Копіювати назву треку",
-  "@trackOptionCopyTrackName": {
-    "description": "Track menu action that copies the track title"
-  },
-  "trackOptionCopyArtist": "Копіювати виконавця",
-  "@trackOptionCopyArtist": {
-    "description": "Track menu action that copies the artist name"
-  },
-  "trackOptionCopyTrackAndArtist": "Копіювання пісні та виконавця",
-  "@trackOptionCopyTrackAndArtist": {
-    "description": "Track menu action that copies the track title and artist"
-  },
-  "metadataCopyValue": "Копіювати значення",
-  "@metadataCopyValue": {
-    "description": "Metadata menu action that copies only the selected value"
-  },
-  "metadataCopyField": "Копіювати поле та значення",
-  "@metadataCopyField": {
-    "description": "Metadata menu action that copies the selected key and value"
-  },
   "mornyeSearch": "Пошук",
   "mornyeContinuePlaying": "Продовжити відтворювання",
-  "metadataCopyAll": "Копіювати всі метадані",
-  "@metadataCopyAll": {
-    "description": "Metadata menu action that copies every visible key and value"
-  },
-  "optionsEmbeddedCoverSize": "Розмір вбудованої обкладинки",
-  "@optionsEmbeddedCoverSize": {
-    "description": "Metadata setting that limits downloaded artwork resolution before it is embedded"
-  },
-  "optionsEmbeddedCoverSizeDescription": "Зменшуйте розмір віддалено завантажених обкладинок перед їх вбудовуванням. Зображення, що вже відповідають обмеженням, залишаються без змін.",
-  "@optionsEmbeddedCoverSizeDescription": {
-    "description": "Description shown in the embedded cover size picker"
-  },
   "mornyeFavorite": "Обране",
   "mornyeGoToArtist": "Перейти до виконавця",
   "@mornyeFavorite": {
@@ -4731,9 +3649,7 @@
     "description": "Action that saves a daily mix's songs into one of the user's playlists"
   },
   "motionArtwork": "Анімована обкладинка",
-  "listeningStats": "Статистика прослуховувань",
-  "listeningStatsRecord": "Запис прослуховувань",
-  "listeningStatsDescription": "Зберігається лише на цьому пристрої, починаючи відтепер. Враховується лише вбудований програвач; паузи, буферизація та перемотування не додають часу прослуховування. Прослуховування зараховується після 30 секунд.",
+  "navInsights": "Insights",
   "listeningStatsEmpty": "Увімкніть музику у вбудованому програвачі, щоб розпочати підсумок вашого прослуховування. Попередні прослуховування відновити неможливо.",
   "listeningStatsDays": "{days} Дні",
   "@listeningStatsDays": {
@@ -4774,7 +3690,6 @@
   "listeningStatsClear": "Очистити статистику прослуховувань",
   "listeningStatsClearError": "Не вдалося очистити статистику прослуховування. Будь ласка, спробуйте ще раз.",
   "listeningStatsClearDescription": "Видалити всю статистику прослуховувань на цьому пристрої? Ваша музика та списки треків збережуться.",
-  "libraryArtistsEmpty": "Виконавці з’являться тут, щойно ви завантажите музику або проскануєте локальну бібліотеку.",
   "listeningRewind": "Перемотати назад",
   "listeningRewindDescription": "Найцікавіше за останні місяці",
   "listeningRewindChoosePeriod": "Оберіть період",
@@ -5012,11 +3927,7 @@
   },
   "playbackPauseOnMuteDescription": "Призупиняти при нульовій гучності медіа та відновлювати при її збільшенні. Ручні паузи зберігаються. Тільки стандартний аудіовихід.",
   "playbackOnHeadphonesConnected": "Відтворювати після підключення навушників",
-  "playbackOnHeadphonesConnectedDescription": "Відновлювати відтворення поточної пісні під час підключення дротових або Bluetooth-навушників. Відключення призупиняє відтворення. Тільки для вбудованого програвача.",
-  "appearanceCustomFont": "Користувацький шрифт",
-  "appearanceCustomFontSubtitle": "Імпорт файлу TTF або OTF (до 10 МБ). Перевизначає шрифт теми та системи.",
-  "appearanceCustomFontInvalid": "Не вдалося завантажити цей шрифт. Виберіть дійсний файл формату TTF або OTF розміром до 10 МБ.",
-  "appearanceCustomFontReset": "Використовуйте шрифт теми",
+  "playbackOnHeadphonesConnectedDescription": "Відновлювати відтворення поточної пісні під час підключення дротових або Bluetooth-навушників. Відключення призупиняє відтворення.",
   "equalizerTitle": "Еквалайзер",
   "equalizerDescription": "5–31 Смуговий, Тембр, Передпідсилювач / Динаміка",
   "equalizerEnable": "Увімкнути еквалайзер",
@@ -5046,7 +3957,7 @@
   "equalizerSaved": "Шаблон збережено",
   "equalizerResetTitle": "Скинути еквалайзер?",
   "equalizerResetDescription": "Повернення до плоскої кривої, стандартного тембру та динаміки. Збережені шаблони залишаться.",
-  "equalizerBypass": "Режими Bit-perfect, Direct USB та ексклюзивний вивід Hi-Res обходять еквалайзер. Вимкніть Bit-perfect, щоб увімкнути еквалайзер. Зовнішні програвачі керують власними ефектами.",
+  "equalizerBypass": "Режими Bit-perfect, Direct USB та ексклюзивний вивід Hi-Res обходять еквалайзер. Вимкніть Bit-perfect, щоб увімкнути еквалайзер.",
   "equalizerCurve": "Крива EQ (розрахункова)",
   "equalizerCurveDescription": "Крива зображає підсилення смуг; точний результат залежить від рушія відтворення.",
   "equalizerEffectivePreamp": "Вхідне підсилення після автозапасу",
@@ -5261,10 +4172,6 @@
   "appCrashDismiss": "Відхилити",
   "appCrashCopyFailed": "Не вдалося скопіювати звіт про збій. Будь ласка, спробуйте ще раз.",
   "appCrashDismissFailed": "Не вдалося закрити звіт про збій. Будь ласка, спробуйте ще раз.",
-  "optionsEmbeddedCoverSizeOriginal": "Вихідна роздільна здатність",
-  "@optionsEmbeddedCoverSizeOriginal": {
-    "description": "Option that preserves the provider artwork at its original resolution"
-  },
   "desktopShortcutTooltip": "{action} ({shortcut})",
   "@desktopShortcutTooltip": {
     "description": "Desktop tooltip that names an action and its keyboard shortcut, for example 'Next track (Ctrl+Right)'",
@@ -5304,10 +4211,6 @@
   "desktopMenuOpen": "Відкрити",
   "@desktopMenuOpen": {
     "description": "Context menu item that opens an album, artist, playlist or folder"
-  },
-  "desktopMenuShowDetails": "Показати деталі",
-  "@desktopMenuShowDetails": {
-    "description": "Context menu item that opens a track's metadata page"
   },
   "desktopDropToImport": "Перетягніть сюди, щоб додати до бібліотеки",
   "@desktopDropToImport": {
@@ -5483,16 +4386,51 @@
   "@playlistImportFailed": {
     "description": "Snackbar when reading or parsing an imported playlist file fails"
   },
-  "sectionExistingDownloads": "Existing Files",
-  "@sectionExistingDownloads": {
-    "description": "Files settings section header for actions on already-downloaded files"
+  "explicitLabel": "Explicit",
+  "@explicitLabel": {
+    "description": "Semantics label and chip text for an explicit song marker in a song row"
   },
-  "reorganizeLibraryTitle": "Apply Rules to Existing Files",
-  "@reorganizeLibraryTitle": {
-    "description": "Files settings action that moves and renames already-downloaded tracks to match the current folder and filename rules"
+  "libraryFolders": "Теки",
+  "@libraryFolders": {
+    "description": "Library view that browses downloaded and scanned songs by the folders their files are in"
   },
-  "reorganizeLibrarySubtitle": "Move and rename downloads and Local Library files in your download folder so they follow the folder and filename rules above",
-  "@reorganizeLibrarySubtitle": {
-    "description": "Subtitle of the apply-rules-to-existing-files action"
+  "libraryFolderCount": "{count, plural, =1{1 тека} one{{count} тека} few{{count} теки} many{{count} тек} other{{count} тек}}",
+  "@libraryFolderCount": {
+    "description": "Number of folders inside a Library folder",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "libraryFoldersEmptyTitle": "Теки не додано",
+  "@libraryFoldersEmptyTitle": {
+    "description": "Title of the Folders view when the Library has no songs"
+  },
+  "libraryFoldersEmptyMessage": "Завантажте пісні або додайте теку з музикою в налаштуваннях, щоб переглядати файли за теками.",
+  "@libraryFoldersEmptyMessage": {
+    "description": "Next step shown in the empty Folders view"
+  },
+  "libraryFolderMissing": "Цієї теки більше немає у вашому списку відтворення",
+  "@libraryFolderMissing": {
+    "description": "Shown on an open folder page after its songs were deleted or moved"
+  },
+  "collectionAddedToLoved": "\"{trackName}\" додано до списку улюблених",
+  "@collectionAddedToLoved": {
+    "description": "Snackbar after adding track to loved folder",
+    "placeholders": {
+      "trackName": {
+        "type": "String"
+      }
+    }
+  },
+  "collectionRemovedFromLoved": "\"{trackName}\" видалено з уподобань",
+  "@collectionRemovedFromLoved": {
+    "description": "Snackbar after removing track from loved folder",
+    "placeholders": {
+      "trackName": {
+        "type": "String"
+      }
+    }
   }
 }

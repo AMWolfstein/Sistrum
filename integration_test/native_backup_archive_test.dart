@@ -208,7 +208,6 @@ void main() {
       ).writeAsBytes([1, 2, 3]);
       for (final collections in <Map<String, dynamic>>[
         {
-          'wishlist': <dynamic>[],
           'loved': <dynamic>[],
           'playlists': <dynamic>[],
           'favoriteArtists': <dynamic>[],

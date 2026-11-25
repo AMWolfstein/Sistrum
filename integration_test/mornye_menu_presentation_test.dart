@@ -3,12 +3,10 @@ import 'dart:ui' as ui;
 
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
-import 'package:sistrum/services/custom_font_service.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/mornye_context_menu.dart';
@@ -19,9 +17,7 @@ import 'performance_probe.dart';
 void main() {
   final binding = PerformanceTestBinding.ensureInitialized();
   for (final brightness in Brightness.values) {
-    testWidgets('anchored squircle glass with imported font ($brightness)', (
-      tester,
-    ) async {
+    testWidgets('anchored squircle glass ($brightness)', (tester) async {
       final probe = PerformanceProbe(
         binding,
         tester,
@@ -29,17 +25,6 @@ void main() {
       );
       final capture = GlobalKey();
       final button = GlobalKey();
-      final temporary = await (await getTemporaryDirectory()).createTemp(
-        'font-ui-test-',
-      );
-      addTearDown(() => temporary.delete(recursive: true));
-      final fonts = CustomFontService(directory: () async => temporary);
-      final bytes = await rootBundle.load('assets/fonts/InterVariable.ttf');
-      final id = await fonts.import(
-        bytes.buffer.asUint8List(bytes.offsetInBytes, bytes.lengthInBytes),
-      );
-      final family = await fonts.restore(id);
-      expect(family, isNotNull);
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -47,11 +32,7 @@ void main() {
             mornyeBlurEnabledProvider.overrideWithValue(true),
           ],
           child: MaterialApp(
-            theme: MornyeTheme.build(
-              brightness,
-              glassClarity: 1,
-              fontFamily: family,
-            ),
+            theme: MornyeTheme.build(brightness, glassClarity: 1),
             builder: (_, child) => RepaintBoundary(
               key: capture,
               child: MornyeGlassPreparation(child: child!),
@@ -206,8 +187,6 @@ void main() {
         await close();
       });
       await open(captureOpening: true);
-      final menuContext = tester.element(find.byType(MornyeContextMenu));
-      expect(Theme.of(menuContext).textTheme.bodyLarge?.fontFamily, family);
       await captureMenu('settled');
       await close();
       await probe.finish();

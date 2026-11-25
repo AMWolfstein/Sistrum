@@ -2,7 +2,6 @@
 //! output and publishes it only after this operation succeeds and is synced.
 
 mod ape;
-mod artists;
 mod id3;
 mod mp4;
 mod ogg;
@@ -12,9 +11,6 @@ pub(super) use id3::cover as embedded_cover;
 
 use super::{CheckedReader, MAX_TAG_BYTES, bytes, exact, pair, seek};
 use crate::matching::uppercase;
-use artists::{
-    artist_mode_fields, primary_artist, primary_artist_mode, split_artists, tag_separator,
-};
 use regex::Regex;
 use std::collections::BTreeMap;
 use std::io::{BufReader, Cursor, Read, Seek, SeekFrom, Write};
@@ -53,7 +49,6 @@ pub fn rewrite_audio_tags(
 ) -> Result<(), String> {
     check()?;
     validate_fields(fields)?;
-    let fields = &*artist_mode_fields(fields);
     let mut source = BufReader::new(CheckedReader {
         reader: source,
         check,
@@ -76,7 +71,7 @@ pub fn rewrite_audio_tags(
         return write_sections(&mut source, output, sections, check);
     }
     let section = match format {
-        "flac" => flac_header(&mut source, fields, cover, None, check)?,
+        "flac" => flac_header(&mut source, fields, cover, false, check)?,
         "mp3" => {
             let (data, end) = id3::header(&mut source, fields, cover, check)?;
             Section {
@@ -101,7 +96,6 @@ pub fn rewrite_flac_tags_if_changed(
 ) -> Result<bool, String> {
     check()?;
     validate_fields(fields)?;
-    let fields = &*artist_mode_fields(fields);
     // Read only metadata and the frame sync needed for validation. A buffered
     // reader here would also pull audio into memory on the no-op path.
     let mut source = CheckedReader {
@@ -113,7 +107,7 @@ pub fn rewrite_flac_tags_if_changed(
         &mut source,
         fields,
         cover.filter(|bytes| !bytes.is_empty()),
-        None,
+        false,
         check,
     )?;
     if section.data.len() as u64 == section.end - section.start {
@@ -142,7 +136,6 @@ pub fn embed_flac_metadata(
     source: &mut (impl Read + Seek),
     output: &mut impl Write,
     fields: &Fields,
-    artist_tag_mode: &str,
     cover: Option<&[u8]>,
     check: &dyn Fn() -> Result<(), String>,
 ) -> Result<(), String> {
@@ -157,7 +150,7 @@ pub fn embed_flac_metadata(
         &mut source,
         fields,
         cover.filter(|data| !data.is_empty()),
-        Some(artist_tag_mode),
+        true,
         check,
     )?;
     write_sections(&mut source, output, vec![section], check)
@@ -304,7 +297,7 @@ fn flac_header(
     source: &mut (impl Read + Seek),
     fields: &Fields,
     cover: Option<&[u8]>,
-    embed_mode: Option<&str>,
+    embed: bool,
     check: &dyn Fn() -> Result<(), String>,
 ) -> Result<Section, String> {
     let start = super::containers::flac_start(source)?;
@@ -346,26 +339,12 @@ fn flac_header(
     } else {
         (b"Sistrum".to_vec(), Vec::new())
     };
-    if let Some(mode) = embed_mode {
+    if embed {
         for (key, value) in fields.iter().filter(|(_, value)| !value.is_empty()) {
-            if key.ends_with("_separator") {
-                continue;
-            }
-            let separator = tag_separator(fields, key);
             if matches!(key.as_str(), "ARTIST" | "ALBUMARTIST") {
-                let values =
-                    if mode.trim().eq_ignore_ascii_case("split_vorbis") && separator.is_empty() {
-                        split_artists(value)
-                    } else if primary_artist_mode(mode) {
-                        vec![primary_artist(value)]
-                    } else {
-                        vec![super::format_metadata_tag_value(value, separator)]
-                    };
-                if !values.is_empty() {
-                    set_comment(&mut comments, key, "");
-                    for value in values.iter().filter(|value| !value.trim().is_empty()) {
-                        comments.push(format!("{key}={value}").into_bytes());
-                    }
+                set_comment(&mut comments, key, "");
+                if !value.trim().is_empty() {
+                    comments.push(format!("{key}={value}").into_bytes());
                 }
             } else if matches!(key.as_str(), "TRACKNUMBER" | "DISCNUMBER") && pair(value).0 > 0 {
                 // A total the fields leave out keeps the file's own.
@@ -377,11 +356,7 @@ fn flac_header(
                     }
                 }
             } else {
-                set_comment(
-                    &mut comments,
-                    key,
-                    &super::format_metadata_tag_value(value, separator),
-                );
+                set_comment(&mut comments, key, value);
             }
         }
     } else {
@@ -537,19 +512,8 @@ fn edit_comments(comments: &mut Vec<Vec<u8>>, fields: &Fields) {
     for (field, key) in [("artist", "ARTIST"), ("album_artist", "ALBUMARTIST")] {
         if let Some(value) = fields.get(field) {
             set_comment(comments, key, "");
-            let values = if fields
-                .get("artist_tag_mode")
-                .is_some_and(|mode| mode.trim().eq_ignore_ascii_case("split_vorbis"))
-                && tag_separator(fields, field).is_empty()
-            {
-                split_artists(value)
-            } else {
-                vec![value.clone()]
-            };
-            for value in values {
-                if !value.trim().is_empty() {
-                    comments.push(format!("{key}={value}").into_bytes());
-                }
+            if !value.trim().is_empty() {
+                comments.push(format!("{key}={value}").into_bytes());
             }
             if field == "album_artist" {
                 for alias in ["ALBUM ARTIST", "ALBUM_ARTIST"] {

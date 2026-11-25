@@ -23,8 +23,6 @@ class _Library extends LocalLibraryNotifier {
 const _settings = AppSettings(
   localLibraryEnabled: true,
   localLibraryAutoScan: 'daily',
-  defaultLibraryView: 'albums',
-  libraryQualityLabelMode: 'bit_depth',
   lyricsMode: 'both',
 );
 
@@ -42,48 +40,6 @@ final List<_Sheet> _library = [
     ['off', 'on_open', 'daily', 'weekly'],
     [Icons.block, Icons.open_in_new, Icons.today, Icons.date_range],
     (s) => s.localLibraryAutoScan,
-  ),
-  (
-    (l) => l.libraryDefaultView,
-    [
-      'last',
-      'all',
-      'albums',
-      'singles',
-      'artists',
-      'genres',
-      'playlists',
-      'folders',
-    ],
-    [
-      Icons.history,
-      Icons.music_note,
-      Icons.album,
-      Icons.audiotrack,
-      Icons.person,
-      Icons.category_outlined,
-      Icons.queue_music,
-      Icons.folder_outlined,
-    ],
-    (s) => s.defaultLibraryView,
-  ),
-  (
-    (l) => l.trackAudioQuality,
-    [
-      'bitrate',
-      'bit_depth_only',
-      'bit_depth',
-      'bit_depth_bitrate',
-      'file_format',
-    ],
-    [
-      Icons.speed_rounded,
-      Icons.tune_rounded,
-      Icons.graphic_eq_rounded,
-      Icons.multiline_chart_rounded,
-      Icons.audio_file_rounded,
-    ],
-    (s) => s.libraryQualityLabelMode,
   ),
 ];
 

@@ -25,14 +25,7 @@ import '../test/support/library_native_fixture.dart';
 import '../test/support/library_paging_fixture.dart';
 import 'performance_probe.dart';
 
-const _browse = (
-  artists: false,
-  artist: null,
-  search: '',
-  sort: 'a-z',
-  limit: 40,
-  completeness: null,
-);
+const _browse = (artists: false, sort: 'a-z', limit: 40, completeness: null);
 
 class _Settings extends SettingsNotifier {
   @override

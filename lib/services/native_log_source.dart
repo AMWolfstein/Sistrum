@@ -29,8 +29,5 @@ class NativeLogSource {
     );
   }
 
-  Future<void> setLoggingEnabled(bool enabled) =>
-      _backend.invokeMethod<void>('setLoggingEnabled', {'enabled': enabled});
-
   Future<void> clear() => _backend.invokeMethod<void>('clearLogs');
 }

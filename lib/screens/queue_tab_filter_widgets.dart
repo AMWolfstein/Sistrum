@@ -36,7 +36,6 @@ extension _QueueTabFilterWidgets on _QueueTabState {
     required BuildContext context,
     required ColorScheme colorScheme,
     required String filterMode,
-    required String historyViewMode,
     required _FilterContentData filterData,
     required LibraryCollectionsState collectionState,
     required bool hasMoreLibrary,
@@ -45,43 +44,24 @@ extension _QueueTabFilterWidgets on _QueueTabState {
     final showFilteringIndicator = filterData.showFilteringIndicator;
     final filteredGroupedLocalAlbums = filterData.filteredGroupedLocalAlbums;
     final orderedAlbums = filterData.orderedAlbums;
-    final unifiedItems = filterData.unifiedItems;
     final filteredUnifiedItems = filterData.filteredUnifiedItems;
     final totalTrackCount = filterData.totalTrackCount;
     final totalAlbumCount = filterData.totalAlbumCount;
     // Controls and grids share the centered column of the track list.
     final edge = 16 + wideListInset(context);
 
-    final (
-      local: localNavigationItems,
-      localIndexById: localNavigationIndexByUnifiedId,
-    ) = _libraryNavigation(
-      filterMode,
-      filteredUnifiedItems,
-    );
-
-    // The tab-root Library keeps Songs to songs: collections live on the
-    // Playlists page. Section pages opened from Mornye keep them inline.
-    final rootLibrary = widget.librarySection == null;
-    final collectionEntries = filterMode == 'all' && !rootLibrary
-        ? _getVisibleCollectionEntries(collectionState)
-        : const <_CollectionEntry>[];
-    final collectionCount = collectionEntries.length;
-    final specialEntries = filterMode == 'playlists' && rootLibrary
+    // The Playlists page leads with Loved and Favorite artists;
+    // the Songs list holds songs only.
+    final specialEntries = filterMode == 'playlists'
         ? _getVisibleCollectionEntries(collectionState)
               .where((entry) => entry.type != _CollectionEntryType.playlist)
               .toList(growable: false)
         : const <_CollectionEntry>[];
-    // Indexes into collectionState.playlists, name-filtered by the search
-    // query, for the 'playlists' view.
+    // Indexes into collectionState.playlists, in the sort the page shows.
     final playlistIndexes = <int>[];
     if (filterMode == 'playlists') {
-      final query = _searchQuery.trim().toLowerCase();
       for (var i = 0; i < collectionState.playlists.length; i++) {
-        if (query.isEmpty ||
-            collectionState.playlists[i].name.toLowerCase().contains(query)) {
-          playlistIndexes.add(i);
-        }
+        playlistIndexes.add(i);
       }
       playlistIndexes.sort((a, b) {
         final first = collectionState.playlists[a];
@@ -99,15 +79,13 @@ extension _QueueTabFilterWidgets on _QueueTabState {
       });
     }
 
-    // Songs drag onto playlists; singles do not.
+    // Songs drag onto playlists.
     final playlistDrag = filterMode == 'all';
-    Widget trackTile(UnifiedLibraryItem item, {required bool grid}) {
-      final tile = (grid ? _buildUnifiedGridItem : _buildUnifiedLibraryItem)(
+    Widget trackTile(UnifiedLibraryItem item) {
+      final tile = _buildUnifiedLibraryItem(
         context,
         item,
         colorScheme,
-        localNavigationItems: localNavigationItems,
-        localNavigationIndex: localNavigationIndexByUnifiedId[item.id],
         libraryItems: filteredUnifiedItems,
         playlistDragEnabled: playlistDrag,
       );
@@ -123,58 +101,35 @@ extension _QueueTabFilterWidgets on _QueueTabState {
       );
     }
 
-    // Songs, not Singles, offer Shuffle while the tools show.
-    final showShuffle = filterMode == 'all' && !_isSelectionMode;
-    void shuffleSongs() => _shuffleLibrarySongs(
+    // Songs offer Play and Shuffle while no selection is made.
+    final showSongActions = filterMode == 'all' && !_isSelectionMode;
+    void playSongs({required bool shuffle}) => _playLibrarySongs(
       filteredUnifiedItems,
       complete: filteredUnifiedItems.length >= totalTrackCount,
+      shuffle: shuffle,
     );
 
     Widget trackCountHeader() => SliverToBoxAdapter(
       child: _countHeaderRow(
         context,
         context.l10n.queueTrackCount(totalTrackCount),
-        [
-          if (rootLibrary && !_isSelectionMode)
-            ..._buildLibraryTools(context, viewMode: historyViewMode)
-          else if (!_isSelectionMode)
-            _buildFilterButton(context),
-          // The root Library creates playlists from the Playlists page.
-          if (!rootLibrary &&
-              !_isSelectionMode &&
-              filteredUnifiedItems.isNotEmpty)
-            TextButton.icon(
-              onPressed: () => _showCreatePlaylistDialog(context),
-              icon: const Icon(Icons.add, size: 20),
-              style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
-              label: Text(context.l10n.collectionCreatePlaylist),
-            ),
-        ],
+        const [],
       ),
     );
 
     final content = CustomScrollView(
       slivers: [
-        if (rootLibrary && (filterMode == 'albums' || filterMode == 'singles'))
-          SliverToBoxAdapter(child: _buildAlbumsModeToggle(context)),
-
-        // Rewind lives with the listening history it replays.
-        if (rootLibrary &&
-            filterMode == 'all' &&
-            _searchQuery.isEmpty &&
-            !_isSelectionMode &&
-            ref.watch(
-              settingsProvider.select((s) => s.listeningStatisticsEnabled),
-            ))
+        if (totalTrackCount > 0 && showSongActions)
           SliverToBoxAdapter(
-            child: ListeningRewindBanner(
-              margin: EdgeInsets.fromLTRB(edge, 8, edge, 4),
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(edge, 8, edge, 0),
+              child: AlbumPlayActions(
+                playLabel: context.l10n.tooltipPlay,
+                shuffleTooltip: context.l10n.actionShuffle,
+                onPlay: () => playSongs(shuffle: false),
+                onShuffle: () => playSongs(shuffle: true),
+              ),
             ),
-          ),
-
-        if (totalTrackCount > 0 && showShuffle)
-          SliverToBoxAdapter(
-            child: _buildLibraryShuffleButton(context, onPressed: shuffleSongs),
           ),
 
         if (totalTrackCount > 0 && filterMode == 'all') trackCountHeader(),
@@ -184,42 +139,7 @@ extension _QueueTabFilterWidgets on _QueueTabState {
             child: _countHeaderRow(
               context,
               context.l10n.queueAlbumCount(totalAlbumCount),
-              [
-                if (rootLibrary)
-                  ..._buildLibraryTools(context)
-                else
-                  _buildFilterButton(context),
-              ],
-            ),
-          ),
-
-        if (filteredGroupedLocalAlbums.isEmpty &&
-            filterMode == 'albums' &&
-            (_activeFilterCount > 0 ||
-                (ref.read(settingsProvider).localLibraryEnabled &&
-                    ref.read(localLibraryProvider).totalCount > 0)))
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(edge, 8, edge, 8),
-              child: Row(
-                children: [const Spacer(), _buildFilterButton(context)],
-              ),
-            ),
-          ),
-
-        if ((filterMode == 'all' || filterMode == 'singles') &&
-            totalTrackCount == 0 &&
-            !showFilteringIndicator &&
-            (_activeFilterCount > 0 || unifiedItems.isNotEmpty))
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(edge, 8, edge, 8),
-              child: Row(
-                children: [
-                  const Spacer(),
-                  if (!_isSelectionMode) _buildFilterButton(context),
-                ],
-              ),
+              const [],
             ),
           ),
 
@@ -250,11 +170,7 @@ extension _QueueTabFilterWidgets on _QueueTabState {
           SliverPadding(
             padding: EdgeInsets.symmetric(horizontal: edge),
             sliver: AnimatedLibrarySliverGrid(
-              maxCrossAxisExtent: _QueueTabState._libraryGridDefaultExtent,
-              extentListenable: _libraryGridExtent,
-              extentScale: 1.45,
-              minExtent: 150,
-              maxExtent: 300,
+              maxCrossAxisExtent: _QueueTabState._libraryAlbumGridExtent,
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
               childAspectRatio: 0.72,
@@ -295,16 +211,12 @@ extension _QueueTabFilterWidgets on _QueueTabState {
           SliverPadding(
             padding: EdgeInsets.symmetric(horizontal: edge),
             sliver: AnimatedLibrarySliverGrid(
-              maxCrossAxisExtent: _QueueTabState._libraryGridDefaultExtent,
-              extentListenable: _libraryGridExtent,
-              extentScale: 1.45,
-              minExtent: 150,
-              maxExtent: 300,
+              maxCrossAxisExtent: _QueueTabState._libraryAlbumGridExtent,
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
               childAspectRatio: 0.72,
               delegate: SliverChildBuilderDelegate((context, index) {
-                // Wishlist, Loved and Favorite artists lead the grid.
+                // Loved and Favorite artists lead the grid.
                 if (index < specialEntries.length) {
                   final entry = specialEntries[index];
                   return KeyedSubtree(
@@ -335,90 +247,27 @@ extension _QueueTabFilterWidgets on _QueueTabState {
           ),
         ],
 
-        if (filterMode == 'singles') ...[trackCountHeader()],
-
-        // Songs list collections first; singles hide an empty track list.
-        if (filterMode == 'all' ||
-            (filterMode == 'singles' && filteredUnifiedItems.isNotEmpty))
-          if (historyViewMode == 'grid')
-            SliverPadding(
-              padding: EdgeInsets.symmetric(horizontal: edge),
-              sliver: AnimatedLibrarySliverGrid(
-                maxCrossAxisExtent: _QueueTabState._libraryGridDefaultExtent,
-                extentListenable: _libraryGridExtent,
-                mainAxisSpacing: 8,
-                crossAxisSpacing: 8,
-                childAspectRatio: 0.66,
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  if (index < collectionCount) {
-                    return _buildAllTabGridCollectionItem(
-                      context: context,
-                      colorScheme: colorScheme,
-                      entry: collectionEntries[index],
-                      collectionState: collectionState,
-                      filteredUnifiedItems: filteredUnifiedItems,
-                    );
-                  }
-                  final trackIndex = index - collectionCount;
-                  if (trackIndex < filteredUnifiedItems.length) {
-                    final item = filteredUnifiedItems[trackIndex];
-                    return KeyedSubtree(
-                      key: ValueKey(item.id),
-                      child: trackTile(item, grid: true),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                }, childCount: collectionCount + filteredUnifiedItems.length),
-              ),
-            )
-          else if (isDesktopPlatform &&
-              (filteredUnifiedItems.isNotEmpty || collectionCount > 0))
-            // Desktop lists songs in the sortable table, with the collections
-            // leading it.
+        if (filterMode == 'all')
+          if (isDesktopPlatform && filteredUnifiedItems.isNotEmpty)
+            // Desktop lists songs in the sortable table.
             _buildLibrarySongTable(
               context,
               filterMode: filterMode,
               items: filteredUnifiedItems,
-              leadCount: collectionCount,
-              leadBuilder: (index) => _buildAllTabListCollectionItem(
-                context: context,
-                colorScheme: colorScheme,
-                entry: collectionEntries[index],
-                collectionState: collectionState,
-                filteredUnifiedItems: filteredUnifiedItems,
-              ),
-              openAction: (item) => _libraryItemOpenAction(
-                item,
-                localNavigationItems: localNavigationItems,
-                localNavigationIndex: localNavigationIndexByUnifiedId[item.id],
-              ),
             )
           else
             SliverPadding(
               padding: EdgeInsets.symmetric(horizontal: wideListInset(context)),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate((context, index) {
-                  if (index < collectionCount) {
-                    return _buildAllTabListCollectionItem(
-                      context: context,
-                      colorScheme: colorScheme,
-                      entry: collectionEntries[index],
-                      collectionState: collectionState,
-                      filteredUnifiedItems: filteredUnifiedItems,
-                    );
-                  }
-                  final trackIndex = index - collectionCount;
-                  if (trackIndex < filteredUnifiedItems.length) {
-                    final item = filteredUnifiedItems[trackIndex];
-                    return TrackCardSegment.at(
-                      key: ValueKey(item.id),
-                      index: index,
-                      count: filteredUnifiedItems.length,
-                      child: trackTile(item, grid: false),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                }, childCount: collectionCount + filteredUnifiedItems.length),
+                  final item = filteredUnifiedItems[index];
+                  return TrackCardSegment.at(
+                    key: ValueKey(item.id),
+                    index: index,
+                    count: filteredUnifiedItems.length,
+                    child: trackTile(item),
+                  );
+                }, childCount: filteredUnifiedItems.length),
               ),
             ),
 
@@ -478,14 +327,11 @@ extension _QueueTabFilterWidgets on _QueueTabState {
           added: added,
         );
       }
-      if (filterMode != 'all' && filterMode != 'singles') return null;
-      final rows = collectionCount + filteredUnifiedItems.length;
+      if (filterMode != 'all') return null;
+      final rows = filteredUnifiedItems.length;
       if (rows == 0) return null;
-      final itemIndex = (fraction * (rows - 1)).round() - collectionCount;
-      if (itemIndex < 0 || itemIndex >= filteredUnifiedItems.length) {
-        return null;
-      }
-      return _trackSectionLabel(context, filteredUnifiedItems[itemIndex]);
+      final index = (fraction * (rows - 1)).round().clamp(0, rows - 1);
+      return _trackSectionLabel(context, filteredUnifiedItems[index]);
     }
 
     final scrollAwareContent = NotificationListener<ScrollNotification>(
@@ -503,13 +349,7 @@ extension _QueueTabFilterWidgets on _QueueTabState {
       ),
     );
 
-    if (historyViewMode != 'grid') return scrollAwareContent;
-    return TwoFingerPinchListener(
-      onStart: _handleLibraryGridPinchStart,
-      onUpdate: _handleLibraryGridPinchUpdate,
-      onEnd: _handleLibraryGridPinchEnd,
-      child: scrollAwareContent,
-    );
+    return scrollAwareContent;
   }
 
   Widget _buildEmptyState(
@@ -526,11 +366,6 @@ extension _QueueTabFilterWidgets on _QueueTabState {
         message = context.l10n.queueEmptyAlbums;
         subtitle = context.l10n.queueEmptyAlbumsSubtitle;
         icon = Icons.album;
-        break;
-      case 'singles':
-        message = context.l10n.queueEmptySingles;
-        subtitle = context.l10n.queueEmptySinglesSubtitle;
-        icon = Icons.music_note;
         break;
       case 'playlists':
         message = context.l10n.collectionNoPlaylistsYet;
@@ -736,30 +571,6 @@ extension _QueueTabFilterWidgets on _QueueTabState {
     );
   }
 
-  /// The swipe-navigation list of local songs over [items], kept while the
-  /// songs stay the same.
-  _LibraryNavigation _libraryNavigation(
-    String filterMode,
-    List<UnifiedLibraryItem> items,
-  ) {
-    final cached = _navigationByMode[filterMode];
-    if (cached != null && identical(cached.$1, items)) {
-      return cached.$2;
-    }
-    final local = <LocalLibraryItem>[];
-    final localIndexById = <String, int>{};
-    for (final item in items) {
-      final localItem = item.localItem;
-      if (localItem != null) {
-        localIndexById[item.id] = local.length;
-        local.add(localItem);
-      }
-    }
-    final navigation = (local: local, localIndexById: localIndexById);
-    _navigationByMode[filterMode] = (items, navigation);
-    return navigation;
-  }
-
   List<UnifiedLibraryItem> _selectedItemsFromAll(
     List<UnifiedLibraryItem> allItems,
   ) {
@@ -770,10 +581,3 @@ extension _QueueTabFilterWidgets on _QueueTabState {
         .toList(growable: false);
   }
 }
-
-/// Swipe-navigation lists over a Library page's songs, with each song's
-/// position in them.
-typedef _LibraryNavigation = ({
-  List<LocalLibraryItem> local,
-  Map<String, int> localIndexById,
-});

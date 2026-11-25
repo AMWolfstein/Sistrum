@@ -99,6 +99,8 @@ internal fun Context.copyUriToTemp(
     uri: Uri,
     fallbackExt: String? = null,
     displayName: String? = null,
+    /** Receives why the copy failed, for callers that report it to the user. */
+    onFailure: ((String) -> Unit)? = null,
 ): String? {
         try {
             val nameHint = (
@@ -115,9 +117,11 @@ internal fun Context.copyUriToTemp(
             val ext = if (extFromName.isNotBlank()) extFromName else if (extFromMime.isNotBlank()) extFromMime else (fallbackExt ?: "")
             val suffix = ext.ifBlank { ".tmp" }
             val tempFile = coreBackend.createTemporaryMediaFile(this, "saf_", suffix)
-            return copyToTemporaryMediaFile(tempFile) {
+            val copied = copyToTemporaryMediaFile(tempFile) {
                 contentResolver.openInputStream(uri)
-            }?.absolutePath
+            }
+            if (copied == null) onFailure?.invoke("the document could not be opened")
+            return copied?.absolutePath
         } catch (e: SecurityException) {
             // SAF permission denied - try MediaStore fallback for Samsung One UI
             // which may return MediaStore URIs from SAF tree traversal
@@ -135,12 +139,14 @@ internal fun Context.copyUriToTemp(
                 "Sistrum",
                 "SAF read denied for $uri: ${e.message}",
             )
+            onFailure?.invoke("read denied: ${e.message}")
             return null
         } catch (e: Exception) {
             android.util.Log.w(
                 "Sistrum",
                 "Failed copying SAF uri $uri to temp: ${e.message}",
             )
+            onFailure?.invoke("${e.javaClass.simpleName}: ${e.message}")
             return null
         }
     }
@@ -306,16 +312,6 @@ internal fun readAudioMetadataForScan(
     if (obj.has("error")) throw IOException(obj.optString("error", "Audio metadata read failed"))
     return obj
 }
-
-/** The Hi-Res check reads only a window from the middle of the file, so a
- * seekable descriptor avoids copying the whole track out of SAF. */
-internal fun Context.checkHiResAuthenticityFromUri(
-    coreBackend: CoreBackend,
-    uri: Uri,
-    optionsJson: String,
-): JSONObject? = readMetadataFromUri(coreBackend, uri) { path, _ ->
-    JSONObject(coreBackend.checkHiResAuthenticity(path, optionsJson))
-}?.put("file_path", uri.toString())
 
 internal fun Context.readCompleteMetadataFromUri(
     coreBackend: CoreBackend,

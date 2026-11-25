@@ -13,34 +13,10 @@ use std::collections::BTreeMap;
 use std::io::Read;
 
 impl Backend {
-    pub fn rewrite_split_artist_tags(
-        &self,
-        path: &str,
-        artist: &str,
-        album_artist: &str,
-        check: &dyn Fn() -> Result<(), String>,
-    ) -> Result<String, String> {
-        let fields = BTreeMap::from([
-            ("ARTIST".into(), artist.into()),
-            ("ALBUMARTIST".into(), album_artist.into()),
-        ]);
-        self.embed_flac_fields_response(
-            path,
-            &fields,
-            "split_vorbis",
-            (
-                "Failed to rewrite artist tags",
-                "Split artist tags written successfully",
-            ),
-            check,
-        )
-    }
-
     pub(super) fn embed_flac_fields_response(
         &self,
         path: &str,
         fields: &BTreeMap<String, String>,
-        artist_mode: &str,
         messages: (&str, &str),
         check: &dyn Fn() -> Result<(), String>,
     ) -> Result<String, String> {
@@ -60,7 +36,7 @@ impl Backend {
             .resolve_legacy(path)?
             .native_display()?;
         if let Err(error) = self.rewrite_tag_file(path, &check, |source, output, _| {
-            embed_flac_metadata(source, output, fields, artist_mode, None, &check)?;
+            embed_flac_metadata(source, output, fields, None, &check)?;
             Ok(true)
         }) {
             check()?;

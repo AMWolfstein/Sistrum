@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/controllers/clickable_metadata.dart';
+import 'package:sistrum/controllers/song_file.dart';
 import 'package:sistrum/controllers/local_track_batch_actions.dart';
 import 'package:sistrum/controllers/selection_mode_mixin.dart';
 import 'package:sistrum/l10n/l10n.dart';
@@ -10,9 +11,7 @@ import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/library_directory_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/playback_provider.dart';
-import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/library_directory_screen.dart';
-import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/services/batch_track_actions.dart';
 import 'package:sistrum/services/library_directory_index.dart';
 import 'package:sistrum/services/playable_media.dart';
@@ -24,7 +23,7 @@ import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/app_icon.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
+import 'package:sistrum/widgets/song_menu.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_refresh_indicator.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
@@ -40,11 +39,9 @@ import 'package:sistrum/widgets/error_card.dart';
 import 'package:sistrum/widgets/library_selection_playback_actions.dart';
 import 'package:sistrum/widgets/library_track_selection_bar.dart';
 import 'package:sistrum/widgets/local_library_artwork_builder.dart';
-import 'package:sistrum/widgets/playlist_picker_sheet.dart';
 import 'package:sistrum/widgets/queue_swipe.dart';
 import 'package:sistrum/widgets/selection_bottom_bar.dart';
 import 'package:sistrum/widgets/sliver_layout_info_builder.dart';
-import 'package:sistrum/widgets/song_row_tap.dart';
 import 'package:sistrum/widgets/track_card.dart';
 
 /// One Library folder: its path and counts, Play and Shuffle over every
@@ -84,12 +81,10 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
   List<UnifiedLibraryItem> _items = const [];
 
   /// The ids and the desktop table rows of the last song list, kept while
-  /// the list (and for the rows the quality label mode) stays the same, so
-  /// a click does not walk every song again.
+  /// the list stays the same, so a click does not walk every song again.
   (List<UnifiedLibraryItem>, Set<String>)? _itemIds;
   (
     List<UnifiedLibraryItem>,
-    String,
     List<TrackTableRow>,
     Map<String, UnifiedLibraryItem>,
   )?
@@ -151,15 +146,6 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
           ? exitSelectionMode
           : () => selectAll(_items.map((item) => item.id)),
       bottomPadding: MediaQuery.paddingOf(context).bottom,
-      onConvert: () => showBatchConvertSheet(
-        context,
-        ref,
-        items,
-        onExitSelectionMode: _finishSelectionAction,
-        onSheetOpen: _hideSelectionBar,
-        onSheetClosed: (_) =>
-            _restoreSelectionBar(delay: const Duration(milliseconds: 260)),
-      ),
       onReplayGain: ({required remove}) => runBatchReplayGain(
         context,
         items,
@@ -195,10 +181,16 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
     UnifiedLibraryItem? start,
     bool shuffle = false,
   }) async {
-    if (start != null && isCueVirtualPath(start.filePath)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text(cueVirtualTrackRequiresSplitMessage)),
-      );
+    if (start != null && !await songFileCanPlay(start.filePath)) {
+      if (mounted) {
+        await showSongMenu(
+          context,
+          ref,
+          track: start.toTrack(),
+          filePath: start.filePath,
+          localItem: start.localItem,
+        );
+      }
       return;
     }
     final playable = items
@@ -220,11 +212,7 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
       }
       await ref
           .read(playbackProvider.notifier)
-          .playMediaQueue(
-            playable.map(_media),
-            startIndex: index,
-            externalPath: playable[index].filePath,
-          );
+          .playMediaQueue(playable.map(_media), startIndex: index);
     } catch (error) {
       if (mounted) showCannotOpenFileSnackBar(context, error);
     }
@@ -249,49 +237,10 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
     }
   }
 
-  /// Adds every song under [folder] to a playlist the user picks.
-  Future<void> _addFolderToPlaylist(LibraryDirectory folder) async {
-    try {
-      final items = await ref.read(libraryDirectoryItemsLoaderProvider)(
-        folder.allTracks,
-      );
-      if (!mounted || items.isEmpty) return;
-      await showAddTracksToPlaylistSheet(
-        Navigator.of(context, rootNavigator: true).context,
-        ref,
-        [for (final item in items) item.toTrack()],
-      );
-    } catch (error) {
-      if (mounted) showCannotOpenFileSnackBar(context, error);
-    }
-  }
-
   void _openFolder(LibraryDirectory folder) {
     pushPage<void>(
       context,
       (_) => LibraryDirectoryScreen(folderKey: folder.key),
-    );
-  }
-
-  Future<void> _openDetails(UnifiedLibraryItem item) async {
-    final local = [for (final item in _items) ?item.localItem];
-    // The details pager steps through one kind of record.
-    final localOnly = local.length == _items.length;
-    await prepareTrackDetailsCover(
-      context,
-      item.filePath,
-      fallback: item.localCoverPath ?? item.coverUrl,
-    );
-    if (!mounted) return;
-    await pushPage<void>(
-      context,
-      (_) => TrackMetadataScreen(
-        localItem: item.localItem!,
-        localNavigationItems: localOnly ? local : null,
-        navigationIndex: localOnly
-            ? _items.indexWhere((entry) => entry.id == item.id)
-            : null,
-      ),
     );
   }
 
@@ -343,14 +292,7 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
         ref,
         items: items,
         onPlay: () => _play(_items, start: item),
-        onOpenDetails: () => _openDetails(item),
         onDone: exitSelectionMode,
-        onConvert: () => showBatchConvertSheet(
-          context,
-          ref,
-          items,
-          onExitSelectionMode: _finishSelectionAction,
-        ),
         onDelete: () => _delete(items),
       ),
     );
@@ -479,14 +421,12 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
     );
   }
 
-  /// Play, Shuffle and, on desktop, Add to Playlist over every song under
-  /// [folder].
+  /// Play and Shuffle over every song under [folder].
   Widget _playActions(LibraryDirectory folder) => AlbumPlayActions(
     playLabel: context.l10n.tooltipPlay,
     shuffleTooltip: context.l10n.actionShuffle,
     onPlay: () => _playFolder(folder),
     onShuffle: () => _playFolder(folder, shuffle: true),
-    onAddToPlaylist: () => _addFolderToPlaylist(folder),
   );
 
   /// The album pages' desktop header: the folder's cover, name and path,
@@ -773,10 +713,6 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
     List<UnifiedLibraryItem> items,
     UnifiedLibraryItem item,
   ) {
-    final qualityMode = ref.watch(
-      settingsProvider.select((s) => s.libraryQualityLabelMode),
-    );
-    final quality = item.qualityForMode(qualityMode);
     return Consumer(
       builder: (context, ref, _) {
         final playback = ref.watch(
@@ -787,44 +723,30 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
                   .read(musicPlayerControllerProvider)
                   .togglePlayPause(playback.isPlaying)
             : () => _play(items, start: item);
-        void openDetails() => _openDetails(item);
         return TrackCard(
           style: TrackCardStyle.flat,
           leading: _SongArtwork(item: item, size: context.tokens.coverList),
           leadingArtwork: true,
           title: item.trackName,
           subtitle: Text(
-            [item.artistName, ?quality].join(' · '),
+            item.artistName,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
+          isExplicit: item.isExplicit,
           isCurrent: playback.isCurrent,
           isPlaying: playback.isPlaying,
-          trailing: SongRowButton(
-            playButton: AppIconButton(
-              tooltip: playback.isPlaying
-                  ? context.l10n.actionPause
-                  : context.l10n.tooltipPlay,
-              icon: Icon(
-                playback.isPlaying
-                    ? Icons.pause_rounded
-                    : Icons.play_arrow_rounded,
-              ),
-              onPressed: play,
-            ),
-            onOpenDetails: openDetails,
-            path: item.filePath,
-          ),
+          onPlay: play,
+          menu: isSelectionMode
+              ? null
+              : SongMenuButton(
+                  track: item.toTrack(),
+                  filePath: item.filePath,
+                  localItem: item.localItem,
+                ),
           isSelectionMode: isSelectionMode,
           isSelected: selectedIds.contains(item.id),
-          onTap: isSelectionMode
-              ? () => toggleSelection(item.id)
-              : songRowTap(
-                  ref,
-                  path: item.filePath,
-                  openDetails: openDetails,
-                  play: play,
-                ),
+          onTap: isSelectionMode ? () => toggleSelection(item.id) : play,
           onLongPress: isSelectionMode
               ? () => toggleSelection(item.id)
               : () => enterSelectionMode(item.id),
@@ -846,13 +768,10 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
 
   (List<TrackTableRow>, Map<String, UnifiedLibraryItem>) _tableRows(
     List<UnifiedLibraryItem> items,
-    String qualityMode,
   ) {
     final cached = _table;
-    if (cached != null &&
-        identical(cached.$1, items) &&
-        cached.$2 == qualityMode) {
-      return (cached.$3, cached.$4);
+    if (cached != null && identical(cached.$1, items)) {
+      return (cached.$2, cached.$3);
     }
     final rows = [
       for (final item in items)
@@ -861,7 +780,6 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
           title: item.trackName,
           artist: item.artistName,
           album: item.albumName,
-          quality: item.qualityForMode(qualityMode),
           duration: switch (item.localItem?.duration) {
             final seconds? when seconds > 0 => Duration(seconds: seconds),
             _ => null,
@@ -871,15 +789,12 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
         ),
     ];
     final byId = {for (final item in items) item.id: item};
-    _table = (items, qualityMode, rows, byId);
+    _table = (items, rows, byId);
     return (rows, byId);
   }
 
   Widget _songTable(BuildContext context, List<UnifiedLibraryItem> items) {
-    final qualityMode = ref.watch(
-      settingsProvider.select((s) => s.libraryQualityLabelMode),
-    );
-    final (rows, byId) = _tableRows(items, qualityMode);
+    final (rows, byId) = _tableRows(items);
     return SliverPadding(
       padding: EdgeInsets.symmetric(horizontal: wideListInset(context)),
       sliver: SliverTrackTable(
@@ -889,7 +804,6 @@ class _LibraryDirectoryViewState extends ConsumerState<LibraryDirectoryView>
           TrackTableColumn.title,
           TrackTableColumn.artist,
           TrackTableColumn.album,
-          TrackTableColumn.quality,
           TrackTableColumn.duration,
         ],
         selectedIds: selectedIds,

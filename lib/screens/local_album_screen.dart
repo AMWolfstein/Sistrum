@@ -7,8 +7,10 @@ import 'package:sistrum/theme/app_tokens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/album_track_sort_provider.dart';
-import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/widgets/album_track_sort_button.dart';
+import 'package:sistrum/providers/library_collections_provider.dart';
+import 'package:sistrum/widgets/track_detail_actions.dart';
+import 'package:sistrum/widgets/album_track_sort_menu.dart';
+import 'package:sistrum/widgets/sort_header_button.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/audio_quality_badge_policy.dart';
 import 'package:sistrum/utils/file_access.dart';
@@ -28,7 +30,7 @@ import 'package:sistrum/providers/song_leftovers_provider.dart';
 import 'package:sistrum/controllers/collapsing_header_scroll_mixin.dart';
 import 'package:sistrum/controllers/confirm_and_delete_tracks.dart';
 import 'package:sistrum/controllers/selection_mode_mixin.dart';
-import 'package:sistrum/screens/track_metadata_screen.dart';
+import 'package:sistrum/controllers/song_file.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/collection_scaffold.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
@@ -38,7 +40,8 @@ import 'package:sistrum/widgets/desktop/detail_header.dart';
 import 'package:sistrum/widgets/desktop/library_track_menu.dart';
 import 'package:sistrum/widgets/playlist_picker_sheet.dart';
 import 'package:sistrum/widgets/desktop/track_table.dart';
-import 'package:sistrum/widgets/album_track_tile.dart';
+import 'package:sistrum/widgets/song_menu.dart';
+import 'package:sistrum/widgets/track_card.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/loaded_sliver_fade_in.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
@@ -85,16 +88,9 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
   Object? _loadError;
   int _loadGeneration = 0;
 
-  void _showCueVirtualTrackSnackBar() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text(cueVirtualTrackRequiresSplitMessage)),
-    );
-  }
-
   List<int> get _sortedDiscNumbersCache => _trackOrder.discNumbers;
   bool get _hasMultipleDiscsCache => _trackOrder.discGroups.length > 1;
   String? _commonQualityCache;
-  String? _commonQualityModeCache;
 
   @override
   void initState() {
@@ -145,7 +141,6 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
       ranks: _trackRanks,
     );
     _commonQualityCache = null;
-    _commonQualityModeCache = null;
   }
 
   Future<void> _deleteSelected(List<LocalLibraryItem> currentTracks) async {
@@ -190,8 +185,16 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
   }
 
   Future<void> _openFile(LocalLibraryItem track) async {
-    if (isCueVirtualPath(track.filePath)) {
-      _showCueVirtualTrackSnackBar();
+    if (!await songFileCanPlay(track.filePath)) {
+      if (mounted) {
+        await showSongMenu(
+          context,
+          ref,
+          track: UnifiedLibraryItem.fromLocalLibrary(track).toTrack(),
+          filePath: track.filePath,
+          localItem: track,
+        );
+      }
       return;
     }
     try {
@@ -201,25 +204,6 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
     } catch (e) {
       if (mounted) showCannotOpenFileSnackBar(context, e);
     }
-  }
-
-  Future<void> _openMetadata(LocalLibraryItem track) async {
-    final tracks = _sortedTracksCache;
-    await prepareTrackDetailsCover(
-      context,
-      track.filePath,
-      fallback: track.coverPath,
-    );
-    if (!mounted) return;
-    await Navigator.of(context).push(
-      slidePageRoute<void>(
-        page: TrackMetadataScreen(
-          localItem: track,
-          localNavigationItems: tracks,
-          navigationIndex: tracks.indexWhere((item) => item.id == track.id),
-        ),
-      ),
-    );
   }
 
   /// A row matches the player by its file, so playlist playback, which uses
@@ -260,9 +244,6 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
 
   Widget _buildPage(BuildContext context, String? coverPath) {
     final colorScheme = Theme.of(context).colorScheme;
-    final qualityLabelMode = ref.watch(
-      settingsProvider.select((s) => s.libraryQualityLabelMode),
-    );
     final bottomPadding = isSelectionMode
         ? MediaQuery.paddingOf(context).bottom
         : 0.0;
@@ -286,7 +267,7 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
       scrollController: scrollController,
       isSelectionMode: showsSelectionBar,
       onExitSelectionMode: exitSelectionMode,
-      appBar: _buildAppBar(context, colorScheme, qualityLabelMode, coverPath),
+      appBar: _buildAppBar(context, colorScheme, coverPath),
       slivers: [
         if (_loadError != null)
           SliverToBoxAdapter(
@@ -342,7 +323,6 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
   Widget _buildAppBar(
     BuildContext context,
     ColorScheme colorScheme,
-    String qualityLabelMode,
     String? coverPath,
   ) {
     final expandedHeight = calculateExpandedHeight(context);
@@ -429,43 +409,81 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
           overflow: TextOverflow.ellipsis,
         ),
       ),
-      meta: _buildLocalHeaderMeta(context, qualityLabelMode),
-      appBarActions: [
-        AlbumTrackSortButton(
-          albumKey: _sortKey,
-          songs: [for (final track in _sortedTracksCache) track.trackName],
-        ),
-      ],
-      actions: Consumer(
-        builder: (context, ref, _) {
-          final isCurrent = ref.watch(
-            currentMediaItemProvider.select(
-              (state) => _sortedTracksCache.any(
-                (track) => _isCurrentTrack(state.value, track),
+      meta: _buildLocalHeaderMeta(context),
+      appBarTitle: isSelectionMode
+          ? context.l10n.selectionSelected(selectedIds.length)
+          : null,
+      leading: isSelectionMode
+          ? HeaderCircleButton(
+              icon: Icons.close,
+              tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+              onPressed: exitSelectionMode,
+            )
+          : null,
+      appBarActions: isSelectionMode
+          ? const []
+          : [
+              SortHeaderButton<AlbumTrackSort>(
+                tooltip: context.l10n.albumSortSongs,
+                current: ref.watch(albumTrackSortProvider(_sortKey)),
+                groups: albumTrackSortGroups(
+                  context,
+                  key: _sortKey,
+                  songs: [
+                    for (final track in _sortedTracksCache) track.trackName,
+                  ],
+                ),
+                onSelected: (sort) => ref
+                    .read(albumTrackSortsProvider.notifier)
+                    .setSort(albumTrackSortScope(_sortKey), sort),
               ),
+            ],
+      actions: isSelectionMode
+          ? null
+          : Consumer(
+              builder: (context, ref, _) {
+                final isCurrent = ref.watch(
+                  currentMediaItemProvider.select(
+                    (state) => _sortedTracksCache.any(
+                      (track) => _isCurrentTrack(state.value, track),
+                    ),
+                  ),
+                );
+                final isPlaying =
+                    isCurrent && ref.watch(playbackPlayingProvider);
+                final albumTracks = [
+                  for (final item in _albumItems()) item.toTrack(),
+                ];
+                // Filled once every song of the album is in Loved.
+                final isLoved = ref.watch(
+                  libraryCollectionsProvider.select(
+                    (state) =>
+                        albumTracks.isNotEmpty &&
+                        albumTracks.every(state.isLoved),
+                  ),
+                );
+                return AlbumPlayActions(
+                  isPlaying: isPlaying,
+                  isLoved: isLoved,
+                  onLove: () => loveAllTracks(context, ref, albumTracks),
+                  playLabel: isPlaying
+                      ? context.l10n.actionPause
+                      : context.l10n.tooltipPlay,
+                  shuffleTooltip: context.l10n.actionShuffle,
+                  onPlay: isCurrent
+                      ? () => ref
+                            .read(musicPlayerControllerProvider)
+                            .togglePlayPause(isPlaying)
+                      : _playAll,
+                  onShuffle: _shuffleAll,
+                  onAddToPlaylist: () => showAddTracksToPlaylistSheet(
+                    Navigator.of(context, rootNavigator: true).context,
+                    ref,
+                    albumTracks,
+                  ),
+                );
+              },
             ),
-          );
-          final isPlaying = isCurrent && ref.watch(playbackPlayingProvider);
-          return AlbumPlayActions(
-            isPlaying: isPlaying,
-            playLabel: isPlaying
-                ? context.l10n.actionPause
-                : context.l10n.tooltipPlay,
-            shuffleTooltip: context.l10n.actionShuffle,
-            onPlay: isCurrent
-                ? () => ref
-                      .read(musicPlayerControllerProvider)
-                      .togglePlayPause(isPlaying)
-                : _playAll,
-            onShuffle: _shuffleAll,
-            onAddToPlaylist: () => showAddTracksToPlaylistSheet(
-              Navigator.of(context, rootNavigator: true).context,
-              ref,
-              [for (final item in _albumItems()) item.toTrack()],
-            ),
-          );
-        },
-      ),
       moreMenu: () => _withArtworkActions(
         libraryTrackMenuGroups(
           context,
@@ -531,23 +549,35 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
       UnifiedLibraryItem.fromLocalLibrary(track),
   ];
 
-  Widget _buildLocalHeaderMeta(BuildContext context, String qualityLabelMode) {
+  Widget _buildLocalHeaderMeta(BuildContext context) {
     final tracks = _sortedTracksCache;
     final totalSeconds = tracks.fold<int>(
       0,
       (sum, t) => sum + ((t.duration ?? 0) > 0 ? t.duration! : 0),
     );
     final totalMinutes = (totalSeconds / 60).round();
-    final quality = _getCommonQuality(qualityLabelMode);
+    final quality = _getCommonQuality();
+    final first = tracks.firstOrNull;
+    final genre = first?.genre?.trim();
+    final year = _releaseYear(first?.releaseDate);
 
     return HeaderMetaRow(
       items: [
+        if (genre != null && genre.isNotEmpty) HeaderMetaItem(genre),
+        if (year != null) HeaderMetaItem(year),
         HeaderMetaItem(context.l10n.queueTrackCount(tracks.length)),
         if (totalMinutes > 0) HeaderMetaItem('$totalMinutes min'),
         if (quality != null && quality.isNotEmpty)
           HeaderMetaItem(quality, icon: Icons.graphic_eq),
       ],
     );
+  }
+
+  static final _releaseYearPattern = RegExp(r'(\d{4})');
+
+  String? _releaseYear(String? date) {
+    if (date == null || date.isEmpty) return null;
+    return _releaseYearPattern.firstMatch(date)?.group(1);
   }
 
   Future<void> _playAll() async {
@@ -566,22 +596,16 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
     await _openFile(tracks[Random().nextInt(tracks.length)]);
   }
 
-  String? _getCommonQuality(String mode) {
-    if (_commonQualityModeCache == mode) return _commonQualityCache;
-    _commonQualityModeCache = mode;
-    _commonQualityCache = _computeCommonQuality(_sortedTracksCache, mode);
-    return _commonQualityCache;
-  }
+  String? _getCommonQuality() =>
+      _commonQualityCache ??= _computeCommonQuality(_sortedTracksCache);
 
-  String? _computeCommonQuality(List<LocalLibraryItem> tracks, String mode) {
+  String? _computeCommonQuality(List<LocalLibraryItem> tracks) {
     if (tracks.isEmpty) return null;
     String? label(LocalLibraryItem track) => buildLibraryAudioQualityLabel(
-      mode: mode,
       format: track.format,
       filePath: track.filePath,
       bitrateKbps: track.bitrate,
       bitDepth: track.bitDepth,
-      sampleRate: track.sampleRate,
     );
 
     final firstQuality = label(tracks.first);
@@ -641,9 +665,6 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
     BuildContext context,
     List<LocalLibraryItem> tracks,
   ) {
-    final mode = ref.watch(
-      settingsProvider.select((s) => s.libraryQualityLabelMode),
-    );
     final byId = {for (final track in tracks) track.id: track};
     return SliverPadding(
       padding: EdgeInsets.symmetric(horizontal: wideListInset(context)),
@@ -657,16 +678,15 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
               artist: track.artistName,
               album: track.albumName,
               quality: buildLibraryAudioQualityLabel(
-                mode: mode,
                 format: track.format,
                 filePath: track.filePath,
                 bitrateKbps: track.bitrate,
                 bitDepth: track.bitDepth,
-                sampleRate: track.sampleRate,
               ),
               duration: track.duration == null
                   ? null
                   : Duration(seconds: track.duration!),
+              titleTrailing: track.isExplicit ? const ExplicitChip() : null,
               playback: mediaItemPlaybackUiProvider(_playbackKey(track)),
               trailing: Consumer(
                 builder: (context, ref, _) {
@@ -677,7 +697,7 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
                   );
                   final isPlaying =
                       isCurrent && ref.watch(playbackPlayingProvider);
-                  return AlbumTrackPlayButton(
+                  return SongPlayButton(
                     isPlaying: isPlaying,
                     onPlay: isCurrent
                         ? () => ref
@@ -732,14 +752,7 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
         ref,
         items: items,
         onPlay: () => _openFile(track),
-        onOpenDetails: () => _openMetadata(track),
         onDone: exitSelectionMode,
-        onConvert: () => showBatchConvertSheet(
-          this.context,
-          ref,
-          items,
-          onExitSelectionMode: exitSelectionMode,
-        ),
         onDelete: () => _deleteSelected(tracks),
       ),
     );
@@ -754,44 +767,48 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
           ),
         );
         final isPlaying = isCurrent && ref.watch(playbackPlayingProvider);
-        return AlbumTrackTile(
-          filePath: track.filePath,
-          isCurrent: isCurrent,
-          isPlaying: isPlaying,
-          trackNumber: track.trackNumber,
-          trackName: track.trackName,
-          subtitle: Row(
-            children: [
-              Flexible(
-                child: Text(
-                  track.artistName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              if (track.format != null) ...[
-                const Text(' • ', style: TextStyle(fontSize: 12)),
-                Text(
-                  track.format!.toUpperCase(),
-                  style: const TextStyle(fontSize: 12),
-                ),
-              ],
-            ],
-          ),
-          isSelectionMode: isSelectionMode,
-          isSelected: selectedIds.contains(track.id),
-          onToggleSelection: () => toggleSelection(track.id),
-          onOpen: () => _openMetadata(track),
-          onEnterSelectionMode: () => enterSelectionMode(track.id),
-          onPlay: isCurrent
-              ? () => ref
-                    .read(musicPlayerControllerProvider)
-                    .togglePlayPause(isPlaying)
-              : () => _openFile(track),
+        final VoidCallback play = isCurrent
+            ? () => ref
+                  .read(musicPlayerControllerProvider)
+                  .togglePlayPause(isPlaying)
+            : () => _openFile(track);
+        return TrackCard(
+          style: TrackCardStyle.flat,
           queueSwipe: libraryItemQueueSwipe(
             ref,
             UnifiedLibraryItem.fromLocalLibrary(track),
           ),
+          isSelectionMode: isSelectionMode,
+          isSelected: selectedIds.contains(track.id),
+          isCurrent: isCurrent,
+          isPlaying: isPlaying,
+          leading: SizedBox(
+            width: 24,
+            child: Text(
+              track.trackNumber?.toString() ?? '-',
+              style: const TextStyle(fontWeight: FontWeight.w500),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          title: track.trackName,
+          subtitle: Text(
+            track.artistName,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          isExplicit: track.isExplicit,
+          onPlay: play,
+          menu: isSelectionMode
+              ? null
+              : SongMenuButton(
+                  track: UnifiedLibraryItem.fromLocalLibrary(track).toTrack(),
+                  filePath: track.filePath,
+                  localItem: track,
+                ),
+          onTap: isSelectionMode ? () => toggleSelection(track.id) : play,
+          onLongPress: isSelectionMode
+              ? null
+              : () => enterSelectionMode(track.id),
         );
       },
     );
@@ -826,12 +843,6 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
       playbackActions: LibrarySelectionPlaybackActions(
         items: _selectedUnifiedItems(tracks),
         onClose: exitSelectionMode,
-      ),
-      onConvert: () => showBatchConvertSheet(
-        context,
-        ref,
-        _selectedUnifiedItems(tracks),
-        onExitSelectionMode: exitSelectionMode,
       ),
       onReplayGain: ({required remove}) => runBatchReplayGain(
         context,

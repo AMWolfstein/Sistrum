@@ -7,9 +7,11 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
+import 'package:sistrum/utils/string_utils.dart';
 import 'package:sistrum/widgets/player_queue_artwork.dart';
 import 'package:sistrum/widgets/player_queue_dismissible.dart';
 import 'package:sistrum/widgets/queue_swipe.dart';
+import 'package:sistrum/widgets/track_card.dart';
 
 /// Upcoming tracks share the player's artwork backdrop and transport controls.
 class MornyePlayerQueue extends ConsumerStatefulWidget {
@@ -367,11 +369,25 @@ class _MornyePlayerQueueState extends ConsumerState<MornyePlayerQueue> {
                         ),
                       ),
                     ),
-                    title: Text(
-                      item.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: type.bodyLarge?.copyWith(color: Colors.white),
+                    title: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            item.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: type.bodyLarge?.copyWith(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        if (parseExplicitFlag(item.extras?['explicit']) == true)
+                          const Padding(
+                            padding: EdgeInsetsDirectional.only(start: 6),
+                            child: ExplicitChip(),
+                          ),
+                      ],
                     ),
                     subtitle: Text(
                       item.artist ?? '',

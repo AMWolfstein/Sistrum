@@ -15,25 +15,21 @@ class PlaybackState {
 }
 
 class PlaybackController extends Notifier<PlaybackState> {
-  PlaybackController({
-    LibraryDatabase? library,
-    Future<void> Function(String)? openExternal,
-  }) : _library = library ?? LibraryDatabase.instance,
-       _openExternal = openExternal ?? openFile;
+  PlaybackController({LibraryDatabase? library})
+    : _library = library ?? LibraryDatabase.instance;
 
   final LibraryDatabase _library;
-  final Future<void> Function(String) _openExternal;
 
   @override
   PlaybackState build() => const PlaybackState();
 
-  Future<bool> _useInternalPlayer() async {
-    final mode = ref.read(settingsProvider).playerMode;
-    if (mode != 'internal') {
-      return false;
+  /// The built-in player, started if it is not running yet.
+  Future<MusicPlayerController> _player() async {
+    final controller = ref.read(musicPlayerControllerProvider);
+    if (await controller.ensureInitialized() == null) {
+      throw Exception('The built-in player could not start.');
     }
-    return await ref.read(musicPlayerControllerProvider).ensureInitialized() !=
-        null;
+    return controller;
   }
 
   Future<void> playLocalPath({
@@ -54,36 +50,29 @@ class PlaybackController extends Notifier<PlaybackState> {
       throw Exception(cueVirtualTrackRequiresSplitMessage);
     }
 
-    if (await _useInternalPlayer()) {
-      _log.d('Playing "$title" in the internal player: $path');
-      await ref
-          .read(musicPlayerControllerProvider)
-          .playSingle(
-            PlayableMedia(
-              id: path,
-              source: path,
-              title: title,
-              artist: artist,
-              album: album,
-              genre: genre,
-              artUri: normalizeArtUri(coverUrl),
-              duration: duration,
-              bitDepth: bitDepth,
-              sampleRate: sampleRate,
-              bitrate: bitrate,
-              format: format,
-              explicit: explicit ?? false,
-            ),
-          );
-      return;
-    }
-
-    _log.d('Opening external player for "$title" by $artist: $path');
-    await _openExternal(path);
+    final player = await _player();
+    _log.d('Playing "$title" in the built-in player: $path');
+    await player.playSingle(
+      PlayableMedia(
+        id: path,
+        source: path,
+        title: title,
+        artist: artist,
+        album: album,
+        genre: genre,
+        artUri: normalizeArtUri(coverUrl),
+        duration: duration,
+        bitDepth: bitDepth,
+        sampleRate: sampleRate,
+        bitrate: bitrate,
+        format: format,
+        explicit: explicit ?? false,
+      ),
+    );
   }
 
   /// Plays a local-library album/list starting at [startItem], queuing the rest
-  /// so playback continues to the next track automatically. Honors player mode.
+  /// so playback continues to the next track automatically.
   Future<void> playLocalLibraryQueue(
     List<LocalLibraryItem> items, {
     required LocalLibraryItem startItem,
@@ -106,116 +95,54 @@ class PlaybackController extends Notifier<PlaybackState> {
     if (playable.isEmpty) return;
     var startIndex = playable.indexWhere(isStart);
     if (startIndex < 0) startIndex = 0;
-    await playMediaQueue(
-      playable.map(toMedia),
-      startIndex: startIndex,
-      externalPath: path(playable[startIndex]),
-    );
+    await playMediaQueue(playable.map(toMedia), startIndex: startIndex);
   }
 
-  /// Plays a prebuilt media queue starting at [startIndex]. Honors player mode
-  /// ([externalPath] is opened externally when the built-in player is off).
+  /// Plays a prebuilt media queue starting at [startIndex].
   Future<void> playMediaQueue(
     Iterable<PlayableMedia> queue, {
     required int startIndex,
-    required String externalPath,
   }) async {
-    if (await _useInternalPlayer()) {
-      final items = queue.toList(growable: false);
-      if (items.isEmpty) return;
-      final i = startIndex.clamp(0, items.length - 1);
-      await ref
-          .read(musicPlayerControllerProvider)
-          .playAll(items, initialIndex: i);
-    } else {
-      await _openExternal(externalPath);
-    }
+    final player = await _player();
+    final items = queue.toList(growable: false);
+    if (items.isEmpty) return;
+    final i = startIndex.clamp(0, items.length - 1);
+    await player.playAll(items, initialIndex: i);
   }
 
   Future<void> playTrackList(List<Track> tracks, {int startIndex = 0}) async {
     if (tracks.isEmpty) return;
 
     final safeStart = startIndex.clamp(0, tracks.length - 1);
-    if (ref.read(settingsProvider).playerMode != 'internal') {
-      var skippedCueVirtualTrack = false;
-      // External playback opens one file. Resolve only candidates actually
-      // visited, preserving the original forward/wrap fallback order.
-      for (var offset = 0; offset < tracks.length; offset++) {
-        final index = (safeStart + offset) % tracks.length;
-        final path = (await resolveTrackFilePaths([tracks[index]])).single;
-        if (path == null) continue;
-        if (isCueVirtualPath(path)) {
-          skippedCueVirtualTrack = true;
-          continue;
-        }
-        await _openExternal(path);
-        return;
-      }
-      throw Exception(
-        skippedCueVirtualTrack
-            ? cueVirtualTrackRequiresSplitMessage
-            : 'No local audio file is available to open.',
-      );
-    }
     final resolvedPaths = await resolveTrackFilePaths(tracks);
+    final player = await _player();
 
-    if (await _useInternalPlayer()) {
-      final queue = <PlayableMedia>[];
-      int? initialIndex;
-      var skippedCueVirtualTrack = false;
-      for (var index = 0; index < tracks.length; index++) {
-        final track = tracks[index];
-        final resolvedPath = resolvedPaths[index];
-        if (resolvedPath == null) continue;
-        if (isCueVirtualPath(resolvedPath)) {
-          skippedCueVirtualTrack = true;
-          continue;
-        }
-        // Keep the playlist's original order so Previous can reach earlier
-        // tracks and reaching its end still respects the player's repeat mode.
-        if (index >= safeStart) initialIndex ??= queue.length;
-        queue.add(playableFromTrack(track, resolvedPath));
-      }
-
-      if (queue.isNotEmpty) {
-        _log.d('Playing ${queue.length} tracks in the internal player');
-        await ref
-            .read(musicPlayerControllerProvider)
-            .playAll(queue, initialIndex: initialIndex ?? 0);
-        return;
-      }
-      if (skippedCueVirtualTrack) {
-        throw Exception(cueVirtualTrackRequiresSplitMessage);
-      }
-      throw Exception('No local audio file is available to play.');
-    }
-
+    final queue = <PlayableMedia>[];
+    int? initialIndex;
     var skippedCueVirtualTrack = false;
-    for (var offset = 0; offset < tracks.length; offset++) {
-      final index = (safeStart + offset) % tracks.length;
+    for (var index = 0; index < tracks.length; index++) {
       final track = tracks[index];
       final resolvedPath = resolvedPaths[index];
-      if (resolvedPath == null) {
-        continue;
-      }
+      if (resolvedPath == null) continue;
       if (isCueVirtualPath(resolvedPath)) {
         skippedCueVirtualTrack = true;
         continue;
       }
-
-      _log.d(
-        'Opening first available external track for list playback: '
-        '"${track.name}" by ${track.artistName} -> $resolvedPath',
-      );
-      await _openExternal(resolvedPath);
-      return;
+      // Keep the playlist's original order so Previous can reach earlier
+      // tracks and reaching its end still respects the player's repeat mode.
+      if (index >= safeStart) initialIndex ??= queue.length;
+      queue.add(playableFromTrack(track, resolvedPath));
     }
 
+    if (queue.isNotEmpty) {
+      _log.d('Playing ${queue.length} tracks in the built-in player');
+      await player.playAll(queue, initialIndex: initialIndex ?? 0);
+      return;
+    }
     if (skippedCueVirtualTrack) {
       throw Exception(cueVirtualTrackRequiresSplitMessage);
     }
-
-    throw Exception('No local audio file is available to open.');
+    throw Exception('No local audio file is available to play.');
   }
 
   /// Public wrapper so non-playback features (e.g. M3U export) reuse the

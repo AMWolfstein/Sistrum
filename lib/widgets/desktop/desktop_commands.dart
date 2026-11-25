@@ -258,6 +258,7 @@ String desktopDestinationTooltip(
 /// by position.
 List<ShellTab> desktopDestinationTabs() => [
   ShellTab.home,
+  ShellTab.statistics,
   ShellTab.library,
   ShellTab.search,
   ShellTab.settings,

@@ -55,19 +55,17 @@ bool shouldRetainCompletionBridge({
 /// History row. This avoids pinning the card to the track's old quality text
 /// when the user changes the Library label setting during an album download.
 String? buildCompletionBridgeFallbackQualityLabel({
-  required String mode,
   required String? completedItemFilePath,
   required String? storedQuality,
 }) {
   return buildLibraryAudioQualityLabel(
-    mode: mode,
     format: audioFormatForPath(completedItemFilePath),
     storedQuality: storedQuality,
   );
 }
 
 /// Returns distinct final-path candidates for a just-completed download.
-/// History is authoritative after conversion/SAF publication, while the
+/// History is authoritative after SAF publication, while the
 /// completed queue item remains a safe fallback if the matched history row is
 /// stale or has not been adopted into the in-memory index yet.
 List<String> resolveCompletionBridgePlayableCandidates({
@@ -125,7 +123,7 @@ typedef LibraryFilePathNormalizer = String Function(String? path);
 /// file is published. Fresh paths therefore stay optimistically playable
 /// during a bounded retry window. Confirmed misses are cached, but become
 /// eligible for a new probe after [missingRecheckAfter] when their card is
-/// rebuilt (for example after returning from the Metadata screen).
+/// rebuilt (for example after its song menu closes).
 class LibraryFileAvailabilityCache {
   static const int _defaultMaxEntries = 500;
   static const List<Duration> _defaultRetryDelays = [

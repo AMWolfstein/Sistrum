@@ -52,11 +52,20 @@ class AudioAnalysisCard extends StatefulWidget {
   /// it the name comes from [filePath].
   final String? exportName;
 
+  /// Starts the analysis as soon as no cached result exists, instead of
+  /// waiting for the Analyze action.
+  final bool analyzeOnOpen;
+
+  /// The analysis engine; tests pass a stub. The card makes its own when null.
+  final AudioAnalysisRunner? runner;
+
   const AudioAnalysisCard({
     super.key,
     required this.filePath,
     this.codecHint,
     this.exportName,
+    this.analyzeOnOpen = false,
+    this.runner,
   });
 
   @override
@@ -74,7 +83,8 @@ class _AudioAnalysisCardState extends State<AudioAnalysisCard> {
   int _spectrogramRequestId = 0;
   bool _savingSpectrogram = false;
   String? _unsupportedCodec;
-  final _runner = AudioAnalysisRunner();
+  late final AudioAnalysisRunner _runner =
+      widget.runner ?? AudioAnalysisRunner();
 
   bool _isStaleRequest(int requestId) =>
       !mounted || requestId != _spectrogramRequestId;
@@ -212,6 +222,9 @@ class _AudioAnalysisCardState extends State<AudioAnalysisCard> {
     }
     if (isCurrentRequest()) {
       setState(() => _checkingCache = false);
+      if (widget.analyzeOnOpen && _data == null && _error == null) {
+        unawaited(_analyze());
+      }
     }
   }
 

@@ -25,7 +25,7 @@ final homeRecentlyAddedProvider = FutureProvider.autoDispose<HomeRecentlyAdded>(
       // both.
       ref.watch(
         libraryCountsProvider(
-          LibraryCountsRequest.all(localLibraryEnabled: includeLocal),
+          LibraryCountsRequest(localLibraryEnabled: includeLocal),
         ).future,
       ),
     ).wait;
@@ -290,23 +290,20 @@ class _HomeSections extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final showPlayer = ref.watch(playerUiEnabledProvider);
-    final hasMediaItem =
-        showPlayer &&
-        ref.watch(currentMediaItemProvider.select((s) => s.value != null));
+    final hasMediaItem = ref.watch(
+      currentMediaItemProvider.select((s) => s.value != null),
+    );
     // Only values: a reload's loading state shows the previous one.
-    final hasResume =
-        showPlayer &&
-        ref.watch(playbackResumeProvider.select((s) => s.value != null));
+    final hasResume = ref.watch(
+      playbackResumeProvider.select((s) => s.value != null),
+    );
     final recentlyAdded = ref.watch(
       homeRecentlyAddedProvider.select((s) => s.value),
     );
     final onRepeat =
         ref.watch(homeOnRepeatProvider.select((s) => s.value)) ?? const [];
 
-    final showContinue =
-        (hasMediaItem || hasResume) &&
-        ref.watch(settingsProvider.select((s) => s.homeContinueListening));
+    final showContinue = hasMediaItem || hasResume;
 
     final recentlyPlayed =
         ref.watch(homeRecentlyPlayedProvider.select((s) => s.value)) ??

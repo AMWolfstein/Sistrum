@@ -14,16 +14,12 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
   const MornyeTheme({
     this.chromeSurface,
     this.accent = MornyeAccent.blue,
-    this.useSystemFont = false,
-    this.fontFamily,
     this.glassClarity = kDefaultMornyeGlassClarity,
     this.glassOutlines = true,
   });
 
   final Color? chromeSurface;
   final MornyeAccent accent;
-  final bool useSystemFont;
-  final String? fontFamily;
   final double glassClarity;
   final bool glassOutlines;
 
@@ -126,18 +122,13 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
   // key because it controls fonts and route transitions; desktop because it
   // sets the tooltip delay.
   static final _themeCache =
-      <
-        (TargetPlatform, bool, Brightness, Color?, MornyeAccent, bool, String?),
-        ThemeData
-      >{};
+      <(TargetPlatform, bool, Brightness, Color?, MornyeAccent), ThemeData>{};
   static final _glassVariants = Expando<ThemeData>();
 
   static ThemeData build(
     Brightness brightness, {
     Color? chromeSurface,
     MornyeAccent accent = MornyeAccent.blue,
-    bool useSystemFont = false,
-    String? fontFamily,
     double glassClarity = kDefaultMornyeGlassClarity,
     bool glassOutlines = true,
   }) {
@@ -147,27 +138,12 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
       brightness,
       chromeSurface,
       accent,
-      useSystemFont,
-      fontFamily,
     );
     var theme = _themeCache.remove(key);
     // Artwork chrome only tints a few roles, so derive it from the base theme.
     theme ??= chromeSurface == null
-        ? _build(
-            brightness,
-            selectedAccent: accent,
-            useSystemFont: useSystemFont,
-            fontFamily: fontFamily,
-          )
-        : _withChromeSurface(
-            build(
-              brightness,
-              accent: accent,
-              useSystemFont: useSystemFont,
-              fontFamily: fontFamily,
-            ),
-            chromeSurface,
-          );
+        ? _build(brightness, selectedAccent: accent)
+        : _withChromeSurface(build(brightness, accent: accent), chromeSurface);
     if (_themeCache.length >= 16) {
       _themeCache.remove(_themeCache.keys.first);
     }
@@ -236,8 +212,6 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
       brightness ?? theme.brightness,
       chromeSurface: chromeSurface,
       accent: preferences?.accent ?? MornyeAccent.blue,
-      useSystemFont: preferences?.useSystemFont ?? false,
-      fontFamily: preferences?.fontFamily,
       glassClarity: preferences?.glassClarity ?? kDefaultMornyeGlassClarity,
       glassOutlines: preferences?.glassOutlines ?? true,
     );
@@ -246,8 +220,6 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
   static ThemeData _build(
     Brightness brightness, {
     required MornyeAccent selectedAccent,
-    required bool useSystemFont,
-    String? fontFamily,
   }) {
     final dark = brightness == Brightness.dark;
     final accent = accentColor(selectedAccent, brightness);
@@ -287,26 +259,12 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
           surfaceTint: Colors.transparent,
         );
     // Cupertino's font proxies resolve to SF on Apple and the platform fallback
-    // elsewhere. Inter remains the default on other platforms unless opted out.
-    final apple =
-        defaultTargetPlatform == TargetPlatform.iOS ||
-        defaultTargetPlatform == TargetPlatform.macOS;
+    // elsewhere: the app always uses the system font.
     final type = CupertinoThemeData(brightness: brightness).textTheme;
-    final text = type.textStyle.copyWith(
-      inherit: true,
-      color: foreground,
-      fontFamily:
-          fontFamily ??
-          (apple || useSystemFont ? type.textStyle.fontFamily : 'Inter'),
-    );
+    final text = type.textStyle.copyWith(inherit: true, color: foreground);
     final display = type.navLargeTitleTextStyle.copyWith(
       inherit: true,
       color: foreground,
-      fontFamily:
-          fontFamily ??
-          (apple || useSystemFont
-              ? type.navLargeTitleTextStyle.fontFamily
-              : 'Inter'),
     );
     // Supply complete styles: replacing a Material role with a bare TextStyle
     // loses its system family and retains Material tracking in other roles.
@@ -356,11 +314,7 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
       fontFamily: text.fontFamily,
       splashFactory: NoSplash.splashFactory,
       extensions: <ThemeExtension<dynamic>>[
-        MornyeTheme(
-          accent: selectedAccent,
-          useSystemFont: useSystemFont,
-          fontFamily: fontFamily,
-        ),
+        MornyeTheme(accent: selectedAccent),
         tokens,
       ],
     );
@@ -454,15 +408,11 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
   MornyeTheme copyWith({
     Color? chromeSurface,
     MornyeAccent? accent,
-    bool? useSystemFont,
-    String? fontFamily,
     double? glassClarity,
     bool? glassOutlines,
   }) => MornyeTheme(
     chromeSurface: chromeSurface ?? this.chromeSurface,
     accent: accent ?? this.accent,
-    useSystemFont: useSystemFont ?? this.useSystemFont,
-    fontFamily: fontFamily ?? this.fontFamily,
     glassClarity: glassClarity ?? this.glassClarity,
     glassOutlines: glassOutlines ?? this.glassOutlines,
   );
@@ -471,10 +421,6 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
   MornyeTheme lerp(covariant MornyeTheme? other, double t) => MornyeTheme(
     chromeSurface: Color.lerp(chromeSurface, other?.chromeSurface, t),
     accent: t < 0.5 ? accent : other?.accent ?? accent,
-    fontFamily: t < 0.5 ? fontFamily : other?.fontFamily,
-    useSystemFont: t < 0.5
-        ? useSystemFont
-        : other?.useSystemFont ?? useSystemFont,
     glassClarity:
         glassClarity +
         ((other?.glassClarity ?? glassClarity) - glassClarity) * t,
@@ -488,20 +434,12 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
       other is MornyeTheme &&
       other.chromeSurface == chromeSurface &&
       other.accent == accent &&
-      other.useSystemFont == useSystemFont &&
-      other.fontFamily == fontFamily &&
       other.glassClarity == glassClarity &&
       other.glassOutlines == glassOutlines;
 
   @override
-  int get hashCode => Object.hash(
-    chromeSurface,
-    accent,
-    useSystemFont,
-    fontFamily,
-    glassClarity,
-    glassOutlines,
-  );
+  int get hashCode =>
+      Object.hash(chromeSurface, accent, glassClarity, glassOutlines);
 }
 
 /// Settings uses iOS's inset grouped surfaces while the music library keeps

@@ -1,86 +1,27 @@
 part of 'queue_tab.dart';
 
 extension _QueueTabNavigation on _QueueTabState {
-  PlaybackRowKey _libraryPlaybackKey(UnifiedLibraryItem item) => (
-    id: item.localItem?.id ?? item.id,
-    path: item.filePath,
-  );
+  PlaybackRowKey _libraryPlaybackKey(UnifiedLibraryItem item) =>
+      (id: item.localItem?.id ?? item.id, path: item.filePath);
 
-  Future<void> _openFile(
-    String filePath, {
-    String title = '',
-    String artist = '',
-    String album = '',
-    String coverUrl = '',
-  }) async {
-    final cleanPath = _cleanFilePath(filePath);
-    try {
-      final fallbackTitle = cleanPath.split('/').last.split('\\').last;
-      await ref
-          .read(playbackProvider.notifier)
-          .playLocalPath(
-            path: cleanPath,
-            title: title.isNotEmpty ? title : fallbackTitle,
-            artist: artist,
-            album: album,
-            coverUrl: coverUrl,
-          );
-    } catch (e) {
-      if (mounted) showCannotOpenFileSnackBar(context, e);
-    }
-  }
-
-  /// The Library list [filterMode] shows, in [sortMode] and the active
-  /// filters, without the search text: the list a song played while
-  /// searching continues into.
-  LibrarySongListRequest _songListFor(String filterMode, String sortMode) => (
-    filterMode: filterMode,
-    sortMode: sortMode,
-    source: _filterSource,
-    quality: _filterQuality,
-    format: _filterFormat,
-    metadata: _filterMetadata,
-    includeLocal: ref.read(settingsProvider).localLibraryEnabled,
-  );
-
-  /// The Songs list a song played from the Library search continues into,
-  /// in the order the Songs page shows.
-  LibrarySongListRequest _searchSongList() =>
-      _songListFor('all', ref.read(settingsProvider).historySortMode);
-
-  /// Plays [item] and queues the rest of the merged library (downloaded + local
-  /// in display order) so playback continues to the next track. Honors player
-  /// mode and shuffle. While a search narrows the list, the song plays on
-  /// into the whole list around it, as the same tap without the search does.
+  /// Plays [item] and queues the rest of the Songs list in its order, so
+  /// playback continues to the next song. Honors the player's shuffle.
   Future<void> _playLibraryItem(
     UnifiedLibraryItem item,
     List<UnifiedLibraryItem> libraryItems,
   ) async {
-    var played = item;
-    var listed = libraryItems;
-    if (_searchQuery.isNotEmpty) {
-      final mode =
-          widget.librarySection ?? ref.read(settingsProvider).historyFilterMode;
-      // A list that cannot be read leaves the matches to play.
-      final placed = await placeInLibrarySongList(
-        ref,
-        item,
-        _songListFor(mode == 'singles' ? 'singles' : 'all', _sortMode),
-      ).catchError((Object _) => null);
-      if (!mounted) return;
-      if (placed != null) {
-        played = placed.item;
-        listed = placed.songs;
-      }
+    if (!await songFileCanPlay(item.filePath)) {
+      if (mounted) await _openLibraryItemMenu(item);
+      return;
     }
-    final playableItems = listed
+    final playableItems = libraryItems
         .where(
           (u) => u.filePath.trim().isNotEmpty && !isCueVirtualPath(u.filePath),
         )
         .toList();
     if (playableItems.isEmpty) return;
 
-    var start = playableItems.indexWhere((u) => u.id == played.id);
+    var start = playableItems.indexWhere((u) => u.id == item.id);
     if (start < 0) start = 0;
 
     try {
@@ -89,28 +30,30 @@ extension _QueueTabNavigation on _QueueTabState {
           .playMediaQueue(
             playableItems.map(_toPlayableMedia),
             startIndex: start,
-            externalPath: item.filePath,
           );
     } catch (e) {
       if (mounted) showCannotOpenFileSnackBar(context, e);
     }
   }
 
-  /// Plays the songs the Songs page lists, in its sort and filters, from a
-  /// random one with shuffle on, as folder and album pages do. A list the
-  /// page has not [complete]ly loaded is read whole first; an external
-  /// player opens one file and needs no list.
-  Future<void> _shuffleLibrarySongs(
+  /// Plays the songs the Songs page lists, in its sort: from the first song
+  /// for Play, from a random one with [shuffle] on. A list the page has not
+  /// [complete]ly loaded is read whole first.
+  Future<void> _playLibrarySongs(
     List<UnifiedLibraryItem> loaded, {
     required bool complete,
+    required bool shuffle,
   }) async {
     var songs = loaded;
-    if (!complete &&
-        _searchQuery.isEmpty &&
-        ref.read(settingsProvider).playerMode == 'internal') {
+    if (!complete) {
       // A list that cannot be read leaves the loaded songs to play.
       songs = await ref
-          .read(librarySongListProvider(_songListFor('all', _sortMode)).future)
+          .read(
+            librarySongListProvider((
+              sortMode: _sortMode,
+              includeLocal: ref.read(settingsProvider).localLibraryEnabled,
+            )).future,
+          )
           .catchError((Object _) => loaded);
       if (!mounted) return;
     }
@@ -120,16 +63,14 @@ extension _QueueTabNavigation on _QueueTabState {
         )
         .toList(growable: false);
     if (playable.isEmpty) return;
-    final start = Random().nextInt(playable.length);
+    final start = shuffle ? Random().nextInt(playable.length) : 0;
     try {
-      await ref.read(musicPlayerControllerProvider).setShuffle(true);
+      if (shuffle) {
+        await ref.read(musicPlayerControllerProvider).setShuffle(true);
+      }
       await ref
           .read(playbackProvider.notifier)
-          .playMediaQueue(
-            playable.map(_toPlayableMedia),
-            startIndex: start,
-            externalPath: playable[start].filePath,
-          );
+          .playMediaQueue(playable.map(_toPlayableMedia), startIndex: start);
     } catch (e) {
       if (mounted) showCannotOpenFileSnackBar(context, e);
     }
@@ -159,35 +100,18 @@ extension _QueueTabNavigation on _QueueTabState {
     );
   }
 
-  Future<void> _navigateToLocalMetadataScreen(
-    LocalLibraryItem item, {
-    List<LocalLibraryItem>? navigationItems,
-    int? navigationIndex,
-  }) async {
-    _searchFocusNode.unfocus();
-    await prepareTrackDetailsCover(
-      context,
-      item.filePath,
-      fallback: item.coverPath,
-    );
-    if (!mounted) return;
-    await Navigator.push(
-      context,
-      slidePageRoute<void>(
-        page: TrackMetadataScreen(
-          localItem: item,
-          localNavigationItems: navigationItems,
-          navigationIndex: navigationIndex,
-          coverHeroTag: 'cover_lib_local_${item.id}',
-        ),
-      ),
-    );
-    if (mounted) _searchFocusNode.unfocus();
-  }
+  /// The song menu of a library song that cannot play, which is what its
+  /// row tap opens.
+  Future<void> _openLibraryItemMenu(UnifiedLibraryItem item) => showSongMenu(
+    context,
+    ref,
+    track: item.toTrack(),
+    filePath: item.filePath,
+    localItem: item.localItem,
+  );
 
-  void _navigateWithUnfocus(Route<dynamic> route) {
-    _searchFocusNode.unfocus();
-    Navigator.of(context).push(route).then((_) => _searchFocusNode.unfocus());
+  void _pushLibraryRoute(Route<dynamic> route) {
+    Navigator.of(context).push(route);
   }
 
   /// Plays a scanned album from its first track, loading its tracks when the
@@ -208,7 +132,7 @@ extension _QueueTabNavigation on _QueueTabState {
   void _navigateToLocalAlbum(_GroupedLocalAlbum album) {
     Future<List<LocalLibraryItem>> loadTracks() => _loadLocalAlbumTracks(album);
 
-    _navigateWithUnfocus(
+    _pushLibraryRoute(
       slidePageRoute(
         page: LocalAlbumScreen(
           albumName: album.albumName,
@@ -243,39 +167,22 @@ extension _QueueTabNavigation on _QueueTabState {
     return rows.map(LocalLibraryItem.fromJson).toList(growable: false);
   }
 
-  void _openWishlistFolder() {
-    _navigateWithUnfocus(
-      MaterialPageRoute(
-        builder: (_) => const LibraryTracksFolderScreen(
-          mode: LibraryTracksFolderMode.wishlist,
-        ),
-      ),
-    );
-  }
-
   void _openLovedFolder() {
-    _navigateWithUnfocus(
-      MaterialPageRoute(
-        builder: (_) => const LibraryTracksFolderScreen(
-          mode: LibraryTracksFolderMode.loved,
-        ),
-      ),
+    _pushLibraryRoute(
+      MaterialPageRoute(builder: (_) => const CollectionDetailScreen.loved()),
     );
   }
 
   void _openFavoriteArtistsFolder() {
-    _navigateWithUnfocus(
+    _pushLibraryRoute(
       MaterialPageRoute(builder: (_) => const FavoriteArtistsScreen()),
     );
   }
 
   void _openPlaylistById(String playlistId) {
-    _navigateWithUnfocus(
+    _pushLibraryRoute(
       MaterialPageRoute(
-        builder: (_) => LibraryTracksFolderScreen(
-          mode: LibraryTracksFolderMode.playlist,
-          playlistId: playlistId,
-        ),
+        builder: (_) => CollectionDetailScreen.playlist(playlistId: playlistId),
       ),
     );
   }

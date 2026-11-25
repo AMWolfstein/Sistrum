@@ -102,7 +102,6 @@ void main() {
             ThemeData themeFor(Brightness brightness) => MornyeTheme.build(
               brightness,
               accent: settings.mornyeAccent,
-              useSystemFont: settings.useSystemFont,
               glassClarity: settings.mornyeGlassClarity,
               glassOutlines: settings.mornyeGlassOutlines,
             );
@@ -125,7 +124,10 @@ void main() {
     testWidgets(
       'glass outlines toggle survives restart and local themes ($mode)',
       (tester) async {
-        SharedPreferences.setMockInitialValues({kThemeModeKey: mode.name});
+        SharedPreferences.setMockInitialValues({
+          kThemeModeKey: mode.name,
+          kRetiredThemePrefsRemovedKey: true,
+        });
         final prefs = await SharedPreferences.getInstance();
         await openSettings(tester, prefs);
         final toggle = find.byKey(const ValueKey('mornye-glass-outlines'));
@@ -171,7 +173,10 @@ void main() {
     testWidgets('glass clarity previews live and survives restart ($mode)', (
       tester,
     ) async {
-      SharedPreferences.setMockInitialValues({kThemeModeKey: mode.name});
+      SharedPreferences.setMockInitialValues({
+        kThemeModeKey: mode.name,
+        kRetiredThemePrefsRemovedKey: true,
+      });
       final prefs = await SharedPreferences.getInstance();
       await openSettings(tester, prefs);
       final slider = find.byKey(const ValueKey('mornye-glass-clarity'));
@@ -213,7 +218,10 @@ void main() {
     testWidgets('glass clarity waits for blur on flat devices ($mode)', (
       tester,
     ) async {
-      SharedPreferences.setMockInitialValues({kThemeModeKey: mode.name});
+      SharedPreferences.setMockInitialValues({
+        kThemeModeKey: mode.name,
+        kRetiredThemePrefsRemovedKey: true,
+      });
       final prefs = await SharedPreferences.getInstance();
       await openSettings(tester, prefs, lowEnd: true);
       final slider = find.byKey(const ValueKey('mornye-glass-clarity'));
@@ -269,7 +277,10 @@ void main() {
       addTearDown(
         tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
       );
-      SharedPreferences.setMockInitialValues({kThemeModeKey: mode.name});
+      SharedPreferences.setMockInitialValues({
+        kThemeModeKey: mode.name,
+        kRetiredThemePrefsRemovedKey: true,
+      });
       final prefs = await SharedPreferences.getInstance();
       await openSettings(tester, prefs);
       final slider = find.byKey(const ValueKey('mornye-glass-clarity'));
@@ -328,6 +339,7 @@ void main() {
         kThemeModeKey: mode.name,
         kMornyeAccentKey: 'red',
         kMornyeAccentMovedToBlueKey: true,
+        kRetiredThemePrefsRemovedKey: true,
       });
       final prefs = await SharedPreferences.getInstance();
       await openSettings(tester, prefs);
@@ -374,62 +386,4 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
-
-  testWidgets(
-    'system font persists and restores the default',
-    (tester) async {
-      SharedPreferences.setMockInitialValues({kMornyeAccentKey: 'blue'});
-      final prefs = await SharedPreferences.getInstance();
-      await openSettings(tester, prefs);
-      final page = find.byType(AppearanceSettingsPage);
-      final original = Theme.of(
-        tester.element(page),
-      ).textTheme.bodyLarge!.fontFamily;
-      final setting = find.text('Use system font');
-      await tester.scrollUntilVisible(
-        setting,
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.pumpAndSettle();
-      await tester.tap(setting);
-      await tester.pumpAndSettle();
-      final theme = Theme.of(tester.element(page));
-      final systemFamily = theme.textTheme.bodyLarge!.fontFamily;
-      expect(systemFamily, isNot('Inter'));
-      expect(systemFamily, isNot('Google Sans Flex'));
-      expect(prefs.getBool(kUseSystemFontKey), isTrue);
-      final overlay = MornyeTheme.fromContext(
-        tester.element(page),
-        brightness: Brightness.dark,
-      );
-      expect(overlay.extension<MornyeTheme>()!.useSystemFont, isTrue);
-      expect(overlay.extension<MornyeTheme>()!.accent, MornyeAccent.blue);
-      expect(overlay.textTheme.bodyLarge!.fontFamily, systemFamily);
-      await tester.pumpWidget(const SizedBox());
-      await openSettings(tester, prefs);
-      expect(
-        Theme.of(tester.element(page)).textTheme.bodyLarge!.fontFamily,
-        systemFamily,
-      );
-      await tester.scrollUntilVisible(
-        setting,
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.pumpAndSettle();
-      await tester.tap(setting);
-      await tester.pumpAndSettle();
-      expect(prefs.getBool(kUseSystemFontKey), isFalse);
-      expect(
-        Theme.of(tester.element(page)).textTheme.bodyLarge!.fontFamily,
-        original,
-      );
-      expect(tester.takeException(), isNull);
-    },
-    variant: const TargetPlatformVariant({
-      TargetPlatform.android,
-      TargetPlatform.iOS,
-    }),
-  );
 }

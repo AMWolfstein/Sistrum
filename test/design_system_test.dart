@@ -5,7 +5,8 @@ import 'package:analyzer/dart/analysis/utilities.dart';
 import 'package:analyzer/dart/ast/ast.dart';
 import 'package:analyzer/dart/ast/visitor.dart';
 import 'package:analyzer/source/line_info.dart';
-import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
+import 'package:cupertino_ui/cupertino_ui.dart'
+    show CupertinoIcons, CupertinoThemeData;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -80,6 +81,14 @@ Widget _hostSliver(Widget sliver) {
   );
 }
 
+/// The header's back control is a labelled circle button, found by the
+/// localized back tooltip that screen readers announce.
+Finder _backButton(WidgetTester tester) => findByTooltip(
+  MaterialLocalizations.of(
+    tester.element(find.byType(Scaffold).first),
+  ).backButtonTooltip,
+);
+
 void main() {
   group('AppTokens', () {
     test('is registered on both themes', () {
@@ -97,7 +106,9 @@ void main() {
       'Mornye keeps a font family and Cupertino tracking in text roles',
       (tester) async {
         final theme = MornyeTheme.build(Brightness.light);
-        final apple = theme.platform == TargetPlatform.iOS;
+        final system = CupertinoThemeData(
+          brightness: Brightness.light,
+        ).textTheme;
         for (final role in [
           theme.textTheme.bodyLarge,
           theme.textTheme.bodyMedium,
@@ -106,12 +117,12 @@ void main() {
           theme.textTheme.labelLarge,
           theme.textTheme.labelSmall,
         ]) {
-          expect(role?.fontFamily, apple ? 'CupertinoSystemText' : 'Inter');
+          expect(role?.fontFamily, system.textStyle.fontFamily);
           expect(role?.letterSpacing, lessThan(0));
         }
         expect(
           theme.textTheme.headlineLarge?.fontFamily,
-          apple ? 'CupertinoSystemDisplay' : 'Inter',
+          system.navLargeTitleTextStyle.fontFamily,
         );
       },
       variant: const TargetPlatformVariant({
@@ -516,21 +527,23 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        MaterialApp(
-          theme: MornyeTheme.build(Brightness.light),
-          home: Scaffold(
-            body: Builder(
-              builder: (context) => ElevatedButton(
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const Scaffold(
-                      body: CustomScrollView(
-                        slivers: [AppSliverHeader.page(title: 'Downloads')],
+        ProviderScope(
+          child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.light),
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => ElevatedButton(
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const Scaffold(
+                        body: CustomScrollView(
+                          slivers: [AppSliverHeader.page(title: 'Downloads')],
+                        ),
                       ),
                     ),
                   ),
+                  child: const Text('open'),
                 ),
-                child: const Text('open'),
               ),
             ),
           ),
@@ -541,7 +554,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Downloads'), findsOneWidget);
 
-      await tester.tap(findAppIcon(Icons.chevron_left));
+      await tester.tap(_backButton(tester));
       await tester.pumpAndSettle();
       expect(find.text('Downloads'), findsNothing);
     });
@@ -564,22 +577,24 @@ void main() {
           final topInset = platform == TargetPlatform.iOS ? 59.0 : 24.0;
 
           await tester.pumpWidget(
-            MaterialApp(
-              theme: MornyeTheme.build(
-                Brightness.light,
-              ).copyWith(platform: platform),
-              home: MediaQuery(
-                data: MediaQueryData(
-                  size: const Size(430, 932),
-                  padding: EdgeInsets.only(top: topInset),
-                ),
-                child: Scaffold(
-                  body: CustomScrollView(
-                    controller: controller,
-                    slivers: const [
-                      AppSliverHeader.page(title: 'Metadata'),
-                      SliverToBoxAdapter(child: SizedBox(height: 1200)),
-                    ],
+            ProviderScope(
+              child: MaterialApp(
+                theme: MornyeTheme.build(
+                  Brightness.light,
+                ).copyWith(platform: platform),
+                home: MediaQuery(
+                  data: MediaQueryData(
+                    size: const Size(430, 932),
+                    padding: EdgeInsets.only(top: topInset),
+                  ),
+                  child: Scaffold(
+                    body: CustomScrollView(
+                      controller: controller,
+                      slivers: const [
+                        AppSliverHeader.page(title: 'Metadata'),
+                        SliverToBoxAdapter(child: SizedBox(height: 1200)),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -590,7 +605,7 @@ void main() {
           await tester.pump();
 
           final title = find.text('Metadata');
-          final backIcon = findAppIcon(Icons.chevron_left);
+          final backIcon = _backButton(tester);
           expect(
             tester.getRect(title).overlaps(tester.getRect(backIcon)),
             isFalse,
@@ -862,68 +877,6 @@ void main() {
       // inset another 6dp from the painted card edge.
       expect(cardRect.right - trailingRect.right, 14);
     });
-
-    testWidgets('grid variant is a real button with a semantic label', (
-      tester,
-    ) async {
-      var taps = 0;
-      await tester.pumpWidget(
-        host(
-          SizedBox(
-            width: 160,
-            child: TrackGridCard(
-              cover: const ColoredBox(color: Colors.grey),
-              title: 'Song',
-              subtitle: const Text('Artist'),
-              semanticLabel: 'Song by Artist',
-              onTap: () => taps++,
-            ),
-          ),
-        ),
-      );
-
-      // A bare GestureDetector gave no ripple and no semantics; the shared
-      // card uses InkWell + Semantics instead.
-      expect(find.byType(InkWell), findsOneWidget);
-      await tester.tap(find.byType(InkWell));
-      expect(taps, 1);
-    });
-
-    testWidgets('grid play action keeps a compact visual and 48dp hit box', (
-      tester,
-    ) async {
-      var taps = 0;
-      await tester.pumpWidget(
-        host(
-          Align(
-            child: TrackGridPlayButton(
-              tooltip: 'Play Song by Artist',
-              onPressed: () => taps++,
-            ),
-          ),
-        ),
-      );
-
-      final action = find.byType(TrackGridPlayButton);
-      final button = find.descendant(
-        of: action,
-        matching: find.byType(IconButton),
-      );
-      final visual = find.descendant(
-        of: action,
-        matching: find.byType(Container),
-      );
-
-      expect(tester.getSize(button), const Size.square(48));
-      expect(
-        tester.getSize(visual),
-        const Size.square(TrackGridPlayButton.visualDiameter),
-      );
-      expect(tester.getBottomRight(visual), tester.getBottomRight(button));
-
-      await tester.tap(button);
-      expect(taps, 1);
-    });
   });
 
   group('selection bar', () {
@@ -1082,9 +1035,8 @@ void main() {
 
     test('every collection screen goes through the shared shell', () {
       const screens = [
-        'playlist_screen.dart',
         'local_album_screen.dart',
-        'library_tracks_folder_screen.dart',
+        'collection_detail_screen.dart',
       ];
       final offenders = <String>[];
       for (final name in screens) {
@@ -1106,14 +1058,13 @@ void main() {
       );
     });
 
-    test('the playlist screen supports multi-select', () {
-      final playlist = _libSources().firstWhere(
-        (file) => _basename(file) == 'playlist_screen.dart',
+    test('the collection detail screen supports multi-select', () {
+      final detail = _libSources().firstWhere(
+        (file) => _basename(file) == 'collection_detail_screen.dart',
       );
-      final source = playlist.readAsStringSync();
+      final source = detail.readAsStringSync();
 
-      expect(source, contains('SelectionModeMixin<PlaylistScreen>'));
-      // Its only bar action was Download, which is gone; the mixin keeps selection.
+      expect(source, contains('SelectionModeMixin<CollectionDetailScreen>'));
       expect(source, contains('isSelectionMode: isSelectionMode'));
     });
   });

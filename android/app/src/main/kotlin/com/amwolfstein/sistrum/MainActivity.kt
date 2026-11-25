@@ -72,7 +72,6 @@ class MainActivity: FlutterFragmentActivity() {
         "prepareRuntimeState",
         "readAudioMetadata",
         "readFileMetadata",
-        "checkHiResAuthenticity",
         "editFileMetadata",
         "setLibraryCoverCacheDir",
         "scanLibraryFolderToNDJSONFile",
@@ -105,13 +104,11 @@ class MainActivity: FlutterFragmentActivity() {
         "safCopyToTemp",
         "safOpenPlaybackLease",
         "safClosePlaybackLease",
-        "openContentUri",
         "shareContentUri",
         "getSafFileModTimes",
         "safCreateFromPath",
         "safWriteSidecarFromPath",
         "safCreateIfAbsentFromPath",
-        "safCreateUniqueFromPath",
         "safCreateCollisionAwareFromPath",
         "writeTempToSaf",
         "writeSafSidecarLrc",
@@ -536,12 +533,9 @@ class MainActivity: FlutterFragmentActivity() {
                         "safCreateFromPath" -> handleSafCreateFromPath(call, result)
                         "safWriteSidecarFromPath" -> handleSafWriteSidecarFromPath(call, result)
                         "safCreateIfAbsentFromPath" -> handleSafCreateIfAbsentFromPath(call, result)
-                        "safCreateUniqueFromPath" -> handleSafCreateUniqueFromPath(call, result)
                         "safCreateCollisionAwareFromPath" -> handleSafCreateCollisionAwareFromPath(call, result)
-                        "openContentUri" -> handleOpenContentUri(call, result)
                         "shareContentUri" -> handleShareContentUri(call, result)
                         "readFileMetadata" -> handleReadFileMetadata(call, result, selectedBackend)
-                        "checkHiResAuthenticity" -> handleCheckHiResAuthenticity(call, result)
                         "editFileMetadata" -> handleEditFileMetadata(call, result)
                         "writeTempToSaf" -> handleWriteTempToSaf(call, result)
                         "writeSafSidecarLrc" -> handleWriteSafSidecarLrc(call, result)

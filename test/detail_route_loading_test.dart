@@ -1,14 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/screens/local_album_screen.dart';
-import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
@@ -57,49 +54,6 @@ void main() {
       child: child,
     ),
   );
-
-  for (final popEarly in [false, true]) {
-    testWidgets(
-      'metadata starts reading during entrance, early pop=$popEarly',
-      (tester) async {
-        final navigator = await mount(tester);
-        var statCalls = 0;
-        var followUpCalls = 0;
-        final delayedStat = Completer<String>();
-        const channel = MethodChannel('com.amwolfstein.sistrum/backend');
-        final messenger =
-            TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
-        messenger.setMockMethodCallHandler(channel, (call) async {
-          if (call.method == 'safStat') {
-            statCalls++;
-            if (popEarly) return delayedStat.future;
-            return jsonEncode({'exists': false});
-          }
-          followUpCalls++;
-          return null;
-        });
-        addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
-        unawaited(
-          navigator.currentState!.push(
-            route(TrackMetadataScreen(localItem: _track(1))),
-          ),
-        );
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 150));
-        expect(find.text('Song 1'), findsWidgets);
-        expect(statCalls, 1);
-        if (popEarly) navigator.currentState!.pop();
-        await tester.pumpAndSettle();
-        if (popEarly) {
-          delayedStat.complete(jsonEncode({'exists': true, 'size': 100}));
-          await tester.pump();
-          expect(followUpCalls, 0);
-        }
-        expect(statCalls, 1);
-        expect(tester.takeException(), isNull);
-      },
-    );
-  }
 
   testWidgets(
     'album shows header immediately and applies rows during entrance',

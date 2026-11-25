@@ -19,9 +19,9 @@
       "title": "Play and process local audio through mpv_audio_kit"
     }
   },
-  "next_completion": 10,
+  "next_completion": 11,
   "next_mission": 4,
-  "next_tor": 5,
+  "next_tor": 6,
   "tasks": {
     "M001-T001": {
       "completion": 3,
@@ -154,6 +154,22 @@
       "record": "specs/001-sistrum-android-offline/tasks.md",
       "status": "reserved",
       "title": "Full code and test audit with verified fixes"
+    },
+    "M001-TOR005": {
+      "completion": 10,
+      "evidence": {
+        "checks": "flutter analyze: baseline info only; full chunked flutter test 3,735 results, 0 new failures against the T006 baseline set (33 failing, all baseline; one run had 2 load flakes that pass alone); cargo test --workspace 345 passed; compileReleaseKotlin and release APK built; dart format clean on 286 changed files; grep proofs 0 hits; independent review round 3 PASS",
+        "result": "PASS",
+        "reviewer": "task-reviewer",
+        "round": 3
+      },
+      "final": false,
+      "kind": "TOR",
+      "mission": "M001",
+      "nonce": "8d6c7b6d303e42dc85800126a6d81578",
+      "record": "specs/001-sistrum-android-offline/tasks.md",
+      "status": "complete",
+      "title": "Rework the offline Library, collection screens, song rows, menus and settings"
     },
     "M002-T001": {
       "completion": null,

@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/models/theme_settings.dart';
 
@@ -25,9 +27,44 @@ MornyeAccent _loadMornyeAccent(SharedPreferences prefs) {
   return mornyeAccentFromString(stored);
 }
 
-/// Removes the retired Material and dynamic-color preferences once. The
-/// marker is written last, so an interrupted run repeats the removal. Reads
-/// through `get`, so a stored value of any type cannot break the load.
+/// Deletes the font files the removed custom font setting imported. Missing
+/// files are fine, and a failure must not block the preference cleanup.
+Future<void> _removeRetiredFontFiles() async {
+  try {
+    final support = await getApplicationSupportDirectory();
+    await Directory('${support.path}/custom_fonts').delete(recursive: true);
+  } catch (_) {
+    // Nothing was imported, or this platform has no support directory.
+  }
+}
+
+/// Removes the retired font preferences and imported font files once. It has
+/// its own marker, so installs whose theme marker was already written still
+/// get it.
+Future<void> _removeRetiredFontPrefs(SharedPreferences prefs) async {
+  try {
+    if (prefs.get(kRetiredFontPrefsRemovedKey) == true) return;
+    final keys = [
+      kRetiredUseSystemFontKey,
+      kRetiredCustomFontIdKey,
+      kRetiredCustomFontNameKey,
+    ];
+    // Font files exist only after a custom font was imported, which stored a key.
+    final hadFont = keys.any(prefs.containsKey);
+    for (final key in keys) {
+      await prefs.remove(key);
+    }
+    if (hadFont) await _removeRetiredFontFiles();
+    await prefs.setBool(kRetiredFontPrefsRemovedKey, true);
+  } catch (e) {
+    // Leaves the marker unset, so the next start retries.
+    debugPrint('Error removing retired font settings: $e');
+  }
+}
+
+/// Removes the retired preferences once. The marker is written last, so an
+/// interrupted run repeats the removal. Reads through `get`, so a stored value
+/// of any type cannot break the load.
 Future<void> _removeRetiredThemePrefs(SharedPreferences prefs) async {
   try {
     if (prefs.get(kRetiredThemePrefsRemovedKey) == true) return;
@@ -50,9 +87,6 @@ ThemeSettings loadBootstrapThemeSettings(SharedPreferences prefs) {
   return ThemeSettings(
     themeMode: themeModeFromString(prefs.getString(kThemeModeKey)),
     mornyeAccent: _loadMornyeAccent(prefs),
-    useSystemFont: prefs.getBool(kUseSystemFontKey) ?? false,
-    customFontId: prefs.getString(kCustomFontIdKey) ?? '',
-    customFontName: prefs.getString(kCustomFontNameKey) ?? '',
     lyricsTextScale: normalizeLyricsTextScale(
       prefs.getDouble(kLyricsTextScaleKey),
     ),
@@ -89,6 +123,7 @@ class ThemeNotifier extends Notifier<ThemeSettings> {
     try {
       final prefs = await _prefs;
       await _removeRetiredThemePrefs(prefs);
+      await _removeRetiredFontPrefs(prefs);
       var loaded = loadBootstrapThemeSettings(prefs);
       for (final edit in _loadingEdits) {
         loaded = edit(loaded);
@@ -115,9 +150,6 @@ class ThemeNotifier extends Notifier<ThemeSettings> {
       final snapshot = state;
       await prefs.setString(kThemeModeKey, snapshot.themeMode.name);
       await prefs.setString(kMornyeAccentKey, snapshot.mornyeAccent.name);
-      await prefs.setBool(kUseSystemFontKey, snapshot.useSystemFont);
-      await prefs.setString(kCustomFontIdKey, snapshot.customFontId);
-      await prefs.setString(kCustomFontNameKey, snapshot.customFontName);
       await prefs.setDouble(kLyricsTextScaleKey, snapshot.lyricsTextScale);
       await prefs.setDouble(kLyricsBlurKey, snapshot.lyricsBlur);
       await prefs.setInt(kLyricsOffsetKey, snapshot.lyricsOffsetMs);
@@ -141,18 +173,6 @@ class ThemeNotifier extends Notifier<ThemeSettings> {
 
   Future<void> setMornyeAccent(MornyeAccent accent) async {
     _editState((current) => current.copyWith(mornyeAccent: accent));
-    await _saveToStorage();
-  }
-
-  Future<void> setUseSystemFont(bool value) async {
-    _editState((current) => current.copyWith(useSystemFont: value));
-    await _saveToStorage();
-  }
-
-  Future<void> setCustomFont(String id, String name) async {
-    _editState(
-      (current) => current.copyWith(customFontId: id, customFontName: name),
-    );
     await _saveToStorage();
   }
 

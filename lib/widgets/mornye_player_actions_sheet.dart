@@ -53,6 +53,7 @@ class MornyePlayerActionsSheet extends ConsumerWidget {
     this.sleepTimerSubtitle,
     this.tempoSubtitle,
     this.volumeShown = true,
+    this.deletable = false,
   });
 
   final MediaItem mediaItem;
@@ -63,6 +64,9 @@ class MornyePlayerActionsSheet extends ConsumerWidget {
 
   /// Whether the player shows its volume slider, which the menu toggles.
   final bool volumeShown;
+
+  /// Whether the playing song is a file on this device, which can be deleted.
+  final bool deletable;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -162,13 +166,17 @@ class MornyePlayerActionsSheet extends ConsumerWidget {
               CupertinoIcons.moon_zzz,
               subtitle: sleepTimerSubtitle,
             ),
-            _action(
-              context,
-              'external',
-              context.l10n.nowPlayingOpenInExternalPlayer,
-              CupertinoIcons.arrow_up_right_square,
-            ),
           ],
+          if (deletable)
+            [
+              _action(
+                context,
+                'delete',
+                context.l10n.trackRemoveFromDevice,
+                CupertinoIcons.trash,
+                destructive: true,
+              ),
+            ],
         ],
       ),
     );
@@ -181,11 +189,13 @@ class MornyePlayerActionsSheet extends ConsumerWidget {
     IconData icon, {
     String? subtitle,
     bool selected = false,
+    bool destructive = false,
   }) => MornyeMenuAction(
     icon: icon,
     label: label,
     subtitle: subtitle,
     selected: selected,
+    destructive: destructive,
     onPressed: () => Navigator.of(context).pop(value),
   );
 }

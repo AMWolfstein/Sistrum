@@ -5,24 +5,13 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/services/metadata_cover_resources.dart';
 import 'package:sistrum/services/metadata_persistence_service.dart';
-import 'package:sistrum/utils/artist_utils.dart';
 
 class _Covers extends MetadataCoverResources {
-  bool failResize = false;
   bool extractCover = false;
-  MetadataCoverPreview? resized;
   MetadataCoverPreview? extracted;
 
   Future<MetadataCoverPreview> create() =>
       copyPicked(extension: 'png', bytes: Uint8List.fromList([1, 2, 3]));
-
-  @override
-  Future<MetadataCoverPreview> resize(String source, int maxDimension) async {
-    expect(await File(source).exists(), isTrue);
-    expect(maxDimension, 500);
-    if (failResize) throw StateError('Resize failed');
-    return resized = await create();
-  }
 
   @override
   Future<MetadataCoverPreview?> extract(String filePath) async =>
@@ -39,14 +28,11 @@ void main() {
     Map<String, String> tags = const {},
     String? selectedCover,
     String? currentCover,
-    int? dimension,
   }) => MetadataSaveRequest(
     filePath: path,
     metadata: tags,
-    artistTagMode: artistTagModeSplitVorbis,
     selectedCoverPath: selectedCover,
     currentCoverPath: currentCover,
-    coverMaxDimension: dimension,
   );
 
   test(
@@ -65,7 +51,6 @@ void main() {
           expect(metadata, {
             'title': 'Song',
             'lyrics': '',
-            'artist_tag_mode': artistTagModeSplitVorbis,
             'cover_path': cover.path,
           });
           entered.complete();
@@ -96,7 +81,7 @@ void main() {
             return {'method': 'ffmpeg'};
           },
           read: (_) async => const {},
-          embed: (codec, path, cover, tags, artistMode) async {
+          embed: (codec, path, cover, tags) async {
             expect(tags, {
               'LYRICS': '[00:01.00]Found',
               'UNSYNCEDLYRICS': '[00:01.00]Found',
@@ -108,7 +93,6 @@ void main() {
           MetadataSaveRequest(
             filePath: 'song.$extension',
             metadata: const {'lyrics': '[00:01.00]Found'},
-            artistTagMode: artistTagModeJoined,
             preserveUnspecifiedTags: true,
           ),
         );
@@ -116,76 +100,69 @@ void main() {
       },
     );
 
-    test(
-      'fallback preserves edited/empty tags and artist mode for $extension',
-      () async {
-        final cover = await covers.create();
-        final isOpus = extension == 'opus' || extension == 'OGG';
-        final service = MetadataPersistenceService(
-          covers: covers,
-          edit: (_, metadata) async {
-            expect(metadata['cover_path'], '');
-            return {'method': 'ffmpeg'};
-          },
-          read: (path) async {
-            expect(path, 'song.$extension');
-            return {
-              'replaygain_track_gain': '-6.20 dB',
-              'replaygain_track_peak': '0.000000',
-              'replaygain_album_gain': '0.00 dB',
-              'replaygain_album_peak': '1.234567',
-            };
-          },
-          embed: (codec, path, coverPath, metadata, mode) async {
-            expect(
-              codec,
-              isOpus
-                  ? MetadataSaveCodec.opus
-                  : extension == 'mp3'
-                  ? MetadataSaveCodec.mp3
-                  : MetadataSaveCodec.m4a,
-            );
-            expect(
-              mode,
-              isOpus ? artistTagModeSplitVorbis : artistTagModeJoined,
-            );
-            expect(coverPath, cover.path);
-            expect(metadata['ARTIST'], 'Artist One; Artist Two');
-            expect(metadata['LYRICS'], 'Existing lyrics');
-            expect(metadata['UNSYNCEDLYRICS'], 'Existing lyrics');
-            expect(metadata['TITLE'], '');
-            expect(metadata['ALBUMARTIST'], '');
-            expect(metadata['TRACKNUMBER'], '3/12');
-            expect(metadata['DISCNUMBER'], '');
-            expect(metadata['REPLAYGAIN_TRACK_GAIN'], '-6.20 dB');
-            expect(metadata['REPLAYGAIN_TRACK_PEAK'], '0.000000');
-            expect(metadata['REPLAYGAIN_ALBUM_GAIN'], '0.00 dB');
-            expect(metadata['REPLAYGAIN_ALBUM_PEAK'], '1.234567');
-            return path;
-          },
-          writeBack: (_, _) async =>
-              throw StateError('Local edit needs no SAF write'),
-        );
-        expect(
-          (await service.save(
-            request(
-              path: 'song.$extension',
-              currentCover: cover.path,
-              tags: {
-                'artist': 'Artist One; Artist Two',
-                'lyrics': 'Existing lyrics',
-                'track_number': '3',
-                'track_total': '12',
-                'disc_number': '0',
-                'disc_total': '2',
-              },
-            ),
-          )).failure,
-          isNull,
-        );
-        expect(await File(cover.path).exists(), isTrue);
-      },
-    );
+    test('fallback preserves edited/empty tags for \$extension', () async {
+      final cover = await covers.create();
+      final isOpus = extension == 'opus' || extension == 'OGG';
+      final service = MetadataPersistenceService(
+        covers: covers,
+        edit: (_, metadata) async {
+          expect(metadata['cover_path'], '');
+          return {'method': 'ffmpeg'};
+        },
+        read: (path) async {
+          expect(path, 'song.$extension');
+          return {
+            'replaygain_track_gain': '-6.20 dB',
+            'replaygain_track_peak': '0.000000',
+            'replaygain_album_gain': '0.00 dB',
+            'replaygain_album_peak': '1.234567',
+          };
+        },
+        embed: (codec, path, coverPath, metadata) async {
+          expect(
+            codec,
+            isOpus
+                ? MetadataSaveCodec.opus
+                : extension == 'mp3'
+                ? MetadataSaveCodec.mp3
+                : MetadataSaveCodec.m4a,
+          );
+          expect(coverPath, cover.path);
+          expect(metadata['ARTIST'], 'Artist One; Artist Two');
+          expect(metadata['LYRICS'], 'Existing lyrics');
+          expect(metadata['UNSYNCEDLYRICS'], 'Existing lyrics');
+          expect(metadata['TITLE'], '');
+          expect(metadata['ALBUMARTIST'], '');
+          expect(metadata['TRACKNUMBER'], '3/12');
+          expect(metadata['DISCNUMBER'], '');
+          expect(metadata['REPLAYGAIN_TRACK_GAIN'], '-6.20 dB');
+          expect(metadata['REPLAYGAIN_TRACK_PEAK'], '0.000000');
+          expect(metadata['REPLAYGAIN_ALBUM_GAIN'], '0.00 dB');
+          expect(metadata['REPLAYGAIN_ALBUM_PEAK'], '1.234567');
+          return path;
+        },
+        writeBack: (_, _) async =>
+            throw StateError('Local edit needs no SAF write'),
+      );
+      expect(
+        (await service.save(
+          request(
+            path: 'song.$extension',
+            currentCover: cover.path,
+            tags: {
+              'artist': 'Artist One; Artist Two',
+              'lyrics': 'Existing lyrics',
+              'track_number': '3',
+              'track_total': '12',
+              'disc_number': '0',
+              'disc_total': '2',
+            },
+          ),
+        )).failure,
+        isNull,
+      );
+      expect(await File(cover.path).exists(), isTrue);
+    });
   }
 
   test(
@@ -201,7 +178,7 @@ void main() {
           covers: covers,
           edit: (_, _) async => {'method': 'ffmpeg'},
           read: (_) async => throw StateError('Reader unavailable'),
-          embed: (_, path, _, metadata, _) async {
+          embed: (_, path, _, metadata) async {
             expect(metadata['LYRICS'], '');
             expect(metadata['UNSYNCEDLYRICS'], '');
             expect(metadata['TRACKNUMBER'], pair.$3);
@@ -224,52 +201,6 @@ void main() {
           isNull,
         );
       }
-    },
-  );
-
-  test(
-    'resized artwork replaces the cover and is released after saving',
-    () async {
-      final original = await covers.create();
-      final service = MetadataPersistenceService(
-        covers: covers,
-        edit: (_, metadata) async {
-          expect(metadata['cover_path'], covers.resized!.path);
-          expect(await File(covers.resized!.path).exists(), isTrue);
-          return {'method': 'native'};
-        },
-      );
-      expect(
-        (await service.save(
-          request(currentCover: original.path, dimension: 500),
-        )).failure,
-        isNull,
-      );
-      expect(await File(original.path).exists(), isTrue);
-      expect(await Directory(covers.resized!.tempDir).exists(), isFalse);
-    },
-  );
-
-  test(
-    'missing artwork and resize failures return typed failures before editing',
-    () async {
-      final service = MetadataPersistenceService(
-        covers: covers,
-        edit: (_, _) async => throw StateError('Must not edit'),
-      );
-      expect(
-        (await service.save(request(dimension: 500))).failure,
-        MetadataSaveFailure.noCover,
-      );
-      covers.failResize = true;
-      final original = await covers.create();
-      expect(
-        (await service.save(
-          request(selectedCover: original.path, dimension: 500),
-        )).failure,
-        MetadataSaveFailure.resize,
-      );
-      expect(await File(original.path).exists(), isTrue);
     },
   );
 
@@ -302,7 +233,7 @@ void main() {
               'error': 'Backend failed',
           },
           read: (_) async => {},
-          embed: (_, path, coverPath, _, _) async {
+          embed: (_, path, coverPath, _) async {
             expect(path, staged.path);
             expect(coverPath, covers.extracted!.path);
             if (failure == MetadataSaveFailure.unexpected) {

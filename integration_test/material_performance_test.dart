@@ -9,7 +9,7 @@ import 'performance_probe.dart';
 
 void main() {
   final binding = PerformanceTestBinding.ensureInitialized();
-  lyrics.runLyricsPerformanceTests(mornye: true);
+  lyrics.runLyricsPerformanceTests();
   artwork.runArtworkPerformanceTests();
   const style = 'mornye';
   testWidgets('$style production seek track playback, drag and idle', (

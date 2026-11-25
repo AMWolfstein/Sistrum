@@ -105,7 +105,7 @@ void main() {
     },
   );
 
-  test('splits midnight and excludes disabled collection', () async {
+  test('splits midnight and stops counting while paused', () async {
     var elapsed = Duration.zero;
     final start = DateTime(2026, 10, 1, 23, 59, 50);
     final writes = <ListeningDelta>[];
@@ -116,7 +116,7 @@ void main() {
     );
     recorder.update(_one, playing: true);
     elapsed += const Duration(seconds: 20);
-    recorder.setEnabled(false);
+    recorder.update(_one, playing: false);
     elapsed += const Duration(hours: 1);
     await recorder.flush();
     expect(writes.map((e) => e.day), ['2026-10-01', '2026-10-02']);
@@ -472,7 +472,9 @@ void main() {
   );
 
   test('a later play replaces a broken cover; one without keeps it', () async {
-    final directory = await Directory.systemTemp.createTemp('listening-covers-');
+    final directory = await Directory.systemTemp.createTemp(
+      'listening-covers-',
+    );
     addTearDown(() => directory.delete(recursive: true));
     sqfliteFfiInit();
     final db = await ListeningStatisticsStore.openWithFactory(
@@ -521,10 +523,7 @@ void main() {
     expect(await shown(), isNull);
     await writeListeningDeltas(db, [play(reference)]);
     expect(await shown(), reference);
-    for (final artwork in [
-      null,
-      'http://127.0.0.1:41234/8b2c',
-    ]) {
+    for (final artwork in [null, 'http://127.0.0.1:41234/8b2c']) {
       await writeListeningDeltas(db, [play(artwork)]);
       expect((await stored('2026-10-20'))['artwork'], reference);
     }

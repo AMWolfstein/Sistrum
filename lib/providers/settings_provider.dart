@@ -6,21 +6,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/home_shortcut.dart';
-import 'package:sistrum/models/metadata_separators.dart';
 import 'package:sistrum/models/automix_options.dart';
 import 'package:sistrum/services/secure_storage_options.dart';
-import 'package:sistrum/utils/artist_utils.dart';
-import 'package:sistrum/utils/audio_quality_badge_policy.dart';
 import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/utils/logger.dart';
 
 const _settingsKey = 'app_settings';
 const _settingsCorruptBackupKey = 'app_settings_corrupt_backup';
 const _migrationVersionKey = 'settings_migration_version';
-const _currentMigrationVersion = 15;
+const _currentMigrationVersion = 16;
 
 /// Marked the removed rebrand tour as seen.
 const _retiredUpgradeIntroSeenKey = 'upgrade_intro_sistrum_seen';
+
+/// The per-artist Albums sort, removed with the artist page's sort control.
+const _retiredArtistReleaseSortsKey = 'artist_release_sorts';
 const _spotifyClientSecretKey = 'spotify_client_secret';
 final _log = AppLogger('SettingsProvider');
 
@@ -63,7 +63,6 @@ AppSettings resetInstallationBoundSettings(AppSettings settings) {
     storageMode: 'app',
     downloadTreeUri: '',
     isFirstLaunch: true,
-    useAllFilesAccess: false,
     localLibraryEnabled: false,
     localLibraryPath: '',
     localLibraryBookmark: '',
@@ -94,24 +93,6 @@ Future<void> resetRestoredInstallationSettings(SharedPreferences prefs) async {
 class SettingsNotifier extends Notifier<AppSettings> {
   SettingsNotifier({Future<SharedPreferences> Function()? preferences})
     : _loadPreferences = preferences ?? SharedPreferences.getInstance;
-
-  static const Set<String> _libraryViewValues = {
-    'last',
-    'all',
-    'albums',
-    'singles',
-    'artists',
-    'genres',
-    'playlists',
-    'folders',
-  };
-  static const Set<int> _embeddedCoverMaxDimensionValues = {
-    0,
-    500,
-    1000,
-    1500,
-    2000,
-  };
 
   final Future<SharedPreferences> Function() _loadPreferences;
   Future<SharedPreferences> get _prefs => _loadPreferences();
@@ -167,17 +148,7 @@ class SettingsNotifier extends Notifier<AppSettings> {
       }
 
       if (loaded != null) {
-        state = loaded.copyWith(
-          defaultLibraryView: _normalizeDefaultLibraryView(
-            loaded.defaultLibraryView,
-          ),
-          libraryQualityLabelMode: normalizeLibraryQualityLabelMode(
-            loaded.libraryQualityLabelMode,
-          ),
-          embeddedCoverMaxDimension: _normalizeEmbeddedCoverMaxDimension(
-            loaded.embeddedCoverMaxDimension,
-          ),
-        );
+        state = loaded;
 
         await _runMigrations(prefs);
         await _normalizeIosDownloadDirectoryIfNeeded();
@@ -185,8 +156,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
     }
 
     await _cleanupRetiredSpotifySettings();
-
-    LogBuffer.loggingEnabled = state.enableLogging;
   }
 
   Future<void> _runMigrations(SharedPreferences prefs) async {
@@ -200,18 +169,13 @@ class SettingsNotifier extends Notifier<AppSettings> {
       if (!state.isFirstLaunch && !state.hasCompletedTutorial) {
         state = state.copyWith(hasCompletedTutorial: true);
       }
-      // Migration 12: Library badges return to bit depth ("24-bit") by
-      // default; the bitrate default was persisted for every existing user.
-      if (lastMigration < 12 &&
-          state.libraryQualityLabelMode ==
-              AppSettings.libraryQualityLabelBitrate) {
-        state = state.copyWith(
-          libraryQualityLabelMode: AppSettings.libraryQualityLabelBitDepthOnly,
-        );
-      }
       // Migration 15: the rebrand tour is gone, and so is its flag.
       if (lastMigration < 15) {
         await prefs.remove(_retiredUpgradeIntroSeenKey);
+      }
+      // Migration 16: the artist Albums sort is gone, and so is its stored choice.
+      if (lastMigration < 16) {
+        await prefs.remove(_retiredArtistReleaseSortsKey);
       }
       await prefs.setInt(_migrationVersionKey, _currentMigrationVersion);
       await _saveSettings();
@@ -278,14 +242,9 @@ class SettingsNotifier extends Notifier<AppSettings> {
       downloadDirectoryBookmark: current.downloadDirectoryBookmark,
       storageMode: current.storageMode,
       downloadTreeUri: current.downloadTreeUri,
-      embeddedCoverMaxDimension: _normalizeEmbeddedCoverMaxDimension(
-        restored.embeddedCoverMaxDimension,
-      ),
     );
 
     await _saveSettings();
-
-    LogBuffer.loggingEnabled = state.enableLogging;
   }
 
   Future<void> _normalizeIosDownloadDirectoryIfNeeded() async {
@@ -310,16 +269,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
       downloadDirectoryBookmark: '',
     );
     await _saveSettings();
-  }
-
-  String _normalizeDefaultLibraryView(String value) {
-    final normalized = value.trim().toLowerCase();
-    if (_libraryViewValues.contains(normalized)) return normalized;
-    return 'last';
-  }
-
-  int _normalizeEmbeddedCoverMaxDimension(int value) {
-    return _embeddedCoverMaxDimensionValues.contains(value) ? value : 0;
   }
 
   Future<void> _cleanupRetiredSpotifySettings() async {
@@ -380,9 +329,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
 
   void setEmbedLyrics(bool enabled) =>
       _commit(state.copyWith(embedLyrics: enabled));
-
-  void setEmbedReplayGain(bool enabled) =>
-      _commit(state.copyWith(embedReplayGain: enabled));
 
   void setPlaybackNormalization(bool enabled) =>
       _commit(state.copyWith(playbackNormalization: enabled));
@@ -533,55 +479,11 @@ class SettingsNotifier extends Notifier<AppSettings> {
   void setExclusiveOutputDevice(String device) =>
       _commit(state.copyWith(exclusiveOutputDevice: device));
 
-  void setEmbedMetadata(bool enabled) =>
-      _commit(state.copyWith(embedMetadata: enabled));
-
-  void setEmbeddedCoverMaxDimension(int maxDimension) => _commit(
-    state.copyWith(
-      embeddedCoverMaxDimension: _normalizeEmbeddedCoverMaxDimension(
-        maxDimension,
-      ),
-    ),
-  );
-
-  void setArtistTagMode(String mode) {
-    if (artistTagModes.contains(mode)) {
-      _commit(state.copyWith(artistTagMode: mode));
-    }
-  }
-
-  void setMetadataSeparator(String field, String separator) {
-    if (!MetadataSeparators.fields.contains(field) ||
-        MetadataSeparators.validSeparator(separator) != separator) {
-      return;
-    }
-    _commit(
-      state.copyWith(
-        metadataSeparators: state.metadataSeparators.withField(
-          field,
-          separator,
-        ),
-      ),
-    );
-  }
-
   void setKeepScreenOnLyrics(bool enabled) =>
       _commit(state.copyWith(keepScreenOnLyrics: enabled));
 
-  void setLockScreenLyrics(bool enabled) =>
-      _commit(state.copyWith(lockScreenLyrics: enabled));
-
   void setMotionArtworkEnabled(bool enabled) =>
       _commit(state.copyWith(motionArtworkEnabled: enabled));
-
-  void setSaveFolderCover(bool enabled) =>
-      _commit(state.copyWith(saveFolderCover: enabled));
-
-  void setRemoveEmptyFolders(bool enabled) =>
-      _commit(state.copyWith(removeEmptyFolders: enabled));
-
-  void setListeningStatisticsEnabled(bool enabled) =>
-      _commit(state.copyWith(listeningStatisticsEnabled: enabled));
 
   void setLyricsMode(String mode) {
     if (mode == 'embed' || mode == 'external' || mode == 'both') {
@@ -625,21 +527,12 @@ class SettingsNotifier extends Notifier<AppSettings> {
     }
   }
 
-  void setHistoryViewMode(String mode) =>
-      _commit(state.copyWith(historyViewMode: mode));
-
-  void setHistoryFilterMode(String mode) =>
-      _commit(state.copyWith(historyFilterMode: mode));
-
   void setHistorySortMode(String mode) =>
       _commit(state.copyWith(historySortMode: librarySortModeFromJson(mode)));
 
   void setLibraryAlbumSortMode(String mode) => _commit(
     state.copyWith(libraryAlbumSortMode: libraryAlbumSortModeFromJson(mode)),
   );
-
-  void setLibraryArtistShowsSongs(bool songs) =>
-      _commit(state.copyWith(libraryArtistShowsSongs: songs));
 
   void setSearchViewMode(String mode) =>
       _commit(state.copyWith(searchViewMode: mode));
@@ -648,37 +541,8 @@ class SettingsNotifier extends Notifier<AppSettings> {
     state.copyWith(homeShortcuts: [for (final s in shortcuts) s.name]),
   );
 
-  void setHomeContinueListening(bool enabled) =>
-      _commit(state.copyWith(homeContinueListening: enabled));
-
-  void setDefaultLibraryView(String view) => _commit(
-    state.copyWith(defaultLibraryView: _normalizeDefaultLibraryView(view)),
-  );
-
-  void setLibraryQualityLabelMode(String mode) => _commit(
-    state.copyWith(
-      libraryQualityLabelMode: normalizeLibraryQualityLabelMode(mode),
-    ),
-  );
-
   void setSwipeToQueue(bool enabled) =>
       _commit(state.copyWith(swipeToQueue: enabled));
-
-  void setLibrarySongTap(String mode) => _commit(
-    state.copyWith(
-      librarySongTap: mode == AppSettings.librarySongTapPlay
-          ? AppSettings.librarySongTapPlay
-          : AppSettings.librarySongTapDetails,
-    ),
-  );
-
-  void setEnableLogging(bool enabled) {
-    _commit(state.copyWith(enableLogging: enabled));
-    LogBuffer.loggingEnabled = enabled;
-  }
-
-  void setHeroAnimationsEnabled(bool enabled) =>
-      _commit(state.copyWith(heroAnimationsEnabled: enabled));
 
   void setForceBackdropBlur(bool enabled) =>
       _commit(state.copyWith(forceBackdropBlur: enabled));
@@ -687,9 +551,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
       _commit(state.copyWith(interfaceScale: interfaceScaleFromJson(scale)));
 
   void setLocale(String locale) => _commit(state.copyWith(locale: locale));
-
-  void setUseAllFilesAccess(bool enabled) =>
-      _commit(state.copyWith(useAllFilesAccess: enabled));
 
   void setLocalLibraryEnabled(bool enabled) =>
       _commit(state.copyWith(localLibraryEnabled: enabled));
@@ -706,10 +567,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
 
   void setTutorialComplete() =>
       _commit(state.copyWith(hasCompletedTutorial: true));
-
-  void setPlayerMode(String mode) => _commit(
-    state.copyWith(playerMode: mode == 'internal' ? 'internal' : 'external'),
-  );
 
   void setPlayerShowPronunciation(bool visible) =>
       _commit(state.copyWith(playerShowPronunciation: visible));

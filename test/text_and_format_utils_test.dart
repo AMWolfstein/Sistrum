@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/utils/artist_utils.dart';
-import 'package:sistrum/utils/audio_conversion_utils.dart';
 import 'package:sistrum/utils/audio_format_utils.dart';
 import 'package:sistrum/utils/mime_utils.dart';
 import 'package:sistrum/utils/path_match_keys.dart';
@@ -19,78 +18,6 @@ void main() {
       ]);
       expect(splitArtistTagValues('A, a & B'), ['A', 'B']);
       expect(splitArtistTagValues('   '), isEmpty);
-      expect(shouldSplitVorbisArtistTags(artistTagModeSplitVorbis), isTrue);
-      expect(shouldSplitVorbisArtistTags(artistTagModeJoined), isFalse);
-    });
-
-    // Shared with the Rust and Kotlin primary-artist tests; keep in sync.
-    test('primary artist mode keeps the first credited artist', () {
-      for (final (input, expected) in [
-        ('Calle 24, Chino Pacas', 'Calle 24'),
-        ('Calle 24 & Chino Pacas', 'Calle 24'),
-        ('Artist A; Artist B', 'Artist A'),
-        ('Artist A feat. Artist B', 'Artist A'),
-        ('Artist A Feat Artist B', 'Artist A'),
-        ('Artist A ft. Artist B', 'Artist A'),
-        ('Artist A featuring Artist B', 'Artist A'),
-        ('Artist A with Artist B', 'Artist A'),
-        ('Artist A x Artist B', 'Artist A'),
-        ('Artist A X Artist B', 'Artist A'),
-        (' , Artist A, Artist B', 'Artist A'),
-        ('Malcolm X', 'Malcolm X'),
-        ('Artist Without Fear', 'Artist Without Fear'),
-        ('Maxx', 'Maxx'),
-        ('AC/DC', 'AC/DC'),
-        ('  Various Artists  ', 'Various Artists'),
-        ('', ''),
-      ]) {
-        expect(primaryArtistTagValue(input), expected, reason: input);
-        expect(
-          artistTagValueForMode(input, ' Primary '),
-          expected,
-          reason: input,
-        );
-      }
-      for (final mode in [artistTagModeJoined, artistTagModeSplitVorbis]) {
-        expect(artistTagValueForMode('A, B', mode), 'A, B');
-      }
-      expect(artistTagModes, contains(artistTagModePrimary));
-      expect(
-        artistTagModeForExistingTags(artistTagModePrimary),
-        artistTagModeJoined,
-      );
-      expect(
-        artistTagModeForExistingTags(artistTagModeSplitVorbis),
-        artistTagModeSplitVorbis,
-      );
-    });
-
-    test('primary artist mode rewrites every artist key spelling', () {
-      final metadata = {
-        'ARTIST': 'A, B',
-        'album_artist': 'A & B',
-        'ALBUM ARTIST': 'A feat. B',
-        'albumArtist': 'A x B',
-        'TITLE': 'A, B',
-        'COMPOSER': 'A, B',
-        'artist': '',
-      };
-      expect(applyArtistTagModeToMetadata(metadata, artistTagModePrimary), {
-        'ARTIST': 'A',
-        'album_artist': 'A',
-        'ALBUM ARTIST': 'A',
-        'albumArtist': 'A',
-        'TITLE': 'A, B',
-        'COMPOSER': 'A, B',
-        'artist': '',
-      });
-      expect(
-        identical(
-          applyArtistTagModeToMetadata(metadata, artistTagModeJoined),
-          metadata,
-        ),
-        isTrue,
-      );
     });
   });
 
@@ -165,57 +92,11 @@ void main() {
       );
     });
 
-    test('treats generic M4A container reports as inconclusive codecs', () {
-      expect(isInconclusiveAudioCodec(null), isTrue);
-      expect(isInconclusiveAudioCodec('m4a'), isTrue);
-      expect(isInconclusiveAudioCodec('MP4'), isTrue);
-      expect(isInconclusiveAudioCodec('flac'), isFalse);
-      expect(isInconclusiveAudioCodec('aac'), isFalse);
-    });
-
     test('uses m4a for ISO-BMFF audio except AC-4 passthrough', () {
       expect(isoBmffAudioExtensionForCodec('opus'), '.m4a');
       expect(isoBmffAudioExtensionForCodec('ec-3'), '.m4a');
       expect(isoBmffAudioExtensionForCodec('aac'), '.m4a');
       expect(isoBmffAudioExtensionForCodec('ac-4'), '.mp4');
-    });
-
-    test(
-      'detects Dolby formats from stored scan format before file extension',
-      () {
-        expect(
-          convertibleAudioSourceFormat(
-            storedFormat: 'eac3',
-            filePath: 'content://media/song.m4a',
-          ),
-          'EAC3',
-        );
-        expect(convertibleAudioSourceFormat(fileName: 'Song.ac-3'), 'AC3');
-        expect(convertibleAudioSourceFormat(storedFormat: 'ac4'), 'AC4');
-      },
-    );
-
-    test('allows Dolby sources only for lossy batch conversion targets', () {
-      expect(
-        canConvertAudioFormat(sourceFormat: 'EAC3', targetFormat: 'MP3'),
-        isTrue,
-      );
-      expect(
-        canConvertAudioFormat(sourceFormat: 'EAC3', targetFormat: 'Opus'),
-        isTrue,
-      );
-      expect(
-        canConvertAudioFormat(sourceFormat: 'EAC3', targetFormat: 'AAC'),
-        isTrue,
-      );
-      expect(
-        canConvertAudioFormat(sourceFormat: 'EAC3', targetFormat: 'FLAC'),
-        isFalse,
-      );
-      expect(
-        canConvertAudioFormat(sourceFormat: 'EAC3', targetFormat: 'ALAC'),
-        isFalse,
-      );
     });
   });
 

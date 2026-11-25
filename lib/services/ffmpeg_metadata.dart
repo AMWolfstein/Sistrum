@@ -9,7 +9,6 @@ import 'package:sistrum/services/ffmpeg_models.dart';
 import 'package:sistrum/services/ffmpeg_support.dart';
 import 'package:sistrum/services/id3v23_lyrics.dart';
 import 'package:sistrum/services/platform_bridge.dart';
-import 'package:sistrum/utils/artist_utils.dart';
 import 'package:sistrum/utils/logger.dart';
 
 final _log = AppLogger('FFmpeg');
@@ -126,7 +125,6 @@ abstract final class FFmpegMetadata {
     required String flacPath,
     String? coverPath,
     Map<String, String>? metadata,
-    String artistTagMode = artistTagModeJoined,
   }) async {
     final tempOutput = await FFmpegOutput.tempPath('.flac');
     final arguments = <String>['-v', 'error', '-hide_banner', '-i', flacPath];
@@ -141,11 +139,7 @@ abstract final class FFmpegMetadata {
     }
     arguments.addAll(['-c:a', 'copy']);
     if (metadata != null) {
-      AudioMetadataMapper.appendVorbisMetadataArguments(
-        arguments,
-        metadata,
-        artistTagMode: artistTagMode,
-      );
+      AudioMetadataMapper.appendVorbisMetadataArguments(arguments, metadata);
     }
     arguments.addAll([tempOutput, '-y']);
     _log.d('Executing FFmpeg FLAC embed command');
@@ -161,13 +155,8 @@ abstract final class FFmpegMetadata {
     required String mp3Path,
     String? coverPath,
     Map<String, String>? metadata,
-    String artistTagMode = artistTagModeJoined,
     bool preserveMetadata = false,
   }) async {
-    // ID3 keeps one artist frame: only primary mode changes its value.
-    if (metadata != null) {
-      metadata = applyArtistTagModeToMetadata(metadata, artistTagMode);
-    }
     var tempOutput = await FFmpegOutput.tempPath('.mp3');
     final lyrics = AudioMetadataMapper.extractLyricsForId3(metadata);
     var result = await _runMp3Embed(
@@ -268,7 +257,6 @@ abstract final class FFmpegMetadata {
     required String opusPath,
     String? coverPath,
     Map<String, String>? metadata,
-    String artistTagMode = artistTagModeJoined,
     bool preserveMetadata = false,
     @visibleForTesting Future<FFmpegResult> Function(List<String>)? execute,
   }) async {
@@ -288,11 +276,7 @@ abstract final class FFmpegMetadata {
         'copy',
       ]);
       if (metadata != null) {
-        AudioMetadataMapper.appendVorbisMetadataArguments(
-          arguments,
-          metadata,
-          artistTagMode: artistTagMode,
-        );
+        AudioMetadataMapper.appendVorbisMetadataArguments(arguments, metadata);
       }
       if (coverPath != null) {
         final pictureBlock = await _createMetadataBlockPicture(coverPath);
@@ -326,13 +310,9 @@ abstract final class FFmpegMetadata {
     required String m4aPath,
     String? coverPath,
     Map<String, String>? metadata,
-    String artistTagMode = artistTagModeJoined,
     bool preserveMetadata = true,
     @visibleForTesting Future<FFmpegResult> Function(List<String>)? execute,
   }) async {
-    if (metadata != null) {
-      metadata = applyArtistTagModeToMetadata(metadata, artistTagMode);
-    }
     final tempOutput = await FFmpegOutput.tempPath('.m4a');
     final normalizedCoverPath = coverPath?.trim();
     final hasCover =
@@ -447,29 +427,6 @@ abstract final class FFmpegMetadata {
     } catch (e) {
       _log.e('Error creating METADATA_BLOCK_PICTURE: $e');
       return null;
-    }
-  }
-
-  static Future<bool> embedChunkTagsNative(
-    String path,
-    Map<String, String> metadata,
-    String? coverPath,
-  ) async {
-    final fields = AudioMetadataMapper.vorbisToNativeChunkFields(metadata);
-    if (coverPath != null && coverPath.trim().isNotEmpty) {
-      fields['cover_path'] = coverPath;
-    }
-    if (fields.isEmpty) return true;
-    try {
-      final result = await PlatformBridge.editFileMetadata(path, fields);
-      if (result['error'] != null) {
-        _log.w('editFileMetadata for $path failed: ${result['error']}');
-        return false;
-      }
-      return result['success'] == true;
-    } catch (e) {
-      _log.w('editFileMetadata for $path failed: $e');
-      return false;
     }
   }
 

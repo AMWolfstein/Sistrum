@@ -112,11 +112,7 @@ appLibraryCoverReferenceColumns() async {
   final history = await HistoryDatabase.instance.database;
   final statistics = await ListeningStatisticsStore.instance.database;
   return [
-    for (final table in const [
-      'wishlist_tracks',
-      'loved_tracks',
-      'playlist_tracks',
-    ])
+    for (final table in const ['loved_tracks', 'playlist_tracks'])
       (database: collections, table: table, column: 'track_json'),
     (database: collections, table: 'playlists', column: 'cover_image_path'),
     (database: collections, table: 'favorite_artists', column: 'artist_json'),

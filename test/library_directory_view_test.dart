@@ -1,6 +1,6 @@
+import 'dart:io';
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/l10n.dart';
@@ -21,7 +21,6 @@ import 'package:sistrum/widgets/desktop/track_table.dart';
 import 'package:sistrum/widgets/library_directory_view.dart';
 import 'package:sistrum/widgets/library_track_selection_bar.dart';
 import 'package:sistrum/widgets/track_card.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/fixed_settings.dart';
 import 'support/tooltip_finder.dart';
@@ -34,17 +33,18 @@ class _Playback extends PlaybackController {
   Future<void> playMediaQueue(
     Iterable<PlayableMedia> queue, {
     required int startIndex,
-    required String externalPath,
   }) async {
     queues.add([for (final media in queue) media.source]);
     starts.add(startIndex);
   }
 }
 
-const _root = '/storage/emulated/0/Music';
+/// The Music folder of each test: playing a song checks its file first, so
+/// the songs are real files made in [main]'s setUp.
+late String _root;
 
 /// Two album folders, a song beside them and a CUE sheet in one of them.
-final _paths = {
+Map<String, String> get _paths => {
   'a1': '$_root/Artist A/Album A/01 First.flac',
   'a2': '$_root/Artist A/Album A/02 Second.flac',
   'cue': '$_root/Artist A/Album A/sheet.cue#track1',
@@ -87,9 +87,7 @@ Future<_Playback> _pump(
       overrides: [
         // These tests play songs with a tap on the row.
         settingsProvider.overrideWith(
-          () => FixedSettingsNotifier(
-            const AppSettings(librarySongTap: AppSettings.librarySongTapPlay),
-          ),
+          () => FixedSettingsNotifier(const AppSettings()),
         ),
         libraryDirectoryIndexProvider.overrideWith(
           (ref) async => index ?? _index(),
@@ -114,7 +112,25 @@ Future<_Playback> _pump(
   return playback;
 }
 
+/// A song tap checks its file on disk, which takes real time.
+Future<void> _waitForFileChecks(WidgetTester tester) async {
+  await tester.runAsync(
+    () => Future<void>.delayed(const Duration(milliseconds: 100)),
+  );
+  await tester.pumpAndSettle();
+}
+
 void main() {
+  setUp(() {
+    _root = Directory.systemTemp.createTempSync('directory-view-').path;
+    addTearDown(() => Directory(_root).deleteSync(recursive: true));
+    for (final path in ['a1', 'a2', 'b1', 'loose'].map((id) => _paths[id]!)) {
+      File(path)
+        ..createSync(recursive: true)
+        ..writeAsStringSync('audio');
+    }
+  });
+
   testWidgets('opens where the music starts and walks into a folder', (
     tester,
   ) async {
@@ -135,15 +151,16 @@ void main() {
     expect(find.text('3 tracks'), findsOneWidget);
 
     // A tap on a song queues the folder's songs from it, and its button
-    // opens the details instead; the CUE track needs splitting first, so it
-    // stays out of the queue.
+    // opens the song menu; the CUE track needs splitting first, so it stays
+    // out of the queue.
     final song = find.widgetWithText(TrackCard, 'Song a2');
     expect(
-      find.descendant(of: song, matching: findByTooltip('Show details')),
+      find.descendant(of: song, matching: findByTooltip('Show menu')),
       findsOneWidget,
     );
     await tester.tap(song);
     await tester.pumpAndSettle();
+    await _waitForFileChecks(tester);
     expect(playback.queues.single, [_paths['a1'], _paths['a2']]);
     expect(playback.starts.single, 1);
   });
@@ -238,6 +255,7 @@ void main() {
     expect(find.byType(SliverTrackTable), findsOneWidget);
     await tester.tap(find.text('Song a2'));
     await tester.pumpAndSettle();
+    await _waitForFileChecks(tester);
     expect(playback.queues.single, [_paths['a1'], _paths['a2']]);
     expect(playback.starts.single, 1);
 
@@ -249,70 +267,6 @@ void main() {
     await gesture.up();
     await tester.pumpAndSettle();
     expect(find.text('Play next'), findsOneWidget);
-  });
-
-  testWidgets('a click keeps every song table row; the quality label setting '
-      'or a reload rebuilds them', (tester) async {
-    SharedPreferences.setMockInitialValues({});
-    const count = 3000;
-    UnifiedLibraryItem song(String id) => UnifiedLibraryItem.fromLocalLibrary(
-      LocalLibraryItem(
-        id: id,
-        trackName: 'Song $id',
-        artistName: 'Artist',
-        albumName: 'Album',
-        filePath: '$_root/Flat/$id.flac',
-        scannedAt: DateTime(2026, 10, 24),
-        bitDepth: 24,
-        sampleRate: 96000,
-        format: 'flac',
-      ),
-    );
-    await _pump(
-      tester,
-      desktop: true,
-      song: song,
-      index: _index({
-        for (var i = 0; i < count; i++) '$i': '$_root/Flat/$i.flac',
-      }),
-    );
-    List<TrackTableRow> rows() =>
-        tester.widget<SliverTrackTable>(find.byType(SliverTrackTable)).rows;
-    int rebuilt(List<TrackTableRow> before) {
-      final kept = Set<TrackTableRow>.identity()..addAll(before);
-      return rows().where((row) => !kept.contains(row)).length;
-    }
-
-    final loaded = rows();
-    expect(loaded, hasLength(count));
-    expect(loaded.first.quality, '24-bit');
-
-    await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
-    await tester.tap(find.text('Song 0'));
-    await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
-    await tester.pumpAndSettle();
-    final table = tester.widget<SliverTrackTable>(
-      find.byType(SliverTrackTable),
-    );
-    expect(table.selectedIds, {'local_0'});
-    expect(table.rows, same(loaded));
-
-    final container = ProviderScope.containerOf(
-      tester.element(find.byType(LibraryDirectoryView)),
-    );
-    container
-        .read(settingsProvider.notifier)
-        .setLibraryQualityLabelMode(AppSettings.libraryQualityLabelBitDepth);
-    await tester.pumpAndSettle();
-    final relabeled = rows();
-    expect(rebuilt(loaded), count);
-    expect(relabeled.first.quality, '24-bit/96kHz');
-    expect(find.text('24-bit/96kHz'), findsWidgets);
-
-    container.invalidate(libraryDirectoryTracksProvider);
-    await tester.pumpAndSettle();
-    expect(rebuilt(relabeled), count);
-    expect(find.text('Song 0'), findsOneWidget);
   });
 
   testWidgets('desktop browses a cover grid into album-style folder pages', (
@@ -348,28 +302,13 @@ void main() {
     // An opened folder takes the album pages' header.
     expect(find.text('$_root/Artist A/Album A'), findsOneWidget);
     expect(find.text('3 tracks'), findsOneWidget);
-    expect(findByTooltip('Add to playlist'), findsOneWidget);
+    // The folder's Play and Shuffle row has no add-to-playlist control.
+    expect(findByTooltip('Add to playlist'), findsNothing);
     expect(find.text('Songs'), findsNothing);
     await tester.tap(find.text('Play'));
     await tester.pumpAndSettle();
+    await _waitForFileChecks(tester);
     expect(playback.queues.single, [_paths['a1'], _paths['a2']]);
     expect(playback.starts.single, 0);
-  });
-
-  test('Folders is a default Library view', () {
-    final container = ProviderContainer(
-      overrides: [
-        // These tests play songs with a tap on the row.
-        settingsProvider.overrideWith(
-          () => FixedSettingsNotifier(
-            const AppSettings(librarySongTap: AppSettings.librarySongTapPlay),
-          ),
-        ),
-      ],
-    );
-    addTearDown(container.dispose);
-
-    container.read(settingsProvider.notifier).setDefaultLibraryView('folders');
-    expect(container.read(settingsProvider).defaultLibraryView, 'folders');
   });
 }

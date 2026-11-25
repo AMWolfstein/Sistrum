@@ -70,7 +70,6 @@ class _MiniPlayerState extends ConsumerState<MiniPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    if (!ref.watch(playerUiEnabledProvider)) return const SizedBox.shrink();
     return _MiniPlayerBody(
       compact: widget.compact,
       bottomPadding: widget.bottomPadding,

@@ -5,7 +5,7 @@
 //! little endian container with a CRC32. Only peaks leave the device, never
 //! the audio itself. Everything here is deterministic so tests can pin it.
 
-use crate::media::hires::fft::Radix2Fft;
+use crate::media::fft::Radix2Fft;
 use base64::Engine;
 
 pub const SIGNATURE_SAMPLE_RATE: usize = 16_000;

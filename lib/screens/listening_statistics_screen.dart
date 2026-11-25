@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/listening_statistics_provider.dart';
-import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/listening_rewind_screen.dart';
 import 'package:sistrum/services/listening_statistics.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
+import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/animation_utils.dart' show SkeletonBox;
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_choice_chip.dart';
@@ -15,8 +15,8 @@ import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_refresh_indicator.dart';
 import 'package:sistrum/widgets/app_shape.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
-import 'package:sistrum/widgets/player_artwork.dart';
 import 'package:sistrum/widgets/settings_group.dart';
+import 'package:sistrum/widgets/player_artwork.dart';
 
 export 'package:sistrum/providers/listening_statistics_provider.dart';
 
@@ -71,32 +71,13 @@ class _ListeningStatisticsScreenState
         onRefresh: () => ref.refresh(listeningSummaryProvider(period).future),
         child: CustomScrollView(
           slivers: [
-            AppSliverHeader.page(title: context.l10n.listeningStats),
+            AppSliverHeader.page(title: context.l10n.navInsights),
             AppRefreshIndicator.sliver(),
             // Centered at the reading width on tablets, under the title.
             SliverPadding(
               padding: EdgeInsets.symmetric(horizontal: wideListInset(context)),
               sliver: SliverMainAxisGroup(
                 slivers: [
-                  SliverToBoxAdapter(
-                    child: SettingsGroup(
-                      children: [
-                        SettingsSwitchItem(
-                          icon: Icons.insights_outlined,
-                          title: context.l10n.listeningStatsRecord,
-                          subtitle: context.l10n.listeningStatsDescription,
-                          value: ref
-                              .watch(settingsProvider)
-                              .listeningStatisticsEnabled,
-                          enabled: !_clearing,
-                          onChanged: (value) => ref
-                              .read(settingsProvider.notifier)
-                              .setListeningStatisticsEnabled(value),
-                          showDivider: false,
-                        ),
-                      ],
-                    ),
-                  ),
                   const SliverToBoxAdapter(child: ListeningRewindEntry()),
                   SliverPadding(
                     padding: const EdgeInsets.all(16),
@@ -168,6 +149,7 @@ class _ListeningStatisticsScreenState
                 ],
               ),
             ),
+            const NavBarSliverSpacer(),
           ],
         ),
       ),

@@ -1,37 +1,6 @@
 part of 'track_metadata_edit_sheet.dart';
 
 extension _EditMetadataSheetCover on _EditMetadataSheetState {
-  Future<void> _showCoverResolutionPicker() async {
-    final currentValue = _coverMaxDimension ?? 0;
-    final selectedValue = await _showEditorOptionPicker<int>(
-      title: (sheetContext) => sheetContext.l10n.trackCoverResolution,
-      options: (sheetContext) => [
-        0,
-        ..._EditMetadataSheetState._coverResizeDimensions,
-      ],
-      isSelected: (value) => value == currentValue,
-      label: (sheetContext, value) => value == 0
-          ? _originalCoverResolutionLabel(
-              sheetContext.l10n.trackConvertOriginal,
-            )
-          : '$value px',
-      icon: (sheetContext, value) => CupertinoIcons.photo,
-    );
-
-    if (!mounted || selectedValue == null) return;
-    _setState(() {
-      _coverMaxDimension = selectedValue == 0 ? null : selectedValue;
-    });
-  }
-
-  String _originalCoverResolutionLabel(String originalLabel) {
-    final sourcePath = _selectedCoverPath ?? _currentCoverPath;
-    final details = sourcePath == null ? null : _coverDetails[sourcePath];
-    if (details == null) return originalLabel;
-    return '$originalLabel · ${details.width} × ${details.height} px · '
-        '${_formatCoverBytes(details.bytes)}';
-  }
-
   String _formatCoverBytes(int bytes) {
     return '${(bytes / 1024).toStringAsFixed(1)} KB';
   }
@@ -238,24 +207,6 @@ extension _EditMetadataSheetCover on _EditMetadataSheetState {
               ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
             ),
           ],
-          const SizedBox(height: 12),
-          MetadataEditorSelectionField(
-            colorScheme: widget.colorScheme,
-            label: context.l10n.trackCoverResolution,
-            value: _coverMaxDimension == null
-                ? _originalCoverResolutionLabel(
-                    context.l10n.trackConvertOriginal,
-                  )
-                : '${_coverMaxDimension!} px',
-            enabled: !_saving,
-            onTap: _showCoverResolutionPicker,
-          ),
-          Text(
-            context.l10n.trackCoverResolutionHint,
-            style: Theme.of(
-              context,
-            ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
-          ),
         ],
         const SizedBox(height: 8),
       ],

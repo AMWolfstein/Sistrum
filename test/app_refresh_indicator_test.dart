@@ -1,5 +1,6 @@
 import 'package:cupertino_ui/cupertino_ui.dart'
     show CupertinoActivityIndicator, CupertinoSliverRefreshControl;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
@@ -70,34 +71,37 @@ void main() {
     }) async {
       refreshes = 0;
       await tester.pumpWidget(
-        MaterialApp(
-          theme: MornyeTheme.build(Brightness.light),
-          // Phones bounce unless the low-end profile turns overscroll off.
-          scrollBehavior: const MaterialScrollBehavior().copyWith(
-            physics: bounces
-                ? const BouncingScrollPhysics(
-                    parent: AlwaysScrollableScrollPhysics(),
-                  )
-                : const ClampingScrollPhysics(
-                    parent: AlwaysScrollableScrollPhysics(),
-                  ),
-          ),
-          home: Scaffold(
-            body: AppRefreshIndicator(
-              onRefresh: () async {
-                refreshes++;
-                await Future<void>.delayed(const Duration(milliseconds: 300));
-              },
-              child: CustomScrollView(
-                slivers: [
-                  const AppSliverHeader.page(title: 'Page'),
-                  AppRefreshIndicator.sliver(),
-                  SliverList.builder(
-                    itemCount: 40,
-                    itemBuilder: (_, i) =>
-                        SizedBox(height: 80, child: Text('row $i')),
-                  ),
-                ],
+        // The page header's back control reads providers, as the app root provides them.
+        ProviderScope(
+          child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.light),
+            // Phones bounce unless the low-end profile turns overscroll off.
+            scrollBehavior: const MaterialScrollBehavior().copyWith(
+              physics: bounces
+                  ? const BouncingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics(),
+                    )
+                  : const ClampingScrollPhysics(
+                      parent: AlwaysScrollableScrollPhysics(),
+                    ),
+            ),
+            home: Scaffold(
+              body: AppRefreshIndicator(
+                onRefresh: () async {
+                  refreshes++;
+                  await Future<void>.delayed(const Duration(milliseconds: 300));
+                },
+                child: CustomScrollView(
+                  slivers: [
+                    const AppSliverHeader.page(title: 'Page'),
+                    AppRefreshIndicator.sliver(),
+                    SliverList.builder(
+                      itemCount: 40,
+                      itemBuilder: (_, i) =>
+                          SizedBox(height: 80, child: Text('row $i')),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/l10n/l10n.dart';
@@ -43,18 +41,6 @@ class LyricsSettingsPage extends ConsumerWidget {
                       .read(settingsProvider.notifier)
                       .setKeepScreenOnLyrics(value),
                 ),
-                if (Platform.isAndroid || Platform.isIOS)
-                  SettingsSwitchItem(
-                    icon: Icons.screen_lock_portrait_outlined,
-                    title: context.l10n.lyricsLockScreen,
-                    subtitle: Platform.isIOS
-                        ? context.l10n.lyricsLockScreenSubtitleIos
-                        : context.l10n.lyricsLockScreenSubtitle,
-                    value: settings.lockScreenLyrics,
-                    onChanged: (value) => ref
-                        .read(settingsProvider.notifier)
-                        .setLockScreenLyrics(value),
-                  ),
                 SettingsSwitchItem(
                   key: const ValueKey('lyric-snippet-preview'),
                   icon: Icons.lyrics_outlined,
@@ -88,16 +74,13 @@ class LyricsSettingsPage extends ConsumerWidget {
                 SettingsSwitchItem(
                   icon: Icons.subtitles_outlined,
                   title: context.l10n.optionsEmbedLyrics,
-                  subtitle: settings.embedMetadata
-                      ? context.l10n.optionsEmbedLyricsSubtitle
-                      : context.l10n.downloadEmbedLyricsDisabled,
+                  subtitle: context.l10n.optionsEmbedLyricsSubtitle,
                   value: settings.embedLyrics,
-                  enabled: settings.embedMetadata,
                   onChanged: (value) =>
                       ref.read(settingsProvider.notifier).setEmbedLyrics(value),
-                  showDivider: settings.embedMetadata && settings.embedLyrics,
+                  showDivider: settings.embedLyrics,
                 ),
-                if (settings.embedMetadata && settings.embedLyrics) ...[
+                if (settings.embedLyrics) ...[
                   SettingsItem(
                     icon: Icons.lyrics_outlined,
                     title: context.l10n.lyricsMode,

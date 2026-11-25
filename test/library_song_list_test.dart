@@ -60,13 +60,9 @@ void main() {
     });
   });
 
-  for (final (sort, format) in [
-    ('oldest', null),
-    ('a-z', null),
-    ('latest', 'flac'),
-  ]) {
+  for (final sort in ['oldest', 'a-z', 'latest']) {
     test('the song list is every page of the Library list, in its order '
-        '($sort, format: $format)', () async {
+        '($sort)', () async {
       await _seed(3100);
       // The Library list itself pages 300 songs at a time.
       final paged = <String>[];
@@ -76,8 +72,6 @@ void main() {
           QueueLibraryDbQuery(
             limit: 300,
             offset: offset,
-            searchQuery: '',
-            format: format,
             sortMode: sort,
             cursor: cursor,
           ),
@@ -92,22 +86,11 @@ void main() {
       final container = ProviderContainer();
       addTearDown(container.dispose);
       final songs = await container.read(
-        librarySongListProvider((
-          filterMode: 'all',
-          sortMode: sort,
-          source: null,
-          quality: null,
-          format: format,
-          metadata: null,
-          includeLocal: true,
-        )).future,
+        librarySongListProvider((sortMode: sort, includeLocal: true)).future,
       );
 
-      expect(songs.length, format == null ? 3100 : 1034);
+      expect(songs.length, 3100);
       expect(songs.map((song) => song.id).toList(), paged);
-      if (format != null) {
-        expect(songs.every((song) => song.filePath.endsWith('.flac')), isTrue);
-      }
     });
   }
 }

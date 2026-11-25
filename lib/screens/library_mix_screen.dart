@@ -7,9 +7,6 @@ import 'package:sistrum/controllers/local_track_batch_actions.dart';
 import 'package:sistrum/controllers/selection_mode_mixin.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/unified_library_item.dart';
-import 'package:sistrum/providers/library_artist_songs_provider.dart';
-import 'package:sistrum/providers/library_browse_provider.dart';
-import 'package:sistrum/providers/library_genres_provider.dart';
 import 'package:sistrum/providers/library_mixes_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/services/batch_track_actions.dart';
@@ -20,7 +17,6 @@ import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
-import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/collection_scaffold.dart';
 import 'package:sistrum/widgets/desktop/context_menu.dart';
 import 'package:sistrum/widgets/desktop/desktop_selection.dart';
@@ -33,6 +29,7 @@ import 'package:sistrum/widgets/library_track_selection_bar.dart';
 import 'package:sistrum/widgets/mornye_artist_header.dart';
 import 'package:sistrum/widgets/playlist_picker_sheet.dart';
 import 'package:sistrum/widgets/queue_swipe.dart';
+import 'package:sistrum/widgets/song_menu.dart';
 import 'package:sistrum/widgets/track_card.dart';
 
 /// A mix's name: what it gathers, such as "Hip-Hop Mix".
@@ -92,36 +89,11 @@ String libraryMixSubtitle(AppLocalizations l10n, LibraryMix mix) =>
     };
 
 /// A mix of the Library's own songs: its cover, Play, Shuffle, Save as
-/// playlist and its songs in play order. [LibraryMixScreen.genre] shows the
-/// songs of one Library genre the same way, under the genre's name, and
-/// [LibraryMixScreen.artist] every song of one Library artist.
+/// playlist and its songs in play order.
 class LibraryMixScreen extends ConsumerStatefulWidget {
-  const LibraryMixScreen({super.key, required LibraryMixView this.view})
-    : genre = null,
-      artist = null,
-      toolbar = null;
-
-  /// The songs of [genre], by title.
-  const LibraryMixScreen.genre({
-    super.key,
-    required LibraryBrowseEntry this.genre,
-  }) : view = null,
-       artist = null,
-       toolbar = null;
-
-  /// The songs of the Library artist named [artist], by title, with
-  /// [toolbar] above them.
-  const LibraryMixScreen.artist({
-    super.key,
-    required String this.artist,
-    this.toolbar,
-  }) : view = null,
-       genre = null;
+  const LibraryMixScreen({super.key, required LibraryMixView this.view});
 
   final LibraryMixView? view;
-  final LibraryBrowseEntry? genre;
-  final String? artist;
-  final Widget? toolbar;
 
   @override
   ConsumerState<LibraryMixScreen> createState() => _LibraryMixScreenState();
@@ -133,17 +105,6 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
         CollapsingHeaderScrollMixin<LibraryMixScreen> {
   /// The songs, less those deleted from this page.
   late List<UnifiedLibraryItem> _items = widget.view?.items ?? const [];
-
-  /// Where a genre's or an artist's songs come from; null for a mix.
-  late final _songsProvider = switch (widget) {
-    LibraryMixScreen(:final genre?) => libraryGenreSongsProvider(genre.key),
-    LibraryMixScreen(:final artist?) => libraryArtistSongsProvider(artist),
-    _ => null,
-  };
-
-  /// A genre's or an artist's songs as they load; null for a mix.
-  AsyncValue<List<UnifiedLibraryItem>>? _genreSongs;
-  List<UnifiedLibraryItem>? _loadedGenreSongs;
 
   List<UnifiedLibraryItem> get _selectedItems => [
     for (final item in _items)
@@ -161,22 +122,10 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
   }
 
   String _title(AppLocalizations l10n) =>
-      widget.genre?.name ??
-      widget.artist ??
       libraryMixTitle(l10n, widget.view!.mix);
 
   @override
   Widget build(BuildContext context) {
-    if (_songsProvider case final provider?) {
-      final songs = ref.watch(provider);
-      _genreSongs = songs;
-      // A new read replaces the list; songs deleted here stay out until then.
-      if (songs.value case final items?
-          when !identical(items, _loadedGenreSongs)) {
-        _loadedGenreSongs = items;
-        _items = items;
-      }
-    }
     return MornyeArtistSurface(
       imageSource: _paletteSource,
       neutralActions: true,
@@ -201,25 +150,7 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
         onExitSelectionMode: exitSelectionMode,
         appBar: _buildHeader(context),
         slivers: [
-          if (widget.toolbar case final toolbar?)
-            SliverToBoxAdapter(child: toolbar),
-          if (_genreSongs case final songs? when !songs.hasValue)
-            songs.hasError
-                ? SliverToBoxAdapter(
-                    child: Center(
-                      child: TextButton.icon(
-                        icon: const Icon(Icons.refresh),
-                        onPressed: () => ref.invalidate(_songsProvider!),
-                        label: Text(context.l10n.dialogRetry),
-                      ),
-                    ),
-                  )
-                : SliverToBoxAdapter(
-                    child: TrackListSkeleton(
-                      itemCount: min(widget.genre?.trackCount ?? 8, 8),
-                    ),
-                  )
-          else if (isDesktopPlatform)
+          if (isDesktopPlatform)
             _buildDesktopTable(context, ids)
           else
             _buildTrackList(context),
@@ -230,7 +161,7 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
   }
 
   /// The Library selection bar of the album pages: playback, FLAC upgrade,
-  /// re-enrich, convert, ReplayGain and delete.
+  /// re-enrich, ReplayGain and delete.
   Widget _buildSelectionBar(BuildContext context, List<String> ids) {
     final items = _selectedItems;
     final allSelected = ids.isNotEmpty && selectedIds.length == ids.length;
@@ -246,7 +177,6 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
         items: items,
         onClose: exitSelectionMode,
       ),
-      onConvert: () => _convertSelected(context),
       onReplayGain: ({required remove}) => runBatchReplayGain(
         context,
         items,
@@ -256,13 +186,6 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
       onDelete: _deleteSelected,
     );
   }
-
-  Future<void> _convertSelected(BuildContext context) => showBatchConvertSheet(
-    context,
-    ref,
-    _selectedItems,
-    onExitSelectionMode: exitSelectionMode,
-  );
 
   /// Deletes the selected songs' files, and drops those gone from the mix.
   Future<void> _deleteSelected() async {
@@ -295,11 +218,7 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
     final mix = widget.view?.mix;
     final colorScheme = Theme.of(context).colorScheme;
     final title = _title(l10n);
-    // A genre counts its songs from the list until they load; an artist's
-    // count is known only then.
-    final count = _songsProvider != null && _loadedGenreSongs == null
-        ? widget.genre?.trackCount
-        : _items.length;
+    final count = _items.length;
     final minutes =
         _items.fold<int>(
           0,
@@ -338,7 +257,7 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
             ),
       meta: HeaderMetaRow(
         items: [
-          if (count != null) HeaderMetaItem(l10n.tracksCount(count)),
+          HeaderMetaItem(l10n.tracksCount(count)),
           if (minutes > 0) HeaderMetaItem('$minutes min'),
           if (mix != null) HeaderMetaItem(l10n.homeMixUpdatedDaily),
         ],
@@ -373,7 +292,6 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
                       .togglePlayPause(isPlaying)
                 : () => _play(0),
             onShuffle: _shuffle,
-            onAddToPlaylist: () => _saveAsPlaylist(context),
           );
         },
       ),
@@ -416,8 +334,21 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
+                isExplicit: item.isExplicit,
                 isCurrent: playback.isCurrent,
                 isPlaying: playback.isPlaying,
+                onPlay: playback.isCurrent
+                    ? () => ref
+                          .read(musicPlayerControllerProvider)
+                          .togglePlayPause(playback.isPlaying)
+                    : () => _play(index),
+                menu: isSelectionMode
+                    ? null
+                    : SongMenuButton(
+                        track: item.toTrack(),
+                        filePath: item.filePath,
+                        localItem: item.localItem,
+                      ),
                 isSelectionMode: isSelectionMode,
                 isSelected: selectedIds.contains(item.id),
                 // A long press selects, as on the album pages.
@@ -490,7 +421,6 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
                 items: _selectedItems,
                 onPlay: () => _play(ids.indexOf(id)),
                 onDone: exitSelectionMode,
-                onConvert: () => _convertSelected(this.context),
                 onDelete: _deleteSelected,
               ),
             ),

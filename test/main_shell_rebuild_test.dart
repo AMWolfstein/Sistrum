@@ -187,27 +187,6 @@ void main() {
     });
   }
 
-  for (final desktop in [true, false]) {
-    testWidgets('Library learns each switch to and from its tab '
-        '(${desktop ? 'desktop' : 'phone'})', (tester) async {
-      await pumpShell(tester, desktop: desktop);
-      bool libraryActive() => tester
-          .widget<QueueTab>(find.byType(QueueTab, skipOffstage: false))
-          .tabActive!
-          .value;
-
-      for (var round = 0; round < 2; round++) {
-        ShellNavigationService.requestTab(ShellTab.library);
-        await settle(tester);
-        expect(libraryActive(), isTrue);
-        ShellNavigationService.requestTab(ShellTab.home);
-        await settle(tester);
-        expect(libraryActive(), isFalse);
-      }
-      expect(tester.takeException(), isNull);
-    });
-  }
-
   /// The widget [type]'s state built last; a new instance means its state
   /// built again.
   Widget builtBy(WidgetTester tester, Type type) {

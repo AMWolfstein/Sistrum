@@ -12,7 +12,6 @@ import 'package:sistrum/services/music_player_service.dart';
 import 'package:sistrum/services/library_collections_database.dart';
 
 class _CollectionsDatabase implements LibraryCollectionsDatabase {
-  final wishlist = <String, Map<String, dynamic>>{};
   final loved = <String, Map<String, dynamic>>{};
   final artists = <String, Map<String, dynamic>>{};
   final playlists = <String, Map<String, dynamic>>{};
@@ -50,7 +49,6 @@ class _CollectionsDatabase implements LibraryCollectionsDatabase {
     return pendingSnapshot ??
         Future.value(
           LibraryCollectionsSnapshot(
-            wishlistRows: wishlist.values.toList(),
             lovedRows: loved.values.toList(),
             playlistRows: playlists.values.toList(),
             playlistTrackRows: [
@@ -104,25 +102,6 @@ class _CollectionsDatabase implements LibraryCollectionsDatabase {
   ) => _write('insert:$collection:$key', () {
     rows[key] = {'track_key': key, 'track_json': json, 'added_at': date};
   });
-
-  @override
-  Future<void> upsertWishlistEntry({
-    required String trackKey,
-    required String trackJson,
-    required String addedAt,
-  }) => _upsertTrack(wishlist, 'wishlist', trackKey, trackJson, addedAt);
-
-  @override
-  Future<void> deleteWishlistEntry(String trackKey) =>
-      _write('delete:wishlist:$trackKey', () => wishlist.remove(trackKey));
-
-  @override
-  Future<void> deleteWishlistTracks(List<String> keys) =>
-      _write('bulk-wishlist:remove', () {
-        for (final key in keys) {
-          wishlist.remove(key);
-        }
-      });
 
   @override
   Future<void> upsertLovedEntry({
@@ -449,7 +428,7 @@ void main() {
     expect(db.playlistReads, 1);
   });
 
-  for (final kind in ['wishlist', 'loved', 'playlist']) {
+  for (final kind in ['loved', 'playlist']) {
     for (final failFirst in [false, true]) {
       test(
         'bulk $kind removal is atomic and serializes repeated clicks (fail: $failFirst)',
@@ -467,7 +446,6 @@ void main() {
               },
           ];
           for (final row in rows) {
-            db.wishlist[row['track_key'] as String] = {...row};
             db.loved[row['track_key'] as String] = {...row};
           }
           for (final id in ['p', 'other']) {
@@ -486,7 +464,6 @@ void main() {
           final container = _container(db);
           final notifier = container.read(libraryCollectionsProvider.notifier);
           Future<int> remove(Iterable<String> keys) => switch (kind) {
-            'wishlist' => notifier.removeWishlistTracks(keys),
             'loved' => notifier.removeLovedTracks(keys),
             _ => notifier.removeTracksFromPlaylist('p', keys),
           };
@@ -518,7 +495,6 @@ void main() {
           expect(publications, 1);
           final after = container.read(libraryCollectionsProvider);
           final remaining = switch (kind) {
-            'wishlist' => after.wishlist,
             'loved' => after.loved,
             _ => after.playlistById('p')!.tracks,
           };
@@ -529,7 +505,6 @@ void main() {
             same(before.playlistById('other')),
           );
           expect(db.playlistTracks['other'], rows);
-          expect(db.wishlist.length, kind == 'wishlist' ? 1 : 3);
           expect(db.loved.length, kind == 'loved' ? 1 : 3);
           expect(db.playlistTracks['p']!.length, kind == 'playlist' ? 1 : 3);
           expect(db.events.length, failFirst ? 2 : 1);
@@ -720,7 +695,6 @@ void main() {
     container.dispose();
     reply.complete(
       LibraryCollectionsSnapshot(
-        wishlistRows: const [],
         lovedRows: const [],
         playlistRows: const [],
         playlistTrackRows: const [],
@@ -814,27 +788,26 @@ void main() {
       final container = _container(db);
       final notifier = container.read(libraryCollectionsProvider.notifier);
       await notifier.ensurePlaylistsLoaded(const []);
-      final active = notifier.toggleWishlist(_track('active'));
+      final active = notifier.toggleLoved(_track('active'));
       await db.writeStarted.future;
-      final queued = notifier.toggleWishlist(_track('queued'));
+      final queued = notifier.toggleLoved(_track('queued'));
       final cancelled = expectLater(queued, throwsStateError);
       container.dispose();
       db.releaseWrite.complete();
       expect(await active, isTrue);
       await cancelled;
-      expect(db.events, ['insert:wishlist:example:active']);
-      expect(db.wishlist.keys, ['example:active']);
+      expect(db.events, ['insert:loved:example:active']);
+      expect(db.loved.keys, ['example:active']);
     },
   );
 
-  for (final kind in ['wishlist', 'loved', 'artists']) {
+  for (final kind in ['loved', 'artists']) {
     test('two overlapping $kind toggles persist insert then delete', () async {
       final db = _CollectionsDatabase();
       final container = _container(db);
       final notifier = container.read(libraryCollectionsProvider.notifier);
       await notifier.ensurePlaylistsLoaded(const []);
       Future<bool> toggle() => switch (kind) {
-        'wishlist' => notifier.toggleWishlist(_track('song')),
         'loved' => notifier.toggleLoved(_track('song')),
         _ => notifier.toggleFavoriteArtist(
           artistId: 'artist',
@@ -849,17 +822,14 @@ void main() {
       await Future<void>.delayed(Duration.zero);
       expect(db.events, ['insert:$kind:$key']);
       final pending = container.read(libraryCollectionsProvider);
-      expect(pending.wishlist, isEmpty);
       expect(pending.loved, isEmpty);
       expect(pending.favoriteArtists, isEmpty);
       db.releaseWrite.complete();
       expect(await Future.wait([first, second]), [true, false]);
       expect(db.events, ['insert:$kind:$key', 'delete:$kind:$key']);
-      expect(db.wishlist, isEmpty);
       expect(db.loved, isEmpty);
       expect(db.artists, isEmpty);
       final state = container.read(libraryCollectionsProvider);
-      expect(state.wishlist, isEmpty);
       expect(state.loved, isEmpty);
       expect(state.favoriteArtists, isEmpty);
     });
@@ -911,19 +881,19 @@ void main() {
       final container = _container(db);
       final notifier = container.read(libraryCollectionsProvider.notifier);
       await notifier.ensurePlaylistsLoaded(const []);
-      final failed = notifier.toggleWishlist(_track('failed'));
+      final failed = notifier.toggleLoved(_track('failed'));
       final failure = expectLater(failed, throwsStateError);
       await db.writeStarted.future;
-      final successful = notifier.toggleWishlist(_track('successful'));
+      final successful = notifier.toggleLoved(_track('successful'));
       await Future<void>.delayed(Duration.zero);
-      expect(db.events, ['insert:wishlist:example:failed']);
-      expect(container.read(libraryCollectionsProvider).wishlist, isEmpty);
+      expect(db.events, ['insert:loved:example:failed']);
+      expect(container.read(libraryCollectionsProvider).loved, isEmpty);
       db.releaseWrite.complete();
       await failure;
       expect(await successful, isTrue);
-      expect(db.wishlist.keys, ['example:successful']);
+      expect(db.loved.keys, ['example:successful']);
       expect(
-        container.read(libraryCollectionsProvider).wishlist.map((e) => e.key),
+        container.read(libraryCollectionsProvider).loved.map((e) => e.key),
         ['example:successful'],
       );
     },

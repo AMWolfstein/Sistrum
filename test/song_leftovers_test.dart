@@ -2,28 +2,9 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sistrum/models/library_database_models.dart';
-import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/providers/local_library_provider.dart';
-import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/song_leftovers_provider.dart';
-import 'package:sistrum/utils/file_access.dart';
 import 'package:path/path.dart' as p;
 import 'package:shared_preferences/shared_preferences.dart';
-
-class _Library extends LocalLibraryNotifier {
-  _Library(this.folders);
-
-  final List<String> folders;
-
-  @override
-  LocalLibraryState build() => LocalLibraryState(
-    sources: [
-      for (final folder in folders)
-        LocalLibrarySource(id: folder, path: folder, displayName: folder),
-    ],
-  );
-}
 
 /// An Android storage tree held in memory: folder uri to its entries.
 class _Documents implements SongFolderStore {
@@ -39,10 +20,8 @@ class _Documents implements SongFolderStore {
   }
 
   @override
-  Future<bool> delete(String id, {required bool folder}) async {
-    if (folder && folders[id]?.isNotEmpty == true) return false;
+  Future<bool> delete(String id) async {
     deleted.add(id);
-    folders.remove(id);
     for (final entries in folders.values) {
       entries.removeWhere((entry) => entry.id == id);
     }
@@ -87,60 +66,45 @@ void main() {
       FileSystemEntityType.notFound;
 
   ({SongLeftovers leftovers}) setUpLeftovers({
-    bool removeEmptyFolders = true,
-    bool saveFolderCover = false,
     SongFolderStore? documents,
     Future<({String name, List<({String uri, bool root})> folders})?> Function(
       String source,
     )?
     documentPlace,
     Future<bool> Function(String? source)? deleteSong,
-    List<String> libraryFolders = const [],
   }) {
     final provider = Provider<SongLeftovers>(
       (ref) => SongLeftovers(
         ref,
-        home: p.join(temp.path, 'home'),
         deleteSong: deleteSong,
         documents: documents ?? const DocumentSongFolderStore(),
         documentPlace: documentPlace,
       ),
     );
-    final container = ProviderContainer(
-      overrides: [
-        initialSettingsProvider.overrideWithValue(
-          AppSettings(
-            localLibraryPath: root,
-            removeEmptyFolders: removeEmptyFolders,
-            saveFolderCover: saveFolderCover,
-          ),
-        ),
-        localLibraryProvider.overrideWith(() => _Library(libraryFolders)),
-      ],
-    );
+    final container = ProviderContainer();
     addTearDown(container.dispose);
     return (leftovers: container.read(provider));
   }
 
-  test('deletes the lyrics files and the folders the last song leaves '
-      'empty', () async {
+  test('deletes the song and its lyrics files, and no folder', () async {
     final song = file('Artist/Album/01 Song.flac');
     file('Artist/Album/01 Song.lrc');
     file('Artist/Album/01 Song.mlrc');
     file('Artist/Album/.DS_Store');
     file('Artist/Album/cover.mp4');
-    // A lyrics file a song deleted earlier left behind.
-    file('Artist/Album/02 Gone.lrc');
     final (:leftovers) = setUpLeftovers();
 
     expect(await leftovers.delete(song), isTrue);
-    await _until(() => !exists('Artist'));
+    await Future<void>.delayed(const Duration(milliseconds: 200));
 
-    expect(exists('Artist'), isFalse);
-    expect(Directory(root).existsSync(), isTrue);
+    expect(exists('Artist/Album/01 Song.flac'), isFalse);
+    expect(exists('Artist/Album/01 Song.lrc'), isFalse);
+    expect(exists('Artist/Album/01 Song.mlrc'), isFalse);
+    expect(exists('Artist/Album/.DS_Store'), isTrue);
+    expect(exists('Artist/Album/cover.mp4'), isTrue);
   });
 
-  test('keeps a folder that still holds other files', () async {
+  test('keeps the other files of the song folder', () async {
     final song = file('Artist/Album/Song.flac');
     file('Artist/Album/Song.lrc');
     file('Artist/Album/folder.jpg');
@@ -151,29 +115,6 @@ void main() {
 
     expect(exists('Artist/Album/Song.lrc'), isFalse);
     expect(exists('Artist/Album/folder.jpg'), isTrue);
-  });
-
-  test('removes the album cover file saved beside the song', () async {
-    final song = file('Artist/Album/Song.flac');
-    file('Artist/Album/Folder.jpg');
-    final (:leftovers) = setUpLeftovers(saveFolderCover: true);
-
-    expect(await leftovers.delete(song), isTrue);
-    await _until(() => !exists('Artist'));
-
-    expect(exists('Artist'), isFalse);
-  });
-
-  test('keeps the artist folder while another album is in it', () async {
-    final song = file('Artist/First/Song.flac');
-    file('Artist/Second/Other.flac');
-    final (:leftovers) = setUpLeftovers();
-
-    await leftovers.delete(song);
-    await _until(() => !exists('Artist/First'));
-
-    expect(exists('Artist/First'), isFalse);
-    expect(exists('Artist/Second/Other.flac'), isTrue);
   });
 
   test('keeps lyrics files a song of the same name still uses', () async {
@@ -189,63 +130,20 @@ void main() {
     expect(exists('Artist/Album/Song.lrc'), isTrue);
   });
 
-  test('only deletes the lyrics files while Remove Empty Folders is '
-      'off', () async {
+  test('does not delete the lyrics files when the song stays', () async {
     final song = file('Artist/Album/Song.flac');
     file('Artist/Album/Song.lrc');
-    final (:leftovers) = setUpLeftovers(removeEmptyFolders: false);
-
-    await leftovers.delete(song);
-    await Future<void>.delayed(const Duration(milliseconds: 200));
-
-    expect(exists('Artist/Album/Song.lrc'), isFalse);
-    expect(exists('Artist/Album'), isTrue);
-  });
-
-  test('leaves folders outside the Local Library '
-      'folders', () async {
-    final elsewhere = p.join(temp.path, 'Elsewhere');
-    final song = file('Album/Song.flac', under: elsewhere);
-    file('Album/Song.lrc', under: elsewhere);
-    final (:leftovers) = setUpLeftovers();
-
-    await leftovers.delete(song);
-    await Future<void>.delayed(const Duration(milliseconds: 200));
-
-    expect(File(p.join(elsewhere, 'Album', 'Song.lrc')).existsSync(), isFalse);
-    expect(Directory(p.join(elsewhere, 'Album')).existsSync(), isTrue);
-  });
-
-  test('removes folders inside an added Local Library folder', () async {
-    final library = p.join(temp.path, 'Library');
-    final song = file('Artist/Album/Song.flac', under: library);
-    final (:leftovers) = setUpLeftovers(libraryFolders: [library]);
-
-    await leftovers.delete(song);
-    await _until(() => !Directory(p.join(library, 'Artist')).existsSync());
-
-    expect(Directory(p.join(library, 'Artist')).existsSync(), isFalse);
-    expect(Directory(library).existsSync(), isTrue);
-  });
-
-  test('does not delete the song folder when the song stays', () async {
-    final song = file('Artist/Album/Song.flac');
-    file('Artist/Album/Song.lrc');
-    final (:leftovers) = setUpLeftovers(
-      deleteSong: (_) async => false,
-    );
+    final (:leftovers) = setUpLeftovers(deleteSong: (_) async => false);
 
     expect(await leftovers.delete(song), isFalse);
     await Future<void>.delayed(const Duration(milliseconds: 200));
     expect(exists('Artist/Album/Song.lrc'), isTrue);
   });
 
-  test('removes document folders up to the granted folder', () async {
-    SongFolderEntry entry(String id, {bool folder = false}) =>
-        (name: id.split('/').last, id: id, folder: folder);
+  test('deletes the lyrics files of a document song', () async {
+    SongFolderEntry entry(String id) =>
+        (name: id.split('/').last, id: id, folder: false);
     final documents = _Documents({
-      'tree': [entry('tree/Artist', folder: true)],
-      'tree/Artist': [entry('tree/Artist/Album', folder: true)],
       'tree/Artist/Album': [
         entry('tree/Artist/Album/Song.lrc'),
         entry('tree/Artist/Album/cover.mp4'),
@@ -256,11 +154,7 @@ void main() {
       deleteSong: (_) async => true,
       documentPlace: (_) async => (
         name: 'Song.flac',
-        folders: [
-          (uri: 'tree/Artist/Album', root: false),
-          (uri: 'tree/Artist', root: false),
-          (uri: 'tree', root: true),
-        ],
+        folders: [(uri: 'tree/Artist/Album', root: false)],
       ),
     );
 
@@ -270,41 +164,8 @@ void main() {
       ),
       isTrue,
     );
-    await _until(() => documents.deleted.contains('tree/Artist'));
+    await _until(() => documents.deleted.isNotEmpty);
 
-    expect(documents.deleted, [
-      'tree/Artist/Album/Song.lrc',
-      'tree/Artist/Album/cover.mp4',
-      'tree/Artist/Album',
-      'tree/Artist',
-    ]);
-    expect(documents.folders.keys, ['tree']);
-  });
-
-  group('isSharedTopFolder', () {
-    test('keeps storage, volumes and the folders right inside them', () {
-      final posix = p.Context(style: p.Style.posix);
-      bool shared(String path) =>
-          isSharedTopFolder(path, context: posix, home: '/home/me');
-
-      expect(shared('/storage/emulated/0'), isTrue);
-      expect(shared('/storage/emulated/0/Music'), isTrue);
-      expect(shared('/storage/1234-ABCD/Download'), isTrue);
-      expect(shared('/Volumes/Drive/Music'), isTrue);
-      expect(shared('/home/me'), isTrue);
-      expect(shared('/home/me/Music'), isTrue);
-      expect(shared('/storage/emulated/0/Music/Sistrum'), isFalse);
-      expect(shared('/home/me/Music/Sistrum/Artist'), isFalse);
-    });
-
-    test('keeps a Windows drive and its top folders', () {
-      final windows = p.Context(style: p.Style.windows);
-      bool shared(String path) =>
-          isSharedTopFolder(path, context: windows, home: r'C:\Users\me');
-
-      expect(shared(r'D:\Music'), isTrue);
-      expect(shared(r'C:\Users\me\Music'), isTrue);
-      expect(shared(r'C:\Users\me\Music\Sistrum\Artist'), isFalse);
-    });
+    expect(documents.deleted, ['tree/Artist/Album/Song.lrc']);
   });
 }

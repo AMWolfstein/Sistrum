@@ -211,10 +211,16 @@ internal suspend fun MainActivity.handleInspectSafFiles(call: MethodCall, result
 
 internal suspend fun MainActivity.handleSafCopyToTemp(call: MethodCall, result: MethodChannel.Result) {
     val uriStr = call.argument<String>("uri") ?: ""
+    val reportFailure = call.argument<Boolean>("report_failure") ?: false
+    var failure: String? = null
     val tempPath = withContext(Dispatchers.IO) {
-        copyUriToTemp(coreBackend, Uri.parse(uriStr))
+        copyUriToTemp(coreBackend, Uri.parse(uriStr), onFailure = { failure = it })
     }
-    result.success(tempPath)
+    if (tempPath == null && reportFailure && failure != null) {
+        result.error("saf_copy_failed", failure, null)
+    } else {
+        result.success(tempPath)
+    }
 }
 
 internal suspend fun Context.handleSafOpenPlaybackLease(call: MethodCall, result: MethodChannel.Result) {
@@ -294,34 +300,6 @@ internal suspend fun MainActivity.handleSafCreateIfAbsentFromPath(call: MethodCa
     result.success(response)
 }
 
-internal suspend fun MainActivity.handleSafCreateUniqueFromPath(call: MethodCall, result: MethodChannel.Result) {
-    val treeUriStr = call.argument<String>("tree_uri") ?: ""
-    val relativeDir = call.argument<String>("relative_dir") ?: ""
-    val fileName = call.argument<String>("file_name") ?: ""
-    val mimeType = call.argument<String>("mime_type") ?: "application/octet-stream"
-    val srcPath = call.argument<String>("src_path") ?: ""
-    val preservedSuffix = call.argument<String>("preserved_suffix") ?: ""
-    val response = withContext(Dispatchers.IO) {
-        if (treeUriStr.isBlank() || fileName.isBlank()) return@withContext null
-        SafDownloadHandler.writeFileToSafUnique(
-            context = this@handleSafCreateUniqueFromPath,
-            treeUriStr = treeUriStr,
-            relativeDir = relativeDir,
-            fileName = fileName,
-            mimeType = mimeType,
-            srcPath = srcPath,
-            preservedSuffix = preservedSuffix,
-        )?.let { writeResult ->
-            JSONObject()
-                .put("uri", writeResult.uri)
-                .put("file_name", writeResult.fileName)
-                .put("publish_timings_ms", JSONObject(writeResult.publishTimingsMs))
-                .toString()
-        }
-    }
-    result.success(response)
-}
-
 internal suspend fun MainActivity.handleSafCreateCollisionAwareFromPath(call: MethodCall, result: MethodChannel.Result) {
     val treeUriStr = call.argument<String>("tree_uri") ?: ""
     val relativeDir = call.argument<String>("relative_dir") ?: ""
@@ -354,21 +332,6 @@ internal suspend fun MainActivity.handleSafCreateCollisionAwareFromPath(call: Me
         }
     }
     result.success(response)
-}
-
-internal fun MainActivity.handleOpenContentUri(call: MethodCall, result: MethodChannel.Result) {
-    val uriStr = call.argument<String>("uri") ?: ""
-    val mimeType = call.argument<String>("mime_type") ?: ""
-    try {
-        val uri = Uri.parse(uriStr)
-        val type = if (mimeType.isNotBlank()) mimeType else contentResolver.getType(uri) ?: "*/*"
-        val intent = Intent(Intent.ACTION_VIEW).setDataAndType(uri, type)
-            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        startActivity(intent)
-        result.success(null)
-    } catch (e: Exception) {
-        result.error("open_failed", e.message, null)
-    }
 }
 
 internal fun MainActivity.handleShareContentUri(call: MethodCall, result: MethodChannel.Result) {

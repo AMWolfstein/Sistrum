@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
@@ -15,41 +17,30 @@ import 'package:sistrum/providers/playback_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/mornye_library_screen.dart';
 import 'package:sistrum/screens/queue_tab.dart';
-import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/services/history_database.dart';
 import 'package:sistrum/services/playable_media.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
-import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/desktop/desktop_selection.dart';
 import 'package:sistrum/widgets/desktop/track_table.dart';
 import 'package:sistrum/widgets/library_track_selection_bar.dart';
 import 'package:sistrum/widgets/mornye_context_menu.dart';
-import 'package:sistrum/widgets/song_row_tap.dart';
 import 'package:sistrum/widgets/track_card.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
-import 'support/app_icon_finder.dart';
 import 'support/tooltip_finder.dart';
 
 class _Settings extends SettingsNotifier {
-  _Settings(this.viewMode, {this.filterMode = 'all'});
-
-  final String viewMode;
-  final String filterMode;
-
   // The Rewind banner animates for as long as it is shown; keep it off so
   // the page settles.
   @override
-  AppSettings build() => AppSettings(
-    defaultLibraryView: filterMode,
-    historyFilterMode: filterMode,
-    historyViewMode: viewMode,
-    listeningStatisticsEnabled: false,
-    localLibraryEnabled: true,
-  );
+  AppSettings build() => const AppSettings(localLibraryEnabled: true);
 }
+
+/// The folder the test songs live in: playing a song checks its file first,
+/// so the songs are real files made in [main]'s setUp.
+late String _musicDir;
 
 /// Two scanned songs, served as the Songs page's rows.
 Future<QueueLibraryDbPage> _songPage(QueueLibraryDbQuery query) async =>
@@ -63,7 +54,7 @@ Future<QueueLibraryDbPage> _songPage(QueueLibraryDbQuery query) async =>
               trackName: name,
               artistName: 'Artist',
               albumName: 'Album $index',
-              filePath: '/music/$name.flac',
+              filePath: '$_musicDir/$name.flac',
               scannedAt: DateTime(2026, 1, 10 + index),
               format: 'flac',
             ).toJson(),
@@ -109,9 +100,8 @@ class _Playback extends PlaybackController {
   Future<void> playMediaQueue(
     Iterable<PlayableMedia> queue, {
     required int startIndex,
-    required String externalPath,
   }) async {
-    started.add(externalPath);
+    started.add(queue.elementAt(startIndex).source);
     _queue = queue.toList();
     _startIndex = startIndex;
   }
@@ -134,9 +124,9 @@ Future<void> _settle(WidgetTester tester) async {
   }
 }
 
-/// Opening the details reads the song's file first, which needs real time
-/// between the frames.
-Future<void> _settleDetails(WidgetTester tester) async {
+/// Playing or opening a song's menu reads the song's file first, which needs
+/// real time between the frames.
+Future<void> _settleFileRead(WidgetTester tester) async {
   for (var i = 0; i < 20; i++) {
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 50)),
@@ -159,6 +149,11 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUp(() {
+    _musicDir = Directory.systemTemp.createTempSync('songs-table-').path;
+    addTearDown(() => Directory(_musicDir).deleteSync(recursive: true));
+    for (final name in ['Alpha', 'Bravo']) {
+      File('$_musicDir/$name.flac').writeAsStringSync('audio');
+    }
     SharedPreferences.setMockInitialValues({});
     final previousFactory = databaseFactoryOrNull;
     databaseFactory = databaseFactorySqflitePlugin;
@@ -204,7 +199,6 @@ void main() {
   Future<void> pumpLibrary(
     WidgetTester tester, {
     required bool desktop,
-    String viewMode = 'list',
     String filterMode = 'all',
     bool withPlaylistTracks = false,
     bool root = false,
@@ -213,7 +207,6 @@ void main() {
     MediaItem? currentItem,
     bool playing = false,
     bool loading = false,
-    bool? tapPlays,
   }) async {
     debugDesktopPlatformOverride = desktop;
     tester.view.physicalSize = desktop
@@ -224,9 +217,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          settingsProvider.overrideWith(
-            () => _Settings(viewMode, filterMode: filterMode),
-          ),
+          settingsProvider.overrideWith(_Settings.new),
           localLibraryProvider.overrideWith(_Local.new),
           queueLibraryTrackPageReaderProvider.overrideWithValue(_songPage),
           libraryCollectionsProvider.overrideWith(
@@ -241,7 +232,6 @@ void main() {
           playbackPlayingProvider.overrideWith((ref) => playing),
           playbackLoadingProvider.overrideWith((ref) => loading),
           // Without a choice these tests play songs with a tap on the row.
-          librarySongTapPlaysProvider.overrideWithValue(tapPlays ?? true),
         ],
         child: MaterialApp(
           theme: MornyeTheme.build(Brightness.light),
@@ -277,150 +267,26 @@ void main() {
     expect(loadBootstrapSettings(preferences).historySortMode, 'a-z');
   });
 
-  testWidgets(
-    'list play button starts the full queue without opening details ',
-    (tester) async {
-      final playback = _Playback();
-      await pumpLibrary(
-        tester,
-        desktop: true,
-        playback: playback,
-        tapPlays: false,
-      );
-      final l10n = AppLocalizations.of(tester.element(find.byType(QueueTab)));
-      final button = findByTooltip(
-        l10n.a11yPlayTrackByArtist('Alpha', 'Artist'),
-      );
-      expect(button.hitTestable(), findsOneWidget);
-      expect(
-        find.descendant(
-          of: button,
-          matching: findAppIcon(Icons.play_circle_outline_rounded),
-        ),
-        findsOneWidget,
-      );
-
-      await tester.tap(button);
-      await _settle(tester);
-      expect(playback.started, ['/music/Alpha.flac']);
-      expect(playback._queue.map((item) => item.source), [
-        '/music/Bravo.flac',
-        '/music/Alpha.flac',
-      ]);
-      expect(playback._startIndex, 1);
-      expect(find.byType(SliverTrackTable), findsOneWidget);
-      expect(find.byType(LibraryTrackSelectionBar), findsNothing);
-      expect(tester.takeException(), isNull);
-    },
-  );
-
-  for (final playing in [false, true]) {
-    testWidgets(
-      'current list play button toggles playback in place (playing: $playing)',
-      (tester) async {
-        final playback = _Playback();
-        final player = _Player();
-        await pumpLibrary(
-          tester,
-          desktop: true,
-          playback: playback,
-          player: player,
-          currentItem: const MediaItem(
-            id: '/music/Alpha.flac',
-            title: 'Alpha',
-            artist: 'Artist',
-          ),
-          playing: playing,
-          tapPlays: false,
-        );
-        final icon = findAppIcon(
-          playing
-              ? Icons.pause_circle_filled_rounded
-              : Icons.play_circle_fill_rounded,
-        );
-        expect(icon, findsOneWidget);
-        await tester.tap(icon);
-        await _settle(tester);
-        expect(player.toggles, [playing]);
-        expect(playback.started, isEmpty);
-        expect(find.byType(SliverTrackTable), findsOneWidget);
-        expect(tester.takeException(), isNull);
-      },
-    );
-  }
-
-  testWidgets('current list play button is disabled while loading', (
-    tester,
-  ) async {
-    final player = _Player();
-    await pumpLibrary(
-      tester,
-      desktop: true,
-      player: player,
-      currentItem: const MediaItem(
-        id: '/music/Alpha.flac',
-        title: 'Alpha',
-        artist: 'Artist',
-      ),
-      loading: true,
-      tapPlays: false,
-    );
-    final l10n = AppLocalizations.of(tester.element(find.byType(QueueTab)));
-    final button = find.byWidgetPredicate(
-      (widget) =>
-          widget is AppIconButton &&
-          widget.tooltip == l10n.a11yPlayTrackByArtist('Alpha', 'Artist'),
-    );
-    expect(tester.widget<AppIconButton>(button).onPressed, isNull);
-    expect(player.toggles, isEmpty);
-    expect(tester.takeException(), isNull);
-  });
-
-  // By default a click plays as the Play button does, and the button
-  // opens the details instead.
-  testWidgets('a click plays the full queue; the info button opens the '
-      'details', (tester) async {
+  // A click plays the song and the queue after it, as the row's play circle
+  // does.
+  testWidgets('a click plays the full queue', (tester) async {
     final playback = _Playback();
     await pumpLibrary(tester, desktop: true, playback: playback);
     final l10n = AppLocalizations.of(tester.element(find.byType(QueueTab)));
     expect(
       findByTooltip(l10n.a11yPlayTrackByArtist('Alpha', 'Artist')),
-      findsNothing,
+      findsOneWidget,
     );
-    expect(findByTooltip('Show details'), findsNWidgets(2));
 
     await tester.tap(find.text('Alpha'));
-    await _settle(tester);
-    expect(playback.started, ['/music/Alpha.flac']);
+    await _settleFileRead(tester);
+    expect(playback.started, ['$_musicDir/Alpha.flac']);
     expect(playback._queue.map((item) => item.source), [
-      '/music/Bravo.flac',
-      '/music/Alpha.flac',
+      '$_musicDir/Bravo.flac',
+      '$_musicDir/Alpha.flac',
     ]);
     expect(playback._startIndex, 1);
-    expect(find.byType(TrackMetadataScreen), findsNothing);
     expect(find.byType(LibraryTrackSelectionBar), findsNothing);
-
-    await tester.tap(findByTooltip('Show details').first);
-    await _settleDetails(tester);
-    expect(find.byType(TrackMetadataScreen), findsOneWidget);
-    expect(playback.started, ['/music/Alpha.flac']);
-  });
-
-  testWidgets('with the details setting a click opens the details', (
-    tester,
-  ) async {
-    final playback = _Playback();
-    await pumpLibrary(
-      tester,
-      desktop: true,
-      playback: playback,
-      tapPlays: false,
-    );
-    expect(findByTooltip('Show details'), findsNothing);
-    await tester.tap(find.text('Alpha'));
-    await _settleDetails(tester);
-    expect(find.byType(TrackMetadataScreen), findsOneWidget);
-    expect(playback.started, isEmpty);
   });
 
   for (final playing in [false, true]) {
@@ -434,8 +300,8 @@ void main() {
           desktop: true,
           playback: playback,
           player: player,
-          currentItem: const MediaItem(
-            id: '/music/Alpha.flac',
+          currentItem: MediaItem(
+            id: '$_musicDir/Alpha.flac',
             title: 'Alpha',
             artist: 'Artist',
           ),
@@ -445,7 +311,6 @@ void main() {
         await _settle(tester);
         expect(player.toggles, [playing]);
         expect(playback.started, isEmpty);
-        expect(find.byType(TrackMetadataScreen), findsNothing);
         expect(tester.takeException(), isNull);
       },
     );
@@ -461,8 +326,8 @@ void main() {
       desktop: true,
       playback: playback,
       player: player,
-      currentItem: const MediaItem(
-        id: '/music/Alpha.flac',
+      currentItem: MediaItem(
+        id: '$_musicDir/Alpha.flac',
         title: 'Alpha',
         artist: 'Artist',
       ),
@@ -472,7 +337,6 @@ void main() {
     await _settle(tester);
     expect(player.toggles, isEmpty);
     expect(playback.started, isEmpty);
-    expect(find.byType(TrackMetadataScreen), findsNothing);
   });
 
   testWidgets('a Shift-click still selects instead of playing', (tester) async {
@@ -484,7 +348,6 @@ void main() {
     await _settle(tester);
     expect(find.byType(LibraryTrackSelectionBar), findsOneWidget);
     expect(playback.started, isEmpty);
-    expect(find.byType(TrackMetadataScreen), findsNothing);
   });
 
   testWidgets('a right-click menu leaves the selection toolbar closed', (
@@ -513,8 +376,8 @@ void main() {
 
     await _rightClick(tester, find.text('Alpha'));
     await tester.tap(menuRow('Play'));
-    await _settle(tester);
-    expect(playback.started, ['/music/Alpha.flac']);
+    await _settleFileRead(tester);
+    expect(playback.started, ['$_musicDir/Alpha.flac']);
     expect(toolbar, findsNothing);
 
     // A bulk action keeps the selection, so the toolbar returns.
@@ -527,12 +390,6 @@ void main() {
     expect(toolbar, findsOneWidget);
   });
 
-  testWidgets('desktop Songs grid keeps the cover grid', (tester) async {
-    await pumpLibrary(tester, desktop: true, viewMode: 'grid');
-    expect(find.byType(SliverTrackTable), findsNothing);
-    expect(find.text('Alpha'), findsOneWidget);
-  });
-
   testWidgets('phones show a song card per track', (tester) async {
     await pumpLibrary(tester, desktop: false);
     expect(find.byType(SliverTrackTable), findsNothing);
@@ -541,48 +398,24 @@ void main() {
     expect(find.text('January 2026'), findsNothing);
   });
 
-  for (final tapPlays in [true, false]) {
-    testWidgets('a phone Songs row ${tapPlays ? 'plays' : 'opens details'} '
-        'on a tap', (tester) async {
-      final playback = _Playback();
-      await pumpLibrary(
-        tester,
-        desktop: false,
-        playback: playback,
-        // Null keeps the default setting.
-        tapPlays: tapPlays ? null : false,
-      );
-      final l10n = AppLocalizations.of(tester.element(find.byType(QueueTab)));
-      final row = find.widgetWithText(TrackCard, 'Alpha');
-      expect(
-        find.descendant(of: row, matching: findByTooltip('Show details')),
-        tapPlays ? findsOneWidget : findsNothing,
-      );
-      expect(
-        find.descendant(
-          of: row,
-          matching: findByTooltip(
-            l10n.a11yPlayTrackByArtist('Alpha', 'Artist'),
-          ),
-        ),
-        tapPlays ? findsNothing : findsOneWidget,
-      );
+  testWidgets('a phone Songs row plays on a tap', (tester) async {
+    final playback = _Playback();
+    await pumpLibrary(tester, desktop: false, playback: playback);
+    final l10n = AppLocalizations.of(tester.element(find.byType(QueueTab)));
+    final row = find.widgetWithText(TrackCard, 'Alpha');
+    expect(
+      find.descendant(of: row, matching: findByTooltip(l10n.tooltipPlay)),
+      findsOneWidget,
+    );
 
-      await tester.tap(find.text('Alpha'));
-      await _settleDetails(tester);
-      if (tapPlays) {
-        expect(playback.started, ['/music/Alpha.flac']);
-        expect(playback._queue.map((item) => item.source), [
-          '/music/Bravo.flac',
-          '/music/Alpha.flac',
-        ]);
-        expect(find.byType(TrackMetadataScreen), findsNothing);
-      } else {
-        expect(playback.started, isEmpty);
-        expect(find.byType(TrackMetadataScreen), findsOneWidget);
-      }
-    });
-  }
+    await tester.tap(find.text('Alpha'));
+    await _settleFileRead(tester);
+    expect(playback.started, ['$_musicDir/Alpha.flac']);
+    expect(playback._queue.map((item) => item.source), [
+      '$_musicDir/Bravo.flac',
+      '$_musicDir/Alpha.flac',
+    ]);
+  });
 
   testWidgets('a phone Songs row keeps toggling selection on a tap', (
     tester,
@@ -601,12 +434,13 @@ void main() {
       isTrue,
     );
     expect(playback.started, isEmpty);
-    expect(find.byType(TrackMetadataScreen), findsNothing);
   });
 
-  testWidgets('a phone Songs row whose file is missing keeps opening its '
-      'details', (tester) async {
+  testWidgets('a phone Songs row whose file is missing opens its song menu', (
+    tester,
+  ) async {
     final playback = _Playback();
+    File('$_musicDir/Alpha.flac').deleteSync();
     await pumpLibrary(tester, desktop: false, playback: playback);
     // The test songs have no files; the Library confirms the miss after its
     // retries.
@@ -625,16 +459,15 @@ void main() {
       ),
       findsOneWidget,
     );
-    expect(findByTooltip('Show details'), findsNothing);
 
     await tester.tap(find.text('Alpha'));
-    await _settleDetails(tester);
+    await _settleFileRead(tester);
     expect(playback.started, isEmpty);
-    expect(find.byType(TrackMetadataScreen), findsOneWidget);
+    expect(find.byType(MornyeContextMenu), findsOneWidget);
   });
 
   for (final desktop in [false, true]) {
-    for (final mode in ['all', 'singles']) {
+    for (final mode in ['all']) {
       testWidgets(
         'playlist members remain visible (desktop: $desktop, mode: $mode)',
         (tester) async {

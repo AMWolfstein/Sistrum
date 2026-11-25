@@ -42,7 +42,7 @@ void main() {
           (p) => p['playlist_id'] == "keep'quoted",
         ),
       );
-      for (final table in ['wishlist_tracks', 'loved_tracks']) {
+      for (final table in ['loved_tracks']) {
         expect(after[table], before[table]);
       }
       expect(await db.rawQuery('PRAGMA foreign_key_check'), isEmpty);

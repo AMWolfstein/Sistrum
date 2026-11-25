@@ -6,20 +6,17 @@ import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/controllers/clickable_metadata.dart';
-import 'package:sistrum/widgets/audio_quality_badges.dart';
+import 'package:sistrum/widgets/song_menu.dart';
 import 'package:sistrum/widgets/track_card.dart';
-import 'package:sistrum/widgets/in_library_badge.dart';
-import 'package:sistrum/widgets/track_collection_quick_actions.dart';
 
-/// Track row shared by the album and playlist screens. Tap plays the local
-/// copy when one exists. Long-press opens the track options sheet. Callers
-/// supply [leading] (track number, cover art, ...) and choose whether the
-/// artist name links to the artist screen.
+/// Track row of the playlist screen and the catalog track lists. Tap plays
+/// the local copy when one exists, and the play circle does the same. Long
+/// press starts selection. Callers supply [leading] (track number, cover art,
+/// ...) and choose whether the artist name links to the artist screen.
 class TrackListTile extends ConsumerWidget {
   final Track track;
   final Widget leading;
   final bool clickableArtist;
-  final bool showQualityBadges;
   final bool isSelectionMode;
   final bool isSelected;
   final VoidCallback? onToggleSelection;
@@ -33,7 +30,6 @@ class TrackListTile extends ConsumerWidget {
     required this.track,
     required this.leading,
     this.clickableArtist = false,
-    this.showQualityBadges = true,
     this.isSelectionMode = false,
     this.isSelected = false,
     this.onToggleSelection,
@@ -43,11 +39,11 @@ class TrackListTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final colorScheme = Theme.of(context).colorScheme;
     final playback = ref.watch(
       catalogTrackPlaybackUiProvider(catalogTrackKey(track)),
     );
-    final isInLocalLibrary = _isInLocalLibrary(ref, track);
+    final hasLocalCopy = _hasLocalCopy(ref, track);
+    void play() => playLocalIfAvailable(context, ref, track);
 
     return TrackCard(
       style: TrackCardStyle.flat,
@@ -58,49 +54,22 @@ class TrackListTile extends ConsumerWidget {
       leadingArtwork: leadingArtwork,
       leading: leading,
       title: track.name,
-      subtitle: TrackMetadataBadgesLine(
-        primary: clickableArtist && !isSelectionMode
-            ? ClickableArtistName(artistName: track.artistName)
-            : Text(
-                track.artistName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-        badges: [
-          ...buildQualityBadges(
-            audioQuality: showQualityBadges ? track.audioQuality : null,
-            audioModes: showQualityBadges ? track.audioModes : null,
-            colorScheme: colorScheme,
-            explicit: track.isExplicit,
-          ),
-          if (isInLocalLibrary) const InLibraryBadge(),
-        ],
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          TrackCollectionQuickActions(
-            track: track,
-            hasLocalPlaybackCandidate: isInLocalLibrary,
-          ),
-        ],
-      ),
-      onTap: isSelectionMode
-          ? onToggleSelection
-          : () => playLocalIfAvailable(context, ref, track),
-      onLongPress: isSelectionMode
-          ? null
-          : onEnterSelectionMode ??
-                () => TrackCollectionQuickActions.showTrackOptionsSheet(
-                  context,
-                  ref,
-                  track,
-                  hasLocalPlaybackCandidate: isInLocalLibrary,
-                ),
+      subtitle: clickableArtist && !isSelectionMode
+          ? ClickableArtistName(artistName: track.artistName)
+          : Text(
+              track.artistName,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+      isExplicit: track.isExplicit,
+      onPlay: hasLocalCopy ? play : null,
+      menu: isSelectionMode ? null : SongMenuButton(track: track),
+      onTap: isSelectionMode ? onToggleSelection : play,
+      onLongPress: isSelectionMode ? null : onEnterSelectionMode,
     );
   }
 
-  static bool _isInLocalLibrary(WidgetRef ref, Track track) {
+  static bool _hasLocalCopy(WidgetRef ref, Track track) {
     final show = ref.watch(
       settingsProvider.select(
         (s) => s.localLibraryEnabled && s.localLibraryShowDuplicates,
@@ -116,53 +85,5 @@ class TrackListTile extends ConsumerWidget {
             ),
           ),
         );
-  }
-}
-
-/// Explicit, Dolby Atmos and In Library badges of a [TrackListTile], for the
-/// title cell of the desktop song table. Quality has its own column there.
-class TrackListTileBadges extends ConsumerWidget {
-  const TrackListTileBadges({super.key, required this.track});
-
-  final Track track;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final showLocalLibraryIndicator = ref.watch(
-      settingsProvider.select(
-        (s) => s.localLibraryEnabled && s.localLibraryShowDuplicates,
-      ),
-    );
-    final isInLocalLibrary =
-        showLocalLibraryIndicator &&
-        ref.watch(
-          localLibraryProvider.select(
-            (state) => state.existsInLibrary(
-              isrc: track.isrc,
-              trackName: track.name,
-              artistName: track.artistName,
-            ),
-          ),
-        );
-    final badges = [
-      ...buildQualityBadges(
-        audioQuality: null,
-        audioModes: track.audioModes,
-        colorScheme: colorScheme,
-        explicit: track.isExplicit,
-      ),
-      if (isInLocalLibrary) const InLibraryBadge(),
-    ];
-    if (badges.isEmpty) return const SizedBox.shrink();
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        for (final (index, badge) in badges.indexed) ...[
-          if (index > 0) const SizedBox(width: 4),
-          badge,
-        ],
-      ],
-    );
   }
 }

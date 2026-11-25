@@ -82,16 +82,6 @@ String _encode(Map<String, SongLyricsOffset> offsets) => jsonEncode({
     key: [value.offsetMs, value.editedMs],
 });
 
-/// The offset stored for [key] in [prefs], read without the provider (the
-/// lock screen reads it on its own).
-int storedSongLyricsOffsetMs(SharedPreferences prefs, String key) {
-  if (key.isEmpty) return 0;
-  return decodeSongLyricsOffsets(
-        prefs.getString(kSongLyricsOffsetsKey),
-      )[key]?.offsetMs ??
-      0;
-}
-
 /// Each song's own lyric timing offset, added to the app-wide one for that
 /// song's synced lyrics. Unlike the app-wide offset, which makes up for
 /// this device's output delay, it belongs to the song's lyrics, so it is

@@ -9,7 +9,7 @@ import 'package:sistrum/services/music_player_service.dart';
 
 class _Settings extends SettingsNotifier {
   @override
-  AppSettings build() => const AppSettings(playerMode: 'internal');
+  AppSettings build() => const AppSettings();
 }
 
 class _Handler extends Fake implements MusicPlayerHandler {}

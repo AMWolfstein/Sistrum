@@ -11,7 +11,7 @@ import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/screens/library_tracks_folder_screen.dart';
+import 'package:sistrum/screens/collection_detail_screen.dart';
 import 'package:sistrum/services/library_collections_database.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
@@ -43,7 +43,6 @@ class _Database extends Fake implements LibraryCollectionsDatabase {
   @override
   Future<LibraryCollectionsSnapshot> loadSnapshot() async =>
       LibraryCollectionsSnapshot(
-        wishlistRows: const [],
         lovedRows: loved.values.toList(),
         favoriteArtistRows: const [],
         playlistRows: const [],
@@ -118,9 +117,7 @@ void main() {
                 builder: (context) => TextButton(
                   onPressed: () => Navigator.of(context).push<void>(
                     MaterialPageRoute(
-                      builder: (_) => const LibraryTracksFolderScreen(
-                        mode: LibraryTracksFolderMode.loved,
-                      ),
+                      builder: (_) => const CollectionDetailScreen.loved(),
                     ),
                   ),
                   child: const Text('Open Liked Songs'),

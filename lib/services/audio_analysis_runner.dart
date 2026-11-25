@@ -150,6 +150,28 @@ class AudioAnalysisRunner {
     }
   }
 
+  /// Copies a SAF document for FFmpeg. A provider can fail once and answer the
+  /// next request, so the copy is tried twice before the reason is reported.
+  Future<String> _copySafSource(String uri, String purpose) async {
+    String? reason;
+    for (var attempt = 0; attempt < 2; attempt++) {
+      try {
+        final copy = await PlatformBridge.copyContentUriToTemp(
+          uri,
+          reportFailure: true,
+        );
+        if (copy != null) return copy;
+        reason = 'the copy returned no file';
+      } on PlatformException catch (error) {
+        reason = error.message ?? error.code;
+      }
+      if (attempt == 0) {
+        await Future<void>.delayed(const Duration(milliseconds: 250));
+      }
+    }
+    throw Exception('Failed to copy SAF file for $purpose: $reason');
+  }
+
   Future<AudioAnalysisRunResult> runAnalysis(
     String filePath,
     bool Function() isCancelled,
@@ -158,10 +180,7 @@ class AudioAnalysisRunner {
     String workingPath = filePath;
     String? tempCopy;
     if (filePath.startsWith('content://')) {
-      tempCopy = await PlatformBridge.copyContentUriToTemp(filePath);
-      if (tempCopy == null) {
-        throw Exception('Failed to copy SAF file for analysis');
-      }
+      tempCopy = await _copySafSource(filePath, 'analysis');
       workingPath = tempCopy;
     }
 
@@ -255,10 +274,7 @@ class AudioAnalysisRunner {
     String workingPath = filePath;
     String? tempCopy;
     if (filePath.startsWith('content://')) {
-      tempCopy = await PlatformBridge.copyContentUriToTemp(filePath);
-      if (tempCopy == null) {
-        throw Exception('Failed to copy SAF file for spectrogram');
-      }
+      tempCopy = await _copySafSource(filePath, 'spectrogram');
       workingPath = tempCopy;
     }
 

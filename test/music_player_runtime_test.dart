@@ -1255,45 +1255,6 @@ void main() {
     },
   );
 
-  test(
-    'switching to external stops playback and keeps the saved session',
-    () async {
-      final store = _ResumeSessionStore();
-      final decks = <_Deck>[];
-      final runtime = _runtime(sessionDatabase: store, decks: decks);
-      final handler = await runtime.initialize();
-      await handler.setQueueAndPlay([_track]);
-      decks.single.position = const Duration(seconds: 23);
-      final stopped = handler.mediaItem.firstWhere((item) => item == null);
-      runtime.configure(runtime.settings.copyWith(playerMode: 'external'));
-      await stopped;
-      expect(decks.single.state, PlaybackDeckState.stopped);
-      expect(store.archived?['positionMs'], 23000);
-      expect(handler.playbackState.value.playing, isFalse);
-      expect(
-        await MusicPlayerController(runtime: runtime).resumeSavedSession(),
-        isFalse,
-      );
-      expect(store.resumeReads, 0);
-    },
-  );
-
-  test(
-    'external startup does not initialize the internal player or restore a session',
-    () async {
-      final store = _ResumeSessionStore();
-      final runtime = _runtime(
-        settings: const AppSettings(playerMode: 'external'),
-        sessionDatabase: store,
-      );
-      await runtime.restoreSession();
-      await runtime.recoverRestoredArtwork();
-      expect(runtime.handler, isNull);
-      expect(store.clears, 0);
-      expect(store.resumeReads, 0);
-    },
-  );
-
   test('a repeated Resume request cannot replace newer playback', () async {
     final entered = Completer<void>();
     final release = Completer<void>();
@@ -2285,7 +2246,7 @@ void main() {
       final volume = StreamController<double>.broadcast();
       addTearDown(volume.close);
       final runtime = _runtime(
-        settings: const AppSettings(playerMode: 'internal', pauseOnMute: true),
+        settings: const AppSettings(pauseOnMute: true),
         volumeChanges: volume.stream,
       );
       var warnings = 0;
@@ -2426,10 +2387,10 @@ void main() {
       expect(recorder.updates, beforeMetadata + 1);
       expect(recorder.latestTrack?.title, 'Revised');
       expect(recorder.latestTrack?.artist, 'Guest');
-      recorder.setEnabled(false);
+      await state(false, AudioProcessingState.ready);
       elapsed += const Duration(seconds: 25);
       await recorder.flush();
-      recorder.setEnabled(true);
+      await state(true, AudioProcessingState.ready);
       elapsed += const Duration(seconds: 5);
       await recorder.flush();
       handler.mediaItem.add(const MediaItem(id: 'two', title: 'Two'));

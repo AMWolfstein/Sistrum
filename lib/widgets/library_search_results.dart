@@ -2,6 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/controllers/clickable_metadata.dart';
+import 'package:sistrum/controllers/song_file.dart';
 import 'package:sistrum/controllers/local_track_batch_actions.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/unified_library_item.dart';
@@ -10,16 +11,13 @@ import 'package:sistrum/providers/library_lyrics_search_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/playback_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/screens/library_tracks_folder_screen.dart';
+import 'package:sistrum/screens/collection_detail_screen.dart';
 import 'package:sistrum/screens/local_album_screen.dart';
-import 'package:sistrum/screens/track_metadata_screen.dart';
 import 'package:sistrum/services/batch_track_actions.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/library_search.dart';
-import 'package:sistrum/services/playable_media.dart' show PlayableMedia;
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
-import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/widgets/app_choice_chip.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
@@ -31,29 +29,25 @@ import 'package:sistrum/widgets/library_selection_playback_actions.dart';
 import 'package:sistrum/widgets/queue_swipe.dart';
 import 'package:sistrum/widgets/selection_bottom_bar.dart';
 import 'package:sistrum/widgets/sliver_layout_info_builder.dart';
-import 'package:sistrum/widgets/song_row_tap.dart';
+import 'package:sistrum/models/track.dart';
+import 'package:sistrum/widgets/song_menu.dart';
 import 'package:sistrum/widgets/track_card.dart';
 import 'package:sistrum/widgets/app_icon_button.dart';
 import 'package:sistrum/widgets/app_loading_indicator.dart';
 
-/// Slivers shared by the Library and Songs screens.
-/// Only the current query's provider families are watched; late results from
-/// an earlier query cannot replace what the user is currently searching for.
+/// The Search tab's results. Only the current query's provider families are
+/// watched; late results from an earlier query cannot replace what the user
+/// is currently searching for.
 class LibrarySearchResults extends ConsumerStatefulWidget {
   const LibrarySearchResults({
     super.key,
     required this.query,
     required this.onOpenArtist,
     this.shelves = false,
-    this.songList,
   });
 
   final String query;
   final ValueChanged<String> onOpenArtist;
-
-  /// The Library list a played song continues into, from the song on, as a
-  /// tap in that list plays. Without it a song plays on its own.
-  final LibrarySongListRequest? songList;
 
   /// Groups the overview into artists, albums and
   /// playlists in rows of artwork that scroll sideways, songs as rows, and
@@ -190,15 +184,6 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
       onClose: _exitSelection,
       onToggleSelectAll: allSelected ? _exitSelection : _selectAllVisible,
       bottomPadding: MediaQuery.paddingOf(context).bottom,
-      onConvert: () => showBatchConvertSheet(
-        context,
-        ref,
-        items,
-        onExitSelectionMode: _finishSelectionAction,
-        onSheetOpen: _hideSelectionBar,
-        onSheetClosed: (_) =>
-            _restoreSelectionBar(delay: const Duration(milliseconds: 260)),
-      ),
       onReplayGain: ({required remove}) => runBatchReplayGain(
         context,
         items,
@@ -261,15 +246,8 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
         context,
         ref,
         items: items,
-        onPlay: () => _open(hit, play: true),
-        onOpenDetails: () => _open(hit),
+        onPlay: () => _open(hit),
         onDone: _exitSelection,
-        onConvert: () => showBatchConvertSheet(
-          context,
-          ref,
-          items,
-          onExitSelectionMode: _finishSelectionAction,
-        ),
         onDelete: () => deleteLibraryTracks(
           context,
           ref,
@@ -284,6 +262,14 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
     setState(() => _menuSelection = false);
     if (!chosen) _exitSelection();
   }
+
+  /// The icon each kind's filter chip shows, as on the online search page.
+  IconData _kindIcon(LibrarySearchKind kind) => switch (kind) {
+    LibrarySearchKind.songs => Icons.music_note_outlined,
+    LibrarySearchKind.albums => Icons.album_outlined,
+    LibrarySearchKind.artists => Icons.person_outline,
+    LibrarySearchKind.playlists => Icons.queue_music_outlined,
+  };
 
   String _label(LibrarySearchKind kind) => switch (kind) {
     LibrarySearchKind.songs => context.l10n.searchSongs,
@@ -304,7 +290,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
     _pages = 1;
   });
 
-  Future<void> _open(LibrarySearchHit hit, {bool play = false}) async {
+  Future<void> _open(LibrarySearchHit hit) async {
     FocusScope.of(context).unfocus();
     try {
       switch (hit.kind) {
@@ -313,17 +299,16 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
             librarySearchTrackProvider((source: hit.source, id: hit.id)).future,
           );
           if (!mounted || item == null) return;
-          if (!play) {
-            await prepareTrackDetailsCover(
-              context,
-              item.filePath,
-              fallback: item.localCoverPath ?? item.coverUrl,
-            );
-            if (!mounted) return;
-            await pushPage<void>(
-              context,
-              (_) => TrackMetadataScreen(localItem: item.localItem!),
-            );
+          if (!await songFileCanPlay(item.filePath)) {
+            if (mounted) {
+              await showSongMenu(
+                context,
+                ref,
+                track: item.toTrack(),
+                filePath: item.filePath,
+                localItem: item.localItem,
+              );
+            }
             return;
           }
           await _play(item);
@@ -332,10 +317,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
         case LibrarySearchKind.playlists:
           await pushPage<void>(
             context,
-            (_) => LibraryTracksFolderScreen(
-              mode: LibraryTracksFolderMode.playlist,
-              playlistId: hit.id,
-            ),
+            (_) => CollectionDetailScreen.playlist(playlistId: hit.id),
           );
         case LibrarySearchKind.albums:
           if (hit.source == 'local') {
@@ -361,40 +343,34 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
     }
   }
 
-  /// Plays [item] within [LibrarySearchResults.songList] when the Library
-  /// places it there, so playback runs on into the songs after it.
+  /// Plays [item] on its own.
   Future<void> _play(UnifiedLibraryItem item) async {
-    PlayableMedia media(UnifiedLibraryItem song) =>
-        playableFromLocal(song.localItem!);
-    final songList = widget.songList;
-    // A list that cannot be read leaves the song to play on its own.
-    final placed = songList == null
-        ? null
-        : await placeInLibrarySongList(
-            ref,
-            item,
-            songList,
-          ).catchError((Object _) => null);
-    if (!mounted) return;
-    final songs = placed == null
-        ? [item]
-        : placed.songs
-              .where(
-                (song) =>
-                    identical(song, placed.item) ||
-                    (song.filePath.trim().isNotEmpty &&
-                        !isCueVirtualPath(song.filePath)),
-              )
-              .toList(growable: false);
-    final start = placed == null ? 0 : songs.indexOf(placed.item);
-    await ref
-        .read(playbackProvider.notifier)
-        .playMediaQueue(
-          songs.map(media),
-          startIndex: start,
-          externalPath: media(item).source,
-        );
+    await ref.read(playbackProvider.notifier).playMediaQueue([
+      playableFromLocal(item.localItem!),
+    ], startIndex: 0);
   }
+
+  /// One section's rows in a single rounded card, as on the online search page.
+  Widget _card(List<LibrarySearchHit> hits) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16),
+    child: DecoratedBox(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Column(
+          children: [
+            for (var i = 0; i < hits.length; i++) ...[
+              if (i > 0) const Divider(height: 1, indent: 76, endIndent: 12),
+              _row(hits[i]),
+            ],
+          ],
+        ),
+      ),
+    ),
+  );
 
   Widget _row(LibrarySearchHit hit) {
     final icon = switch (hit.kind) {
@@ -405,6 +381,8 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
     };
     final subtitle = hit.kind == LibrarySearchKind.songs
         ? hit.artist
+        : hit.kind == LibrarySearchKind.artists
+        ? context.l10n.trackArtist
         : [
             if (hit.kind == LibrarySearchKind.albums) hit.artist,
             context.l10n.queueTrackCount(hit.trackCount),
@@ -422,7 +400,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
         ? () => ref
               .read(musicPlayerControllerProvider)
               .togglePlayPause(playback!.isPlaying)
-        : () => _open(hit, play: true);
+        : () => _open(hit);
     Widget card({MediaPlaybackUi? playback}) => TrackCard(
       key: playback == null ? key : null,
       style: TrackCardStyle.flat,
@@ -438,39 +416,36 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
         ),
       ),
       title: hit.title,
-      subtitle: Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis),
+      subtitle: Text(
+        subtitle,
+        maxLines: song ? 1 : 2,
+        overflow: TextOverflow.ellipsis,
+      ),
+      isExplicit: song && hit.explicit,
       isCurrent: playback?.isCurrent ?? false,
       isPlaying: playback?.isPlaying ?? false,
       leadingArtwork: song,
-      trailing: song
-          ? SongRowButton(
-              playButton: AppIconButton(
-                tooltip: playback?.isPlaying ?? false
-                    ? context.l10n.actionPause
-                    : context.l10n.tooltipPlay,
-                icon: Icon(
-                  playback?.isPlaying ?? false
-                      ? Icons.pause_rounded
-                      : Icons.play_arrow_rounded,
-                ),
-                onPressed: play(playback),
+      onPlay: song && !_selecting ? play(playback) : null,
+      menu: song
+          ? SongMenuButton(
+              track: Track(
+                id: hit.id,
+                name: hit.title,
+                artistName: hit.artist,
+                albumName: hit.album,
+                duration: 0,
               ),
-              onOpenDetails: () => _open(hit),
-              path: hit.samplePath,
+              filePath: hit.samplePath,
             )
-          : const Icon(Icons.chevron_right),
+          : null,
+      trailing: song ? null : const Icon(Icons.chevron_right),
       // Long-press selects songs for the Library batch actions; while
       // selecting, song taps toggle and other results stay inert.
       isSelectionMode: song && _selecting,
       isSelected: song && _selected.containsKey(_itemId(hit)),
       onTap: !_selecting
           ? song
-                ? songRowTap(
-                    ref,
-                    path: hit.samplePath,
-                    openDetails: () => _open(hit),
-                    play: play(playback),
-                  )
+                ? play(playback)
                 : () => _open(hit)
           : song
           ? () => _toggleSelection(hit)
@@ -529,10 +504,6 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
                   style: Theme.of(
                     context,
                   ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
-                ),
-                Icon(
-                  Icons.chevron_right,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ],
             ),
@@ -653,7 +624,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
                     if (song && !_selecting)
                       DesktopHoverPlayButton(
                         tooltip: context.l10n.tooltipPlay,
-                        onPlay: () => _open(hit, play: true),
+                        onPlay: () => _open(hit),
                       ),
                   ],
                 ),
@@ -782,17 +753,15 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
           child: Row(
             spacing: 8,
             children: [
-              if (!widget.shelves || _kind != null)
-                for (final kind in [null, ...LibrarySearchKind.values])
-                  AppChoiceChip(
-                    label: Text(
-                      kind == null
-                          ? context.l10n.historyFilterAll
-                          : _label(kind),
-                    ),
-                    selected: !_lyricsSearch && _kind == kind,
-                    onSelected: (_) => _select(kind),
+              for (final kind in [null, ...LibrarySearchKind.values])
+                AppChoiceChip(
+                  label: Text(
+                    kind == null ? context.l10n.historyFilterAll : _label(kind),
                   ),
+                  icon: kind == null ? null : Icon(_kindIcon(kind), size: 18),
+                  selected: !_lyricsSearch && _kind == kind,
+                  onSelected: (_) => _select(kind),
+                ),
               AppChoiceChip(
                 label: Text(context.l10n.trackLyrics),
                 selected: _lyricsSearch,
@@ -877,7 +846,7 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
         : LibrarySearchKind.values;
     for (final kind in kinds) {
       // In the cover layout songs take a shelf too, as every other kind.
-      final shelf = shelves && (cover || kind != LibrarySearchKind.songs);
+      final shelf = shelves && cover;
       // A filtered kind's pages fill one grid, so rows run on across pages.
       final grid = cover && _kind != null;
       final gridHits = <LibrarySearchHit>[];
@@ -948,6 +917,10 @@ class _LibrarySearchResultsState extends ConsumerState<LibrarySearchResults> {
               shelf
                   ? SliverToBoxAdapter(
                       child: _shelf(kind, hits.take(pageSize).toList()),
+                    )
+                  : shelves && _kind == null
+                  ? SliverToBoxAdapter(
+                      child: _card(hits.take(pageSize).toList()),
                     )
                   : SliverList.builder(
                       itemCount: hits.length.clamp(0, pageSize),

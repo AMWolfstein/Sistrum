@@ -422,8 +422,15 @@ class PlatformBridge {
     return _invokeMap('safStat', {'uri': uri});
   }
 
-  static Future<String?> copyContentUriToTemp(String uri) =>
-      _invokeAs('safCopyToTemp', {'uri': uri});
+  /// Null when the copy fails. With [reportFailure] a failure throws a
+  /// [PlatformException] that says why, instead of returning null.
+  static Future<String?> copyContentUriToTemp(
+    String uri, {
+    bool reportFailure = false,
+  }) => _invokeAs('safCopyToTemp', {
+    'uri': uri,
+    if (reportFailure) 'report_failure': true,
+  });
 
   static Future<ContentUriPlaybackLease?> openContentUriPlaybackLease(
     String uri,
@@ -495,27 +502,6 @@ class PlatformBridge {
     });
   }
 
-  static Future<Map<String, dynamic>> createUniqueSafFileFromPath({
-    required String treeUri,
-    required String relativeDir,
-    required String fileName,
-    required String mimeType,
-    required String srcPath,
-    String preservedSuffix = '',
-  }) {
-    return _invokeMap('safCreateUniqueFromPath', {
-      'tree_uri': treeUri,
-      'relative_dir': relativeDir,
-      'file_name': fileName,
-      'mime_type': mimeType,
-      'src_path': srcPath,
-      'preserved_suffix': preservedSuffix,
-    });
-  }
-
-  static Future<void> openContentUri(String uri, {String mimeType = ''}) =>
-      _invokeVoid('openContentUri', {'uri': uri, 'mime_type': mimeType});
-
   static Future<bool> shareContentUri(String uri, {String title = ''}) async =>
       await _invokeAs<bool?>('shareContentUri', {'uri': uri, 'title': title}) ??
       false;
@@ -554,18 +540,6 @@ class PlatformBridge {
     return _invokeMap('readFileMetadata', {
       'file_path': filePath,
       'display_name': ?displayName,
-    });
-  }
-
-  /// Runs the Rust Hi-Res check (spectral cutoff + padded bit depth) on
-  /// a FLAC or WAV file. Returns `{"supported": false}` for other formats.
-  static Future<Map<String, dynamic>> checkHiResAuthenticity(
-    String filePath, {
-    Map<String, dynamic>? options,
-  }) {
-    return _invokeMap('checkHiResAuthenticity', {
-      'file_path': filePath,
-      'options_json': options == null ? '' : jsonEncode(options),
     });
   }
 

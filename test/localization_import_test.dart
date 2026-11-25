@@ -20,31 +20,6 @@ void main() {
     );
   });
 
-  test(
-    'imported conversion labels keep format and quality arguments',
-    () async {
-      for (final locale in filteredSupportedLocales) {
-        final strings = await AppLocalizations.delegate.load(locale);
-        final lossless = strings.trackConvertActionLabelLossless(
-          'SOURCE_FORMAT',
-          'TARGET_FORMAT',
-          'QUALITY',
-        );
-        final lossy = strings.trackConvertActionLabelLossy(
-          'SOURCE_FORMAT',
-          'TARGET_FORMAT',
-          'BITRATE',
-        );
-        for (final value in ['SOURCE_FORMAT', 'TARGET_FORMAT', 'QUALITY']) {
-          expect(lossless, contains(value), reason: locale.toString());
-        }
-        for (final value in ['SOURCE_FORMAT', 'TARGET_FORMAT', 'BITRATE']) {
-          expect(lossy, contains(value), reason: locale.toString());
-        }
-      }
-    },
-  );
-
   test('duplicate warnings keep only the two count arguments', () async {
     for (final locale in filteredSupportedLocales) {
       final strings = await AppLocalizations.delegate.load(locale);

@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/models/unified_library_item.dart';
 import 'package:sistrum/providers/library_browse_provider.dart';
 import 'package:sistrum/providers/library_song_reads.dart';
-import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/services/sqlite_helpers.dart' show normalizeLookupText;
 import 'package:sistrum/utils/genre_tags.dart';
@@ -15,22 +14,18 @@ class _Genre {
 }
 
 /// The genres of [rows] from [LibraryDatabase.getGenreSpellings], by key.
-/// A tag that lists several genres ([splitGenreTag], with the user's genre
-/// [separator]) counts its songs under each. Every genre takes its most
-/// common spelling and the cover of the first tag that has one.
+/// A tag that lists several genres ([splitGenreTag]) counts its songs under
+/// each. Every genre takes its most common spelling and the cover of the first
+/// tag that has one.
 List<LibraryBrowseEntry> libraryGenresFromRows(
-  Iterable<Map<String, Object?>> rows, {
-  String separator = '',
-}) {
+  Iterable<Map<String, Object?>> rows,
+) {
   final genres = <String, _Genre>{};
   for (final row in rows) {
     final cover = row['cover_path'] as String? ?? row['cover_url'] as String?;
     final samplePath = row['sample_file_path'] as String? ?? '';
     final count = (row['track_count'] as num?)?.toInt() ?? 0;
-    final names = splitGenreTag(
-      row['genre_name'] as String?,
-      separator: separator,
-    );
+    final names = splitGenreTag(row['genre_name'] as String?);
     for (final name in names) {
       final genre = genres.putIfAbsent(normalizeLookupText(name), _Genre.new);
       genre.spellings.update(name, (n) => n + count, ifAbsent: () => count);
@@ -65,17 +60,13 @@ List<LibraryBrowseEntry> libraryGenresFromRows(
 /// For each genre key of [libraryGenresFromRows], the genre tags of [rows]
 /// that list it, as the database compares them.
 Map<String, List<String>> libraryGenreTagsFromRows(
-  Iterable<Map<String, Object?>> rows, {
-  String separator = '',
-}) {
+  Iterable<Map<String, Object?>> rows,
+) {
   final tags = <String, Set<String>>{};
   for (final row in rows) {
     final tag = row['genre_key'] as String? ?? '';
     if (tag.isEmpty) continue;
-    final names = splitGenreTag(
-      row['genre_name'] as String?,
-      separator: separator,
-    );
+    final names = splitGenreTag(row['genre_name'] as String?);
     for (final name in names) {
       tags.putIfAbsent(normalizeLookupText(name), () => {}).add(tag);
     }
@@ -93,16 +84,11 @@ final _libraryGenreRowsProvider =
       );
     });
 
-String _watchSeparator(Ref ref) =>
-    ref.watch(settingsProvider.select((s) => s.metadataSeparators.genre));
-
 /// The Library's genres by name.
 final libraryGenresProvider =
     FutureProvider.autoDispose<List<LibraryBrowseEntry>>((ref) async {
-      final separator = _watchSeparator(ref);
       return libraryGenresFromRows(
         await ref.watch(_libraryGenreRowsProvider.future),
-        separator: separator,
       );
     });
 
@@ -111,10 +97,8 @@ final libraryGenresProvider =
 final libraryGenreSongsProvider = FutureProvider.autoDispose
     .family<List<UnifiedLibraryItem>, String>((ref, genre) async {
       final includeLocal = watchLibrarySongs(ref);
-      final separator = _watchSeparator(ref);
       final tags = libraryGenreTagsFromRows(
         await ref.watch(_libraryGenreRowsProvider.future),
-        separator: separator,
       )[genre];
       if (tags == null) return const [];
       return readLibrarySongs(includeLocal: includeLocal, genreTags: tags);

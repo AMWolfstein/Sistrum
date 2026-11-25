@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 import 'package:sistrum/services/audio_file_open_service.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
@@ -103,9 +105,6 @@ void main() {
           '${await rootBundle.loadString('COPYING')}',
         );
         yield LicenseEntryWithLineBreaks(const [
-          'Inter',
-        ], await rootBundle.loadString('assets/fonts/Inter-LICENSE.txt'));
-        yield LicenseEntryWithLineBreaks(const [
           'Material Color Utilities (native palette)',
           'Dart SDK (native Random compatibility)',
         ], await rootBundle.loadString('assets/licenses/native_palette.txt'));
@@ -161,6 +160,7 @@ void main() {
       if (await _prepareAndroidInstallationState(prefs)) {
         bootstrapSettings = loadBootstrapSettings(prefs);
       }
+      await _initializeNativeBackend();
       musicPlayerRuntime.configure(bootstrapSettings);
       if (isDesktopPlatform) restoreDesktopSidebar(prefs);
       final bootstrapTheme = loadBootstrapThemeSettings(prefs);
@@ -250,6 +250,31 @@ Future<void> _initializeOrientation() async {
 }
 
 const _runtimeProfileTierKey = 'runtime_profile_tier_v1';
+
+// The backend only compares this with the storage it was first opened on, so
+// it is not a secret and needs no secure storage.
+const _nativeStorageKey = 'sistrum-local-storage';
+
+/// The native backend serves temporary copies of SAF files, data jobs and
+/// memory release only once it owns its private storage. Without this call
+/// each of them fails with "Rust backend is not initialized".
+Future<void> _initializeNativeBackend() async {
+  if (!Platform.isAndroid) return;
+  try {
+    final support = await getApplicationSupportDirectory();
+    final extensions = Directory(p.join(support.path, 'extensions'));
+    final data = Directory(p.join(support.path, 'extension_data'));
+    await extensions.create(recursive: true);
+    await data.create(recursive: true);
+    await PlatformBridge.initExtensionSystem(
+      extensions.path,
+      data.path,
+      masterKey: _nativeStorageKey,
+    );
+  } catch (e) {
+    _log.e('Failed to initialize the native backend: $e');
+  }
+}
 
 /// Returns whether a restored-installation reset started, which may have
 /// rewritten the stored settings.

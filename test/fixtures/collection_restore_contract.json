@@ -1,13 +1,13 @@
 {
   "now": "2026-10-07T05:00:00.000",
   "input": {
-    "wishlist": [
+    "loved": [
       {"key":"example:1","track":{"id":"1","name":"音楽 🎵","extra":[1,true,null]},"addedAt":"2026-10-01"},
       null,
       {"key":"","track":{}},
-      {"key":"skipped","track":null}
+      {"key":"skipped","track":null},
+      {"key":"example:2","track":{"id":"2"}}
     ],
-    "loved": [{"key":"example:2","track":{"id":"2"}}],
     "favoriteArtists": [{"key":"example:artist","name":"İstanbul","extra":true}],
     "playlists": [
       {"id":"p","name":"old","tracks":[{"key":"old","track":{"id":"old"}}]},
@@ -19,7 +19,7 @@
     ]
   },
   "commands": [
-    {"kind":"wishlist","values":{"track_key":"example:1","track_json":"{\"id\":\"1\",\"name\":\"音楽 🎵\",\"extra\":[1,true,null]}","added_at":"2026-10-01"}},
+    {"kind":"loved","values":{"track_key":"example:1","track_json":"{\"id\":\"1\",\"name\":\"音楽 🎵\",\"extra\":[1,true,null]}","added_at":"2026-10-01"}},
     {"kind":"loved","values":{"track_key":"example:2","track_json":"{\"id\":\"2\"}","added_at":"2026-10-07T05:00:00.000"}},
     {"kind":"artist","values":{"artist_key":"example:artist","artist_json":"{\"key\":\"example:artist\",\"name\":\"İstanbul\",\"extra\":true}","added_at":"2026-10-07T05:00:00.000"}},
     {"kind":"playlist","values":{"id":"p","name":"old","cover_image_path":null,"created_at":"2026-10-07T05:00:00.000","updated_at":"2026-10-07T05:00:00.000"}},

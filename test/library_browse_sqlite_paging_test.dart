@@ -35,8 +35,6 @@ void main() {
       const request = (
         artists: false,
         sort: 'a-z',
-        search: '',
-        artist: null,
         completeness: null,
         limit: 40,
       );
@@ -75,14 +73,7 @@ void main() {
       (container.read(localLibraryProvider.notifier) as _Local).revise();
       final refreshed = await container.read(provider.future);
       final expected = await readLibraryPagingFixture(store, (
-        browse: (
-          artists: false,
-          sort: 'a-z',
-          search: '',
-          artist: null,
-          completeness: null,
-          limit: 2000,
-        ),
+        browse: (artists: false, sort: 'a-z', completeness: null, limit: 2000),
         offset: 0,
         cursor: null,
         includeLocal: true,
@@ -121,61 +112,19 @@ void main() {
     '1000 albums preserve source ties, dedup, filters and order on paging',
     () async {
       for (final scenario in [
-        (
-          artists: false,
-          sort: 'a-z',
-          search: '',
-          artist: null,
-          completeness: null,
-        ),
+        (artists: false, sort: 'a-z', completeness: null),
+        (artists: false, sort: 'latest', completeness: null),
+        (artists: true, sort: 'a-z', completeness: null),
+        (artists: false, sort: 'a-z', completeness: incompleteAlbumFilter),
         (
           artists: false,
           sort: 'latest',
-          search: '',
-          artist: null,
-          completeness: null,
-        ),
-        (
-          artists: true,
-          sort: 'a-z',
-          search: '',
-          artist: null,
-          completeness: null,
-        ),
-        (
-          artists: false,
-          sort: 'a-z',
-          search: 'Album 00',
-          artist: null,
-          completeness: null,
-        ),
-        (
-          artists: false,
-          sort: 'latest',
-          search: '',
-          artist: 'Artist 0001',
-          completeness: null,
-        ),
-        (
-          artists: false,
-          sort: 'a-z',
-          search: '',
-          artist: null,
-          completeness: incompleteAlbumFilter,
-        ),
-        (
-          artists: false,
-          sort: 'latest',
-          search: 'Album',
-          artist: null,
           completeness: unknownAlbumCompletenessFilter,
         ),
       ]) {
         final request = (
           artists: scenario.artists,
           sort: scenario.sort,
-          search: scenario.search,
-          artist: scenario.artist,
           completeness: scenario.completeness,
           limit: 40,
         );
@@ -211,8 +160,6 @@ void main() {
             browse: (
               artists: request.artists,
               sort: request.sort,
-              search: request.search,
-              artist: request.artist,
               completeness: request.completeness,
               limit: 2000,
             ),
@@ -238,17 +185,13 @@ void main() {
             true,
             reason: 'mirrors and unavailable source must not increase counts',
           );
-          if (!request.artists &&
-              request.search.isEmpty &&
-              request.artist == null &&
-              request.completeness == null) {
+          if (!request.artists && request.completeness == null) {
             expect(actual, hasLength(1000));
             expect(reads.skip(1).every((page) => page.cursor != null), true);
           }
           reads.clear();
           returned = 0;
-          (container.read(localLibraryProvider.notifier) as _Local)
-              .revise();
+          (container.read(localLibraryProvider.notifier) as _Local).revise();
           final refreshed = await container.read(provider.future);
           expect(
             libraryPagingIdentities(refreshed.entries),

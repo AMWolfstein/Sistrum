@@ -42,7 +42,6 @@ void main() {
     expect(await prepareCollectionRestoreCommands({}, 'now'), isEmpty);
     expect(
       await prepareCollectionRestoreCommands({
-        'wishlist': false,
         'loved': <String, dynamic>{},
         'playlists': [
           null,
@@ -61,7 +60,7 @@ void main() {
     () async {
       for (final input in <Map<String, dynamic>>[
         {
-          'wishlist': [
+          'loved': [
             {'key': 7, 'track': <String, dynamic>{}},
           ],
         },

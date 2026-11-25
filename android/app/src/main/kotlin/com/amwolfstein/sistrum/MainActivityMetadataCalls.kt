@@ -32,25 +32,6 @@ internal suspend fun Context.handleReadFileMetadata(
     result.success(response)
 }
 
-internal suspend fun MainActivity.handleCheckHiResAuthenticity(call: MethodCall, result: MethodChannel.Result) {
-    val filePath = call.argument<String>("file_path") ?: ""
-    val optionsJson = call.argument<String>("options_json") ?: ""
-    val response = withContext(Dispatchers.IO) {
-        try {
-            if (filePath.startsWith("content://")) {
-                checkHiResAuthenticityFromUri(coreBackend, Uri.parse(filePath), optionsJson)
-                    ?.toString()
-                    ?: errorJson("Failed to read SAF audio file")
-            } else {
-                coreBackend.checkHiResAuthenticity(filePath, optionsJson)
-            }
-        } catch (e: Exception) {
-            errorJson(e.message ?: "Hi-Res check failed")
-        }
-    }
-    result.success(response)
-}
-
 internal suspend fun MainActivity.handleEditFileMetadata(call: MethodCall, result: MethodChannel.Result) {
     val filePath = call.argument<String>("file_path") ?: ""
     val metadataJson = call.argument<String>("metadata_json") ?: "{}"

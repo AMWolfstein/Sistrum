@@ -17,8 +17,6 @@ void main() {
   test('featured variants and confirmed conjunction credits are clickable', () {
     expect(splitArtistNames('One featured Two'), ['One', 'Two']);
     expect(splitArtistNames('One feature Two'), ['One', 'Two']);
-    expect(primaryArtistTagValue('One featured Two'), 'One');
-    expect(primaryArtistTagValue('One feature Two'), 'One');
     expect(splitArtistNames('One and Two', creditedArtistCount: 2), [
       'One',
       'Two',

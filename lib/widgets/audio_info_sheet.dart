@@ -23,7 +23,6 @@ import 'package:sistrum/utils/usb_output_status_label.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/audio_analysis_widget.dart';
 import 'package:sistrum/widgets/settings_group.dart';
-import 'package:sistrum/widgets/hires_check_card.dart';
 
 /// Technical details of the playing track, from the file through the
 /// processing chain to the output device.
@@ -218,10 +217,6 @@ class _AudioInfoSheetState extends State<_AudioInfoSheet>
                 child: Column(
                   children: [
                     AudioAnalysisCard(filePath: path, codecHint: format),
-                    if (HiResCheckCard.isCandidate(path, format)) ...[
-                      SizedBox(height: context.tokens.gapLg),
-                      HiResCheckCard(filePath: path, formatHint: format),
-                    ],
                   ],
                 ),
               ),
@@ -268,7 +263,7 @@ class _AudioInfoSheetState extends State<_AudioInfoSheet>
 }
 
 /// Mornye sheets are glass, so a settings cell color would vanish into them;
-/// rows use the translucent control fill, like the track details page.
+/// rows use the translucent control fill.
 class _FactGroup extends StatelessWidget {
   const _FactGroup({required this.children});
 

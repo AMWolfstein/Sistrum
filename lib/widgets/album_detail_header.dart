@@ -201,7 +201,7 @@ class AlbumDetailHeader extends StatelessWidget {
       leadingWidth: kToolbarHeight + edgeInset,
       leading: back,
       actionsPadding: EdgeInsetsDirectional.only(end: edgeInset),
-      actions: appBarActions,
+      actions: _pillActions(appBarActions),
     );
     if (immersive) {
       final detailsTop = (artworkSize - 20).clamp(0.0, double.infinity);
@@ -536,7 +536,7 @@ class AlbumDetailHeader extends StatelessWidget {
             ),
       ),
       actionsPadding: EdgeInsetsDirectional.only(end: iosEdgeInset),
-      actions: appBarActions,
+      actions: _pillActions(appBarActions),
     );
   }
 }
@@ -553,6 +553,15 @@ class HeaderActionGroup extends InheritedWidget {
   bool updateShouldNotify(HeaderActionGroup oldWidget) => false;
 }
 
+/// The diameter of a header's round button, in dp.
+const kHeaderButtonSize = 40.0;
+
+/// Two or more trailing header icons share one glass pill; one stays alone.
+List<Widget>? _pillActions(List<Widget>? actions) =>
+    actions != null && actions.length > 1
+    ? [MornyeActionCapsule(children: actions)]
+    : actions;
+
 /// Mornye page actions grouped in one glass capsule.
 class MornyeActionCapsule extends ConsumerWidget {
   const MornyeActionCapsule({super.key, required this.children});
@@ -563,7 +572,7 @@ class MornyeActionCapsule extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final dark = Theme.of(context).brightness == Brightness.dark;
     // Level with the round back button beside it.
-    const radius = 22.0;
+    const radius = kHeaderButtonSize / 2;
     return Center(
       widthFactor: 1,
       child: MornyeGlassPress(
@@ -672,6 +681,8 @@ class AlbumPlayActions extends StatelessWidget {
     this.isPlaying = false,
     this.onAddToPlaylist,
     this.onDownload,
+    this.isLoved = false,
+    this.onLove,
   });
 
   final String playLabel;
@@ -680,19 +691,37 @@ class AlbumPlayActions extends StatelessWidget {
   final VoidCallback onShuffle;
   final bool isPlaying;
 
-  /// Desktop only: a round "+" after Play that adds the songs to a playlist.
+  /// A round "+" that adds the songs to a playlist: after Play on desktop, at
+  /// the row's end on phones.
   final VoidCallback? onAddToPlaylist;
   final VoidCallback? onDownload;
+
+  /// A round heart at the row's start on phones (and before Shuffle on
+  /// desktop): filled while [isLoved], and tapping it runs [onLove].
+  final bool isLoved;
+  final VoidCallback? onLove;
 
   @override
   Widget build(BuildContext context) {
     if (isDesktopPlatform) return _buildDesktop(context);
+    final l10n = context.l10n;
     return Row(
       children: [
+        if (onLove != null) ...[
+          _glassCircle(
+            context,
+            icon: isLoved ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
+            tooltip: isLoved
+                ? l10n.trackOptionRemoveFromLoved
+                : l10n.tooltipLoveAll,
+            onPressed: onLove,
+          ),
+          const SizedBox(width: 8),
+        ],
         if (onDownload != null) ...[
           HeaderCircleButton(
             icon: Icons.download_for_offline_outlined,
-            tooltip: context.l10n.offlineSave,
+            tooltip: l10n.offlineSave,
             onPressed: onDownload,
           ),
           const SizedBox(width: 12),
@@ -714,9 +743,46 @@ class AlbumPlayActions extends StatelessWidget {
             onPressed: onShuffle,
           ),
         ),
+        if (onAddToPlaylist != null) ...[
+          const SizedBox(width: 8),
+          _glassCircle(
+            context,
+            icon: CupertinoIcons.add,
+            tooltip: l10n.collectionAddToPlaylist,
+            onPressed: onAddToPlaylist,
+          ),
+        ],
       ],
     );
   }
+
+  /// The phone row's round glass buttons, sized and tinted like the artist
+  /// page's Shuffle and favourite circles.
+  Widget _glassCircle(
+    BuildContext context, {
+    required IconData icon,
+    required String tooltip,
+    required VoidCallback? onPressed,
+  }) => HeaderCircleButton(
+    icon: icon,
+    tooltip: tooltip,
+    buttonSize: 50,
+    iconSize: 24,
+    iconColor: Theme.of(context).colorScheme.primary,
+    glassTintColor: Colors.white,
+    glassTintOpacity: 0.10,
+    onPressed: onPressed,
+  );
+
+  HeaderCircleButton _loveButton(BuildContext context) => HeaderCircleButton(
+    icon: isLoved ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
+    tooltip: isLoved
+        ? context.l10n.trackOptionRemoveFromLoved
+        : context.l10n.tooltipLoveAll,
+    buttonSize: 46,
+    tonal: !isLoved,
+    onPressed: onLove,
+  );
 
   /// Shuffle, Play and "+" at their own widths along the artwork's bottom
   /// edge: round gray buttons around the Play capsule.
@@ -732,6 +798,7 @@ class AlbumPlayActions extends StatelessWidget {
             tooltip: context.l10n.offlineSave,
             onPressed: onDownload,
           ),
+        if (onLove != null) _loveButton(context),
         HeaderCircleButton(
           icon: CupertinoIcons.shuffle,
           tooltip: shuffleTooltip,
@@ -797,7 +864,7 @@ class HeaderCircleButton extends ConsumerWidget {
     this.glassTintColor,
     this.glassTintOpacity,
     this.buttonSize,
-    this.iconSize = 22,
+    this.iconSize = 20,
   });
 
   final IconData icon;
@@ -825,7 +892,7 @@ class HeaderCircleButton extends ConsumerWidget {
     final toolbarGlass = !tonal;
     final buttonSize =
         this.buttonSize ?? (desktop ? (tonal ? 36.0 : 44.0) : null);
-    final iconSize = desktop && this.iconSize == 22 && !toolbarGlass
+    final iconSize = desktop && this.iconSize == 20 && !toolbarGlass
         ? 18.0
         : this.iconSize;
     if (HeaderActionGroup.of(context)) {
@@ -836,11 +903,11 @@ class HeaderCircleButton extends ConsumerWidget {
         style: IconButton.styleFrom(
           // Pointer controls use a compact width within the shared capsule.
           minimumSize: desktop
-              ? Size(42, buttonSize ?? 44)
-              : Size.square(buttonSize ?? 44),
+              ? Size(42, buttonSize ?? kHeaderButtonSize)
+              : Size.square(buttonSize ?? kHeaderButtonSize),
           padding: desktop ? EdgeInsets.zero : null,
           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          foregroundColor: iconColor ?? scheme.onSurface,
+          foregroundColor: iconColor ?? scheme.primary,
         ),
       );
     }
@@ -848,14 +915,16 @@ class HeaderCircleButton extends ConsumerWidget {
       return Tooltip(
         message: tooltip,
         child: SizedBox.square(
-          dimension: buttonSize ?? 44,
+          dimension: buttonSize ?? kHeaderButtonSize,
           child: MornyeGlassPress(
-            radius: (buttonSize ?? 44) / 2,
+            radius: (buttonSize ?? kHeaderButtonSize) / 2,
             enabled: onPressed != null,
             child: CupertinoButton(
               padding: EdgeInsets.zero,
-              minimumSize: Size.square(buttonSize ?? 44),
-              borderRadius: BorderRadius.circular((buttonSize ?? 48) / 2),
+              minimumSize: Size.square(buttonSize ?? kHeaderButtonSize),
+              borderRadius: BorderRadius.circular(
+                (buttonSize ?? kHeaderButtonSize) / 2,
+              ),
               color: scheme.onSurface.withValues(
                 alpha: scheme.brightness == Brightness.dark ? 0.10 : 0.06,
               ),
@@ -878,19 +947,19 @@ class HeaderCircleButton extends ConsumerWidget {
       tooltip: tooltip,
       icon: AppIcon(mornyeIconFor(icon), size: iconSize),
       style: IconButton.styleFrom(
-        minimumSize: Size.square(buttonSize ?? 44),
+        minimumSize: Size.square(buttonSize ?? kHeaderButtonSize),
         // Keep the glass circle at the button's size for the pointer.
         tapTargetSize: desktop ? MaterialTapTargetSize.shrinkWrap : null,
-        foregroundColor: iconColor ?? scheme.onSurface,
+        foregroundColor: iconColor ?? scheme.primary,
       ),
     );
     return Center(
       widthFactor: 1,
       child: MornyeGlassPress(
-        radius: (buttonSize ?? 48) / 2,
+        radius: (buttonSize ?? kHeaderButtonSize) / 2,
         enabled: onPressed != null,
         child: MornyeGlass.navigation(
-          radius: (buttonSize ?? 48) / 2,
+          radius: (buttonSize ?? kHeaderButtonSize) / 2,
           tintColor:
               glassTintColor ??
               (scheme.brightness == Brightness.dark

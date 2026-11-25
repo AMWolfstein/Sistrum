@@ -30,24 +30,6 @@ void main() {
     });
   }
 
-  test('keeps the native logging controls on the existing channel', () async {
-    final calls = <MethodCall>[];
-    messenger.setMockMethodCallHandler(channel, (call) async {
-      calls.add(call);
-      return null;
-    });
-    await source.setLoggingEnabled(true);
-    await source.setLoggingEnabled(false);
-    await source.clear();
-    expect(calls.map((call) => call.method), [
-      'setLoggingEnabled',
-      'setLoggingEnabled',
-      'clearLogs',
-    ]);
-    expect(calls[0].arguments, {'enabled': true});
-    expect(calls[1].arguments, {'enabled': false});
-  });
-
   test('reports malformed batches instead of silently losing logs', () async {
     messenger.setMockMethodCallHandler(channel, (_) async => '[]');
     await expectLater(source.getSince(0), throwsFormatException);

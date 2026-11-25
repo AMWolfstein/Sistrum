@@ -15,8 +15,6 @@ the project.
 - Never commit credentials, signing files, downloaded media, or generated build
   artifacts.
 
-Translations are managed through the
-[Sistrum Crowdin project](https://crowdin.com/project/mornye).
 The English source strings live in `lib/l10n/arb/app_en.arb`.
 
 ## Toolchain
@@ -253,7 +251,7 @@ Kotlin files in the Android folders above.
 | Local library scan | `providers/local_library_provider.dart` and its `local_library_provider_*.dart` parts, `services/library_database.dart` | `extensions/src/backend/library/scan.rs`, `mobile/src/tags.rs`, `mobile/src/native_library.rs` | `MainActivityLibraryScanCalls.kt`; SAF trees in `MainActivitySafScan.kt` and the `Saf*.kt` files |
 | Playback and queue | `providers/playback_provider.dart`, `providers/music_player_provider.dart`, `services/music_player_service.dart` (automix and autoplay parts), `services/music_player_runtime.dart`, `services/music_playback_deck.dart` | AutoMix analysis: `core/src/native_audio_analysis.rs` via `mobile/src/data_jobs.rs` | `UsbBitPerfectPlugin.kt`; forks in `third_party/audio_service`, `third_party/audioplayers_android` |
 | Lyrics | `utils/lyrics_parser.dart`, `utils/lyrics_metadata_helper.dart`, `controllers/player_metadata_controller.dart` | `providers/src/lyrics/`, `core/src/lyrics/`, `extensions/src/lyrics.rs`, `mobile/src/lyrics.rs`, `mobile/src/native_lyrics.rs` | `SelectedCoreBackend.kt` |
-| Metadata editing and conversion | `controllers/metadata_editor_controller.dart`, `screens/track_metadata_edit_sheet.dart`, `screens/track_metadata_convert.dart`, `services/ffmpeg_service.dart` (FFmpeg Kit through `services/ffmpeg_support.dart`) | `core/src/tags/`, `extensions/src/backend/tags.rs`, `mobile/src/tags.rs` | `MainActivityMetadataCalls.kt` |
+| Metadata editing | `controllers/metadata_editor_controller.dart`, `screens/track_metadata_edit_sheet.dart`, `services/ffmpeg_service.dart` (FFmpeg Kit through `services/ffmpeg_support.dart`) | `core/src/tags/`, `extensions/src/backend/tags.rs`, `mobile/src/tags.rs` | `MainActivityMetadataCalls.kt` |
 | Extensions and repository | `providers/extension_provider.dart`, `providers/repo_provider.dart`, `models/extension.dart`, `screens/settings/extensions_page.dart`, `screens/repo_tab.dart` | `extensions/src/manifest.rs`, `extensions/src/runtime.rs`, `extensions/src/manager/`, `extensions/src/repository/`, `mobile/src/extensions.rs`, `mobile/src/repository.rs` | `RustCoreBackendApplication.kt`, `ExtensionAuthCallbacks.kt`, `MainActivityExtensionIntents.kt` |
 | Settings | `providers/settings_provider.dart`, `models/settings.dart`, `screens/settings/`, `utils/settings_search_catalog.dart` | none; values the backend needs are pushed by the `_sync*ToBackend` methods of `SettingsNotifier` | none |
 | Statistics and Rewind | `providers/listening_statistics_provider.dart`, `services/listening_statistics.dart`, `providers/listening_rewind_provider.dart`, `services/listening_rewind.dart` | none | none |
@@ -307,9 +305,7 @@ in `handleDownloadByStrategy`.
 ### Playback
 
 1. A screen calls `PlaybackController` (`lib/providers/playback_provider.dart`),
-   for example `playTrackList` from `library_tracks_folder_screen.dart`. When
-   `playerMode` is not `internal` and the source is not `network://`, it opens
-   the file in an external app instead.
+   for example `playTrackList` from `collection_detail_screen.dart`.
 2. `MusicPlayerController.playAll` (`lib/providers/music_player_provider.dart`)
    calls `ensureInitialized`, which runs `MusicPlayerRuntime.initialize`
    (`lib/services/music_player_runtime.dart`),

@@ -13,7 +13,7 @@ final _log = AppLogger('LibraryDatabase');
 
 /// Schema lifecycle is independent of collection reads and scan transactions.
 abstract final class LibrarySchema {
-  static const version = 22;
+  static const version = 23;
   static const visibleView = 'library_visible';
   static const searchFtsTable = 'library_search_fts';
   static const lookupSummaryTable = 'library_lookup_summary';
@@ -212,6 +212,22 @@ abstract final class LibrarySchema {
     if (oldVersion < 22) {
       await sqlite.backfillPathKeys(db, 'library', 'library_path_keys');
       await _createVisibleView(db);
+    }
+    if (oldVersion < 23) {
+      // The explicit column already existed (v12). The flag is read from MP4
+      // rtng 1 or 4, ID3 TXXX ITUNESADVISORY/EXPLICIT and Vorbis
+      // ITUNESADVISORY/EXPLICIT (not RATING). This only lowers the audio scan
+      // version of local rows in those containers so the next scan re-reads
+      // them and fills the flag; lyrics knowledge is kept as in v20.
+      const extensions = ['m4a', 'mp4', 'aac', 'mp3', 'flac', 'opus', 'ogg'];
+      await db.rawUpdate(
+        'UPDATE library SET audio_metadata_scan_version = ? '
+        'WHERE audio_metadata_scan_version >= ? '
+        "AND file_path NOT LIKE 'network://%' "
+        "AND (LOWER(format) IN ('m4a', 'alac', 'aac', 'mp3', 'flac', 'opus', 'ogg', 'vorbis') "
+        '${extensions.map((ext) => "OR LOWER(file_path) LIKE '%.$ext'").join(' ')})',
+        [libraryLyricsMetadataScanVersion, libraryAudioMetadataScanVersion],
+      );
     }
   }
 

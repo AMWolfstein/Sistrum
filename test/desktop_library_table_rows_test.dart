@@ -27,12 +27,7 @@ const _songCount = 3000;
 
 class _Settings extends SettingsNotifier {
   @override
-  AppSettings build() => const AppSettings(
-    defaultLibraryView: 'all',
-    historyFilterMode: 'all',
-    historyViewMode: 'list',
-    listeningStatisticsEnabled: false,
-  );
+  AppSettings build() => const AppSettings();
 }
 
 class _Local extends LocalLibraryNotifier {
@@ -251,9 +246,6 @@ void main() {
       await _settle(tester);
     }
 
-    ProviderContainer container(WidgetTester tester) =>
-        ProviderScope.containerOf(tester.element(find.byType(QueueTab)));
-
     testWidgets('a click, a resize and playback keep every loaded row', (
       tester,
     ) async {
@@ -331,27 +323,14 @@ void main() {
       expect(find.text('Song 1'), findsOneWidget);
     });
 
-    testWidgets('the quality label setting and the theme rebuild every row', (
-      tester,
-    ) async {
+    testWidgets('the theme rebuilds every row', (tester) async {
       await pumpLibrary(tester);
       await loadRows(tester, _songCount);
       final rows = _tableRows(tester);
-      expect(find.text('24-bit'), findsWidgets);
-
-      container(tester)
-          .read(settingsProvider.notifier)
-          .setLibraryQualityLabelMode(AppSettings.libraryQualityLabelBitDepth);
-      await _settle(tester);
-      final relabeled = _tableRows(tester);
-      expect(_rebuiltRows(rows, relabeled), _songCount);
-      expect(relabeled.map((row) => row.quality).toSet(), {'24-bit/96kHz'});
-      expect(find.text('24-bit/96kHz'), findsWidgets);
-      expect(find.text('24-bit'), findsNothing);
 
       themeMode.value = ThemeMode.dark;
       await _settle(tester);
-      expect(_rebuiltRows(relabeled, _tableRows(tester)), _songCount);
+      expect(_rebuiltRows(rows, _tableRows(tester)), _songCount);
     });
   });
 }

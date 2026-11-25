@@ -1,7 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:sistrum/models/automix_options.dart';
-import 'package:sistrum/models/metadata_separators.dart';
-import 'package:sistrum/utils/artist_utils.dart';
 
 part 'settings.g.dart';
 
@@ -103,7 +101,6 @@ String librarySortModeFromJson(Object? value) =>
 String libraryAlbumSortModeFromJson(Object? value) =>
     const [
       'a-z',
-      'latest',
       'size-desc',
       'size-asc',
       'year-asc',
@@ -120,29 +117,12 @@ Object? readLyricsRomanize(Map<dynamic, dynamic> json, String key) =>
 @JsonSerializable(explicitToJson: true)
 class AppSettings {
   static const String homeFeedProviderOff = '__off__';
-  static const String libraryQualityLabelBitrate = 'bitrate';
-  static const String libraryQualityLabelFileFormat = 'file_format';
-  static const String libraryQualityLabelBitDepthOnly = 'bit_depth_only';
-  static const String libraryQualityLabelBitDepth = 'bit_depth';
-  static const String libraryQualityLabelBitDepthBitrate = 'bit_depth_bitrate';
-  static const String librarySongTapPlay = 'play';
-  static const String librarySongTapDetails = 'details';
-
   final String audioQuality;
   final String downloadDirectory;
   final String downloadDirectoryBookmark;
   final String storageMode; // 'app' or 'saf'
   final String downloadTreeUri; // SAF persistable tree URI
-  final bool embedMetadata;
-
-  /// Maximum width or height of remotely fetched artwork before embedding.
-  /// Zero preserves the provider's original image.
-  final int embeddedCoverMaxDimension;
-  final String
-  artistTagMode; // 'joined', 'split_vorbis' (Vorbis formats), or 'primary'
-  final MetadataSeparators metadataSeparators;
   final bool embedLyrics;
-  final bool embedReplayGain;
   // Apply ReplayGain/R128 tags as volume normalization in the built-in player.
   final bool playbackNormalization;
   @JsonKey(fromJson: playbackNormalizationPreampFromJson)
@@ -258,34 +238,14 @@ class AppSettings {
   /// The default keeps playback controls available to assistive navigation.
   final bool autoHideLyricsControlsWithAccessibility;
   final bool isFirstLaunch;
-  final String historyViewMode;
-  final String historyFilterMode;
   @JsonKey(fromJson: librarySortModeFromJson)
   final String historySortMode;
   @JsonKey(fromJson: libraryAlbumSortModeFromJson)
   final String libraryAlbumSortMode;
 
-  /// A Library artist opens on all their songs instead of their albums:
-  /// the view chosen last on an artist.
-  final bool libraryArtistShowsSongs;
-
-  /// Library view opened when switching to the Library tab:
-  /// 'last' (keep last used), 'all', 'albums', 'singles', or 'playlists'.
-  final String defaultLibraryView;
-
-  /// Library badge text: measured bitrate, file format, bit depth,
-  /// bit depth/sample rate, or the combined bit depth/bitrate label.
-  final String libraryQualityLabelMode;
-
   /// Phones and tablets: a horizontal swipe on a song row plays it next or
   /// adds it to the queue.
   final bool swipeToQueue;
-
-  /// What a tap on a Library song row with a play button does:
-  /// [librarySongTapDetails], the default, opens its details and the button
-  /// plays; [librarySongTapPlay] plays it and the button opens its details.
-  final String librarySongTap;
-  final bool enableLogging;
 
   /// Search results on wide screens: 'list' keeps the phone rows, 'grid'
   /// shows cover grids and shelves.
@@ -294,13 +254,6 @@ class AppSettings {
   /// The Material Home's shortcuts, in order, by `HomeShortcut` name. Read
   /// them through `HomeShortcut.resolve`, which fills in unknown names.
   final List<String> homeShortcuts;
-
-  /// Whether Home offers the last song again ("Continue listening").
-  final bool homeContinueListening;
-
-  /// Shared-element (Hero) flights, e.g. the mini player artwork expanding
-  /// into the full player. Off skips the flights entirely.
-  final bool heroAnimationsEnabled;
 
   /// Forces the shell's backdrop blur on even when the startup runtime
   /// profile disabled it for this device tier. Off means "follow the
@@ -315,20 +268,7 @@ class AppSettings {
   final String lyricsMode;
   final bool keepScreenOnLyrics;
 
-  /// Show the line being sung in place of the song title on the lock screen.
-  final bool lockScreenLyrics;
   final bool motionArtworkEnabled;
-
-  /// Save a download's cover into its album folder as `folder.jpg`, for
-  /// players that do not read the cover inside a song.
-  final bool saveFolderCover;
-
-  /// Delete the album and artist folders a deleted song leaves empty, inside
-  /// the download and Local Library folders.
-  final bool removeEmptyFolders;
-  final bool listeningStatisticsEnabled;
-  final bool
-  useAllFilesAccess; // Android 13+ only: enable MANAGE_EXTERNAL_STORAGE
 
   final bool localLibraryEnabled;
   final String localLibraryPath;
@@ -348,7 +288,6 @@ class AppSettings {
   /// Show a line's romanization as the line, with the original under it.
   final bool lyricsRomanizedMainLine;
 
-  final String playerMode;
   final bool playerShowPronunciation;
   final bool playerShowTranslation;
 
@@ -365,12 +304,7 @@ class AppSettings {
     this.downloadDirectoryBookmark = '',
     this.storageMode = 'app',
     this.downloadTreeUri = '',
-    this.embedMetadata = true,
-    this.embeddedCoverMaxDimension = 0,
-    this.artistTagMode = artistTagModeJoined,
-    this.metadataSeparators = const MetadataSeparators(),
     this.embedLyrics = true,
-    this.embedReplayGain = false,
     this.playbackNormalization = false,
     this.playbackNormalizationPreamp = 0,
     this.playbackNormalizationMode = 'track',
@@ -413,16 +347,9 @@ class AppSettings {
     this.autoHideLyricsControls = true,
     this.autoHideLyricsControlsWithAccessibility = false,
     this.isFirstLaunch = true,
-    this.historyViewMode = 'grid',
-    this.historyFilterMode = 'all',
     this.historySortMode = 'latest',
     this.libraryAlbumSortMode = 'a-z',
-    this.libraryArtistShowsSongs = false,
-    this.defaultLibraryView = 'last',
-    this.libraryQualityLabelMode = AppSettings.libraryQualityLabelBitDepthOnly,
     this.swipeToQueue = true,
-    this.librarySongTap = AppSettings.librarySongTapDetails,
-    this.enableLogging = false,
     this.searchViewMode = 'list',
     this.homeShortcuts = const [
       'shuffle',
@@ -430,19 +357,12 @@ class AppSettings {
       'listeningStats',
       'loved',
     ],
-    this.homeContinueListening = true,
-    this.heroAnimationsEnabled = true,
     this.forceBackdropBlur = false,
     this.interfaceScale = 1,
     this.locale = 'system',
     this.lyricsMode = 'embed',
     this.keepScreenOnLyrics = true,
-    this.lockScreenLyrics = false,
     this.motionArtworkEnabled = true,
-    this.saveFolderCover = false,
-    this.removeEmptyFolders = true,
-    this.listeningStatisticsEnabled = true,
-    this.useAllFilesAccess = false,
     this.localLibraryEnabled = false,
     this.localLibraryPath = '',
     this.localLibraryBookmark = '',
@@ -451,7 +371,6 @@ class AppSettings {
     this.hasCompletedTutorial = false,
     this.lyricsRomanize = true,
     this.lyricsRomanizedMainLine = false,
-    this.playerMode = 'internal',
     this.playerShowPronunciation = true,
     this.playerShowTranslation = true,
     this.playerShowVolume = true,
@@ -472,12 +391,7 @@ class AppSettings {
     String? downloadDirectoryBookmark,
     String? storageMode,
     String? downloadTreeUri,
-    bool? embedMetadata,
-    int? embeddedCoverMaxDimension,
-    String? artistTagMode,
-    MetadataSeparators? metadataSeparators,
     bool? embedLyrics,
-    bool? embedReplayGain,
     bool? playbackNormalization,
     double? playbackNormalizationPreamp,
     String? playbackNormalizationMode,
@@ -520,31 +434,17 @@ class AppSettings {
     bool? autoHideLyricsControls,
     bool? autoHideLyricsControlsWithAccessibility,
     bool? isFirstLaunch,
-    String? historyViewMode,
-    String? historyFilterMode,
     String? historySortMode,
     String? libraryAlbumSortMode,
-    bool? libraryArtistShowsSongs,
-    String? defaultLibraryView,
-    String? libraryQualityLabelMode,
     bool? swipeToQueue,
-    String? librarySongTap,
-    bool? enableLogging,
     String? searchViewMode,
     List<String>? homeShortcuts,
-    bool? homeContinueListening,
-    bool? heroAnimationsEnabled,
     bool? forceBackdropBlur,
     double? interfaceScale,
     String? locale,
     String? lyricsMode,
     bool? keepScreenOnLyrics,
-    bool? lockScreenLyrics,
     bool? motionArtworkEnabled,
-    bool? saveFolderCover,
-    bool? removeEmptyFolders,
-    bool? listeningStatisticsEnabled,
-    bool? useAllFilesAccess,
     bool? localLibraryEnabled,
     String? localLibraryPath,
     String? localLibraryBookmark,
@@ -553,7 +453,6 @@ class AppSettings {
     bool? hasCompletedTutorial,
     bool? lyricsRomanize,
     bool? lyricsRomanizedMainLine,
-    String? playerMode,
     bool? playerShowPronunciation,
     bool? playerShowTranslation,
     bool? playerShowVolume,
@@ -566,13 +465,7 @@ class AppSettings {
           downloadDirectoryBookmark ?? this.downloadDirectoryBookmark,
       storageMode: storageMode ?? this.storageMode,
       downloadTreeUri: downloadTreeUri ?? this.downloadTreeUri,
-      embedMetadata: embedMetadata ?? this.embedMetadata,
-      embeddedCoverMaxDimension:
-          embeddedCoverMaxDimension ?? this.embeddedCoverMaxDimension,
-      artistTagMode: artistTagMode ?? this.artistTagMode,
-      metadataSeparators: metadataSeparators ?? this.metadataSeparators,
       embedLyrics: embedLyrics ?? this.embedLyrics,
-      embedReplayGain: embedReplayGain ?? this.embedReplayGain,
       playbackNormalization:
           playbackNormalization ?? this.playbackNormalization,
       playbackNormalizationPreamp:
@@ -625,36 +518,17 @@ class AppSettings {
           autoHideLyricsControlsWithAccessibility ??
           this.autoHideLyricsControlsWithAccessibility,
       isFirstLaunch: isFirstLaunch ?? this.isFirstLaunch,
-      historyViewMode: historyViewMode ?? this.historyViewMode,
-      historyFilterMode: historyFilterMode ?? this.historyFilterMode,
       historySortMode: historySortMode ?? this.historySortMode,
       libraryAlbumSortMode: libraryAlbumSortMode ?? this.libraryAlbumSortMode,
-      libraryArtistShowsSongs:
-          libraryArtistShowsSongs ?? this.libraryArtistShowsSongs,
-      defaultLibraryView: defaultLibraryView ?? this.defaultLibraryView,
-      libraryQualityLabelMode:
-          libraryQualityLabelMode ?? this.libraryQualityLabelMode,
       swipeToQueue: swipeToQueue ?? this.swipeToQueue,
-      librarySongTap: librarySongTap ?? this.librarySongTap,
-      enableLogging: enableLogging ?? this.enableLogging,
       searchViewMode: searchViewMode ?? this.searchViewMode,
       homeShortcuts: homeShortcuts ?? this.homeShortcuts,
-      homeContinueListening:
-          homeContinueListening ?? this.homeContinueListening,
-      heroAnimationsEnabled:
-          heroAnimationsEnabled ?? this.heroAnimationsEnabled,
       forceBackdropBlur: forceBackdropBlur ?? this.forceBackdropBlur,
       interfaceScale: interfaceScale ?? this.interfaceScale,
       locale: locale ?? this.locale,
       lyricsMode: lyricsMode ?? this.lyricsMode,
       keepScreenOnLyrics: keepScreenOnLyrics ?? this.keepScreenOnLyrics,
-      lockScreenLyrics: lockScreenLyrics ?? this.lockScreenLyrics,
       motionArtworkEnabled: motionArtworkEnabled ?? this.motionArtworkEnabled,
-      saveFolderCover: saveFolderCover ?? this.saveFolderCover,
-      removeEmptyFolders: removeEmptyFolders ?? this.removeEmptyFolders,
-      listeningStatisticsEnabled:
-          listeningStatisticsEnabled ?? this.listeningStatisticsEnabled,
-      useAllFilesAccess: useAllFilesAccess ?? this.useAllFilesAccess,
       localLibraryEnabled: localLibraryEnabled ?? this.localLibraryEnabled,
       localLibraryPath: localLibraryPath ?? this.localLibraryPath,
       localLibraryBookmark: localLibraryBookmark ?? this.localLibraryBookmark,
@@ -665,7 +539,6 @@ class AppSettings {
       lyricsRomanize: lyricsRomanize ?? this.lyricsRomanize,
       lyricsRomanizedMainLine:
           lyricsRomanizedMainLine ?? this.lyricsRomanizedMainLine,
-      playerMode: playerMode ?? this.playerMode,
       playerShowPronunciation:
           playerShowPronunciation ?? this.playerShowPronunciation,
       playerShowTranslation:

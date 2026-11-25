@@ -1,9 +1,9 @@
 //! Real-world file shapes that Library scans used to drop as unreadable.
 
+use serde_json::Value;
 use sistrum_core::tags::{
     extract_cover, read_file_metadata, read_library_metadata, rewrite_audio_tags,
 };
-use serde_json::Value;
 use std::io::{self, Cursor, Read, Seek, SeekFrom};
 
 fn id3v23(frames: &[(&[u8; 4], &str)]) -> Vec<u8> {

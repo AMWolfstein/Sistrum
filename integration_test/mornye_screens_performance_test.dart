@@ -17,7 +17,6 @@ import 'package:sistrum/screens/queue_tab.dart';
 import 'package:sistrum/services/album_completeness.dart';
 import 'package:sistrum/services/user_profile_store.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
-import 'package:sistrum/widgets/app_search_field.dart';
 import 'package:sistrum/widgets/lazy_tab_view.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 
@@ -96,14 +95,11 @@ void main() {
             requests.add(request);
             pageOffsets.add(page.offset);
             final rows = _albums.where((album) {
-              return '${album.name} ${album.artist}'.toLowerCase().contains(
-                    request.search.toLowerCase(),
-                  ) &&
-                  (request.completeness == null ||
-                      album.completeness!.status ==
-                          (request.completeness == incompleteAlbumFilter
-                              ? 'incomplete'
-                              : 'unknown'));
+              return request.completeness == null ||
+                  album.completeness!.status ==
+                      (request.completeness == incompleteAlbumFilter
+                          ? 'incomplete'
+                          : 'unknown');
             }).toList();
             if (request.sort == 'latest') {
               return LibraryBrowsePage(
@@ -192,29 +188,6 @@ void main() {
       warmup: filterRoundTrip,
     );
     await tester.runAsync(() async {
-      await tester.tap(findByTooltip('Search your library').hitTestable());
-      await probe.wait(const Duration(milliseconds: 400));
-      FocusManager.instance.primaryFocus?.unfocus();
-    });
-    Future<void> librarySearchRoundTrip() async {
-      final field = tester.widget<AppSearchField>(
-        find.byType(AppSearchField).hitTestable(),
-      );
-      field.controller.text = 'Album 01';
-      field.onChanged?.call('Album 01');
-      await probe.wait(const Duration(milliseconds: 500));
-      expect(requests.last.search, 'Album 01');
-      await tester.tap(findByTooltip('Clear').hitTestable());
-      await probe.wait(const Duration(milliseconds: 500));
-      expect(requests.last.search, isEmpty);
-    }
-
-    await probe.measure(
-      'library_album_search_clear',
-      librarySearchRoundTrip,
-      warmup: librarySearchRoundTrip,
-    );
-    await tester.runAsync(() async {
       Navigator.of(
         tester.element(find.byType(Scrollable).hitTestable().first),
       ).pop();
@@ -227,9 +200,7 @@ void main() {
         await tester.tap(
           find.descendant(
             of: find.byType(MornyeTabBar),
-            matching: find.text(
-              ['Home', 'Library', 'Search'][value],
-            ),
+            matching: find.text(['Home', 'Library', 'Search'][value]),
           ),
         );
         await probe.wait(const Duration(milliseconds: 350));
@@ -306,15 +277,7 @@ class _Tabs extends StatelessWidget {
 
 class _Settings extends SettingsNotifier {
   @override
-  AppSettings build() => const AppSettings(
-    defaultLibraryView: 'all',
-  );
-
-  @override
-  void setHistoryFilterMode(String mode) {
-    state = state.copyWith(historyFilterMode: mode);
-  }
-
+  AppSettings build() => const AppSettings();
 }
 
 class _Collections extends LibraryCollectionsNotifier {
@@ -331,4 +294,3 @@ class _Profile extends UserProfileNotifier {
   @override
   Future<UserProfile> build() async => const UserProfile();
 }
-

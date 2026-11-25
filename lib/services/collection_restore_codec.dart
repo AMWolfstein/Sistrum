@@ -34,11 +34,9 @@ Iterable<Map<String, dynamic>> collectionRestoreCommands(
     };
   }
 
-  for (final kind in ['wishlist', 'loved']) {
-    for (final entry in entries(collections[kind])) {
-      final command = trackCommand(kind, entry);
-      if (command != null) yield command;
-    }
+  for (final entry in entries(collections['loved'])) {
+    final command = trackCommand('loved', entry);
+    if (command != null) yield command;
   }
   for (final entry in entries(collections['favoriteArtists'])) {
     final key = entry['key'] as String?;

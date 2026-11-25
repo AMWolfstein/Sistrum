@@ -6,7 +6,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/services/ffmpeg_desktop.dart';
 import 'package:sistrum/services/metadata_cover_resources.dart';
 import 'package:sistrum/services/metadata_persistence_service.dart';
-import 'package:sistrum/utils/artist_utils.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 
 class _Covers extends MetadataCoverResources {
@@ -125,7 +124,6 @@ void main() {
             MetadataSaveRequest(
               filePath: audio,
               metadata: const {'lyrics': '[00:01.00]Saved for offline'},
-              artistTagMode: artistTagModeJoined,
               preserveUnspecifiedTags: true,
             ),
           );

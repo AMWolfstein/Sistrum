@@ -18,7 +18,6 @@ import 'package:sistrum/services/music_player_service.dart'
     show resetAutoplayLearning;
 import 'package:sistrum/services/song_analysis.dart';
 import 'package:sistrum/services/spatial_audio.dart';
-import 'package:sistrum/screens/listening_statistics_screen.dart';
 import 'package:sistrum/screens/equalizer_screen.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/utils/android_tv.dart';
@@ -26,7 +25,6 @@ import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/exclusive_output_labels.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/utils/usb_output_status_label.dart';
-import 'package:sistrum/widgets/animation_utils.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
@@ -183,36 +181,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
         slivers: [
           AppSliverHeader.page(title: context.l10n.libraryPlayback),
           ...settingsSectionSlivers(
-            title: context.l10n.sectionPlayer,
-            children: [
-              SettingsItem(
-                icon: Icons.open_in_new,
-                title: context.l10n.libraryExternalPlayer,
-                subtitle: context.l10n.libraryExternalPlayerSubtitle,
-                selected: settings.playerMode == 'external',
-                trailing: settings.playerMode == 'external'
-                    ? AppIcon(Icons.check, color: colorScheme.primary)
-                    : null,
-                onTap: () => ref
-                    .read(settingsProvider.notifier)
-                    .setPlayerMode('external'),
-              ),
-              SettingsItem(
-                icon: Icons.play_circle_outline,
-                title: context.l10n.libraryBuiltInPreviewPlayer,
-                subtitle: context.l10n.libraryBuiltInPreviewPlayerSubtitle,
-                selected: settings.playerMode == 'internal',
-                trailing: settings.playerMode == 'internal'
-                    ? AppIcon(Icons.check, color: colorScheme.primary)
-                    : null,
-                onTap: () => ref
-                    .read(settingsProvider.notifier)
-                    .setPlayerMode('internal'),
-                showDivider: false,
-              ),
-            ],
-          ),
-          ...settingsSectionSlivers(
             title: context.l10n.sectionVolumeAndTransitions,
             children: [
               SettingsItem(
@@ -265,25 +233,18 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                   title: context.l10n.musicHaptics,
                   subtitle: context.l10n.musicHapticsDescription,
                   value: settings.musicHaptics,
-                  enabled: settings.playerMode == 'internal',
                   onChanged: (value) => ref
                       .read(settingsProvider.notifier)
                       .setMusicHaptics(value),
                 ),
-                if (settings.musicHaptics)
-                  MusicHapticsSettings(
-                    enabled: settings.playerMode == 'internal',
-                  ),
+                if (settings.musicHaptics) const MusicHapticsSettings(),
               ],
               SettingsSwitchItem(
                 icon: Icons.linear_scale,
                 title: context.l10n.gaplessPlayback,
                 subtitle: context.l10n.gaplessPlaybackDescription,
                 value: settings.gaplessPlayback && !autoMixActive,
-                enabled:
-                    settings.playerMode == 'internal' &&
-                    !autoMixActive &&
-                    !settings.usbBitPerfect,
+                enabled: !autoMixActive && !settings.usbBitPerfect,
                 onChanged: (value) => ref
                     .read(settingsProvider.notifier)
                     .setGaplessPlayback(value),
@@ -318,7 +279,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                 title: context.l10n.autoplayFromLibrary,
                 subtitle: context.l10n.autoplayDescription,
                 value: settings.autoplay,
-                enabled: settings.playerMode == 'internal',
                 onChanged: (value) =>
                     ref.read(settingsProvider.notifier).setAutoplay(value),
               ),
@@ -328,7 +288,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                 title: context.l10n.autoplayPersonalization,
                 subtitle: context.l10n.autoplayPersonalizationDescription,
                 value: settings.autoplayPersonalization,
-                enabled: settings.playerMode == 'internal',
                 onChanged: (value) => ref
                     .read(settingsProvider.notifier)
                     .setAutoplayPersonalization(value),
@@ -345,7 +304,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                 title: context.l10n.songAnalysis,
                 subtitle: context.l10n.songAnalysisDescription,
                 value: settings.songAnalysis,
-                enabled: settings.playerMode == 'internal',
                 onChanged: (value) =>
                     ref.read(settingsProvider.notifier).setSongAnalysis(value),
                 showDivider: chargingOption || analysis != null,
@@ -357,7 +315,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                   subtitle:
                       context.l10n.songAnalysisOnlyWhileChargingDescription,
                   value: settings.songAnalysisOnlyWhileCharging,
-                  enabled: settings.playerMode == 'internal',
                   onChanged: (value) => ref
                       .read(settingsProvider.notifier)
                       .setSongAnalysisOnlyWhileCharging(value),
@@ -398,7 +355,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                 title: context.l10n.queueNoDuplicates,
                 subtitle: context.l10n.queueNoDuplicatesDescription,
                 value: settings.queueNoDuplicates,
-                enabled: settings.playerMode == 'internal',
                 onChanged: (value) => ref
                     .read(settingsProvider.notifier)
                     .setQueueNoDuplicates(value),
@@ -424,15 +380,12 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
                   title: context.l10n.playbackPauseOnMute,
                   subtitle: context.l10n.playbackPauseOnMuteDescription,
                   value: settings.pauseOnMute,
-                  enabled:
-                      settings.playerMode == 'internal' &&
-                      !settings.usbBitPerfect,
+                  enabled: !settings.usbBitPerfect,
                   onChanged: (value) =>
                       ref.read(settingsProvider.notifier).setPauseOnMute(value),
                 ),
                 _HeadphoneResumeChoice(
                   mode: settings.headphoneResume,
-                  enabled: settings.playerMode == 'internal',
                   onChanged: (mode) => ref
                       .read(settingsProvider.notifier)
                       .setHeadphoneResume(mode),
@@ -713,21 +666,6 @@ class _PlaybackSettingsPageState extends ConsumerState<PlaybackSettingsPage>
               ],
             ),
           const SliverToBoxAdapter(child: SizedBox(height: 32)),
-          ...settingsSectionSlivers(
-            title: context.l10n.listeningStats,
-            children: [
-              SettingsItem(
-                icon: Icons.insights_outlined,
-                title: context.l10n.listeningStats,
-                subtitle: context.l10n.listeningStatsDescription,
-                onTap: () => Navigator.of(context).push(
-                  slidePageRoute<void>(page: const ListeningStatisticsScreen()),
-                ),
-                showDivider: false,
-              ),
-            ],
-          ),
-          const SliverToBoxAdapter(child: SizedBox(height: 32)),
           const NavBarSliverSpacer(),
         ],
       ),
@@ -771,14 +709,9 @@ class _LoudVolumeLevelChoice extends StatelessWidget {
 /// When connecting headphones resumes playback: one of [headphoneResumeModes],
 /// a three-way choice under its title and the current choice's description.
 class _HeadphoneResumeChoice extends StatelessWidget {
-  const _HeadphoneResumeChoice({
-    required this.mode,
-    required this.enabled,
-    required this.onChanged,
-  });
+  const _HeadphoneResumeChoice({required this.mode, required this.onChanged});
 
   final String mode;
-  final bool enabled;
   final ValueChanged<String> onChanged;
 
   @override
@@ -803,49 +736,25 @@ class _HeadphoneResumeChoice extends StatelessWidget {
       onChanged: (index) => onChanged(labels.keys.elementAt(index)),
       samplesBackdrop: false,
     );
-    final content = Opacity(
-      opacity: enabled ? 1 : 0.5,
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: context.tokens.rowPaddingH,
-          vertical: context.tokens.rowPaddingVCompact,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: textTheme.bodyLarge?.copyWith(
-                          color: enabled ? null : colorScheme.outline,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        description,
-                        style: textTheme.bodyMedium?.copyWith(
-                          color: enabled
-                              ? colorScheme.onSurfaceVariant
-                              : colorScheme.outline,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+    final content = Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: context.tokens.rowPaddingH,
+        vertical: context.tokens.rowPaddingVCompact,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: textTheme.bodyLarge),
+          const SizedBox(height: 2),
+          Text(
+            description,
+            style: textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurfaceVariant,
             ),
-            const SizedBox(height: 12),
-            IgnorePointer(
-              ignoring: !enabled,
-              child: ExcludeSemantics(excluding: !enabled, child: choice),
-            ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 12),
+          choice,
+        ],
       ),
     );
     return SettingsSearchTarget(label: title, child: content);

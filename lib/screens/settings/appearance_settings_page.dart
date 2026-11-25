@@ -14,13 +14,11 @@ import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_slider.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/slider_value_header.dart';
-import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/settings_group.dart';
 import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
-import 'package:sistrum/widgets/custom_font_setting.dart';
 import 'package:sistrum/widgets/desktop/desktop_window_controls.dart';
 
 part 'appearance_settings_page_widgets.dart';
@@ -44,16 +42,6 @@ class AppearanceSettingsPage extends ConsumerWidget {
               const SliverToBoxAdapter(
                 child: SettingsGroup(children: [DesktopWindowModeSetting()]),
               ),
-
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 16 + wideListInset(context),
-                  vertical: 8,
-                ),
-                child: _ThemePreviewCard(),
-              ),
-            ),
 
             ...settingsSectionSlivers(
               title: context.l10n.sectionColor,
@@ -94,25 +82,6 @@ class AppearanceSettingsPage extends ConsumerWidget {
                 connected: true,
                 children: [
                   SettingsSwitchItem(
-                    icon: Icons.font_download_outlined,
-                    title: context.l10n.appearanceUseSystemFont,
-                    subtitle: context.l10n.appearanceUseSystemFontSubtitle,
-                    value: themeSettings.useSystemFont,
-                    onChanged: ref
-                        .read(themeProvider.notifier)
-                        .setUseSystemFont,
-                  ),
-                  SettingsSwitchItem(
-                    icon: Icons.animation,
-                    title: context.l10n.appearanceHeroAnimations,
-                    subtitle: context.l10n.appearanceHeroAnimationsSubtitle,
-                    value: settings.heroAnimationsEnabled,
-                    onChanged: (value) => ref
-                        .read(settingsProvider.notifier)
-                        .setHeroAnimationsEnabled(value),
-                  ),
-                  const CustomFontSetting(),
-                  SettingsSwitchItem(
                     icon: Icons.blur_on,
                     title: context.l10n.appearanceForceBlur,
                     subtitle: context.l10n.appearanceForceBlurSubtitle,
@@ -141,25 +110,7 @@ class AppearanceSettingsPage extends ConsumerWidget {
             ...settingsSectionSlivers(
               title: context.l10n.sectionLayout,
               connected: true,
-              children: [
-                const _InterfaceSizeSlider(),
-                _HistoryViewSelector(
-                  currentMode: settings.historyViewMode,
-                  onChanged: (mode) => ref
-                      .read(settingsProvider.notifier)
-                      .setHistoryViewMode(mode),
-                ),
-                SettingsSwitchItem(
-                  key: const ValueKey('home-continue-listening'),
-                  icon: Icons.play_circle_outline,
-                  title: context.l10n.homeContinueListening,
-                  subtitle: context.l10n.appearanceContinueListeningSubtitle,
-                  value: settings.homeContinueListening,
-                  onChanged: ref
-                      .read(settingsProvider.notifier)
-                      .setHomeContinueListening,
-                ),
-              ],
+              children: [const _InterfaceSizeSlider()],
             ),
 
             const SliverToBoxAdapter(child: SizedBox(height: 32)),

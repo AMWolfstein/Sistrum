@@ -1,15 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
-import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/services/source_deletion_events.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/ios_container_paths.dart';
-import 'package:sistrum/utils/mime_utils.dart';
 
 /// Whether the queue should run its iOS output-directory path-shape check
 /// (which can replace [outputDir] with the default Documents folder when the
@@ -448,29 +445,6 @@ bool isStorageMountContainer(String directory, {p.Context? context}) {
   };
 }
 
-/// Whether [directory] is a folder the system or the user keeps for more
-/// than one library: a mount container, a drive or volume, a folder right
-/// inside one (such as Android's Music or Download), the home folder or a
-/// folder right inside it. Cleanup never deletes these, even when empty.
-bool isSharedTopFolder(String directory, {p.Context? context, String? home}) {
-  final path = context ?? p.context;
-  final normalized = path.normalize(directory);
-  var current = normalized;
-  for (var depth = 0; depth <= 2; depth++) {
-    if (isStorageMountContainer(current, context: path)) return true;
-    current = path.dirname(current);
-  }
-  final homeFolder = home ?? _homeFolder();
-  if (homeFolder == null || homeFolder.isEmpty) return false;
-  final normalizedHome = path.normalize(homeFolder);
-  return path.equals(normalized, normalizedHome) ||
-      path.isWithin(normalized, normalizedHome) ||
-      path.equals(path.dirname(normalized), normalizedHome);
-}
-
-String? _homeFolder() =>
-    Platform.environment[Platform.isWindows ? 'USERPROFILE' : 'HOME'];
-
 /// Deletes [path] and reports whether the file is confirmed absent afterward.
 ///
 /// SAF providers are allowed to reject a delete request by returning `false`.
@@ -547,41 +521,4 @@ Future<FileAccessStat?> fileStat(String? path) async {
     }
   }
   return FileAccessStat(size: stat.size, modified: stat.modified);
-}
-
-Future<void> openFile(String path) async {
-  if (isCueVirtualPath(path)) {
-    throw Exception(cueVirtualTrackRequiresSplitMessage);
-  }
-
-  final realPath = path;
-  final uri = Uri.tryParse(realPath);
-  if (uri != null && (uri.scheme == 'http' || uri.scheme == 'https')) {
-    if (!isDesktopPlatform && !Platform.isIOS) {
-      await PlatformBridge.openContentUri(
-        realPath,
-        mimeType: audioMimeTypeForPath(uri.path),
-      );
-    } else if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      throw Exception('No application can open this audio stream');
-    }
-    return;
-  }
-  if (isContentUri(realPath)) {
-    await PlatformBridge.openContentUri(realPath, mimeType: '');
-    return;
-  }
-  if (isDesktopPlatform) {
-    // open_filex has no desktop implementation; the OS opens file URIs with
-    // the user's default application.
-    if (!await launchUrl(Uri.file(realPath))) {
-      throw Exception('No application can open $realPath');
-    }
-    return;
-  }
-  final mimeType = audioMimeTypeForPath(realPath);
-  final result = await OpenFilex.open(realPath, type: mimeType);
-  if (result.type != ResultType.done) {
-    throw Exception(result.message);
-  }
 }

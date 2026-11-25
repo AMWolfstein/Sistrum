@@ -8,8 +8,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/models/library_scan_failure.dart';
-import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/services/library_database.dart';
@@ -24,7 +22,6 @@ import 'package:sistrum/widgets/app_loading_indicator.dart';
 import 'package:sistrum/widgets/app_progress_indicator.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:sistrum/widgets/ios_library_folder_sheet.dart';
-import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/queue_swipe.dart';
 
 part 'library_settings_page_widgets.dart';
@@ -331,91 +328,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
             ref.read(settingsProvider.notifier).setLocalLibraryAutoScan(mode),
       );
 
-  String _getDefaultViewLabel(BuildContext context, String view) {
-    switch (view) {
-      case 'all':
-        return context.l10n.searchSongs;
-      case 'albums':
-        return context.l10n.historyFilterAlbums;
-      case 'singles':
-        return context.l10n.historyFilterSingles;
-      case 'artists':
-        return context.l10n.searchArtists;
-      case 'genres':
-        return context.l10n.libraryGenres;
-      case 'playlists':
-        return context.l10n.searchPlaylists;
-      case 'folders':
-        return context.l10n.libraryFolders;
-      default:
-        return context.l10n.libraryDefaultViewLastUsed;
-    }
-  }
-
-  void _showDefaultViewPicker(BuildContext context, String current) =>
-      showAppChoiceSheet(
-        context: context,
-        title: context.l10n.libraryDefaultView,
-        selected: current,
-        choices: [
-          for (final (value, icon) in const [
-            ('last', Icons.history),
-            ('all', Icons.music_note),
-            ('albums', Icons.album),
-            ('singles', Icons.audiotrack),
-            ('artists', Icons.person),
-            ('genres', Icons.category_outlined),
-            ('playlists', Icons.queue_music),
-            ('folders', Icons.folder_outlined),
-          ])
-            AppChoice(value, icon, _getDefaultViewLabel(context, value)),
-        ],
-        onSelected: (view) =>
-            ref.read(settingsProvider.notifier).setDefaultLibraryView(view),
-      );
-
-  String _getQualityLabelModeLabel(BuildContext context, String mode) {
-    if (mode == AppSettings.libraryQualityLabelFileFormat) {
-      return context.l10n.libraryQualityLabelFileFormat;
-    }
-    if (mode == AppSettings.libraryQualityLabelBitDepthOnly) {
-      return context.l10n.audioAnalysisBitDepth;
-    }
-    if (mode == AppSettings.libraryQualityLabelBitDepth) {
-      return '${context.l10n.audioAnalysisBitDepth} & '
-          '${context.l10n.audioAnalysisSampleRate}';
-    }
-    if (mode == AppSettings.libraryQualityLabelBitDepthBitrate) {
-      return '${context.l10n.audioAnalysisBitDepth} & '
-          '${context.l10n.trackConvertBitrate}';
-    }
-    return context.l10n.trackConvertBitrate;
-  }
-
-  void _showQualityLabelModePicker(
-    BuildContext context,
-    String current,
-  ) => showAppChoiceSheet(
-    context: context,
-    title: context.l10n.trackAudioQuality,
-    selected: current,
-    choices: [
-      for (final (value, icon) in const [
-        (AppSettings.libraryQualityLabelBitrate, Icons.speed_rounded),
-        (AppSettings.libraryQualityLabelBitDepthOnly, Icons.tune_rounded),
-        (AppSettings.libraryQualityLabelBitDepth, Icons.graphic_eq_rounded),
-        (
-          AppSettings.libraryQualityLabelBitDepthBitrate,
-          Icons.multiline_chart_rounded,
-        ),
-        (AppSettings.libraryQualityLabelFileFormat, Icons.audio_file_rounded),
-      ])
-        AppChoice(value, icon, _getQualityLabelModeLabel(context, value)),
-    ],
-    onSelected: (mode) =>
-        ref.read(settingsProvider.notifier).setLibraryQualityLabelMode(mode),
-  );
-
   @override
   Widget build(BuildContext context) {
     final settings = ref.watch(settingsProvider);
@@ -456,30 +368,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
             child: SettingsGroup(
               connected: true,
               children: [
-                SettingsItem(
-                  icon: Icons.grid_view_rounded,
-                  title: context.l10n.libraryDefaultView,
-                  subtitle: _getDefaultViewLabel(
-                    context,
-                    settings.defaultLibraryView,
-                  ),
-                  onTap: () => _showDefaultViewPicker(
-                    context,
-                    settings.defaultLibraryView,
-                  ),
-                ),
-                SettingsItem(
-                  icon: Icons.graphic_eq_rounded,
-                  title: context.l10n.trackAudioQuality,
-                  subtitle: _getQualityLabelModeLabel(
-                    context,
-                    settings.libraryQualityLabelMode,
-                  ),
-                  onTap: () => _showQualityLabelModePicker(
-                    context,
-                    settings.libraryQualityLabelMode,
-                  ),
-                ),
                 if (queueSwipeOffered)
                   SettingsSwitchItem(
                     icon: Icons.queue_music,
@@ -490,12 +378,6 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
                         .read(settingsProvider.notifier)
                         .setSwipeToQueue(value),
                   ),
-                _LibrarySongTapChoice(
-                  mode: settings.librarySongTap,
-                  onChanged: (mode) => ref
-                      .read(settingsProvider.notifier)
-                      .setLibrarySongTap(mode),
-                ),
               ],
             ),
           ),
@@ -811,74 +693,5 @@ class _LibrarySettingsPageState extends ConsumerState<LibrarySettingsPage> {
         ],
       ),
     );
-  }
-}
-
-/// What a tap on a Library song row does ([AppSettings.librarySongTap]): a
-/// two-way choice under its title and the current choice's description.
-class _LibrarySongTapChoice extends StatelessWidget {
-  const _LibrarySongTapChoice({required this.mode, required this.onChanged});
-
-  final String mode;
-  final ValueChanged<String> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final colorScheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    final title = l10n.librarySongTap;
-    final details = mode != AppSettings.librarySongTapPlay;
-    final selected = details
-        ? AppSettings.librarySongTapDetails
-        : AppSettings.librarySongTapPlay;
-    // The default comes first. Each names what the tap does: a bare
-    // "Details" or "Play" read as the button on the row, which holds the
-    // other action.
-    final labels = {
-      AppSettings.librarySongTapDetails: l10n.librarySongTapOpenDetails,
-      AppSettings.librarySongTapPlay: l10n.librarySongTapPlaySong,
-    };
-    final choice = MornyeSegmentedControl(
-      labels: labels.values.toList(),
-      selectedIndex: labels.keys.toList().indexOf(selected),
-      onChanged: (index) => onChanged(labels.keys.elementAt(index)),
-      samplesBackdrop: false,
-    );
-    final content = Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: context.tokens.rowPaddingH,
-        vertical: context.tokens.rowPaddingVCompact,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: textTheme.bodyLarge),
-                    const SizedBox(height: 2),
-                    Text(
-                      details
-                          ? l10n.librarySongTapDetailsDescription
-                          : l10n.librarySongTapPlayDescription,
-                      style: textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          choice,
-        ],
-      ),
-    );
-    return SettingsSearchTarget(label: title, child: content);
   }
 }

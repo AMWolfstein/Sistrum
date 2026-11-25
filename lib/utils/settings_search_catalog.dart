@@ -82,24 +82,6 @@ class SettingsSearchCatalog {
           keywords: const ['light mode', 'dark mode'],
         ),
         SettingsSearchEntry(
-          icon: Icons.font_download_outlined,
-          title: l10n.appearanceUseSystemFont,
-          subtitle: l10n.appearanceUseSystemFontSubtitle,
-          keywords: const [
-            'font',
-            'typeface',
-            'typography',
-            'system font',
-            'huruf',
-          ],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.animation,
-          title: l10n.appearanceHeroAnimations,
-          subtitle: l10n.appearanceHeroAnimationsSubtitle,
-          keywords: const ['transition', 'motion'],
-        ),
-        SettingsSearchEntry(
           icon: Icons.blur_on,
           title: l10n.appearanceForceBlur,
           subtitle: l10n.appearanceForceBlurSubtitle,
@@ -112,45 +94,12 @@ class SettingsSearchCatalog {
           keywords: const ['scale', 'zoom', 'ui size', 'density', 'skala'],
         ),
         SettingsSearchEntry(
-          icon: Icons.play_circle_outline,
-          title: l10n.homeContinueListening,
-          subtitle: l10n.appearanceContinueListeningSubtitle,
-          keywords: const ['home', 'resume', 'last song', 'hide'],
-        ),
-        SettingsSearchEntry(
           icon: Icons.language,
           title: l10n.appearanceLanguage,
           keywords: const ['locale', 'translation'],
         ),
-        SettingsSearchEntry(
-          icon: Icons.grid_view_outlined,
-          title: l10n.appearanceHistoryView,
-          subtitle:
-              '${l10n.appearanceHistoryViewList}, '
-              '${l10n.appearanceHistoryViewGrid}',
-          keywords: const ['layout', 'list', 'grid'],
-        ),
       ],
       library = [
-        SettingsSearchEntry(
-          icon: Icons.grid_view_rounded,
-          title: l10n.libraryDefaultView,
-          keywords: const ['library tab', 'default page'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.graphic_eq_rounded,
-          title: l10n.trackAudioQuality,
-          keywords: const [
-            'quality label',
-            'bitrate',
-            'bit depth',
-            'file format',
-            'codec',
-            'flac',
-            'mp3',
-            'kbps',
-          ],
-        ),
         if (!isDesktopPlatform && !isAndroidTv)
           SettingsSearchEntry(
             icon: Icons.queue_music,
@@ -158,12 +107,6 @@ class SettingsSearchCatalog {
             subtitle: l10n.swipeToQueueSubtitle,
             keywords: const ['gesture', 'play next', 'add to queue'],
           ),
-        SettingsSearchEntry(
-          icon: Icons.play_circle_outline,
-          title: l10n.librarySongTap,
-          subtitle: '${l10n.tooltipPlay}, ${l10n.nowPlayingDetails}',
-          keywords: const ['tap', 'click', 'info', 'metadata', 'song details'],
-        ),
         SettingsSearchEntry(
           icon: Icons.library_music_outlined,
           title: l10n.libraryEnableLocalLibrary,
@@ -340,28 +283,10 @@ class SettingsSearchCatalog {
           keywords: const ['lock', 'queue', 'reorder', 'swipe', 'accidental'],
         ),
         SettingsSearchEntry(
-          icon: Icons.insights_outlined,
-          title: l10n.listeningStats,
-          subtitle: l10n.listeningStatsDescription,
-          keywords: const ['wrapped', 'statistics', 'listening', 'stats'],
-        ),
-        SettingsSearchEntry(
           icon: Icons.motion_photos_on_outlined,
           title: l10n.motionArtwork,
           subtitle: l10n.motionArtworkDescription,
           keywords: const ['canvas', 'video', 'animation'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.open_in_new,
-          title: l10n.libraryExternalPlayer,
-          subtitle: l10n.libraryExternalPlayerSubtitle,
-          keywords: const ['playback app'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.play_circle_outline,
-          title: l10n.libraryBuiltInPreviewPlayer,
-          subtitle: l10n.libraryBuiltInPreviewPlayerSubtitle,
-          keywords: const ['internal player'],
         ),
         SettingsSearchEntry(
           icon: Icons.graphic_eq,
@@ -527,61 +452,6 @@ class SettingsSearchCatalog {
             ],
           ),
       ],
-      metadata = [
-        SettingsSearchEntry(
-          icon: Icons.format_list_bulleted,
-          title: l10n.metadataSeparators,
-          keywords: const [
-            'separator',
-            'delimiter',
-            'composer',
-            'genre',
-            'album artist',
-          ],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.sell_outlined,
-          title: l10n.optionsEmbedMetadata,
-          keywords: const ['tags', 'write metadata'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.people_alt_outlined,
-          title: l10n.optionsArtistTagMode,
-          keywords: const [
-            'artist separator',
-            'multiple artists',
-            'primary artist',
-          ],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.photo_size_select_large_outlined,
-          title: l10n.optionsEmbeddedCoverSize,
-          subtitle: l10n.optionsEmbeddedCoverSizeDescription,
-          keywords: const ['cover size', 'artwork resolution', 'resize image'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.graphic_eq,
-          title: l10n.optionsReplayGain,
-          keywords: const ['volume normalization', 'loudness'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.source_outlined,
-          title: l10n.metadataProvidersTitle,
-          subtitle: l10n.metadataProvidersSubtitle,
-          keywords: const ['metadata priority', 'tag provider'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.filter_list_outlined,
-          title: l10n.downloadDeduplication,
-          keywords: const ['duplicate download', 'same song'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.library_music_outlined,
-          title: l10n.downloadQualityVariants,
-          subtitle: l10n.downloadQualityVariantsDescription,
-          keywords: const ['different quality', 'multiple versions'],
-        ),
-      ],
       lyrics = [
         SettingsSearchEntry(
           icon: Icons.light_mode_outlined,
@@ -589,12 +459,6 @@ class SettingsSearchCatalog {
           subtitle: l10n.lyricsKeepScreenOnSubtitle,
           keywords: const ['screen timeout', 'awake', 'sleep', 'layar'],
         ),
-        if (!isDesktopPlatform)
-          SettingsSearchEntry(
-            icon: Icons.screen_lock_portrait_outlined,
-            title: l10n.lyricsLockScreen,
-            keywords: const ['lockscreen', 'notification', 'media controls'],
-          ),
         SettingsSearchEntry(
           icon: Icons.lyrics_outlined,
           title: l10n.lyricsPlayerPreview,
@@ -693,27 +557,6 @@ class SettingsSearchCatalog {
           keywords: const ['mp3', 'aac', 'opus'],
         ),
         SettingsSearchEntry(
-          icon: Icons.verified_outlined,
-          title: l10n.downloadRedownloadFakeHiRes,
-          subtitle: l10n.downloadRedownloadFakeHiResSubtitle,
-          keywords: const ['hi-res', 'hires', 'fake', 'upsampled', '24-bit'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.auto_fix_high_outlined,
-          title: l10n.downloadAutoConvert,
-          subtitle: l10n.downloadAutoConvertSubtitle,
-          keywords: const [
-            'automatic conversion',
-            'mp3',
-            'm4a',
-            'aac',
-            'opus',
-            'alac',
-            'apple lossless',
-            'bitrate',
-          ],
-        ),
-        SettingsSearchEntry(
           icon: Icons.wifi,
           title: l10n.settingsDownloadNetwork,
           subtitle: l10n.settingsDownloadNetworkSubtitle,
@@ -769,161 +612,6 @@ class SettingsSearchCatalog {
           title: l10n.settingsAutoExportFailed,
           subtitle: l10n.settingsAutoExportFailedSubtitle,
           keywords: const ['failed downloads', 'export errors'],
-        ),
-      ],
-      files = [
-        SettingsSearchEntry(
-          icon: Icons.folder_outlined,
-          title: l10n.downloadDirectory,
-          keywords: const ['download folder', 'saf', 'storage path'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.text_fields,
-          title: l10n.downloadFilenameFormat,
-          keywords: const ['file naming', 'template'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.music_note_outlined,
-          title: l10n.downloadSingleFilenameFormat,
-          keywords: const ['single naming', 'file template'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.image_outlined,
-          title: l10n.downloadSaveFolderCover,
-          subtitle: l10n.downloadSaveFolderCoverSubtitle,
-          keywords: const ['folder.jpg', 'cover file', 'album art', 'artwork'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.motion_photos_on_outlined,
-          title: l10n.downloadSaveMotionArtwork,
-          subtitle: l10n.downloadSaveMotionArtworkSubtitle,
-          keywords: const ['cover.mp4', 'motion cover', 'video', 'animation'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.library_music_outlined,
-          title: l10n.downloadSeparateSinglesFolder,
-          keywords: const ['singles directory'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.folder_outlined,
-          title: l10n.downloadAlbumFolderStructure,
-          keywords: const ['album directory', 'folder template'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.create_new_folder_outlined,
-          title: l10n.downloadFolderOrganization,
-          keywords: const ['organize folders', 'directory layout'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.folder_copy_outlined,
-          title: l10n.downloadFolderTemplate,
-          keywords: const [
-            'folder placeholders',
-            'custom path',
-            'release date',
-            'subfolders',
-          ],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.playlist_play_outlined,
-          title: l10n.downloadCreatePlaylistSourceFolder,
-          keywords: const ['playlist directory'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.person_search_outlined,
-          title: l10n.downloadUseAlbumArtistForFolders,
-          keywords: const ['album artist directory'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.filter_alt_outlined,
-          title: l10n.downloadArtistNameFilters,
-          keywords: const ['artist folder filter'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.person_outline,
-          title: l10n.downloadUsePrimaryArtistOnly,
-          keywords: const ['main artist folder'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.group_remove_outlined,
-          title: l10n.downloadFilterContributing,
-          keywords: const ['featured artist folder'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.drive_file_move_outlined,
-          title: l10n.reorganizeLibraryTitle,
-          subtitle: l10n.reorganizeLibrarySubtitle,
-          keywords: const [
-            'reorganize library',
-            'move files',
-            'rename files',
-            'existing downloads',
-          ],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.folder_delete_outlined,
-          title: l10n.removeEmptyFoldersTitle,
-          subtitle: l10n.removeEmptyFoldersSubtitle,
-          keywords: const [
-            'empty folders',
-            'delete folder',
-            'artist folder',
-            'album folder',
-            'clean up',
-          ],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.folder_special_outlined,
-          title: l10n.allFilesAccess,
-          subtitle: l10n.allFilesAccessDescription,
-          keywords: const ['storage permission', 'manage files'],
-        ),
-      ],
-      app = [
-        SettingsSearchEntry(
-          icon: Icons.extension,
-          title: l10n.optionsExtensionStore,
-          subtitle: l10n.optionsExtensionStoreSubtitle,
-          keywords: const ['repository', 'plugin store'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.update,
-          title: l10n.optionsAutoUpdateExtensions,
-          subtitle: l10n.optionsAutoUpdateExtensionsSubtitle,
-          keywords: const ['extension updates', 'auto update', 'repository'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.open_in_browser,
-          title: l10n.extensionVerificationBrowserTitle,
-          keywords: const ['captcha', 'turnstile', 'external browser'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.system_update,
-          title: l10n.optionsCheckUpdates,
-          subtitle: l10n.optionsCheckUpdatesSubtitle,
-          keywords: const ['app update'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.new_releases,
-          title: l10n.optionsUpdateChannel,
-          keywords: const ['stable', 'preview', 'beta'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.delete_forever,
-          title: l10n.optionsClearHistory,
-          subtitle: l10n.optionsClearHistorySubtitle,
-          keywords: const ['delete history'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.history_toggle_off_outlined,
-          title: l10n.settingsSaveDownloadHistory,
-          subtitle: l10n.settingsSaveDownloadHistorySubtitle,
-          keywords: const ['remember downloads'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.bug_report,
-          title: l10n.optionsDetailedLogging,
-          keywords: const ['debug logs', 'diagnostics'],
         ),
       ],
       cache = [
@@ -1023,26 +711,13 @@ class SettingsSearchCatalog {
           title: l10n.aboutVersion,
           keywords: const ['build number', 'app version'],
         ),
-        SettingsSearchEntry(
-          icon: Icons.people_outline,
-          title: l10n.aboutContributors,
-          keywords: const ['developers', 'credits'],
-        ),
-        SettingsSearchEntry(
-          icon: Icons.translate,
-          title: l10n.aboutTranslators,
-          keywords: const ['translation credits'],
-        ),
       ];
 
   final List<SettingsSearchEntry> appearance;
   final List<SettingsSearchEntry> library;
   final List<SettingsSearchEntry> playback;
-  final List<SettingsSearchEntry> metadata;
   final List<SettingsSearchEntry> lyrics;
   final List<SettingsSearchEntry> download;
-  final List<SettingsSearchEntry> files;
-  final List<SettingsSearchEntry> app;
   final List<SettingsSearchEntry> cache;
   final List<SettingsSearchEntry> backup;
   final List<SettingsSearchEntry> logs;

@@ -131,14 +131,12 @@ class DesktopShellLayout extends ConsumerWidget {
   /// while the window is small.
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final enabled = ref.watch(playerUiEnabledProvider);
     final hasTrack = ref.watch(
       currentMediaItemProvider.select((state) => state.value != null),
     );
     return ValueListenableBuilder<bool>(
       valueListenable: desktopPlayerDismissed,
-      builder: (context, dismissed, _) =>
-          _window(enabled && (!dismissed || hasTrack)),
+      builder: (context, dismissed, _) => _window(!dismissed || hasTrack),
     );
   }
 
@@ -644,7 +642,7 @@ class DesktopSidebar extends ConsumerWidget {
 
     // Search leads the list.
     final topLevel = [
-      for (final tab in [ShellTab.search, ShellTab.home])
+      for (final tab in [ShellTab.search, ShellTab.home, ShellTab.statistics])
         ...destinations.where((destination) => destination.tab == tab),
       if (links.isEmpty)
         ...destinations.where(

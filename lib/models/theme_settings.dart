@@ -3,9 +3,6 @@ import 'package:material_ui/material_ui.dart';
 const String kThemeModeKey = 'theme_mode';
 const String kMornyeAccentKey = 'mornye_accent';
 const String kMornyeAccentMovedToBlueKey = 'mornye_accent_moved_to_blue';
-const String kUseSystemFontKey = 'use_system_font';
-const String kCustomFontIdKey = 'custom_font_id';
-const String kCustomFontNameKey = 'custom_font_name';
 const String kLyricsTextScaleKey = 'lyrics_text_scale';
 
 double normalizeLyricsTextScale(num? value) =>
@@ -50,12 +47,15 @@ const String kRetiredUseAmoledKey = 'use_amoled';
 const String kRetiredThemeStyleKey = 'theme_style';
 const String kRetiredThemePrefsRemovedKey = 'retired_theme_prefs_removed';
 
+/// Preference keys of the removed custom and system font settings.
+const String kRetiredUseSystemFontKey = 'use_system_font';
+const String kRetiredCustomFontIdKey = 'custom_font_id';
+const String kRetiredCustomFontNameKey = 'custom_font_name';
+const String kRetiredFontPrefsRemovedKey = 'retired_font_prefs_removed';
+
 class ThemeSettings {
   final ThemeMode themeMode;
   final MornyeAccent mornyeAccent;
-  final bool useSystemFont;
-  final String customFontId;
-  final String customFontName;
   final double lyricsTextScale;
   final double lyricsBlur;
   final int lyricsOffsetMs;
@@ -65,9 +65,6 @@ class ThemeSettings {
   const ThemeSettings({
     this.themeMode = ThemeMode.system,
     this.mornyeAccent = MornyeAccent.blue,
-    this.useSystemFont = false,
-    this.customFontId = '',
-    this.customFontName = '',
     this.lyricsTextScale = 1,
     this.lyricsBlur = 1,
     this.lyricsOffsetMs = 0,
@@ -78,9 +75,6 @@ class ThemeSettings {
   ThemeSettings copyWith({
     ThemeMode? themeMode,
     MornyeAccent? mornyeAccent,
-    bool? useSystemFont,
-    String? customFontId,
-    String? customFontName,
     double? lyricsTextScale,
     double? lyricsBlur,
     int? lyricsOffsetMs,
@@ -90,9 +84,6 @@ class ThemeSettings {
     return ThemeSettings(
       themeMode: themeMode ?? this.themeMode,
       mornyeAccent: mornyeAccent ?? this.mornyeAccent,
-      useSystemFont: useSystemFont ?? this.useSystemFont,
-      customFontId: customFontId ?? this.customFontId,
-      customFontName: customFontName ?? this.customFontName,
       lyricsTextScale: normalizeLyricsTextScale(
         lyricsTextScale ?? this.lyricsTextScale,
       ),
@@ -110,9 +101,6 @@ class ThemeSettings {
   Map<String, dynamic> toJson() => {
     kThemeModeKey: themeMode.name,
     kMornyeAccentKey: mornyeAccent.name,
-    kUseSystemFontKey: useSystemFont,
-    kCustomFontIdKey: customFontId,
-    kCustomFontNameKey: customFontName,
     kLyricsTextScaleKey: lyricsTextScale,
     kLyricsBlurKey: lyricsBlur,
     kLyricsOffsetKey: lyricsOffsetMs,
@@ -124,9 +112,6 @@ class ThemeSettings {
     return ThemeSettings(
       themeMode: themeModeFromString(json[kThemeModeKey] as String?),
       mornyeAccent: mornyeAccentFromString(json[kMornyeAccentKey] as String?),
-      useSystemFont: json[kUseSystemFontKey] as bool? ?? false,
-      customFontId: json[kCustomFontIdKey] as String? ?? '',
-      customFontName: json[kCustomFontNameKey] as String? ?? '',
       lyricsTextScale: normalizeLyricsTextScale(
         json[kLyricsTextScaleKey] as num?,
       ),
@@ -145,9 +130,6 @@ class ThemeSettings {
     return other is ThemeSettings &&
         other.themeMode == themeMode &&
         other.mornyeAccent == mornyeAccent &&
-        other.useSystemFont == useSystemFont &&
-        other.customFontId == customFontId &&
-        other.customFontName == customFontName &&
         other.lyricsTextScale == lyricsTextScale &&
         other.lyricsBlur == lyricsBlur &&
         other.lyricsOffsetMs == lyricsOffsetMs &&
@@ -159,9 +141,6 @@ class ThemeSettings {
   int get hashCode =>
       themeMode.hashCode ^
       mornyeAccent.hashCode ^
-      useSystemFont.hashCode ^
-      customFontId.hashCode ^
-      customFontName.hashCode ^
       lyricsTextScale.hashCode ^
       lyricsBlur.hashCode ^
       lyricsOffsetMs.hashCode ^

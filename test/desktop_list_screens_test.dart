@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
@@ -12,7 +14,7 @@ import 'package:sistrum/screens/local_album_screen.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
-import 'package:sistrum/widgets/album_track_tile.dart';
+import 'package:sistrum/widgets/track_card.dart';
 import 'package:sistrum/widgets/desktop/desktop_selection.dart';
 import 'package:sistrum/widgets/desktop/track_table.dart';
 import 'package:sistrum/widgets/mornye_context_menu.dart';
@@ -38,14 +40,17 @@ class _Playback extends PlaybackController {
   }
 }
 
-final _tracks = [
+// A row tap plays only a song whose file exists, so the songs are real files.
+late final Directory _musicDir;
+
+List<LocalLibraryItem> get _tracks => [
   for (final (number, name) in [(1, 'Bravo'), (2, 'Alpha'), (3, 'Charlie')])
     LocalLibraryItem(
       id: '$number',
       trackName: name,
       artistName: 'Artist',
       albumName: 'Album',
-      filePath: '/music/$name.flac',
+      filePath: '${_musicDir.path}/$name.flac',
       trackNumber: number,
       duration: 60 * (4 - number),
       scannedAt: DateTime(2026),
@@ -92,6 +97,15 @@ Future<_Playback> _pumpAlbum(WidgetTester tester) async {
   return playback;
 }
 
+// The row tap checks the song's file on disk, which runs outside the fake
+// clock of testWidgets.
+Future<void> _settleFileChecks(WidgetTester tester) async {
+  await tester.runAsync(
+    () => Future<void>.delayed(const Duration(milliseconds: 20)),
+  );
+  await tester.pump();
+}
+
 Future<void> _click(WidgetTester tester, Finder finder, {int buttons = 1}) =>
     tester
         .startGesture(
@@ -102,20 +116,27 @@ Future<void> _click(WidgetTester tester, Finder finder, {int buttons = 1}) =>
         .then((gesture) => gesture.up());
 
 void main() {
+  setUpAll(() {
+    _musicDir = Directory.systemTemp.createTempSync('desktop_album_test');
+    for (final name in ['Bravo', 'Alpha', 'Charlie']) {
+      File('${_musicDir.path}/$name.flac').writeAsBytesSync(const []);
+    }
+  });
+  tearDownAll(() => _musicDir.deleteSync(recursive: true));
   setUp(DesktopDoubleClick.reset);
   tearDown(() => debugDesktopPlatformOverride = null);
 
   testWidgets('phones keep the album track tiles', (tester) async {
     debugDesktopPlatformOverride = false;
     await _pumpAlbum(tester);
-    expect(find.byType(AlbumTrackTile), findsNWidgets(3));
+    expect(find.byType(TrackCard), findsNWidgets(3));
     expect(find.byType(SliverTrackTable), findsNothing);
   });
 
   testWidgets('desktop album lists songs in a table ', (tester) async {
     debugDesktopPlatformOverride = true;
     final playback = await _pumpAlbum(tester);
-    expect(find.byType(AlbumTrackTile), findsNothing);
+    expect(find.byType(TrackCard), findsNothing);
     expect(find.byType(SliverTrackTable), findsOneWidget);
 
     // A right-click opens the long-press actions, the selection bar's, as
@@ -146,6 +167,7 @@ void main() {
     await tester.pump();
     await _click(tester, find.text('Alpha'));
     await tester.pumpAndSettle();
+    await _settleFileChecks(tester);
     expect(playback.started, ['2']);
     expect(find.text('Play next'), findsNothing);
 
@@ -153,6 +175,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.descendant(of: menu, matching: find.text('Play')));
     await tester.pumpAndSettle();
+    await _settleFileChecks(tester);
     expect(playback.started, ['2', '3']);
     expect(find.byType(SelectionBottomBar), findsNothing);
   });
@@ -236,6 +259,7 @@ void main() {
     final rowPlay = find.descendant(of: row, matching: findByTooltip('Play'));
     await tester.tap(rowPlay);
     await tester.pumpAndSettle();
+    await _settleFileChecks(tester);
     expect(playback.started, ['2']);
   });
 }

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:material_ui/material_ui.dart';
 import 'package:sistrum/theme/app_motion.dart';
 
@@ -8,10 +7,6 @@ class AnimatedLibrarySliverGrid extends StatefulWidget {
   final double crossAxisSpacing;
   final double childAspectRatio;
   final SliverChildDelegate delegate;
-  final ValueListenable<double>? extentListenable;
-  final double extentScale;
-  final double? minExtent;
-  final double? maxExtent;
 
   const AnimatedLibrarySliverGrid({
     super.key,
@@ -20,10 +15,6 @@ class AnimatedLibrarySliverGrid extends StatefulWidget {
     required this.crossAxisSpacing,
     required this.childAspectRatio,
     required this.delegate,
-    this.extentListenable,
-    this.extentScale = 1,
-    this.minExtent,
-    this.maxExtent,
   });
 
   @override
@@ -63,8 +54,7 @@ class _AnimatedLibrarySliverGridState extends State<AnimatedLibrarySliverGrid>
     if ((widget.maxCrossAxisExtent - _endExtent).abs() < 0.1) return;
     _beginExtent = _currentExtent;
     _endExtent = widget.maxCrossAxisExtent;
-    if (widget.extentListenable != null ||
-        MediaQuery.disableAnimationsOf(context)) {
+    if (MediaQuery.disableAnimationsOf(context)) {
       _controller.value = 1;
     } else {
       // The extent sets the column count, so it must not overshoot and
@@ -91,18 +81,6 @@ class _AnimatedLibrarySliverGridState extends State<AnimatedLibrarySliverGrid>
 
   @override
   Widget build(BuildContext context) {
-    final extentListenable = widget.extentListenable;
-    if (extentListenable != null) {
-      return ValueListenableBuilder<double>(
-        valueListenable: extentListenable,
-        builder: (context, extent, child) => _grid(
-          (extent * widget.extentScale).clamp(
-            widget.minExtent ?? 0,
-            widget.maxExtent ?? double.infinity,
-          ),
-        ),
-      );
-    }
     if (MediaQuery.disableAnimationsOf(context)) {
       return _grid(widget.maxCrossAxisExtent);
     }

@@ -24,15 +24,6 @@ class _Player implements MusicPlayerController {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-class _PlayerUi extends Notifier<bool> {
-  @override
-  bool build() => true;
-
-  void set(bool enabled) => state = enabled;
-}
-
-final _playerUi = NotifierProvider<_PlayerUi, bool>(_PlayerUi.new);
-
 const _window = MethodChannel('com.amwolfstein.sistrum/window');
 
 final _macOS = TargetPlatformVariant.only(TargetPlatform.macOS);
@@ -101,7 +92,6 @@ void main() {
 
   final overrides = [
     settingsProvider.overrideWith(FixedSettingsNotifier.new),
-    playerUiEnabledProvider.overrideWith((ref) => ref.watch(_playerUi)),
     musicPlayerControllerProvider.overrideWithValue(_Player()),
     playbackStateProvider.overrideWith((_) => Stream.value(PlaybackState())),
     systemVolumeProvider.overrideWith((_) => Stream.value(0.5)),
@@ -119,8 +109,7 @@ void main() {
           locale: locale,
           localizationsDelegates: appLocalizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          builder: (context, child) =>
-              buildAppContent(context, child, heroAnimationsEnabled: true),
+          builder: buildAppContent,
           home: const Scaffold(body: Text('content')),
         ),
       );
@@ -251,15 +240,6 @@ void main() {
       expect(sent, hasLength(before + 1));
       expect(_labels(sent.last), contains(id.desktopWindowed));
       expect(_labels(sent.last), isNot(contains(id.desktopWindowBorderless)));
-
-      before = sent.length;
-      ProviderScope.containerOf(
-        tester.element(find.byType(DesktopShortcuts)),
-      ).read(_playerUi.notifier).set(false);
-      await tester.pump();
-      expect(sent, hasLength(before + 1));
-      expect(_labels(sent.last), isNot(contains(id.desktopMenuControls)));
-      expect(_labels(sent.last), isNot(contains(id.nowPlayingTabLyrics)));
 
       await resize(tester);
       await select(tester, id.desktopMenuSettings);

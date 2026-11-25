@@ -70,10 +70,7 @@ void main() {
   testWidgets(
     'haptics sliders show a draft while dragging and save on release',
     (tester) async {
-      final container = await pump(
-        tester,
-        const MusicHapticsSettings(enabled: true),
-      );
+      final container = await pump(tester, const MusicHapticsSettings());
       expect(find.textContaining('Sensitivity'), findsOneWidget);
       expect(find.textContaining('50%'), findsWidgets);
 
@@ -97,7 +94,7 @@ void main() {
       tester,
       const Column(
         children: [
-          MusicHapticsSettings(enabled: true),
+          MusicHapticsSettings(),
           PlaybackNormalizationSettings(enabled: true),
           AutoMixSettings(),
         ],

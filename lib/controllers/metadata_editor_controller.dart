@@ -86,13 +86,12 @@ class MetadataEditorController {
     if (!hasCover) autoFillFields.add('cover');
   }
 
-  Map<String, String> saveMetadata({required String artistTagMode}) {
+  Map<String, String> saveMetadata() {
     final tags = values;
     tags['track_total'] = tags.remove('total_tracks')!;
     tags['disc_total'] = tags.remove('total_discs')!;
     tags['compilation'] =
         tags['album_type']!.trim().toLowerCase() == 'compilation' ? '1' : '0';
-    tags['artist_tag_mode'] = artistTagMode;
     return tags;
   }
 

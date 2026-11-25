@@ -5,7 +5,6 @@ import 'dart:ui' as ui;
 
 import 'package:material_ui/material_ui.dart';
 import 'package:path/path.dart' as p;
-import 'package:sistrum/services/downloaded_embedded_cover_resolver.dart';
 import 'package:sistrum/theme/cover_palette.dart';
 import 'package:sistrum/utils/image_cache_utils.dart';
 
@@ -279,33 +278,6 @@ Future<void> precacheMetadataBackdrop(
         ).timeout(const Duration(milliseconds: 300), onTimeout: () => null),
     ]);
   } catch (_) {}
-}
-
-/// Readies the cover Track details shows for a song in a file, before the
-/// page is pushed. The page prefers the file's own picture over [fallback]
-/// (the Library's cover) as soon as it knows it; read here first, the page
-/// opens on that picture instead of changing to it a moment later, the
-/// first time a song is opened. A slow read gives up after a short wait and
-/// the page changes cover once it has it.
-Future<void> prepareTrackDetailsCover(
-  BuildContext context,
-  String filePath, {
-  String? fallback,
-}) async {
-  await trackDetailsEmbeddedCover(filePath);
-}
-
-/// The picture inside the song's file, waiting a short while for a first
-/// read. Null when the file has none, or the read is not done in time.
-Future<String?> trackDetailsEmbeddedCover(String filePath) async {
-  if (filePath.startsWith('network://')) return null;
-  try {
-    return await DownloadedEmbeddedCoverResolver.resolveOrExtract(
-      filePath,
-    ).timeout(const Duration(milliseconds: 300));
-  } catch (_) {
-    return null;
-  }
 }
 
 /// Pre-warms the cover cache at the metadata-screen display size so the hero

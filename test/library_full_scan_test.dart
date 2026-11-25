@@ -25,9 +25,6 @@ void main() {
   });
 
   test('SAF scan failures reach Logs even with logging disabled', () async {
-    final previousLogging = LogBuffer.loggingEnabled;
-    LogBuffer.loggingEnabled = false;
-    addTearDown(() => LogBuffer.loggingEnabled = previousLogging);
     LogBuffer().clear();
     messenger.setMockMethodCallHandler(backend, (call) async {
       if (call.method != 'scanSafTreeToNDJSONFile') return null;

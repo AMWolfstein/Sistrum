@@ -46,6 +46,8 @@ void main() {
           LibraryRowMapper.encode({
             ..._track(entry.key),
             'filePath': entry.value,
+            // Below v23's rescan threshold, so the explicit re-read leaves it alone.
+            'audioMetadataScanVersion': libraryLyricsMetadataScanVersion,
           }),
         );
       }
@@ -95,7 +97,13 @@ void main() {
       for (final MapEntry(:key, :value) in removed.entries) {
         await db.execute('CREATE INDEX $key ON library($value)');
       }
-      await db.insert('library', LibraryRowMapper.encode(_track('persisted')));
+      await db.insert(
+        'library',
+        LibraryRowMapper.encode({
+          ..._track('persisted'),
+          'audioMetadataScanVersion': libraryLyricsMetadataScanVersion,
+        }),
+      );
       final rows = await db.query('library');
       final summary = await db.query(LibrarySchema.lookupSummaryTable);
 
@@ -136,6 +144,67 @@ void main() {
   );
 
   test(
+    'v23 upgrade rescans only local advisory-tag containers and keeps the rest',
+    () async {
+      await LibrarySchema.create(db, LibrarySchema.version);
+      Map<String, dynamic> row(String id, String path, String format) =>
+          LibraryRowMapper.encode({
+            ..._track(id),
+            'filePath': path,
+            'format': format,
+            'audioMetadataScanVersion': libraryAudioMetadataScanVersion,
+          });
+      for (final values in [
+        row('m4a', '/music/m4a.m4a', 'm4a'),
+        row('flac', '/music/flac.flac', 'flac'),
+        row('mp3', '/music/mp3.mp3', 'mp3'),
+        row('wav', '/music/wav.wav', 'wav'),
+        row('network', 'network://host/net.flac', 'flac'),
+      ]) {
+        await db.insert('library', values);
+      }
+
+      await LibrarySchema.upgrade(db, 22, LibrarySchema.version);
+
+      final versions = await db.query(
+        'library',
+        columns: ['id', 'audio_metadata_scan_version'],
+        orderBy: 'id',
+      );
+      expect(versions, [
+        {
+          'id': 'flac',
+          'audio_metadata_scan_version': libraryLyricsMetadataScanVersion,
+        },
+        {
+          'id': 'm4a',
+          'audio_metadata_scan_version': libraryLyricsMetadataScanVersion,
+        },
+        {
+          'id': 'mp3',
+          'audio_metadata_scan_version': libraryLyricsMetadataScanVersion,
+        },
+        {
+          'id': 'network',
+          'audio_metadata_scan_version': libraryAudioMetadataScanVersion,
+        },
+        {
+          'id': 'wav',
+          'audio_metadata_scan_version': libraryAudioMetadataScanVersion,
+        },
+      ]);
+      // A lowered row is re-read by the next incremental scan.
+      expect(
+        libraryIncrementalSnapshotModTime(
+          storedModTime: 1234,
+          storedScanVersion: libraryLyricsMetadataScanVersion,
+        ),
+        -1,
+      );
+    },
+  );
+
+  test(
     'v19 upgrade rescans local Ogg gain tags while preserving indexed fields',
     () async {
       await LibrarySchema.create(db, 19);
@@ -144,7 +213,8 @@ void main() {
         ('vorbis', '/music/song.ogg', 'vorbis', 4, 3),
         ('suffix', '/music/song.OPUS', null, 4, 3),
         ('remote', 'network://peer/song.opus', 'opus', 4, 4),
-        ('flac', '/music/song.flac', 'flac', 4, 4),
+        // v23 also re-reads local FLAC for its Vorbis advisory tags.
+        ('flac', '/music/song.flac', 'flac', 4, 3),
         ('legacy', '/music/legacy.opus', 'opus', 0, 0),
       ];
       for (final (id, path, format, version, _) in songs) {

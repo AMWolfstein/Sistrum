@@ -2,7 +2,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/semantics.dart' show CustomSemanticsAction;
 import 'package:sistrum/l10n/l10n.dart';
-import 'package:sistrum/models/library_collections.dart';
+import 'package:sistrum/models/collection_row.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/widgets/app_icon.dart';
@@ -19,7 +19,7 @@ class CollectionReorderSliver extends StatefulWidget {
     this.enabled = true,
   });
 
-  final List<CollectionTrackEntry> entries;
+  final List<CollectionRow> entries;
   final void Function(int oldIndex, int newIndex) onReorder;
   final ValueChanged<bool> onDraggingChanged;
   final bool enabled;
@@ -97,6 +97,7 @@ class _CollectionReorderSliverState extends State<CollectionReorderSliver> {
                       : TrackCoverPlaceholder(size: size),
                 ),
                 title: track.name,
+                isExplicit: track.isExplicit,
                 subtitle: Text(
                   track.artistName,
                   maxLines: 1,

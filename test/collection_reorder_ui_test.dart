@@ -8,7 +8,7 @@ import 'package:sistrum/models/track.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/local_library_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/screens/library_tracks_folder_screen.dart';
+import 'package:sistrum/screens/collection_detail_screen.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
@@ -16,6 +16,7 @@ import 'package:sistrum/widgets/collection_reorder_sliver.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'support/fixed_settings.dart';
+import 'support/header_icon_finder.dart';
 import 'support/tooltip_finder.dart';
 
 final _entries = [
@@ -41,7 +42,6 @@ class _Collections extends LibraryCollectionsNotifier {
   LibraryCollectionsState build() => LibraryCollectionsState(
     isLoaded: true,
     loved: _entries,
-    wishlist: _entries,
     playlists: [
       UserPlaylistCollection(
         id: 'mix',
@@ -79,9 +79,7 @@ class _Collections extends LibraryCollectionsNotifier {
     _writes++;
     final byKey = {for (final entry in _entries) entry.key: entry};
     final entries = [for (final key in keys) byKey[key]!];
-    state = mode == LibraryTracksFolderMode.loved
-        ? state.copyWith(loved: entries)
-        : state.copyWith(wishlist: entries);
+    state = state.copyWith(loved: entries);
     return true;
   }
 }
@@ -98,7 +96,7 @@ void main() {
   Future<_Collections> open(
     WidgetTester tester, {
     bool desktop = false,
-    LibraryTracksFolderMode mode = LibraryTracksFolderMode.loved,
+    CollectionDetailKind kind = CollectionDetailKind.loved,
     bool editOrder = true,
   }) async {
     debugDesktopPlatformOverride = desktop;
@@ -123,20 +121,20 @@ void main() {
           theme: MornyeTheme.build(Brightness.dark),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          home: LibraryTracksFolderScreen(
-            mode: mode,
-            playlistId: mode == LibraryTracksFolderMode.playlist ? 'mix' : null,
-          ),
+          home: kind == CollectionDetailKind.playlist
+              ? CollectionDetailScreen.playlist(playlistId: 'mix')
+              : const CollectionDetailScreen.loved(),
         ),
       ),
     );
     await tester.pumpAndSettle();
     if (!editOrder) return collections;
-    await tester.tap(find.byType(HeaderMoreButton));
+    // Edit order is the sort header's Custom Order choice on every page.
+    await tester.tap(findByTooltip('Sort Songs').hitTestable().first);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Edit order'));
+    await tester.tap(find.text('Custom Order'));
     await tester.pumpAndSettle();
-    expect(find.byType(LibraryTracksFolderScreen), findsOneWidget);
+    expect(find.byType(CollectionDetailScreen), findsOneWidget);
     expect(find.byType(CollectionReorderSliver), findsOneWidget);
     return collections;
   }
@@ -177,13 +175,16 @@ void main() {
   }
 
   for (final desktop in [false, true]) {
-    for (final mode in LibraryTracksFolderMode.values) {
-      testWidgets('reorder ${mode.name} in place (desktop=$desktop)', (
+    for (final kind in [
+      CollectionDetailKind.loved,
+      CollectionDetailKind.playlist,
+    ]) {
+      testWidgets('reorder ${kind.name} in place (desktop=$desktop)', (
         tester,
       ) async {
         final semantics = desktop ? tester.ensureSemantics() : null;
         try {
-          final collections = await open(tester, desktop: desktop, mode: mode);
+          final collections = await open(tester, desktop: desktop, kind: kind);
           await moveFirstToLast(tester, desktop: desktop, holdRow: !desktop);
           expect(collections._writes, 0);
           await tester.tap(find.byKey(const ValueKey('collection-order-save')));
@@ -205,20 +206,22 @@ void main() {
       await open(
         tester,
         desktop: desktop,
-        mode: LibraryTracksFolderMode.playlist,
+        kind: CollectionDetailKind.playlist,
         editOrder: false,
       );
       expect(find.byType(HeaderMoreButton), findsOneWidget);
-      expect(find.byIcon(Icons.ios_share), findsNothing);
-      expect(find.byIcon(Icons.camera_alt_outlined), findsNothing);
+      expect(headerIcon(Icons.ios_share), findsNothing);
+      expect(headerIcon(Icons.camera_alt_outlined), findsNothing);
 
       await tester.tap(find.byType(HeaderMoreButton));
       await tester.pumpAndSettle();
+      // Edit order moved to the sort header, so the menu no longer lists it.
+      expect(find.text('Edit order'), findsNothing);
       for (final label in [
         'Export as M3U8',
-        'Edit order',
         'Rename playlist',
         'Change cover image',
+        'Delete playlist',
       ]) {
         final row = find.text(label).hitTestable();
         expect(row, findsOneWidget, reason: label);

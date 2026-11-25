@@ -431,7 +431,6 @@ void main() {
       expect(properties.codec, 'flac');
       expect(properties.sampleRate, 8000);
       expect(properties.bitDepth, 16);
-      expect(await FFmpegProbe.isNativeFlacFile(flac), isTrue);
     },
     timeout: const Timeout(Duration(seconds: 60)),
   );

@@ -143,17 +143,9 @@ class LogBuffer extends ChangeNotifier {
   int _nativeLogGeneration = 0;
   Future<void>? _pendingNativeLogClear;
 
-  static bool _loggingEnabled = false;
-
   /// Receives every entry the buffer keeps, already redacted and filtered.
   /// Desktop writes these to rotating log files.
   static void Function(LogEntry entry)? fileSink;
-
-  static bool get loggingEnabled => _loggingEnabled;
-  static set loggingEnabled(bool value) {
-    _loggingEnabled = value;
-    _nativeLogs.setLoggingEnabled(value).catchError((_) {});
-  }
 
   List<LogEntry> get entries => _entries.toList();
   int get length => _entries.length;
@@ -172,10 +164,6 @@ class LogBuffer extends ChangeNotifier {
   }
 
   bool _append(LogEntry entry) {
-    if (!_loggingEnabled && entry.level != 'ERROR' && entry.level != 'FATAL') {
-      return false;
-    }
-
     final sanitizedMessage = _truncateLogText(
       _redactSensitiveText(entry.message),
       maxLength: _maxBufferedLogMessageLength,
@@ -236,15 +224,11 @@ class LogBuffer extends ChangeNotifier {
       if (generation != _nativeLogGeneration) return;
       final logs = result['logs'] as List<dynamic>? ?? [];
       final nextIndex = result['next_index'] as int? ?? _lastNativeLogIndex;
-      final keepNonErrorLogs = _loggingEnabled;
       final entries = <LogEntry>[];
 
       for (final log in logs.whereType<Map<Object?, Object?>>()) {
         final logMap = Map<String, dynamic>.from(log);
         final level = logMap['level'] as String? ?? 'INFO';
-        if (!keepNonErrorLogs && level != 'ERROR' && level != 'FATAL') {
-          continue;
-        }
 
         final timestamp = logMap['timestamp'] as String? ?? '';
         final tag = logMap['tag'] as String? ?? 'Native';
@@ -454,8 +438,7 @@ class BufferedOutput extends LogOutput {
   @override
   void output(OutputEvent event) {
     if (kDebugMode &&
-        (LogBuffer.loggingEnabled ||
-            event.level == Level.warning ||
+        (event.level == Level.warning ||
             event.level == Level.error ||
             event.level == Level.fatal)) {
       for (final line in event.lines) {
@@ -503,10 +486,6 @@ class AppLogger {
   }
 
   void _addToBuffer(String level, String message, {String? error}) {
-    if (!LogBuffer.loggingEnabled && level != 'ERROR' && level != 'FATAL') {
-      return;
-    }
-
     LogBuffer().add(
       LogEntry(
         timestamp: DateTime.now(),

@@ -10,9 +10,8 @@ import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/player_motion_artwork_provider.dart';
 import 'package:sistrum/providers/recent_access_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/screens/library_tracks_folder_screen.dart';
 import 'package:sistrum/screens/local_album_screen.dart';
-import 'package:sistrum/screens/playlist_screen.dart';
+import 'package:sistrum/screens/collection_detail_screen.dart';
 import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -109,7 +108,7 @@ List<double> _titleOpacities(WidgetTester tester) => [
 ];
 
 void main() {
-  for (final page in ['playlist', 'local album', 'library folder']) {
+  for (final page in ['playlist', 'local album']) {
     testWidgets('$page title flip leaves the page unbuilt in Mornye', (
       tester,
     ) async {
@@ -140,22 +139,15 @@ void main() {
       );
       addTearDown(container.dispose);
       final Widget screen = switch (page) {
-        'playlist' => PlaylistScreen(
-          playlistName: 'Example playlist',
-          tracks: _tracks,
+        'playlist' => CollectionDetailScreen.playlist(
+          playlistId: 'example-playlist',
         ),
-        'local album' => LocalAlbumScreen(
+        _ => LocalAlbumScreen(
           albumName: 'Example album',
           artistName: 'Example artist',
           tracks: _local,
         ),
-        _ => const LibraryTracksFolderScreen(
-          mode: LibraryTracksFolderMode.playlist,
-          playlistId: 'example-playlist',
-        ),
       };
-      // The Mornye folder header always shows its toolbar title.
-      final fades = page != 'library folder';
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
@@ -199,17 +191,14 @@ void main() {
 
       expect(pageBuilds, 0);
       expect(_titleOpacities(tester), hidden);
-      if (fades) {
-        expect(shown, isNot(equals(hidden)));
-        // The title fades through intermediate frames both ways.
-        expect(
-          frames.where(
-            (opacities) =>
-                opacities.any((opacity) => opacity > 0 && opacity < 1),
-          ),
-          isNotEmpty,
-        );
-      }
+      expect(shown, isNot(equals(hidden)));
+      // The title fades through intermediate frames both ways.
+      expect(
+        frames.where(
+          (opacities) => opacities.any((opacity) => opacity > 0 && opacity < 1),
+        ),
+        isNotEmpty,
+      );
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox());
     });

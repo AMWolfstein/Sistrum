@@ -109,23 +109,4 @@ abstract final class FFmpegProbe {
     }
     return const PrimaryAudioProperties();
   }
-
-  static Future<bool> isNativeFlacFile(String path) async {
-    try {
-      final file = await File(path).open();
-      try {
-        final header = await file.read(4);
-        return header.length == 4 &&
-            header[0] == 0x66 &&
-            header[1] == 0x4c &&
-            header[2] == 0x61 &&
-            header[3] == 0x43;
-      } finally {
-        await file.close();
-      }
-    } catch (e) {
-      _log.w('Native FLAC magic probe failed for $path: $e');
-      return false;
-    }
-  }
 }

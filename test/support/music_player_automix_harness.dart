@@ -297,12 +297,10 @@ void configurePlaybackNotification({
 );
 
 void setPlaybackAutomationOptions({
-  required bool enabled,
   required bool pauseOnMute,
   required bool playOnHeadphonesConnected,
 }) => musicPlayerRuntime.configure(
   musicPlayerRuntime.settings.copyWith(
-    playerMode: enabled ? 'internal' : 'external',
     pauseOnMute: pauseOnMute,
     headphoneResume: playOnHeadphonesConnected ? 'always' : 'off',
   ),
@@ -358,7 +356,6 @@ void _setUpPlayer() {
     ),
   );
   setPlaybackAutomationOptions(
-    enabled: true,
     pauseOnMute: false,
     playOnHeadphonesConnected: false,
   );

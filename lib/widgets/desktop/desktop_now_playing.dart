@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/controllers/clickable_metadata.dart' show pushPage;
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/controllers/player_track_navigation.dart';
+import 'package:sistrum/controllers/song_file_actions.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/library_collections_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
@@ -568,12 +569,14 @@ class _PlayerMoreButton extends ConsumerWidget {
       String? subtitle,
       bool disclosure = false,
       bool selected = false,
+      bool destructive = false,
     }) => MornyeMenuAction(
       icon: icon,
       label: label,
       subtitle: subtitle,
       disclosure: disclosure,
       selected: selected,
+      destructive: destructive,
       onPressed: () => Navigator.of(menuContext).pop(value),
     );
     final anchor = mornyeMenuAnchor(context);
@@ -627,6 +630,16 @@ class _PlayerMoreButton extends ConsumerWidget {
               disclosure: true,
             ),
           ],
+          if (isLocalPlayingSong(mediaItem))
+            [
+              row(
+                menuContext,
+                'delete',
+                l10n.trackRemoveFromDevice,
+                icon: CupertinoIcons.trash,
+                destructive: true,
+              ),
+            ],
         ],
       ),
     );
@@ -651,6 +664,8 @@ class _PlayerMoreButton extends ConsumerWidget {
         await openPlayingAlbum(context, ref, mediaItem: mediaItem);
       case 'artist':
         await openPlayingArtist(context, ref, mediaItem);
+      case 'delete':
+        await deletePlayingSongFromDevice(context, ref, mediaItem);
       case 'share':
         final artist = mediaItem.artist ?? '';
         await SharePlus.instance.share(

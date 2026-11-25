@@ -23,8 +23,6 @@ void main() {
     const a = MornyeTheme(
       chromeSurface: Color(0xff336699),
       accent: MornyeAccent.blue,
-      useSystemFont: true,
-      fontFamily: 'Custom',
       glassClarity: 0.4,
       glassOutlines: false,
     );

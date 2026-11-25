@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:sistrum/services/ffmpeg_metadata.dart';
 import 'package:sistrum/services/ffmpeg_probe.dart';
 import 'package:sistrum/services/platform_bridge.dart';
 
@@ -142,17 +141,6 @@ class MetadataCoverResources {
       } else {
         throw StateError('Unable to read selected image');
       }
-    }, probe: false);
-  }
-
-  Future<MetadataCoverPreview> resize(String source, int maxDimension) {
-    return _create('metadata_resized_cover_', 'cover.jpg', (path) async {
-      final resized = await FFmpegMetadata.resizeCoverArt(
-        inputPath: source,
-        outputPath: path,
-        maxDimension: maxDimension,
-      );
-      if (!resized) throw StateError('Cover resize failed');
     }, probe: false);
   }
 }

@@ -45,8 +45,7 @@ bool get queueSwipeOffered => !isDesktopPlatform && !isAndroidTv;
 /// setting on, while the menus offer Play next and Add to queue.
 bool queueSwipeEnabled(WidgetRef ref) =>
     queueSwipeOffered &&
-    ref.watch(settingsProvider.select((s) => s.swipeToQueue)) &&
-    ref.watch(playerUiEnabledProvider);
+    ref.watch(settingsProvider.select((s) => s.swipeToQueue));
 
 /// Whether the play queue's rows take the swipe to play a copy next.
 bool queueEntrySwipeEnabled(WidgetRef ref) => queueSwipeEnabled(ref);

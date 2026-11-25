@@ -30,7 +30,7 @@ void main() {
       kRetiredUseAmoledKey: true,
       kThemeModeKey: 'dark',
       kMornyeAccentKey: 'pink',
-      kUseSystemFontKey: true,
+      kRetiredUseSystemFontKey: true,
       kMornyeGlassClarityKey: 0.3,
     });
     final prefs = await SharedPreferences.getInstance();
@@ -41,13 +41,13 @@ void main() {
       kRetiredSeedColorKey,
       kRetiredUseDynamicColorKey,
       kRetiredUseAmoledKey,
+      kRetiredUseSystemFontKey,
     ]) {
       expect(prefs.containsKey(key), isFalse, reason: key);
     }
     expect(prefs.getBool(kRetiredThemePrefsRemovedKey), isTrue);
     final state = container.read(themeProvider);
     expect(state.mornyeAccent, MornyeAccent.pink);
-    expect(state.useSystemFont, isTrue);
     expect(state.mornyeGlassClarity, closeTo(0.3, 1e-9));
     expect(prefs.getString(kThemeModeKey), 'system');
   });
@@ -80,4 +80,43 @@ void main() {
     expect(prefs.containsKey(kRetiredUseAmoledKey), isFalse);
     expect(container.read(themeProvider).mornyeAccent, MornyeAccent.teal);
   });
+
+  test(
+    'retired font keys are removed when only the theme marker is set',
+    () async {
+      SharedPreferences.setMockInitialValues({
+        kRetiredThemePrefsRemovedKey: true,
+        kRetiredUseSystemFontKey: true,
+        kRetiredCustomFontIdKey: 'font-1',
+        kRetiredCustomFontNameKey: 'Imported',
+        kThemeModeKey: 'dark',
+        kMornyeAccentKey: 'pink',
+      });
+      final prefs = await SharedPreferences.getInstance();
+      final container = await _loadTheme(prefs);
+
+      expect(prefs.containsKey(kRetiredUseSystemFontKey), isFalse);
+      expect(prefs.containsKey(kRetiredCustomFontIdKey), isFalse);
+      expect(prefs.containsKey(kRetiredCustomFontNameKey), isFalse);
+      expect(prefs.getBool(kRetiredFontPrefsRemovedKey), isTrue);
+      expect(container.read(themeProvider).mornyeAccent, MornyeAccent.pink);
+    },
+  );
+
+  test(
+    'a retired font key written after the font removal is left alone',
+    () async {
+      SharedPreferences.setMockInitialValues({
+        kRetiredThemePrefsRemovedKey: true,
+        kRetiredCustomFontIdKey: 'font-1',
+      });
+      final prefs = await SharedPreferences.getInstance();
+      await _loadTheme(prefs);
+      expect(prefs.containsKey(kRetiredCustomFontIdKey), isFalse);
+
+      await prefs.setString(kRetiredCustomFontIdKey, 'font-2');
+      await _loadTheme(prefs);
+      expect(prefs.getString(kRetiredCustomFontIdKey), 'font-2');
+    },
+  );
 }

@@ -125,6 +125,7 @@ class _ReorderTrackRow extends StatelessWidget {
             : TrackCoverPlaceholder(size: size),
       ),
       title: track.name,
+      isExplicit: track.isExplicit,
       subtitle: Text(
         track.artistName,
         maxLines: 1,

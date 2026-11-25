@@ -127,11 +127,10 @@ void main() {
     Stream<MediaItem?>? mediaItems,
     bool playing = false,
     bool loading = false,
-    String playerMode = 'internal',
     UserProfile profile = const UserProfile(name: 'Ada Lovelace'),
   }) => [
     settingsProvider.overrideWith(
-      () => FixedSettingsNotifier(AppSettings(playerMode: playerMode)),
+      () => FixedSettingsNotifier(const AppSettings()),
     ),
     currentMediaItemProvider.overrideWithBuild(
       (ref, notifier) => mediaItems ?? Stream.value(item),
@@ -163,7 +162,6 @@ void main() {
     Stream<MediaItem?>? mediaItems,
     bool playing = false,
     bool loading = false,
-    String playerMode = 'internal',
     List<DesktopSidebarLink> libraryLinks = const [],
     ValueChanged<String>? onOpenLibraryLink,
     VoidCallback? onOpenProfile,
@@ -183,7 +181,6 @@ void main() {
           playing: playing,
           loading: loading,
           profile: profile,
-          playerMode: playerMode,
         ),
         child: MaterialApp(
           theme: MornyeTheme.build(Brightness.light),
@@ -280,26 +277,6 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
-
-  testWidgets('external mode removes desktop player surfaces', (tester) async {
-    desktopNowPlayingOpen.value = true;
-    desktopInspectorPanel.value = DesktopInspectorPanel.lyrics;
-    addTearDown(() {
-      desktopNowPlayingOpen.value = false;
-      desktopInspectorPanel.value = null;
-    });
-    await pumpShell(tester, width: 1400, playerMode: 'external');
-    expect(find.byType(DesktopPlayerBar), findsNothing);
-    expect(find.byKey(const ValueKey('desktop-now-playing')), findsNothing);
-    expect(find.byType(DesktopInspector), findsNothing);
-    expect(find.text('A song'), findsNothing);
-    expect(tester.getSize(contentPage()).height, 800);
-    expect(
-      MediaQuery.paddingOf(tester.element(find.text('content'))).bottom,
-      0,
-    );
-    expect(tester.takeException(), isNull);
-  });
 
   double nowPlayingOpacity(WidgetTester tester) => tester
       .widget<Opacity>(find.byKey(const ValueKey('desktop-now-playing-fade')))
@@ -539,8 +516,8 @@ void main() {
     ) async {
       await pumpShell(tester, width: 1400);
 
-      expect(findByTooltip('library (Ctrl+2)'), findsOneWidget);
-      expect(findByTooltip('settings (Ctrl+4)'), findsOneWidget);
+      expect(findByTooltip('library (Ctrl+3)'), findsOneWidget);
+      expect(findByTooltip('settings (Ctrl+5)'), findsOneWidget);
       await tester.tap(find.text('library'));
       await tester.tap(find.byKey(const ValueKey('desktop-sidebar-settings')));
       expect(selections, [ShellTab.library, ShellTab.settings]);
@@ -667,7 +644,7 @@ void main() {
       expect(find.text('Playlists'), findsOneWidget);
       expect(find.text('library'), findsNothing);
       // The first Library page stands for Library and takes its shortcut.
-      expect(findByTooltip('Recently Added (Ctrl+2)'), findsOneWidget);
+      expect(findByTooltip('Recently Added (Ctrl+3)'), findsOneWidget);
       await tester.tap(find.text('Albums'));
       await tester.tap(find.text('All Playlists'));
       await tester.tap(find.text('Road trip'));
@@ -749,14 +726,10 @@ void main() {
 
     tearDown(() => ShellNavigationService.unregisterTabSelectionHandler(owner));
 
-    Future<void> pumpApp(
-      WidgetTester tester, {
-      bool playing = false,
-      String playerMode = 'internal',
-    }) async {
+    Future<void> pumpApp(WidgetTester tester, {bool playing = false}) async {
       await tester.pumpWidget(
         ProviderScope(
-          overrides: overrides(playing: playing, playerMode: playerMode),
+          overrides: overrides(playing: playing),
           child: MaterialApp(
             navigatorKey: navigatorKey,
             theme: MornyeTheme.build(Brightness.light),
@@ -797,32 +770,6 @@ void main() {
       expect(volumeWrites, [closeTo(0.55, 1e-9), closeTo(0.45, 1e-9)]);
     });
 
-    testWidgets(
-      'external mode ignores player shortcuts while navigation still works',
-      (tester) async {
-        await pumpApp(tester, playerMode: 'external');
-        await press(tester, LogicalKeyboardKey.space);
-        await press(tester, LogicalKeyboardKey.arrowRight, control: true);
-        await press(tester, LogicalKeyboardKey.arrowUp, control: true);
-        final context = tester.element(find.text('home'));
-        for (final command in [
-          DesktopCommand.lyrics,
-          DesktopCommand.upNext,
-          DesktopCommand.miniPlayer,
-        ]) {
-          Actions.maybeInvoke(context, DesktopCommandIntent(command));
-        }
-        await tester.pump();
-        expect(controller.calls, isEmpty);
-        expect(volumeWrites, isEmpty);
-        expect(desktopNowPlayingOpen.value, isFalse);
-        expect(desktopInspectorPanel.value, isNull);
-        expect(desktopMiniPlayerOpen.value, isFalse);
-        await press(tester, LogicalKeyboardKey.comma, control: true);
-        expect(requested, [ShellTab.settings]);
-      },
-    );
-
     testWidgets('leave Space and arrows to a focused text field', (
       tester,
     ) async {
@@ -848,7 +795,7 @@ void main() {
     testWidgets('select destinations, search and settings', (tester) async {
       await pumpApp(tester);
 
-      await press(tester, LogicalKeyboardKey.digit2, control: true);
+      await press(tester, LogicalKeyboardKey.digit3, control: true);
       await press(tester, LogicalKeyboardKey.digit1, control: true);
       await press(tester, LogicalKeyboardKey.comma, control: true);
       await press(tester, LogicalKeyboardKey.keyF, control: true);

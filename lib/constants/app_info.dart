@@ -17,7 +17,7 @@ class AppInfo {
 
   static const String appName = 'Sistrum';
   static const String license = 'LGPL-3.0-only';
-  static const String copyright = '© 2026 Zarz Eleutherius';
+  static const String copyright = '© 2026 AMWolfstein';
 
-  static const String mobileAuthor = 'zarzet';
+  static const String mobileAuthor = 'Zarz Eleutherius';
 }

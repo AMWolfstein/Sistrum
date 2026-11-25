@@ -29,7 +29,6 @@ impl Backend {
         self.embed_flac_fields_response(
             path,
             &fields,
-            "",
             ("Failed to embed lyrics", "Lyrics embedded successfully"),
             check,
         )

@@ -19,12 +19,6 @@ struct Table {
 
 const TABLES: &[Table] = &[
     Table {
-        kind: "wishlist",
-        name: "wishlist_tracks",
-        columns: &["track_key", "track_json", "added_at"],
-        keys: "track_key",
-    },
-    Table {
         kind: "loved",
         name: "loved_tracks",
         columns: &["track_key", "track_json", "added_at"],
@@ -118,9 +112,9 @@ pub(super) fn import(request: &Value, check: Check<'_>) -> Result<Value, String>
     let version: i64 = db
         .pragma_query_value(None, "user_version", |row| row.get(0))
         .map_err(|e| err("collection restore schema", e))?;
-    if version != 2 {
+    if version != 3 {
         return Err(format!(
-            "Collection schema v{version} is incompatible with native v2"
+            "Collection schema v{version} is incompatible with native v3"
         ));
     }
     db.execute_batch(
@@ -189,7 +183,6 @@ pub(super) fn import(request: &Value, check: Check<'_>) -> Result<Value, String>
     for name in [
         "playlist_tracks",
         "playlists",
-        "wishlist_tracks",
         "loved_tracks",
         "favorite_artists",
     ] {

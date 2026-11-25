@@ -36,11 +36,13 @@ Future<bool?> _legacyDiscard(BuildContext context) => showAppDialog<bool>(
   ),
 );
 
+const _storageAccessMessage = 'Storage access is needed.';
+
 Future<bool?> _legacyOpenSettings(BuildContext context) => showAppDialog<bool>(
   context: context,
   builder: (context) => AppAlertDialog(
     title: Text(context.l10n.setupStorageAccessRequired),
-    content: Text(context.l10n.allFilesAccessDeniedMessage),
+    content: const Text(_storageAccessMessage),
     actions: [
       AppDialogAction(
         onPressed: () => Navigator.pop(context, false),
@@ -206,7 +208,7 @@ void main() {
         (BuildContext context) => showAppConfirmDialog(
           context,
           title: context.l10n.setupStorageAccessRequired,
-          message: context.l10n.allFilesAccessDeniedMessage,
+          message: _storageAccessMessage,
           confirmLabel: context.l10n.setupOpenSettings,
           confirmIsDefault: true,
         ),

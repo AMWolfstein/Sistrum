@@ -15,7 +15,6 @@ class LibraryTrackSelectionBar extends StatelessWidget {
     required this.onClose,
     required this.onToggleSelectAll,
     required this.bottomPadding,
-    required this.onConvert,
     required this.onReplayGain,
     required this.onDelete,
     this.playbackActions,
@@ -27,7 +26,6 @@ class LibraryTrackSelectionBar extends StatelessWidget {
   final VoidCallback onClose;
   final VoidCallback onToggleSelectAll;
   final double bottomPadding;
-  final VoidCallback onConvert;
   final void Function({required bool remove}) onReplayGain;
   final VoidCallback onDelete;
 
@@ -68,12 +66,6 @@ class LibraryTrackSelectionBar extends StatelessWidget {
           ),
         SelectionActionGrid(
           children: [
-            SelectionActionButton(
-              icon: Icons.swap_horiz,
-              label: context.l10n.selectionConvertCount(selectedCount),
-              onPressed: hasSelection ? onConvert : null,
-              colorScheme: colorScheme,
-            ),
             replayGain(remove: false),
             // Desktop keeps delete a toolbar button. It shares a row with
             // the other removal, delete first, so neither wraps onto a row

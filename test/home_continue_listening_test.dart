@@ -3,7 +3,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/l10n/app_localizations.dart';
-import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/library_mixes_provider.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/recent_access_provider.dart';
@@ -18,16 +17,13 @@ import 'support/fixed_settings.dart';
 
 /// The Material Home without a feed, resuming a saved song unless
 /// [saved] is false.
-Widget _home({bool saved = true, bool card = true}) => ProviderScope(
+Widget _home({bool saved = true}) => ProviderScope(
   overrides: [
-    settingsProvider.overrideWith(
-      () => FixedSettingsNotifier(AppSettings(homeContinueListening: card)),
-    ),
+    settingsProvider.overrideWith(() => FixedSettingsNotifier()),
     recentAccessProvider.overrideWith(_Recent.new),
     libraryMixesProvider.overrideWith((ref) async => const []),
     homeRecentlyPlayedProvider.overrideWith((ref) async => const []),
     homeOnRepeatProvider.overrideWith((ref) async => const []),
-    playerUiEnabledProvider.overrideWithValue(true),
     currentMediaItemProvider.overrideWithBuild(
       (ref, notifier) => Stream<MediaItem?>.value(null),
     ),
@@ -60,14 +56,13 @@ Future<void> _open(
   required bool desktop,
   double width = 1280,
   bool saved = true,
-  bool card = true,
 }) async {
   tester.view.physicalSize = Size(width, 1400);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   debugDesktopPlatformOverride = desktop;
   addTearDown(() => debugDesktopPlatformOverride = null);
-  await tester.pumpWidget(_home(saved: saved, card: card));
+  await tester.pumpWidget(_home(saved: saved));
   await _settle(tester);
   await _settle(tester);
 }
@@ -90,21 +85,6 @@ void main() {
     expect(find.text('Continue listening'), findsOneWidget);
     expect(find.text('Saved song'), findsOneWidget);
   });
-
-  for (final desktop in [false, true]) {
-    testWidgets('Continue listening can be left off Home '
-        '(${desktop ? 'desktop' : 'phone'})', (tester) async {
-      await _open(
-        tester,
-        desktop: desktop,
-        width: desktop ? 1280 : 400,
-        card: false,
-      );
-      expect(tester.takeException(), isNull);
-      expect(find.text('Continue listening'), findsNothing);
-      expect(find.text('Saved song'), findsNothing);
-    });
-  }
 }
 
 class _Recent extends RecentAccessNotifier {

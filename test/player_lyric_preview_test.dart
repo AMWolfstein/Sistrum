@@ -485,6 +485,63 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('a word-timed line without a translation takes the same room '
+      'as with one, so the row does not jump', (tester) async {
+    const text = 'Hello there my friend';
+    LyricLine line({String? translation, bool timed = true}) => LyricLine(
+      time: const Duration(seconds: 4),
+      end: const Duration(seconds: 8),
+      text: text,
+      translation: translation,
+      words: timed
+          ? [
+              for (final (index, word) in [
+                'Hello ',
+                'there ',
+                'my ',
+                'friend',
+              ].indexed)
+                LyricWord(
+                  time: Duration(milliseconds: 4000 + index * 900),
+                  end: Duration(milliseconds: 4900 + index * 900),
+                  text: word,
+                ),
+            ]
+          : const [],
+    );
+    Future<({Size size, Rect arrow})> measure(LyricLine sung) async {
+      final view = await pumpPreview(
+        tester,
+        metadata: await _metadata(
+          ParsedLyrics(
+            synced: true,
+            wordSynced: sung.hasWordTiming,
+            plainText: text,
+            lines: [sung],
+          ),
+        ),
+      );
+      view.playback.add(_at(const Duration(seconds: 5), playing: false));
+      await tester.pumpAndSettle();
+      final result = (
+        size: tester.getSize(find.byType(PlayerLyricPreview)),
+        arrow: tester.getRect(find.byIcon(CupertinoIcons.forward)),
+      );
+      await tester.pumpWidget(const SizedBox());
+      return result;
+    }
+
+    final plain = await measure(line(timed: false));
+    final timedAlone = await measure(line());
+    final translated = await measure(line(translation: 'Hola amigo mio'));
+
+    expect(timedAlone.size.height, plain.size.height);
+    expect(timedAlone.size.width, plain.size.width);
+    expect(timedAlone.arrow.left, closeTo(plain.arrow.left, 0.01));
+    expect(translated.size.height, plain.size.height);
+    expect(tester.takeException(), isNull);
+  });
+
   group('song change', () {
     MediaItem song(String id, {String? resolved}) => MediaItem(
       id: id,

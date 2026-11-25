@@ -19,14 +19,7 @@ import '../test/support/fixed_settings.dart';
 import '../test/support/library_paging_fixture.dart';
 import 'performance_probe.dart';
 
-const _request = (
-  artists: false,
-  artist: null,
-  search: '',
-  sort: 'a-z',
-  limit: 40,
-  completeness: null,
-);
+const _request = (artists: false, sort: 'a-z', limit: 40, completeness: null);
 
 class _Local extends LocalLibraryNotifier {
   @override
@@ -45,8 +38,6 @@ class _PrefixBrowse extends LibraryBrowseNotifier {
     final page = await readPage((
       browse: (
         artists: request.artists,
-        artist: request.artist,
-        search: request.search,
         sort: request.sort,
         limit: _limit,
         completeness: request.completeness,
@@ -280,14 +271,7 @@ void main() {
       }
       final entries = current()!.entries;
       final expected = await readLibraryPagingFixture(store, (
-        browse: (
-          artists: false,
-          artist: null,
-          search: '',
-          sort: 'a-z',
-          limit: 1000,
-          completeness: null,
-        ),
+        browse: (artists: false, sort: 'a-z', limit: 1000, completeness: null),
         offset: 0,
         cursor: null,
         includeLocal: true,

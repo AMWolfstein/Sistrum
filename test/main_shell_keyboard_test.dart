@@ -14,14 +14,12 @@ import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/routes/now_playing_route.dart';
 import 'package:sistrum/screens/home_tab.dart';
 import 'package:sistrum/screens/main_shell.dart';
-import 'package:sistrum/services/playable_media.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/android_tv.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/widgets/tv_navigation.dart';
 import 'package:sistrum/widgets/tv_shell.dart';
 import 'package:sistrum/widgets/mornye_bottom_bar.dart';
-import 'package:sistrum/widgets/mini_player.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -39,7 +37,6 @@ void main() {
   Future<ValueNotifier<Locale>> pumpShell(
     WidgetTester tester, {
     bool tv = false,
-    bool externalPlayer = false,
     Stream<MediaItem?>? media,
   }) async {
     debugAndroidTvOverride = tv;
@@ -56,31 +53,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          settingsProvider.overrideWith(
-            () => _Settings(externalPlayer: externalPlayer),
-          ),
+          settingsProvider.overrideWith(_Settings.new),
           if (media != null)
             currentMediaItemProvider.overrideWithBuild(
               (ref, notifier) => media,
             ),
-          if (externalPlayer) ...[
-            currentMediaItemProvider.overrideWithBuild(
-              (ref, notifier) => Stream.value(
-                const MediaItem(id: 'old', title: 'Old internal song'),
-              ),
-            ),
-            playbackResumeProvider.overrideWith(
-              (ref) async => (
-                media: const PlayableMedia(
-                  id: 'saved',
-                  source: '/music/saved.flac',
-                  title: 'Saved song',
-                  artist: 'Artist',
-                ),
-                position: const Duration(seconds: 23),
-              ),
-            ),
-          ],
           recentAccessProvider.overrideWith(_Recent.new),
           // Home's replay shelves read statistics storage; stub them empty.
           homeRecentlyPlayedProvider.overrideWith((ref) async => const []),
@@ -189,28 +166,15 @@ void main() {
     await settleFrames();
     expect(find.text('Continue listening'), findsOneWidget);
     expect(tester.getRect(scroll).bottom, 932);
-    // Phones reach Settings as a page, so the bar only holds the Library tab.
+    // Phones reach Settings as a page, so the bar holds Home, Statistics,
+    // Library and Search.
     await tester.tap(destination('Search'));
     await settleFrames();
-    expect(tester.widget<MornyeBottomBar>(bar).selectedIndex, 2);
+    expect(tester.widget<MornyeBottomBar>(bar).selectedIndex, 3);
     await tester.tap(destination('Home'));
     await settleFrames();
     expect(tester.widget<MornyeBottomBar>(bar).selectedIndex, 0);
     expect(tester.getRect(scroll).bottom, 932);
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('external mode hides Home playback and mini player', (
-    tester,
-  ) async {
-    await pumpShell(tester, externalPlayer: true);
-    await tester.pump(const Duration(milliseconds: 400));
-    expect(find.text('Continue Listening'), findsNothing);
-    expect(find.text('Old internal song'), findsNothing);
-    expect(find.text('Saved song'), findsNothing);
-    for (final player in find.byType(MiniPlayer).evaluate()) {
-      expect(tester.getSize(find.byWidget(player.widget)).height, 0);
-    }
     expect(tester.takeException(), isNull);
   });
 
@@ -315,13 +279,8 @@ void main() {
 }
 
 class _Settings extends SettingsNotifier {
-  _Settings({this.externalPlayer = false});
-
-  final bool externalPlayer;
-
   @override
-  AppSettings build() =>
-      AppSettings(playerMode: externalPlayer ? 'external' : 'internal');
+  AppSettings build() => const AppSettings();
 }
 
 class _Recent extends RecentAccessNotifier {

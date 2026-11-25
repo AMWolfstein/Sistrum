@@ -214,9 +214,6 @@ class Track {
     );
   }
 
-  bool get isDolbyAtmos =>
-      audioModes != null && audioModes!.contains('DOLBY_ATMOS');
-
   bool get isExplicit => explicit == true;
 }
 

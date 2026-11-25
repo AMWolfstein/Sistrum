@@ -31,7 +31,6 @@ Widget _home({List<UnifiedLibraryItem> added = const []}) => ProviderScope(
     ),
     homeRecentlyPlayedProvider.overrideWith((ref) async => const []),
     homeOnRepeatProvider.overrideWith((ref) async => const []),
-    playerUiEnabledProvider.overrideWithValue(true),
     currentMediaItemProvider.overrideWithBuild(
       (ref, notifier) => Stream<MediaItem?>.value(null),
     ),

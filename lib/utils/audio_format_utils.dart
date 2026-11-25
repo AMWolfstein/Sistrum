@@ -201,41 +201,6 @@ bool isLossyAudioFormat(String? value) {
   }.contains(normalizeAudioFormatValue(value));
 }
 
-/// Whether a reported codec value only identifies the ISO-BMFF container.
-/// `m4a`/`mp4` cannot tell callers whether the audio stream is AAC, ALAC,
-/// FLAC, or another codec, so an explicit conversion request must probe or
-/// attempt conversion instead of classifying it as known-lossy audio.
-bool isInconclusiveAudioCodec(String? value) {
-  final raw = normalizeOptionalString(value);
-  if (raw == null) return true;
-  final normalized = raw.toLowerCase().replaceAll('-', '_');
-  return normalized == 'm4a' || normalized == 'mp4';
-}
-
-bool isLosslessAudioCodec(String? codec) {
-  final normalized = codec?.trim().toLowerCase().replaceAll('-', '_') ?? '';
-  return normalized.startsWith('pcm_') ||
-      const {
-        'alac',
-        'flac',
-        'wavpack',
-        'ape',
-        'tta',
-        'mlp',
-        'truehd',
-        'shorten',
-      }.contains(normalized);
-}
-
-/// A generic container needs an explicit conversion request; known lossy
-/// audio stays in its native container even when that request is present.
-bool shouldAttemptLosslessContainerConversion({
-  required bool forceConversion,
-  required String? probedCodec,
-}) =>
-    isLosslessAudioCodec(probedCodec) ||
-    (forceConversion && isInconclusiveAudioCodec(probedCodec));
-
 /// Returns a provider-independent quality label suitable for a filename.
 ///
 /// Requested labels such as LOSSLESS and HI_RES are intentionally ignored:
@@ -357,94 +322,6 @@ String metadataFormatForLossyFormat(String format) {
 
 String displayFormatForLossyFormat(String format) {
   return format == 'aac' ? 'AAC' : format.toUpperCase();
-}
-
-const List<String> autoConvertFormats = ['mp3', 'aac', 'opus', 'flac', 'alac'];
-const List<String> autoConvertBitrates = [
-  '128k',
-  '160k',
-  '192k',
-  '256k',
-  '320k',
-];
-
-String normalizeAutoConvertFormat(String value) {
-  final normalized = value.trim().toLowerCase();
-  if (normalized == 'm4a') return 'aac';
-  return autoConvertFormats.contains(normalized) ? normalized : 'mp3';
-}
-
-/// FLAC and ALAC share the lossless rules: lossy sources are kept, and the
-/// bit depth and sample rate caps apply instead of a bitrate.
-bool isLosslessAutoConvertFormat(String value) {
-  final normalized = normalizeAutoConvertFormat(value);
-  return normalized == 'flac' || normalized == 'alac';
-}
-
-String normalizeAutoConvertBitrate(String value) {
-  final match = RegExp(r'(\d+)').firstMatch(value);
-  final normalized = match == null ? '' : '${match.group(1)}k';
-  return autoConvertBitrates.contains(normalized) ? normalized : '320k';
-}
-
-int autoConvertBitrateKbps(String value) {
-  return int.parse(normalizeAutoConvertBitrate(value).replaceAll('k', ''));
-}
-
-String autoConvertFormatLabel(String format) {
-  return switch (normalizeAutoConvertFormat(format)) {
-    'aac' => 'M4A (AAC)',
-    'opus' => 'Opus',
-    'flac' => 'FLAC',
-    'alac' => 'M4A (ALAC)',
-    _ => 'MP3',
-  };
-}
-
-/// [codec] is the probed audio codec. An `.m4a` name holds AAC or ALAC, so
-/// only the codec can show that a file is already ALAC.
-bool autoConversionAlreadySatisfied({
-  required String? filePath,
-  String? fileName,
-  required String targetFormat,
-  required String targetBitrate,
-  String? quality,
-  int? bitrateKbps,
-  int? bitDepth,
-  int? sampleRate,
-  int? maxBitDepth,
-  int? maxSampleRate,
-  String? codec,
-}) {
-  final sourceFormat = audioFormatForPath(filePath, fileName: fileName);
-  final normalizedTarget = normalizeAutoConvertFormat(targetFormat);
-  if (isLosslessAutoConvertFormat(normalizedTarget)) {
-    final matchesFormat = normalizedTarget == 'alac'
-        ? normalizeAudioFormatValue(codec) == 'alac'
-        : sourceFormat == 'FLAC';
-    return matchesFormat &&
-        (maxBitDepth == null ||
-            (bitDepth != null && bitDepth > 0 && bitDepth <= maxBitDepth)) &&
-        (maxSampleRate == null ||
-            (sampleRate != null &&
-                sampleRate > 0 &&
-                sampleRate <= maxSampleRate));
-  }
-  final matchesFormat = switch (normalizedTarget) {
-    'aac' => sourceFormat == 'AAC' || sourceFormat == 'M4A',
-    'opus' => sourceFormat == 'OPUS',
-    _ => sourceFormat == 'MP3',
-  };
-  if (!matchesFormat) return false;
-
-  final targetKbps = autoConvertBitrateKbps(targetBitrate);
-  if (bitrateKbps != null && bitrateKbps > 0) {
-    return bitrateKbps == targetKbps;
-  }
-  return RegExp(
-    '\\b$targetKbps\\s*kbps\\b',
-    caseSensitive: false,
-  ).hasMatch(quality ?? '');
 }
 
 String? resolveDisplayQuality({

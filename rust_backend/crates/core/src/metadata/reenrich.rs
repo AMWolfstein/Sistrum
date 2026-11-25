@@ -57,10 +57,8 @@ pub struct Request {
     pub file_path: String,
     pub cover_url: String,
     pub header_video: String,
-    pub cover_max_dimension: isize,
     pub embed_lyrics: bool,
     pub lyrics_mode: String,
-    pub artist_tag_mode: String,
     pub spotify_id: String,
     pub track_name: String,
     pub artist_name: String,
@@ -90,8 +88,8 @@ pub struct Request {
 }
 lenient_deserialize!(Request {
     "file_path" => file_path, "cover_url" => cover_url, "header_video" => header_video,
-    "cover_max_dimension" => cover_max_dimension, "embed_lyrics" => embed_lyrics,
-    "lyrics_mode" => lyrics_mode, "artist_tag_mode" => artist_tag_mode,
+    "embed_lyrics" => embed_lyrics,
+    "lyrics_mode" => lyrics_mode,
     "spotify_id" => spotify_id, "track_name" => track_name, "artist_name" => artist_name,
     "album_name" => album_name, "album_artist" => album_artist,
     "track_number" => track_number, "disc_number" => disc_number,

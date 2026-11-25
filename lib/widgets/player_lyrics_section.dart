@@ -224,11 +224,15 @@ class PlayerLyricsSection extends ConsumerWidget {
     );
     String? shown(String? value, bool visible) =>
         visible && value?.trim().isNotEmpty == true ? value!.trim() : null;
-    final hasSupplements = lyrics.lines.any(
-      (line) =>
-          shown(line.romanization, visibility.$1) != null ||
-          shown(line.translation, visibility.$2) != null,
-    );
+    // With translations on, every line keeps its translation row, empty when
+    // the line has none, so the lines do not shift. Plain lyrics have no
+    // parsed lines, so they stay one text.
+    final hasSupplements =
+        lyrics.lines.isNotEmpty &&
+        (visibility.$2 ||
+            lyrics.lines.any(
+              (line) => shown(line.romanization, visibility.$1) != null,
+            ));
     final ambientDirection = Directionality.of(context);
     final directions = _plainLyricDirections[lyrics] ??= (
       text: lyricLineDirections(lyrics.plainText.split('\n')),
@@ -280,7 +284,7 @@ class PlayerLyricsSection extends ConsumerWidget {
                 ),
                 for (final supplement in [
                   shown(line.romanization, visibility.$1),
-                  shown(line.translation, visibility.$2),
+                  if (visibility.$2) shown(line.translation, true) ?? '',
                 ])
                   if (supplement != null)
                     Text(

@@ -2,7 +2,6 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/models/theme_settings.dart';
-import 'package:sistrum/utils/artist_utils.dart';
 
 void main() {
   test('Autoplay randomness defaults to least recent and restores safely', () {
@@ -99,29 +98,6 @@ void main() {
     expect(off.copyWith(locale: 'id').swipeToQueue, isFalse);
   });
 
-  test('A Library song tap opens details by default and remembers play', () {
-    expect(
-      const AppSettings().librarySongTap,
-      AppSettings.librarySongTapDetails,
-    );
-    // Settings saved before the choice existed keep opening the details.
-    expect(
-      AppSettings.fromJson({'swipeToQueue': true}).librarySongTap,
-      AppSettings.librarySongTapDetails,
-    );
-    final play = const AppSettings().copyWith(
-      librarySongTap: AppSettings.librarySongTapPlay,
-    );
-    expect(
-      AppSettings.fromJson(play.toJson()).librarySongTap,
-      AppSettings.librarySongTapPlay,
-    );
-    expect(
-      play.copyWith(locale: 'id').librarySongTap,
-      AppSettings.librarySongTapPlay,
-    );
-  });
-
   test('Library sort restores every choice and tolerates old settings', () {
     expect(AppSettings.fromJson({}).historySortMode, 'latest');
     for (final invalid in [null, '', 'unsupported', 42]) {
@@ -134,7 +110,6 @@ void main() {
       final settings = const AppSettings().copyWith(historySortMode: sort);
       final restored = AppSettings.fromJson(settings.toJson());
       expect(restored.historySortMode, sort);
-      expect(restored.copyWith(historyViewMode: 'list').historySortMode, sort);
     }
   });
 
@@ -162,30 +137,14 @@ void main() {
       const settings = AppSettings();
 
       expect(settings.audioQuality, 'LOSSLESS');
-      expect(settings.artistTagMode, artistTagModeJoined);
-      expect(settings.embeddedCoverMaxDimension, 0);
-      expect(settings.playerMode, 'internal');
-      expect(
-        settings.libraryQualityLabelMode,
-        AppSettings.libraryQualityLabelBitDepthOnly,
-      );
     });
 
     test('copyWith updates values', () {
       const settings = AppSettings();
 
-      final updated = settings.copyWith(
-        embedReplayGain: true,
-        embeddedCoverMaxDimension: 1000,
-        libraryQualityLabelMode: AppSettings.libraryQualityLabelBitDepthOnly,
-      );
+      final updated = settings.copyWith(locale: 'id');
 
-      expect(updated.embedReplayGain, isTrue);
-      expect(updated.embeddedCoverMaxDimension, 1000);
-      expect(
-        updated.libraryQualityLabelMode,
-        AppSettings.libraryQualityLabelBitDepthOnly,
-      );
+      expect(updated.locale, 'id');
       expect(updated.audioQuality, settings.audioQuality);
     });
 
@@ -193,27 +152,18 @@ void main() {
       const settings = AppSettings(
         storageMode: 'saf',
         downloadTreeUri: 'content://tree/music',
-        useAllFilesAccess: true,
         localLibraryEnabled: true,
         localLibraryPath: '/music',
         hasCompletedTutorial: true,
-        libraryQualityLabelMode: AppSettings.libraryQualityLabelBitDepthOnly,
-        embeddedCoverMaxDimension: 1500,
       );
 
       final decoded = AppSettings.fromJson(settings.toJson());
 
       expect(decoded.storageMode, 'saf');
       expect(decoded.downloadTreeUri, 'content://tree/music');
-      expect(decoded.useAllFilesAccess, isTrue);
       expect(decoded.localLibraryEnabled, isTrue);
       expect(decoded.localLibraryPath, '/music');
       expect(decoded.hasCompletedTutorial, isTrue);
-      expect(
-        decoded.libraryQualityLabelMode,
-        AppSettings.libraryQualityLabelBitDepthOnly,
-      );
-      expect(decoded.embeddedCoverMaxDimension, 1500);
     });
   });
 
@@ -222,7 +172,6 @@ void main() {
       const settings = ThemeSettings(
         themeMode: ThemeMode.dark,
         mornyeAccent: MornyeAccent.blue,
-        useSystemFont: true,
       );
 
       final decoded = ThemeSettings.fromJson(settings.toJson());
@@ -233,9 +182,6 @@ void main() {
       expect(copied.themeMode, ThemeMode.light);
       expect(decoded.mornyeAccent, MornyeAccent.blue);
       expect(copied.mornyeAccent, MornyeAccent.blue);
-      expect(decoded.useSystemFont, isTrue);
-      expect(copied.useSystemFont, isTrue);
-      expect(ThemeSettings.fromJson({}).useSystemFont, isFalse);
       expect(ThemeSettings.fromJson({}).mornyeAccent, MornyeAccent.blue);
       expect(
         ThemeSettings.fromJson({kMornyeAccentKey: 'unknown'}).mornyeAccent,

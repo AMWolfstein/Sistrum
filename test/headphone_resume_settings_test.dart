@@ -131,17 +131,6 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('the external player disables the choice', (tester) async {
-    final container = await _pumpPage(
-      tester,
-      settings: const AppSettings(playerMode: 'external'),
-    );
-    await _scrollToChoice(tester);
-    await tester.tap(_option('Always'), warnIfMissed: false);
-    await tester.pumpAndSettle();
-    expect(container.read(settingsProvider).headphoneResume, 'off');
-  });
-
   testWidgets('a saved old switch shows as Always', (tester) async {
     await _pumpPage(
       tester,

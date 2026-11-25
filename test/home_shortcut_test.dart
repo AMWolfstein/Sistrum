@@ -13,10 +13,15 @@ void main() {
 
     test('keeps a saved choice in its order', () {
       expect(
-        HomeShortcut.resolve(['loved', 'wishlist', 'shuffle', 'favoriteArtists']),
+        HomeShortcut.resolve([
+          'loved',
+          'listeningStats',
+          'shuffle',
+          'favoriteArtists',
+        ]),
         [
           HomeShortcut.loved,
-          HomeShortcut.wishlist,
+          HomeShortcut.listeningStats,
           HomeShortcut.shuffle,
           HomeShortcut.favoriteArtists,
         ],
@@ -44,12 +49,15 @@ void main() {
 
   group('HomeShortcut.place', () {
     test('replaces the slot with a shortcut not on Home', () {
-      expect(HomeShortcut.place(HomeShortcut.defaults, 1, HomeShortcut.wishlist), [
-        HomeShortcut.shuffle,
-        HomeShortcut.wishlist,
-        HomeShortcut.listeningStats,
-        HomeShortcut.loved,
-      ]);
+      expect(
+        HomeShortcut.place(HomeShortcut.defaults, 1, HomeShortcut.equalizer),
+        [
+          HomeShortcut.shuffle,
+          HomeShortcut.equalizer,
+          HomeShortcut.listeningStats,
+          HomeShortcut.loved,
+        ],
+      );
     });
 
     test('swaps with a shortcut already on Home', () {

@@ -9,9 +9,11 @@ Iterable<(String, TextStyle, List<LyricWord>, bool)> _lyricSupplements(
     (line.romanization, false),
     (line.translation, true),
   ]) {
-    if (text == null || text.trim().isEmpty) continue;
+    // A missing translation is still yielded, empty, so its row keeps the
+    // translated line's height and nothing shifts when one is absent.
+    if (!translation && (text == null || text.trim().isEmpty)) continue;
     yield (
-      text,
+      text ?? '',
       base.copyWith(
         fontSize: (translation ? 18.0 : 22.0) * (line.isBackground ? 0.8 : 1),
         height: 1.35,
@@ -100,7 +102,11 @@ Widget _withLyricSupplements(
   Widget Function(String, List<LyricWord>, TextStyle)? timedText,
   Widget Function(String, List<LyricWord>, TextStyle)? timedSupplementText,
 }) {
-  if (line.romanization == null && line.translation == null) return primary;
+  if (line.romanization == null &&
+      line.translation == null &&
+      visibility.dy <= 0) {
+    return primary;
+  }
   final AlignmentGeometry alignment = switch (textAlign) {
     TextAlign.end => AlignmentDirectional.topEnd,
     TextAlign.center => Alignment.topCenter,

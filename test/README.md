@@ -97,18 +97,16 @@ only for that:
     overrides the modal sheet shape;
   - only `selection_bottom_bar.dart` and `app_menu_button.dart` create an
     `OverlayEntry`;
-  - `album_screen.dart`, `playlist_screen.dart`, `local_album_screen.dart`,
-    `downloaded_album_screen.dart` and `library_tracks_folder_screen.dart`
-    use `CollectionScaffold(`, and `playlist_screen.dart` uses
-    `SelectionModeMixin<PlaylistScreen>`;
+  - `local_album_screen.dart` and `collection_detail_screen.dart` (playlist,
+    Loved and genre pages) use `CollectionScaffold(`, and
+    `collection_detail_screen.dart` uses
+    `SelectionModeMixin<CollectionDetailScreen>`;
   - `lib/screens/now_playing_screen.dart` uses `showAppBottomSheet` and no
     `PopupMenuButton`.
 
 Other suites read a production file alongside their behavior tests:
 `sqlite_helpers_test.dart` (`lib/services/sqlite_helpers.dart`),
-`downloaded_embedded_cover_resolver_test.dart`
-(`lib/screens/track_metadata_screen_cover.dart` and
-`track_metadata_cards.dart`), `queue_library_refresh_policy_test.dart`
+`queue_library_refresh_policy_test.dart`
 (`lib/screens/queue_tab_collection_items.dart`), and the schema tests
 `library_queue_store_test.dart`, `album_completeness_test.dart`,
 `album_completeness_query_test.dart` and `replaygain_library_filter_test.dart`

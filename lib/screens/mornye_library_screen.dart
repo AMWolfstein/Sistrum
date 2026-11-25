@@ -9,7 +9,6 @@ import 'package:sistrum/providers/library_genres_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/screens/library_artist_screen.dart';
 import 'package:sistrum/screens/library_directory_screen.dart';
-import 'package:sistrum/screens/library_mix_screen.dart';
 import 'package:sistrum/screens/listening_rewind_screen.dart';
 import 'package:sistrum/screens/local_album_screen.dart';
 import 'package:sistrum/services/album_completeness.dart';
@@ -17,10 +16,10 @@ import 'package:sistrum/services/library_database.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
-import 'package:sistrum/widgets/open_audio_button.dart';
 import 'package:sistrum/widgets/tv_navigation.dart';
 import 'package:sistrum/widgets/app_refresh_indicator.dart';
-import 'package:sistrum/widgets/app_search_field.dart';
+import 'package:sistrum/widgets/album_detail_header.dart'
+    show HeaderCircleButton;
 import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
@@ -28,8 +27,8 @@ import 'package:sistrum/widgets/desktop/context_menu.dart';
 import 'package:sistrum/widgets/desktop/hover_play_button.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
 import 'package:sistrum/widgets/local_library_artwork_builder.dart';
-import 'package:sistrum/widgets/library_search_results.dart';
 import 'package:sistrum/widgets/sliver_layout_info_builder.dart';
+import 'package:sistrum/screens/collection_detail_screen.dart';
 
 enum MornyeLibraryPage { overview, albums, artists, genres }
 
@@ -38,16 +37,10 @@ class MornyeLibraryScreen extends ConsumerStatefulWidget {
     super.key,
     required this.onOpenSection,
     this.page = MornyeLibraryPage.overview,
-    this.artist,
-    this.toolbar,
   });
 
   final ValueChanged<String> onOpenSection;
   final MornyeLibraryPage page;
-  final String? artist;
-
-  /// Shown above the albums of [artist] in place of the Artist Page link.
-  final Widget? toolbar;
 
   @override
   ConsumerState<MornyeLibraryScreen> createState() =>
@@ -56,11 +49,6 @@ class MornyeLibraryScreen extends ConsumerStatefulWidget {
 
 class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
   final _scroll = ScrollController();
-  final _search = TextEditingController();
-  Timer? _debounce;
-  bool _showSearch = false;
-  String? _completeness;
-  String _query = '';
   late String _sort;
   List<LibraryBrowseEntry> _rows = const [];
   bool _loading = true;
@@ -68,21 +56,13 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
   bool get _overview => widget.page == MornyeLibraryPage.overview;
   bool get _artists => widget.page == MornyeLibraryPage.artists;
   bool get _genres => widget.page == MornyeLibraryPage.genres;
-  LibraryBrowseRequest get _request => (
-    artists: _artists,
-    artist: widget.artist,
-    search: _query,
-    sort: _sort,
-    limit: 40,
-    completeness: _completeness,
-  );
+  LibraryBrowseRequest get _request =>
+      (artists: _artists, sort: _sort, limit: 40, completeness: null);
 
   @override
   void initState() {
     super.initState();
-    _sort = _overview
-        ? 'latest'
-        : _artists || _genres
+    _sort = _overview || _artists || _genres
         ? 'a-z'
         : ref.read(settingsProvider).libraryAlbumSortMode;
     _scroll.addListener(() {
@@ -90,7 +70,7 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
       if (_scroll.position.extentAfter < 500 &&
           !_loading &&
           !_genres &&
-          !(_overview && _query.isNotEmpty)) {
+          !_overview) {
         unawaited(
           ref.read(libraryBrowseProvider(_request).notifier).loadMore(),
         );
@@ -100,21 +80,8 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
 
   @override
   void dispose() {
-    _debounce?.cancel();
     _scroll.dispose();
-    _search.dispose();
     super.dispose();
-  }
-
-  void _searchChanged(String value) {
-    _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 300), () {
-      if (!mounted || _query == value.trim()) return;
-      setState(() {
-        _query = value.trim();
-        _rows = const [];
-      });
-    });
   }
 
   void _openPage(MornyeLibraryPage page) {
@@ -131,23 +98,6 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
 
   void _openArtist(String artist) =>
       pushPage<void>(context, (_) => LibraryArtistScreen(artist: artist));
-
-  /// The Library's genres whose name holds the search text.
-  LibraryBrowseState _genreRows(List<LibraryBrowseEntry> genres) {
-    final query = LibraryDatabase.normalizeLookupText(_query);
-    return LibraryBrowseState(
-      query.isEmpty
-          ? genres
-          : [
-              for (final genre in genres)
-                if (LibraryDatabase.normalizeLookupText(
-                  genre.name,
-                ).contains(query))
-                  genre,
-            ],
-      hasMore: false,
-    );
-  }
 
   Future<void> _openAlbum(LibraryBrowseEntry entry) async {
     Future<List<LocalLibraryItem>> loadTracks() => _loadLocalAlbum(entry);
@@ -207,7 +157,6 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
   Future<void> _chooseSort(BuildContext buttonContext) async {
     final options = [
       ('a-z', context.l10n.searchSortTitleAZ, Icons.sort_by_alpha),
-      ('latest', context.l10n.libraryRecentlyAdded, Icons.schedule),
       if (!_artists) ...[
         (
           'year-asc',
@@ -262,50 +211,6 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
     _scroll.jumpTo(0);
   }
 
-  Future<void> _chooseCompleteness(BuildContext buttonContext) async {
-    final options = [
-      ('', context.l10n.libraryFilterAll, Icons.album_outlined),
-      (
-        incompleteAlbumFilter,
-        context.l10n.libraryFilterIncompleteAlbums,
-        Icons.rule,
-      ),
-      (
-        unknownAlbumCompletenessFilter,
-        context.l10n.libraryAlbumCompletenessUnknown,
-        Icons.help_outline,
-      ),
-    ];
-    final selected =
-        await (_chooseFromMenu(buttonContext, options, _completeness ?? '') ??
-            showAppBottomSheet<String>(
-              context: context,
-              builder: (context) => Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  for (final option in options)
-                    ListTile(
-                      title: Text(option.$2),
-                      selected: (_completeness ?? '') == option.$1,
-                      selectedColor: Theme.of(context).colorScheme.onSurface,
-                      trailing: (_completeness ?? '') == option.$1
-                          ? const Icon(Icons.check)
-                          : null,
-                      onTap: () => Navigator.pop(context, option.$1),
-                    ),
-                ],
-              ),
-            ));
-    if (!mounted || selected == null || selected == (_completeness ?? '')) {
-      return;
-    }
-    setState(() {
-      _completeness = selected.isEmpty ? null : selected;
-      _rows = const [];
-    });
-    _scroll.jumpTo(0);
-  }
-
   Widget _buildCompletenessBadge(AlbumCompleteness completeness) {
     final colors = Theme.of(context).colorScheme;
     final expected = completeness.expected;
@@ -341,57 +246,41 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final searchingLibrary = _overview && _query.isNotEmpty;
     final listInset = wideListInset(context);
-    final result = searchingLibrary
+    // The overview lists categories only; it reads no album rows.
+    final result = _overview
         ? const AsyncData(LibraryBrowseState([], hasMore: false))
         : _genres
-        ? ref.watch(libraryGenresProvider).whenData(_genreRows)
+        ? ref
+              .watch(libraryGenresProvider)
+              .whenData((genres) => LibraryBrowseState(genres, hasMore: false))
         : ref.watch(libraryBrowseProvider(_request));
     _loading = result.isLoading || (result.value?.isLoadingMore ?? false);
     if (result.hasValue) _rows = result.requireValue.entries;
     void reload() => _genres
         ? ref.invalidate(libraryGenresProvider)
         : ref.invalidate(libraryBrowseProvider(_request));
-    final title =
-        widget.artist ??
-        (_overview
-            ? context.l10n.navLibrary
-            : _artists
-            ? context.l10n.searchArtists
-            : _genres
-            ? context.l10n.libraryGenres
-            : context.l10n.searchAlbums);
+    final title = _overview
+        ? context.l10n.navLibrary
+        : _artists
+        ? context.l10n.searchArtists
+        : _genres
+        ? context.l10n.libraryGenres
+        : context.l10n.searchAlbums;
     final actions = <Widget>[
-      if (_overview) const OpenAudioButton(),
-      IconButton(
-        tooltip: context.l10n.librarySearchHint,
-        icon: const Icon(Icons.search),
-        onPressed: () => setState(() => _showSearch = !_showSearch),
-      ),
       if (!_overview && !_artists && !_genres) ...[
         Builder(
-          builder: (buttonContext) => IconButton(
+          builder: (buttonContext) => HeaderCircleButton(
             tooltip: context.l10n.searchSortTitle,
-            icon: const Icon(Icons.sort),
+            icon: Icons.sort,
             onPressed: () => _chooseSort(buttonContext),
-          ),
-        ),
-        Builder(
-          builder: (buttonContext) => IconButton(
-            tooltip: context.l10n.libraryFilterTitle,
-            icon: Badge(
-              isLabelVisible: _completeness != null,
-              child: const Icon(Icons.filter_list),
-            ),
-            onPressed: () => _chooseCompleteness(buttonContext),
           ),
         ),
       ],
     ];
     return AppRefreshIndicator(
       onRefresh: () async {
-        if (searchingLibrary) return;
+        if (_overview) return;
         reload();
         await (_genres
             ? ref.read(libraryGenresProvider.future)
@@ -409,178 +298,94 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
             )
           else
             AppSliverHeader.page(title: title, actions: actions),
-          AppRefreshIndicator.sliver(enabled: !searchingLibrary),
-          if (_showSearch)
+          AppRefreshIndicator.sliver(enabled: !_overview),
+          if (_overview)
+            SliverPadding(
+              // Rows center at the reading width on tablets.
+              padding: EdgeInsets.fromLTRB(
+                24 + listInset,
+                0,
+                24 + listInset,
+                20,
+              ),
+              sliver: SliverList.list(
+                children: [
+                  for (final category in [
+                    (
+                      Icons.queue_music,
+                      context.l10n.searchPlaylists,
+                      () => widget.onOpenSection('playlists'),
+                    ),
+                    (
+                      Icons.mic_none,
+                      context.l10n.searchArtists,
+                      () => _openPage(MornyeLibraryPage.artists),
+                    ),
+                    (
+                      Icons.album_outlined,
+                      context.l10n.searchAlbums,
+                      () => _openPage(MornyeLibraryPage.albums),
+                    ),
+                    (
+                      Icons.music_note_outlined,
+                      context.l10n.searchSongs,
+                      () => widget.onOpenSection('all'),
+                    ),
+                    (
+                      Icons.category_outlined,
+                      context.l10n.libraryGenres,
+                      () => _openPage(MornyeLibraryPage.genres),
+                    ),
+                    (
+                      Icons.folder_outlined,
+                      context.l10n.libraryFolders,
+                      () => pushPage<void>(
+                        context,
+                        (_) => const LibraryDirectoryScreen(),
+                      ),
+                    ),
+                  ]) ...[
+                    // The desktop shell paints its background without a
+                    // Material, which would hide the row's ink.
+                    Material(
+                      type: MaterialType.transparency,
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        minVerticalPadding: 12,
+                        leading: Icon(
+                          category.$1,
+                          color: colors.primary,
+                          size: 28,
+                        ),
+                        title: Text(
+                          category.$2,
+                          style: const TextStyle(fontSize: 22),
+                        ),
+                        trailing: Icon(
+                          Icons.chevron_right,
+                          color: colors.primary,
+                        ),
+                        onTap: category.$3,
+                      ),
+                    ),
+                    const Divider(height: 1, indent: 48),
+                  ],
+                ],
+              ),
+            ),
+          // The seasonal Rewind, beside the listening history it replays.
+          if (_overview)
             SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                  24 + listInset,
-                  8,
-                  24 + listInset,
-                  16,
-                ),
-                child: AppSearchField(
-                  controller: _search,
-                  autofocus: true,
-                  hintText: context.l10n.librarySearchHint,
-                  clearTooltip: context.l10n.dialogClear,
-                  samplesBackdrop: false,
-                  onChanged: _searchChanged,
-                  onClear: () {
-                    _search.clear();
-                    _searchChanged('');
-                  },
-                ),
-              ),
-            ),
-          if (searchingLibrary)
-            LibrarySearchResults(
-              query: _query,
-              // A played song continues into the Songs list in its saved
-              // sort; the Songs page's filters last only while it is open.
-              songList: (
-                filterMode: 'all',
-                sortMode: ref.watch(
-                  settingsProvider.select((s) => s.historySortMode),
-                ),
-                source: null,
-                quality: null,
-                format: null,
-                metadata: null,
-                includeLocal: ref.watch(
-                  settingsProvider.select((s) => s.localLibraryEnabled),
-                ),
-              ),
-              onOpenArtist: _openArtist,
-            ),
-          if (!searchingLibrary) ...[
-            if (_overview && _query.isEmpty)
-              SliverPadding(
-                // Rows center at the reading width on tablets.
-                padding: EdgeInsets.fromLTRB(
+              child: ListeningRewindBanner(
+                margin: EdgeInsets.fromLTRB(
                   24 + listInset,
                   0,
                   24 + listInset,
-                  20,
-                ),
-                sliver: SliverList.list(
-                  children: [
-                    for (final category in [
-                      (
-                        Icons.queue_music,
-                        context.l10n.searchPlaylists,
-                        () => widget.onOpenSection('playlists'),
-                      ),
-                      (
-                        Icons.mic_none,
-                        context.l10n.searchArtists,
-                        () => _openPage(MornyeLibraryPage.artists),
-                      ),
-                      (
-                        Icons.album_outlined,
-                        context.l10n.searchAlbums,
-                        () => _openPage(MornyeLibraryPage.albums),
-                      ),
-                      (
-                        Icons.music_note_outlined,
-                        context.l10n.searchSongs,
-                        () => widget.onOpenSection('all'),
-                      ),
-                      (
-                        Icons.category_outlined,
-                        context.l10n.libraryGenres,
-                        () => _openPage(MornyeLibraryPage.genres),
-                      ),
-                      (
-                        Icons.folder_outlined,
-                        context.l10n.libraryFolders,
-                        () => pushPage<void>(
-                          context,
-                          (_) => const LibraryDirectoryScreen(),
-                        ),
-                      ),
-                    ]) ...[
-                      // The desktop shell paints its background without a
-                      // Material, which would hide the row's ink.
-                      Material(
-                        type: MaterialType.transparency,
-                        child: ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          minVerticalPadding: 12,
-                          leading: Icon(
-                            category.$1,
-                            color: colors.primary,
-                            size: 28,
-                          ),
-                          title: Text(
-                            category.$2,
-                            style: const TextStyle(fontSize: 22),
-                          ),
-                          trailing: Icon(
-                            Icons.chevron_right,
-                            color: colors.onSurfaceVariant,
-                          ),
-                          onTap: category.$3,
-                        ),
-                      ),
-                      const Divider(height: 1, indent: 48),
-                    ],
-                  ],
+                  16,
                 ),
               ),
-            // The seasonal Rewind, beside the listening history it replays.
-            if (_overview &&
-                _query.isEmpty &&
-                ref.watch(
-                  settingsProvider.select((s) => s.listeningStatisticsEnabled),
-                ))
-              SliverToBoxAdapter(
-                child: ListeningRewindBanner(
-                  margin: EdgeInsets.fromLTRB(
-                    24 + listInset,
-                    0,
-                    24 + listInset,
-                    16,
-                  ),
-                ),
-              ),
-            if (_overview)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    24 + listInset,
-                    8,
-                    24 + listInset,
-                    16,
-                  ),
-                  child: Semantics(
-                    header: true,
-                    child: Text(
-                      _query.isEmpty
-                          ? context.l10n.libraryRecentlyAdded
-                          : context.l10n.searchAlbums,
-                      style: Theme.of(context).textTheme.headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
-              ),
-            if (widget.toolbar case final toolbar?)
-              SliverToBoxAdapter(child: toolbar)
-            else if (widget.artist != null)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: EdgeInsetsDirectional.only(start: 16 + listInset),
-                  child: Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: TextButton(
-                      onPressed: () =>
-                          navigateToArtist(context, artistName: widget.artist!),
-                      child: Text(context.l10n.libraryArtistPage),
-                    ),
-                  ),
-                ),
-              ),
+            ),
+          if (!_overview) ...[
             if (_rows.isNotEmpty)
               if (_artists || _genres)
                 SliverList.builder(
@@ -590,7 +395,7 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
                     void open() => _genres
                         ? pushPage<void>(
                             context,
-                            (_) => LibraryMixScreen.genre(genre: entry),
+                            (_) => CollectionDetailScreen.genre(genre: entry),
                           )
                         : _openArtist(entry.artist);
                     final artwork = SizedBox.square(
@@ -628,7 +433,10 @@ class _MornyeLibraryScreenState extends ConsumerState<MornyeLibraryScreen> {
                             subtitle: Text(
                               context.l10n.queueTrackCount(entry.trackCount),
                             ),
-                            trailing: const Icon(Icons.chevron_right),
+                            trailing: Icon(
+                              Icons.chevron_right,
+                              color: colors.primary,
+                            ),
                             onTap: open,
                           ),
                         ),

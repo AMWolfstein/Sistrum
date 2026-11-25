@@ -24,9 +24,7 @@ class _Player extends MusicPlayerController {
 
 class _Settings extends SettingsNotifier {
   @override
-  AppSettings build() => const AppSettings(playerMode: 'external');
-  @override
-  void setPlayerMode(String mode) => state = state.copyWith(playerMode: mode);
+  AppSettings build() => const AppSettings();
 }
 
 class _LocalItem extends LocalMediaItemNotifier {
@@ -55,24 +53,20 @@ void main() {
     await folder.delete(recursive: true);
   });
 
-  test(
-    'opens standalone files without a Library record or external-player loop',
-    () async {
-      final file = await File(
-        '${folder.path}/01. Song.flac',
-      ).writeAsString('audio');
-      await container.read(openAudioControllerProvider.notifier).open([
-        OpenAudioFile(file.path),
-      ]);
-      final media = player.queues.single.single;
-      expect(media.source, file.path);
-      expect(media.id, 'opened:${file.path}');
-      expect(media.title, '01. Song');
-      expect(media.format, 'FLAC');
-      expect(container.read(settingsProvider).playerMode, 'internal');
-      expect(container.read(openAudioControllerProvider), isFalse);
-    },
-  );
+  test('opens standalone files without a Library record', () async {
+    final file = await File(
+      '${folder.path}/01. Song.flac',
+    ).writeAsString('audio');
+    await container.read(openAudioControllerProvider.notifier).open([
+      OpenAudioFile(file.path),
+    ]);
+    final media = player.queues.single.single;
+    expect(media.source, file.path);
+    expect(media.id, 'opened:${file.path}');
+    expect(media.title, '01. Song');
+    expect(media.format, 'FLAC');
+    expect(container.read(openAudioControllerProvider), isFalse);
+  });
 
   test(
     'an empty folder reports an error without replacing the existing queue',
@@ -84,7 +78,6 @@ void main() {
         throwsA(isA<FileSystemException>()),
       );
       expect(player.queues, isEmpty);
-      expect(container.read(settingsProvider).playerMode, 'external');
       expect(container.read(openAudioControllerProvider), isFalse);
     },
   );

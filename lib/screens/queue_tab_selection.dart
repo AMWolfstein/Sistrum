@@ -103,9 +103,8 @@ extension _QueueTabSelectionActions on _QueueTabState {
     BuildContext context,
     UnifiedLibraryItem item,
     List<UnifiedLibraryItem> libraryItems,
-    Offset position, {
-    VoidCallback? onOpenDetails,
-  }) async {
+    Offset position,
+  ) async {
     final forMenu = !_selectedIds.contains(item.id);
     if (forMenu) {
       _contextMenuSelection = true;
@@ -120,14 +119,12 @@ extension _QueueTabSelectionActions on _QueueTabState {
         ref,
         items: _selectedItemsFromAll(libraryItems),
         onPlay: () => _playLibraryItem(item, libraryItems),
-        onOpenDetails: onOpenDetails,
         onDone: _exitSelectionMode,
-        onConvert: () => _showBatchConvertSheet(this.context, libraryItems),
         onDelete: () => _deleteSelected(libraryItems),
       ),
     );
     if (!forMenu || !mounted) return;
-    // A bulk action (convert, delete) kept the selection and
+    // A bulk action (delete) kept the selection and
     // shows the toolbar again.
     _setState(() => _contextMenuSelection = false);
     if (!chosen) _exitSelectionMode();
@@ -340,8 +337,4 @@ extension _QueueTabSelectionActions on _QueueTabState {
         isActive: () => mounted,
         onComplete: _exitSelectionMode,
       );
-
-  String _cleanFilePath(String? filePath) {
-    return DownloadedEmbeddedCoverResolver.cleanFilePath(filePath);
-  }
 }

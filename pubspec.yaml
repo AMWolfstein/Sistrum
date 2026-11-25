@@ -63,7 +63,6 @@ dependencies:
   json_annotation: ^4.12.0
 
   # Utils
-  url_launcher: ^6.3.3
   device_info_plus: ^13.3.0
   share_plus: ^13.3.1
   receive_sharing_intent: ^1.9.0
@@ -71,7 +70,6 @@ dependencies:
 
   # FFmpeg for audio conversion
   ffmpeg_kit_flutter_new_audio: 2.5.8
-  open_filex: ^5.0.0
 
   video_player: ^2.14.1
 
@@ -155,7 +153,6 @@ flutter:
     - NOTICE
     - assets/images/
     - assets/images/sistrum-horizontal-white.png
-    - assets/fonts/Inter-LICENSE.txt
     - assets/licenses/usb.txt
     - assets/licenses/oboe.txt
     - assets/licenses/wavpack.txt
@@ -167,7 +164,3 @@ flutter:
     - assets/licenses/romanization.txt
     - assets/romanization/pinyin.txt.gz
 
-  fonts:
-    - family: Inter
-      fonts:
-        - asset: assets/fonts/InterVariable.ttf

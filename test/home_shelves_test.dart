@@ -220,21 +220,15 @@ void main() {
       final container = _container(includeLocal: true);
       container.listen(homeRecentlyAddedProvider, (_, _) {});
       final badges = libraryCountsProvider(
-        const LibraryCountsRequest(
-          searchQuery: '',
-          filterSource: null,
-          filterQuality: null,
-          filterFormat: null,
-          filterMetadata: null,
-          localLibraryEnabled: true,
-        ),
+        const LibraryCountsRequest(localLibraryEnabled: true),
       );
       container.listen(badges, (_, _) {});
       await container.read(homeRecentlyAddedProvider.future);
       await container.read(badges.future);
       expect(_ran(_countRead), 1);
 
-      (container.read(localLibraryIndexRevisionProvider.notifier) as _Revision).bumpForTest();
+      (container.read(localLibraryIndexRevisionProvider.notifier) as _Revision)
+          .bumpForTest();
       await container.read(homeRecentlyAddedProvider.future);
       await container.read(badges.future);
       expect(_ran(_countRead), 2);

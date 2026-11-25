@@ -1,16 +1,8 @@
-import 'dart:async';
-import 'dart:collection';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
-import 'package:sistrum/providers/local_library_provider.dart';
-import 'package:sistrum/providers/settings_provider.dart';
-import 'package:sistrum/services/folder_cover_file.dart'
-    show folderCoverFileNames;
 import 'package:sistrum/services/lyrics_sidecar.dart' show mlrcExtension;
-import 'package:sistrum/services/motion_artwork_folder.dart'
-    show motionArtworkFileName;
 import 'package:sistrum/services/platform_bridge.dart';
 import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/utils/logger.dart';
@@ -25,8 +17,8 @@ abstract interface class SongFolderStore {
   /// The entries of [folder], or null when it cannot be listed.
   Future<List<SongFolderEntry>?> list(String folder);
 
-  /// Deletes the file or empty folder [id]; false when it stays.
-  Future<bool> delete(String id, {required bool folder});
+  /// Deletes the file [id]; false when it stays.
+  Future<bool> delete(String id);
 }
 
 /// Folders and files on a plain path.
@@ -52,10 +44,9 @@ class LocalSongFolderStore implements SongFolderStore {
   }
 
   @override
-  Future<bool> delete(String id, {required bool folder}) async {
+  Future<bool> delete(String id) async {
     try {
-      // Never recursive: a folder goes only when nothing is left in it.
-      await (folder ? Directory(id).delete() : File(id).delete());
+      await File(id).delete();
       return true;
     } catch (_) {
       return false;
@@ -78,13 +69,8 @@ class DocumentSongFolderStore implements SongFolderStore {
   }
 
   @override
-  Future<bool> delete(String id, {required bool folder}) async {
+  Future<bool> delete(String id) async {
     try {
-      // A document folder is deleted with what it holds, so check that
-      // nothing arrived since it was listed.
-      if (folder && (await PlatformBridge.listSafFolder(id))?.isEmpty != true) {
-        return false;
-      }
       return await PlatformBridge.safDelete(id);
     } catch (_) {
       return false;
@@ -98,7 +84,6 @@ class _SongPlace {
     required this.store,
     required this.name,
     required this.folder,
-    required this.removable,
   });
 
   final SongFolderStore store;
@@ -106,21 +91,12 @@ class _SongPlace {
   final String name;
 
   final String folder;
-
-  /// The folders the song may leave empty, nearest first: inside the
-  /// download or Local Library folder, never that folder itself.
-  final List<String> removable;
 }
 
 final songLeftoversProvider = Provider<SongLeftovers>(SongLeftovers.new);
 
-/// Deletes the songs the user removes together with what they leave behind:
-/// their `.lrc` and `.mlrc` lyrics files, and, while Remove Empty Folders is
-/// on, the album and artist folders they leave empty inside the Local Library
-/// folders. A folder still counts as empty when it only holds system index
-/// files, Mornye's `cover.mp4` or lyrics files of songs that are gone, or a
-/// `folder.jpg` cover while Save Album Covers is on. CUE tracks are only
-/// deleted.
+/// Deletes the songs the user removes together with their `.lrc` and `.mlrc`
+/// lyrics files. Folders are never removed. CUE tracks are only deleted.
 class SongLeftovers {
   SongLeftovers(
     this._ref, {
@@ -131,12 +107,10 @@ class SongLeftovers {
       String source,
     )?
     documentPlace,
-    String? home,
   }) : _deleteSong = deleteSong ?? deleteFile,
        _files = files,
        _documents = documents,
-       _documentPlace = documentPlace ?? PlatformBridge.safSongFolders,
-       _home = home {
+       _documentPlace = documentPlace ?? PlatformBridge.safSongFolders {
     _ref.onDispose(dispose);
   }
 
@@ -147,14 +121,11 @@ class SongLeftovers {
   final Future<({String name, List<({String uri, bool root})> folders})?>
   Function(String source)
   _documentPlace;
-  final String? _home;
 
-  final _folders = Queue<_SongPlace>();
-  var _removing = false;
   var _disposed = false;
 
-  /// Deletes the song at [source] as [deleteFile] does, then what it leaves
-  /// behind. Returns whether the song is gone.
+  /// Deletes the song at [source] as [deleteFile] does, then its lyrics
+  /// files. Returns whether the song is gone.
   Future<bool> delete(String? source) async {
     final place = await _placeOf(source);
     if (!await _deleteSong(source)) return false;
@@ -163,11 +134,6 @@ class SongLeftovers {
       await _deleteLyricsFiles(place);
     } catch (error) {
       _log.w('Could not delete the lyrics files of ${place.name}: $error');
-    }
-    if (place.removable.isNotEmpty &&
-        _ref.read(settingsProvider).removeEmptyFolders) {
-      _folders.add(place);
-      flushFolders();
     }
     return true;
   }
@@ -188,52 +154,17 @@ class SongLeftovers {
           store: _documents,
           name: place.name,
           folder: place.folders.first.uri,
-          removable: [
-            for (final folder in place.folders.takeWhile((f) => !f.root))
-              folder.uri,
-          ],
         );
       }
       final uri = Uri.tryParse(path);
       final file = uri?.scheme == 'file' ? uri!.toFilePath() : path;
       if (!p.isAbsolute(file)) return null;
       final folder = p.dirname(p.normalize(file));
-      return _SongPlace(
-        store: _files,
-        name: p.basename(file),
-        folder: folder,
-        removable: _removableFolders(folder),
-      );
+      return _SongPlace(store: _files, name: p.basename(file), folder: folder);
     } catch (error) {
       _log.w('Could not find the folder of $path: $error');
       return null;
     }
-  }
-
-  /// [folder] and the folders above it, up to the download or Local Library
-  /// folder holding them.
-  List<String> _removableFolders(String folder) {
-    final settings = _ref.read(settingsProvider);
-    final roots = [
-      for (final root in {
-        settings.localLibraryPath,
-        for (final source in _ref.read(localLibraryProvider).sources)
-          source.path,
-      })
-        if (root.trim() case final root
-            when root.isNotEmpty && !isContentUri(root) && p.isAbsolute(root))
-          root,
-    ];
-    final folders = <String>[];
-    var current = folder;
-    while (roots.any((root) => p.isWithin(root, current)) &&
-        !isSharedTopFolder(current, home: _home)) {
-      folders.add(current);
-      final parent = p.dirname(current);
-      if (parent == current) break;
-      current = parent;
-    }
-    return folders;
   }
 
   /// The song's own `.lrc` and `.mlrc` files, unless another song in the
@@ -248,46 +179,8 @@ class SongLeftovers {
     }
     for (final entry in files) {
       if (_stem(entry.name) == stem && _isLyrics(entry)) {
-        await place.store.delete(entry.id, folder: false);
+        await place.store.delete(entry.id);
       }
-    }
-  }
-
-  void flushFolders() {
-    if (_removing || _disposed || _folders.isEmpty) return;
-    unawaited(_removeAll());
-  }
-
-  Future<void> _removeAll() async {
-    _removing = true;
-    try {
-      while (_folders.isNotEmpty && !_disposed) {
-        final place = _folders.removeFirst();
-        try {
-          await _removeEmptyFolders(place);
-        } catch (error) {
-          _log.w('Could not remove the folders of ${place.name}: $error');
-        }
-      }
-    } finally {
-      _removing = false;
-    }
-  }
-
-  Future<void> _removeEmptyFolders(_SongPlace place) async {
-    final store = place.store;
-    final covers = _ref.read(settingsProvider).saveFolderCover;
-    for (final folder in place.removable) {
-      final entries = await store.list(folder);
-      if (entries == null ||
-          entries.any((entry) => _keepsFolder(entry, covers: covers))) {
-        return;
-      }
-      for (final entry in entries) {
-        if (!await store.delete(entry.id, folder: false)) return;
-      }
-      if (!await store.delete(folder, folder: true)) return;
-      _log.d('Removed the empty folder $folder');
     }
   }
 
@@ -298,24 +191,7 @@ class SongLeftovers {
     '.$mlrcExtension',
   }.contains(p.posix.extension(entry.name).toLowerCase());
 
-  /// Whether [entry] is something of the user's that keeps its folder:
-  /// anything but system index files, Mornye's `cover.mp4` and lyrics files
-  /// left by songs that are gone. With [covers], while downloads save
-  /// `folder.jpg`, that cover is no longer the user's either.
-  static bool _keepsFolder(SongFolderEntry entry, {required bool covers}) {
-    if (entry.folder) return true;
-    final name = entry.name.toLowerCase();
-    final leftover =
-        const {'.ds_store', 'thumbs.db', 'desktop.ini'}.contains(name) ||
-        name == motionArtworkFileName ||
-        (covers && folderCoverFileNames.contains(name)) ||
-        name.startsWith('._') ||
-        _isLyrics(entry);
-    return !leftover;
-  }
-
   void dispose() {
     _disposed = true;
-    _folders.clear();
   }
 }

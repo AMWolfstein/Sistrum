@@ -201,15 +201,6 @@ class LibraryCollectionsNotifier extends Notifier<LibraryCollectionsState> {
     return true;
   });
 
-  Future<bool> toggleWishlist(Track track) => _toggleTrackEntry(
-    track,
-    contains: (key) => state.containsWishlistKey(key),
-    select: (state) => state.wishlist,
-    withList: (list) => state.copyWith(wishlist: list),
-    dbDelete: _db.deleteWishlistEntry,
-    dbUpsert: _db.upsertWishlistEntry,
-  );
-
   Future<bool> toggleLoved(Track track) async {
     final loved = await _toggleTrackEntry(
       track,
@@ -395,15 +386,6 @@ class LibraryCollectionsNotifier extends Notifier<LibraryCollectionsState> {
       return keys.length;
     });
   }
-
-  Future<int> removeWishlistTracks(Iterable<String> trackKeys) =>
-      _removeTrackEntries(
-        trackKeys,
-        contains: (key) => state.containsWishlistKey(key),
-        select: () => state.wishlist,
-        withList: (list) => state.copyWith(wishlist: list),
-        dbDelete: _db.deleteWishlistTracks,
-      );
 
   Future<int> removeLovedTracks(Iterable<String> trackKeys) =>
       _removeTrackEntries(
@@ -686,10 +668,8 @@ class LibraryCollectionsNotifier extends Notifier<LibraryCollectionsState> {
     LibraryTracksFolderMode mode,
     List<String> orderedKeys,
   ) => _mutate(() async {
-    if (mode == LibraryTracksFolderMode.playlist) return false;
-    final entries = mode == LibraryTracksFolderMode.loved
-        ? state.loved
-        : state.wishlist;
+    if (mode != LibraryTracksFolderMode.loved) return false;
+    final entries = state.loved;
     final byKey = {for (final entry in entries) entry.key: entry};
     if (orderedKeys.length != byKey.length ||
         orderedKeys.toSet().length != orderedKeys.length ||
@@ -720,9 +700,7 @@ class LibraryCollectionsNotifier extends Notifier<LibraryCollectionsState> {
       },
     );
     if (!ref.mounted) return false;
-    state = mode == LibraryTracksFolderMode.loved
-        ? state.copyWith(loved: reordered)
-        : state.copyWith(wishlist: reordered);
+    state = state.copyWith(loved: reordered);
     return true;
   });
 
@@ -807,7 +785,7 @@ class LibraryCollectionsNotifier extends Notifier<LibraryCollectionsState> {
     return covers;
   }
 
-  /// Replaces all collections (wishlist, loved, playlists, favorite artists)
+  /// Replaces all collections (loved, playlists, favorite artists)
   /// with the contents of a backup. [collectionsJson] uses the
   /// [LibraryCollectionsState.toJson] shape; [coverImages] is the backup's
   /// playlist cover map: `ext` plus either a `path` to an extracted file or

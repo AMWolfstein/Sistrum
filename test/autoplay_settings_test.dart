@@ -88,20 +88,6 @@ void main() {
       ),
       isTrue,
     );
-    container.read(settingsProvider.notifier).setPlayerMode('external');
-    await tester.pump();
-    expect(
-      tester
-          .widget<SettingsSwitchItem>(
-            find.byWidgetPredicate(
-              (widget) =>
-                  widget is SettingsSwitchItem &&
-                  widget.title == 'Personalized autoplay',
-            ),
-          )
-          .enabled,
-      isFalse,
-    );
     expect(tester.takeException(), isNull);
   });
 

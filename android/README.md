@@ -65,7 +65,6 @@ and "null" are typed channel values. Arguments are map keys unless noted.
 | `runPostProcessingV2` | Post-processing for `input` and `metadata`; content URIs use a temp copy | Metadata | JSON text |
 | `readAudioMetadata` | Audio metadata for `file_path` (SAF read through the URI) | Metadata | JSON text |
 | `readFileMetadata` | Tag metadata for `file_path`, `display_name` | Metadata | JSON text |
-| `checkHiResAuthenticity` | Hi-Res check for `file_path`, `options_json` | Metadata | JSON text |
 | `editFileMetadata` | Writes `metadata_json`; SAF edits a temp copy (see SAF Model) | Metadata | JSON text |
 | `reEnrichFile` | Re-enriches from online metadata (`request_json`); may rewrite the LRC sidecar | Metadata | JSON text |
 | `setLibraryCoverCacheDir` | Sets the library cover cache directory (`cache_dir`) | Scan | null |
@@ -92,12 +91,10 @@ and "null" are typed channel values. Arguments are map keys unless noted.
 | `safCopyToTemp` | Copies `uri` to an app temp file | SAF | string path or null |
 | `safOpenPlaybackLease` | Opens a playback descriptor lease for `uri` | SAF | map `{token, path, display_name}` or null |
 | `safClosePlaybackLease` | Closes the lease `token` | SAF | null |
-| `openContentUri` | `ACTION_VIEW` for `uri`, `mime_type` (error `open_failed`) | SAF | null |
 | `shareContentUri` | `ACTION_SEND` chooser for `uri`, `title` (error `share_failed`) | SAF | bool |
 | `getSafFileModTimes` | URI to last-modified millis for `uris` | SAF | JSON text |
 | `safCreateFromPath` | Creates or reuses a document and copies `src_path` into it | SAF | string URI or null |
 | `safCreateIfAbsentFromPath` | Publishes `src_path` only when the name is free | SAF | JSON text or null |
-| `safCreateUniqueFromPath` | Publishes under a unique name (`preserved_suffix`) | SAF | JSON text or null |
 | `safCreateCollisionAwareFromPath` | Publishes as `clean_file_name` or `variant_file_name` | SAF | JSON text or null |
 | `writeTempToSaf` | Copies `temp_path` to `saf_uri`, then deletes the temp file | SAF | JSON text `{success, error}` |
 | `writeSafSidecarLrc` | Writes `lyrics` as a `.lrc` beside `saf_uri` | SAF | JSON text `{success, error}` |

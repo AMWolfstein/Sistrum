@@ -20,6 +20,7 @@ void main() {
     required List<String> log,
     required bool desktop,
     bool showTitle = false,
+    bool singleAction = false,
   }) async {
     debugDesktopPlatformOverride = desktop;
     await tester.binding.setSurfaceSize(const Size(900, 800));
@@ -44,17 +45,18 @@ void main() {
                       tooltip: 'Share',
                       onPressed: () => log.add('share'),
                     ),
-                    HeaderMoreButton(
-                      groups: () => [
-                        [
-                          ContextMenuAction(
-                            icon: CupertinoIcons.star,
-                            label: 'Favorite',
-                            onSelected: () => log.add('favorite'),
-                          ),
+                    if (!singleAction)
+                      HeaderMoreButton(
+                        groups: () => [
+                          [
+                            ContextMenuAction(
+                              icon: CupertinoIcons.star,
+                              label: 'Favorite',
+                              onSelected: () => log.add('favorite'),
+                            ),
+                          ],
                         ],
-                      ],
-                    ),
+                      ),
                   ],
                 ),
               ],
@@ -88,7 +90,8 @@ void main() {
       // Level with the round back button.
       final back = tester.getRect(findByTooltip('Back'));
       expect(bounds.center.dy, back.center.dy);
-      expect(bounds.height, 44);
+      // Phone headers use 40 dp round buttons; desktop keeps 44 dp.
+      expect(bounds.height, desktop ? 44 : kHeaderButtonSize);
       if (desktop) expect(back.left, 8);
       final share = tester.getRect(findByTooltip('Share'));
       final more = tester.getRect(
@@ -109,6 +112,15 @@ void main() {
       expect(log, ['share', 'favorite']);
     });
   }
+
+  testWidgets('a single toolbar action stays outside the capsule', (
+    tester,
+  ) async {
+    await pumpHeader(tester, log: [], desktop: false, singleAction: true);
+
+    expect(find.byType(MornyeActionCapsule), findsNothing);
+    expect(findByTooltip('Share'), findsOneWidget);
+  });
 
   testWidgets('selection mode leaves the toolbar empty', (tester) async {
     debugDesktopPlatformOverride = false;

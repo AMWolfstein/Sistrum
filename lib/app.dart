@@ -13,7 +13,6 @@ import 'package:sistrum/services/app_orientation.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/providers/theme_provider.dart';
-import 'package:sistrum/providers/custom_font_provider.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/l10n/supported_locales.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
@@ -180,11 +179,7 @@ class _OrientationFadeState extends State<_OrientationFade>
 /// The [MaterialApp.builder] of [SistrumApp]: the app-wide layers around the
 /// router's [child].
 @visibleForTesting
-Widget buildAppContent(
-  BuildContext context,
-  Widget? child, {
-  required bool heroAnimationsEnabled,
-}) {
+Widget buildAppContent(BuildContext context, Widget? child) {
   Widget appContent = AppScaffoldMessenger(
     child: PlaybackFeedback(
       child: DesktopLibraryDropTarget(child: child ?? const SizedBox.shrink()),
@@ -192,13 +187,6 @@ Widget buildAppContent(
   );
   if (!isDesktopPlatform) {
     appContent = _OrientationFade(child: appContent);
-  }
-  // HeroMode only affects heroes below a *route* subtree. At this level it
-  // sits above the router's Navigator, so the controller never encounters it
-  // while collecting heroes. Removing the inherited controller disables
-  // flights on the root Navigator.
-  if (!heroAnimationsEnabled) {
-    appContent = HeroControllerScope.none(child: appContent);
   }
   // Above the root navigator, so shortcuts and the macOS menu bar also reach
   // Now Playing, dialogs and pushed pages. It stays outside every conditional
@@ -260,34 +248,24 @@ class SistrumApp extends ConsumerWidget {
     ref.listen(equalizerProvider, (_, _) {});
     final router = ref.watch(_routerProvider);
     final localeString = ref.watch(settingsProvider.select((s) => s.locale));
-    final heroAnimationsEnabled = ref.watch(
-      settingsProvider.select((s) => s.heroAnimationsEnabled),
-    );
     final scrollBehavior = appScrollBehavior(
       disableOverscrollEffects: disableOverscrollEffects,
     );
 
-    // Lyrics size and font names live in ThemeSettings but not in ThemeData.
+    // Lyrics size lives in ThemeSettings but not in ThemeData.
     final themeSettings = ref.watch(
       themeProvider.select(
         (s) => (
           themeMode: s.themeMode,
-          useSystemFont: s.useSystemFont,
           mornyeAccent: s.mornyeAccent,
           mornyeGlassClarity: s.mornyeGlassClarity,
           mornyeGlassOutlines: s.mornyeGlassOutlines,
         ),
       ),
     );
-    // Only the family: a rebuild while it loads would animate an equal theme.
-    final fontFamily = ref.watch(
-      customFontFamilyProvider.select((font) => font.asData?.value),
-    );
     ThemeData themeFor(Brightness brightness) => MornyeTheme.build(
       brightness,
       accent: themeSettings.mornyeAccent,
-      useSystemFont: themeSettings.useSystemFont,
-      fontFamily: fontFamily,
       glassClarity: themeSettings.mornyeGlassClarity,
       glassOutlines: themeSettings.mornyeGlassOutlines,
     );
@@ -303,11 +281,7 @@ class SistrumApp extends ConsumerWidget {
       scrollBehavior: scrollBehavior,
       themeAnimationDuration: const Duration(milliseconds: 300),
       themeAnimationCurve: Curves.easeInOut,
-      builder: (context, child) => buildAppContent(
-        context,
-        child,
-        heroAnimationsEnabled: heroAnimationsEnabled,
-      ),
+      builder: buildAppContent,
       routerConfig: router,
       locale: locale,
       localeResolutionCallback: (deviceLocale, supportedLocales) {

@@ -1,7 +1,7 @@
 //! Bounded, seek-based implementation of Go's FLAC/MP4 quality probe.
 
 mod audio;
-pub mod hires;
+pub(crate) mod fft;
 pub(crate) mod mp4;
 
 pub(crate) use audio::{adts_quality, is_adts_frame, mp3_quality, ogg_quality, riff_quality};

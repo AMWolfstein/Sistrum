@@ -1,5 +1,5 @@
-use sistrum_core::metadata::reenrich::Request;
 use serde_json::json;
+use sistrum_core::metadata::reenrich::Request;
 
 #[test]
 fn cover_motion_survives_preview_and_apply_without_becoming_an_audio_tag() {

@@ -132,42 +132,6 @@ object SafDownloadHandler {
         }
     }
 
-    fun writeFileToSafUnique(
-        context: Context,
-        treeUriStr: String,
-        relativeDir: String,
-        fileName: String,
-        mimeType: String,
-        srcPath: String,
-        preservedSuffix: String = "",
-    ): UniqueWriteResult? {
-        val safeRelativeDir = sanitizeRelativeDir(relativeDir)
-        val preferredName = sanitizeFilenamePreservingSuffix(fileName, preservedSuffix)
-        val trace = PublishTrace()
-        return withSafNameLock(treeUriStr, safeRelativeDir, preferredName) {
-            trace.mark("lock_wait")
-            val treeUri = Uri.parse(treeUriStr)
-            val targetDir = ensureDocumentDir(context, treeUri, safeRelativeDir) ?: return@withSafNameLock null
-            trace.mark("directory")
-            val availableName = findAvailableFileName(
-                context,
-                targetDir,
-                preferredName,
-                preservedSuffix,
-            )
-            trace.mark("existing_check")
-            val uri = writeFileToSafLocked(
-                context,
-                targetDir,
-                availableName,
-                mimeType,
-                srcPath,
-                trace,
-            ) ?: return@withSafNameLock null
-            UniqueWriteResult(uri = uri, fileName = availableName, publishTimingsMs = trace.finish())
-        }
-    }
-
     fun writeFileToSafCollisionAware(
         context: Context,
         treeUriStr: String,

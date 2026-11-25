@@ -34,7 +34,6 @@ void main() {
 
     tearDown(() async {
       setPlaybackAutomationOptions(
-        enabled: true,
         pauseOnMute: false,
         playOnHeadphonesConnected: false,
       );
@@ -45,7 +44,6 @@ void main() {
     Future<void> enable() async {
       await handler.setQueueAndPlay(_tracks);
       setPlaybackAutomationOptions(
-        enabled: true,
         pauseOnMute: true,
         playOnHeadphonesConnected: false,
       );
