@@ -1,11 +1,19 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoColors;
 import 'package:flutter/physics.dart';
+import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/theme/app_motion.dart';
 
 /// One switch style for settings, extension controls and editing sheets.
-/// Keeps its wide oval thumb even when glass or motion is disabled.
-class AppSwitch extends StatelessWidget {
+///
+/// In Liquid it is the package's [LiquidGlassSwitch]: its thumb is a solid
+/// pill at rest, and it draws the glass lens only while it is touched or
+/// carried (the package hides the lens at rest, so an idle switch reads no
+/// backdrop). In None, and with reduced motion, it is the plain
+/// Mornye switch below. Both keep the same size, semantics and tap target.
+class AppSwitch extends ConsumerWidget {
   const AppSwitch({
     super.key,
     required this.value,
@@ -18,11 +26,68 @@ class AppSwitch extends StatelessWidget {
   final String? semanticLabel;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final glass =
+        ref.watch(mornyeLiquidGlassProvider) &&
+        !MediaQuery.disableAnimationsOf(context);
+    if (glass) {
+      return _LiquidAppSwitch(
+        value: value,
+        onChanged: onChanged,
+        semanticLabel: semanticLabel,
+      );
+    }
     return _MornyeSwitch(
       value: value,
       onChanged: onChanged,
       semanticLabel: semanticLabel,
+    );
+  }
+}
+
+/// The package switch, styled with the Mornye accent for "on". Disabled is a
+/// half-opaque switch that takes no input (the package needs a callback, so
+/// it gets a no-op one). RTL mirrors it, as the plain switch does.
+class _LiquidAppSwitch extends StatelessWidget {
+  const _LiquidAppSwitch({
+    required this.value,
+    required this.onChanged,
+    required this.semanticLabel,
+  });
+
+  final bool value;
+  final ValueChanged<bool>? onChanged;
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final enabled = onChanged != null;
+    final inactive = scheme.brightness == Brightness.dark
+        ? const Color(0xff39393d)
+        : const Color(0xff8e8e93);
+    Widget control = Opacity(
+      opacity: enabled ? 1 : 0.5,
+      child: IgnorePointer(
+        ignoring: !enabled,
+        child: LiquidGlassSwitch(
+          value: value,
+          onChanged: onChanged ?? (_) {},
+          activeColor: scheme.primary,
+          inactiveColor: inactive,
+          thumbColor: Colors.white,
+        ),
+      ),
+    );
+    if (Directionality.of(context) == TextDirection.rtl) {
+      control = Transform.flip(flipX: true, child: control);
+    }
+    return Semantics(
+      label: semanticLabel,
+      toggled: value,
+      enabled: enabled,
+      onTap: enabled ? () => onChanged!(!value) : null,
+      child: ExcludeSemantics(child: control),
     );
   }
 }

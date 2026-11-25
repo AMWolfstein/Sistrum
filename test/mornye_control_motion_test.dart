@@ -1,40 +1,48 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:liquid_glass_easy/liquid_glass_easy.dart';
+import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_switch.dart';
-import 'package:sistrum/widgets/mornye_selection_pill.dart';
+import 'package:sistrum/widgets/mornye_chrome.dart';
 
-/// The Mornye controls a finger moves keep the finger's velocity when let
-/// go, and go on from their own velocity when a new value interrupts them.
+/// The Mornye controls keep their motion when a new value interrupts them, and
+/// the switch keeps the finger's velocity when let go.
 void main() {
-  group('selection pill', () {
-    late int selected;
+  group('segmented selection', () {
     late StateSetter update;
+    late int selected;
 
-    Future<void> pumpPill(WidgetTester tester, {bool reduced = false}) async {
+    Future<void> pumpSegments(
+      WidgetTester tester, {
+      bool reduced = false,
+    }) async {
       selected = 0;
       await tester.pumpWidget(
-        MaterialApp(
-          theme: MornyeTheme.build(Brightness.light),
-          home: MediaQuery(
-            data: MediaQueryData(disableAnimations: reduced),
-            child: Center(
-              child: SizedBox(
-                width: 300,
-                height: 64,
-                child: StatefulBuilder(
-                  builder: (_, setState) {
-                    update = setState;
-                    return MornyeSelectionPill(
-                      labels: const ['A', 'B', 'C'],
-                      selectedIndex: selected,
-                      padding: EdgeInsets.zero,
-                      onChanged: (value) => update(() => selected = value),
-                      itemBuilder: (_, index, _) =>
-                          Center(child: Text(['A', 'B', 'C'][index])),
-                    );
-                  },
+        ProviderScope(
+          overrides: [
+            // None mode: the thumb is an ordinary tinted capsule.
+            mornyeGlassModeProvider.overrideWithValue(MornyeGlassLevel.flat),
+          ],
+          child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.light),
+            home: MediaQuery(
+              data: MediaQueryData(disableAnimations: reduced),
+              child: Center(
+                child: SizedBox(
+                  width: 300,
+                  height: 64,
+                  child: StatefulBuilder(
+                    builder: (_, setState) {
+                      update = setState;
+                      return MornyeSegmentedControl(
+                        labels: const ['A', 'B', 'C'],
+                        selectedIndex: selected,
+                        onChanged: (value) => setState(() => selected = value),
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
@@ -44,83 +52,44 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    /// The resting pill's directional alignment: -1, 0 and 1 for the slots.
-    double pill(WidgetTester tester) {
+    /// The thumb's horizontal alignment: -1 for the first slot, 1 for the last.
+    double thumb(WidgetTester tester) {
       final align = tester.widget<Align>(
         find
             .descendant(
-              of: find.byType(MornyeSelectionPill),
+              of: find.byType(MornyeSegmentedControl),
               matching: find.byWidgetPredicate(
                 (widget) =>
-                    widget is Align && widget.alignment is AlignmentDirectional,
+                    widget is Align &&
+                    widget.alignment is Alignment &&
+                    widget.child is FractionallySizedBox,
               ),
             )
             .first,
       );
-      return (align.alignment as AlignmentDirectional).start;
+      return (align.alignment as Alignment).x;
     }
 
-    testWidgets('a new selection mid-move goes on from the pill velocity', (
+    testWidgets('a tap selects and the thumb slides to the new slot', (
       tester,
     ) async {
-      await pumpPill(tester);
-      update(() => selected = 2);
+      await pumpSegments(tester);
+      expect(thumb(tester), -1);
+      await tester.tap(find.text('C'));
       await tester.pump();
-      await tester.pump(const Duration(milliseconds: 80));
-      final before = pill(tester);
-      expect(before, inExclusiveRange(-1.0, 1.0));
-
-      // Back to the first slot: the pill first carries on to the right,
-      // without a jump, before it turns.
-      update(() => selected = 0);
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 16));
-      final after = pill(tester);
-      expect(after, greaterThan(before));
-      expect(after - before, lessThan(0.25));
-
+      await tester.pump(const Duration(milliseconds: 60));
+      expect(selected, 2);
+      expect(thumb(tester), inExclusiveRange(-1.0, 1.0));
       await tester.pumpAndSettle();
-      expect(pill(tester), -1);
+      expect(thumb(tester), 1);
+      expect(find.byType(LiquidGlassMotionPill), findsNothing);
     });
 
-    Future<double> furthestAfterRelease(
-      WidgetTester tester,
-      Duration dragTime,
-    ) async {
-      await pumpPill(tester);
-      // From the first slot's center to the middle slot's center.
-      final start = tester.getCenter(find.text('A'));
-      await tester.timedDragFrom(start, const Offset(100, 0), dragTime);
-      var furthest = pill(tester);
-      for (var frame = 0; frame < 20; frame++) {
-        await tester.pump(const Duration(milliseconds: 16));
-        if (pill(tester) > furthest) furthest = pill(tester);
-      }
-      await tester.pumpAndSettle();
-      expect(selected, 1);
-      expect(pill(tester), 0);
-      return furthest;
-    }
-
-    testWidgets('a released pill keeps the finger velocity', (tester) async {
-      final quick = await furthestAfterRelease(
-        tester,
-        const Duration(milliseconds: 100),
-      );
-      final slow = await furthestAfterRelease(
-        tester,
-        const Duration(seconds: 2),
-      );
-      // A quick drag carries the pill past its slot before it settles.
-      expect(quick, greaterThan(0.05));
-      expect(quick, greaterThan(slow + 0.04));
-    });
-
-    testWidgets('reduced motion moves the pill at once', (tester) async {
-      await pumpPill(tester, reduced: true);
+    testWidgets('reduced motion moves the thumb at once', (tester) async {
+      await pumpSegments(tester, reduced: true);
       update(() => selected = 2);
       await tester.pump();
-      expect(pill(tester), 1);
+      expect(thumb(tester), 1);
       expect(tester.binding.transientCallbackCount, 0);
     });
   });
@@ -130,8 +99,13 @@ void main() {
 
     Future<void> pumpSwitch(WidgetTester tester, {bool reduced = false}) async {
       value = false;
+      // These check the plain switch's thumb (None). Liquid uses the package
+      // switch, which has its own motion and is not measured here.
       await tester.pumpWidget(
         ProviderScope(
+          overrides: [
+            mornyeGlassLevelProvider.overrideWithValue(MornyeGlassLevel.flat),
+          ],
           child: MaterialApp(
             theme: MornyeTheme.build(Brightness.light),
             home: MediaQuery(

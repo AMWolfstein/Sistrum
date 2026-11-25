@@ -6,12 +6,13 @@ import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_alert_dialog.dart';
 import 'package:sistrum/widgets/app_bottom_sheet.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
+import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 
 void main() {
   for (final brightness in Brightness.values) {
     for (final reduceMotion in [false, true]) {
       testWidgets(
-        'confirmation keeps blur during entry and cancels promptly ($brightness, reduce motion: $reduceMotion)',
+        'confirmation is a plain content fill during entry and cancels promptly ($brightness, reduce motion: $reduceMotion)',
         (tester) async {
           await tester.pumpWidget(
             ProviderScope(
@@ -52,15 +53,25 @@ void main() {
           await tester.pump();
           for (final elapsed in [16, 64, 180]) {
             await tester.pump(Duration(milliseconds: elapsed));
-            final blur = find.descendant(
-              of: find.byType(AppAlertDialog),
-              matching: find.byType(BackdropFilter),
+            // A dialog is content: a plain fill that reads no backdrop.
+            final dialog = find.byType(AppAlertDialog);
+            expect(
+              find.descendant(
+                of: dialog,
+                matching: find.byType(LiquidGlassLens),
+              ),
+              findsNothing,
             );
-            expect(blur, findsOneWidget);
-            // An opacity layer isolates the filter from the underlying page
-            // until the route finishes entering.
+            expect(
+              find.descendant(
+                of: dialog,
+                matching: find.byType(BackdropFilter),
+              ),
+              findsNothing,
+            );
+            final body = find.text('This will also delete the files.');
             final fades = tester.widgetList<FadeTransition>(
-              find.ancestor(of: blur, matching: find.byType(FadeTransition)),
+              find.ancestor(of: body, matching: find.byType(FadeTransition)),
             );
             expect(fades.every((fade) => fade.opacity.value == 1), isTrue);
             final bodyContext = tester.element(
@@ -197,7 +208,7 @@ void main() {
       )
       .fold(1.0, (scale, transition) => scale * transition.scale.value);
 
-  testWidgets('Mornye sheet dialogs keep their glass frosted while entering', (
+  testWidgets('Mornye sheet dialogs are plain content while entering', (
     tester,
   ) async {
     await pumpOpener(
@@ -211,15 +222,19 @@ void main() {
     await tester.tap(find.text('Open'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 50));
-    final blur = find.descendant(
-      of: find.byType(AppSheetDialog),
-      matching: find.byType(BackdropFilter),
+    // Sheet dialogs are content: no backdrop read, in any mode.
+    expect(
+      find.descendant(
+        of: find.byType(AppSheetDialog),
+        matching: find.byType(LiquidGlassLens),
+      ),
+      findsNothing,
     );
-    expect(blur, findsWidgets);
-    expect(opacityAbove(tester, blur.first), 1);
-    expect(scaleAbove(tester, blur.first), lessThan(1));
+    final body = find.text('Sheet');
+    expect(opacityAbove(tester, body), 1);
+    expect(scaleAbove(tester, body), lessThan(1));
     await tester.pumpAndSettle();
-    expect(scaleAbove(tester, blur.first), 1);
+    expect(scaleAbove(tester, body), 1);
   });
 
   testWidgets('glass confirmation keeps actions reachable with long text', (

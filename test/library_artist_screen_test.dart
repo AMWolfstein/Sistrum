@@ -131,8 +131,8 @@ class _Collections extends LibraryCollectionsNotifier {
 
 /// Sections below the first screen are built only once scrolled near, so
 /// the checks of what is there use a [height] that shows the whole page.
-ThemeData _theme() {
-  final base = MornyeTheme.build(Brightness.dark);
+ThemeData _theme([Brightness brightness = Brightness.dark]) {
+  final base = MornyeTheme.build(brightness);
   return base.copyWith(
     textTheme: base.textTheme.apply(fontFamily: 'Inter'),
     primaryTextTheme: base.primaryTextTheme.apply(fontFamily: 'Inter'),
@@ -145,6 +145,7 @@ Future<void> _pump(
   String artist = 'Ana',
   Key? boundaryKey,
   double height = 915,
+  Brightness brightness = Brightness.dark,
 }) async {
   tester.view.physicalSize = Size(412, height);
   tester.view.devicePixelRatio = 1;
@@ -161,7 +162,7 @@ Future<void> _pump(
         libraryCollectionsProvider.overrideWith(() => _Collections()),
       ],
       child: MaterialApp(
-        theme: _theme(),
+        theme: _theme(brightness),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         home: RepaintBoundary(
@@ -279,6 +280,35 @@ void main() {
       ),
     );
     expect(star.onPressed, isNotNull);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the play circle is the artist surface, with a white glyph', (
+    tester,
+  ) async {
+    // A light outer theme: the bug read the outer surface, which is white.
+    await _pump(
+      tester,
+      songs: await tester.runAsync(_anaLibrary) ?? [],
+      brightness: Brightness.light,
+    );
+    final page = find.descendant(
+      of: find.byType(LibraryArtistScreen),
+      matching: find.byType(Scaffold),
+    );
+    final surface = tester.widget<Scaffold>(page.first).backgroundColor;
+    final play = find.ancestor(
+      of: find.byIcon(CupertinoIcons.play_fill),
+      matching: find.byType(CupertinoButton),
+    );
+    final circle = tester.widget<CupertinoButton>(play.first).color;
+    expect(circle, isNotNull);
+    expect(circle, surface, reason: 'the page surface, not the outer one');
+    expect(circle, isNot(Colors.white));
+    expect(
+      tester.widget<Icon>(find.byIcon(CupertinoIcons.play_fill)).color,
+      Colors.white,
+    );
     expect(tester.takeException(), isNull);
   });
 

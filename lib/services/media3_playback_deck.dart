@@ -70,7 +70,9 @@ class Media3PlaybackDeck implements PlaybackDeck, QueuedPlaybackDeck {
     playbackPitch.addListener(_parametersChanged);
   }
 
-  static const _channel = MethodChannel('com.amwolfstein.sistrum/media3_player');
+  static const _channel = MethodChannel(
+    'com.amwolfstein.sistrum/media3_player',
+  );
 
   /// False once the native player turned out to be missing from this build.
   static bool _missing = false;
@@ -162,9 +164,10 @@ class Media3PlaybackDeck implements PlaybackDeck, QueuedPlaybackDeck {
     // dispose releases the native player once this completes.
     if (_disposed) return;
     // The native side registers this stream before create replies.
-    _events = EventChannel('com.amwolfstein.sistrum/media3_player/events/$playerId')
-        .receiveBroadcastStream()
-        .listen(
+    _events =
+        EventChannel(
+          'com.amwolfstein.sistrum/media3_player/events/$playerId',
+        ).receiveBroadcastStream().listen(
           _onEvent,
           onError: (Object error) => _log.w('Player events: $error'),
         );

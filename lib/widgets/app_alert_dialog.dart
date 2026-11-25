@@ -93,6 +93,7 @@ class AppDialogSurface extends StatelessWidget {
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth),
         child: MornyeGlassPanel.overlay(
+          kind: MornyeGlassKind.content,
           child: SingleChildScrollView(child: child),
         ),
       ),
@@ -193,6 +194,7 @@ class AppAlertDialog extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 320),
         child: MornyeGlassPanel.overlay(
+          kind: MornyeGlassKind.content,
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(

@@ -4,10 +4,12 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
+import 'package:sistrum/theme/app_motion.dart';
+import 'package:sistrum/theme/mornye_glass_presets.dart';
+export 'package:sistrum/theme/mornye_glass_presets.dart' show MornyeGlassKind;
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/mornye_glass_press.dart';
-import 'package:sistrum/widgets/mornye_selection_pill.dart';
 import 'package:sistrum/widgets/mornye_liquid_backdrop.dart';
 import 'package:sistrum/widgets/mornye_squircle_border.dart';
 import 'package:sistrum/widgets/animation_utils.dart';
@@ -53,18 +55,16 @@ class MornyeSegmentedControl extends ConsumerWidget {
             blurEnabled: ref.watch(mornyeBlurEnabledProvider),
             radius: height / 2,
             samplesBackdrop: samplesBackdrop,
-            child: MornyeSelectionPill(
-              contrastBlocked: contrastBlocked,
-              // The held lens follows a finger. A click never holds it, and
-              // over an opaque toolbar it only refracts a flat fill, so desktop
-              // skips it.
-              liquidInteraction:
-                  !isDesktopPlatform &&
-                  ref.watch(mornyeLiquidGlassProvider) &&
-                  MornyeTheme.glassClarityOf(context) > 0.2,
+            child: _SelectionRow(
               labels: labels,
               selectedIndex: selectedIndex,
               onChanged: onChanged,
+              // A desktop click never holds the glass, and over an opaque
+              // toolbar a native thumb would only refract a flat fill.
+              glass:
+                  !isDesktopPlatform &&
+                  ref.watch(mornyeLiquidGlassProvider) &&
+                  !contrastBlocked,
               padding: EdgeInsets.all(compact ? 3 : 4),
               itemBuilder: (context, index, selected) => Center(
                 child: Text(
@@ -98,10 +98,10 @@ class MornyeGlassPanel extends ConsumerWidget {
     this.tintColor,
     this.blurEnabled = true,
     this.samplesBackdrop = true,
-    this.highlightBorder = false,
     this.smoothCorners = false,
     this.highlightIntensity = 1,
     this.glassProgress = 1,
+    this.kind = MornyeGlassKind.chrome,
   });
 
   const MornyeGlassPanel.overlay({
@@ -114,10 +114,10 @@ class MornyeGlassPanel extends ConsumerWidget {
     this.tintColor,
     this.blurEnabled = true,
     this.samplesBackdrop = true,
-    this.highlightBorder = false,
     this.smoothCorners = false,
     this.highlightIntensity = 1,
     this.glassProgress = 1,
+    this.kind = MornyeGlassKind.chrome,
   }) : strongTint = true;
 
   final Widget child;
@@ -131,15 +131,18 @@ class MornyeGlassPanel extends ConsumerWidget {
 
   /// See [MornyeGlass.samplesBackdrop].
   final bool samplesBackdrop;
-  final bool highlightBorder;
   final bool smoothCorners;
   final double highlightIntensity;
   final double glassProgress;
+
+  /// What the surface is: [MornyeGlassKind.content] panels are plain fills.
+  final MornyeGlassKind kind;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MornyeGlass.navigation(
       radius: radius,
+      kind: kind,
       firstInGroup: firstInGroup,
       lastInGroup: lastInGroup,
       strongTint: strongTint,
@@ -147,7 +150,6 @@ class MornyeGlassPanel extends ConsumerWidget {
       tintColor: tintColor,
       blurEnabled: blurEnabled && ref.watch(mornyeBlurEnabledProvider),
       samplesBackdrop: samplesBackdrop,
-      highlightBorder: highlightBorder,
       smoothCorners: smoothCorners,
       highlightIntensity: highlightIntensity,
       glassProgress: glassProgress,
@@ -157,8 +159,9 @@ class MornyeGlassPanel extends ConsumerWidget {
   }
 }
 
-/// Bounded glass: Impeller lenses refract a blurred backdrop, while frosted
-/// surfaces share ordinary blur passes. Foreground content stays above glass.
+/// One glass surface for every mode, chosen by [mornyeGlassLevelProvider]:
+/// Liquid is a native lens in a batch, and None is a plain fill with no
+/// backdrop read. Foreground content stays above.
 class MornyeGlass extends ConsumerWidget {
   const MornyeGlass.navigation({
     super.key,
@@ -171,24 +174,20 @@ class MornyeGlass extends ConsumerWidget {
     this.tintOpacity,
     this.tintColor,
     this.samplesBackdrop = true,
-    this.highlightBorder = false,
     this.refractionDepth = 0.30,
     this.smoothCorners = false,
     this.highlightIntensity = 1,
     this.glassProgress = 1,
+    this.kind = MornyeGlassKind.chrome,
   });
-
-  // Quantized and shared across surfaces. Avoid composed color filters and
-  // rebuilding a Gaussian filter for each clarity-slider animation frame.
-  static const _blurSigmas = [2.0, 3.0, 6.0, 16.0];
-  static final _blurs = [
-    for (final sigma in _blurSigmas)
-      ImageFilter.blur(sigmaX: sigma, sigmaY: sigma),
-  ];
 
   /// Host tests cannot run shader filters; this lets them build the lens.
   @visibleForTesting
   static bool? debugShaderFilterSupport;
+
+  /// Whether the device can run lens shaders, or the test override says so.
+  static bool get shaderFilterSupported =>
+      debugShaderFilterSupport ?? ImageFilter.isShaderFilterSupported;
 
   final Widget child;
   final bool blurEnabled;
@@ -198,9 +197,6 @@ class MornyeGlass extends ConsumerWidget {
   final bool strongTint;
   final double? tintOpacity;
   final Color? tintColor;
-
-  /// Paint the edge above the fill so tinted popovers retain a visible rim.
-  final bool highlightBorder;
   final double refractionDepth;
   final bool smoothCorners;
   final double highlightIntensity;
@@ -211,24 +207,27 @@ class MornyeGlass extends ConsumerWidget {
   /// Plain-page surfaces keep their tint without filtering a uniform backdrop.
   final bool samplesBackdrop;
 
+  /// What the surface is. [MornyeGlassKind.content] is always a plain fill;
+  /// [MornyeGlassKind.control] samples only where its preset allows it.
+  final MornyeGlassKind kind;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
-    final clarity = MornyeTheme.glassClarityOf(context);
     final level = ref.watch(mornyeGlassLevelProvider);
+    final preset = MornyeGlassPreset.of(level);
     final reveal = glassProgress.clamp(0.0, 1.0);
     final translucent =
         reveal > 0 &&
         blurEnabled &&
         level != MornyeGlassLevel.flat &&
-        clarity > 0 &&
+        kind != MornyeGlassKind.content &&
         !ref.watch(
           mornyeGlassContrastBlockedProvider(
             MediaQuery.highContrastOf(context),
           ),
         );
     final dark = scheme.brightness == Brightness.dark;
-    final outlines = MornyeTheme.glassOutlinesOf(context);
     final shape = BorderRadius.vertical(
       top: firstInGroup ? Radius.circular(radius) : Radius.zero,
       bottom: lastInGroup ? Radius.circular(radius) : Radius.zero,
@@ -265,46 +264,32 @@ class MornyeGlass extends ConsumerWidget {
           Colors.black.withValues(alpha: 0.35),
         );
       }
-      // Let the upper end of the clarity slider reveal more of the page. Keep
-      // the tinted endpoint opaque and the single-pass blur budget unchanged.
-      final tintStrength = (1 - clarity) * (1 - clarity);
+      // Keep the tinted endpoint opaque and the single-pass blur budget unchanged.
       tint = Color.alphaBlend(
-        scheme.surfaceContainerHigh.withValues(alpha: tintStrength),
+        scheme.surfaceContainerHigh.withValues(alpha: preset.tintStrength),
         baseTint,
       );
     }
     final insideGlass =
         context.dependOnInheritedWidgetOfExactType<_GlassBackdropScope>() !=
         null;
-    // At low clarity the tint obscures almost all detail. In particular, 10%
-    // must not suddenly enable backdrop sampling on a mid-range GPU.
-    final blurThreshold = level == MornyeGlassLevel.frosted ? 0.5 : 0.2;
     final sampleBackdrop =
         translucent &&
         samplesBackdrop &&
         !insideGlass &&
-        clarity > blurThreshold;
+        preset.samplesFor(kind);
     final useLens =
         sampleBackdrop &&
         firstInGroup &&
         lastInGroup &&
         level == MornyeGlassLevel.liquid &&
-        (debugShaderFilterSupport ?? ImageFilter.isShaderFilterSupported);
-    // Clear glass softens the backdrop less. Keep the mid-range fallback at
-    // its small blur budget, and reuse these filters in the lens renderer too.
-    final filterIndex = level == MornyeGlassLevel.frosted
-        ? 1
-        : clarity >= 0.9
-        ? 0
-        : clarity >= 0.6
-        ? 2
-        : 3;
+        shaderFilterSupported;
     final clearFill = (dark ? const Color(0xff999999) : Colors.white)
         .withValues(alpha: dark ? 0.17 : 0.46);
     final fill = Color.lerp(
       scheme.surfaceContainerHigh,
       useLens && !strongTint
-          ? Color.lerp(tint, clearFill, ((clarity - 0.2) / 0.8).clamp(0, 1))
+          ? Color.lerp(tint, clearFill, preset.clearMix)
           : tint,
       reveal,
     );
@@ -326,27 +311,26 @@ class MornyeGlass extends ConsumerWidget {
             ),
           ]
         : null;
-    final lens = useLens
-        ? MornyeLiquidBackdrop(
-            borderRadius: shape,
-            clarity: clarity,
-            blurSigma: _blurSigmas[filterIndex],
-            refractionDepth: refractionDepth * reveal,
-            smoothCorners: squircle,
-            highlightIntensity: highlightIntensity * reveal,
-            child: surface,
-          )
-        : null;
-    // A batched lens composes blur and refraction into one backdrop read.
-    // Outside a batch it takes a key of its own: sharing one with the page or
-    // an overlapping menu would lose their glass.
-    final backdrop = lens != null
-        ? LiquidGlassBatch.backdropIdOf(context) == null
-              ? LiquidGlassBatch(child: lens)
-              : lens
-        : sampleBackdrop
-        ? BackdropFilter.grouped(filter: _blurs[filterIndex], child: surface)
-        : surface;
+    final Widget backdrop;
+    if (useLens) {
+      final lens = MornyeLiquidBackdrop(
+        borderRadius: shape,
+        dispersion: preset.dispersion,
+        blurSigma: preset.blurSigma,
+        refractionDepth: refractionDepth * reveal,
+        smoothCorners: squircle,
+        highlightIntensity: highlightIntensity * reveal,
+        child: surface,
+      );
+      // A batched lens composes blur and refraction into one backdrop read.
+      // Outside a batch it takes a key of its own: sharing one with the page or
+      // an overlapping menu would lose their glass.
+      backdrop = LiquidGlassBatch.backdropIdOf(context) == null
+          ? LiquidGlassBatch(blurMethod: preset.batchBlurMethod, child: lens)
+          : lens;
+    } else {
+      backdrop = surface;
+    }
     return DecoratedBox(
       decoration: squircle
           ? ShapeDecoration(
@@ -354,28 +338,9 @@ class MornyeGlass extends ConsumerWidget {
               shadows: shadows,
             )
           : BoxDecoration(borderRadius: shape, boxShadow: shadows),
-      child: CustomPaint(
-        // The optical lens already draws its own rim. Avoid a second dark
-        // contact stroke on top, particularly visible against light pages.
-        foregroundPainter: outlines && (!useLens || highlightBorder)
-            ? _MornyeGlassRim(
-                shape: shape,
-                firstInGroup: firstInGroup,
-                lastInGroup: lastInGroup,
-                illuminated: translucent && (!useLens || highlightBorder),
-                emphasized: highlightBorder,
-                dark: dark,
-                smoothCorners: squircle,
-                highlightIntensity: highlightIntensity * reveal,
-              )
-            : null,
-        child: squircle
-            ? ClipPath.shape(
-                shape: MornyeSquircleBorder(radius),
-                child: backdrop,
-              )
-            : ClipRRect(borderRadius: shape, child: backdrop),
-      ),
+      child: squircle
+          ? ClipPath.shape(shape: MornyeSquircleBorder(radius), child: backdrop)
+          : ClipRRect(borderRadius: shape, child: backdrop),
     );
   }
 }
@@ -385,108 +350,6 @@ class _GlassBackdropScope extends InheritedWidget {
 
   @override
   bool updateShouldNotify(_GlassBackdropScope oldWidget) => false;
-}
-
-/// Subtle edge definition without another offscreen layer or backdrop read.
-class _MornyeGlassRim extends CustomPainter {
-  const _MornyeGlassRim({
-    required this.shape,
-    required this.firstInGroup,
-    required this.lastInGroup,
-    required this.illuminated,
-    required this.emphasized,
-    required this.dark,
-    required this.smoothCorners,
-    required this.highlightIntensity,
-  });
-
-  final BorderRadius shape;
-  final bool firstInGroup;
-  final bool lastInGroup;
-  final bool illuminated;
-  final bool emphasized;
-  final bool dark;
-  final bool smoothCorners;
-  final double highlightIntensity;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (size.isEmpty) return;
-    final bounds = Offset.zero & size;
-    final outline = shape.toRRect(
-      Rect.fromLTRB(
-        0,
-        firstInGroup ? 0 : -2,
-        size.width,
-        lastInGroup ? size.height : size.height + 2,
-      ),
-    );
-    canvas.save();
-    canvas.clipRect(bounds);
-    void stroke(double inset, Paint paint) {
-      if (smoothCorners) {
-        canvas.drawPath(
-          MornyeSquircleBorder(
-            (shape.topLeft.x - inset).clamp(0, double.infinity),
-          ).getOuterPath(bounds.deflate(inset)),
-          paint,
-        );
-      } else {
-        canvas.drawRRect(outline.deflate(inset), paint);
-      }
-    }
-
-    stroke(
-      0.25,
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 0.5
-        // A thin contact edge must not paint a shadow under the whole glass.
-        ..color = Colors.black.withValues(alpha: dark ? 0.5 : 0.16),
-    );
-    if (illuminated) {
-      stroke(
-        0.8,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = emphasized ? 1 : 0.6
-          ..shader = LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            stops: const [0, 0.14, 0.5, 0.86, 1],
-            colors:
-                [
-                      firstInGroup
-                          ? Color(emphasized ? 0x88ffffff : 0x40ffffff)
-                          : Colors.transparent,
-                      Color(emphasized ? 0x26ffffff : 0x0dffffff),
-                      const Color(0x0a000000),
-                      Color(emphasized ? 0x20ffffff : 0x0dffffff),
-                      lastInGroup
-                          ? Color(emphasized ? 0x55ffffff : 0x26ffffff)
-                          : Colors.transparent,
-                    ]
-                    .map(
-                      (color) =>
-                          color.withValues(alpha: color.a * highlightIntensity),
-                    )
-                    .toList(),
-          ).createShader(bounds),
-      );
-    }
-    canvas.restore();
-  }
-
-  @override
-  bool shouldRepaint(covariant _MornyeGlassRim oldDelegate) =>
-      shape != oldDelegate.shape ||
-      firstInGroup != oldDelegate.firstInGroup ||
-      lastInGroup != oldDelegate.lastInGroup ||
-      illuminated != oldDelegate.illuminated ||
-      emphasized != oldDelegate.emphasized ||
-      smoothCorners != oldDelegate.smoothCorners ||
-      highlightIntensity != oldDelegate.highlightIntensity ||
-      dark != oldDelegate.dark;
 }
 
 /// A searchable category chip; callers supply any glass around it.
@@ -567,7 +430,7 @@ class MornyeNavigationIcon extends StatelessWidget {
     child: Badge(
       isLabelVisible: badgeCount > 0,
       label: Text('$badgeCount'),
-      child: MornyeSelectionForeground(child: Icon(icon)),
+      child: Icon(icon),
     ),
   );
 }
@@ -611,7 +474,6 @@ class MornyeTabBar extends ConsumerWidget {
   }) =>
       blurEnabled &&
       liquidGlass &&
-      MornyeTheme.glassClarityOf(context) > 0 &&
       !MediaQuery.disableAnimationsOf(context) &&
       !contrastBlocked;
 
@@ -629,102 +491,244 @@ class MornyeTabBar extends ConsumerWidget {
     );
     return Padding(
       padding: EdgeInsets.symmetric(vertical: floating ? 8 : 0),
-      child: MornyeSelectionPill(
-        contrastBlocked: contrastBlocked,
-        selectionColor: scheme.primary,
-        maskItemForeground: false,
-        liquidInteraction:
-            floating && MornyeTheme.glassClarityOf(context) > 0.2,
-        labels: [for (final destination in destinations) destination.label],
-        selectedIndex: selectedIndex,
-        onChanged: onSelected,
-        padding: EdgeInsets.symmetric(
-          horizontal: floating ? 6 : 5,
-          vertical: 5,
-        ),
-        interactionBuilder: (context, progress, child) => Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Positioned.fill(
-              // Only the capsule projects forward. Icons, labels and touch
-              // coordinates stay fixed, and collapse never fades the backdrop.
-              child: Transform.scale(
-                scaleX: 1 + 0.025 * progress,
-                scaleY: 1 + 0.06 * progress,
-                child: LayoutBuilder(
-                  builder: (context, constraints) => AnimatedBuilder(
-                    animation: fold,
-                    builder: (context, _) {
-                      final amount = fold.value;
-                      return Align(
-                        alignment: AlignmentDirectional.bottomStart,
-                        child: SizedBox(
-                          width: lerpDouble(
-                            constraints.maxWidth,
-                            foldedSize,
-                            amount,
-                          ),
-                          height: lerpDouble(
-                            constraints.maxHeight,
-                            foldedSize,
-                            amount,
-                          ),
-                          child: MornyeGlass.navigation(
-                            blurEnabled: blurEnabled,
-                            strongTint: true,
-                            tintOpacity: MornyeTheme.navigationOpacity(context),
-                            refractionDepth: 0.45 + 0.15 * progress,
-                            radius: lerpDouble(32, foldedSize / 2, amount)!,
-                            child: const SizedBox.expand(),
-                          ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // The bar's own glass. It folds into the leading circle while its
+          // icons stay where they are, and the bar's fold drives its size.
+          Positioned.fill(
+            child: LayoutBuilder(
+              builder: (context, constraints) => AnimatedBuilder(
+                animation: fold,
+                builder: (context, _) {
+                  final amount = fold.value;
+                  return Align(
+                    alignment: AlignmentDirectional.bottomStart,
+                    child: SizedBox(
+                      width: lerpDouble(
+                        constraints.maxWidth,
+                        foldedSize,
+                        amount,
+                      ),
+                      height: lerpDouble(
+                        constraints.maxHeight,
+                        foldedSize,
+                        amount,
+                      ),
+                      child: MornyeGlass.navigation(
+                        blurEnabled: blurEnabled,
+                        strongTint: true,
+                        tintOpacity: MornyeTheme.navigationOpacity(context),
+                        refractionDepth: 0.45,
+                        radius: lerpDouble(32, foldedSize / 2, amount)!,
+                        child: const SizedBox.expand(),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+          // The foreground fades with the fold; the glass keeps sampling.
+          FadeTransition(
+            opacity: contentOpacity,
+            child: _SelectionRow(
+              labels: [
+                for (final destination in destinations) destination.label,
+              ],
+              selectedIndex: selectedIndex,
+              onChanged: onSelected,
+              glass: floating,
+              padding: EdgeInsets.symmetric(
+                horizontal: floating ? 6 : 5,
+                vertical: 5,
+              ),
+              itemBuilder: (context, index, selected) => ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: 54),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: floating ? 0 : 6),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconTheme(
+                        data: IconThemeData(
+                          size: 25,
+                          color: selected ? scheme.primary : scheme.onSurface,
                         ),
-                      );
-                    },
+                        child: Opacity(
+                          opacity: hiddenIconIndices.contains(index) ? 0 : 1,
+                          child: destinations[index].icon,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        destinations[index].label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          fontSize: floating ? 11 : null,
+                          fontWeight: FontWeight.w600,
+                          color: selected ? scheme.primary : scheme.onSurface,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
             ),
-            // The selection lens can swell beyond the capsule's clip.
-            FadeTransition(opacity: contentOpacity, child: child),
-          ],
-        ),
-        itemBuilder: (context, index, selected) => ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 54),
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: floating ? 0 : 6),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconTheme(
-                  data: IconThemeData(
-                    size: 25,
-                    color: selected ? scheme.primary : scheme.onSurface,
-                  ),
-                  child: Opacity(
-                    opacity: hiddenIconIndices.contains(index) ? 0 : 1,
-                    child: destinations[index].icon is MornyeNavigationIcon
-                        ? destinations[index].icon
-                        : MornyeSelectionForeground(
-                            child: destinations[index].icon,
-                          ),
-                  ),
-                ),
-                const SizedBox(height: 2),
-                MornyeSelectionForeground(
-                  child: Text(
-                    destinations[index].label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      fontSize: floating ? 11 : null,
-                      fontWeight: FontWeight.w600,
-                      color: selected ? scheme.primary : scheme.onSurface,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The selected item's thumb over a row of equal items, with taps selecting.
+/// Glass mode lifts the package's motion pill over the items; other modes use
+/// a plain tinted capsule under them. The thumb slides between slots.
+class _SelectionRow extends StatefulWidget {
+  const _SelectionRow({
+    required this.labels,
+    required this.selectedIndex,
+    required this.onChanged,
+    required this.itemBuilder,
+    required this.glass,
+    required this.padding,
+  });
+
+  final List<String> labels;
+  final int selectedIndex;
+  final ValueChanged<int> onChanged;
+  final Widget Function(BuildContext context, int index, bool selected)
+  itemBuilder;
+
+  /// Requests the native motion pill; it still needs the device shader and
+  /// motion allowance, checked at build.
+  final bool glass;
+  final EdgeInsets padding;
+
+  @override
+  State<_SelectionRow> createState() => _SelectionRowState();
+}
+
+class _SelectionRowState extends State<_SelectionRow> {
+  /// A finger on the row lifts the glass thumb, as the native press does.
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final count = widget.labels.length;
+    if (count == 0) return const SizedBox.shrink();
+    final glass =
+        widget.glass &&
+        MornyeGlass.shaderFilterSupported &&
+        !MediaQuery.disableAnimationsOf(context);
+    // Items lay out from the start edge, so the thumb's slot mirrors in RTL.
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    final slot = rtl ? count - 1 - widget.selectedIndex : widget.selectedIndex;
+    final motion = AppMotion.surface(context);
+    final items = Row(
+      children: [
+        for (var index = 0; index < count; index++)
+          Expanded(
+            child: Semantics(
+              button: true,
+              selected: index == widget.selectedIndex,
+              label: widget.labels[index],
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  customBorder: const StadiumBorder(),
+                  onTap: () => widget.onChanged(index),
+                  child: ExcludeSemantics(
+                    child: widget.itemBuilder(
+                      context,
+                      index,
+                      index == widget.selectedIndex,
                     ),
                   ),
                 ),
-              ],
+              ),
             ),
+          ),
+      ],
+    );
+    final thumb = Positioned.fill(
+      child: IgnorePointer(
+        child: LayoutBuilder(
+          builder: (context, constraints) => TweenAnimationBuilder<double>(
+            // A new selection slides from wherever the thumb is now.
+            tween: Tween<double>(end: slot.toDouble()),
+            duration: motion.duration,
+            curve: motion.curve,
+            builder: (context, at, _) =>
+                glass ? _glassThumb(constraints, at) : _flatThumb(context, at),
+          ),
+        ),
+      ),
+    );
+    return Padding(
+      padding: widget.padding,
+      child: Listener(
+        // An interrupted press (a scroll or the system) releases the lift.
+        onPointerDown: (_) => setState(() => _pressed = true),
+        onPointerUp: (_) => setState(() => _pressed = false),
+        onPointerCancel: (_) => setState(() => _pressed = false),
+        // The glass thumb sits above the icons so its lens refracts them; a
+        // flat thumb stays beneath them. The lifted lens may overflow the slot.
+        child: Stack(
+          fit: StackFit.passthrough,
+          clipBehavior: Clip.none,
+          children: glass ? [items, thumb] : [thumb, items],
+        ),
+      ),
+    );
+  }
+
+  /// [at] is the thumb's visual slot, counted from the start edge.
+  Widget _glassThumb(BoxConstraints constraints, double at) {
+    final width = constraints.maxWidth / widget.labels.length;
+    final height = constraints.maxHeight;
+    return LiquidGlassBatch.exclude(
+      child: Consumer(
+        builder: (context, ref, _) {
+          final preset = MornyeGlassPreset.of(
+            ref.watch(mornyeGlassLevelProvider),
+          );
+          return LiquidGlassMotionPill(
+            center: Offset((at + 0.5) * width, height / 2),
+            active: _pressed,
+            restSize: Size(width, height),
+            activeSize: Size(width * 1.28, height * 1.24),
+            // The package's tab pill: a clear lens, refraction only, no blur.
+            style: LiquidGlassStyle(
+              blur: preset.pillBlurSigma,
+              refractionIndex: preset.pillRefractionIndex,
+              refractionWidth: preset.pillRefractionWidth,
+              color: const Color(0x1CFFFFFF),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _flatThumb(BuildContext context, double at) {
+    final count = widget.labels.length;
+    return Align(
+      alignment: Alignment(count <= 1 ? 0 : -1 + 2 * at / (count - 1), 0),
+      child: FractionallySizedBox(
+        widthFactor: 1 / count,
+        heightFactor: 1,
+        child: DecoratedBox(
+          decoration: ShapeDecoration(
+            color: Theme.of(context).colorScheme.onSurface.withValues(
+              alpha: Theme.of(context).brightness == Brightness.dark
+                  ? 0.12
+                  : 0.08,
+            ),
+            shape: const StadiumBorder(),
           ),
         ),
       ),

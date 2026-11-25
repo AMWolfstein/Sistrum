@@ -53,30 +53,27 @@
   "appearanceAccentBlue": "Blue",
   "appearanceAccentPurple": "Purple",
   "appearanceAccentPink": "Pink",
-  "appearanceGlassClarity": "Glass clarity",
   "appearanceGlassOutlines": "Glass outlines",
   "appearanceGlassOutlinesSubtitle": "Show decorative edges around Mornye glass. Turning this off keeps blur and refraction.",
-  "appearanceGlassClaritySubtitle": "Adjust transparency in Mornye menus and navigation. Text contrast is preserved.",
-  "appearanceGlassTinted": "Tinted",
-  "appearanceGlassClear": "Limpar",
-  "appearanceGlassClearPerformance": "Very clear glass may use more power and feel less smooth on older devices. Lower clarity if needed.",
-  "appearanceGlassClarityBlurOff": "Glass is opaque on this device. Turn on “{setting}” to adjust clarity.",
-  "@appearanceGlassClarityBlurOff": {
-    "description": "Shown under the disabled glass clarity slider when the device renders Mornye glass without blur. The placeholder is the name of the force-blur toggle.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
+  "appearanceGlassMode": "Vidro",
+  "@appearanceGlassMode": {
+    "description": "Title of the glass mode selector in Appearance settings"
   },
-  "appearanceGlassClarityHighContrast": "Seu sistema solicita um aumento do contraste, então o vidro permanece opaco. Ligue “{setting}” para usar o vidro; o contraste de texto é preservado.",
-  "@appearanceGlassClarityHighContrast": {
-    "description": "Explains the system contrast request (which can include medium contrast) and the explicit glass-only override.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
+  "appearanceGlassModeSubtitle": "O vidro líquido refrata a página, o vidro fosco suaviza-a e Nenhum usa superfícies sólidas.",
+  "@appearanceGlassModeSubtitle": {
+    "description": "Explains the three glass modes under the selector title"
+  },
+  "appearanceGlassLiquid": "Vidro líquido",
+  "@appearanceGlassLiquid": {
+    "description": "Option: Liquid Glass, native full optical glass"
+  },
+  "appearanceGlassNone": "Nenhum",
+  "@appearanceGlassNone": {
+    "description": "Option: None, solid surfaces without glass"
+  },
+  "appearanceGlassHighContrast": "O alto contraste está ativado, por isso o vidro está desativado.",
+  "@appearanceGlassHighContrast": {
+    "description": "Shown when the system high-contrast request turns glass off"
   },
   "@@locale": "pt_PT",
   "@@last_modified": "2026-04-28",
@@ -951,14 +948,6 @@
   "downloadAskBeforeDownload": "Perguntar qualidade antes de baixar",
   "@downloadAskBeforeDownload": {
     "description": "Setting - show quality picker"
-  },
-  "appearanceForceBlur": "Always use blur effects",
-  "@appearanceForceBlur": {
-    "description": "Toggle that forces backdrop blur on even when the device profile disabled it"
-  },
-  "appearanceForceBlurSubtitle": "Enable the navigation bar blur even on devices where it is off by default. May cost performance.",
-  "@appearanceForceBlurSubtitle": {
-    "description": "Subtitle for the force-blur toggle"
   },
   "settingsAutoExportFailed": "Auto-export failed downloads",
   "@settingsAutoExportFailed": {
@@ -4432,5 +4421,169 @@
         "type": "String"
       }
     }
+  },
+  "perfHubTitle": "Centro de desempenho",
+  "@perfHubTitle": {
+    "description": "Title of the Performance hub settings page"
+  },
+  "perfHubSubtitle": "Medir a renderização neste telemóvel",
+  "@perfHubSubtitle": {
+    "description": "Subtitle of the Performance hub row in Settings"
+  },
+  "perfHubIntro": "Mede os tempos de imagem desta app neste dispositivo. Nada sai do telemóvel. As versões de lançamento funcionam, mas o modo de perfil é mais preciso para os tempos.",
+  "@perfHubIntro": {
+    "description": "Intro card on the Performance hub page: what is measured and the profile-mode note"
+  },
+  "perfHubDisplaySection": "Ecrã",
+  "@perfHubDisplaySection": {
+    "description": "Section header: display refresh rate and frame budget"
+  },
+  "perfHubRefreshRate": "Taxa de atualização",
+  "@perfHubRefreshRate": {
+    "description": "Row: display refresh rate reported by the system"
+  },
+  "perfHubRateNote": "Indicado pelo sistema. Uma gravação também mede o intervalo real entre imagens.",
+  "@perfHubRateNote": {
+    "description": "Subtitle under the refresh rate row: the value is reported and a recording measures the real interval"
+  },
+  "perfHubFrameBudget": "Orçamento de imagem",
+  "@perfHubFrameBudget": {
+    "description": "Row: frame budget (1000 ms divided by the refresh rate), also a results row"
+  },
+  "perfHubRecordingSection": "Gravação",
+  "@perfHubRecordingSection": {
+    "description": "Section header: recording controls and live values"
+  },
+  "perfHubStart": "Iniciar gravação",
+  "@perfHubStart": {
+    "description": "Button: start a frame recording"
+  },
+  "perfHubStop": "Parar",
+  "@perfHubStop": {
+    "description": "Button and badge: stop the recording"
+  },
+  "perfHubRecordingHint": "Inicie uma gravação e use a app. Um indicador permanece no ecrã, mesmo noutras páginas, até parar.",
+  "@perfHubRecordingHint": {
+    "description": "Hint under the recording controls when nothing is recording"
+  },
+  "perfHubRecording": "A gravar",
+  "@perfHubRecording": {
+    "description": "Badge word shown before the elapsed time and frame count while recording"
+  },
+  "perfHubElapsed": "Decorrido",
+  "@perfHubElapsed": {
+    "description": "Live row: elapsed time of the recording"
+  },
+  "perfHubLastFrame": "Última imagem, UI / raster",
+  "@perfHubLastFrame": {
+    "description": "Live row: the last frame UI (build) and raster durations"
+  },
+  "perfHubOverBudgetSoFar": "Acima do orçamento até agora",
+  "@perfHubOverBudgetSoFar": {
+    "description": "Live row: share of kept frames over the frame budget so far"
+  },
+  "perfHubResultsSection": "Resultados",
+  "@perfHubResultsSection": {
+    "description": "Section header: saved results table"
+  },
+  "perfHubNoResults": "Ainda não há resultados. Grave uma sessão ou compare os modos.",
+  "@perfHubNoResults": {
+    "description": "Shown in Results when nothing has been recorded yet"
+  },
+  "perfHubCompareSection": "Comparar modos",
+  "@perfHubCompareSection": {
+    "description": "Section header: guided comparison of the three glass modes"
+  },
+  "perfHubAutoHint": "Desliza Início, Biblioteca, Músicas, Artista e Pesquisa a 8000 px/s em Liquid e depois em None. O modo escolhido é restaurado no fim.",
+  "@perfHubAutoHint": {
+    "description": "Explains the automatic measurement: the screens, the speed and the modes"
+  },
+  "perfHubAutoRunButton": "Executar medição automática",
+  "@perfHubAutoRunButton": {
+    "description": "Button: starts the automatic measurement"
+  },
+  "perfHubAutoNoData": "Não há dados neste ecrã",
+  "@perfHubAutoNoData": {
+    "description": "Skip reason: the screen has no data to measure"
+  },
+  "perfHubAutoNoScroll": "Nada para deslizar",
+  "@perfHubAutoNoScroll": {
+    "description": "Skip reason: the screen has nothing to scroll"
+  },
+  "perfHubAutoNoScreen": "Ecrã não disponível",
+  "@perfHubAutoNoScreen": {
+    "description": "Skip reason: the screen cannot be reached"
+  },
+  "perfHubCompareWarmup": "Mudar de modo reconstrói os shaders de vidro, por isso os primeiros segundos de cada modo ficam enviesados. Desloque-se alguns segundos antes da primeira janela, ou descarte uma execução de aquecimento.",
+  "perfHubJankUnreliable": "O sistema não indica a taxa de atualização, por isso o orçamento de imagem usa o intervalo medido. Os valores acima do orçamento não são fiáveis.",
+  "perfHubTooFewFrames": "Foram gravadas poucas imagens: continue a deslocar ou a interagir durante a gravação",
+  "perfHubModeChanged": "O modo de vidro foi alterado durante esta gravação. O resultado mostra o modo em que começou.",
+  "perfHubCompareHint": "Deslize durante {seconds} segundos em Liquid e depois em None. No fim, o modo escolhido é restaurado.",
+  "@perfHubCompareHint": {
+    "description": "Explains the guided comparison; {seconds} is the scroll time per mode"
+  },
+  "perfHubCompareButton": "Comparar modos",
+  "@perfHubCompareButton": {
+    "description": "Button: start the guided comparison"
+  },
+  "perfHubCompareStep": "Deslize agora em {mode}: faltam {seconds} s",
+  "@perfHubCompareStep": {
+    "description": "Shown while a comparison step runs; {mode} is the glass mode name and {seconds} the seconds left"
+  },
+  "perfHubExportSection": "Exportar",
+  "@perfHubExportSection": {
+    "description": "Section header: copy results"
+  },
+  "perfHubCopyText": "Copiar como texto",
+  "@perfHubCopyText": {
+    "description": "Button: copy the last results as readable text"
+  },
+  "perfHubCopyJson": "Copiar como JSON",
+  "@perfHubCopyJson": {
+    "description": "Button: copy the last results as JSON"
+  },
+  "perfHubCopied": "Copiado para a área de transferência",
+  "@perfHubCopied": {
+    "description": "Snackbar after copying results"
+  },
+  "perfHubUi": "UI",
+  "@perfHubUi": {
+    "description": "Metric prefix: UI thread (build) timings"
+  },
+  "perfHubRaster": "Raster",
+  "@perfHubRaster": {
+    "description": "Metric prefix: raster thread timings"
+  },
+  "perfHubRowRenderer": "Renderizador efetivo",
+  "@perfHubRowRenderer": {
+    "description": "Results row: the glass renderer actually used after device fallback"
+  },
+  "perfHubRowFrames": "Imagens",
+  "@perfHubRowFrames": {
+    "description": "Results and live row: number of frames counted"
+  },
+  "perfHubRowJank": "Acima do orçamento (engasgos)",
+  "@perfHubRowJank": {
+    "description": "Results row: share of frames over the budget (jank)"
+  },
+  "perfHubRowReported": "Taxa, indicada",
+  "@perfHubRowReported": {
+    "description": "Results row: refresh rate reported by the system"
+  },
+  "perfHubRowMeasured": "Taxa, medida",
+  "@perfHubRowMeasured": {
+    "description": "Results row: refresh rate measured from frame intervals"
+  },
+  "perfHubRowAndroid": "Android",
+  "@perfHubRowAndroid": {
+    "description": "Results row: Android version of the device"
+  },
+  "perfHubRowApp": "Versão da app",
+  "@perfHubRowApp": {
+    "description": "Results row: app version and build"
+  },
+  "perfHubNotAvailable": "Não disponível",
+  "@perfHubNotAvailable": {
+    "description": "Value shown when the app cannot measure a figure"
   }
 }

@@ -6,7 +6,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:liquid_glass_easy/liquid_glass_easy.dart';
-import 'package:sistrum/widgets/mornye_selection_pill.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
@@ -47,7 +46,7 @@ void main() {
     Color? backdrop,
     Color? chromeSurface,
     Widget? body,
-    double glassClarity = 0.75,
+    MornyeGlassLevel glassLevel = MornyeGlassLevel.liquid,
     ValueNotifier<int>? activeTab,
   }) async {
     tester.view.physicalSize = const Size(393, 760);
@@ -70,15 +69,11 @@ void main() {
           ),
           playbackStateProvider.overrideWith((ref) => const Stream.empty()),
           lowEndDeviceProvider.overrideWithValue(!blur),
-          backdropBlurEnabledProvider.overrideWithValue(blur),
+          mornyeGlassModeProvider.overrideWithValue(glassLevel),
           mornyeLiquidGlassProvider.overrideWithValue(liquidGlass),
         ],
         child: MaterialApp(
-          theme: MornyeTheme.build(
-            brightness,
-            chromeSurface: chromeSurface,
-            glassClarity: glassClarity,
-          ),
+          theme: MornyeTheme.build(brightness, chromeSurface: chromeSurface),
           builder: (_, child) => RepaintBoundary(key: capture, child: child),
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
@@ -140,50 +135,8 @@ void main() {
 
   const albumBlue = Color(0xff464566);
 
-  testWidgets(
-    'player and navbar share a backdrop while moving capsules remain isolated',
-    (tester) async {
-      await pumpShell(tester, blur: true, liquidGlass: false);
-      void expectSharedBackdrop({
-        // The search capsule crosses the bar; the leading circle is the bar.
-        int movingSurfaces = 1,
-        int sharedSurfaces = 2,
-      }) {
-        final filters = find.descendant(
-          of: find.byType(MornyeBottomBar),
-          matching: find.byType(BackdropFilter),
-        );
-        final renderers = filters
-            .evaluate()
-            .map(
-              (element) => element.findRenderObject()! as RenderBackdropFilter,
-            )
-            .toList();
-        final shared = renderers
-            .where((filter) => filter.backdropKey != null)
-            .toList();
-        expect(shared, hasLength(sharedSurfaces));
-        if (sharedSurfaces == 2) {
-          expect(shared[0].backdropKey, same(shared[1].backdropKey));
-        }
-        // Side capsules overlap the folding tabs and must not join their group.
-        expect(
-          renderers.where((filter) => filter.backdropKey == null),
-          hasLength(movingSurfaces),
-        );
-      }
-
-      // Invisible side capsules must not paint additional backdrop passes.
-      expectSharedBackdrop(movingSurfaces: 0);
-      chrome.value = true;
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 190));
-      expectSharedBackdrop();
-      await tester.pumpAndSettle();
-      expectSharedBackdrop(movingSurfaces: 2, sharedSurfaces: 1);
-      expect(tester.takeException(), isNull);
-    },
-  );
+  // The bar's shared read and its folding capsule are covered by the Liquid
+  // tests below, now that Liquid is the only glass mode.
 
   for (final withPlayer in [true, false]) {
     testWidgets(
@@ -194,12 +147,18 @@ void main() {
         await pumpShell(tester, blur: true, withPlayer: withPlayer);
         // Every painted lens carries a batch key, so each takes the single
         // composed pass, and lenses with the same key share one read.
+        // The tab thumb is a native lens with its own read; only glass is counted.
         List<Element> lenses() => find
             .descendant(
               of: find.byType(MornyeBottomBar),
               matching: find.byType(LiquidGlassLens),
             )
             .evaluate()
+            .where(
+              (lens) =>
+                  lens.findAncestorWidgetOfExactType<LiquidGlassMotionPill>() ==
+                  null,
+            )
             .toList();
         List<int> keys(List<Element> lenses) => [
           for (final lens in lenses) LiquidGlassBatch.backdropIdOf(lens)!,
@@ -241,16 +200,20 @@ void main() {
     );
   }
 
-  for (final liquidGlass in [false, true]) {
+  // The bar's glass is the Liquid lens; None draws a plain fill (see the glass
+  // level tests), so only the lens case is measured here.
+  for (final liquidGlass in [true]) {
     testWidgets(
       'navbar keeps its backdrop blurred throughout motion (liquid: $liquidGlass)',
       (tester) async {
+        MornyeGlass.debugShaderFilterSupport = true;
+        addTearDown(() => MornyeGlass.debugShaderFilterSupport = null);
         await pumpShell(
           tester,
           blur: true,
           liquidGlass: liquidGlass,
           brightness: Brightness.dark,
-          glassClarity: 1,
+          glassLevel: MornyeGlassLevel.liquid,
           body: const SizedBox.expand(
             child: CustomPaint(painter: _StripedBackdrop()),
           ),
@@ -590,20 +553,20 @@ void main() {
   }
 
   for (final brightness in Brightness.values) {
-    for (final clarity in [0.0, 0.75, 1.0]) {
+    for (final glassLevel in MornyeGlassLevel.values) {
       for (final backdrop in [
         Colors.white,
         Colors.black,
         if (brightness == Brightness.dark) albumBlue,
       ]) {
         testWidgets(
-          'floating glass stays legible in $brightness over $backdrop (clarity: $clarity)',
+          'floating glass stays legible in $brightness over $backdrop (mode: $glassLevel)',
           (tester) async {
             await pumpShell(
               tester,
               blur: true,
               brightness: brightness,
-              glassClarity: clarity,
+              glassLevel: glassLevel,
               backdrop: backdrop,
               chromeSurface: backdrop == albumBlue ? albumBlue : null,
             );
@@ -882,20 +845,20 @@ void main() {
     'glass bar stays mounted and pauses its tickers while collapsed',
     (tester) async {
       await pumpShell(tester, blur: true);
-      final glass = tester.element(find.byType(MornyeSelectionPill));
+      final glass = tester.element(find.byType(MornyeTabBar));
       final player = tester.state(find.byType(MiniPlayer));
       expect(TickerMode.valuesOf(glass).enabled, isTrue);
       chrome.value = true;
       await tester.pumpAndSettle();
-      expect(find.byType(MornyeSelectionPill), findsNothing);
+      expect(find.byType(MornyeTabBar), findsNothing);
       expect(
-        tester.element(find.byType(MornyeSelectionPill, skipOffstage: false)),
+        tester.element(find.byType(MornyeTabBar, skipOffstage: false)),
         same(glass),
       );
       expect(TickerMode.valuesOf(glass).enabled, isFalse);
       chrome.expand();
       await tester.pumpAndSettle();
-      expect(tester.element(find.byType(MornyeSelectionPill)), same(glass));
+      expect(tester.element(find.byType(MornyeTabBar)), same(glass));
       expect(tester.state(find.byType(MiniPlayer)), same(player));
       expect(TickerMode.valuesOf(glass).enabled, isTrue);
       expect(tester.takeException(), isNull);
@@ -925,7 +888,7 @@ class _StripedBackdrop extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint();
     // Clear glass uses a small blur; fine stripes still reveal a lost backdrop
-    // during transforms without requiring the old heavily frosted appearance.
+    // during transforms without requiring the old heavily blurred appearance.
     for (var x = 0.0; x < size.width; x += 2) {
       paint.color = (x / 2).round().isEven ? Colors.white : Colors.black;
       canvas.drawRect(Rect.fromLTWH(x, 0, 2, size.height), paint);

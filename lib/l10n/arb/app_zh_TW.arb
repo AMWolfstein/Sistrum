@@ -53,30 +53,27 @@
   "appearanceAccentBlue": "Blue",
   "appearanceAccentPurple": "Purple",
   "appearanceAccentPink": "Pink",
-  "appearanceGlassClarity": "Glass clarity",
   "appearanceGlassOutlines": "Glass outlines",
   "appearanceGlassOutlinesSubtitle": "Show decorative edges around Mornye glass. Turning this off keeps blur and refraction.",
-  "appearanceGlassClaritySubtitle": "Adjust transparency in Mornye menus and navigation. Text contrast is preserved.",
-  "appearanceGlassTinted": "Tinted",
-  "appearanceGlassClear": "Clear",
-  "appearanceGlassClearPerformance": "Very clear glass may use more power and feel less smooth on older devices. Lower clarity if needed.",
-  "appearanceGlassClarityBlurOff": "Glass is opaque on this device. Turn on “{setting}” to adjust clarity.",
-  "@appearanceGlassClarityBlurOff": {
-    "description": "Shown under the disabled glass clarity slider when the device renders Mornye glass without blur. The placeholder is the name of the force-blur toggle.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
+  "appearanceGlassMode": "玻璃",
+  "@appearanceGlassMode": {
+    "description": "Title of the glass mode selector in Appearance settings"
   },
-  "appearanceGlassClarityHighContrast": "Your system requests increased contrast, so glass stays opaque. Turn on “{setting}” to use glass anyway; text contrast is preserved.",
-  "@appearanceGlassClarityHighContrast": {
-    "description": "Explains the system contrast request (which can include medium contrast) and the explicit glass-only override.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
+  "appearanceGlassModeSubtitle": "液態玻璃會折射頁面，霧面玻璃會使其柔化，無則使用實色表面。",
+  "@appearanceGlassModeSubtitle": {
+    "description": "Explains the three glass modes under the selector title"
+  },
+  "appearanceGlassLiquid": "液態玻璃",
+  "@appearanceGlassLiquid": {
+    "description": "Option: Liquid Glass, native full optical glass"
+  },
+  "appearanceGlassNone": "無",
+  "@appearanceGlassNone": {
+    "description": "Option: None, solid surfaces without glass"
+  },
+  "appearanceGlassHighContrast": "已開啟高對比，因此玻璃效果已關閉。",
+  "@appearanceGlassHighContrast": {
+    "description": "Shown when the system high-contrast request turns glass off"
   },
   "@@locale": "zh_TW",
   "@@last_modified": "2026-04-28",
@@ -951,14 +948,6 @@
   "downloadAskBeforeDownload": "Ask Before Download",
   "@downloadAskBeforeDownload": {
     "description": "Setting - show quality picker"
-  },
-  "appearanceForceBlur": "Always use blur effects",
-  "@appearanceForceBlur": {
-    "description": "Toggle that forces backdrop blur on even when the device profile disabled it"
-  },
-  "appearanceForceBlurSubtitle": "Enable the navigation bar blur even on devices where it is off by default. May cost performance.",
-  "@appearanceForceBlurSubtitle": {
-    "description": "Subtitle for the force-blur toggle"
   },
   "settingsAutoExportFailed": "Auto-export failed downloads",
   "@settingsAutoExportFailed": {
@@ -4432,5 +4421,169 @@
         "type": "String"
       }
     }
+  },
+  "perfHubTitle": "效能中心",
+  "@perfHubTitle": {
+    "description": "Title of the Performance hub settings page"
+  },
+  "perfHubSubtitle": "在這支手機上測量渲染效能",
+  "@perfHubSubtitle": {
+    "description": "Subtitle of the Performance hub row in Settings"
+  },
+  "perfHubIntro": "在這台裝置上測量應用程式的影格時間。資料不會離開手機。發行版可以使用，但計時較準確的是效能分析模式。",
+  "@perfHubIntro": {
+    "description": "Intro card on the Performance hub page: what is measured and the profile-mode note"
+  },
+  "perfHubDisplaySection": "顯示",
+  "@perfHubDisplaySection": {
+    "description": "Section header: display refresh rate and frame budget"
+  },
+  "perfHubRefreshRate": "更新率",
+  "@perfHubRefreshRate": {
+    "description": "Row: display refresh rate reported by the system"
+  },
+  "perfHubRateNote": "由系統回報。錄製時也會測量實際的影格間隔。",
+  "@perfHubRateNote": {
+    "description": "Subtitle under the refresh rate row: the value is reported and a recording measures the real interval"
+  },
+  "perfHubFrameBudget": "影格預算",
+  "@perfHubFrameBudget": {
+    "description": "Row: frame budget (1000 ms divided by the refresh rate), also a results row"
+  },
+  "perfHubRecordingSection": "錄製",
+  "@perfHubRecordingSection": {
+    "description": "Section header: recording controls and live values"
+  },
+  "perfHubStart": "開始錄製",
+  "@perfHubStart": {
+    "description": "Button: start a frame recording"
+  },
+  "perfHubStop": "停止",
+  "@perfHubStop": {
+    "description": "Button and badge: stop the recording"
+  },
+  "perfHubRecordingHint": "開始錄製後正常使用應用程式。停止前，其他頁面也會顯示錄製標記。",
+  "@perfHubRecordingHint": {
+    "description": "Hint under the recording controls when nothing is recording"
+  },
+  "perfHubRecording": "錄製中",
+  "@perfHubRecording": {
+    "description": "Badge word shown before the elapsed time and frame count while recording"
+  },
+  "perfHubElapsed": "已經過",
+  "@perfHubElapsed": {
+    "description": "Live row: elapsed time of the recording"
+  },
+  "perfHubLastFrame": "最近一幀，UI / 光柵",
+  "@perfHubLastFrame": {
+    "description": "Live row: the last frame UI (build) and raster durations"
+  },
+  "perfHubOverBudgetSoFar": "目前超出預算",
+  "@perfHubOverBudgetSoFar": {
+    "description": "Live row: share of kept frames over the frame budget so far"
+  },
+  "perfHubResultsSection": "結果",
+  "@perfHubResultsSection": {
+    "description": "Section header: saved results table"
+  },
+  "perfHubNoResults": "尚無結果。請錄製一次工作階段或比較各模式。",
+  "@perfHubNoResults": {
+    "description": "Shown in Results when nothing has been recorded yet"
+  },
+  "perfHubCompareSection": "比較模式",
+  "@perfHubCompareSection": {
+    "description": "Section header: guided comparison of the three glass modes"
+  },
+  "perfHubAutoHint": "以 8000 px/秒在 Liquid 中依序捲動「首頁」「資料庫」「歌曲」「藝人」和「搜尋」，然後在 None 中捲動。結束後還原所選模式。",
+  "@perfHubAutoHint": {
+    "description": "Explains the automatic measurement: the screens, the speed and the modes"
+  },
+  "perfHubAutoRunButton": "執行自動量測",
+  "@perfHubAutoRunButton": {
+    "description": "Button: starts the automatic measurement"
+  },
+  "perfHubAutoNoData": "此頁面沒有資料",
+  "@perfHubAutoNoData": {
+    "description": "Skip reason: the screen has no data to measure"
+  },
+  "perfHubAutoNoScroll": "沒有可捲動的內容",
+  "@perfHubAutoNoScroll": {
+    "description": "Skip reason: the screen has nothing to scroll"
+  },
+  "perfHubAutoNoScreen": "無法開啟該頁面",
+  "@perfHubAutoNoScreen": {
+    "description": "Skip reason: the screen cannot be reached"
+  },
+  "perfHubCompareWarmup": "切換模式會重建玻璃著色器，因此每種模式的前幾秒會有偏差。請在第一個時段前捲動幾秒，或捨棄一次預熱執行。",
+  "perfHubJankUnreliable": "系統未回報更新率，因此影格預算使用量測到的影格間隔。超出預算的數值不可靠。",
+  "perfHubTooFewFrames": "記錄的影格太少：錄製時請持續捲動或操作",
+  "perfHubModeChanged": "本次錄製期間變更了玻璃模式。結果顯示錄製開始時的模式。",
+  "perfHubCompareHint": "依序在 Liquid、None 中各滾動 {seconds} 秒。結束後會還原你先前選擇的模式。",
+  "@perfHubCompareHint": {
+    "description": "Explains the guided comparison; {seconds} is the scroll time per mode"
+  },
+  "perfHubCompareButton": "比較模式",
+  "@perfHubCompareButton": {
+    "description": "Button: start the guided comparison"
+  },
+  "perfHubCompareStep": "現在在 {mode} 中滾動：剩餘 {seconds} 秒",
+  "@perfHubCompareStep": {
+    "description": "Shown while a comparison step runs; {mode} is the glass mode name and {seconds} the seconds left"
+  },
+  "perfHubExportSection": "匯出",
+  "@perfHubExportSection": {
+    "description": "Section header: copy results"
+  },
+  "perfHubCopyText": "複製為文字",
+  "@perfHubCopyText": {
+    "description": "Button: copy the last results as readable text"
+  },
+  "perfHubCopyJson": "複製為 JSON",
+  "@perfHubCopyJson": {
+    "description": "Button: copy the last results as JSON"
+  },
+  "perfHubCopied": "已複製到剪貼簿",
+  "@perfHubCopied": {
+    "description": "Snackbar after copying results"
+  },
+  "perfHubUi": "UI",
+  "@perfHubUi": {
+    "description": "Metric prefix: UI thread (build) timings"
+  },
+  "perfHubRaster": "光柵",
+  "@perfHubRaster": {
+    "description": "Metric prefix: raster thread timings"
+  },
+  "perfHubRowRenderer": "實際渲染方式",
+  "@perfHubRowRenderer": {
+    "description": "Results row: the glass renderer actually used after device fallback"
+  },
+  "perfHubRowFrames": "影格數",
+  "@perfHubRowFrames": {
+    "description": "Results and live row: number of frames counted"
+  },
+  "perfHubRowJank": "超出預算（卡頓）",
+  "@perfHubRowJank": {
+    "description": "Results row: share of frames over the budget (jank)"
+  },
+  "perfHubRowReported": "更新率（系統回報）",
+  "@perfHubRowReported": {
+    "description": "Results row: refresh rate reported by the system"
+  },
+  "perfHubRowMeasured": "更新率（實測）",
+  "@perfHubRowMeasured": {
+    "description": "Results row: refresh rate measured from frame intervals"
+  },
+  "perfHubRowAndroid": "Android",
+  "@perfHubRowAndroid": {
+    "description": "Results row: Android version of the device"
+  },
+  "perfHubRowApp": "應用程式版本",
+  "@perfHubRowApp": {
+    "description": "Results row: app version and build"
+  },
+  "perfHubNotAvailable": "無法使用",
+  "@perfHubNotAvailable": {
+    "description": "Value shown when the app cannot measure a figure"
   }
 }

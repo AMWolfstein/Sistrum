@@ -50,6 +50,7 @@ import 'package:sistrum/widgets/library_selection_playback_actions.dart';
 import 'package:sistrum/widgets/local_library_artwork_builder.dart';
 import 'package:sistrum/widgets/disc_separator_chip.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
+import 'package:sistrum/widgets/blurred_cover.dart';
 import 'package:sistrum/widgets/mornye_artist_header.dart';
 import 'package:sistrum/widgets/motion_header_banner.dart';
 import 'package:sistrum/widgets/queue_swipe.dart';
@@ -368,6 +369,7 @@ class _LocalAlbumScreenState extends ConsumerState<LocalAlbumScreen>
           : MotionHeaderBanner(videoUrl: motion.source, fallback: background),
       paletteSource: coverPath,
       blurAndScrimBackground: coverPath != null,
+      blurSource: localCoverBlurSource(coverPath),
       coverBuilder: (context, coverSize) => coverPath != null
           ? Image.file(
               File(coverPath),

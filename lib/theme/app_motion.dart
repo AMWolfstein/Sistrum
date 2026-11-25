@@ -74,7 +74,7 @@ abstract final class MornyeMotion {
   static final SpringDescription slowSpring = _spring(500);
 
   /// A control with a physical feel that lands with a slight bounce, as the
-  /// system's `snappy` spring: a selection pill, a switch thumb. Not for a
+  /// system's `snappy` spring: a selection thumb, a switch thumb. Not for a
   /// surface whose size resizes other content.
   static final SpringDescription snappySpring = _spring(350, 0.15);
 

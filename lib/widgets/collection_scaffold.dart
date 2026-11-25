@@ -1,4 +1,8 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 import 'package:material_ui/material_ui.dart';
+import 'package:sistrum/providers/runtime_profile_provider.dart';
+import 'package:sistrum/theme/mornye_glass_presets.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/nav_bar_inset.dart';
 import 'package:sistrum/widgets/desktop/detail_header.dart';
@@ -102,27 +106,37 @@ class _CollectionScaffoldState extends State<CollectionScaffold> {
       },
       child: Scaffold(
         backgroundColor: widget.backgroundColor,
-        body: CustomScrollView(
-          controller: widget.scrollController,
-          slivers: [
-            if (widget.appBar case final AlbumDetailHeader header)
-              ...header.buildSlivers(context)
-            else
-              widget.appBar,
-            ...widget.slivers,
-            SliverToBoxAdapter(
-              child: SizedBox(
-                key: const ValueKey('collection-selection-spacer'),
-                height: widget.isSelectionMode
-                    ? _selectionBarHeight
-                    // Desktop pages scroll under the floating player.
-                    : isDesktopPlatform
-                    ? desktopDetailBottomInset
-                    : 32,
-              ),
+        // One batch per page: the header circles and the toolbar capsule share
+        // one backdrop read. Off in None.
+        body: Consumer(
+          builder: (context, ref, _) => LiquidGlassBatch(
+            enabled: ref.watch(mornyeBlurEnabledProvider),
+            blurMethod: MornyeGlassPreset.of(
+              ref.watch(mornyeGlassLevelProvider),
+            ).batchBlurMethod,
+            child: CustomScrollView(
+              controller: widget.scrollController,
+              slivers: [
+                if (widget.appBar case final AlbumDetailHeader header)
+                  ...header.buildSlivers(context)
+                else
+                  widget.appBar,
+                ...widget.slivers,
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    key: const ValueKey('collection-selection-spacer'),
+                    height: widget.isSelectionMode
+                        ? _selectionBarHeight
+                        // Desktop pages scroll under the floating player.
+                        : isDesktopPlatform
+                        ? desktopDetailBottomInset
+                        : 32,
+                  ),
+                ),
+                NavBarSliverSpacer(bottomInset: widget.bottomInset),
+              ],
             ),
-            NavBarSliverSpacer(bottomInset: widget.bottomInset),
-          ],
+          ),
         ),
       ),
     );

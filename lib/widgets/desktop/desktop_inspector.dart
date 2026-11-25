@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math' as math;
-import 'dart:ui' as ui;
 
 import 'package:audio_service/audio_service.dart';
 import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
@@ -10,7 +9,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sistrum/controllers/player_metadata_controller.dart';
 import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/music_player_provider.dart';
-import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/theme/app_motion.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/utils/playback_seek_preview.dart';
@@ -219,26 +217,17 @@ class DesktopInspector extends ConsumerWidget {
     // Lyrics and Up Next keep the player's dark artwork backdrop, as the
     // full player draws them in white over it.
     final theme = MornyeTheme.fromContext(context, brightness: Brightness.dark);
-    final blur = ref.watch(mornyeBlurEnabledProvider);
     final panelSurface = Theme(
       data: theme,
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // The floating panel samples the content beneath it; the full
-          // screen panel keeps the artwork backdrop.
-          if (overlay) ...[
-            if (blur)
-              BackdropFilter(
-                filter: ui.ImageFilter.blur(sigmaX: 60, sigmaY: 60),
-                child: const SizedBox.expand(),
-              ),
-            ColoredBox(
-              color: const Color(
-                0xff363636,
-              ).withValues(alpha: blur ? 0.74 : 0.97),
-            ),
-          ] else
+          // The floating panel is content, not chrome: a plain fill in every
+          // mode, with no backdrop read. The full screen panel keeps the
+          // artwork backdrop.
+          if (overlay)
+            ColoredBox(color: const Color(0xff363636).withValues(alpha: 0.97))
+          else
             MornyePlayerBackground(artUri: mediaItem?.artUri),
           Material(
             type: MaterialType.transparency,

@@ -15,6 +15,7 @@ import 'package:sistrum/screens/settings/keyboard_shortcuts_page.dart';
 import 'package:sistrum/screens/settings/library_settings_page.dart';
 import 'package:sistrum/screens/settings/log_screen.dart';
 import 'package:sistrum/screens/settings/lyrics_settings_page.dart';
+import 'package:sistrum/screens/settings/performance_hub_page.dart';
 import 'package:sistrum/screens/settings/playback_settings_page.dart';
 import 'package:sistrum/utils/settings_search_catalog.dart';
 import 'package:sistrum/services/shell_navigation_service.dart';
@@ -225,6 +226,15 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
       ),
       _Group(
         destinations: [
+          _Destination(
+            icon: Icons.speed_outlined,
+            iconColor: Colors.deepOrange,
+            title: l10n.perfHubTitle,
+            subtitle: l10n.perfHubSubtitle,
+            keywords: const ['fps', 'frame', 'jank', 'render', 'benchmark'],
+            searchEntries: searchCatalog.performance,
+            pageBuilder: () => const PerformanceHubPage(),
+          ),
           _Destination(
             icon: Icons.article_outlined,
             iconColor: Colors.brown,

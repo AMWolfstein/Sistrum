@@ -108,6 +108,10 @@ class HomeProfileButton extends ConsumerWidget {
         radius: kHeaderButtonSize / 2,
         child: MornyeGlass.navigation(
           radius: kHeaderButtonSize / 2,
+          // The header behind it is an opaque app bar, so there is nothing to
+          // sample: the control keeps its rim and tint and reads no backdrop.
+          kind: MornyeGlassKind.control,
+          samplesBackdrop: false,
           tintColor: dark ? Colors.black : Colors.white,
           tintOpacity: dark ? 0.45 : 0.55,
           blurEnabled: ref.watch(mornyeBlurEnabledProvider),

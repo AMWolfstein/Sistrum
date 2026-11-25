@@ -53,30 +53,27 @@
   "appearanceAccentBlue": "Блакитний",
   "appearanceAccentPurple": "Фіолетовий",
   "appearanceAccentPink": "Рожевий",
-  "appearanceGlassClarity": "Прозорість скла",
   "appearanceGlassOutlines": "Скляні обводи",
   "appearanceGlassOutlinesSubtitle": "Показувати декоративні краї навколо скла Mornye. Вимкнення цієї функції зберігає розмиття та заломлення.",
-  "appearanceGlassClaritySubtitle": "Налаштуйте прозорість меню та навігації Mornye. Контрастність тексту зберігається.",
-  "appearanceGlassTinted": "Тонований",
-  "appearanceGlassClear": "Очистити",
-  "appearanceGlassClearPerformance": "Ефект прозорого скла може споживати більше енергії та уповільнювати старіші пристрої. Зменште прозорість, якщо необхідно.",
-  "appearanceGlassClarityBlurOff": "Скло на цьому пристрої непрозоре. Увімкніть «{setting}», щоб налаштувати прозорість.",
-  "@appearanceGlassClarityBlurOff": {
-    "description": "Shown under the disabled glass clarity slider when the device renders Mornye glass without blur. The placeholder is the name of the force-blur toggle.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
+  "appearanceGlassMode": "Скло",
+  "@appearanceGlassMode": {
+    "description": "Title of the glass mode selector in Appearance settings"
   },
-  "appearanceGlassClarityHighContrast": "Система запитує підвищену контрастність, тому скло залишається непрозорим. Увімкніть «{setting}», щоб усе одно використовувати ефект скла; контрастність тексту зберігається.",
-  "@appearanceGlassClarityHighContrast": {
-    "description": "Explains the system contrast request (which can include medium contrast) and the explicit glass-only override.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
+  "appearanceGlassModeSubtitle": "Рідке скло заломлює сторінку, матове пом'якшує її, а «Немає» використовує суцільні поверхні.",
+  "@appearanceGlassModeSubtitle": {
+    "description": "Explains the three glass modes under the selector title"
+  },
+  "appearanceGlassLiquid": "Рідке скло",
+  "@appearanceGlassLiquid": {
+    "description": "Option: Liquid Glass, native full optical glass"
+  },
+  "appearanceGlassNone": "Немає",
+  "@appearanceGlassNone": {
+    "description": "Option: None, solid surfaces without glass"
+  },
+  "appearanceGlassHighContrast": "Увімкнено високий контраст, тому скло вимкнено.",
+  "@appearanceGlassHighContrast": {
+    "description": "Shown when the system high-contrast request turns glass off"
   },
   "@@locale": "uk",
   "@@last_modified": "2026-04-28",
@@ -951,14 +948,6 @@
   "downloadAskBeforeDownload": "Запитувати перед завантаженням",
   "@downloadAskBeforeDownload": {
     "description": "Setting - show quality picker"
-  },
-  "appearanceForceBlur": "Завжди використовуйте ефекти розмиття",
-  "@appearanceForceBlur": {
-    "description": "Toggle that forces backdrop blur on even when the device profile disabled it"
-  },
-  "appearanceForceBlurSubtitle": "Увімкнути розмиття панелі навігації навіть на пристроях за замовчуванням. Це може вплинути на продуктивність.",
-  "@appearanceForceBlurSubtitle": {
-    "description": "Subtitle for the force-blur toggle"
   },
   "settingsAutoExportFailed": "Автоматичний експорт невдалих завантажень",
   "@settingsAutoExportFailed": {
@@ -4432,5 +4421,169 @@
         "type": "String"
       }
     }
+  },
+  "perfHubTitle": "Центр швидкодії",
+  "@perfHubTitle": {
+    "description": "Title of the Performance hub settings page"
+  },
+  "perfHubSubtitle": "Вимірювання відтворення на цьому телефоні",
+  "@perfHubSubtitle": {
+    "description": "Subtitle of the Performance hub row in Settings"
+  },
+  "perfHubIntro": "Вимірює час кадрів цього застосунку на пристрої. Жодні дані не покидають телефон. Релізна збірка працює, але режим профілювання точніший для вимірювань.",
+  "@perfHubIntro": {
+    "description": "Intro card on the Performance hub page: what is measured and the profile-mode note"
+  },
+  "perfHubDisplaySection": "Екран",
+  "@perfHubDisplaySection": {
+    "description": "Section header: display refresh rate and frame budget"
+  },
+  "perfHubRefreshRate": "Частота оновлення",
+  "@perfHubRefreshRate": {
+    "description": "Row: display refresh rate reported by the system"
+  },
+  "perfHubRateNote": "Повідомлено системою. Запис також вимірює реальний інтервал між кадрами.",
+  "@perfHubRateNote": {
+    "description": "Subtitle under the refresh rate row: the value is reported and a recording measures the real interval"
+  },
+  "perfHubFrameBudget": "Бюджет кадру",
+  "@perfHubFrameBudget": {
+    "description": "Row: frame budget (1000 ms divided by the refresh rate), also a results row"
+  },
+  "perfHubRecordingSection": "Запис",
+  "@perfHubRecordingSection": {
+    "description": "Section header: recording controls and live values"
+  },
+  "perfHubStart": "Почати запис",
+  "@perfHubStart": {
+    "description": "Button: start a frame recording"
+  },
+  "perfHubStop": "Зупинити",
+  "@perfHubStop": {
+    "description": "Button and badge: stop the recording"
+  },
+  "perfHubRecordingHint": "Почніть запис і користуйтеся застосунком. Значок лишається на екрані, зокрема на інших сторінках, доки ви не зупините запис.",
+  "@perfHubRecordingHint": {
+    "description": "Hint under the recording controls when nothing is recording"
+  },
+  "perfHubRecording": "Запис",
+  "@perfHubRecording": {
+    "description": "Badge word shown before the elapsed time and frame count while recording"
+  },
+  "perfHubElapsed": "Минуло",
+  "@perfHubElapsed": {
+    "description": "Live row: elapsed time of the recording"
+  },
+  "perfHubLastFrame": "Останній кадр, UI / растр",
+  "@perfHubLastFrame": {
+    "description": "Live row: the last frame UI (build) and raster durations"
+  },
+  "perfHubOverBudgetSoFar": "Перевищено бюджет досі",
+  "@perfHubOverBudgetSoFar": {
+    "description": "Live row: share of kept frames over the frame budget so far"
+  },
+  "perfHubResultsSection": "Результати",
+  "@perfHubResultsSection": {
+    "description": "Section header: saved results table"
+  },
+  "perfHubNoResults": "Результатів ще немає. Запишіть сеанс або порівняйте режими.",
+  "@perfHubNoResults": {
+    "description": "Shown in Results when nothing has been recorded yet"
+  },
+  "perfHubCompareSection": "Порівняння режимів",
+  "@perfHubCompareSection": {
+    "description": "Section header: guided comparison of the three glass modes"
+  },
+  "perfHubAutoHint": "Прокручує «Головна», «Медіатека», «Пісні», «Виконавець» і «Пошук» зі швидкістю 8000 px/с у Liquid, потім у None. Наприкінці відновлюється вибраний режим.",
+  "@perfHubAutoHint": {
+    "description": "Explains the automatic measurement: the screens, the speed and the modes"
+  },
+  "perfHubAutoRunButton": "Запустити автоматичне вимірювання",
+  "@perfHubAutoRunButton": {
+    "description": "Button: starts the automatic measurement"
+  },
+  "perfHubAutoNoData": "На цьому екрані немає даних",
+  "@perfHubAutoNoData": {
+    "description": "Skip reason: the screen has no data to measure"
+  },
+  "perfHubAutoNoScroll": "Нічого прокручувати",
+  "@perfHubAutoNoScroll": {
+    "description": "Skip reason: the screen has nothing to scroll"
+  },
+  "perfHubAutoNoScreen": "Екран недоступний",
+  "@perfHubAutoNoScreen": {
+    "description": "Skip reason: the screen cannot be reached"
+  },
+  "perfHubCompareWarmup": "Зміна режиму перебудовує шейдери скла, тому перші секунди кожного режиму спотворені. Прокрутіть кілька секунд перед першим вікном або відкиньте розігрівальний запуск.",
+  "perfHubJankUnreliable": "Система не повідомляє частоту оновлення, тому бюджет кадру використовує виміряний інтервал кадрів. Показники перевищення бюджету ненадійні.",
+  "perfHubTooFewFrames": "Записано замало кадрів: під час запису продовжуйте прокручувати або взаємодіяти із застосунком",
+  "perfHubModeChanged": "Режим скла було змінено під час цього запису. У результаті показано режим, з якого він почався.",
+  "perfHubCompareHint": "Прокручуйте {seconds} с у режимі Liquid, потім None. Наприкінці відновлюється вибраний режим.",
+  "@perfHubCompareHint": {
+    "description": "Explains the guided comparison; {seconds} is the scroll time per mode"
+  },
+  "perfHubCompareButton": "Порівняти режими",
+  "@perfHubCompareButton": {
+    "description": "Button: start the guided comparison"
+  },
+  "perfHubCompareStep": "Прокручуйте зараз у {mode}: залишилось {seconds} с",
+  "@perfHubCompareStep": {
+    "description": "Shown while a comparison step runs; {mode} is the glass mode name and {seconds} the seconds left"
+  },
+  "perfHubExportSection": "Експорт",
+  "@perfHubExportSection": {
+    "description": "Section header: copy results"
+  },
+  "perfHubCopyText": "Копіювати як текст",
+  "@perfHubCopyText": {
+    "description": "Button: copy the last results as readable text"
+  },
+  "perfHubCopyJson": "Копіювати як JSON",
+  "@perfHubCopyJson": {
+    "description": "Button: copy the last results as JSON"
+  },
+  "perfHubCopied": "Скопійовано до буфера обміну",
+  "@perfHubCopied": {
+    "description": "Snackbar after copying results"
+  },
+  "perfHubUi": "UI",
+  "@perfHubUi": {
+    "description": "Metric prefix: UI thread (build) timings"
+  },
+  "perfHubRaster": "Растр",
+  "@perfHubRaster": {
+    "description": "Metric prefix: raster thread timings"
+  },
+  "perfHubRowRenderer": "Фактичний рендерер",
+  "@perfHubRowRenderer": {
+    "description": "Results row: the glass renderer actually used after device fallback"
+  },
+  "perfHubRowFrames": "Кадри",
+  "@perfHubRowFrames": {
+    "description": "Results and live row: number of frames counted"
+  },
+  "perfHubRowJank": "Понад бюджет (ривки)",
+  "@perfHubRowJank": {
+    "description": "Results row: share of frames over the budget (jank)"
+  },
+  "perfHubRowReported": "Частота, повідомлена",
+  "@perfHubRowReported": {
+    "description": "Results row: refresh rate reported by the system"
+  },
+  "perfHubRowMeasured": "Частота, виміряна",
+  "@perfHubRowMeasured": {
+    "description": "Results row: refresh rate measured from frame intervals"
+  },
+  "perfHubRowAndroid": "Android",
+  "@perfHubRowAndroid": {
+    "description": "Results row: Android version of the device"
+  },
+  "perfHubRowApp": "Версія застосунку",
+  "@perfHubRowApp": {
+    "description": "Results row: app version and build"
+  },
+  "perfHubNotAvailable": "Недоступно",
+  "@perfHubNotAvailable": {
+    "description": "Value shown when the app cannot measure a figure"
   }
 }

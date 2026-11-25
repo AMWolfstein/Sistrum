@@ -9,6 +9,7 @@ import 'package:sistrum/providers/music_player_provider.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mini_player.dart';
+import 'package:sistrum/theme/mornye_glass_presets.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 
 /// Deliberate vertical drags minimize the chrome until the page returns to its
@@ -168,6 +169,9 @@ class _MornyeBottomBarState extends ConsumerState<MornyeBottomBar>
       currentMediaItemProvider.select((item) => item.value != null),
     );
     final liquidGlass = ref.watch(mornyeLiquidGlassProvider);
+    final batchBlurMethod = MornyeGlassPreset.of(
+      ref.watch(mornyeGlassLevelProvider),
+    ).batchBlurMethod;
     // Animated glass tabs already reserve 8px above their visible capsule.
     final glassTabs = MornyeTabBar.usesLiquidGlass(
       context,
@@ -185,6 +189,7 @@ class _MornyeBottomBarState extends ConsumerState<MornyeBottomBar>
       key: key,
       child: MornyeGlass.navigation(
         blurEnabled: blurEnabled,
+        kind: MornyeGlassKind.control,
         strongTint: true,
         tintOpacity: MornyeTheme.navigationOpacity(context),
         radius: 26,
@@ -307,7 +312,11 @@ class _MornyeBottomBarState extends ConsumerState<MornyeBottomBar>
                               // and needs a backdrop sample of its own.
                               child: amount == 1
                                   ? surface
-                                  : LiquidGlassBatch(child: surface),
+                                  : LiquidGlassBatch(
+                                      enabled: blurEnabled,
+                                      blurMethod: batchBlurMethod,
+                                      child: surface,
+                                    ),
                             ),
                           ),
                         ),
@@ -349,66 +358,67 @@ class _MornyeBottomBarState extends ConsumerState<MornyeBottomBar>
             }
 
             // Only non-overlapping surfaces share a backdrop: the player, the
-            // tabs and, at rest, the side capsules. Frosted capsules stay out
-            // of the blur group, since they cross the tab bar while folding.
+            // tabs and, at rest, the side capsules. Capsules stay out of the
+            // batch while folding, since they cross the tab bar.
+            // None has no lens to share a read, so its batch is off.
             return LiquidGlassBatch(
+              enabled: blurEnabled,
+              blurMethod: batchBlurMethod,
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  BackdropGroup(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      // Laid out top to bottom, but painted bottom first: the
-                      // player settles in front of the shrinking tab bar.
-                      verticalDirection: VerticalDirection.up,
-                      children: [
-                        Offstage(
-                          // Retain tab state, but drop its backdrop layers only
-                          // after the last visible frame of the fold.
-                          offstage: amount == 1,
-                          // Unclipped: the bar's glass narrows and shortens
-                          // into the leading circle as one shape.
-                          child: Align(
-                            alignment: Alignment.bottomCenter,
-                            heightFactor: 1 - amount,
-                            child: IgnorePointer(
-                              ignoring: amount > 0.5,
-                              child: ExcludeSemantics(
-                                excluding: amount > 0.5,
-                                child: amount == 0 ? fullTabs : foldingTabs,
-                              ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    // Laid out top to bottom, but painted bottom first: the
+                    // player settles in front of the shrinking tab bar.
+                    verticalDirection: VerticalDirection.up,
+                    children: [
+                      Offstage(
+                        // Retain tab state, but drop its backdrop layers only
+                        // after the last visible frame of the fold.
+                        offstage: amount == 1,
+                        // Unclipped: the bar's glass narrows and shortens
+                        // into the leading circle as one shape.
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          heightFactor: 1 - amount,
+                          child: IgnorePointer(
+                            ignoring: amount > 0.5,
+                            child: ExcludeSemantics(
+                              excluding: amount > 0.5,
+                              child: amount == 0 ? fullTabs : foldingTabs,
                             ),
                           ),
                         ),
-                        if (hasPlayer || amount > 0)
-                          Align(
-                            alignment: Alignment.bottomCenter,
-                            // With no track, introducing the row at full height would
-                            // make the bar jump taller on the first animation frame.
-                            heightFactor: hasPlayer ? 1 : amount,
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                bottom: hasPlayer
-                                    ? tabGap + (8 - tabGap) * amount
-                                    : 8,
-                              ),
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    width: 60 * amount,
-                                    height: hasPlayer ? 48 + 4 * amount : 52,
-                                  ),
-                                  Expanded(child: player),
-                                  SizedBox(
-                                    width: 60 * amount,
-                                    height: hasPlayer ? 48 + 4 * amount : 52,
-                                  ),
-                                ],
-                              ),
+                      ),
+                      if (hasPlayer || amount > 0)
+                        Align(
+                          alignment: Alignment.bottomCenter,
+                          // With no track, introducing the row at full height would
+                          // make the bar jump taller on the first animation frame.
+                          heightFactor: hasPlayer ? 1 : amount,
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              bottom: hasPlayer
+                                  ? tabGap + (8 - tabGap) * amount
+                                  : 8,
+                            ),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 60 * amount,
+                                  height: hasPlayer ? 48 + 4 * amount : 52,
+                                ),
+                                Expanded(child: player),
+                                SizedBox(
+                                  width: 60 * amount,
+                                  height: hasPlayer ? 48 + 4 * amount : 52,
+                                ),
+                              ],
                             ),
                           ),
-                      ],
-                    ),
+                        ),
+                    ],
                   ),
                   movingIcon(leading: true, surface: leadingSurface),
                   movingIcon(leading: false, surface: searchSurface),

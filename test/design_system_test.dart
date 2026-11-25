@@ -20,7 +20,6 @@ import 'package:sistrum/widgets/app_content_card.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/app_search_field.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
-import 'package:sistrum/widgets/mornye_selection_pill.dart';
 import 'package:sistrum/widgets/app_sliver_header.dart';
 import 'package:sistrum/widgets/collection_scaffold.dart';
 import 'package:sistrum/widgets/selection_action_button.dart';
@@ -338,12 +337,21 @@ void main() {
           ),
         ),
       );
-      expect(find.byType(MornyeSelectionPill), findsOneWidget);
+      // One thumb, a plain capsule in this default mode.
+      expect(
+        find.descendant(
+          of: find.byType(MornyeSegmentedControl),
+          matching: find.byWidgetPredicate(
+            (widget) => widget is Align && widget.child is FractionallySizedBox,
+          ),
+        ),
+        findsOneWidget,
+      );
       expect(find.text('Dark'), findsOneWidget);
       await tester.tap(find.text('Dark'));
       await tester.pump();
       expect(selected, 2);
-      // The pill is at the new selection at once: nothing is left to draw.
+      // The thumb is at the new selection at once: nothing is left to draw.
       expect(tester.binding.hasScheduledFrame, isFalse);
       expect(
         tester.getCenter(find.text('System')).dx <
@@ -980,16 +988,19 @@ void main() {
     testWidgets('mounts the selection bar only while selecting', (
       tester,
     ) async {
-      Widget host({required bool selecting}) => MaterialApp(
-        theme: MornyeTheme.build(Brightness.light),
-        home: CollectionScaffold(
-          scrollController: ScrollController(),
-          isSelectionMode: selecting,
-          onExitSelectionMode: () {},
-          bottomInset: 0,
-          appBar: const SliverToBoxAdapter(child: SizedBox(height: 10)),
-          slivers: const [SliverToBoxAdapter(child: Text('content'))],
-          selectionBar: const Text('selection-bar'),
+      // The shell reads the glass level, so it needs the app's ProviderScope.
+      Widget host({required bool selecting}) => ProviderScope(
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.light),
+          home: CollectionScaffold(
+            scrollController: ScrollController(),
+            isSelectionMode: selecting,
+            onExitSelectionMode: () {},
+            bottomInset: 0,
+            appBar: const SliverToBoxAdapter(child: SizedBox(height: 10)),
+            slivers: const [SliverToBoxAdapter(child: Text('content'))],
+            selectionBar: const Text('selection-bar'),
+          ),
         ),
       );
 
@@ -1010,16 +1021,18 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        MaterialApp(
-          theme: MornyeTheme.build(Brightness.light),
-          home: CollectionScaffold(
-            scrollController: ScrollController(),
-            isSelectionMode: true,
-            onExitSelectionMode: () {},
-            bottomInset: 0,
-            appBar: const SliverToBoxAdapter(child: SizedBox(height: 10)),
-            slivers: const [SliverToBoxAdapter(child: Text('content'))],
-            selectionBar: const SizedBox(height: 260),
+        ProviderScope(
+          child: MaterialApp(
+            theme: MornyeTheme.build(Brightness.light),
+            home: CollectionScaffold(
+              scrollController: ScrollController(),
+              isSelectionMode: true,
+              onExitSelectionMode: () {},
+              bottomInset: 0,
+              appBar: const SliverToBoxAdapter(child: SizedBox(height: 10)),
+              slivers: const [SliverToBoxAdapter(child: Text('content'))],
+              selectionBar: const SizedBox(height: 260),
+            ),
           ),
         ),
       );

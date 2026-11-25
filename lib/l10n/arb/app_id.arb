@@ -122,30 +122,27 @@
   "appearanceAccentBlue": "Biru",
   "appearanceAccentPurple": "Ungu",
   "appearanceAccentPink": "Merah muda",
-  "appearanceGlassClarity": "Kebeningan kaca",
   "appearanceGlassOutlines": "Garis tepi kaca",
   "appearanceGlassOutlinesSubtitle": "Tampilkan garis dekoratif di tepi kaca Mornye. Mematikannya tetap mempertahankan blur dan pembiasan.",
-  "appearanceGlassClaritySubtitle": "Atur kebeningan kaca menu dan navigasi Mornye. Kontras teks tetap terjaga.",
-  "appearanceGlassTinted": "Berwarna",
-  "appearanceGlassClear": "Bening",
-  "appearanceGlassClearPerformance": "Kaca yang terlalu bening dapat memperlambat performa perangkat lama. Kurangi kebeningan jika perlu.",
-  "appearanceGlassClarityBlurOff": "Efek kaca mati di perangkat ini. Hidupkan \"{setting}\" untuk atur kebeningan kaca.",
-  "@appearanceGlassClarityBlurOff": {
-    "description": "Shown under the disabled glass clarity slider when the device renders Mornye glass without blur. The placeholder is the name of the force-blur toggle.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
+  "appearanceGlassMode": "Kaca",
+  "@appearanceGlassMode": {
+    "description": "Title of the glass mode selector in Appearance settings"
   },
-  "appearanceGlassClarityHighContrast": "Sistem meminta peningkatan kontras, sehingga kaca menjadi buram penuh. Aktifkan “{setting}” untuk tetap menggunakan efek kaca; kontras teks tetap dipertahankan.",
-  "@appearanceGlassClarityHighContrast": {
-    "description": "Explains the system contrast request (which can include medium contrast) and the explicit glass-only override.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
+  "appearanceGlassModeSubtitle": "Liquid Glass membiaskan halaman, dan Tidak Ada memakai permukaan solid.",
+  "@appearanceGlassModeSubtitle": {
+    "description": "Explains the three glass modes under the selector title"
+  },
+  "appearanceGlassLiquid": "Liquid Glass",
+  "@appearanceGlassLiquid": {
+    "description": "Option: Liquid Glass, native full optical glass"
+  },
+  "appearanceGlassNone": "Tidak ada",
+  "@appearanceGlassNone": {
+    "description": "Option: None, solid surfaces without glass"
+  },
+  "appearanceGlassHighContrast": "Kontras tinggi aktif, jadi kaca dimatikan.",
+  "@appearanceGlassHighContrast": {
+    "description": "Shown when the system high-contrast request turns glass off"
   },
   "@@locale": "id",
   "@@last_modified": "2026-04-28",
@@ -1031,14 +1028,6 @@
   "downloadAskBeforeDownload": "Tanya Sebelum Download",
   "@downloadAskBeforeDownload": {
     "description": "Setting - show quality picker"
-  },
-  "appearanceForceBlur": "Selalu gunakan efek blur",
-  "@appearanceForceBlur": {
-    "description": "Toggle that forces backdrop blur on even when the device profile disabled it"
-  },
-  "appearanceForceBlurSubtitle": "Aktifkan blur bar navigasi di perangkat yang dimatikan secara default. Dapat memengaruhi performa.",
-  "@appearanceForceBlurSubtitle": {
-    "description": "Subtitle for the force-blur toggle"
   },
   "appearanceInterfaceSize": "Ukuran antarmuka",
   "@appearanceInterfaceSize": {
@@ -4305,5 +4294,169 @@
         "type": "String"
       }
     }
+  },
+  "perfHubTitle": "Pusat performa",
+  "@perfHubTitle": {
+    "description": "Title of the Performance hub settings page"
+  },
+  "perfHubSubtitle": "Ukur rendering di ponsel ini",
+  "@perfHubSubtitle": {
+    "description": "Subtitle of the Performance hub row in Settings"
+  },
+  "perfHubIntro": "Mengukur waktu frame aplikasi ini di perangkat ini. Tidak ada data yang keluar dari ponsel. Build rilis bisa dipakai, tetapi mode profil lebih akurat untuk waktu.",
+  "@perfHubIntro": {
+    "description": "Intro card on the Performance hub page: what is measured and the profile-mode note"
+  },
+  "perfHubDisplaySection": "Tampilan",
+  "@perfHubDisplaySection": {
+    "description": "Section header: display refresh rate and frame budget"
+  },
+  "perfHubRefreshRate": "Refresh rate",
+  "@perfHubRefreshRate": {
+    "description": "Row: display refresh rate reported by the system"
+  },
+  "perfHubRateNote": "Dilaporkan oleh sistem. Perekaman juga mengukur jeda frame yang sebenarnya.",
+  "@perfHubRateNote": {
+    "description": "Subtitle under the refresh rate row: the value is reported and a recording measures the real interval"
+  },
+  "perfHubFrameBudget": "Anggaran frame",
+  "@perfHubFrameBudget": {
+    "description": "Row: frame budget (1000 ms divided by the refresh rate), also a results row"
+  },
+  "perfHubRecordingSection": "Perekaman",
+  "@perfHubRecordingSection": {
+    "description": "Section header: recording controls and live values"
+  },
+  "perfHubStart": "Mulai merekam",
+  "@perfHubStart": {
+    "description": "Button: start a frame recording"
+  },
+  "perfHubStop": "Berhenti",
+  "@perfHubStop": {
+    "description": "Button and badge: stop the recording"
+  },
+  "perfHubRecordingHint": "Mulai perekaman, lalu gunakan aplikasi. Lencana tetap tampil, termasuk di halaman lain, sampai Anda berhenti.",
+  "@perfHubRecordingHint": {
+    "description": "Hint under the recording controls when nothing is recording"
+  },
+  "perfHubRecording": "Merekam",
+  "@perfHubRecording": {
+    "description": "Badge word shown before the elapsed time and frame count while recording"
+  },
+  "perfHubElapsed": "Berlalu",
+  "@perfHubElapsed": {
+    "description": "Live row: elapsed time of the recording"
+  },
+  "perfHubLastFrame": "Frame terakhir, UI / raster",
+  "@perfHubLastFrame": {
+    "description": "Live row: the last frame UI (build) and raster durations"
+  },
+  "perfHubOverBudgetSoFar": "Di atas anggaran sejauh ini",
+  "@perfHubOverBudgetSoFar": {
+    "description": "Live row: share of kept frames over the frame budget so far"
+  },
+  "perfHubResultsSection": "Hasil",
+  "@perfHubResultsSection": {
+    "description": "Section header: saved results table"
+  },
+  "perfHubNoResults": "Belum ada hasil. Rekam sesi atau bandingkan mode.",
+  "@perfHubNoResults": {
+    "description": "Shown in Results when nothing has been recorded yet"
+  },
+  "perfHubCompareSection": "Bandingkan mode",
+  "@perfHubCompareSection": {
+    "description": "Section header: guided comparison of the three glass modes"
+  },
+  "perfHubAutoHint": "Menggulir Beranda, Pustaka, Lagu, Artis, dan Cari pada 8000 px/dtk di Liquid, lalu None. Mode yang dipilih dipulihkan di akhir.",
+  "@perfHubAutoHint": {
+    "description": "Explains the automatic measurement: the screens, the speed and the modes"
+  },
+  "perfHubAutoRunButton": "Jalankan pengukuran otomatis",
+  "@perfHubAutoRunButton": {
+    "description": "Button: starts the automatic measurement"
+  },
+  "perfHubAutoNoData": "Tidak ada data di layar ini",
+  "@perfHubAutoNoData": {
+    "description": "Skip reason: the screen has no data to measure"
+  },
+  "perfHubAutoNoScroll": "Tidak ada yang bisa digulir",
+  "@perfHubAutoNoScroll": {
+    "description": "Skip reason: the screen has nothing to scroll"
+  },
+  "perfHubAutoNoScreen": "Layar tidak dapat dijangkau",
+  "@perfHubAutoNoScreen": {
+    "description": "Skip reason: the screen cannot be reached"
+  },
+  "perfHubCompareWarmup": "Mengganti mode membangun ulang shader kaca, sehingga beberapa detik pertama tiap mode bias. Gulir beberapa detik sebelum jendela pertama, atau buang satu putaran pemanasan.",
+  "perfHubJankUnreliable": "Sistem tidak melaporkan laju penyegaran, jadi anggaran frame memakai interval frame yang diukur. Angka melebihi anggaran tidak dapat diandalkan.",
+  "perfHubTooFewFrames": "Terlalu sedikit frame yang direkam: terus gulir atau berinteraksi selama merekam",
+  "perfHubModeChanged": "Mode kaca diubah selama perekaman ini. Hasil menampilkan mode saat perekaman dimulai.",
+  "perfHubCompareHint": "Gulir selama {seconds} detik di Liquid, lalu None. Mode yang Anda pilih dipulihkan di akhir.",
+  "@perfHubCompareHint": {
+    "description": "Explains the guided comparison; {seconds} is the scroll time per mode"
+  },
+  "perfHubCompareButton": "Bandingkan mode",
+  "@perfHubCompareButton": {
+    "description": "Button: start the guided comparison"
+  },
+  "perfHubCompareStep": "Gulir sekarang di {mode}: sisa {seconds} dtk",
+  "@perfHubCompareStep": {
+    "description": "Shown while a comparison step runs; {mode} is the glass mode name and {seconds} the seconds left"
+  },
+  "perfHubExportSection": "Ekspor",
+  "@perfHubExportSection": {
+    "description": "Section header: copy results"
+  },
+  "perfHubCopyText": "Salin sebagai teks",
+  "@perfHubCopyText": {
+    "description": "Button: copy the last results as readable text"
+  },
+  "perfHubCopyJson": "Salin sebagai JSON",
+  "@perfHubCopyJson": {
+    "description": "Button: copy the last results as JSON"
+  },
+  "perfHubCopied": "Disalin ke papan klip",
+  "@perfHubCopied": {
+    "description": "Snackbar after copying results"
+  },
+  "perfHubUi": "UI",
+  "@perfHubUi": {
+    "description": "Metric prefix: UI thread (build) timings"
+  },
+  "perfHubRaster": "Raster",
+  "@perfHubRaster": {
+    "description": "Metric prefix: raster thread timings"
+  },
+  "perfHubRowRenderer": "Renderer efektif",
+  "@perfHubRowRenderer": {
+    "description": "Results row: the glass renderer actually used after device fallback"
+  },
+  "perfHubRowFrames": "Frame",
+  "@perfHubRowFrames": {
+    "description": "Results and live row: number of frames counted"
+  },
+  "perfHubRowJank": "Di atas anggaran (jank)",
+  "@perfHubRowJank": {
+    "description": "Results row: share of frames over the budget (jank)"
+  },
+  "perfHubRowReported": "Refresh rate, dilaporkan",
+  "@perfHubRowReported": {
+    "description": "Results row: refresh rate reported by the system"
+  },
+  "perfHubRowMeasured": "Refresh rate, diukur",
+  "@perfHubRowMeasured": {
+    "description": "Results row: refresh rate measured from frame intervals"
+  },
+  "perfHubRowAndroid": "Android",
+  "@perfHubRowAndroid": {
+    "description": "Results row: Android version of the device"
+  },
+  "perfHubRowApp": "Versi aplikasi",
+  "@perfHubRowApp": {
+    "description": "Results row: app version and build"
+  },
+  "perfHubNotAvailable": "Tidak tersedia",
+  "@perfHubNotAvailable": {
+    "description": "Value shown when the app cannot measure a figure"
   }
 }

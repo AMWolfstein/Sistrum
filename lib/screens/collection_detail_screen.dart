@@ -7,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart' show ShareParams, SharePlus, XFile;
 import 'package:sistrum/controllers/batch_track_actions.dart';
+import 'package:sistrum/widgets/blurred_cover.dart';
 import 'package:sistrum/controllers/collapsing_header_scroll_mixin.dart';
 import 'package:sistrum/controllers/confirm_and_delete_tracks.dart';
 import 'package:sistrum/controllers/local_playback.dart';
@@ -391,6 +392,8 @@ class _CollectionDetailScreenState extends ConsumerState<CollectionDetailScreen>
       background: art.background,
       paletteSource: art.paletteSource,
       blurAndScrimBackground: art.blur,
+      blurSource: art.blurSource,
+      titleScrim: true,
       coverBuilder: art.coverBuilder,
       meta: HeaderMetaRow(
         items: [
@@ -492,6 +495,8 @@ class _CollectionDetailScreenState extends ConsumerState<CollectionDetailScreen>
               LibraryMixCover(items: items, size: coverSize),
           paletteSource: _genrePalette(items),
           blur: _genrePalette(items) != null,
+          // The first cover of the genre, blurred once and cached.
+          blurSource: localCoverBlurSource(_genrePalette(items)),
         );
       case CollectionDetailKind.playlist:
         final customCover = _playlist?.coverImagePath;
@@ -541,6 +546,7 @@ class _CollectionDetailScreenState extends ConsumerState<CollectionDetailScreen>
           },
           paletteSource: url,
           blur: custom != null || url != null,
+          blurSource: localCoverBlurSource(custom ?? url),
         );
     }
   }
@@ -1585,12 +1591,17 @@ class _HeaderArt {
     required this.coverBuilder,
     this.paletteSource,
     this.blur = false,
+    this.blurSource,
   });
 
   final Widget background;
   final Widget Function(BuildContext context, double coverSize) coverBuilder;
   final String? paletteSource;
   final bool blur;
+
+  /// The single cover the background shows, for its blurred copy. Null for a
+  /// composite (mix-style) or icon background, which stays sharp.
+  final ImageProvider? blurSource;
 }
 
 String? _resolveRawCoverUrl(Track track) =>

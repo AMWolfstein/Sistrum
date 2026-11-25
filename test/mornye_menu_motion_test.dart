@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
@@ -27,11 +28,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          mornyeGlassLevelProvider.overrideWithValue(MornyeGlassLevel.frosted),
+          mornyeGlassLevelProvider.overrideWithValue(MornyeGlassLevel.liquid),
           mornyeBlurEnabledProvider.overrideWithValue(true),
         ],
         child: MaterialApp(
-          theme: MornyeTheme.build(Brightness.dark, glassClarity: 1),
+          theme: MornyeTheme.build(Brightness.dark),
           builder: (context, child) => RepaintBoundary(
             key: capture,
             child: MediaQuery(
@@ -134,6 +135,8 @@ void main() {
     testWidgets('menu carries glass throughout its flight from $anchor', (
       tester,
     ) async {
+      MornyeGlass.debugShaderFilterSupport = true;
+      addTearDown(() => MornyeGlass.debugShaderFilterSupport = null);
       final capture = GlobalKey();
       await open(tester, anchor, capture: capture);
       // The second frame has measured the menu and placed the drop.
@@ -143,8 +146,8 @@ void main() {
       expect(first.center.dy, closeTo(anchor.center.dy, 0.01));
       expect(first.size, const Size.square(44));
       expect(panel(tester).radius, 22, reason: 'a round drop at the control');
-      expect(find.byType(BackdropFilter), findsOneWidget);
-      final backdrop = tester.element(find.byType(BackdropFilter));
+      expect(find.byType(LiquidGlassLens), findsOneWidget);
+      final backdrop = tester.element(find.byType(LiquidGlassLens));
       await tester.pump(const Duration(milliseconds: 100));
       final flying = visibleBounds(tester);
       expect(flying.width, greaterThan(first.width));
@@ -155,7 +158,7 @@ void main() {
         reason: 'the height runs ahead of the width',
       );
       expect(panel(tester).glassProgress, 1);
-      expect(tester.element(find.byType(BackdropFilter)), same(backdrop));
+      expect(tester.element(find.byType(LiquidGlassLens)), same(backdrop));
       final openingColor = await surfaceColor(tester, capture);
       await tester.pump(const Duration(milliseconds: 140));
       var widest = 0.0;
@@ -166,7 +169,7 @@ void main() {
       expect(widest, greaterThan(320), reason: 'the glass runs past its size');
       expect(widest, lessThan(320 * 1.04));
       expect(panel(tester).glassProgress, 1);
-      expect(tester.element(find.byType(BackdropFilter)), same(backdrop));
+      expect(tester.element(find.byType(LiquidGlassLens)), same(backdrop));
       await tester.pumpAndSettle();
       final resting_ = visibleBounds(tester);
       expect(resting_.width, closeTo(320, 0.01));
@@ -193,7 +196,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 160));
       expect(panel(tester).glassProgress, 1);
-      expect(tester.element(find.byType(BackdropFilter)), same(backdrop));
+      expect(tester.element(find.byType(LiquidGlassLens)), same(backdrop));
       await tester.pumpAndSettle();
       expect(find.byType(MornyeContextMenu), findsNothing);
       expect(tester.takeException(), isNull);

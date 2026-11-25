@@ -1,131 +1,57 @@
 part of 'appearance_settings_page.dart';
 
-class _MornyeGlassClaritySlider extends ConsumerWidget {
-  const _MornyeGlassClaritySlider();
+/// Chooses Liquid Glass or None. A high-contrast request turns
+/// glass off, as the renderer does, so the note explains the fallback.
+class _MornyeGlassModeSelector extends ConsumerWidget {
+  const _MornyeGlassModeSelector();
+
+  static const _modes = [MornyeGlassLevel.liquid, MornyeGlassLevel.flat];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final clarity = ref.watch(
-      themeProvider.select((settings) => settings.mornyeGlassClarity),
-    );
-    final notifier = ref.read(themeProvider.notifier);
+    final selected = ref.watch(mornyeGlassModeProvider);
     final theme = Theme.of(context);
     final l10n = context.l10n;
-    // Match the renderer's policy without changing the stored clarity value.
     final contrastBlocked = ref.watch(
       mornyeGlassContrastBlockedProvider(MediaQuery.highContrastOf(context)),
     );
-    final adjustable = !contrastBlocked && ref.watch(mornyeBlurEnabledProvider);
+    final labels = {
+      MornyeGlassLevel.liquid: l10n.appearanceGlassLiquid,
+      MornyeGlassLevel.flat: l10n.appearanceGlassNone,
+    };
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(l10n.appearanceGlassClarity, style: theme.textTheme.titleMedium),
+          Text(l10n.appearanceGlassMode, style: theme.textTheme.titleMedium),
           const SizedBox(height: 4),
           Text(
-            l10n.appearanceGlassClaritySubtitle,
+            l10n.appearanceGlassModeSubtitle,
             style: theme.textTheme.bodySmall,
           ),
-          if (!adjustable) ...[
+          if (contrastBlocked) ...[
             const SizedBox(height: 8),
             Text(
-              contrastBlocked
-                  ? l10n.appearanceGlassClarityHighContrast(
-                      l10n.appearanceForceBlur,
-                    )
-                  : l10n.appearanceGlassClarityBlurOff(
-                      l10n.appearanceForceBlur,
-                    ),
-              key: const ValueKey('mornye-glass-clarity-unavailable'),
+              l10n.appearanceGlassHighContrast,
+              key: const ValueKey('mornye-glass-high-contrast'),
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
             ),
           ],
+          const SizedBox(height: 12),
+          MornyeSegmentedControl(
+            key: const ValueKey('mornye-glass-mode'),
+            labels: [for (final mode in _modes) labels[mode]!],
+            selectedIndex: _modes.indexOf(selected),
+            onChanged: (index) => ref
+                .read(themeProvider.notifier)
+                .setMornyeGlassLevel(_modes[index]),
+            samplesBackdrop: false,
+          ),
           const SizedBox(height: 16),
-          ExcludeSemantics(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      for (final color in [
-                        theme.colorScheme.primary,
-                        const Color(0xff277f94),
-                        const Color(0xffc69756),
-                      ])
-                        // Preview light glass over a light backdrop, as in the
-                        // app. Dense sample colors make white glass look gray.
-                        theme.brightness == Brightness.light
-                            ? Color.lerp(Colors.white, color, 0.4)!
-                            : color,
-                    ],
-                  ),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(18),
-                  child: MornyeGlassPanel(
-                    radius: 22,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 18,
-                        vertical: 14,
-                      ),
-                      child: Row(
-                        children: [
-                          const AppIcon(Icons.music_note_rounded),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'Mornye',
-                              style: theme.textTheme.titleMedium,
-                            ),
-                          ),
-                          const AppIcon(Icons.play_arrow_rounded),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Semantics(
-            label: l10n.appearanceGlassClarity,
-            child: Slider(
-              key: const ValueKey('mornye-glass-clarity'),
-              value: clarity,
-              divisions: 20,
-              label: '${(clarity * 100).round()}%',
-              onChanged: adjustable
-                  ? (value) =>
-                        notifier.setMornyeGlassClarity(value, persist: false)
-                  : null,
-              onChangeEnd: adjustable ? notifier.setMornyeGlassClarity : null,
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                l10n.appearanceGlassTinted,
-                style: theme.textTheme.bodySmall,
-              ),
-              Text(l10n.appearanceGlassClear, style: theme.textTheme.bodySmall),
-            ],
-          ),
-          if (adjustable && clarity >= 0.9) ...[
-            const SizedBox(height: 8),
-            Text(
-              l10n.appearanceGlassClearPerformance,
-              key: const ValueKey('mornye-glass-clear-performance'),
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
+          MornyeGlassModePreview(modeLabel: labels[selected]!),
         ],
       ),
     );

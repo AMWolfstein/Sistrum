@@ -22,14 +22,47 @@ const int kMaxLyricsOffsetMs = 2000;
 int normalizeLyricsOffsetMs(num? value) => value != null && value.isFinite
     ? value.round().clamp(-kMaxLyricsOffsetMs, kMaxLyricsOffsetMs)
     : 0;
-const String kMornyeGlassClarityKey = 'mornye_glass_clarity';
 const String kMornyeGlassOutlinesKey = 'mornye_glass_outlines';
-const double kDefaultMornyeGlassClarity = 0.75;
 
-double normalizeMornyeGlassClarity(num? value) =>
-    value != null && value.isFinite
-    ? value.toDouble().clamp(0.0, 1.0)
-    : kDefaultMornyeGlassClarity;
+/// The user's selected glass mode. [MornyeGlassLevel] names are stored.
+const String kMornyeGlassModeKey = 'mornye_glass_mode';
+const MornyeGlassLevel kDefaultMornyeGlassLevel = MornyeGlassLevel.liquid;
+
+/// The retired continuous clarity (0 to 1). Read only by the one-time mode
+/// migration, then removed.
+const String kLegacyMornyeGlassClarityKey = 'mornye_glass_clarity';
+const String kMornyeGlassModeMigratedKey = 'mornye_glass_mode_migrated';
+
+/// Glass the user selected. Device fallback is applied at render time and
+/// never changes this value. Two modes: Liquid and None.
+enum MornyeGlassLevel {
+  /// None: solid surfaces with no backdrop sampling or glass shaders.
+  flat,
+
+  /// Liquid Glass: native optical lens over a batched backdrop.
+  liquid,
+}
+
+/// The retired Frosted mode, as stored by older builds. It reads as Liquid.
+const String kRetiredFrostedGlassName = 'frosted';
+
+MornyeGlassLevel mornyeGlassLevelFromString(String? value) {
+  if (value == kRetiredFrostedGlassName) return MornyeGlassLevel.liquid;
+  return MornyeGlassLevel.values.firstWhere(
+    (level) => level.name == value,
+    orElse: () => kDefaultMornyeGlassLevel,
+  );
+}
+
+/// The mode the retired clarity slider implied: exactly 0 was None, and any
+/// value above 0 was glass (Liquid). Missing or non-finite values had the
+/// default clarity of 0.75, so they map to Liquid.
+MornyeGlassLevel mornyeGlassLevelFromLegacyClarity(num? clarity) {
+  final value = clarity != null && clarity.isFinite
+      ? clarity.toDouble().clamp(0.0, 1.0)
+      : 0.75;
+  return value == 0 ? MornyeGlassLevel.flat : MornyeGlassLevel.liquid;
+}
 
 enum MornyeAccent { red, orange, green, teal, blue, purple, pink }
 
@@ -59,7 +92,7 @@ class ThemeSettings {
   final double lyricsTextScale;
   final double lyricsBlur;
   final int lyricsOffsetMs;
-  final double mornyeGlassClarity;
+  final MornyeGlassLevel mornyeGlassLevel;
   final bool mornyeGlassOutlines;
 
   const ThemeSettings({
@@ -68,7 +101,7 @@ class ThemeSettings {
     this.lyricsTextScale = 1,
     this.lyricsBlur = 1,
     this.lyricsOffsetMs = 0,
-    this.mornyeGlassClarity = kDefaultMornyeGlassClarity,
+    this.mornyeGlassLevel = kDefaultMornyeGlassLevel,
     this.mornyeGlassOutlines = true,
   });
 
@@ -78,7 +111,7 @@ class ThemeSettings {
     double? lyricsTextScale,
     double? lyricsBlur,
     int? lyricsOffsetMs,
-    double? mornyeGlassClarity,
+    MornyeGlassLevel? mornyeGlassLevel,
     bool? mornyeGlassOutlines,
   }) {
     return ThemeSettings(
@@ -91,9 +124,7 @@ class ThemeSettings {
       lyricsOffsetMs: normalizeLyricsOffsetMs(
         lyricsOffsetMs ?? this.lyricsOffsetMs,
       ),
-      mornyeGlassClarity: normalizeMornyeGlassClarity(
-        mornyeGlassClarity ?? this.mornyeGlassClarity,
-      ),
+      mornyeGlassLevel: mornyeGlassLevel ?? this.mornyeGlassLevel,
       mornyeGlassOutlines: mornyeGlassOutlines ?? this.mornyeGlassOutlines,
     );
   }
@@ -104,7 +135,7 @@ class ThemeSettings {
     kLyricsTextScaleKey: lyricsTextScale,
     kLyricsBlurKey: lyricsBlur,
     kLyricsOffsetKey: lyricsOffsetMs,
-    kMornyeGlassClarityKey: mornyeGlassClarity,
+    kMornyeGlassModeKey: mornyeGlassLevel.name,
     kMornyeGlassOutlinesKey: mornyeGlassOutlines,
   };
 
@@ -117,8 +148,8 @@ class ThemeSettings {
       ),
       lyricsBlur: normalizeLyricsBlur(json[kLyricsBlurKey] as num?),
       lyricsOffsetMs: normalizeLyricsOffsetMs(json[kLyricsOffsetKey] as num?),
-      mornyeGlassClarity: normalizeMornyeGlassClarity(
-        json[kMornyeGlassClarityKey] as num?,
+      mornyeGlassLevel: mornyeGlassLevelFromString(
+        json[kMornyeGlassModeKey] as String?,
       ),
       mornyeGlassOutlines: json[kMornyeGlassOutlinesKey] as bool? ?? true,
     );
@@ -133,7 +164,7 @@ class ThemeSettings {
         other.lyricsTextScale == lyricsTextScale &&
         other.lyricsBlur == lyricsBlur &&
         other.lyricsOffsetMs == lyricsOffsetMs &&
-        other.mornyeGlassClarity == mornyeGlassClarity &&
+        other.mornyeGlassLevel == mornyeGlassLevel &&
         other.mornyeGlassOutlines == mornyeGlassOutlines;
   }
 
@@ -144,7 +175,7 @@ class ThemeSettings {
       lyricsTextScale.hashCode ^
       lyricsBlur.hashCode ^
       lyricsOffsetMs.hashCode ^
-      mornyeGlassClarity.hashCode ^
+      mornyeGlassLevel.hashCode ^
       mornyeGlassOutlines.hashCode;
 }
 

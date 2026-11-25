@@ -139,5 +139,4 @@ class SongFolderFile {
     final uri = (result['uri'] as String? ?? '').trim();
     return uri.isNotEmpty && result['already_exists'] != true;
   }
-
 }

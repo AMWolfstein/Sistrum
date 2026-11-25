@@ -20,7 +20,9 @@ typedef _Toolbar = ({
 /// The Windows thumbnail toolbar, sharing the system media session's handler.
 class WindowsTaskbarControls {
   WindowsTaskbarControls({
-    MethodChannel channel = const MethodChannel('com.amwolfstein.sistrum/taskbar'),
+    MethodChannel channel = const MethodChannel(
+      'com.amwolfstein.sistrum/taskbar',
+    ),
   }) : _channel = channel;
 
   final MethodChannel _channel;

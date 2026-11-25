@@ -411,7 +411,6 @@ void main() {
               ),
               playbackStateProvider.overrideWith((ref) => const Stream.empty()),
               deviceSupportsLiquidGlassProvider.overrideWithValue(liquid),
-              backdropBlurEnabledProvider.overrideWithValue(false),
               playerMotionArtworkProvider.overrideWith(
                 (ref, album) async =>
                     const MotionArtwork('file:///cover.mp4', aspectRatio: 1),
@@ -461,7 +460,6 @@ void main() {
             playbackPlayingProvider.overrideWithValue(true),
             deviceSupportsLiquidGlassProvider.overrideWithValue(liquid),
             lowEndDeviceProvider.overrideWithValue(false),
-            backdropBlurEnabledProvider.overrideWithValue(false),
           ],
           child: MaterialApp(
             theme: MornyeTheme.build(Brightness.dark),
@@ -535,7 +533,6 @@ void main() {
             playbackStateProvider.overrideWith((ref) => const Stream.empty()),
             playbackPlayingProvider.overrideWithValue(true),
             lowEndDeviceProvider.overrideWithValue(true),
-            backdropBlurEnabledProvider.overrideWithValue(false),
           ],
           child: MaterialApp(
             theme: MornyeTheme.build(Brightness.light),

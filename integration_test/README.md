@@ -57,9 +57,9 @@ SISTRUM_PERFORMANCE_REPORT=build/perf/sistrum.json \
 | --- | --- | --- |
 | `REPLAYGAIN_COMPLETION_BASELINE` | `album_replaygain_completion_test.dart` | Records a baseline run and skips the album-gain assertions |
 | `GLASS_PREVIEW` | `mornye_liquid_glass_test.dart` | Holds the Home screen for 25 s for manual viewing |
-| `MORNYE_GLASS_FOCUS` | `mornye_rendering_performance_test.dart` | Measures only clarity 0.6 and 1.0 |
+| `MORNYE_GLASS_FOCUS` | `mornye_rendering_performance_test.dart` | Measures only Liquid and None |
 | `MORNYE_GLASS_FLAT_BACKDROP` | `mornye_glass_visual_test.dart` | Flat surfaces instead of the generated stripes and grid |
-| `DOWNLOAD_GLASS_LEVEL` | `mornye_download_picker_test.dart` | Forces `flat`, `frosted` or `liquid` |
+| `DOWNLOAD_GLASS_LEVEL` | `mornye_download_picker_test.dart` | Forces `flat` or `liquid` |
 | `DOWNLOAD_BRIGHTNESS` | `mornye_download_picker_test.dart` | Runs only `light` or `dark` |
 | `DOWNLOAD_QUALITY_COUNT` | `mornye_download_picker_test.dart` | Number of fixture quality options (default 16) |
 | `DOWNLOAD_PRELOAD_GLASS`, `DOWNLOAD_WARMUP_GLASS` (default true), `DOWNLOAD_SHELL_GLASS` | `mornye_download_picker_test.dart` | Glass preload, warm-up and shell glass toggles |
@@ -113,10 +113,10 @@ Suites:
 | `mornye_artwork_performance_test.dart` | Mornye player panel transitions and artwork cache (performance) |
 | `mornye_download_picker_test.dart` | Mornye download picker glass and queue feedback (performance) |
 | `mornye_glass_visual_test.dart` | Native Mornye glass poses and layers, with screenshots |
-| `mornye_liquid_glass_test.dart` | Liquid glass lens and drag behavior |
+| `mornye_liquid_glass_test.dart` | Liquid glass lens and native thumb press behavior |
 | `mornye_lyrics_performance_test.dart` | Word-synced lyrics and manual scrolling (performance) |
 | `mornye_menu_presentation_test.dart` | Anchored glass menu presentation (performance) |
-| `mornye_rendering_performance_test.dart` | Mornye rendering at several glass clarities (performance) |
+| `mornye_rendering_performance_test.dart` | Mornye rendering in each glass mode (performance) |
 | `mornye_screens_performance_test.dart` | Mornye screens with 2000-track data (performance) |
 | `native_backup_archive_test.dart` | Native ZIP backup routes, old archive formats, compression parity |
 | `native_cache_maintenance_test.dart` | Native cover cache budget, pruning and sweep |

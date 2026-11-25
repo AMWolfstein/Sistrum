@@ -98,7 +98,6 @@ class _MornyePlayerBar extends StatelessWidget {
       height: DesktopPlayerBar.mornyeHeight,
       child: MornyeGlassPanel(
         radius: DesktopPlayerBar.mornyeHeight / 2,
-        highlightBorder: true,
         child: IconButtonTheme(
           data: IconButtonThemeData(
             style: IconButton.styleFrom(

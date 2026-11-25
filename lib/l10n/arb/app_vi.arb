@@ -53,30 +53,27 @@
   "appearanceAccentBlue": "Xanh dương",
   "appearanceAccentPurple": "Tím",
   "appearanceAccentPink": "Hồng",
-  "appearanceGlassClarity": "Độ trong suốt hiệu ứng kính",
   "appearanceGlassOutlines": "Viền hiệu ứng kính",
   "appearanceGlassOutlinesSubtitle": "Hiển thị đường viền trang trí quanh các khung kính của Mornye. Khi tắt, hiệu ứng làm mờ và khúc xạ vẫn được giữ nguyên.",
-  "appearanceGlassClaritySubtitle": "Điều chỉnh độ trong suốt của các menu và thanh điều hướng trong Mornye. Độ tương phản của chữ vẫn được giữ rõ nét.",
-  "appearanceGlassTinted": "Phủ màu",
-  "appearanceGlassClear": "Xóa",
-  "appearanceGlassClearPerformance": "Hiệu ứng kính trong suốt cao có thể tốn pin hơn và giảm độ mượt trên các máy đời cũ. Hãy giảm độ trong suốt nếu cần.",
-  "appearanceGlassClarityBlurOff": "Hiệu ứng kính đang bị làm đục trên thiết bị này. Hãy bật “{setting}” để điều chỉnh độ trong suốt.",
-  "@appearanceGlassClarityBlurOff": {
-    "description": "Shown under the disabled glass clarity slider when the device renders Mornye glass without blur. The placeholder is the name of the force-blur toggle.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
+  "appearanceGlassMode": "Kính",
+  "@appearanceGlassMode": {
+    "description": "Title of the glass mode selector in Appearance settings"
   },
-  "appearanceGlassClarityHighContrast": "Hệ thống đang bật chế độ tăng độ tương phản nên hiệu ứng kính được làm đục. Hãy bật “{setting}” để vẫn bật hiệu ứng kính; độ tương phản của chữ vẫn được đảm bảo.",
-  "@appearanceGlassClarityHighContrast": {
-    "description": "Explains the system contrast request (which can include medium contrast) and the explicit glass-only override.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
+  "appearanceGlassModeSubtitle": "Kính lỏng khúc xạ trang, kính mờ làm dịu trang, còn Không dùng bề mặt đặc.",
+  "@appearanceGlassModeSubtitle": {
+    "description": "Explains the three glass modes under the selector title"
+  },
+  "appearanceGlassLiquid": "Kính lỏng",
+  "@appearanceGlassLiquid": {
+    "description": "Option: Liquid Glass, native full optical glass"
+  },
+  "appearanceGlassNone": "Không",
+  "@appearanceGlassNone": {
+    "description": "Option: None, solid surfaces without glass"
+  },
+  "appearanceGlassHighContrast": "Độ tương phản cao đang bật nên kính đã tắt.",
+  "@appearanceGlassHighContrast": {
+    "description": "Shown when the system high-contrast request turns glass off"
   },
   "@@locale": "vi",
   "@@last_modified": "2026-04-28",
@@ -951,14 +948,6 @@
   "downloadAskBeforeDownload": "Hỏi chất lượng trước mỗi lần tải",
   "@downloadAskBeforeDownload": {
     "description": "Setting - show quality picker"
-  },
-  "appearanceForceBlur": "Luôn bật hiệu ứng làm mờ",
-  "@appearanceForceBlur": {
-    "description": "Toggle that forces backdrop blur on even when the device profile disabled it"
-  },
-  "appearanceForceBlurSubtitle": "Bật hiệu ứng làm mờ thanh điều hướng ngay cả trên các thiết bị mặc định tắt. Có thể ảnh hưởng nhẹ tới hiệu năng.",
-  "@appearanceForceBlurSubtitle": {
-    "description": "Subtitle for the force-blur toggle"
   },
   "settingsAutoExportFailed": "Tự động xuất danh sách tải lỗi",
   "@settingsAutoExportFailed": {
@@ -4432,5 +4421,169 @@
         "type": "String"
       }
     }
+  },
+  "perfHubTitle": "Trung tâm hiệu năng",
+  "@perfHubTitle": {
+    "description": "Title of the Performance hub settings page"
+  },
+  "perfHubSubtitle": "Đo hiệu năng hiển thị trên điện thoại này",
+  "@perfHubSubtitle": {
+    "description": "Subtitle of the Performance hub row in Settings"
+  },
+  "perfHubIntro": "Đo thời gian khung hình của ứng dụng này trên thiết bị. Không có dữ liệu nào rời khỏi điện thoại. Bản phát hành vẫn đo được, nhưng chế độ hồ sơ chính xác hơn về thời gian.",
+  "@perfHubIntro": {
+    "description": "Intro card on the Performance hub page: what is measured and the profile-mode note"
+  },
+  "perfHubDisplaySection": "Màn hình",
+  "@perfHubDisplaySection": {
+    "description": "Section header: display refresh rate and frame budget"
+  },
+  "perfHubRefreshRate": "Tần số quét",
+  "@perfHubRefreshRate": {
+    "description": "Row: display refresh rate reported by the system"
+  },
+  "perfHubRateNote": "Do hệ thống báo cáo. Một lần ghi hình cũng đo khoảng cách khung hình thực tế.",
+  "@perfHubRateNote": {
+    "description": "Subtitle under the refresh rate row: the value is reported and a recording measures the real interval"
+  },
+  "perfHubFrameBudget": "Ngân sách khung hình",
+  "@perfHubFrameBudget": {
+    "description": "Row: frame budget (1000 ms divided by the refresh rate), also a results row"
+  },
+  "perfHubRecordingSection": "Ghi hình",
+  "@perfHubRecordingSection": {
+    "description": "Section header: recording controls and live values"
+  },
+  "perfHubStart": "Bắt đầu ghi",
+  "@perfHubStart": {
+    "description": "Button: start a frame recording"
+  },
+  "perfHubStop": "Dừng",
+  "@perfHubStop": {
+    "description": "Button and badge: stop the recording"
+  },
+  "perfHubRecordingHint": "Bắt đầu ghi hình rồi dùng ứng dụng. Huy hiệu vẫn hiển thị trên các trang khác cho đến khi bạn dừng.",
+  "@perfHubRecordingHint": {
+    "description": "Hint under the recording controls when nothing is recording"
+  },
+  "perfHubRecording": "Đang ghi",
+  "@perfHubRecording": {
+    "description": "Badge word shown before the elapsed time and frame count while recording"
+  },
+  "perfHubElapsed": "Đã trôi qua",
+  "@perfHubElapsed": {
+    "description": "Live row: elapsed time of the recording"
+  },
+  "perfHubLastFrame": "Khung cuối, UI / raster",
+  "@perfHubLastFrame": {
+    "description": "Live row: the last frame UI (build) and raster durations"
+  },
+  "perfHubOverBudgetSoFar": "Vượt ngân sách cho đến nay",
+  "@perfHubOverBudgetSoFar": {
+    "description": "Live row: share of kept frames over the frame budget so far"
+  },
+  "perfHubResultsSection": "Kết quả",
+  "@perfHubResultsSection": {
+    "description": "Section header: saved results table"
+  },
+  "perfHubNoResults": "Chưa có kết quả. Ghi một phiên hoặc so sánh các chế độ.",
+  "@perfHubNoResults": {
+    "description": "Shown in Results when nothing has been recorded yet"
+  },
+  "perfHubCompareSection": "So sánh chế độ",
+  "@perfHubCompareSection": {
+    "description": "Section header: guided comparison of the three glass modes"
+  },
+  "perfHubAutoHint": "Cuộn Trang chủ, Thư viện, Bài hát, Nghệ sĩ và Tìm kiếm ở 8000 px/giây trong Liquid, rồi trong None. Chế độ đã chọn được khôi phục khi kết thúc.",
+  "@perfHubAutoHint": {
+    "description": "Explains the automatic measurement: the screens, the speed and the modes"
+  },
+  "perfHubAutoRunButton": "Chạy đo tự động",
+  "@perfHubAutoRunButton": {
+    "description": "Button: starts the automatic measurement"
+  },
+  "perfHubAutoNoData": "Không có dữ liệu ở màn hình này",
+  "@perfHubAutoNoData": {
+    "description": "Skip reason: the screen has no data to measure"
+  },
+  "perfHubAutoNoScroll": "Không có gì để cuộn",
+  "@perfHubAutoNoScroll": {
+    "description": "Skip reason: the screen has nothing to scroll"
+  },
+  "perfHubAutoNoScreen": "Không thể mở màn hình",
+  "@perfHubAutoNoScreen": {
+    "description": "Skip reason: the screen cannot be reached"
+  },
+  "perfHubCompareWarmup": "Đổi chế độ sẽ dựng lại shader kính, nên vài giây đầu của mỗi chế độ bị sai lệch. Cuộn vài giây trước cửa sổ đầu tiên, hoặc bỏ một lần chạy khởi động.",
+  "perfHubJankUnreliable": "Hệ thống không báo tần số làm mới, nên ngân sách khung hình dùng khoảng cách khung đo được. Các số liệu vượt ngân sách không đáng tin cậy.",
+  "perfHubTooFewFrames": "Ghi lại quá ít khung hình: hãy tiếp tục cuộn hoặc tương tác trong khi ghi",
+  "perfHubModeChanged": "Chế độ kính đã được đổi trong lúc ghi này. Kết quả hiển thị chế độ lúc bắt đầu ghi.",
+  "perfHubCompareHint": "Cuộn trong {seconds} giây ở Liquid, rồi None. Cuối cùng chế độ bạn đã chọn sẽ được khôi phục.",
+  "@perfHubCompareHint": {
+    "description": "Explains the guided comparison; {seconds} is the scroll time per mode"
+  },
+  "perfHubCompareButton": "So sánh chế độ",
+  "@perfHubCompareButton": {
+    "description": "Button: start the guided comparison"
+  },
+  "perfHubCompareStep": "Cuộn ngay trong {mode}: còn {seconds} giây",
+  "@perfHubCompareStep": {
+    "description": "Shown while a comparison step runs; {mode} is the glass mode name and {seconds} the seconds left"
+  },
+  "perfHubExportSection": "Xuất",
+  "@perfHubExportSection": {
+    "description": "Section header: copy results"
+  },
+  "perfHubCopyText": "Sao chép dạng văn bản",
+  "@perfHubCopyText": {
+    "description": "Button: copy the last results as readable text"
+  },
+  "perfHubCopyJson": "Sao chép dạng JSON",
+  "@perfHubCopyJson": {
+    "description": "Button: copy the last results as JSON"
+  },
+  "perfHubCopied": "Đã sao chép vào bộ nhớ tạm",
+  "@perfHubCopied": {
+    "description": "Snackbar after copying results"
+  },
+  "perfHubUi": "UI",
+  "@perfHubUi": {
+    "description": "Metric prefix: UI thread (build) timings"
+  },
+  "perfHubRaster": "Raster",
+  "@perfHubRaster": {
+    "description": "Metric prefix: raster thread timings"
+  },
+  "perfHubRowRenderer": "Bộ kết xuất thực tế",
+  "@perfHubRowRenderer": {
+    "description": "Results row: the glass renderer actually used after device fallback"
+  },
+  "perfHubRowFrames": "Khung hình",
+  "@perfHubRowFrames": {
+    "description": "Results and live row: number of frames counted"
+  },
+  "perfHubRowJank": "Vượt ngân sách (giật)",
+  "@perfHubRowJank": {
+    "description": "Results row: share of frames over the budget (jank)"
+  },
+  "perfHubRowReported": "Tần số, báo cáo",
+  "@perfHubRowReported": {
+    "description": "Results row: refresh rate reported by the system"
+  },
+  "perfHubRowMeasured": "Tần số, đo được",
+  "@perfHubRowMeasured": {
+    "description": "Results row: refresh rate measured from frame intervals"
+  },
+  "perfHubRowAndroid": "Android",
+  "@perfHubRowAndroid": {
+    "description": "Results row: Android version of the device"
+  },
+  "perfHubRowApp": "Phiên bản ứng dụng",
+  "@perfHubRowApp": {
+    "description": "Results row: app version and build"
+  },
+  "perfHubNotAvailable": "Không khả dụng",
+  "@perfHubNotAvailable": {
+    "description": "Value shown when the app cannot measure a figure"
   }
 }

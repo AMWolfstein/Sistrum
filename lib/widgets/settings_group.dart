@@ -271,7 +271,9 @@ class SettingsGroup extends StatelessWidget {
     if (glass) {
       // Groups scroll over the opaque page color, where a backdrop pass
       // filters a flat color; keep the glass tint and rim without it.
-      return inset(MornyeGlassPanel(samplesBackdrop: false, child: child));
+      return inset(
+        MornyeGlassPanel(kind: MornyeGlassKind.content, child: child),
+      );
     }
 
     return inset(
@@ -906,7 +908,10 @@ class SettingsInfoCard extends StatelessWidget {
       ),
     );
     final card = useGlass
-        ? MornyeGlassPanel.overlay(child: content)
+        ? MornyeGlassPanel.overlay(
+            kind: MornyeGlassKind.content,
+            child: content,
+          )
         : DecoratedBox(
             decoration: BoxDecoration(
               color: background,

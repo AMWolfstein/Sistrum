@@ -11,6 +11,7 @@ import 'package:sistrum/widgets/app_icon.dart';
 import 'package:sistrum/widgets/discard_changes_dialog.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/settings_group.dart';
+import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 
 // The legacy builders below are the hand-written dialogs and sheets the
 // shared helpers replaced, kept here to prove the helpers build the same UI.
@@ -479,7 +480,9 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Mornye glass groups skip the backdrop pass', (tester) async {
+  testWidgets('Mornye glass groups are plain content with no backdrop pass', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       ProviderScope(
         child: MaterialApp(
@@ -487,10 +490,6 @@ void main() {
           home: const Scaffold(
             body: Column(
               children: [
-                MornyeGlassPanel(
-                  key: ValueKey('panel'),
-                  child: SizedBox(width: 200, height: 40),
-                ),
                 SettingsGroup(
                   glass: true,
                   children: [SettingsItem(title: 'Row')],
@@ -516,27 +515,20 @@ void main() {
       matching: find.byType(MornyeGlass),
     );
     final glass = tester.widget<MornyeGlass>(group);
-    expect(glass.samplesBackdrop, isFalse);
-    expect(
-      find.descendant(
-        of: find.byType(SettingsGroup),
-        matching: find.byType(BackdropFilter),
-      ),
-      findsNothing,
-    );
+    // A settings group is content: a plain opaque fill, no backdrop read.
+    expect(glass.kind, MornyeGlassKind.content);
+    for (final matching in [
+      find.byType(LiquidGlassLens),
+      find.byType(LiquidGlassLens),
+      find.byType(BackdropFilter),
+    ]) {
+      expect(
+        find.descendant(of: find.byType(SettingsGroup), matching: matching),
+        findsNothing,
+      );
+    }
     expect(find.text('Row'), findsOneWidget);
-    // Same tint as the default panel, without filtering the flat page.
-    final panelGlass = find.descendant(
-      of: find.byKey(const ValueKey('panel')),
-      matching: find.byType(MornyeGlass),
-    );
-    expect(fillOf(group), isNotNull);
-    expect(fillOf(group)!.a, lessThan(1));
-    final panel = tester.widget<MornyeGlass>(panelGlass);
-    expect(
-      (glass.radius, glass.strongTint, glass.tintOpacity, glass.tintColor),
-      (panel.radius, panel.strongTint, panel.tintOpacity, panel.tintColor),
-    );
+    expect(fillOf(group)!.a, 1);
     expect(tester.takeException(), isNull);
   });
 

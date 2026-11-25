@@ -255,11 +255,6 @@ class AppSettings {
   /// them through `HomeShortcut.resolve`, which fills in unknown names.
   final List<String> homeShortcuts;
 
-  /// Forces the shell's backdrop blur on even when the startup runtime
-  /// profile disabled it for this device tier. Off means "follow the
-  /// device default".
-  final bool forceBackdropBlur;
-
   /// Interface size: scales the whole app, on top of the automatic tablet
   /// and TV scale. 1 is the normal size.
   @JsonKey(fromJson: interfaceScaleFromJson)
@@ -357,7 +352,6 @@ class AppSettings {
       'listeningStats',
       'loved',
     ],
-    this.forceBackdropBlur = false,
     this.interfaceScale = 1,
     this.locale = 'system',
     this.lyricsMode = 'embed',
@@ -439,7 +433,6 @@ class AppSettings {
     bool? swipeToQueue,
     String? searchViewMode,
     List<String>? homeShortcuts,
-    bool? forceBackdropBlur,
     double? interfaceScale,
     String? locale,
     String? lyricsMode,
@@ -523,7 +516,6 @@ class AppSettings {
       swipeToQueue: swipeToQueue ?? this.swipeToQueue,
       searchViewMode: searchViewMode ?? this.searchViewMode,
       homeShortcuts: homeShortcuts ?? this.homeShortcuts,
-      forceBackdropBlur: forceBackdropBlur ?? this.forceBackdropBlur,
       interfaceScale: interfaceScale ?? this.interfaceScale,
       locale: locale ?? this.locale,
       lyricsMode: lyricsMode ?? this.lyricsMode,

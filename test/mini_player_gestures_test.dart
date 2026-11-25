@@ -86,7 +86,6 @@ void main() {
             playbackLoadingProvider.overrideWithValue(loading),
             musicPlayerControllerProvider.overrideWithValue(controller),
             mornyeLiquidGlassProvider.overrideWithValue(false),
-            backdropBlurEnabledProvider.overrideWithValue(false),
           ],
           child: MaterialApp(
             navigatorObservers: [?observer],

@@ -83,6 +83,34 @@ Future<void> _removeRetiredThemePrefs(SharedPreferences prefs) async {
   }
 }
 
+/// The stored mode. Until the one-time migration writes it, the mode the
+/// retired clarity implied, so both paths agree. A value of another type is
+/// ignored, because this runs before the first frame and must not throw.
+MornyeGlassLevel _loadMornyeGlassLevel(SharedPreferences prefs) {
+  final stored = prefs.get(kMornyeGlassModeKey);
+  if (stored is String) return mornyeGlassLevelFromString(stored);
+  final clarity = prefs.get(kLegacyMornyeGlassClarityKey);
+  return mornyeGlassLevelFromLegacyClarity(clarity is num ? clarity : null);
+}
+
+/// Writes the mode once from the retired clarity and force-blur values, then
+/// removes the clarity key. The marker is written last, so an interrupted run
+/// repeats it, and a repeat writes the same mode.
+Future<void> _migrateMornyeGlassMode(SharedPreferences prefs) async {
+  try {
+    if (prefs.get(kMornyeGlassModeMigratedKey) == true) return;
+    await prefs.setString(
+      kMornyeGlassModeKey,
+      _loadMornyeGlassLevel(prefs).name,
+    );
+    await prefs.remove(kLegacyMornyeGlassClarityKey);
+    await prefs.setBool(kMornyeGlassModeMigratedKey, true);
+  } catch (e) {
+    // Leaves the marker unset, so the next start retries.
+    debugPrint('Error migrating the glass mode: $e');
+  }
+}
+
 ThemeSettings loadBootstrapThemeSettings(SharedPreferences prefs) {
   return ThemeSettings(
     themeMode: themeModeFromString(prefs.getString(kThemeModeKey)),
@@ -92,9 +120,7 @@ ThemeSettings loadBootstrapThemeSettings(SharedPreferences prefs) {
     ),
     lyricsBlur: normalizeLyricsBlur(prefs.getDouble(kLyricsBlurKey)),
     lyricsOffsetMs: normalizeLyricsOffsetMs(prefs.getInt(kLyricsOffsetKey)),
-    mornyeGlassClarity: normalizeMornyeGlassClarity(
-      prefs.getDouble(kMornyeGlassClarityKey),
-    ),
+    mornyeGlassLevel: _loadMornyeGlassLevel(prefs),
     mornyeGlassOutlines: prefs.getBool(kMornyeGlassOutlinesKey) ?? true,
   );
 }
@@ -102,6 +128,21 @@ ThemeSettings loadBootstrapThemeSettings(SharedPreferences prefs) {
 final themeProvider = NotifierProvider<ThemeNotifier, ThemeSettings>(() {
   return ThemeNotifier();
 });
+
+/// The mode a Performance hub comparison renders. It lives in memory only: it
+/// replaces the selected mode for rendering while set, so a crash mid-compare
+/// cannot leave a changed saved choice. Null when no comparison runs.
+final mornyeGlassCompareModeProvider =
+    NotifierProvider<MornyeGlassCompareModeNotifier, MornyeGlassLevel?>(
+      MornyeGlassCompareModeNotifier.new,
+    );
+
+class MornyeGlassCompareModeNotifier extends Notifier<MornyeGlassLevel?> {
+  @override
+  MornyeGlassLevel? build() => null;
+
+  void setMode(MornyeGlassLevel? mode) => state = mode;
+}
 
 class ThemeNotifier extends Notifier<ThemeSettings> {
   ThemeNotifier({Future<SharedPreferences>? preferences})
@@ -124,6 +165,7 @@ class ThemeNotifier extends Notifier<ThemeSettings> {
       final prefs = await _prefs;
       await _removeRetiredThemePrefs(prefs);
       await _removeRetiredFontPrefs(prefs);
+      await _migrateMornyeGlassMode(prefs);
       var loaded = loadBootstrapThemeSettings(prefs);
       for (final edit in _loadingEdits) {
         loaded = edit(loaded);
@@ -153,9 +195,9 @@ class ThemeNotifier extends Notifier<ThemeSettings> {
       await prefs.setDouble(kLyricsTextScaleKey, snapshot.lyricsTextScale);
       await prefs.setDouble(kLyricsBlurKey, snapshot.lyricsBlur);
       await prefs.setInt(kLyricsOffsetKey, snapshot.lyricsOffsetMs);
-      await prefs.setDouble(
-        kMornyeGlassClarityKey,
-        snapshot.mornyeGlassClarity,
+      await prefs.setString(
+        kMornyeGlassModeKey,
+        snapshot.mornyeGlassLevel.name,
       );
       await prefs.setBool(
         kMornyeGlassOutlinesKey,
@@ -191,12 +233,11 @@ class ThemeNotifier extends Notifier<ThemeSettings> {
     if (persist) await _saveToStorage();
   }
 
-  Future<void> setMornyeGlassClarity(
-    double value, {
-    bool persist = true,
-  }) async {
-    _editState((current) => current.copyWith(mornyeGlassClarity: value));
-    if (persist) await _saveToStorage();
+  Future<void> setMornyeGlassLevel(MornyeGlassLevel value) async {
+    // A comparison owns the rendered mode until it ends, so no choice is saved.
+    if (ref.read(mornyeGlassCompareModeProvider) != null) return;
+    _editState((current) => current.copyWith(mornyeGlassLevel: value));
+    await _saveToStorage();
   }
 
   Future<void> setMornyeGlassOutlines(bool value) async {

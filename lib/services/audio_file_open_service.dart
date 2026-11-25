@@ -62,7 +62,8 @@ class OpenAudioFile {
 /// Each event is a queue; repeated explicit opens are not discarded.
 class AudioFileOpenService {
   AudioFileOpenService({MethodChannel? channel})
-    : _channel = channel ?? const MethodChannel('com.amwolfstein.sistrum/open_audio');
+    : _channel =
+          channel ?? const MethodChannel('com.amwolfstein.sistrum/open_audio');
 
   static final instance = AudioFileOpenService();
   final MethodChannel _channel;

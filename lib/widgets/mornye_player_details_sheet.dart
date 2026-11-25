@@ -33,6 +33,7 @@ class MornyePlayerDetailsSheet extends ConsumerWidget {
         (_artworkSize * MediaQuery.devicePixelRatioOf(context)).ceil();
     return MornyeGlass.navigation(
       blurEnabled: ref.watch(mornyeBlurEnabledProvider),
+      kind: MornyeGlassKind.content,
       child: SafeArea(
         top: false,
         child: Column(

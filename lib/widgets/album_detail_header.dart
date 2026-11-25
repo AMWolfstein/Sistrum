@@ -19,7 +19,7 @@ import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/desktop/context_menu.dart';
 import 'package:sistrum/widgets/desktop/detail_header.dart';
-import 'package:sistrum/widgets/settled_blur.dart';
+import 'package:sistrum/widgets/blurred_cover.dart';
 import 'package:sistrum/widgets/sliver_layout_info_builder.dart';
 
 /// Collapsing album-detail header shared by the album, local-album, and
@@ -55,6 +55,8 @@ class AlbumDetailHeader extends StatelessWidget {
     this.immersive = false,
     this.squareArtwork = true,
     this.moreMenu,
+    this.blurSource,
+    this.titleScrim = false,
   });
 
   /// Desktop only: page actions behind a "More" button in the toolbar.
@@ -77,6 +79,15 @@ class AlbumDetailHeader extends StatelessWidget {
   /// Blur the background and dim it 35%; disable for motion banners and
   /// placeholder backgrounds.
   final bool blurAndScrimBackground;
+
+  /// The cover the immersive artwork is drawn from, for its blurred copy as the
+  /// header scrolls away. Null keeps the artwork sharp.
+  final ImageProvider? blurSource;
+
+  /// Draws a dark scrim behind the title band of an immersive header, so a
+  /// bright cover keeps the title legible. Set by the mix, genre and playlist
+  /// headers. The album page keeps its own header and does not set it.
+  final bool titleScrim;
 
   /// Builds the centered square cover for the given side length; null hides
   /// the cover block (the header wraps it in the shared shadow + rounding).
@@ -190,11 +201,14 @@ class AlbumDetailHeader extends StatelessWidget {
               : 0,
           duration: titleFade.duration,
           curve: titleFade.curve,
-          child: Text(
-            appBarTitle ?? title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+          child: _titleScrimmed(
+            enabled: titleScrim,
+            Text(
+              appBarTitle ?? title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+            ),
           ),
         ),
       ),
@@ -208,7 +222,11 @@ class AlbumDetailHeader extends StatelessWidget {
       final artwork = Stack(
         fit: StackFit.expand,
         children: [
-          background,
+          _CollapsingCoverBlur(
+            extent: detailsTop,
+            provider: blurSource,
+            child: background,
+          ),
           DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -447,17 +465,20 @@ class AlbumDetailHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
               ],
-              Text(
-                title,
-                style: TextStyle(
-                  color: onHeader,
-                  fontSize: _titleFontSize(),
-                  fontWeight: FontWeight.bold,
-                  height: 1.2,
+              _titleScrimmed(
+                enabled: titleScrim,
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: onHeader,
+                    fontSize: _titleFontSize(),
+                    fontWeight: FontWeight.bold,
+                    height: 1.2,
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                textAlign: TextAlign.center,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
               ),
               if (subtitle != null) ...[const SizedBox(height: 6), subtitle!],
               if (meta != null) ...[const SizedBox(height: 12), meta!],
@@ -472,8 +493,6 @@ class AlbumDetailHeader extends StatelessWidget {
               children: [
                 if (plainArtworkHeader)
                   ColoredBox(color: headerScheme.surface)
-                else if (blurAndScrimBackground)
-                  SettledBlur(sigma: 32, child: background)
                 else
                   background,
                 if (!plainArtworkHeader && blurAndScrimBackground)
@@ -579,6 +598,7 @@ class MornyeActionCapsule extends ConsumerWidget {
         radius: radius,
         child: MornyeGlass.navigation(
           radius: radius,
+          kind: MornyeGlassKind.control,
           tintColor: dark ? Colors.black : Colors.white,
           tintOpacity: dark ? 0.45 : 0.55,
           blurEnabled: ref.watch(mornyeBlurEnabledProvider),
@@ -590,6 +610,54 @@ class MornyeActionCapsule extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Draws the blurred copy of the immersive cover over the sharp [child] as the
+/// header scrolls: fully sharp at rest, fully blurred at [extent] pixels
+/// scrolled, sharp again past it. Liquid only, not with reduced motion, and
+/// only with a [provider]. The sharp child keeps its own framing; the copy is
+/// drawn over it in the same box.
+class _CollapsingCoverBlur extends ConsumerWidget {
+  const _CollapsingCoverBlur({
+    required this.extent,
+    required this.child,
+    this.provider,
+  });
+
+  final double extent;
+  final ImageProvider? provider;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final scrollable = Scrollable.maybeOf(context);
+    final source = provider;
+    if (scrollable == null ||
+        source == null ||
+        extent <= 0 ||
+        MediaQuery.disableAnimationsOf(context) ||
+        !ref.watch(mornyeLiquidGlassProvider)) {
+      return child;
+    }
+    final position = scrollable.position;
+    return AnimatedBuilder(
+      animation: position,
+      child: child,
+      builder: (context, child) {
+        final collapse = (position.pixels / extent).clamp(0.0, 1.0);
+        final blur = Curves.easeOut.transform(collapse);
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            child!,
+            if (collapse > 0) ...[
+              BlurredCoverLayer(provider: source, opacity: blur),
+            ],
+          ],
+        );
+      },
     );
   }
 }
@@ -643,6 +711,35 @@ Widget headerToolbarTitle(
     : ValueListenableBuilder<bool>(
         valueListenable: listenable,
         builder: (_, showTitle, _) => builder(showTitle),
+      );
+
+/// The title's own scrim: a translucent box behind the title text, drawn only
+/// when [AlbumDetailHeader.titleScrim] is set (mix, genre and playlist). The
+/// colour follows the title's effective colour, read where the title is built:
+/// light text gets a dark scrim, dark text (the light theme's toolbar title)
+/// gets a surface-coloured one, so the contrast holds in both themes.
+Widget _titleScrimmed(Text text, {required bool enabled}) => !enabled
+    ? text
+    : Builder(
+        builder: (context) {
+          final inherited = DefaultTextStyle.of(context).style;
+          final color =
+              inherited.merge(text.style).color ?? const Color(0xFFFFFFFF);
+          final scheme = Theme.of(context).colorScheme;
+          final scrim = color.computeLuminance() > 0.5
+              ? const Color(0x80000000)
+              : scheme.surface.withValues(alpha: 0.6);
+          return DecoratedBox(
+            decoration: BoxDecoration(
+              color: scrim,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              child: text,
+            ),
+          );
+        },
       );
 
 /// Keeps the pinned toolbar above the artwork without shifting the artwork or
@@ -960,6 +1057,7 @@ class HeaderCircleButton extends ConsumerWidget {
         enabled: onPressed != null,
         child: MornyeGlass.navigation(
           radius: (buttonSize ?? kHeaderButtonSize) / 2,
+          kind: MornyeGlassKind.control,
           tintColor:
               glassTintColor ??
               (scheme.brightness == Brightness.dark

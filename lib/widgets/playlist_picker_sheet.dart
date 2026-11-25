@@ -50,7 +50,11 @@ Future<void> showAddTracksToPlaylistSheet(
         playlistNamePrefill: playlistNamePrefill,
         preserveOccurrences: preserveOccurrences,
       );
-      return MornyeGlassPanel(tintOpacity: 0.78, child: content);
+      return MornyeGlassPanel(
+        kind: MornyeGlassKind.content,
+        tintOpacity: 0.78,
+        child: content,
+      );
     },
   );
 }

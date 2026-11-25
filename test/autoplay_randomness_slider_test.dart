@@ -1,3 +1,4 @@
+import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'dart:convert';
 
 import 'package:material_ui/material_ui.dart';
@@ -24,6 +25,7 @@ void main() {
       addTearDown(tester.view.reset);
       final container = ProviderContainer(
         overrides: [
+          mornyeGlassLevelProvider.overrideWithValue(MornyeGlassLevel.flat),
           initialSettingsProvider.overrideWithValue(
             const AppSettings(autoplayPersonalization: false),
           ),

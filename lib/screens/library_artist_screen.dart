@@ -3,6 +3,9 @@ import 'dart:math';
 import 'package:cupertino_ui/cupertino_ui.dart'
     show CupertinoButton, CupertinoIcons;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:liquid_glass_easy/liquid_glass_easy.dart';
+import 'package:sistrum/providers/runtime_profile_provider.dart';
+import 'package:sistrum/theme/mornye_glass_presets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:sistrum/controllers/clickable_metadata.dart';
 import 'package:sistrum/l10n/l10n.dart';
@@ -21,6 +24,7 @@ import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/artist_featured_album_card.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
+import 'package:sistrum/widgets/blurred_cover.dart';
 import 'package:sistrum/widgets/mornye_artist_header.dart';
 
 /// A Library artist, in the layout of the online artist page: the latest
@@ -63,7 +67,6 @@ class _LibraryArtistScreenState extends ConsumerState<LibraryArtistScreen> {
       for (final item in songs.value ?? const <UnifiedLibraryItem>[])
         ?item.localItem,
     ];
-    final colors = Theme.of(context).colorScheme;
     final favorite = ref.watch(
       libraryCollectionsProvider.select(
         (collections) => collections.containsFavoriteArtistKey(
@@ -87,6 +90,7 @@ class _LibraryArtistScreenState extends ConsumerState<LibraryArtistScreen> {
             ),
       showTitle: false,
       showTitleListenable: _showTitle,
+      blurSource: localCoverBlurSource(cover),
       actions: [
         HeaderCircleButton(
           icon: CupertinoIcons.shuffle,
@@ -98,21 +102,25 @@ class _LibraryArtistScreenState extends ConsumerState<LibraryArtistScreen> {
           tooltip: l10n.actionShuffle,
           onPressed: tracks.isEmpty ? null : () => _play(tracks, shuffle: true),
         ),
-        CupertinoButton(
-          padding: EdgeInsets.zero,
-          borderRadius: BorderRadius.circular(37),
-          color: colors.surface,
-          onPressed: tracks.isEmpty
-              ? null
-              : () => _play(tracks, shuffle: false),
-          child: SizedBox.square(
-            dimension: 74,
-            child: Semantics(
-              label: l10n.tooltipPlay,
-              child: Icon(
-                CupertinoIcons.play_fill,
-                size: 34,
-                color: Colors.white,
+        // Read under MornyeArtistSurface, so the circle is the artist page's
+        // surface (the page background), not the outer app scheme.
+        Builder(
+          builder: (context) => CupertinoButton(
+            padding: EdgeInsets.zero,
+            borderRadius: BorderRadius.circular(37),
+            color: Theme.of(context).colorScheme.surface,
+            onPressed: tracks.isEmpty
+                ? null
+                : () => _play(tracks, shuffle: false),
+            child: SizedBox.square(
+              dimension: 74,
+              child: Semantics(
+                label: l10n.tooltipPlay,
+                child: Icon(
+                  CupertinoIcons.play_fill,
+                  size: 34,
+                  color: Colors.white,
+                ),
               ),
             ),
           ),
@@ -137,56 +145,64 @@ class _LibraryArtistScreenState extends ConsumerState<LibraryArtistScreen> {
       child: Builder(
         builder: (context) => Scaffold(
           backgroundColor: Theme.of(context).colorScheme.surface,
-          body: CustomScrollView(
-            controller: _scroll,
-            slivers: [
-              ...header.buildSlivers(context),
-              if (songs.hasError)
-                SliverToBoxAdapter(
-                  child: Center(
-                    child: TextButton.icon(
-                      icon: const Icon(Icons.refresh),
-                      onPressed: () => ref.invalidate(
-                        libraryArtistSongsProvider(widget.artist),
+          body: LiquidGlassBatch(
+            // The back button and the toolbar capsule share one read of the
+            // page; they do not overlap. Off in None.
+            enabled: ref.watch(mornyeBlurEnabledProvider),
+            blurMethod: MornyeGlassPreset.of(
+              ref.watch(mornyeGlassLevelProvider),
+            ).batchBlurMethod,
+            child: CustomScrollView(
+              controller: _scroll,
+              slivers: [
+                ...header.buildSlivers(context),
+                if (songs.hasError)
+                  SliverToBoxAdapter(
+                    child: Center(
+                      child: TextButton.icon(
+                        icon: const Icon(Icons.refresh),
+                        onPressed: () => ref.invalidate(
+                          libraryArtistSongsProvider(widget.artist),
+                        ),
+                        label: Text(l10n.dialogRetry),
                       ),
-                      label: Text(l10n.dialogRetry),
                     ),
                   ),
-                ),
-              if (latest != null)
-                SliverToBoxAdapter(
-                  child: ArtistFeaturedAlbumCard(
-                    release: latest,
-                    onTap: () => _openRelease(latest),
+                if (latest != null)
+                  SliverToBoxAdapter(
+                    child: ArtistFeaturedAlbumCard(
+                      release: latest,
+                      onTap: () => _openRelease(latest),
+                    ),
                   ),
-                ),
-              if (albums.isNotEmpty)
-                SliverToBoxAdapter(
-                  child: _ReleaseShelf(
-                    title: l10n.searchAlbums,
-                    releases: albums,
-                    onOpen: _openRelease,
+                if (albums.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: _ReleaseShelf(
+                      title: l10n.searchAlbums,
+                      releases: albums,
+                      onOpen: _openRelease,
+                    ),
                   ),
-                ),
-              if (groups.singles.isNotEmpty)
-                SliverToBoxAdapter(
-                  child: _ReleaseShelf(
-                    title: l10n.artistSingles,
-                    releases: groups.singles,
-                    onOpen: _openRelease,
+                if (groups.singles.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: _ReleaseShelf(
+                      title: l10n.artistSingles,
+                      releases: groups.singles,
+                      onOpen: _openRelease,
+                    ),
                   ),
-                ),
-              if (groups.compilations.isNotEmpty)
-                SliverToBoxAdapter(
-                  child: _ReleaseShelf(
-                    title: l10n.artistCompilations,
-                    releases: groups.compilations,
-                    onOpen: _openRelease,
+                if (groups.compilations.isNotEmpty)
+                  SliverToBoxAdapter(
+                    child: _ReleaseShelf(
+                      title: l10n.artistCompilations,
+                      releases: groups.compilations,
+                      onOpen: _openRelease,
+                    ),
                   ),
-                ),
-              const SliverToBoxAdapter(child: SizedBox(height: 32)),
-              const NavBarSliverSpacer(),
-            ],
+                const SliverToBoxAdapter(child: SizedBox(height: 32)),
+                const NavBarSliverSpacer(),
+              ],
+            ),
           ),
         ),
       ),

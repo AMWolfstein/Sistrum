@@ -11,9 +11,15 @@ import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/theme/cover_palette.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/collection_scaffold.dart';
+import 'package:sistrum/widgets/blurred_cover.dart';
 import 'package:sistrum/widgets/mornye_artist_header.dart';
 
 import 'support/tooltip_finder.dart';
+
+/// A 1x1 PNG: a real image for the blurred copy to decode.
+final _blurTestPng = base64Decode(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=',
+);
 
 void main() {
   testWidgets('artist logo uses a bounded aspect-preserving shared decode', (
@@ -345,10 +351,11 @@ void main() {
           home: Scaffold(
             body: CustomScrollView(
               controller: controller,
-              slivers: const [
+              slivers: [
                 MornyeArtistHeader(
                   name: 'Artist',
                   artwork: ColoredBox(key: artworkKey, color: Colors.orange),
+                  blurSource: MemoryImage(_blurTestPng),
                   actions: [Text('Artist action')],
                   showTitle: false,
                 ),
@@ -364,36 +371,45 @@ void main() {
         .widget<ColoredBox>(find.byKey(const ValueKey('artist-artwork-fade')))
         .color
         .a;
-    ImageFiltered filter() => tester.widget<ImageFiltered>(
-      find.ancestor(
-        of: find.byKey(artworkKey),
-        matching: find.byType(ImageFiltered),
-      ),
-    );
-    final artwork = tester.element(find.byKey(artworkKey));
+    // The blurred copy is a cached image drawn over the sharp artwork. Its
+    // opacity is the collapse; no ImageFilter is built per frame.
+    double blurSigma() => find.byType(BlurredCoverLayer).evaluate().isEmpty
+        ? 0
+        : tester
+              .widget<BlurredCoverLayer>(find.byType(BlurredCoverLayer))
+              .opacity;
     expect(fade(), 0);
-    expect(filter().enabled, isFalse);
+    expect(blurSigma(), 0);
 
     controller.jumpTo(120);
     await tester.pumpAndSettle();
-    expect(filter().enabled, isTrue);
+    expect(blurSigma(), inExclusiveRange(0, 1));
     expect(fade(), inExclusiveRange(0, 1));
     expect(find.text('Artist action').hitTestable(), findsOneWidget);
 
     controller.jumpTo(340);
     await tester.pumpAndSettle();
     expect(fade(), 1);
-    expect(filter().enabled, isFalse);
-    expect(TickerMode.valuesOf(artwork).enabled, isFalse);
+    // Fully faded: the sharp artwork is under the fade, so no filter runs.
+    expect(blurSigma(), 0);
+    expect(
+      TickerMode.valuesOf(tester.element(find.byKey(artworkKey).first)).enabled,
+      isFalse,
+    );
     expect(findByTooltip('Back').hitTestable(), findsOneWidget);
 
     controller.jumpTo(0);
     await tester.pumpAndSettle();
     expect(fade(), 0);
-    expect(filter().enabled, isFalse);
-    expect(TickerMode.valuesOf(artwork).enabled, isTrue);
+    expect(blurSigma(), 0);
+    expect(
+      TickerMode.valuesOf(tester.element(find.byKey(artworkKey).first)).enabled,
+      isTrue,
+    );
     expect(find.text('Artist action').hitTestable(), findsOneWidget);
-    expect(tester.element(find.byKey(artworkKey)), same(artwork));
+    // The artwork element is rebuilt when the blur box comes and goes; it stays
+    // in the tree and is the same artwork.
+    expect(find.byKey(artworkKey), findsWidgets);
     expect(tester.takeException(), isNull);
   });
 
@@ -430,7 +446,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    final artwork = find.byKey(artworkKey);
+    final artwork = find.byKey(artworkKey).first;
     final action = find.text('Artist action');
     final albums = find.text('Album list');
     final originalArt = tester.getRect(artwork);

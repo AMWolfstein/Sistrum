@@ -1,59 +1,57 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sistrum/providers/settings_provider.dart';
+import 'package:sistrum/models/theme_settings.dart';
+import 'package:sistrum/providers/theme_provider.dart';
+
+export 'package:sistrum/models/theme_settings.dart' show MornyeGlassLevel;
 
 /// True on low-end hardware (arm32-only or low-RAM, resolved at startup in
-/// main.dart via a ProviderScope override). UI uses it to skip expensive
-/// effects like the shell's backdrop blur.
+/// main.dart via a ProviderScope override). Low-end devices render no glass.
 final lowEndDeviceProvider = Provider<bool>((ref) => false);
 
 /// Raw device capability decided by the startup runtime profile (overridden
 /// in main.dart). Only the `high` tier enables blur by default.
 final deviceSupportsBackdropBlurProvider = Provider<bool>((ref) => false);
 
-/// Whether the GPU supports the higher blur budget and animated artwork /
-/// lyric defocus. Glass controls themselves use the same lightweight renderer
-/// on every tier. Overridden in main.dart.
+/// Whether the GPU supports the Liquid Glass lens. Overridden in main.dart.
 final deviceSupportsLiquidGlassProvider = Provider<bool>((ref) => true);
 
-/// Whether backdrop blur effects should render: the device default, or the
-/// user's manual override from appearance settings.
-final backdropBlurEnabledProvider = Provider<bool>((ref) {
-  return ref.watch(deviceSupportsBackdropBlurProvider) ||
-      ref.watch(settingsProvider.select((s) => s.forceBackdropBlur));
-});
-
-/// Flutter also reports Android's medium contrast as high contrast. Respect
-/// that request unless the user explicitly forces glass; this only controls
-/// decorative surfaces, never the inherited text or reduced-motion settings.
-final mornyeGlassContrastBlockedProvider = Provider.family<bool, bool>(
-  (ref, highContrast) =>
-      highContrast &&
-      !ref.watch(settingsProvider.select((s) => s.forceBackdropBlur)),
+/// The glass mode the user selected (persisted, not backed up). Never changed
+/// by device fallback; read [mornyeGlassLevelProvider] for rendering.
+final mornyeGlassModeProvider = Provider<MornyeGlassLevel>(
+  (ref) => ref.watch(themeProvider.select((s) => s.mornyeGlassLevel)),
 );
 
-/// How much of Mornye's glass the device renders.
-enum MornyeGlassLevel {
-  /// Opaque surfaces; no backdrop sampling.
-  flat,
+/// The mode being rendered: a comparison's mode while one runs, else the
+/// selected mode. Rendering reads this; the saved choice is never changed.
+final mornyeGlassActiveModeProvider = Provider<MornyeGlassLevel>(
+  (ref) =>
+      ref.watch(mornyeGlassCompareModeProvider) ??
+      ref.watch(mornyeGlassModeProvider),
+);
 
-  /// Translucent surfaces over one backdrop blur; no shader passes.
-  frosted,
+/// Flutter also reports Android's medium contrast as high contrast. Glass is
+/// decorative, so a high-contrast request turns it off. This only controls
+/// decorative surfaces, never the inherited text or reduced-motion settings.
+final mornyeGlassContrastBlockedProvider = Provider.family<bool, bool>(
+  (ref, highContrast) => highContrast,
+);
 
-  /// Impeller backdrop refraction, with a blur fallback on other renderers.
-  liquid,
-}
-
+/// The glass the device renders for the selected mode. Device fallback can
+/// downgrade a selection, never upgrade it. None is never changed.
 final mornyeGlassLevelProvider = Provider<MornyeGlassLevel>((ref) {
-  final lowEnd = ref.watch(lowEndDeviceProvider);
-  if (!lowEnd && ref.watch(deviceSupportsLiquidGlassProvider)) {
-    return MornyeGlassLevel.liquid;
+  final selected = ref.watch(mornyeGlassActiveModeProvider);
+  if (selected == MornyeGlassLevel.flat) return selected;
+  if (ref.watch(lowEndDeviceProvider)) return MornyeGlassLevel.flat;
+  // An unsupported lens renders as None. Only the rendered level changes;
+  // the saved choice stays Liquid.
+  if (selected == MornyeGlassLevel.liquid &&
+      !ref.watch(deviceSupportsLiquidGlassProvider)) {
+    return MornyeGlassLevel.flat;
   }
-  // The user's "always use blur effects" override restores the full material.
-  if (ref.watch(backdropBlurEnabledProvider)) return MornyeGlassLevel.liquid;
-  return lowEnd ? MornyeGlassLevel.flat : MornyeGlassLevel.frosted;
+  return selected;
 });
 
-/// Backdrop blur for Mornye surfaces (frosted or liquid).
+/// Backdrop blur for Mornye surfaces (Liquid only).
 final mornyeBlurEnabledProvider = Provider<bool>(
   (ref) => ref.watch(mornyeGlassLevelProvider) != MornyeGlassLevel.flat,
 );

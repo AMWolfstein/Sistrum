@@ -23,13 +23,12 @@ void main() {
     const a = MornyeTheme(
       chromeSurface: Color(0xff336699),
       accent: MornyeAccent.blue,
-      glassClarity: 0.4,
       glassOutlines: false,
     );
     final b = a.copyWith();
     expect(b, a);
     expect(b.hashCode, a.hashCode);
-    expect(a.copyWith(glassClarity: 0.5), isNot(a));
+    expect(a.copyWith(glassOutlines: true), isNot(a));
     expect(a.copyWith(accent: MornyeAccent.red), isNot(a));
     expect(a.lerp(b, 0.5), a);
   });
@@ -39,21 +38,18 @@ void main() {
       ThemeData build() => MornyeTheme.build(
         brightness,
         accent: MornyeAccent.teal,
-        glassClarity: 0.4,
         glassOutlines: false,
       );
       final first = build();
       expect(identical(build(), first), isTrue);
       final preferences = first.extension<MornyeTheme>()!;
-      expect(preferences.glassClarity, 0.4);
       expect(preferences.glassOutlines, isFalse);
       expect(
         MornyeTheme.build(
           brightness,
           accent: MornyeAccent.teal,
-          glassClarity: 1,
-        ).extension<MornyeTheme>()!.glassClarity,
-        1,
+        ).extension<MornyeTheme>()!.glassOutlines,
+        isTrue,
       );
     }
   });
@@ -128,7 +124,7 @@ void main() {
   testWidgets('only theme settings rebuild the app theme', (tester) async {
     SharedPreferences.setMockInitialValues({
       kThemeModeKey: ThemeMode.light.name,
-      kMornyeGlassClarityKey: 0.4,
+      kMornyeGlassModeKey: 'liquid',
       kMornyeGlassOutlinesKey: false,
     });
     final prefs = await SharedPreferences.getInstance();
@@ -148,16 +144,12 @@ void main() {
           builder: (context, ref, _) {
             final settings = ref.watch(
               themeProvider.select(
-                (s) => (
-                  mode: s.themeMode,
-                  glassClarity: s.mornyeGlassClarity,
-                  glassOutlines: s.mornyeGlassOutlines,
-                ),
+                (s) =>
+                    (mode: s.themeMode, glassOutlines: s.mornyeGlassOutlines),
               ),
             );
             final light = MornyeTheme.build(
               Brightness.light,
-              glassClarity: settings.glassClarity,
               glassOutlines: settings.glassOutlines,
             );
             themes.add(light);
@@ -171,7 +163,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(themes.last.extension<MornyeTheme>()!.glassClarity, 0.4);
+    expect(themes.last.extension<MornyeTheme>()!.glassOutlines, isFalse);
     final initialBuilds = themes.length;
     final notifier = container.read(themeProvider.notifier);
 
@@ -180,9 +172,18 @@ void main() {
     expect(container.read(themeProvider).lyricsTextScale, 1.2);
     expect(themes, hasLength(initialBuilds));
 
-    await notifier.setMornyeGlassClarity(0.6, persist: false);
+    await notifier.setMornyeGlassOutlines(true);
     await tester.pumpAndSettle();
     expect(themes, hasLength(initialBuilds + 1));
-    expect(themes.last.extension<MornyeTheme>()!.glassClarity, 0.6);
+    expect(themes.last.extension<MornyeTheme>()!.glassOutlines, isTrue);
+
+    // The glass mode is not theme state, so choosing it leaves the theme alone.
+    await notifier.setMornyeGlassLevel(MornyeGlassLevel.flat);
+    await tester.pumpAndSettle();
+    expect(themes, hasLength(initialBuilds + 1));
+    expect(
+      container.read(themeProvider).mornyeGlassLevel,
+      MornyeGlassLevel.flat,
+    );
   });
 }

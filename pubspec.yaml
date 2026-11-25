@@ -144,9 +144,6 @@ flutter:
   uses-material-design: true
   generate: true
 
-  shaders:
-    - assets/shaders/mornye_selection_mask.frag
-
   assets:
     - LICENSE
     - COPYING

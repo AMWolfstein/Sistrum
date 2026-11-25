@@ -8,6 +8,7 @@ import 'package:sistrum/models/settings.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/providers/theme_provider.dart';
+import 'package:sistrum/screens/settings/mornye_glass_mode_preview.dart';
 import 'package:sistrum/models/theme_settings.dart';
 import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
@@ -50,7 +51,7 @@ class AppearanceSettingsPage extends ConsumerWidget {
                   selected: themeSettings.mornyeAccent,
                   onChanged: ref.read(themeProvider.notifier).setMornyeAccent,
                 ),
-                const _MornyeGlassClaritySlider(),
+                const _MornyeGlassModeSelector(),
                 SettingsSwitchItem(
                   key: const ValueKey('mornye-glass-outlines'),
                   icon: Icons.rounded_corner,
@@ -75,24 +76,6 @@ class AppearanceSettingsPage extends ConsumerWidget {
                       ref.read(themeProvider.notifier).setThemeMode(mode),
                 ),
               ],
-            ),
-
-            SliverToBoxAdapter(
-              child: SettingsGroup(
-                connected: true,
-                children: [
-                  SettingsSwitchItem(
-                    icon: Icons.blur_on,
-                    title: context.l10n.appearanceForceBlur,
-                    subtitle: context.l10n.appearanceForceBlurSubtitle,
-                    value: settings.forceBackdropBlur,
-                    onChanged: (value) => ref
-                        .read(settingsProvider.notifier)
-                        .setForceBackdropBlur(value),
-                    showDivider: false,
-                  ),
-                ],
-              ),
             ),
 
             ...settingsSectionSlivers(

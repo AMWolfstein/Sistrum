@@ -4,6 +4,7 @@ import 'dart:ui' show lerpDouble;
 import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/rendering.dart';
+import 'package:sistrum/theme/mornye_glass_presets.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 
@@ -541,16 +542,13 @@ class _MenuSurface extends StatelessWidget {
     Widget glass(double radius, Widget child) => MornyeGlassPanel.overlay(
       radius: radius,
       smoothCorners: true,
-      highlightBorder: true,
       highlightIntensity: 0.4,
       tintColor: theme.extension<MornyeTheme>()?.chromeSurface != null
           ? null
           : dark
           ? const Color(0xff414141)
           : Colors.white,
-      tintOpacity: dark
-          ? 0.80 - 0.20 * (theme.extension<MornyeTheme>()?.glassClarity ?? 0)
-          : 0.80,
+      tintOpacity: dark ? MornyeGlassPreset.menuTintDark : 0.80,
       child: child,
     );
     final flight = _MenuFlight.maybeOf(context);
@@ -583,7 +581,7 @@ class MornyeMenuAction {
   final bool disclosure;
 }
 
-/// One frosted popover, with compact shortcuts and separated action groups.
+/// One glass popover, with compact shortcuts and separated action groups.
 class MornyeContextMenu extends StatelessWidget {
   const MornyeContextMenu({
     super.key,

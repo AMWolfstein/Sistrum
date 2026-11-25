@@ -1,3 +1,4 @@
+import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -30,7 +31,10 @@ Future<ProviderContainer> _openSheet(
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final container = ProviderContainer(
-    overrides: [initialSettingsProvider.overrideWithValue(settings)],
+    overrides: [
+      mornyeGlassLevelProvider.overrideWithValue(MornyeGlassLevel.flat),
+      initialSettingsProvider.overrideWithValue(settings),
+    ],
   );
   addTearDown(container.dispose);
   await tester.pumpWidget(
@@ -289,6 +293,7 @@ void main() {
     addTearDown(tester.view.reset);
     final container = ProviderContainer(
       overrides: [
+        mornyeGlassLevelProvider.overrideWithValue(MornyeGlassLevel.flat),
         initialSettingsProvider.overrideWithValue(
           const AppSettings(playbackSpeed: 1.25, playbackPitch: 2),
         ),

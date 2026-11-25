@@ -23,6 +23,7 @@ import 'package:sistrum/widgets/app_snack_bar.dart';
 import 'package:sistrum/widgets/desktop/desktop_shortcuts.dart';
 import 'package:sistrum/widgets/desktop/library_drop_target.dart';
 import 'package:sistrum/widgets/mornye_glass_preparation.dart';
+import 'package:sistrum/widgets/performance_recording_badge.dart';
 import 'package:sistrum/widgets/playback_feedback.dart';
 import 'package:sistrum/widgets/tv_navigation.dart';
 
@@ -204,6 +205,11 @@ Widget buildAppContent(BuildContext context, Widget? child) {
       ),
     );
   }
+  // Above the navigator, so the Performance hub badge follows every page.
+  appContent = Stack(
+    fit: StackFit.expand,
+    children: [appContent, const PerformanceRecordingBadge()],
+  );
   return AndroidKeyboardLifecycle(child: _AppMediaQuery(child: appContent));
 }
 
@@ -258,7 +264,6 @@ class SistrumApp extends ConsumerWidget {
         (s) => (
           themeMode: s.themeMode,
           mornyeAccent: s.mornyeAccent,
-          mornyeGlassClarity: s.mornyeGlassClarity,
           mornyeGlassOutlines: s.mornyeGlassOutlines,
         ),
       ),
@@ -266,7 +271,6 @@ class SistrumApp extends ConsumerWidget {
     ThemeData themeFor(Brightness brightness) => MornyeTheme.build(
       brightness,
       accent: themeSettings.mornyeAccent,
-      glassClarity: themeSettings.mornyeGlassClarity,
       glassOutlines: themeSettings.mornyeGlassOutlines,
     );
 

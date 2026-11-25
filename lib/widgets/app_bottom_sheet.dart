@@ -399,7 +399,10 @@ Future<T?> showAppModalBottomSheet<T>({
     ),
     elevation: 0,
     builder: (context) => mornyeGlass
-        ? MornyeGlassPanel.overlay(child: Builder(builder: builder))
+        ? MornyeGlassPanel.overlay(
+            kind: MornyeGlassKind.content,
+            child: Builder(builder: builder),
+          )
         : builder(context),
   );
 }
@@ -442,7 +445,7 @@ Future<T?> showAppSheetDialog<T>({
   bool mornyeGlass = true,
   AppDialogSize dialogSize = AppDialogSize.medium,
 }) {
-  // Presented like [showAppDialog], so glass is frosted from the first frame
+  // Presented like [showAppDialog], so glass is drawn from the first frame
   // (no opacity layer over its backdrop).
   return showAppDialog<T>(
     context: context,
@@ -498,7 +501,11 @@ class AppSheetDialog extends StatelessWidget {
       ),
     );
     if (mornyeGlass) {
-      content = MornyeGlassPanel.overlay(radius: radius, child: content);
+      content = MornyeGlassPanel.overlay(
+        radius: radius,
+        kind: MornyeGlassKind.content,
+        child: content,
+      );
     }
     return Dialog(
       key: const ValueKey('app-sheet-dialog'),

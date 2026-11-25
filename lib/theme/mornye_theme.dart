@@ -14,18 +14,12 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
   const MornyeTheme({
     this.chromeSurface,
     this.accent = MornyeAccent.blue,
-    this.glassClarity = kDefaultMornyeGlassClarity,
     this.glassOutlines = true,
   });
 
   final Color? chromeSurface;
   final MornyeAccent accent;
-  final double glassClarity;
   final bool glassOutlines;
-
-  static double glassClarityOf(BuildContext context) =>
-      Theme.of(context).extension<MornyeTheme>()?.glassClarity ??
-      kDefaultMornyeGlassClarity;
 
   static bool glassOutlinesOf(BuildContext context) =>
       Theme.of(context).extension<MornyeTheme>()?.glassOutlines ?? true;
@@ -129,7 +123,6 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
     Brightness brightness, {
     Color? chromeSurface,
     MornyeAccent accent = MornyeAccent.blue,
-    double glassClarity = kDefaultMornyeGlassClarity,
     bool glassOutlines = true,
   }) {
     final key = (
@@ -148,7 +141,7 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
       _themeCache.remove(_themeCache.keys.first);
     }
     _themeCache[key] = theme;
-    return _withGlassPreferences(theme, glassClarity, glassOutlines);
+    return _withGlassPreferences(theme, glassOutlines);
   }
 
   static ThemeData _withChromeSurface(ThemeData theme, Color chromeSurface) {
@@ -171,19 +164,13 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
     );
   }
 
-  // Moving the clarity slider only changes the material, not typography or
-  // seeded colors. Keep the expensive base theme cached independently, and
-  // reuse the last variant so equal preferences keep the same theme identity.
-  static ThemeData _withGlassPreferences(
-    ThemeData theme,
-    double value,
-    bool outlines,
-  ) {
-    final clarity = normalizeMornyeGlassClarity(value);
+  // Changing the outlines only changes decoration, not typography or seeded
+  // colors. Keep the expensive base theme cached independently, and reuse the
+  // last variant so equal preferences keep the same theme identity.
+  static ThemeData _withGlassPreferences(ThemeData theme, bool outlines) {
     bool matches(ThemeData? candidate) {
       final preferences = candidate?.extension<MornyeTheme>();
-      return preferences?.glassClarity == clarity &&
-          preferences?.glassOutlines == outlines;
+      return preferences?.glassOutlines == outlines;
     }
 
     if (matches(theme)) return theme;
@@ -193,7 +180,7 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
       extensions: [
         for (final extension in theme.extensions.values)
           if (extension is MornyeTheme)
-            extension.copyWith(glassClarity: clarity, glassOutlines: outlines)
+            extension.copyWith(glassOutlines: outlines)
           else
             extension,
       ],
@@ -212,7 +199,6 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
       brightness ?? theme.brightness,
       chromeSurface: chromeSurface,
       accent: preferences?.accent ?? MornyeAccent.blue,
-      glassClarity: preferences?.glassClarity ?? kDefaultMornyeGlassClarity,
       glassOutlines: preferences?.glassOutlines ?? true,
     );
   }
@@ -408,12 +394,10 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
   MornyeTheme copyWith({
     Color? chromeSurface,
     MornyeAccent? accent,
-    double? glassClarity,
     bool? glassOutlines,
   }) => MornyeTheme(
     chromeSurface: chromeSurface ?? this.chromeSurface,
     accent: accent ?? this.accent,
-    glassClarity: glassClarity ?? this.glassClarity,
     glassOutlines: glassOutlines ?? this.glassOutlines,
   );
 
@@ -421,9 +405,6 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
   MornyeTheme lerp(covariant MornyeTheme? other, double t) => MornyeTheme(
     chromeSurface: Color.lerp(chromeSurface, other?.chromeSurface, t),
     accent: t < 0.5 ? accent : other?.accent ?? accent,
-    glassClarity:
-        glassClarity +
-        ((other?.glassClarity ?? glassClarity) - glassClarity) * t,
     glassOutlines: t < 0.5
         ? glassOutlines
         : other?.glassOutlines ?? glassOutlines,
@@ -434,12 +415,10 @@ class MornyeTheme extends ThemeExtension<MornyeTheme> {
       other is MornyeTheme &&
       other.chromeSurface == chromeSurface &&
       other.accent == accent &&
-      other.glassClarity == glassClarity &&
       other.glassOutlines == glassOutlines;
 
   @override
-  int get hashCode =>
-      Object.hash(chromeSurface, accent, glassClarity, glassOutlines);
+  int get hashCode => Object.hash(chromeSurface, accent, glassOutlines);
 }
 
 /// Settings uses iOS's inset grouped surfaces while the music library keeps

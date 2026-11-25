@@ -1,3 +1,4 @@
+import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
@@ -35,6 +36,7 @@ class _Bar {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          mornyeGlassLevelProvider.overrideWithValue(MornyeGlassLevel.flat),
           settingsProvider.overrideWith(
             () => FixedSettingsNotifier(
               AppSettings(confirmLoudVolume: enabled, loudVolumeLevel: 80),
@@ -264,6 +266,62 @@ void main() {
     addTearDown(tester.view.reset);
     final container = ProviderContainer(
       overrides: [
+        mornyeGlassLevelProvider.overrideWithValue(MornyeGlassLevel.flat),
+        initialSettingsProvider.overrideWithValue(
+          const AppSettings(confirmLoudVolume: false),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          theme: MornyeTheme.build(Brightness.dark),
+          localizationsDelegates: appLocalizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: const PlaybackSettingsPage(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text(_switchTitle),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    expect(container.read(settingsProvider).confirmLoudVolume, isFalse);
+    expect(find.text('Ask above'), findsNothing);
+
+    await tester.tap(find.text(_switchTitle));
+    await tester.pumpAndSettle();
+    expect(container.read(settingsProvider).confirmLoudVolume, isTrue);
+    final choice = find.byType(MornyeSegmentedControl);
+    await tester.ensureVisible(choice);
+    await tester.pumpAndSettle();
+    expect(choice, findsOneWidget);
+    expect(find.text('Ask above'), findsOneWidget);
+    for (final label in ['60%', '70%', '80%', '90%']) {
+      expect(find.text(label), findsWidgets, reason: label);
+    }
+    expect(container.read(settingsProvider).loudVolumeLevel, 80);
+    await tester.tap(find.text('90%').first);
+    await tester.pumpAndSettle();
+    expect(container.read(settingsProvider).loudVolumeLevel, 90);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the switch shows the level choice in Liquid', (tester) async {
+    MornyeGlass.debugShaderFilterSupport = true;
+    addTearDown(() => MornyeGlass.debugShaderFilterSupport = null);
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(360, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final container = ProviderContainer(
+      overrides: [
+        mornyeGlassLevelProvider.overrideWithValue(MornyeGlassLevel.liquid),
         initialSettingsProvider.overrideWithValue(
           const AppSettings(confirmLoudVolume: false),
         ),

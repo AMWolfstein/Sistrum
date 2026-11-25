@@ -104,7 +104,6 @@ AppSettings _$AppSettingsFromJson(Map<String, dynamic> json) => AppSettings(
           ?.map((e) => e as String)
           .toList() ??
       const ['shuffle', 'equalizer', 'listeningStats', 'loved'],
-  forceBackdropBlur: json['forceBackdropBlur'] as bool? ?? false,
   interfaceScale: json['interfaceScale'] == null
       ? 1
       : interfaceScaleFromJson(json['interfaceScale']),
@@ -183,7 +182,6 @@ Map<String, dynamic> _$AppSettingsToJson(AppSettings instance) =>
       'swipeToQueue': instance.swipeToQueue,
       'searchViewMode': instance.searchViewMode,
       'homeShortcuts': instance.homeShortcuts,
-      'forceBackdropBlur': instance.forceBackdropBlur,
       'interfaceScale': instance.interfaceScale,
       'locale': instance.locale,
       'lyricsMode': instance.lyricsMode,

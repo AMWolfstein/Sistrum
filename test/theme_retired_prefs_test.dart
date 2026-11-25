@@ -31,7 +31,7 @@ void main() {
       kThemeModeKey: 'dark',
       kMornyeAccentKey: 'pink',
       kRetiredUseSystemFontKey: true,
-      kMornyeGlassClarityKey: 0.3,
+      kLegacyMornyeGlassClarityKey: 0.3,
     });
     final prefs = await SharedPreferences.getInstance();
     final container = await _loadTheme(prefs);
@@ -48,7 +48,10 @@ void main() {
     expect(prefs.getBool(kRetiredThemePrefsRemovedKey), isTrue);
     final state = container.read(themeProvider);
     expect(state.mornyeAccent, MornyeAccent.pink);
-    expect(state.mornyeGlassClarity, closeTo(0.3, 1e-9));
+    // Clarity 0.3 was glass, so the migrated mode is Liquid.
+    expect(state.mornyeGlassLevel, MornyeGlassLevel.liquid);
+    expect(prefs.getString(kMornyeGlassModeKey), 'liquid');
+    expect(prefs.containsKey(kLegacyMornyeGlassClarityKey), isFalse);
     expect(prefs.getString(kThemeModeKey), 'system');
   });
 

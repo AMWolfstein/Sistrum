@@ -19,9 +19,9 @@
       "title": "Play and process local audio through mpv_audio_kit"
     }
   },
-  "next_completion": 11,
+  "next_completion": 12,
   "next_mission": 4,
-  "next_tor": 6,
+  "next_tor": 7,
   "tasks": {
     "M001-T001": {
       "completion": 3,
@@ -382,6 +382,22 @@
       "record": ".specify/quick-tasks/TOR002.md",
       "status": "complete",
       "title": "Remove editor and assistant ignore rules"
+    },
+    "TOR006": {
+      "completion": 11,
+      "evidence": {
+        "checks": "analyze clean except 1 pre-existing info; targeted tests passed (61-203 per batch); validate PASS; commit-check PASS; full suite not run; fixes after round 5 not independently reviewed",
+        "result": "PASS",
+        "reviewer": "independent reviewer (round 2 PASS; rounds 3-5 NEEDS_FIXES fixed; no PASS on final code; closed by owner order, round 6 not run)",
+        "round": 2
+      },
+      "final": false,
+      "kind": "TOR",
+      "mission": null,
+      "nonce": "4661cac49ddb4bc9a7dd43a1882ac8e1",
+      "record": ".specify/quick-tasks/TOR006.md",
+      "status": "complete",
+      "title": "Adopt native Liquid Glass Easy, two glass modes (Liquid, None), Performance Hub"
     }
   },
   "version": 1

@@ -83,9 +83,14 @@ class SettingsSearchCatalog {
         ),
         SettingsSearchEntry(
           icon: Icons.blur_on,
-          title: l10n.appearanceForceBlur,
-          subtitle: l10n.appearanceForceBlurSubtitle,
-          keywords: const ['backdrop blur', 'performance'],
+          title: l10n.appearanceGlassMode,
+          subtitle: l10n.appearanceGlassModeSubtitle,
+          keywords: const [
+            'liquid glass',
+            'none',
+            'blur',
+            'performance',
+          ],
         ),
         SettingsSearchEntry(
           icon: Icons.format_size,
@@ -711,6 +716,27 @@ class SettingsSearchCatalog {
           title: l10n.aboutVersion,
           keywords: const ['build number', 'app version'],
         ),
+      ],
+      performance = [
+        SettingsSearchEntry(
+          icon: Icons.speed_outlined,
+          title: l10n.perfHubTitle,
+          subtitle: l10n.perfHubSubtitle,
+          keywords: const [
+            'fps',
+            'frame',
+            'jank',
+            'render',
+            'refresh',
+            'budget',
+          ],
+        ),
+        SettingsSearchEntry(
+          icon: Icons.compare_arrows,
+          title: l10n.perfHubCompareButton,
+          targetLabel: l10n.perfHubCompareSection,
+          keywords: const ['liquid none', 'glass mode benchmark'],
+        ),
       ];
 
   final List<SettingsSearchEntry> appearance;
@@ -722,4 +748,5 @@ class SettingsSearchCatalog {
   final List<SettingsSearchEntry> backup;
   final List<SettingsSearchEntry> logs;
   final List<SettingsSearchEntry> about;
+  final List<SettingsSearchEntry> performance;
 }

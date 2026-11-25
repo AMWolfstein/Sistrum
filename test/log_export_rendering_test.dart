@@ -16,12 +16,10 @@ void main() {
   });
 
   test('the log export carries the renderer and glass level', () async {
-    final export = await LogBuffer().exportWithDeviceInfo(
-      glassLevel: 'frosted',
-    );
+    final export = await LogBuffer().exportWithDeviceInfo(glassLevel: 'liquid');
     expect(export, contains('--- Rendering ---'));
     expect(export, contains(rendererDiagnosticLine()));
-    expect(export, contains('Glass Level: frosted'));
+    expect(export, contains('Glass Level: liquid'));
     expect(
       export.indexOf('--- Rendering ---'),
       lessThan(export.indexOf('--- Log Summary ---')),

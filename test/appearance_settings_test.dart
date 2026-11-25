@@ -11,6 +11,7 @@ import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 
 import 'support/tooltip_finder.dart';
+import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 
 void main() {
   test(
@@ -20,26 +21,27 @@ void main() {
       const settings = ThemeSettings(mornyeGlassOutlines: false);
       expect(ThemeSettings.fromJson(settings.toJson()), settings);
       expect(
-        settings.copyWith(mornyeGlassClarity: 1).mornyeGlassOutlines,
+        settings
+            .copyWith(mornyeGlassLevel: MornyeGlassLevel.flat)
+            .mornyeGlassOutlines,
         isFalse,
       );
       expect(settings, isNot(const ThemeSettings()));
     },
   );
-  test('glass clarity restores safely from old and invalid settings', () {
+  test('glass mode restores safely from saved and invalid settings', () {
     expect(
-      ThemeSettings.fromJson({}).mornyeGlassClarity,
-      kDefaultMornyeGlassClarity,
+      ThemeSettings.fromJson({}).mornyeGlassLevel,
+      MornyeGlassLevel.liquid,
     );
     for (final (saved, expected) in [
-      (0, 0.0),
-      (1, 1.0),
-      (-1, 0.0),
-      (2, 1.0),
-      (double.nan, kDefaultMornyeGlassClarity),
+      ('flat', MornyeGlassLevel.flat),
+      ('frosted', MornyeGlassLevel.liquid),
+      ('liquid', MornyeGlassLevel.liquid),
+      ('unknown', MornyeGlassLevel.liquid),
     ]) {
-      final settings = ThemeSettings.fromJson({kMornyeGlassClarityKey: saved});
-      expect(settings.mornyeGlassClarity, expected);
+      final settings = ThemeSettings.fromJson({kMornyeGlassModeKey: saved});
+      expect(settings.mornyeGlassLevel, expected, reason: saved);
       expect(ThemeSettings.fromJson(settings.toJson()), settings);
     }
   });
@@ -93,7 +95,7 @@ void main() {
           initialThemeSettingsProvider.overrideWithValue(
             loadBootstrapThemeSettings(prefs),
           ),
-          // Low-end Android without forced blur renders flat, opaque glass.
+          // Low-end devices render flat, opaque glass whatever the mode.
           if (lowEnd) lowEndDeviceProvider.overrideWithValue(true),
         ],
         child: Consumer(
@@ -102,7 +104,6 @@ void main() {
             ThemeData themeFor(Brightness brightness) => MornyeTheme.build(
               brightness,
               accent: settings.mornyeAccent,
-              glassClarity: settings.mornyeGlassClarity,
               glassOutlines: settings.mornyeGlassOutlines,
             );
             return MaterialApp(
@@ -143,10 +144,6 @@ void main() {
           brightness: Brightness.dark,
         );
         expect(local.extension<MornyeTheme>()!.glassOutlines, isFalse);
-        expect(
-          local.extension<MornyeTheme>()!.glassClarity,
-          kDefaultMornyeGlassClarity,
-        );
         await tester.pumpWidget(const SizedBox());
         await openSettings(tester, prefs);
         expect(MornyeTheme.glassOutlinesOf(tester.element(toggle)), isFalse);
@@ -155,7 +152,8 @@ void main() {
         await tester.tap(find.text('Glass outlines'));
         await tester.pumpAndSettle();
         expect(prefs.getBool(kMornyeGlassOutlinesKey), isTrue);
-        final picker = find.byType(MornyeSegmentedControl);
+        // The theme picker follows the glass mode selector on the page.
+        final picker = find.byType(MornyeSegmentedControl).last;
         await tester.scrollUntilVisible(
           picker,
           200,
@@ -163,14 +161,14 @@ void main() {
         );
         // The theme picker sits on an opaque group card.
         expect(
-          find.descendant(of: picker, matching: find.byType(BackdropFilter)),
+          find.descendant(of: picker, matching: find.byType(LiquidGlassLens)),
           findsNothing,
         );
         expect(tester.takeException(), isNull);
       },
     );
 
-    testWidgets('glass clarity previews live and survives restart ($mode)', (
+    testWidgets('glass mode previews live and survives restart ($mode)', (
       tester,
     ) async {
       SharedPreferences.setMockInitialValues({
@@ -179,158 +177,116 @@ void main() {
       });
       final prefs = await SharedPreferences.getInstance();
       await openSettings(tester, prefs);
-      final slider = find.byKey(const ValueKey('mornye-glass-clarity'));
-      await tester.ensureVisible(slider);
+      final selector = find.byKey(const ValueKey('mornye-glass-mode'));
+      await tester.ensureVisible(selector);
       await tester.pumpAndSettle();
-      await tester.drag(slider, const Offset(160, 0));
-      await tester.pumpAndSettle();
-      expect(tester.widget<Slider>(slider).value, 1);
-      expect(prefs.getDouble(kMornyeGlassClarityKey), 1);
-      final context = tester.element(slider);
-      expect(MornyeTheme.glassClarityOf(context), 1);
       expect(
-        find.byKey(const ValueKey('mornye-glass-clear-performance')),
-        findsOneWidget,
+        ProviderScope.containerOf(
+          tester.element(selector),
+        ).read(mornyeGlassModeProvider),
+        MornyeGlassLevel.liquid,
       );
-      expect(
-        MornyeTheme.fromContext(
-          context,
-          brightness: Brightness.dark,
-        ).extension<MornyeTheme>()!.glassClarity,
-        1,
-      );
-      await tester.pumpWidget(const SizedBox());
-      await openSettings(tester, prefs);
-      expect(tester.widget<Slider>(slider).value, 1);
-      await tester.ensureVisible(slider);
-      await tester.pumpAndSettle();
-      await tester.drag(slider, const Offset(-320, 0));
-      await tester.pumpAndSettle();
-      expect(tester.widget<Slider>(slider).value, 0);
-      expect(prefs.getDouble(kMornyeGlassClarityKey), 0);
-      expect(
-        find.byKey(const ValueKey('mornye-glass-clear-performance')),
-        findsNothing,
-      );
-      expect(tester.takeException(), isNull);
-    });
 
-    testWidgets('glass clarity waits for blur on flat devices ($mode)', (
-      tester,
-    ) async {
-      SharedPreferences.setMockInitialValues({
-        kThemeModeKey: mode.name,
-        kRetiredThemePrefsRemovedKey: true,
-      });
-      final prefs = await SharedPreferences.getInstance();
-      await openSettings(tester, prefs, lowEnd: true);
-      final slider = find.byKey(const ValueKey('mornye-glass-clarity'));
-      final hint = find.byKey(
-        const ValueKey('mornye-glass-clarity-unavailable'),
+      await tester.tap(
+        find.descendant(of: selector, matching: find.text('None')),
       );
-      await tester.ensureVisible(slider);
       await tester.pumpAndSettle();
-      expect(tester.widget<Slider>(slider).onChanged, isNull);
+      expect(prefs.getString(kMornyeGlassModeKey), 'flat');
       expect(
-        find.byKey(const ValueKey('mornye-glass-clear-performance')),
-        findsNothing,
+        ProviderScope.containerOf(
+          tester.element(selector),
+        ).read(mornyeGlassLevelProvider),
+        MornyeGlassLevel.flat,
       );
-      expect(
-        tester.widget<Text>(hint).data,
-        'Glass is opaque on this device. Turn on '
-        '“Always use blur effects” to adjust clarity.',
-      );
-      await tester.drag(slider, const Offset(160, 0));
-      await tester.pumpAndSettle();
-      expect(tester.widget<Slider>(slider).value, kDefaultMornyeGlassClarity);
-      expect(prefs.getDouble(kMornyeGlassClarityKey), isNull);
-
-      final forceBlur = find.text('Always use blur effects');
-      await tester.scrollUntilVisible(
-        forceBlur,
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.pumpAndSettle();
-      await tester.tap(forceBlur);
-      await tester.pumpAndSettle();
-      // The lazily built slider scrolled away; bring it back.
-      await tester.scrollUntilVisible(
-        slider,
-        -200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.pumpAndSettle();
-      expect(hint, findsNothing);
-      expect(tester.widget<Slider>(slider).onChanged, isNotNull);
-      await tester.drag(slider, const Offset(160, 0));
-      await tester.pumpAndSettle();
-      expect(prefs.getDouble(kMornyeGlassClarityKey), 1);
-      expect(tester.takeException(), isNull);
-    });
-
-    testWidgets('glass clarity can override system contrast ($mode)', (
-      tester,
-    ) async {
-      tester.platformDispatcher.accessibilityFeaturesTestValue =
-          const FakeAccessibilityFeatures(highContrast: true);
-      addTearDown(
-        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
-      );
-      SharedPreferences.setMockInitialValues({
-        kThemeModeKey: mode.name,
-        kRetiredThemePrefsRemovedKey: true,
-      });
-      final prefs = await SharedPreferences.getInstance();
-      await openSettings(tester, prefs);
-      final slider = find.byKey(const ValueKey('mornye-glass-clarity'));
-      await tester.ensureVisible(slider);
-      await tester.pumpAndSettle();
-      expect(tester.widget<Slider>(slider).onChanged, isNull);
-      expect(
-        tester
-            .widget<Text>(
-              find.byKey(const ValueKey('mornye-glass-clarity-unavailable')),
-            )
-            .data,
-        'Your system requests increased contrast, so glass stays opaque. '
-        'Turn on “Always use blur effects” to use glass anyway; '
-        'text contrast is preserved.',
-      );
-      final forceBlur = find.text('Always use blur effects');
-      await tester.scrollUntilVisible(
-        forceBlur,
-        200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.pumpAndSettle();
-      await tester.tap(forceBlur);
-      await tester.pumpAndSettle();
-      await tester.scrollUntilVisible(
-        slider,
-        -200,
-        scrollable: find.byType(Scrollable).first,
-      );
-      await tester.pumpAndSettle();
-      expect(tester.widget<Slider>(slider).onChanged, isNotNull);
-      expect(
-        find.byKey(const ValueKey('mornye-glass-clarity-unavailable')),
-        findsNothing,
-      );
-      expect(MediaQuery.highContrastOf(tester.element(slider)), isTrue);
-      expect(find.byType(BackdropFilter), findsWidgets);
-      await tester.drag(slider, const Offset(160, 0));
-      await tester.pumpAndSettle();
-      expect(prefs.getDouble(kMornyeGlassClarityKey), 1);
 
       await tester.pumpWidget(const SizedBox());
       await openSettings(tester, prefs);
-      await tester.ensureVisible(slider);
+      final page = find.byType(AppearanceSettingsPage);
+      expect(
+        ProviderScope.containerOf(
+          tester.element(page),
+        ).read(mornyeGlassModeProvider),
+        MornyeGlassLevel.flat,
+      );
+
+      await tester.ensureVisible(selector);
       await tester.pumpAndSettle();
-      expect(tester.widget<Slider>(slider).onChanged, isNotNull);
-      expect(tester.widget<Slider>(slider).value, 1);
+      await tester.tap(
+        find.descendant(of: selector, matching: find.text('Liquid Glass')),
+      );
+      await tester.pumpAndSettle();
+      expect(prefs.getString(kMornyeGlassModeKey), 'liquid');
+      expect(
+        ProviderScope.containerOf(
+          tester.element(page),
+        ).read(mornyeGlassLevelProvider),
+        MornyeGlassLevel.liquid,
+      );
       expect(tester.takeException(), isNull);
     });
+
+    testWidgets(
+      'glass mode keeps the choice on devices that render flat ($mode)',
+      (tester) async {
+        SharedPreferences.setMockInitialValues({
+          kThemeModeKey: mode.name,
+          kRetiredThemePrefsRemovedKey: true,
+        });
+        final prefs = await SharedPreferences.getInstance();
+        await openSettings(tester, prefs, lowEnd: true);
+        final selector = find.byKey(const ValueKey('mornye-glass-mode'));
+        await tester.ensureVisible(selector);
+        await tester.pumpAndSettle();
+        final container = ProviderScope.containerOf(tester.element(selector));
+        expect(container.read(mornyeGlassLevelProvider), MornyeGlassLevel.flat);
+        expect(
+          container.read(mornyeGlassModeProvider),
+          MornyeGlassLevel.liquid,
+        );
+
+        await tester.tap(
+          find.descendant(of: selector, matching: find.text('None')),
+        );
+        await tester.pumpAndSettle();
+        expect(prefs.getString(kMornyeGlassModeKey), 'flat');
+        expect(container.read(mornyeGlassModeProvider), MornyeGlassLevel.flat);
+        expect(container.read(mornyeGlassLevelProvider), MornyeGlassLevel.flat);
+        expect(tester.takeException(), isNull);
+      },
+    );
+
+    testWidgets(
+      'glass mode explains high contrast without changing the choice ($mode)',
+      (tester) async {
+        tester.platformDispatcher.accessibilityFeaturesTestValue =
+            const FakeAccessibilityFeatures(highContrast: true);
+        addTearDown(
+          tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+        );
+        SharedPreferences.setMockInitialValues({
+          kThemeModeKey: mode.name,
+          kRetiredThemePrefsRemovedKey: true,
+        });
+        final prefs = await SharedPreferences.getInstance();
+        await openSettings(tester, prefs);
+        final selector = find.byKey(const ValueKey('mornye-glass-mode'));
+        await tester.ensureVisible(selector);
+        await tester.pumpAndSettle();
+        final note = find.byKey(const ValueKey('mornye-glass-high-contrast'));
+        expect(
+          tester.widget<Text>(note).data,
+          'High contrast is on, so glass is turned off.',
+        );
+        expect(MediaQuery.highContrastOf(tester.element(selector)), isTrue);
+
+        await tester.tap(
+          find.descendant(of: selector, matching: find.text('None')),
+        );
+        await tester.pumpAndSettle();
+        expect(prefs.getString(kMornyeGlassModeKey), 'flat');
+        expect(tester.takeException(), isNull);
+      },
+    );
 
     testWidgets('Mornye accent updates live and survives restart ($mode)', (
       tester,

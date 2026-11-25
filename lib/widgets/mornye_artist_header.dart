@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:math' as math;
-import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
@@ -13,6 +12,7 @@ import 'package:sistrum/services/shell_navigation_service.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/cached_cover_image.dart';
+import 'package:sistrum/widgets/blurred_cover.dart';
 import 'package:sistrum/widgets/sliver_layout_info_builder.dart';
 
 /// Share the same artwork-derived dark surface while loading and after the
@@ -227,6 +227,7 @@ class MornyeArtistHeader extends StatelessWidget {
     this.listeners,
     this.logoUrl,
     this.badge,
+    this.blurSource,
   });
 
   final String name;
@@ -242,6 +243,10 @@ class MornyeArtistHeader extends StatelessWidget {
   final String? listeners;
   final String? logoUrl;
   final Widget? badge;
+
+  /// The cover the artwork is drawn from, for its blurred copy on collapse.
+  /// Null keeps the artwork sharp.
+  final ImageProvider? blurSource;
 
   // A SliverMainAxisGroup clamps negative overlap, preventing this header from
   // receiving the overscroll used for its stretch animation.
@@ -362,7 +367,11 @@ class MornyeArtistHeader extends StatelessWidget {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  _ArtistCollapsingArtwork(surface: surface, child: artwork),
+                  _ArtistCollapsingArtwork(
+                    surface: surface,
+                    blurSource: blurSource,
+                    child: artwork,
+                  ),
                   Align(
                     alignment: Alignment.bottomCenter,
                     child: Padding(
@@ -464,10 +473,15 @@ class MornyeArtistHeader extends StatelessWidget {
 /// Follow the sliver's actual collapse extent so scrolling back restores the
 /// same artwork immediately, without a timer or rebuilding the discography.
 class _ArtistCollapsingArtwork extends ConsumerWidget {
-  const _ArtistCollapsingArtwork({required this.surface, required this.child});
+  const _ArtistCollapsingArtwork({
+    required this.surface,
+    required this.child,
+    this.blurSource,
+  });
 
   final Color surface;
   final Widget child;
+  final ImageProvider? blurSource;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -487,11 +501,13 @@ class _ArtistCollapsingArtwork extends ConsumerWidget {
       0.88,
       curve: Curves.easeInOut,
     ).transform(collapse);
-    final blur = 18 * Curves.easeOut.transform(collapse);
+    // The blurred copy is Liquid only, and not with reduced motion. It is
+    // drawn over the sharp artwork in the same box, so the framing is the same.
     final blurEnabled =
+        blurSource != null &&
         !MediaQuery.disableAnimationsOf(context) &&
-        // The collapse blur and masked backdrop re-filter on every scroll frame.
         ref.watch(mornyeLiquidGlassProvider);
+    final blurOpacity = Curves.easeOut.transform(collapse);
 
     return ClipRect(
       child: Stack(
@@ -499,37 +515,43 @@ class _ArtistCollapsingArtwork extends ConsumerWidget {
         children: [
           TickerMode(
             enabled: fade < 1,
-            child: ImageFiltered(
-              enabled: blurEnabled && blur > 0 && fade < 1,
-              imageFilter: ImageFilter.blur(
-                sigmaX: blur,
-                sigmaY: blur,
-                tileMode: TileMode.clamp,
-              ),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final height = settings?.maxExtent ?? constraints.maxHeight;
-                  final zoom = height > 0
-                      ? (constraints.maxHeight / height).clamp(
-                          1.0,
-                          double.infinity,
-                        )
-                      : 1.0;
-                  // Stretch the photograph uniformly around its top edge.
-                  // Identity and actions remain outside this transform, moving
-                  // down with the sliver without growing along with the image.
-                  return OverflowBox(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final height = settings?.maxExtent ?? constraints.maxHeight;
+                final zoom = height > 0
+                    ? (constraints.maxHeight / height).clamp(
+                        1.0,
+                        double.infinity,
+                      )
+                    : 1.0;
+                // Stretch the photograph uniformly around its top edge.
+                // Identity and actions remain outside this transform, moving
+                // down with the sliver without growing along with the image.
+                return OverflowBox(
+                  alignment: Alignment.topCenter,
+                  minHeight: height,
+                  maxHeight: height,
+                  child: Transform.scale(
+                    scale: zoom,
                     alignment: Alignment.topCenter,
-                    minHeight: height,
-                    maxHeight: height,
-                    child: Transform.scale(
-                      scale: zoom,
-                      alignment: Alignment.topCenter,
-                      child: RepaintBoundary(child: child),
+                    child: RepaintBoundary(
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          child,
+                          // Fully faded: the sharp artwork is under the fade, so
+                          // the blurred copy is not drawn at all.
+                          if (blurEnabled && fade < 1)
+                            BlurredCoverLayer(
+                              provider: blurSource!,
+                              opacity: blurOpacity,
+                            ),
+                        ],
+                      ),
                     ),
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
           ),
           DecoratedBox(

@@ -14,6 +14,7 @@ import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
 import 'package:sistrum/widgets/mornye_level_slider.dart';
 import 'package:sistrum/widgets/slider_value_header.dart';
+import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 
 class _CountedSettings extends EqualizerSettings {
   _CountedSettings(double preamp, this.serialized) : super(preamp: preamp);
@@ -353,7 +354,7 @@ void main() {
     await tester.pumpAndSettle();
     // The picker sits on an opaque group card.
     expect(
-      find.descendant(of: picker, matching: find.byType(BackdropFilter)),
+      find.descendant(of: picker, matching: find.byType(LiquidGlassLens)),
       findsNothing,
     );
     await tester.tap(

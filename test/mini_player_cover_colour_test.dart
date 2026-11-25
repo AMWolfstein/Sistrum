@@ -29,7 +29,6 @@ Widget _player(
     currentMediaItemProvider.overrideWithBuild((ref, notifier) => items),
     playbackStateProvider.overrideWith((ref) => const Stream.empty()),
     mornyeLiquidGlassProvider.overrideWithValue(false),
-    backdropBlurEnabledProvider.overrideWithValue(false),
     settingsProvider.overrideWith(
       () => FixedSettingsNotifier(AppSettings(playerCoverStyle: coverStyle)),
     ),

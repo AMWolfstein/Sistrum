@@ -137,6 +137,7 @@ class _DesktopScrollArrowsState extends State<DesktopScrollArrows> {
               radius: 14,
               child: MornyeGlassPanel(
                 radius: 14,
+                kind: MornyeGlassKind.control,
                 child: Material(
                   type: MaterialType.transparency,
                   child: InkWell(

@@ -14,11 +14,7 @@ import 'package:sistrum/utils/logger.dart';
 /// detached scene is rasterized once and discarded without presenting a frame.
 class MornyeGlassWarmup {
   static Future<void>? _pending;
-  static bool _ready = false;
   static final _log = AppLogger('MornyeGlass');
-
-  @visibleForTesting
-  static bool get isReady => _ready;
 
   static Future<void> prepare(ui.FlutterView view) {
     if (!ui.ImageFilter.isShaderFilterSupported) return Future<void>.value();
@@ -45,7 +41,6 @@ class MornyeGlassWarmup {
           return;
         }
         await _rasterize(view);
-        _ready = true;
       },
       Priority.idle,
       debugLabel: 'Prepare Mornye glass backdrop',

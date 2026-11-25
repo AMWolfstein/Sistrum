@@ -16,6 +16,7 @@ import 'package:sistrum/theme/app_tokens.dart';
 import 'package:sistrum/utils/adaptive_layout.dart';
 import 'package:sistrum/utils/desktop_platform.dart';
 import 'package:sistrum/utils/file_access.dart';
+import 'package:sistrum/widgets/blurred_cover.dart';
 import 'package:sistrum/widgets/album_detail_header.dart';
 import 'package:sistrum/widgets/collection_scaffold.dart';
 import 'package:sistrum/widgets/desktop/context_menu.dart';
@@ -234,6 +235,9 @@ class _LibraryMixScreenState extends ConsumerState<LibraryMixScreen>
       showTitleListenable: showTitleNotifier,
       background: LibraryMixCover(items: _items, size: 400),
       paletteSource: cover,
+      // The grid's first cover, blurred once and cached (see BlurredCoverCache).
+      blurSource: localCoverBlurSource(cover),
+      titleScrim: true,
       blurAndScrimBackground: cover != null,
       coverBuilder: (context, coverSize) =>
           LibraryMixCover(items: _items, size: coverSize),

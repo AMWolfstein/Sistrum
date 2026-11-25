@@ -74,6 +74,7 @@ class _SongAnalysisSheet extends ConsumerWidget {
     final theme = Theme.of(context);
     return MornyeGlass.navigation(
       blurEnabled: ref.watch(mornyeBlurEnabledProvider),
+      kind: MornyeGlassKind.content,
       child: SafeArea(
         top: false,
         child: Column(

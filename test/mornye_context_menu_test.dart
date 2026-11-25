@@ -6,22 +6,11 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sistrum/models/settings.dart';
-import 'package:sistrum/models/theme_settings.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
-import 'package:sistrum/providers/settings_provider.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/desktop/context_menu.dart';
 import 'package:sistrum/widgets/mornye_context_menu.dart';
-
-class _Settings extends SettingsNotifier {
-  _Settings(this._forceBlur);
-
-  final bool _forceBlur;
-
-  @override
-  AppSettings build() => AppSettings(forceBackdropBlur: _forceBlur);
-}
+import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
@@ -36,11 +25,10 @@ void main() {
     bool reduceMotion = false,
     bool preferAbove = false,
     bool highContrast = false,
-    bool forceBlur = false,
     bool lowEnd = false,
     Color? backgroundColor,
     GlobalKey? capture,
-    double glassClarity = kDefaultMornyeGlassClarity,
+    MornyeGlassLevel glassLevel = MornyeGlassLevel.liquid,
     bool dense = false,
     Color? chromeSurface,
   }) async {
@@ -50,16 +38,12 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          settingsProvider.overrideWith(() => _Settings(forceBlur)),
           lowEndDeviceProvider.overrideWithValue(lowEnd),
-          backdropBlurEnabledProvider.overrideWithValue(false),
+          // The selected mode, so device fallback still applies on low-end runs.
+          mornyeGlassModeProvider.overrideWithValue(glassLevel),
         ],
         child: MaterialApp(
-          theme: MornyeTheme.build(
-            brightness,
-            glassClarity: glassClarity,
-            chromeSurface: chromeSurface,
-          ),
+          theme: MornyeTheme.build(brightness, chromeSurface: chromeSurface),
           builder: (context, child) => RepaintBoundary(
             key: capture,
             child: MediaQuery(
@@ -161,14 +145,14 @@ void main() {
   }))!;
 
   for (final brightness in Brightness.values) {
-    for (final clarity in [0.0, kDefaultMornyeGlassClarity, 1.0]) {
+    for (final level in MornyeGlassLevel.values) {
       for (final background in [
         Colors.white,
         Colors.black,
         const Color(0xff6c3a22),
       ]) {
         testWidgets(
-          'menu labels stay readable over $background ($brightness, clarity: $clarity)',
+          'menu labels stay readable over $background ($brightness, mode: $level)',
           (tester) async {
             final originalDisableShadows = debugDisableShadows;
             debugDisableShadows = false;
@@ -178,7 +162,7 @@ void main() {
                 tester,
                 anchor: const Rect.fromLTWH(330, 144, 44, 44),
                 brightness: brightness,
-                glassClarity: clarity,
+                glassLevel: level,
                 backgroundColor: background,
                 capture: capture,
                 onResult: (_) {},
@@ -255,7 +239,6 @@ void main() {
       addTearDown(tester.view.reset);
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [backdropBlurEnabledProvider.overrideWithValue(false)],
           child: MaterialApp(
             theme: MornyeTheme.build(Brightness.light),
             home: Builder(
@@ -293,7 +276,7 @@ void main() {
     });
   }
 
-  testWidgets('frosted glass still carries the artwork color', (tester) async {
+  testWidgets('glass still carries the artwork color', (tester) async {
     final colors = <Color>[];
     for (final background in [
       const Color(0xff804020),
@@ -365,7 +348,7 @@ void main() {
         tester,
         anchor: const Rect.fromLTWH(330, 144, 44, 44),
         brightness: Brightness.dark,
-        glassClarity: 1,
+        glassLevel: MornyeGlassLevel.liquid,
         backgroundColor: Colors.white,
         chromeSurface: cover,
         capture: capture,
@@ -412,7 +395,7 @@ void main() {
       final theme = MornyeTheme.build(Brightness.dark);
       expect(pixels.single, theme.colorScheme.surfaceContainerHigh);
       expect(
-        find.descendant(of: menu, matching: find.byType(BackdropFilter)),
+        find.descendant(of: menu, matching: find.byType(LiquidGlassLens)),
         findsNothing,
       );
       await tester.tap(find.text('Share'));
@@ -422,17 +405,21 @@ void main() {
     });
   }
 
-  testWidgets('glass override reaches context menu overlays', (tester) async {
+  testWidgets('high contrast keeps context menu glass off in every mode', (
+    tester,
+  ) async {
     await openMenu(
       tester,
       anchor: const Rect.fromLTWH(330, 144, 44, 44),
       brightness: Brightness.dark,
       highContrast: true,
-      forceBlur: true,
       onResult: (_) {},
     );
     final menu = find.byType(MornyeContextMenu);
-    expect(find.byType(BackdropFilter), findsWidgets);
+    expect(
+      find.descendant(of: menu, matching: find.byType(LiquidGlassLens)),
+      findsNothing,
+    );
     expect(MediaQuery.highContrastOf(tester.element(menu)), isTrue);
     await tester.tap(find.text('Share'));
     await tester.pumpAndSettle();

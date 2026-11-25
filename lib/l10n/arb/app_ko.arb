@@ -53,30 +53,27 @@
   "appearanceAccentBlue": "파란색",
   "appearanceAccentPurple": "보라색",
   "appearanceAccentPink": "분홍색",
-  "appearanceGlassClarity": "글래스 투명도",
   "appearanceGlassOutlines": "글래스 윤곽선",
   "appearanceGlassOutlinesSubtitle": "Mornye 글래스 주변에 장식적인 테두리를 표시합니다. 이 기능을 비활성화하면 블러 효과와 굴절 효과는 유지됩니다",
-  "appearanceGlassClaritySubtitle": "Mornye 메뉴와 하단바의 투명도를 조절할 수 있습니다. 텍스트 대비는 유지됩니다",
-  "appearanceGlassTinted": "색조",
-  "appearanceGlassClear": "투명",
-  "appearanceGlassClearPerformance": "매우 투명한 글래스 효과는 전력을 더 많이 사용할 수 있으며, 오래된 기기에서는 화면이 덜 부드럽게 느껴질 수 있습니다. 필요하다면 투명도 수준을 낮추세요",
-  "appearanceGlassClarityBlurOff": "이 기기에서 글래스 효과가 불투명하게 표시됩니다. 투명도를 조절하려면 '{setting}'을 켜세요",
-  "@appearanceGlassClarityBlurOff": {
-    "description": "Shown under the disabled glass clarity slider when the device renders Mornye glass without blur. The placeholder is the name of the force-blur toggle.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
+  "appearanceGlassMode": "유리",
+  "@appearanceGlassMode": {
+    "description": "Title of the glass mode selector in Appearance settings"
   },
-  "appearanceGlassClarityHighContrast": "시스템에서 대비 증가를 요청하여 글래스가 불투명하게 표시됩니다. 그래도 글래스 효과를 사용하려면 ‘{setting}’을 켜세요. 텍스트 대비는 유지됩니다.",
-  "@appearanceGlassClarityHighContrast": {
-    "description": "Explains the system contrast request (which can include medium contrast) and the explicit glass-only override.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
+  "appearanceGlassModeSubtitle": "리퀴드 글래스는 화면을 굴절시키고, 프로스트 글래스는 흐리게 하며, 없음은 단색 표면을 사용합니다.",
+  "@appearanceGlassModeSubtitle": {
+    "description": "Explains the three glass modes under the selector title"
+  },
+  "appearanceGlassLiquid": "리퀴드 글래스",
+  "@appearanceGlassLiquid": {
+    "description": "Option: Liquid Glass, native full optical glass"
+  },
+  "appearanceGlassNone": "없음",
+  "@appearanceGlassNone": {
+    "description": "Option: None, solid surfaces without glass"
+  },
+  "appearanceGlassHighContrast": "고대비가 켜져 있어 유리 효과가 꺼져 있습니다.",
+  "@appearanceGlassHighContrast": {
+    "description": "Shown when the system high-contrast request turns glass off"
   },
   "@@locale": "ko",
   "@@last_modified": "2026-04-28",
@@ -951,14 +948,6 @@
   "downloadAskBeforeDownload": "다운로드 전 확인",
   "@downloadAskBeforeDownload": {
     "description": "Setting - show quality picker"
-  },
-  "appearanceForceBlur": "항상 블러 효과 사용",
-  "@appearanceForceBlur": {
-    "description": "Toggle that forces backdrop blur on even when the device profile disabled it"
-  },
-  "appearanceForceBlurSubtitle": "기본적으로 비활성화된 기기에서도 하단바 블러 효과를 활성화합니다. 성능이 저하될 수 있습니다",
-  "@appearanceForceBlurSubtitle": {
-    "description": "Subtitle for the force-blur toggle"
   },
   "settingsAutoExportFailed": "실패한 다운로드 자동 내보내기",
   "@settingsAutoExportFailed": {
@@ -4432,5 +4421,169 @@
         "type": "String"
       }
     }
+  },
+  "perfHubTitle": "성능 허브",
+  "@perfHubTitle": {
+    "description": "Title of the Performance hub settings page"
+  },
+  "perfHubSubtitle": "이 휴대폰에서 렌더링 측정",
+  "@perfHubSubtitle": {
+    "description": "Subtitle of the Performance hub row in Settings"
+  },
+  "perfHubIntro": "이 기기에서 앱의 프레임 시간을 측정합니다. 데이터는 휴대폰 밖으로 나가지 않습니다. 릴리스 빌드도 가능하지만 시간 측정은 프로필 모드가 더 정확합니다.",
+  "@perfHubIntro": {
+    "description": "Intro card on the Performance hub page: what is measured and the profile-mode note"
+  },
+  "perfHubDisplaySection": "디스플레이",
+  "@perfHubDisplaySection": {
+    "description": "Section header: display refresh rate and frame budget"
+  },
+  "perfHubRefreshRate": "주사율",
+  "@perfHubRefreshRate": {
+    "description": "Row: display refresh rate reported by the system"
+  },
+  "perfHubRateNote": "시스템이 보고한 값입니다. 녹화 중에는 실제 프레임 간격도 측정합니다.",
+  "@perfHubRateNote": {
+    "description": "Subtitle under the refresh rate row: the value is reported and a recording measures the real interval"
+  },
+  "perfHubFrameBudget": "프레임 예산",
+  "@perfHubFrameBudget": {
+    "description": "Row: frame budget (1000 ms divided by the refresh rate), also a results row"
+  },
+  "perfHubRecordingSection": "녹화",
+  "@perfHubRecordingSection": {
+    "description": "Section header: recording controls and live values"
+  },
+  "perfHubStart": "녹화 시작",
+  "@perfHubStart": {
+    "description": "Button: start a frame recording"
+  },
+  "perfHubStop": "중지",
+  "@perfHubStop": {
+    "description": "Button and badge: stop the recording"
+  },
+  "perfHubRecordingHint": "녹화를 시작한 뒤 앱을 사용하세요. 중지할 때까지 다른 화면에서도 배지가 표시됩니다.",
+  "@perfHubRecordingHint": {
+    "description": "Hint under the recording controls when nothing is recording"
+  },
+  "perfHubRecording": "녹화 중",
+  "@perfHubRecording": {
+    "description": "Badge word shown before the elapsed time and frame count while recording"
+  },
+  "perfHubElapsed": "경과 시간",
+  "@perfHubElapsed": {
+    "description": "Live row: elapsed time of the recording"
+  },
+  "perfHubLastFrame": "마지막 프레임, UI / 래스터",
+  "@perfHubLastFrame": {
+    "description": "Live row: the last frame UI (build) and raster durations"
+  },
+  "perfHubOverBudgetSoFar": "지금까지 예산 초과",
+  "@perfHubOverBudgetSoFar": {
+    "description": "Live row: share of kept frames over the frame budget so far"
+  },
+  "perfHubResultsSection": "결과",
+  "@perfHubResultsSection": {
+    "description": "Section header: saved results table"
+  },
+  "perfHubNoResults": "아직 결과가 없습니다. 세션을 녹화하거나 모드를 비교하세요.",
+  "@perfHubNoResults": {
+    "description": "Shown in Results when nothing has been recorded yet"
+  },
+  "perfHubCompareSection": "모드 비교",
+  "@perfHubCompareSection": {
+    "description": "Section header: guided comparison of the three glass modes"
+  },
+  "perfHubAutoHint": "홈, 보관함, 노래, 아티스트, 검색을 8000px/초로 스크롤합니다. Liquid, 그다음 None 순서입니다. 끝나면 선택한 모드로 돌아갑니다.",
+  "@perfHubAutoHint": {
+    "description": "Explains the automatic measurement: the screens, the speed and the modes"
+  },
+  "perfHubAutoRunButton": "자동 측정 실행",
+  "@perfHubAutoRunButton": {
+    "description": "Button: starts the automatic measurement"
+  },
+  "perfHubAutoNoData": "이 화면에는 데이터가 없습니다",
+  "@perfHubAutoNoData": {
+    "description": "Skip reason: the screen has no data to measure"
+  },
+  "perfHubAutoNoScroll": "스크롤할 내용이 없습니다",
+  "@perfHubAutoNoScroll": {
+    "description": "Skip reason: the screen has nothing to scroll"
+  },
+  "perfHubAutoNoScreen": "화면에 접근할 수 없습니다",
+  "@perfHubAutoNoScreen": {
+    "description": "Skip reason: the screen cannot be reached"
+  },
+  "perfHubCompareWarmup": "모드를 바꾸면 글래스 셰이더가 다시 빌드되어 각 모드의 처음 몇 초가 편향됩니다. 첫 구간 전에 몇 초 스크롤하거나 준비 실행을 버리세요.",
+  "perfHubJankUnreliable": "시스템이 주사율을 보고하지 않아 프레임 예산은 측정한 프레임 간격을 사용합니다. 예산 초과 수치는 신뢰할 수 없습니다.",
+  "perfHubTooFewFrames": "기록된 프레임이 너무 적습니다: 녹화하는 동안 계속 스크롤하거나 상호작용하세요",
+  "perfHubModeChanged": "이 녹화 중에 유리 모드가 변경되었습니다. 결과는 녹화를 시작했을 때의 모드를 보여 줍니다.",
+  "perfHubCompareHint": "Liquid, None 순서로 각각 {seconds}초 동안 스크롤하세요. 끝나면 선택했던 모드로 돌아갑니다.",
+  "@perfHubCompareHint": {
+    "description": "Explains the guided comparison; {seconds} is the scroll time per mode"
+  },
+  "perfHubCompareButton": "모드 비교",
+  "@perfHubCompareButton": {
+    "description": "Button: start the guided comparison"
+  },
+  "perfHubCompareStep": "지금 {mode}에서 스크롤: {seconds}초 남음",
+  "@perfHubCompareStep": {
+    "description": "Shown while a comparison step runs; {mode} is the glass mode name and {seconds} the seconds left"
+  },
+  "perfHubExportSection": "내보내기",
+  "@perfHubExportSection": {
+    "description": "Section header: copy results"
+  },
+  "perfHubCopyText": "텍스트로 복사",
+  "@perfHubCopyText": {
+    "description": "Button: copy the last results as readable text"
+  },
+  "perfHubCopyJson": "JSON으로 복사",
+  "@perfHubCopyJson": {
+    "description": "Button: copy the last results as JSON"
+  },
+  "perfHubCopied": "클립보드에 복사됨",
+  "@perfHubCopied": {
+    "description": "Snackbar after copying results"
+  },
+  "perfHubUi": "UI",
+  "@perfHubUi": {
+    "description": "Metric prefix: UI thread (build) timings"
+  },
+  "perfHubRaster": "래스터",
+  "@perfHubRaster": {
+    "description": "Metric prefix: raster thread timings"
+  },
+  "perfHubRowRenderer": "실제 렌더러",
+  "@perfHubRowRenderer": {
+    "description": "Results row: the glass renderer actually used after device fallback"
+  },
+  "perfHubRowFrames": "프레임",
+  "@perfHubRowFrames": {
+    "description": "Results and live row: number of frames counted"
+  },
+  "perfHubRowJank": "예산 초과 (끊김)",
+  "@perfHubRowJank": {
+    "description": "Results row: share of frames over the budget (jank)"
+  },
+  "perfHubRowReported": "주사율 (보고값)",
+  "@perfHubRowReported": {
+    "description": "Results row: refresh rate reported by the system"
+  },
+  "perfHubRowMeasured": "주사율 (측정값)",
+  "@perfHubRowMeasured": {
+    "description": "Results row: refresh rate measured from frame intervals"
+  },
+  "perfHubRowAndroid": "Android",
+  "@perfHubRowAndroid": {
+    "description": "Results row: Android version of the device"
+  },
+  "perfHubRowApp": "앱 버전",
+  "@perfHubRowApp": {
+    "description": "Results row: app version and build"
+  },
+  "perfHubNotAvailable": "사용할 수 없음",
+  "@perfHubNotAvailable": {
+    "description": "Value shown when the app cannot measure a figure"
   }
 }

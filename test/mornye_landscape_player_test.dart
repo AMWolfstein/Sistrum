@@ -9,6 +9,7 @@ import 'package:sistrum/l10n/l10n.dart';
 import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mornye_landscape_player.dart';
+import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 
 void main() {
   Future<void> pumpPlayer(
@@ -28,8 +29,8 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          lowEndDeviceProvider.overrideWithValue(true),
-          backdropBlurEnabledProvider.overrideWithValue(blur),
+          // Low-end devices render flat glass, so the glass case is not low-end.
+          lowEndDeviceProvider.overrideWithValue(!blur),
         ],
         child: MaterialApp(
           builder: (context, child) => MediaQuery(
@@ -184,7 +185,7 @@ void main() {
       // A longer opacity fade clears the footer on every GPU, without three
       // overlapping backdrop filters over the moving lyric content.
       expect(transitionContrast, lessThan(110));
-      expect(find.byType(BackdropFilter), findsNothing);
+      expect(find.byType(LiquidGlassLens), findsNothing);
 
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();

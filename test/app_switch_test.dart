@@ -3,10 +3,12 @@ import 'dart:ui' show SemanticsAction;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sistrum/providers/runtime_profile_provider.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/app_switch.dart';
 import 'package:sistrum/widgets/settings_group.dart';
+import 'package:liquid_glass_easy/liquid_glass_easy.dart';
 
 void main() {
   Future<void> pumpSwitch(
@@ -14,8 +16,12 @@ void main() {
     required Widget Function(StateSetter setState) builder,
     bool reduceMotion = false,
   }) async {
+    // The plain switch is what None draws; Liquid draws the package switch.
     await tester.pumpWidget(
       ProviderScope(
+        overrides: [
+          mornyeGlassLevelProvider.overrideWithValue(MornyeGlassLevel.flat),
+        ],
         child: MaterialApp(
           theme: MornyeTheme.build(Brightness.light),
           home: MediaQuery(
@@ -34,38 +40,41 @@ void main() {
     await tester.pumpAndSettle(const Duration(milliseconds: 16));
   }
 
-  testWidgets('glass switch supports tap, keyboard and accessible activation', (
-    tester,
-  ) async {
-    var value = false;
-    final changes = <bool>[];
-    await pumpSwitch(
-      tester,
-      builder: (setState) => AppSwitch(
-        value: value,
-        semanticLabel: 'Example setting',
-        onChanged: (next) {
-          changes.add(next);
-          setState(() => value = next);
-        },
-      ),
-    );
+  testWidgets(
+    'the plain switch supports tap, keyboard and accessible activation',
+    (tester) async {
+      var value = false;
+      final changes = <bool>[];
+      await pumpSwitch(
+        tester,
+        builder: (setState) => AppSwitch(
+          value: value,
+          semanticLabel: 'Example setting',
+          onChanged: (next) {
+            changes.add(next);
+            setState(() => value = next);
+          },
+        ),
+      );
 
-    await tester.tap(find.byType(AppSwitch));
-    await tester.pumpAndSettle(const Duration(milliseconds: 16));
-    expect(changes, [true]);
+      await tester.tap(find.byType(AppSwitch));
+      await tester.pumpAndSettle(const Duration(milliseconds: 16));
+      expect(changes, [true]);
 
-    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
-    await tester.sendKeyEvent(LogicalKeyboardKey.space);
-    await tester.pumpAndSettle(const Duration(milliseconds: 16));
-    expect(changes, [true, false]);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pumpAndSettle(const Duration(milliseconds: 16));
+      expect(changes, [true, false]);
 
-    final node = tester.getSemantics(find.bySemanticsLabel('Example setting'));
-    node.owner!.performAction(node.id, SemanticsAction.tap);
-    await tester.pumpAndSettle(const Duration(milliseconds: 16));
-    expect(changes, [true, false, true]);
-    expect(tester.takeException(), isNull);
-  });
+      final node = tester.getSemantics(
+        find.bySemanticsLabel('Example setting'),
+      );
+      node.owner!.performAction(node.id, SemanticsAction.tap);
+      await tester.pumpAndSettle(const Duration(milliseconds: 16));
+      expect(changes, [true, false, true]);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('disabled glass switch has no toggle action', (tester) async {
     await pumpSwitch(
@@ -78,7 +87,7 @@ void main() {
     );
     final node = tester.getSemantics(find.bySemanticsLabel('Disabled setting'));
     expect(node.getSemanticsData().hasAction(SemanticsAction.tap), isFalse);
-    expect(find.byType(BackdropFilter), findsNothing);
+    expect(find.byType(LiquidGlassLens), findsNothing);
     expect(tester.takeException(), isNull);
   });
 
@@ -114,7 +123,7 @@ void main() {
                 );
         },
       );
-      expect(find.byType(BackdropFilter), findsNothing);
+      expect(find.byType(LiquidGlassLens), findsNothing);
       await tester.tap(find.text('Example setting'));
       await tester.pumpAndSettle();
       expect(changes, [true]);

@@ -11,7 +11,7 @@ import 'package:sistrum/services/secure_storage_options.dart';
 import 'package:sistrum/utils/file_access.dart';
 import 'package:sistrum/utils/logger.dart';
 
-const _settingsKey = 'app_settings';
+const kAppSettingsKey = 'app_settings';
 const _settingsCorruptBackupKey = 'app_settings_corrupt_backup';
 const _migrationVersionKey = 'settings_migration_version';
 const _currentMigrationVersion = 16;
@@ -36,12 +36,12 @@ final initialSettingsProvider = Provider<AppSettings>(
 /// user explicitly repairs or changes the destination.
 
 bool hasPersistedAppSettings(SharedPreferences prefs) {
-  final rawSettings = prefs.getString(_settingsKey);
+  final rawSettings = prefs.getString(kAppSettingsKey);
   return rawSettings != null && rawSettings.isNotEmpty;
 }
 
 AppSettings loadBootstrapSettings(SharedPreferences prefs) {
-  final rawSettings = prefs.getString(_settingsKey);
+  final rawSettings = prefs.getString(kAppSettingsKey);
   if (rawSettings == null || rawSettings.isEmpty) return const AppSettings();
   try {
     final decoded = jsonDecode(rawSettings);
@@ -72,21 +72,21 @@ AppSettings resetInstallationBoundSettings(AppSettings settings) {
 }
 
 Future<void> resetRestoredInstallationSettings(SharedPreferences prefs) async {
-  final rawSettings = prefs.getString(_settingsKey);
+  final rawSettings = prefs.getString(kAppSettingsKey);
   if (rawSettings == null || rawSettings.isEmpty) return;
 
   try {
     final decoded = jsonDecode(rawSettings);
     if (decoded is! Map) {
-      await prefs.remove(_settingsKey);
+      await prefs.remove(kAppSettingsKey);
       return;
     }
     final restored = AppSettings.fromJson(Map<String, dynamic>.from(decoded));
     final sanitized = resetInstallationBoundSettings(restored);
-    await prefs.setString(_settingsKey, jsonEncode(sanitized.toJson()));
+    await prefs.setString(kAppSettingsKey, jsonEncode(sanitized.toJson()));
   } catch (e) {
     _log.w('Failed to sanitize restored settings; resetting to defaults: $e');
-    await prefs.remove(_settingsKey);
+    await prefs.remove(kAppSettingsKey);
   }
 }
 
@@ -128,7 +128,7 @@ class SettingsNotifier extends Notifier<AppSettings> {
 
   Future<void> _loadSettings() async {
     final prefs = await _prefs;
-    final rawSettings = prefs.getString(_settingsKey);
+    final rawSettings = prefs.getString(kAppSettingsKey);
     if (rawSettings != null) {
       AppSettings? loaded;
       try {
@@ -141,7 +141,7 @@ class SettingsNotifier extends Notifier<AppSettings> {
         _log.e('Failed to load settings, resetting to defaults: $e', e, stack);
         try {
           await prefs.setString(_settingsCorruptBackupKey, rawSettings);
-          await prefs.remove(_settingsKey);
+          await prefs.remove(kAppSettingsKey);
         } catch (backupError) {
           _log.w('Failed to backup corrupt settings: $backupError');
         }
@@ -209,7 +209,7 @@ class SettingsNotifier extends Notifier<AppSettings> {
         final jsonToWrite = _pendingSettingsJson;
         _saveQueued = false;
         if (jsonToWrite != null) {
-          await prefs.setString(_settingsKey, jsonToWrite);
+          await prefs.setString(kAppSettingsKey, jsonToWrite);
         }
       } while (_saveQueued);
     } catch (e) {
@@ -513,7 +513,7 @@ class SettingsNotifier extends Notifier<AppSettings> {
         _saveQueued = false;
         final completed = state.copyWith(isFirstLaunch: false);
         if (!await prefs.setString(
-          _settingsKey,
+          kAppSettingsKey,
           jsonEncode(completed.toJson()),
         )) {
           throw StateError('Could not save completed setup');
@@ -543,9 +543,6 @@ class SettingsNotifier extends Notifier<AppSettings> {
 
   void setSwipeToQueue(bool enabled) =>
       _commit(state.copyWith(swipeToQueue: enabled));
-
-  void setForceBackdropBlur(bool enabled) =>
-      _commit(state.copyWith(forceBackdropBlur: enabled));
 
   void setInterfaceScale(double scale) =>
       _commit(state.copyWith(interfaceScale: interfaceScaleFromJson(scale)));

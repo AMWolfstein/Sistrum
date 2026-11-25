@@ -19,7 +19,6 @@ import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mini_player.dart';
 import 'package:sistrum/widgets/mornye_bottom_bar.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
-import 'package:sistrum/widgets/mornye_liquid_backdrop.dart';
 
 class _Settings extends SettingsNotifier {
   @override
@@ -161,12 +160,11 @@ void main() {
       await tester.pump();
     }
 
-    for (final (brightness, clarity, outlines) in [
-      (Brightness.dark, 0.6, true),
-      (Brightness.dark, 1.0, true),
-      (Brightness.light, 0.75, true),
-      (Brightness.light, 0.75, false),
-      (Brightness.dark, 0.75, false),
+    for (final (brightness, level, outlines) in [
+      (Brightness.dark, MornyeGlassLevel.liquid, true),
+      (Brightness.light, MornyeGlassLevel.liquid, true),
+      (Brightness.light, MornyeGlassLevel.liquid, false),
+      (Brightness.dark, MornyeGlassLevel.flat, false),
     ]) {
       chrome.expand();
       await tester.pumpWidget(
@@ -182,14 +180,10 @@ void main() {
             musicPlayerControllerProvider.overrideWithValue(
               MusicPlayerController(runtime: runtime),
             ),
-            mornyeGlassLevelProvider.overrideWithValue(MornyeGlassLevel.liquid),
+            mornyeGlassLevelProvider.overrideWithValue(level),
           ],
           child: MaterialApp(
-            theme: MornyeTheme.build(
-              brightness,
-              glassClarity: clarity,
-              glassOutlines: outlines,
-            ),
+            theme: MornyeTheme.build(brightness, glassOutlines: outlines),
             locale: const Locale('en'),
             localizationsDelegates: AppLocalizations.localizationsDelegates,
             supportedLocales: AppLocalizations.supportedLocales,
@@ -245,21 +239,15 @@ void main() {
           ),
         ),
       );
-      await tester.runAsync(() async {
-        await LiquidGlassShaders.ensureLoaded();
-        await ui.FragmentProgram.fromAsset(
-          'assets/shaders/mornye_selection_mask.frag',
-        );
-      });
+      await tester.runAsync(LiquidGlassShaders.ensureLoaded);
       await wait(600);
-      if (Platform.isAndroid && clarity == 0.6) {
+      if (Platform.isAndroid && level == MornyeGlassLevel.liquid) {
         await binding.convertFlutterSurfaceToImage();
         await tester.pump();
       }
       expect(find.byType(MiniPlayer), findsOneWidget);
       final player = tester.state(find.byType(MiniPlayer));
-      final prefix =
-          '${brightness.name}_clarity_${(clarity * 100).round()}_outlines_$outlines';
+      final prefix = '${brightness.name}_${level.name}_outlines_$outlines';
       final lenses = tester.widgetList<LiquidGlassLens>(
         find.byType(LiquidGlassLens),
       );
@@ -329,34 +317,24 @@ void main() {
         await wait(320);
         await touch.moveTo(Offset.lerp(home, search, 0.5)!);
         await wait(100);
-        final lens = find.byWidgetPredicate(
-          (widget) => widget is MornyeLiquidBackdrop && widget.interaction,
+        // The native thumb lifts while held; the bar's capsule does not scale.
+        final thumb = find.descendant(
+          of: find.byType(MornyeTabBar),
+          matching: find.byType(LiquidGlassMotionPill),
         );
         for (
           var attempt = 0;
-          tester.widget<MornyeLiquidBackdrop>(lens).progress < 1 &&
-              attempt < 20;
+          !tester.widget<LiquidGlassMotionPill>(thumb).active && attempt < 20;
           attempt++
         ) {
           await wait(100);
         }
-        expect(tester.widget<MornyeLiquidBackdrop>(lens).progress, 1);
+        expect(tester.widget<LiquidGlassMotionPill>(thumb).active, isTrue);
         final heldCapsule = capsule();
-        expect(heldCapsule.width, closeTo(restingCapsule.width * 1.025, 0.01));
-        expect(heldCapsule.height, closeTo(restingCapsule.height * 1.06, 0.01));
+        expect(heldCapsule, restingCapsule);
         expect(foreground(), restingForeground);
-        final glass = tester.widget<MornyeLiquidBackdrop>(
-          find.descendant(
-            of: find.byType(MornyeTabBar),
-            matching: find.byWidgetPredicate(
-              (widget) => widget is MornyeLiquidBackdrop && !widget.interaction,
-            ),
-          ),
-        );
-        expect(glass.refractionDepth, closeTo(0.60, 0.001));
         await capture(
           '${prefix}_held_halfway',
-          // The held selection lens refracts the bar, so it reads alone.
           reads: 2,
           details: {
             'restingCapsule': bounds(restingCapsule),
@@ -365,7 +343,6 @@ void main() {
               for (final entry in restingForeground.entries)
                 entry.key: bounds(entry.value),
             },
-            'heldRefractionDepth': glass.refractionDepth,
           },
         );
       } finally {

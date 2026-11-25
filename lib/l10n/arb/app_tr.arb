@@ -53,30 +53,27 @@
   "appearanceAccentBlue": "Mavi",
   "appearanceAccentPurple": "Mor",
   "appearanceAccentPink": "Pembe",
-  "appearanceGlassClarity": "Cam netliği",
   "appearanceGlassOutlines": "Cam kenarlıkları",
   "appearanceGlassOutlinesSubtitle": "Mornye camı çevresinde dekoratif kenarlıklar gösterir. Kapatıldığında bulanıklık ve kırılma korunur.",
-  "appearanceGlassClaritySubtitle": "Mornye menülerinde ve gezinmede saydamlığı ayarlayın. Metin kontrastı korunur.",
-  "appearanceGlassTinted": "Renkli",
-  "appearanceGlassClear": "Şeffaf",
-  "appearanceGlassClearPerformance": "Çok şeffaf cam, eski cihazlarda daha fazla güç tüketebilir ve daha az akıcı hissettirebilir. Gerekirse netliği düşürün.",
-  "appearanceGlassClarityBlurOff": "Bu cihazda cam opak. Netliği ayarlamak için \"{setting}\" seçeneğini açın.",
-  "@appearanceGlassClarityBlurOff": {
-    "description": "Shown under the disabled glass clarity slider when the device renders Mornye glass without blur. The placeholder is the name of the force-blur toggle.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
+  "appearanceGlassMode": "Cam",
+  "@appearanceGlassMode": {
+    "description": "Title of the glass mode selector in Appearance settings"
   },
-  "appearanceGlassClarityHighContrast": "Sisteminiz daha yüksek kontrast istiyor, bu nedenle cam opak kalıyor. Yine de cam kullanmak için \"{setting}\" seçeneğini açın; metin kontrastı korunur.",
-  "@appearanceGlassClarityHighContrast": {
-    "description": "Explains the system contrast request (which can include medium contrast) and the explicit glass-only override.",
-    "placeholders": {
-      "setting": {
-        "type": "String"
-      }
-    }
+  "appearanceGlassModeSubtitle": "Sıvı Cam sayfayı kırar, Buzlu Cam onu yumuşatır, Yok ise düz yüzeyler kullanır.",
+  "@appearanceGlassModeSubtitle": {
+    "description": "Explains the three glass modes under the selector title"
+  },
+  "appearanceGlassLiquid": "Sıvı Cam",
+  "@appearanceGlassLiquid": {
+    "description": "Option: Liquid Glass, native full optical glass"
+  },
+  "appearanceGlassNone": "Yok",
+  "@appearanceGlassNone": {
+    "description": "Option: None, solid surfaces without glass"
+  },
+  "appearanceGlassHighContrast": "Yüksek kontrast açık olduğu için cam kapalı.",
+  "@appearanceGlassHighContrast": {
+    "description": "Shown when the system high-contrast request turns glass off"
   },
   "@@locale": "tr",
   "@@last_modified": "2026-04-28",
@@ -951,14 +948,6 @@
   "downloadAskBeforeDownload": "İndirmeden Önce Sor",
   "@downloadAskBeforeDownload": {
     "description": "Setting - show quality picker"
-  },
-  "appearanceForceBlur": "Her zaman bulanıklık efektlerini kullan",
-  "@appearanceForceBlur": {
-    "description": "Toggle that forces backdrop blur on even when the device profile disabled it"
-  },
-  "appearanceForceBlurSubtitle": "Varsayılan olarak kapalı olan cihazlarda bile gezinme çubuğu bulanıklığını etkinleştirir. Performansı etkileyebilir.",
-  "@appearanceForceBlurSubtitle": {
-    "description": "Subtitle for the force-blur toggle"
   },
   "settingsAutoExportFailed": "Başarısız indirmeleri otomatik dışa aktar",
   "@settingsAutoExportFailed": {
@@ -4432,5 +4421,169 @@
         "type": "String"
       }
     }
+  },
+  "perfHubTitle": "Performans merkezi",
+  "@perfHubTitle": {
+    "description": "Title of the Performance hub settings page"
+  },
+  "perfHubSubtitle": "Bu telefonda çizimi ölç",
+  "@perfHubSubtitle": {
+    "description": "Subtitle of the Performance hub row in Settings"
+  },
+  "perfHubIntro": "Bu uygulamanın kare sürelerini bu cihazda ölçer. Hiçbir veri telefondan çıkmaz. Sürüm derlemeleri çalışır, ancak zamanlama için profil modu daha doğrudur.",
+  "@perfHubIntro": {
+    "description": "Intro card on the Performance hub page: what is measured and the profile-mode note"
+  },
+  "perfHubDisplaySection": "Ekran",
+  "@perfHubDisplaySection": {
+    "description": "Section header: display refresh rate and frame budget"
+  },
+  "perfHubRefreshRate": "Yenileme hızı",
+  "@perfHubRefreshRate": {
+    "description": "Row: display refresh rate reported by the system"
+  },
+  "perfHubRateNote": "Sistem tarafından bildirilir. Bir kayıt, gerçek kare aralığını da ölçer.",
+  "@perfHubRateNote": {
+    "description": "Subtitle under the refresh rate row: the value is reported and a recording measures the real interval"
+  },
+  "perfHubFrameBudget": "Kare bütçesi",
+  "@perfHubFrameBudget": {
+    "description": "Row: frame budget (1000 ms divided by the refresh rate), also a results row"
+  },
+  "perfHubRecordingSection": "Kayıt",
+  "@perfHubRecordingSection": {
+    "description": "Section header: recording controls and live values"
+  },
+  "perfHubStart": "Kaydı başlat",
+  "@perfHubStart": {
+    "description": "Button: start a frame recording"
+  },
+  "perfHubStop": "Durdur",
+  "@perfHubStop": {
+    "description": "Button and badge: stop the recording"
+  },
+  "perfHubRecordingHint": "Bir kayıt başlatın ve uygulamayı kullanın. Durdurana kadar, diğer sayfalarda bile bir rozet ekranda kalır.",
+  "@perfHubRecordingHint": {
+    "description": "Hint under the recording controls when nothing is recording"
+  },
+  "perfHubRecording": "Kayıt",
+  "@perfHubRecording": {
+    "description": "Badge word shown before the elapsed time and frame count while recording"
+  },
+  "perfHubElapsed": "Geçen süre",
+  "@perfHubElapsed": {
+    "description": "Live row: elapsed time of the recording"
+  },
+  "perfHubLastFrame": "Son kare, UI / raster",
+  "@perfHubLastFrame": {
+    "description": "Live row: the last frame UI (build) and raster durations"
+  },
+  "perfHubOverBudgetSoFar": "Şimdiye kadar bütçe aşımı",
+  "@perfHubOverBudgetSoFar": {
+    "description": "Live row: share of kept frames over the frame budget so far"
+  },
+  "perfHubResultsSection": "Sonuçlar",
+  "@perfHubResultsSection": {
+    "description": "Section header: saved results table"
+  },
+  "perfHubNoResults": "Henüz sonuç yok. Bir oturum kaydedin veya modları karşılaştırın.",
+  "@perfHubNoResults": {
+    "description": "Shown in Results when nothing has been recorded yet"
+  },
+  "perfHubCompareSection": "Modları karşılaştır",
+  "@perfHubCompareSection": {
+    "description": "Section header: guided comparison of the three glass modes"
+  },
+  "perfHubAutoHint": "Ana sayfa, Kitaplık, Şarkılar, Sanatçı ve Arama ekranlarını 8000 px/sn hızla Liquid'de, sonra None'da kaydırır. Seçilen mod sonunda geri yüklenir.",
+  "@perfHubAutoHint": {
+    "description": "Explains the automatic measurement: the screens, the speed and the modes"
+  },
+  "perfHubAutoRunButton": "Otomatik ölçümü başlat",
+  "@perfHubAutoRunButton": {
+    "description": "Button: starts the automatic measurement"
+  },
+  "perfHubAutoNoData": "Bu ekranda veri yok",
+  "@perfHubAutoNoData": {
+    "description": "Skip reason: the screen has no data to measure"
+  },
+  "perfHubAutoNoScroll": "Kaydırılacak bir şey yok",
+  "@perfHubAutoNoScroll": {
+    "description": "Skip reason: the screen has nothing to scroll"
+  },
+  "perfHubAutoNoScreen": "Ekrana ulaşılamıyor",
+  "@perfHubAutoNoScreen": {
+    "description": "Skip reason: the screen cannot be reached"
+  },
+  "perfHubCompareWarmup": "Mod değiştirmek cam gölgelendiricilerini yeniden oluşturur; bu yüzden her modun ilk saniyeleri yanlı olur. İlk pencereden önce birkaç saniye kaydırın veya bir ısınma çalıştırmasını atın.",
+  "perfHubJankUnreliable": "Sistem yenileme hızı bildirmiyor; bu yüzden kare bütçesi ölçülen kare aralığını kullanır. Bütçe aşımı değerleri güvenilir değildir.",
+  "perfHubTooFewFrames": "Çok az kare kaydedildi: kayıt sırasında kaydırmaya veya etkileşime devam edin",
+  "perfHubModeChanged": "Bu kayıt sırasında cam modu değiştirildi. Sonuç, kaydın başladığı modu gösterir.",
+  "perfHubCompareHint": "Liquid, sonra None modunda {seconds} saniye kaydırın. Sonunda seçtiğiniz mod geri yüklenir.",
+  "@perfHubCompareHint": {
+    "description": "Explains the guided comparison; {seconds} is the scroll time per mode"
+  },
+  "perfHubCompareButton": "Modları karşılaştır",
+  "@perfHubCompareButton": {
+    "description": "Button: start the guided comparison"
+  },
+  "perfHubCompareStep": "Şimdi {mode} modunda kaydırın: {seconds} sn kaldı",
+  "@perfHubCompareStep": {
+    "description": "Shown while a comparison step runs; {mode} is the glass mode name and {seconds} the seconds left"
+  },
+  "perfHubExportSection": "Dışa aktar",
+  "@perfHubExportSection": {
+    "description": "Section header: copy results"
+  },
+  "perfHubCopyText": "Metin olarak kopyala",
+  "@perfHubCopyText": {
+    "description": "Button: copy the last results as readable text"
+  },
+  "perfHubCopyJson": "JSON olarak kopyala",
+  "@perfHubCopyJson": {
+    "description": "Button: copy the last results as JSON"
+  },
+  "perfHubCopied": "Panoya kopyalandı",
+  "@perfHubCopied": {
+    "description": "Snackbar after copying results"
+  },
+  "perfHubUi": "UI",
+  "@perfHubUi": {
+    "description": "Metric prefix: UI thread (build) timings"
+  },
+  "perfHubRaster": "Raster",
+  "@perfHubRaster": {
+    "description": "Metric prefix: raster thread timings"
+  },
+  "perfHubRowRenderer": "Etkin oluşturucu",
+  "@perfHubRowRenderer": {
+    "description": "Results row: the glass renderer actually used after device fallback"
+  },
+  "perfHubRowFrames": "Kare",
+  "@perfHubRowFrames": {
+    "description": "Results and live row: number of frames counted"
+  },
+  "perfHubRowJank": "Bütçe aşımı (takılma)",
+  "@perfHubRowJank": {
+    "description": "Results row: share of frames over the budget (jank)"
+  },
+  "perfHubRowReported": "Yenileme hızı, bildirilen",
+  "@perfHubRowReported": {
+    "description": "Results row: refresh rate reported by the system"
+  },
+  "perfHubRowMeasured": "Yenileme hızı, ölçülen",
+  "@perfHubRowMeasured": {
+    "description": "Results row: refresh rate measured from frame intervals"
+  },
+  "perfHubRowAndroid": "Android",
+  "@perfHubRowAndroid": {
+    "description": "Results row: Android version of the device"
+  },
+  "perfHubRowApp": "Uygulama sürümü",
+  "@perfHubRowApp": {
+    "description": "Results row: app version and build"
+  },
+  "perfHubNotAvailable": "Kullanılamıyor",
+  "@perfHubNotAvailable": {
+    "description": "Value shown when the app cannot measure a figure"
   }
 }

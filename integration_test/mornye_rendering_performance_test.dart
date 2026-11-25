@@ -1,8 +1,8 @@
+import 'dart:ui' as ui;
 import 'dart:async';
 import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
-import 'dart:ui' as ui;
 
 import 'package:audio_service/audio_service.dart';
 import 'package:material_ui/material_ui.dart';
@@ -19,19 +19,21 @@ import 'package:sistrum/theme/mornye_theme.dart';
 import 'package:sistrum/widgets/mini_player.dart';
 import 'package:sistrum/widgets/mornye_bottom_bar.dart';
 import 'package:sistrum/widgets/mornye_chrome.dart';
-import 'package:sistrum/widgets/mornye_liquid_backdrop.dart';
 
 import 'performance_probe.dart';
 
 void main() {
   final binding = PerformanceTestBinding.ensureInitialized();
   const focused = bool.fromEnvironment('MORNYE_GLASS_FOCUS');
-  for (final clarity in focused ? [0.6, 1.0] : [0.0, 0.1, 0.6, 1.0]) {
-    testWidgets('Mornye real rendering at clarity $clarity', (tester) async {
+  for (final level
+      in focused
+          ? [MornyeGlassLevel.flat, MornyeGlassLevel.liquid]
+          : MornyeGlassLevel.values) {
+    testWidgets('Mornye real rendering in ${level.name} mode', (tester) async {
       final probe = PerformanceProbe(
         binding,
         tester,
-        suite: 'mornye_chrome_${(clarity * 100).round()}',
+        suite: 'mornye_chrome_${level.name}',
       );
       final fixture = (await tester.runAsync(_Fixture.create))!;
       addTearDown(() async {
@@ -39,12 +41,9 @@ void main() {
         await tester.runAsync(() => binding.endOfFrame);
         await fixture.dispose();
       });
-      await tester.pumpWidget(fixture.app(clarity));
+      await tester.pumpWidget(fixture.app(level));
       await tester.runAsync(() async {
         await LiquidGlassShaders.ensureLoaded();
-        await ui.FragmentProgram.fromAsset(
-          'assets/shaders/mornye_selection_mask.frag',
-        );
         await probe.wait(const Duration(milliseconds: 600));
       });
       expect(find.byType(MornyeBottomBar), findsOneWidget);
@@ -91,8 +90,8 @@ void main() {
       }
       expect(fixture.activeTab.value, 0);
 
-      if (clarity > 0.2) {
-        await probe.measure('held_lens_drag', () async {
+      if (level == MornyeGlassLevel.liquid) {
+        await probe.measure('native_thumb_press', () async {
           final tabs = find.byType(MornyeTabBar);
           final home = tester.getCenter(
             find.descendant(of: tabs, matching: find.text('Home')).first,
@@ -102,21 +101,7 @@ void main() {
           );
           final gesture = await tester.startGesture(home);
           await probe.wait(const Duration(milliseconds: 280));
-          final lens = find.byWidgetPredicate(
-            (widget) => widget is MornyeLiquidBackdrop && widget.interaction,
-          );
-          if (ui.ImageFilter.isShaderFilterSupported) {
-            // Await the final painted pose even if the emulator delays a frame.
-            for (
-              var attempt = 0;
-              tester.widget<MornyeLiquidBackdrop>(lens).progress < 1 &&
-                  attempt < 20;
-              attempt++
-            ) {
-              await probe.wait(const Duration(milliseconds: 100));
-            }
-            expect(tester.widget<MornyeLiquidBackdrop>(lens).progress, 1);
-          }
+          // The native thumb lifts while the finger is down; taps still select.
           for (var step = 1; step <= 60; step++) {
             final fraction = (1 - math.cos(step / 60 * math.pi * 2)) / 2;
             await gesture.moveTo(Offset.lerp(home, search, fraction)!);
@@ -143,8 +128,7 @@ void main() {
       expect(tester.takeException(), isNull);
       await probe.finish(
         metadata: {
-          'glass_clarity': clarity,
-          'glass_level': 'liquid',
+          'glass_level': level.name,
           'focused': focused,
           'tracks': 2000,
           'unique_local_covers': fixture.covers.length,
@@ -224,7 +208,7 @@ class _Fixture {
 
   void setLongTitle(bool value) => media.add(_item(value));
 
-  Widget app(double clarity) => ProviderScope(
+  Widget app(MornyeGlassLevel level) => ProviderScope(
     overrides: [
       settingsProvider.overrideWith(_BenchmarkSettings.new),
       currentMediaItemProvider.overrideWithBuild((ref, notifier) async* {
@@ -234,11 +218,10 @@ class _Fixture {
       playbackStateProvider.overrideWith((ref) => const Stream.empty()),
       musicPlayerControllerProvider.overrideWithValue(MusicPlayerController()),
       lowEndDeviceProvider.overrideWithValue(false),
-      backdropBlurEnabledProvider.overrideWithValue(true),
-      mornyeGlassLevelProvider.overrideWithValue(MornyeGlassLevel.liquid),
+      mornyeGlassLevelProvider.overrideWithValue(level),
     ],
     child: MaterialApp(
-      theme: MornyeTheme.build(Brightness.dark, glassClarity: clarity),
+      theme: MornyeTheme.build(Brightness.dark),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(
