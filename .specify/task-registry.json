@@ -1,8 +1,19 @@
 {
-  "version": 1,
-  "next_mission": 1,
-  "next_tor": 1,
-  "next_completion": 1,
   "missions": {},
-  "tasks": {}
+  "next_completion": 1,
+  "next_mission": 1,
+  "next_tor": 2,
+  "tasks": {
+    "TOR001": {
+      "completion": null,
+      "final": false,
+      "kind": "TOR",
+      "mission": null,
+      "nonce": "ebe2887e3f4344a2a0a9e7789a77f087",
+      "record": ".specify/quick-tasks/TOR001.md",
+      "status": "reserved",
+      "title": "Import Mornye source v5.4.5"
+    }
+  },
+  "version": 1
 }

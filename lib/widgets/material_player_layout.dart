@@ -1,0 +1,457 @@
+import 'dart:math' as math;
+
+import 'package:audio_service/audio_service.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:mornye/controllers/clickable_metadata.dart';
+import 'package:mornye/controllers/player_metadata_controller.dart';
+import 'package:mornye/providers/music_player_provider.dart';
+import 'package:mornye/providers/settings_provider.dart';
+import 'package:mornye/routes/now_playing_route.dart';
+import 'package:mornye/theme/app_motion.dart';
+import 'package:mornye/utils/playback_seek_preview.dart';
+import 'package:mornye/widgets/player_artwork.dart';
+import 'package:mornye/widgets/player_compact_bar.dart';
+import 'package:mornye/widgets/player_gesture_regions.dart';
+import 'package:mornye/widgets/player_lyric_preview.dart';
+import 'package:mornye/widgets/player_lyrics_controls.dart';
+import 'package:mornye/widgets/player_metadata_title.dart';
+import 'package:mornye/widgets/playback_source_label.dart';
+import 'package:mornye/widgets/player_playback_controls.dart';
+import 'package:mornye/widgets/player_track_crossfade.dart';
+import 'package:mornye/widgets/player_volume_control.dart';
+
+class MaterialPlayerLayout extends StatelessWidget {
+  const MaterialPlayerLayout({
+    super.key,
+    required this.mediaItem,
+    required this.metadata,
+    required this.seekPreview,
+    required this.colorScheme,
+    required this.showLyrics,
+    required this.lyricsBuilder,
+    required this.onOpenQueue,
+    this.onOpenLyrics,
+    this.fullScreenArtwork = false,
+    this.landscapeLyricsArtwork = false,
+    this.immersive = false,
+    this.compactPlayer = false,
+    this.onCompactPlayerTouch,
+    this.showSourceLabel = true,
+  });
+
+  /// False where the Playing on row names the song's source instead.
+  final bool showSourceLabel;
+  final MediaItem mediaItem;
+  final PlayerMetadataController metadata;
+  final PlaybackSeekPreview seekPreview;
+  final ColorScheme colorScheme;
+  final bool showLyrics;
+  final WidgetBuilder lyricsBuilder;
+  final VoidCallback onOpenQueue;
+  final VoidCallback? onOpenLyrics;
+
+  /// The page backdrop paints the cover; this area only keeps its gestures.
+  final bool fullScreenArtwork;
+
+  /// Replaces landscape track details with artwork alongside the lyrics.
+  final bool landscapeLyricsArtwork;
+
+  /// Lyrics left idle while playing: the title and controls fold away so
+  /// the lyrics fill the column.
+  final bool immersive;
+
+  /// Immersive portrait lyrics shrink the title and controls to a smaller
+  /// player instead of folding them away entirely.
+  final bool compactPlayer;
+
+  /// A touch landed on the compact player, before the page's own listener
+  /// sees it.
+  final VoidCallback? onCompactPlayerTouch;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        Widget artworkAt(double artSize) => fullScreenArtwork
+            ? const PlayerArtworkDragRegion(
+                child: ColoredBox(
+                  color: Colors.transparent,
+                  child: SizedBox.expand(),
+                ),
+              )
+            : Center(
+                child: PlayerArtworkDragRegion(
+                  child: Hero(
+                    tag: kNowPlayingArtworkHeroTag,
+                    createRectTween: NowPlayingRoute.coverFlightOf(context),
+                    // On the route's own time, as the surface moves.
+                    curve: Curves.linear,
+                    transitionOnUserGestures: true,
+                    child: Consumer(
+                      builder: (context, ref, artwork) {
+                        final resting =
+                            !ref.watch(playbackPlayingProvider) &&
+                            !ref.watch(playbackLoadingProvider);
+                        // The cover is as large as a panel, so it settles
+                        // on the slow spatial spring, which stops at its
+                        // size; reduced motion changes it at once.
+                        final motion = AppMotion.spatialSlow(
+                          context,
+                          const AppMotionSpec(Duration.zero, Curves.linear),
+                        );
+                        return AnimatedScale(
+                          scale: resting ? 0.9 : 1,
+                          duration: motion.duration,
+                          curve: motion.curve,
+                          child: TweenAnimationBuilder<double>(
+                            tween: Tween(end: resting ? 40 : 20),
+                            duration: motion.duration,
+                            curve: motion.curve,
+                            builder: (context, radius, artwork) => ClipRRect(
+                              borderRadius: BorderRadius.circular(radius),
+                              child: artwork,
+                            ),
+                            child: artwork,
+                          ),
+                        );
+                      },
+                      child: SizedBox(
+                        width: artSize,
+                        height: artSize,
+                        // A track change keeps the old cover until the new
+                        // one has a frame. It then fades in on the effects
+                        // spring and grows from 0.94 on the slow spatial
+                        // spring, which does not overshoot because the app
+                        // started this motion.
+                        child: PlayerArtwork(
+                          artUri: mediaItem.artUri?.toString(),
+                          colorScheme: colorScheme,
+                          cacheWidth:
+                              (artSize * MediaQuery.devicePixelRatioOf(context))
+                                  .round(),
+                          crossfade: playerTrackChangeMotion(context),
+                          crossfadeScale: AppMotion.spatialSlow(
+                            context,
+                            playerTrackChangeMotion(context),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+
+        Widget cover() => LayoutBuilder(
+          key: const ValueKey('material-player-cover'),
+          builder: (context, area) => artworkAt(
+            math.max(
+              0.0,
+              math.min(
+                360.0,
+                math.min(area.maxWidth - 64, area.maxHeight - 24),
+              ),
+            ),
+          ),
+        );
+
+        // The cover and the lyrics crossfade on the effects spring.
+        final crossfade = AppMotion.effects(
+          context,
+          const AppMotionSpec(Duration.zero, Curves.linear),
+        );
+        Widget visual() => AnimatedSwitcher(
+          duration: crossfade.duration,
+          switchInCurve: crossfade.curve,
+          switchOutCurve: crossfade.leaving,
+          child: showLyrics
+              ? KeyedSubtree(
+                  key: const ValueKey('material-player-lyrics'),
+                  child: lyricsBuilder(context),
+                )
+              : cover(),
+        );
+
+        // Tablet/landscape: artwork pane left, metadata and controls right,
+        // instead of one narrow column in a sea of empty space.
+        final landscape =
+            MediaQuery.orientationOf(context) == Orientation.landscape;
+        final artworkBesideLyrics = landscapeLyricsArtwork && landscape;
+        final twoPane =
+            landscape ||
+            (constraints.maxWidth >= 720 &&
+                constraints.maxWidth > constraints.maxHeight);
+        if (twoPane) {
+          if (artworkBesideLyrics) {
+            return Row(
+              key: const ValueKey('material-landscape-artwork-lyrics'),
+              children: [
+                Expanded(child: cover()),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Column(
+                      children: [
+                        ..._metadataAndControls(
+                          context,
+                          compact: true,
+                          showControls: false,
+                        ),
+                        Expanded(
+                          child: AnimatedSwitcher(
+                            duration: crossfade.duration,
+                            switchInCurve: crossfade.curve,
+                            switchOutCurve: crossfade.leaving,
+                            child: showLyrics
+                                ? KeyedSubtree(
+                                    key: const ValueKey('landscape-lyrics'),
+                                    child: lyricsBuilder(context),
+                                  )
+                                : LayoutBuilder(
+                                    key: const ValueKey('landscape-controls'),
+                                    builder: (context, area) =>
+                                        SingleChildScrollView(
+                                          child: ConstrainedBox(
+                                            constraints: BoxConstraints(
+                                              minHeight: area.maxHeight,
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: _metadataAndControls(
+                                                context,
+                                                compact: true,
+                                                showMetadata: false,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                  ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+          return Row(
+            children: [
+              Expanded(child: visual()),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight - 32,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: _metadataAndControls(context, compact: true),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        }
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Column(
+            children: [
+              Expanded(child: visual()),
+              PlayerLyricsControlsCollapse(
+                hidden: immersive && showLyrics,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: PlayerQueueSwipeRegion(
+                    onOpenQueue: onOpenQueue,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      // Short phones keep the room for artwork and lyrics;
+                      // the hardware buttons still set the volume there.
+                      children: _metadataAndControls(
+                        context,
+                        showVolume: constraints.maxHeight >= 600,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // Unfolds as the full controls fold, in the same motion. Its
+              // timeline rests while folded, and touches on it keep it
+              // compact instead of restoring the full player.
+              if (compactPlayer)
+                PlayerLyricsControlsCollapse(
+                  hidden: !(immersive && showLyrics),
+                  child: TickerMode(
+                    enabled: immersive && showLyrics,
+                    child: Listener(
+                      onPointerDown: (_) => onCompactPlayerTouch?.call(),
+                      child: PlayerQueueSwipeRegion(
+                        onOpenQueue: onOpenQueue,
+                        child: PlayerCompactBar(
+                          mediaItem: mediaItem,
+                          seekPreview: seekPreview,
+                          colorScheme: colorScheme,
+                          onOpenQueue: onOpenQueue,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /// [child] changing size on [motion]. Reduced motion takes no time, which
+  /// `AnimatedSize` cannot lay out, so the child then resizes by itself.
+  static Widget _resized(AppMotionSpec motion, Widget child) =>
+      motion.duration == Duration.zero
+      ? child
+      : AnimatedSize(
+          duration: motion.duration,
+          curve: motion.curve,
+          alignment: AlignmentDirectional.topStart,
+          child: child,
+        );
+
+  /// Title/artist, seek slider, transport buttons and volume, shared by the
+  /// portrait column and the landscape right pane.
+  List<Widget> _metadataAndControls(
+    BuildContext context, {
+    bool compact = false,
+    bool showVolume = true,
+    bool showMetadata = true,
+    bool showControls = true,
+  }) {
+    final titleResize = AppMotion.spatialSlow(
+      context,
+      AppMotionSpec(
+        MediaQuery.disableAnimationsOf(context)
+            ? Duration.zero
+            : const Duration(milliseconds: 300),
+        Curves.easeInOutCubic,
+      ),
+    );
+    return [
+      if (showMetadata) ...[
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // A skip the app started crossfades in place. When the next
+              // title takes another number of lines, the block resizes
+              // once on the slow spatial spring, which stops at its size,
+              // instead of jumping when the old title leaves.
+              _resized(
+                titleResize,
+                PlayerTrackCrossfade(
+                  trackKey: mediaItem.id,
+                  alignment: AlignmentDirectional.topStart,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            PlayerMetadataTitle(
+                              mediaItem: mediaItem,
+                              metadata: metadata,
+                              style:
+                                  (compact
+                                          ? Theme.of(
+                                              context,
+                                            ).textTheme.titleLarge
+                                          : Theme.of(
+                                              context,
+                                            ).textTheme.headlineSmall)
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: colorScheme.onSurface,
+                                      ),
+                              textAlign: TextAlign.start,
+                              maxLines: compact ? 1 : 2,
+                            ),
+                            SizedBox(height: compact ? 4 : 6),
+                            if (showSourceLabel)
+                              PlaybackSourceLabel(
+                                item: mediaItem,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            Consumer(
+                              builder: (context, ref, _) {
+                                final track = ref
+                                    .watch(
+                                      playerCollectionTrackProvider(mediaItem),
+                                    )
+                                    .value;
+                                // No extensionId: a downloaded track's
+                                // source is its download service, not a
+                                // metadata catalog.
+                                return ClickableArtistName(
+                                  artistName: mediaItem.artist ?? '',
+                                  artistId: track?.artistId,
+                                  style: Theme.of(context).textTheme.titleMedium
+                                      ?.copyWith(
+                                        color: colorScheme.onSurfaceVariant,
+                                      ),
+                                  textAlign: TextAlign.start,
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // Outside the crossfade: the line keeps its row from one
+              // song to the next, so a skip moves nothing around it.
+              if (!showLyrics && !compact)
+                PlayerLyricPreview(
+                  metadata: metadata,
+                  seekPreview: seekPreview,
+                  colorScheme: colorScheme,
+                  onTap: onOpenLyrics,
+                ),
+            ],
+          ),
+        ),
+        SizedBox(height: compact ? 12 : 24),
+      ],
+      if (showControls) ...[
+        PlayerPlaybackControls(
+          key: ValueKey(mediaItem.id),
+          mediaId: mediaItem.id,
+          duration: mediaItem.duration ?? Duration.zero,
+          seekPreview: seekPreview,
+          colorScheme: colorScheme,
+          metadata: metadata,
+          compact: compact,
+          // The footer's toolbar holds shuffle and repeat.
+          showPlaybackModes: false,
+        ),
+        if (showVolume)
+          // The player menu can hide it; the hardware buttons still apply. The
+          // gap stays so the transport keeps its room above the footer.
+          Consumer(
+            builder: (context, ref, _) => Padding(
+              padding: EdgeInsets.only(top: compact ? 8 : 12),
+              child:
+                  ref.watch(settingsProvider.select((s) => s.playerShowVolume))
+                  ? const PlayerVolumeControl()
+                  : null,
+            ),
+          ),
+      ],
+    ];
+  }
+}

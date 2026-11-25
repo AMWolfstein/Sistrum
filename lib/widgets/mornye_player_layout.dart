@@ -1,0 +1,788 @@
+import 'package:audio_service/audio_service.dart';
+import 'package:material_ui/material_ui.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cupertino_ui/cupertino_ui.dart' show CupertinoIcons;
+import 'package:mornye/controllers/player_metadata_controller.dart';
+import 'package:mornye/l10n/l10n.dart';
+import 'package:mornye/providers/music_player_provider.dart';
+import 'package:mornye/providers/settings_provider.dart';
+import 'package:mornye/routes/now_playing_route.dart';
+import 'package:mornye/utils/playback_seek_preview.dart';
+import 'package:mornye/widgets/mornye_context_menu.dart';
+import 'package:mornye/widgets/mornye_landscape_player.dart';
+import 'package:mornye/widgets/mornye_player_background.dart';
+import 'package:mornye/widgets/mornye_player_favorite_button.dart';
+import 'package:mornye/widgets/mornye_player_queue.dart';
+import 'package:mornye/widgets/player_volume_control.dart';
+import 'package:mornye/widgets/overflow_marquee.dart';
+import 'package:mornye/widgets/player_artwork.dart';
+import 'package:mornye/widgets/player_gesture_regions.dart';
+import 'package:mornye/widgets/player_lyric_preview.dart';
+import 'package:mornye/widgets/player_lyrics.dart';
+import 'package:mornye/widgets/player_lyrics_controls.dart';
+import 'package:mornye/widgets/player_metadata_title.dart';
+import 'package:mornye/widgets/playback_source_label.dart';
+import 'package:mornye/widgets/player_playback_controls.dart';
+import 'package:mornye/widgets/player_track_swipe.dart';
+
+const _mornyeContentInset = mornyeLyricsContentInset;
+const _mornyeHeaderButtonSize = 48.0;
+const _mornyeCompactIconSize = 28.0;
+
+/// Keys stay owned by the surface that measures contrast and route dismissal.
+typedef MornyePlayerArtworkKeys = ({
+  GlobalKey header,
+  GlobalKey controls,
+  GlobalKey volume,
+  GlobalKey expanded,
+  GlobalKey compact,
+});
+
+class MornyePlayerLayout extends ConsumerWidget {
+  const MornyePlayerLayout({
+    super.key,
+    required this.mediaItem,
+    required this.metadata,
+    required this.seekPreview,
+    required this.colorScheme,
+    required this.page,
+    required this.motionArtwork,
+    required this.insetArtwork,
+    required this.artworkTopInset,
+    required this.artworkKeys,
+    required this.lyricsControlsHidden,
+    required this.lyricsOptionsOpen,
+    required this.lyricsBuilder,
+    required this.lyricsOptions,
+    required this.onPageChanged,
+    required this.onTrackNavigation,
+    required this.onMoreActions,
+    this.showSourceLabel = true,
+    this.artworkAspectRatio,
+    this.controlsHeadroom = 0,
+  });
+
+  final MediaItem mediaItem;
+  final PlayerMetadataController metadata;
+  final PlaybackSeekPreview seekPreview;
+  final ColorScheme colorScheme;
+  final int page;
+  final Widget motionArtwork;
+  final double? artworkAspectRatio;
+
+  /// Spare height kept above the volume row while portrait has it to give,
+  /// which holds the track header and timeline higher than the toolbar.
+  final double controlsHeadroom;
+  final bool insetArtwork;
+  final double artworkTopInset;
+  final MornyePlayerArtworkKeys artworkKeys;
+
+  /// False where the Playing on row names the song's source instead.
+  final bool showSourceLabel;
+  final bool lyricsControlsHidden;
+  final bool lyricsOptionsOpen;
+  final Widget Function(bool showOptions) lyricsBuilder;
+  final Widget? lyricsOptions;
+  final ValueChanged<int> onPageChanged;
+  final Future<void> Function(BuildContext, MediaItem) onTrackNavigation;
+  final Future<void> Function(BuildContext, MediaItem, Rect?) onMoreActions;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final controller = ref.read(musicPlayerControllerProvider);
+    final showLyrics = page == 1;
+    final showQueue = page == 2;
+    final compactStage = showLyrics || showQueue;
+    // White labels over the full cover, which dims behind them when it is
+    // too light; the secondary text lets the cover show through.
+    final foreground = compactStage
+        ? colorScheme
+        : colorScheme.copyWith(
+            onSurfaceVariant: colorScheme.onSurface.withValues(alpha: 0.72),
+          );
+
+    // Opening a panel moves the cover and the panels as content, in step
+    // with the background behind them.
+    final motion = mornyePlayerPanelMotion(context);
+    final showVolume = ref.watch(
+      settingsProvider.select((s) => s.playerShowVolume),
+    );
+    final landscape =
+        MediaQuery.sizeOf(context).width > MediaQuery.sizeOf(context).height;
+    Widget hideControls(Widget child) => PlayerLyricsControlsVisibility(
+      hidden: showLyrics && lyricsControlsHidden && !landscape,
+      child: child,
+    );
+    // Any rebuild below this builder, such as a position tick, lays it out
+    // and so repaints its parent; what it returns keeps its own layer (the
+    // scroll viewport has one already).
+    final body = LayoutBuilder(
+      builder: (context, constraints) {
+        final screenSize = MediaQuery.sizeOf(context);
+        final landscape = screenSize.width > screenSize.height;
+        final scale = MediaQuery.textScalerOf(context).scale(17) / 17;
+        const compactCoverSize = 72.0;
+        final compactHeaderHeight = (44 * scale + 4).clamp(
+          compactCoverSize,
+          double.infinity,
+        );
+        // Made once per layout, so the panel switch moves the same panels and
+        // artwork subtrees on every frame instead of rebuilding them.
+        late final queuePanel = MornyePlayerQueue(colorScheme: colorScheme);
+        late final lyricsPanel = lyricsBuilder(false);
+        late final expandedArtworkChild = DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x40000000),
+                blurRadius: 28,
+                offset: Offset(0, 16),
+              ),
+            ],
+          ),
+          child: PlayerTransitionArtwork(
+            artworkKey: artworkKeys.expanded,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: motionArtwork,
+            ),
+          ),
+        );
+        late final compactArtworkChild = Semantics(
+          button: true,
+          label: context.l10n.nowPlayingTabPlayer,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => onPageChanged(0),
+            child: PlayerTransitionArtwork(
+              artworkKey: artworkKeys.compact,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: PlayerArtwork(
+                  artUri: mediaItem.artUri?.toString(),
+                  colorScheme: colorScheme,
+                  cacheWidth: PlayerArtwork.transitionCacheWidth(context),
+                ),
+              ),
+            ),
+          ),
+        );
+        Widget stage({
+          bool artworkOnly = false,
+          double progress = 0,
+        }) => LayoutBuilder(
+          builder: (context, stage) {
+            final compact = compactStage && !artworkOnly;
+            final expandedArtwork =
+                artworkOnly || (!compactStage && insetArtwork);
+            final artSize = (stage.maxWidth - (artworkOnly ? 56 : 48)).clamp(
+              0.0,
+              (stage.maxHeight - (artworkOnly ? 24 : 8)).clamp(0.0, 360.0),
+            );
+            final ratio = artworkOnly ? 1.0 : artworkAspectRatio ?? 1.0;
+            final artWidth = ratio < 1 ? artSize * ratio : artSize;
+            final artHeight = ratio > 1 ? artSize / ratio : artSize;
+            final fullBleed = !insetArtwork && !artworkOnly;
+            // Match the background's bounds even while this cover is hidden.
+            // Opening/closing a panel then moves the cover between the same
+            // two positions, with the playback controls painted above it.
+            final motionHeight = artworkAspectRatio != null
+                ? (screenSize.width / ratio).clamp(
+                    0.0,
+                    screenSize.height * 0.75,
+                  )
+                : screenSize.height * 0.66;
+            return Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: compact ? compactHeaderHeight + 8 : stage.maxHeight,
+                  child: const PlayerTrackSwipeRegion(child: SizedBox.expand()),
+                ),
+                Positioned.fill(
+                  top: 8 + compactHeaderHeight + 16,
+                  child: IgnorePointer(
+                    ignoring: !compact,
+                    child: ExcludeSemantics(
+                      excluding: !compact,
+                      child: AnimatedSwitcher(
+                        duration: motion.duration,
+                        switchInCurve: motion.curve,
+                        switchOutCurve: motion.leaving,
+                        transitionBuilder: (child, animation) => FadeTransition(
+                          opacity: animation,
+                          child: SlideTransition(
+                            position: Tween(
+                              begin: const Offset(0, 0.035),
+                              end: Offset.zero,
+                            ).animate(animation),
+                            child: child,
+                          ),
+                        ),
+                        layoutBuilder: (currentChild, previousChildren) =>
+                            Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                // Preserve each panel's parent and key when
+                                // it becomes outgoing, including lyric scroll.
+                                for (final child in [
+                                  ...previousChildren,
+                                  ?currentChild,
+                                ])
+                                  IgnorePointer(
+                                    key: child.key,
+                                    ignoring: child != currentChild,
+                                    child: ExcludeSemantics(
+                                      excluding: child != currentChild,
+                                      child: child,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                        // Keep the outgoing panel until it fades out;
+                        // closing the queue must never substitute lyrics.
+                        child: compact
+                            ? KeyedSubtree(
+                                key: ValueKey(page),
+                                child: showQueue
+                                    ? queuePanel
+                                    : _mornyeLyricsViewport(
+                                        context,
+                                        lyricsPanel,
+                                        visibleHeight:
+                                            stage.minHeight -
+                                            (8 + compactHeaderHeight + 16),
+                                      ),
+                              )
+                            : null,
+                      ),
+                    ),
+                  ),
+                ),
+                Consumer(
+                  builder: (context, ref, child) =>
+                      TweenAnimationBuilder<double>(
+                        tween: Tween(
+                          end:
+                              !insetArtwork ||
+                                  ref.watch(playbackPlayingProvider)
+                              ? 1
+                              : 0.73,
+                        ),
+                        duration: motion.duration,
+                        curve: motion.curve,
+                        builder: (context, scale, child) => Positioned.fromRect(
+                          // Both cover layers travel to the actual resting size,
+                          // including the smaller cover used while paused.
+                          rect: Rect.lerp(
+                            Rect.fromLTWH(
+                              fullBleed
+                                  ? 0
+                                  : (stage.maxWidth - artWidth * scale) / 2,
+                              fullBleed
+                                  ? -artworkTopInset
+                                  : (stage.maxHeight - artHeight * scale) / 2,
+                              fullBleed ? stage.maxWidth : artWidth * scale,
+                              fullBleed ? motionHeight : artHeight * scale,
+                            ),
+                            Rect.fromLTWH(
+                              Directionality.of(context) == TextDirection.rtl
+                                  ? stage.maxWidth -
+                                        _mornyeContentInset -
+                                        compactCoverSize
+                                  : _mornyeContentInset,
+                              8,
+                              compactCoverSize,
+                              compactCoverSize,
+                            ),
+                            progress,
+                          )!,
+                          child: child!,
+                        ),
+                        child: child,
+                      ),
+                  // Both layers share the header's progress, so reversing a
+                  // transition reuses the live cover instead of inserting a
+                  // duplicate while its previous instance is still fading.
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      for (final expanded in [true, false])
+                        if (expanded
+                            ? !fullBleed && (!compact || progress < 1)
+                            : compact || progress > 0)
+                          HeroMode(
+                            key: ValueKey(expanded),
+                            enabled: expanded ? expandedArtwork : compact,
+                            child: IgnorePointer(
+                              ignoring: expanded ? !expandedArtwork : !compact,
+                              child: FadeTransition(
+                                opacity: AlwaysStoppedAnimation(
+                                  expanded ? 1 - progress : progress,
+                                ),
+                                child: KeyedSubtree(
+                                  key: ValueKey(
+                                    expanded
+                                        ? 'full-player-artwork'
+                                        : 'compact-player-artwork',
+                                  ),
+                                  child: PlayerArtworkDragRegion(
+                                    child: Hero(
+                                      tag: kNowPlayingArtworkHeroTag,
+                                      child: expanded
+                                          ? expandedArtworkChild
+                                          : compactArtworkChild,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+
+        // Portrait video must not push the metadata/transport below the
+        // square-cover position. Leave room above the anchored volume row.
+        final volumeGap = 8 + (constraints.maxHeight - 440).clamp(0.0, 24.0);
+        // Keep transport close to the timeline; spare height belongs above
+        // the volume row without moving either slider or the track header.
+        final transportShift = landscape
+            ? 0.0
+            : ((volumeGap - 16) / 2).clamp(0.0, 8.0);
+        // Controls keep their intrinsic height. Small portrait screens and
+        // large accessibility text can scroll instead of clipping the volume.
+        final minHeight = 480.0 + (scale - 1).clamp(0, 3) * 120;
+        final headroom = (constraints.maxHeight - minHeight).clamp(
+          0.0,
+          controlsHeadroom,
+        );
+        Widget controls() => PlayerPlaybackControls(
+          key: artworkKeys.controls,
+          mediaId: mediaItem.id,
+          duration: mediaItem.duration ?? Duration.zero,
+          seekPreview: seekPreview,
+          colorScheme: foreground,
+          metadata: metadata,
+          compact: landscape,
+          transportTopPadding: 16 + transportShift,
+        );
+
+        if (landscape) {
+          final landscapeArtwork = stage(artworkOnly: true);
+          final landscapeHeader = _trackHeader(
+            context,
+            colorScheme,
+            compact: true,
+          );
+          final landscapeLyrics = lyricsBuilder(true);
+          final landscapeLyricsOptions = showLyrics ? lyricsOptions : null;
+          final landscapeQueue = MornyePlayerQueue(colorScheme: colorScheme);
+          final landscapeControls = controls();
+          final landscapeVolume = showVolume
+              ? const PlayerVolumeControl()
+              : null;
+          return RepaintBoundary(
+            child: Consumer(
+              builder: (context, ref, _) => MornyeLandscapePlayer(
+                page: page,
+                isPlaying: ref.watch(playbackPlayingProvider),
+                autoHideLyricsControls: ref.watch(
+                  settingsProvider.select(
+                    (settings) => settings.autoHideLyricsControls,
+                  ),
+                ),
+                autoHideLyricsControlsWithAccessibility: ref.watch(
+                  settingsProvider.select(
+                    (settings) =>
+                        settings.autoHideLyricsControlsWithAccessibility,
+                  ),
+                ),
+                controlsHeldOpen: lyricsOptionsOpen,
+                onPageChanged: onPageChanged,
+                artwork: landscapeArtwork,
+                header: landscapeHeader,
+                lyrics: landscapeLyrics,
+                lyricsOptions: landscapeLyricsOptions,
+                queue: landscapeQueue,
+                controls: landscapeControls,
+                volume: landscapeVolume,
+              ),
+            ),
+          );
+        }
+
+        final options = showLyrics ? lyricsOptions : null;
+        Widget content() => TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0, end: compactStage ? 1 : 0),
+          duration: motion.duration,
+          curve: motion.curve,
+          builder: (context, progress, controls) => CustomMultiChildLayout(
+            delegate: _PlayerHeaderLayout(
+              progress: progress,
+              compactHeight: compactHeaderHeight,
+              compactStart: _mornyeContentInset + compactCoverSize + 12,
+              expandLyrics: showLyrics,
+              textDirection: Directionality.of(context),
+            ),
+            children: [
+              LayoutId(
+                id: _PlayerHeaderSlot.stage,
+                child: stage(progress: progress),
+              ),
+              LayoutId(
+                id: _PlayerHeaderSlot.header,
+                child: KeyedSubtree(
+                  key: const ValueKey('player-track-header'),
+                  child: KeyedSubtree(
+                    key: artworkKeys.header,
+                    child: _trackHeader(
+                      context,
+                      foreground,
+                      compactProgress: progress,
+                    ),
+                  ),
+                ),
+              ),
+              LayoutId(id: _PlayerHeaderSlot.controls, child: controls!),
+              if (options != null)
+                LayoutId(
+                  id: _PlayerHeaderSlot.lyricsOptions,
+                  child: hideControls(options),
+                ),
+            ],
+          ),
+          child: hideControls(
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                controls(),
+                if (showVolume) ...[
+                  SizedBox(height: volumeGap - transportShift + headroom),
+                  PlayerVolumeControl(
+                    key: artworkKeys.volume,
+                    foreground: foreground.onSurface,
+                  ),
+                ],
+                SizedBox(height: showVolume ? 8 : 8 + headroom),
+              ],
+            ),
+          ),
+        );
+
+        if (constraints.maxHeight < minHeight) {
+          return SingleChildScrollView(
+            child: SizedBox(height: minHeight, child: content()),
+          );
+        }
+        return RepaintBoundary(child: content());
+      },
+    );
+    // Isolate playQueueProvider and currentQueueIndexProvider here so queue
+    // mutations do not rebuild the entire player layout tree.
+    return Consumer(
+      child: body,
+      builder: (context, ref, child) => PlayerTrackSwipe(
+        queue: ref.watch(playQueueProvider).value ?? const <MediaItem>[],
+        currentIndex: ref.watch(currentQueueIndexProvider),
+        onSelected: (item) async {
+          final latest =
+              ref.read(playQueueProvider).value ?? const <MediaItem>[];
+          final index = latest.indexWhere((entry) => identical(entry, item));
+          if (index >= 0) await controller.jumpTo(index);
+        },
+        child: child!,
+      ),
+    );
+  }
+
+  Widget _trackHeader(
+    BuildContext context,
+    ColorScheme colorScheme, {
+    bool compact = false,
+    double? compactProgress,
+  }) {
+    final progress = compactProgress ?? (compact ? 1.0 : 0.0);
+    final actionSize = compactProgress == null
+        ? (page == 0 ? 24.0 : _mornyeCompactIconSize)
+        : 24 + (_mornyeCompactIconSize - 24) * progress;
+    return Builder(
+      builder: (context) => Column(
+        // Centred on the compact cover, which is taller than the titles.
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: PlayerTrackSwipeTitles(
+                  current: mediaItem,
+                  builder: (mediaItem) => Builder(
+                    builder: (titleContext) => InkWell(
+                      borderRadius: BorderRadius.circular(8),
+                      onTap:
+                          (mediaItem.artist ?? '').trim().isEmpty &&
+                              (mediaItem.album ?? '').trim().isEmpty
+                          ? null
+                          : () => onTrackNavigation(titleContext, mediaItem),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _PlayingMarquee(
+                            resetKey: (mediaItem.id, mediaItem.title),
+                            child: PlayerMetadataTitle(
+                              mediaItem: mediaItem,
+                              metadata: metadata,
+                              maxLines: 1,
+                              style: TextStyle(
+                                fontSize: 22 - 4 * progress,
+                                fontWeight: FontWeight.w600,
+                                color: colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          _PlayingMarquee(
+                            resetKey: (mediaItem.id, mediaItem.artist),
+                            child: Text(
+                              mediaItem.artist ?? '',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 20 - 4 * progress,
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.72,
+                                ),
+                              ),
+                            ),
+                          ),
+                          if (showSourceLabel)
+                            PlaybackSourceLabel(
+                              item: mediaItem,
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.72,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              MornyePlayerFavoriteButton(
+                key: ValueKey(mediaItem.id),
+                mediaItem: mediaItem,
+                compact: page != 0,
+                iconSize: actionSize,
+                color: colorScheme.onSurface,
+              ),
+              Builder(
+                builder: (buttonContext) => SizedBox.square(
+                  dimension: _mornyeHeaderButtonSize,
+                  child: IconButton(
+                    tooltip: MaterialLocalizations.of(
+                      context,
+                    ).moreButtonTooltip,
+                    color: colorScheme.onSurface,
+                    iconSize: actionSize,
+                    icon: const Icon(CupertinoIcons.ellipsis),
+                    onPressed: () => onMoreActions(
+                      buttonContext,
+                      mediaItem,
+                      mornyeMenuAnchor(buttonContext),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          if (!compact && progress < 1.0)
+            SizeTransition(
+              sizeFactor: AlwaysStoppedAnimation(1.0 - progress),
+              alignment: AlignmentDirectional.topStart,
+              child: FadeTransition(
+                opacity: AlwaysStoppedAnimation(
+                  (1.0 - progress * 2.5).clamp(0.0, 1.0),
+                ),
+                child: PlayerLyricPreview(
+                  metadata: metadata,
+                  seekPreview: seekPreview,
+                  colorScheme: colorScheme,
+                  onTap: () => onPageChanged(1),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _mornyeLyricsViewport(
+    BuildContext context,
+    Widget child, {
+    required double visibleHeight,
+  }) => TweenAnimationBuilder<double>(
+    tween: Tween(begin: 0, end: lyricsControlsHidden ? 1 : 0),
+    // In step with the controls fading over it.
+    duration: PlayerLyricsControlsVisibility.motion(context).duration,
+    curve: PlayerLyricsControlsVisibility.motion(context).curve,
+    builder: (context, reveal, child) => MornyeLyricsFadeMask(
+      opaque: reveal == 1,
+      maskKey: (visibleHeight, reveal),
+      clipBottom: reveal == 0 ? visibleHeight : null,
+      shaderCallback: (bounds) {
+        final height = bounds.height.clamp(1.0, double.infinity);
+        final end = visibleHeight.clamp(0.0, height);
+        final start = (end - 24).clamp(0.0, end);
+        return LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          stops: [0, start / height, end / height, 1],
+          colors: [
+            Colors.white,
+            Colors.white,
+            Colors.white.withValues(alpha: reveal),
+            Colors.white.withValues(alpha: reveal),
+          ],
+        ).createShader(bounds);
+      },
+      child: LyricsMaskEdgeClip(
+        child: LayoutBuilder(
+          builder: (context, constraints) => LyricsCoveredBottom(
+            height: constraints.hasBoundedHeight
+                ? (constraints.maxHeight - visibleHeight).clamp(
+                        0.0,
+                        double.infinity,
+                      ) *
+                      (1 - reveal)
+                : 0,
+            child: child!,
+          ),
+        ),
+      ),
+    ),
+    child: child,
+  );
+}
+
+/// Rests at the start while paused; only this marquee rebuilds on play/pause.
+class _PlayingMarquee extends ConsumerWidget {
+  const _PlayingMarquee({required this.resetKey, required this.child});
+
+  final Object resetKey;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => OverflowMarquee(
+    resetKey: resetKey,
+    playing: ref.watch(playbackPlayingProvider),
+    child: child,
+  );
+}
+
+enum _PlayerHeaderSlot { stage, header, controls, lyricsOptions }
+
+/// Keep one live header throughout the cover/lyrics/queue transition. Measuring
+/// it at its current width also accommodates accessibility text sizes without
+/// moving the transport controls below this layout.
+class _PlayerHeaderLayout extends MultiChildLayoutDelegate {
+  _PlayerHeaderLayout({
+    required this.progress,
+    required this.compactHeight,
+    required this.compactStart,
+    required this.expandLyrics,
+    required this.textDirection,
+  });
+
+  final double progress;
+  final double compactHeight;
+  final double compactStart;
+  final bool expandLyrics;
+  final TextDirection textDirection;
+
+  @override
+  void performLayout(Size size) {
+    final controls = layoutChild(
+      _PlayerHeaderSlot.controls,
+      BoxConstraints.tightFor(width: size.width),
+    );
+    final contentHeight = (size.height - controls.height).clamp(
+      0.0,
+      size.height,
+    );
+    positionChild(_PlayerHeaderSlot.controls, Offset(0, contentHeight));
+    final rtl = textDirection == TextDirection.rtl;
+    final start = 28 + (compactStart - 28) * progress;
+    // Align the visible ellipsis with the timeline while leaving its touch
+    // target wider than the glyph and interpolating the same live header.
+    const compactEnd =
+        _mornyeContentInset -
+        (_mornyeHeaderButtonSize - _mornyeCompactIconSize) / 2;
+    final end = 28 + (compactEnd - 28) * progress;
+    final left = rtl ? end : start;
+    final header = layoutChild(
+      _PlayerHeaderSlot.header,
+      BoxConstraints(
+        minWidth: size.width - start - end,
+        maxWidth: size.width - start - end,
+        minHeight: compactHeight * progress,
+      ),
+    );
+    final stageHeight = (contentHeight - (header.height + 20) * (1 - progress))
+        .clamp(0.0, contentHeight);
+    layoutChild(
+      _PlayerHeaderSlot.stage,
+      // Lyrics always extend behind controls. The minimum height marks their
+      // unobscured area for the paint mask; hiding controls never changes either
+      // constraint, scroll padding or the Scrollable's identity.
+      BoxConstraints(
+        minWidth: size.width,
+        maxWidth: size.width,
+        minHeight: stageHeight,
+        maxHeight:
+            stageHeight + (expandLyrics ? controls.height * progress : 0),
+      ),
+    );
+    positionChild(_PlayerHeaderSlot.stage, Offset.zero);
+    positionChild(
+      _PlayerHeaderSlot.header,
+      Offset(
+        left,
+        (contentHeight - header.height - 8) * (1 - progress) + 8 * progress,
+      ),
+    );
+    if (hasChild(_PlayerHeaderSlot.lyricsOptions)) {
+      final options = layoutChild(
+        _PlayerHeaderSlot.lyricsOptions,
+        BoxConstraints.loose(size),
+      );
+      positionChild(
+        _PlayerHeaderSlot.lyricsOptions,
+        Offset(
+          rtl
+              ? _mornyeContentInset
+              : size.width - options.width - _mornyeContentInset,
+          contentHeight - options.height - 8,
+        ),
+      );
+    }
+  }
+
+  @override
+  bool shouldRelayout(_PlayerHeaderLayout oldDelegate) =>
+      progress != oldDelegate.progress ||
+      compactHeight != oldDelegate.compactHeight ||
+      compactStart != oldDelegate.compactStart ||
+      expandLyrics != oldDelegate.expandLyrics ||
+      textDirection != oldDelegate.textDirection;
+}

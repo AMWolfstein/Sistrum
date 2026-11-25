@@ -1,0 +1,189 @@
+import 'dart:convert';
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mornye/utils/lyrics_draft.dart';
+import 'package:mornye/utils/lyrics_parser.dart';
+
+String _b64(String value) => base64.encode(utf8.encode(value));
+
+void main() {
+  test('unchanged LRC keeps its tags, word timing and translations', () {
+    final raw = [
+      '[ti:Example]',
+      '[ar:Artist]',
+      '[00:01.00]v1: <00:01.00>First <00:01.50>line',
+      '[x-translated:1000:Primera]',
+      '[bg:<00:01.20>(ooh)]',
+      '[00:04.25]Second line',
+      'Written by: Someone',
+    ].join('\n');
+    final draft = LyricsDraft.parse(raw);
+    expect(draft.header, ['[ti:Example]', '[ar:Artist]']);
+    expect(draft.footer, ['Written by: Someone']);
+    expect(draft.lines.map((line) => line.text), ['First line', 'Second line']);
+    expect(draft.lines.first.voice, 'v1:');
+    expect(draft.toLrc(), raw);
+  });
+
+  test('base64 tags of earlier versions are written as readable text', () {
+    final draft = LyricsDraft.parse(
+      [
+        '[00:01.00]Line',
+        '[x-romaji:1000:${_b64('Rain')}]',
+        '[x-translation:1000:${_b64('Text ]\nnext \\ line')}]',
+        '[x-translation:1000:%%%]',
+      ].join('\n'),
+    );
+    expect(
+      draft.toLrc(),
+      [
+        '[00:01.00]Line',
+        '[x-romanized:1000:Rain]',
+        r'[x-translated:1000:Text ]\nnext \\ line]',
+      ].join('\n'),
+    );
+    expect(
+      LyricsParser.parse(draft.toLrc()).lines.single.translation,
+      'Text ]\nnext \\ line',
+    );
+  });
+
+  test('a moved line carries its word timing and translation key', () {
+    final draft = LyricsDraft.parse(
+      [
+        '[00:01.00]<00:01.00>First <00:01.50>line',
+        '[x-translated:1000:Primera]',
+        '[00:04.00]Second',
+      ].join('\n'),
+    );
+    final moved = LyricsDraft(
+      lines: [
+        draft.lines.first.copyWith(time: const Duration(milliseconds: 2000)),
+        draft.lines.last,
+      ],
+    );
+    expect(
+      moved.toLrc(),
+      [
+        '[00:02.00]<00:02.00>First <00:02.50>line',
+        '[x-translated:2000:Primera]',
+        '[00:04.00]Second',
+      ].join('\n'),
+    );
+    final parsed = LyricsParser.parse(moved.toLrc());
+    expect(parsed.lines.first.translation, 'Primera');
+    expect(
+      parsed.lines.first.words.last.time,
+      const Duration(seconds: 2, milliseconds: 500),
+    );
+  });
+
+  test('a moved line carries its pronunciation and translation timing', () {
+    // Earlier versions' base64 JSON, written back readable.
+    String words(int start) => _b64(
+      jsonEncode([
+        {'text': 'Pri', 'startTimeMs': start, 'endTimeMs': start + 300},
+        {'text': 'mera', 'startTimeMs': start + 300, 'endTimeMs': start + 600},
+      ]),
+    );
+    final draft = LyricsDraft.parse(
+      [
+        '[00:01.00]<00:01.00>First <00:01.50>line',
+        '[x-romaji-words:1000:${words(1000)}]',
+        '[x-romaji:1000:${_b64('Primera')}]',
+        '[x-translation-words:1000:${words(1000)}]',
+        '[x-translation:1000:${_b64('Primera')}]',
+      ].join('\n'),
+    );
+    expect(draft.lines.single.supplements.map((tag) => tag.$1), [
+      'romaji-words',
+      'romaji',
+      'translation-words',
+      'translation',
+    ]);
+    final moved = LyricsDraft(
+      lines: [
+        draft.lines.single.copyWith(time: const Duration(milliseconds: 2000)),
+      ],
+    );
+    expect(
+      moved.toLrc(),
+      [
+        '[00:02.00]<00:02.00>First <00:02.50>line',
+        '[x-romanized-words:2000:<00:02.00>Pri<00:02.30>mera<00:02.60>]',
+        '[x-romanized:2000:Primera]',
+        '[x-translated-words:2000:<00:02.00>Pri<00:02.30>mera<00:02.60>]',
+        '[x-translated:2000:Primera]',
+      ].join('\n'),
+    );
+    final line = LyricsParser.parse(moved.toLrc()).lines.single;
+    expect(line.translationWords.first.time, const Duration(seconds: 2));
+    expect(line.romanizationWords.first.time, const Duration(seconds: 2));
+  });
+
+  test('changed text drops the word timing it no longer matches', () {
+    final draft = LyricsDraft.parse('[00:01.00]<00:01.00>Frist <00:01.50>line');
+    final edited = LyricsDraft(
+      lines: [draft.lines.single.copyWith(text: 'First line')],
+    );
+    expect(edited.toLrc(), '[00:01.00]First line');
+  });
+
+  test('the file offset moves into the times', () {
+    final draft = LyricsDraft.parse(
+      [
+        '[offset:500]',
+        '[00:02.00]<00:02.00>Line',
+        '[x-translated-words:2000:<00:02.00>Li<00:02.20>nea<00:02.80>]',
+        '[x-translated:2000:Linea]',
+      ].join('\n'),
+    );
+    expect(draft.lines.single.time, const Duration(milliseconds: 1500));
+    expect(
+      draft.toLrc(),
+      [
+        '[00:01.50]<00:01.50>Line',
+        '[x-translated-words:1500:<00:01.50>Li<00:01.70>nea<00:02.30>]',
+        '[x-translated:1500:Linea]',
+      ].join('\n'),
+    );
+  });
+
+  test('plain lyrics stay plain until a line gets a time', () {
+    final draft = LyricsDraft.parse('First\n\nSecond');
+    expect(draft.synced, isFalse);
+    expect(draft.lines.map((line) => line.time), [null, null]);
+    expect(draft.toLrc(), 'First\nSecond');
+    final timed = LyricsDraft(
+      lines: [
+        draft.lines.first.copyWith(time: const Duration(milliseconds: 12340)),
+        draft.lines.last,
+      ],
+    );
+    expect(timed.toLrc(), '[00:12.34]First\nSecond');
+  });
+
+  test('a repeated chorus becomes one line per time', () {
+    final draft = LyricsDraft.parse('[00:01.00][00:09.00]Chorus');
+    expect(draft.lines.map((line) => line.time), const [
+      Duration(seconds: 1),
+      Duration(seconds: 9),
+    ]);
+    expect(draft.toLrc(), '[00:01.00]Chorus\n[00:09.00]Chorus');
+  });
+
+  test('TTML is not editable', () {
+    expect(
+      LyricsDraft.canEdit('<tt xmlns="http://www.w3.org/ns/ttml">'),
+      isFalse,
+    );
+    expect(LyricsDraft.canEdit('[00:01.00]Line'), isTrue);
+    expect(LyricsDraft.canEdit(''), isTrue);
+  });
+
+  test('times keep milliseconds that centiseconds would round', () {
+    expect(formatLyricsTime(const Duration(milliseconds: 61230)), '01:01.23');
+    expect(formatLyricsTime(const Duration(milliseconds: 61234)), '01:01.234');
+    expect(formatLyricsTime(const Duration(minutes: 125)), '125:00.00');
+  });
+}
